@@ -79,10 +79,12 @@ import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedule
 import {
   ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER,
   ADVISORY_SCANS_SCHEDULES_INTRO,
+  ADVISORY_SCHEDULES_PAGE_LEAD,
 } from "@/lib/advisory-copy";
 import {
   ADVISORY_SCHEDULES_CLAIM_DISCIPLINE,
   ADVISORY_SCHEDULES_FOLLOW_UPS_TITLE,
+  ADVISORY_SCHEDULES_ORIENTATION_BOTTOM_TEST_ID,
   ADVISORY_SCHEDULES_ORIENTATION_SOURCES,
 } from "@/lib/advisory-schedules-evidence-copy";
 
@@ -92,13 +94,17 @@ describe("AdvisorySchedulesContent buyer-polished shell (AD)", () => {
 
     const content = screen.getByTestId("advisory-schedules-content");
     const firstViewport = screen.getByTestId("advisory-schedules-first-viewport");
+    const overview = screen.getByTestId("advisory-schedules-overview");
     const existingSection = screen.getByTestId("advisory-schedules-existing");
-    const orientationBottom = screen.getByTestId("advisory-schedules-orientation-bottom");
+    const orientationBottom = screen.getByTestId(ADVISORY_SCHEDULES_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("advisory-schedules-sources");
 
     expect(content).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(screen.getByTestId("advisory-schedules-intro"));
-    expect(screen.getByTestId("advisory-schedules-intro")).toHaveTextContent(ADVISORY_SCANS_SCHEDULES_INTRO);
+    expect(screen.getByTestId("advisory-schedules-intro")).toHaveTextContent(ADVISORY_SCHEDULES_PAGE_LEAD);
+    expect(content).toContainElement(overview);
+    expect(overview).toHaveTextContent(ADVISORY_SCANS_SCHEDULES_INTRO);
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("advisory-schedules-buyer-start-here-helper")).toHaveTextContent(
       ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER,
     );

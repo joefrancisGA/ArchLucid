@@ -35,8 +35,14 @@ export const GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL = "Skip to approval workf
 
 export const GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID = "governance-approval-queue-first-viewport" as const;
 
+export const GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID =
+  "governance-approval-queue-orientation-bottom" as const;
+
 export const GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD =
   "Track pending approvals and submit reviews for governance decisions in this workspace.";
+
+export const GOVERNANCE_APPROVAL_QUEUE_OVERVIEW =
+  "Workflow panels below list pending requests, submit actions, and approval decisions for the active workspace scope.";
 
 export const GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE = "Start here" as const;
 

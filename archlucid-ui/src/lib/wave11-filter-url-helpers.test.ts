@@ -6240,6 +6240,96 @@ describe("wave77 filter url helpers", () => {
   });
 });
 
+describe("wave78 filter url helpers", () => {
+  it("demo explain technical, wizard advanced steps, workspace AI probe debug metadata, recurrence post-commit, after core pilot what's next, architecture created governance/evidence sources params", async () => {
+    const {
+      demoExplainStatusTechnicalDisclosureHrefFromSearch,
+      parseDemoExplainStatusTechnicalOpenFromSearch,
+    } = await import("@/lib/demo-explain-status-technical-disclosure-url");
+    const {
+      wizardStepAdvancedDisclosureHrefFromSearch,
+      parseWizardStepAdvancedOpenFromSearch,
+    } = await import("@/lib/wizard/wizard-step-advanced-disclosure-url");
+    const {
+      wizardStepIdentityAdvancedDisclosureHrefFromSearch,
+      parseWizardStepIdentityAdvancedOpenFromSearch,
+    } = await import("@/lib/wizard/wizard-step-identity-advanced-disclosure-url");
+    const {
+      wizardStepDescriptionAdvancedDisclosureHrefFromSearch,
+      parseWizardStepDescriptionAdvancedOpenFromSearch,
+    } = await import("@/lib/wizard/wizard-step-description-advanced-disclosure-url");
+    const {
+      wizardStepConstraintsAdvancedDisclosureHrefFromSearch,
+      parseWizardStepConstraintsAdvancedOpenFromSearch,
+    } = await import("@/lib/wizard/wizard-step-constraints-advanced-disclosure-url");
+    const {
+      workspaceAiProbeDebugMetadataDisclosureHrefFromSearch,
+      parseWorkspaceAiProbeDebugMetadataOpenFromSearch,
+    } = await import("@/lib/reviews/workspace-ai-probe-debug-metadata-disclosure-url");
+    const {
+      recurrenceSchedulePostCommitDisclosureHrefFromSearch,
+      parseRecurrenceSchedulePostCommitOpenFromSearch,
+    } = await import("@/lib/governance/recurrence-schedule-post-commit-disclosure-url");
+    const {
+      afterCorePilotWhatsNextDisclosureHrefFromSearch,
+      parseAfterCorePilotWhatsNextOpenFromSearch,
+    } = await import("@/lib/operator/after-core-pilot-whats-next-disclosure-url");
+    const {
+      architectureCreatedGovernanceSourcesDisclosureHrefFromSearch,
+      parseArchitectureCreatedGovernanceSourcesOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-created-governance-sources-disclosure-url");
+    const {
+      architectureCreatedEvidenceSourcesDisclosureHrefFromSearch,
+      parseArchitectureCreatedEvidenceSourcesOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-created-evidence-sources-disclosure-url");
+
+    expect(parseDemoExplainStatusTechnicalOpenFromSearch("1")).toBe(true);
+    expect(demoExplainStatusTechnicalDisclosureHrefFromSearch("", true, "/demo/explain")).toBe(
+      "/demo/explain?demoExplainStatusTechnicalOpen=1",
+    );
+    expect(parseWizardStepAdvancedOpenFromSearch("true")).toBe(true);
+    expect(wizardStepAdvancedDisclosureHrefFromSearch("path=guided", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?path=guided&wizardStepAdvancedOpen=1",
+    );
+    expect(parseWizardStepIdentityAdvancedOpenFromSearch("1")).toBe(true);
+    expect(wizardStepIdentityAdvancedDisclosureHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?wizardStepIdentityAdvancedOpen=1",
+    );
+    expect(parseWizardStepDescriptionAdvancedOpenFromSearch("true")).toBe(true);
+    expect(wizardStepDescriptionAdvancedDisclosureHrefFromSearch("step=description", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?step=description&wizardStepDescriptionAdvancedOpen=1",
+    );
+    expect(parseWizardStepConstraintsAdvancedOpenFromSearch("1")).toBe(true);
+    expect(wizardStepConstraintsAdvancedDisclosureHrefFromSearch("", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?wizardStepConstraintsAdvancedOpen=1",
+    );
+    expect(parseWorkspaceAiProbeDebugMetadataOpenFromSearch("true")).toBe(true);
+    expect(workspaceAiProbeDebugMetadataDisclosureHrefFromSearch("tab=availability", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?tab=availability&workspaceAiProbeDebugMetadataOpen=1",
+    );
+    expect(parseRecurrenceSchedulePostCommitOpenFromSearch("1")).toBe(true);
+    expect(recurrenceSchedulePostCommitDisclosureHrefFromSearch("", true, "/governance/recurrence")).toBe(
+      "/governance/recurrence?recurrenceSchedulePostCommitOpen=1",
+    );
+    expect(parseAfterCorePilotWhatsNextOpenFromSearch("true")).toBe(true);
+    expect(parseAfterCorePilotWhatsNextOpenFromSearch("0")).toBe(false);
+    expect(afterCorePilotWhatsNextDisclosureHrefFromSearch("checklist=core", true, "/operator-home")).toBe(
+      "/operator-home?checklist=core",
+    );
+    expect(afterCorePilotWhatsNextDisclosureHrefFromSearch("checklist=core", false, "/operator-home")).toBe(
+      "/operator-home?checklist=core&afterCorePilotWhatsNextOpen=0",
+    );
+    expect(parseArchitectureCreatedGovernanceSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureCreatedGovernanceSourcesDisclosureHrefFromSearch("", true, "/architecture/reviews/r1/governance"),
+    ).toBe("/architecture/reviews/r1/governance?architectureCreatedGovernanceSourcesOpen=1");
+    expect(parseArchitectureCreatedEvidenceSourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureCreatedEvidenceSourcesDisclosureHrefFromSearch("view=table", true, "/architecture/reviews/r1/evidence"),
+    ).toBe("/architecture/reviews/r1/evidence?view=table&architectureCreatedEvidenceSourcesOpen=1");
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

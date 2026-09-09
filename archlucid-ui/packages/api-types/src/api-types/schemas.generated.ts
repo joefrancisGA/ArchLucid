@@ -5378,6 +5378,7 @@ export interface components {
             judgeEffectiveCap?: null | number;
             /** Format: int32 */
             judgeSkippedByCap?: number;
+            proseAssumptionHeldCheckAsks?: null | components["schemas"]["ProseAssumptionHeldCheckAsk"][];
             proseAssumptionRegisterEntries?: null | components["schemas"]["ProseAssumptionRegisterEntry"][];
             /** Format: int32 */
             retainedFindingCount?: number;
@@ -7595,6 +7596,11 @@ export interface components {
         };
         /** @enum {string} */
         ProseAssumptionDisposition: "Contradicted" | "Consistent" | "NotVerifiable";
+        ProseAssumptionHeldCheckAsk: {
+            evidenceRef?: string;
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+            statement?: string;
+        };
         ProseAssumptionRegisterEntry: {
             disposition?: components["schemas"]["ProseAssumptionDisposition"];
             documentPath?: string;

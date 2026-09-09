@@ -133,7 +133,8 @@ public sealed class FindingDispositionServiceBulkAtomicityTests
                     "finding-existing",
                     FindingDispositionKind.Deferred,
                     "bulk stale version",
-                    expectedRowVersionBase64: first.CurrentDispositionRowVersionBase64),
+                    expectedRowVersionBase64: first.CurrentDispositionRowVersionBase64,
+                    revisitDueUtc: DateTimeOffset.UtcNow.AddDays(7)),
             ],
             Scope,
             "dave",
@@ -153,7 +154,8 @@ public sealed class FindingDispositionServiceBulkAtomicityTests
         FindingDispositionKind disposition,
         string rationale,
         string? tradeOffAcknowledgment = null,
-        string? expectedRowVersionBase64 = null)
+        string? expectedRowVersionBase64 = null,
+        DateTimeOffset? revisitDueUtc = null)
     {
         return new RecordFindingDispositionRequest
         {
@@ -162,6 +164,7 @@ public sealed class FindingDispositionServiceBulkAtomicityTests
             Rationale = rationale,
             TradeOffAcknowledgment = tradeOffAcknowledgment,
             ExpectedCurrentDispositionRowVersionBase64 = expectedRowVersionBase64,
+            RevisitDueUtc = revisitDueUtc,
         };
     }
 }

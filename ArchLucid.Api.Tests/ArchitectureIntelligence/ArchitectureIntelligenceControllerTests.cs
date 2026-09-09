@@ -4,6 +4,8 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -160,6 +162,8 @@ public sealed class ArchitectureIntelligenceControllerTests
             productPublishService: Mock.Of<IArchitectureIntelligenceProductPublishService>(),
             productRunSourceContextLoader ?? Mock.Of<IArchitectureIntelligenceProductRunSourceContextLoader>(),
             scopeProvider.Object,
+            authorityQueryService: Mock.Of<IAuthorityQueryService>(),
+            manifestHashService: Mock.Of<IManifestHashService>(),
             auditService.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
