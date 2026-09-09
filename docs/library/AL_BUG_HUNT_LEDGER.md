@@ -1196,9 +1196,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-09 — padded Critical severity skipped human approval and High effort band
 - **related-pd-tb:** none
@@ -1221,8 +1221,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureRecommendationEngine` / `ArchitectureRecommendationEffortEstimate` — severity label match uses raw string equality without trimming — **hit 2026-09-09 seed hunt #1419:** `" Critical "` skipped `RequiresHumanApproval` and downgraded effort/risk bands to Medium/Low; fixed via `ArchitectureRecommendationSeverityLabel`; regression in `ArchitectureRecommendationSeverityLabelTests`
 
-- [ ] (candidate) `ArchitectureRecommendationAlternatives.Build` — PrivacyCompliance and Integration Fail findings fall through to default defer/evidence alternatives despite dimension-specific `ProposedChange` branches — seeded 2026-09-09; default fallback is intentional for dimensions without dedicated alternative templates unless paraphrase is shown
-- [ ] (candidate) `ArchitectureRecommendationProposedChange` / `ArchitectureRecommendationAlternatives` — Operations and AiSpecificRisk dimensions only receive generic fallback copy and default alternatives — seeded 2026-09-09; no specialist title gates in source yet
+- [x] (valid-no-repro) `ArchitectureRecommendationAlternatives.Build` — PrivacyCompliance and Integration Fail findings fall through to default defer/evidence alternatives despite dimension-specific `ProposedChange` branches — **valid-no-repro 2026-09-09 thorough hunt #1477:** Fail + Sufficient PrivacyCompliance/Integration findings get dimension-specific primary copy ("Record compliance obligations…", "Document external interfaces…") while default alternatives are defer/exception and collect-evidence paths that do not paraphrase primary; intentional gap until dedicated templates are needed
+- [x] (valid-no-repro) `ArchitectureRecommendationProposedChange` / `ArchitectureRecommendationAlternatives` — Operations and AiSpecificRisk dimensions only receive generic fallback copy and default alternatives — **valid-no-repro 2026-09-09 thorough hunt #1477:** no specialist title gates in source; generic `Implement a concrete design change…` primary and default defer/evidence alternatives are intentional for dimensions without dedicated rules
+
+2026-09-09 thorough hunt #1477 (dry): cheap-disproved PrivacyCompliance/Integration default-alternative and Operations/AiSpecificRisk generic-copy candidates; 13 scoped recommendation tests passed.
 
 2026-09-09 seed hunt #1419 (seed→hit): reseeded architecture-recommendation; proved padded severity label gating gap; seeded PrivacyCompliance/Integration and Operations/AiSpecificRisk branch-gap candidates; 34 scoped recommendation tests passed.
 2026-09-08 seed hunt #1377 (hit): reseeded architecture-recommendation zone; proved evidence-first alternative paraphrase of collect-evidence primary; 19 scoped recommendation unit tests passed.
