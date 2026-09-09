@@ -42,6 +42,8 @@ public static class DeclarationSignalPolicyKeyMap
                 "cis-az-012", // SQL public network access restricted
                 "sec-base-006", // Data stores avoid public internet exposure (P0 — survives the pilot floor)
                 "sec-base-028", // Private endpoints mandatory for regulated-class datastores
+                "hipaa-011", // ePHI storage public network access disabled
+                "hipaa-013", // ePHI public load balancer exposure restricted
                 // CIS AWS peers
                 "cis-aws-006", // Storage account public access disabled
                 "cis-aws-009", // Storage network rules restrict public endpoints
@@ -70,7 +72,9 @@ public static class DeclarationSignalPolicyKeyMap
                 "cis-gcp-020",
                 "soc2-003", // Encryption protects data at rest
                 "gdpr-001", // Personal data encrypted at rest
+                "hipaa-012", // ePHI datastore weak TLS / encryption posture
                 "hipaa-017", // Encryption and decryption of ePHI
+                "hipaa-025", // TLS minimum for ePHI endpoints
                 "iso27001-010", // Cryptographic controls for data protection
                 "pci-007", // PAN encryption at rest in CDE
                 "zta-008"), // Encrypted communications everywhere
@@ -80,7 +84,9 @@ public static class DeclarationSignalPolicyKeyMap
                 "cis-gcp-025", // Cloud Run HTTPS only and TLS minimum
                 "soc2-004", // Encryption protects data in transit
                 "gdpr-002", // Personal data encrypted in transit
+                "hipaa-021", // App Service HTTPS only for ePHI
                 "hipaa-022", // Transmission security for ePHI
+                "hipaa-023", // TLS minimum for ePHI app endpoints
                 "hipaa-024", // Encryption in transit for ePHI
                 "pci-009", // TLS for PAN transmission over open networks
                 "zta-008"),
@@ -92,6 +98,9 @@ public static class DeclarationSignalPolicyKeyMap
                 "cis-gcp-018",
                 "cis-gcp-019",
                 "soc2-018",
+                "hipaa-014", // NSG least privilege for ePHI workloads
+                "hipaa-015", // Administrative ingress restricted for ePHI systems
+                "hipaa-018", // Micro-segmentation for ePHI workloads
                 "zta-007", // Micro-segmentation for workloads
                 "pci-002",
                 "pci-003",
@@ -105,6 +114,9 @@ public static class DeclarationSignalPolicyKeyMap
                 "sec-base-028",
                 "cis-aws-027", // Kubernetes API server access restricted (EKS)
                 "cis-gcp-027", // Kubernetes API server access restricted (GKE)
+                "hipaa-016", // Privileged containers for ePHI workloads restricted
+                "hipaa-019", // hostNetwork workloads handling ePHI restricted
+                "hipaa-020", // Container privilege escalation for ePHI restricted
                 "aks-001", // Private AKS API server endpoint
                 "aks-002", // Authorized API-server IP ranges when not fully private (P0)
                 "aks-009", // Pod security standards enforced
