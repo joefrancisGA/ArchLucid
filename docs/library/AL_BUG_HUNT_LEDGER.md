@@ -1018,11 +1018,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 10
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — evidence-first alternatives restated collect-evidence primary proposed change
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — padded Critical severity skipped human approval and High effort band
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1041,6 +1041,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ArchitectureRecommendationAlternatives.Build` — Reliability recovery branch emits alternatives that restate the primary RTO backup/replication `ProposedChange` — **hit 2026-09-08 seed hunt #1343 (seed→hit):** alt[0] paraphrased "Align backup, replication… stated RTO… recovery test" with "Increase backup frequency or add replication to meet the stated RTO"; fixed by replacing alt[0] with warm-standby/chaos-drill path distinct from primary; regression in `BuildRecommendations_reliability_recovery_alternatives_are_distinct_from_proposed_change`
 - [x] (proven) `ArchitectureRecommendationAlternatives.BuildEvidenceFirstAlternatives` — unverified/indeterminate findings emit alt[1] that restates the primary collect-evidence `ProposedChange` — **hit 2026-09-08 seed hunt #1377:** PrivacyCompliance and Integration indeterminate findings (and other Unverified-bucket rows) got primary "Collect additional evidence before changing the design for: {title}" while alt[1] repeated "Collect additional evidence before changing the design"; fixed by replacing alt[1] with discovery-spike path distinct from primary; regressions in `ArchitectureRecommendationAlternativesEvidenceFirstDistinctnessTests`
 
+- [x] (proven) `ArchitectureRecommendationEngine` / `ArchitectureRecommendationEffortEstimate` — severity label match uses raw string equality without trimming — **hit 2026-09-09 seed hunt #1419:** `" Critical "` skipped `RequiresHumanApproval` and downgraded effort/risk bands to Medium/Low; fixed via `ArchitectureRecommendationSeverityLabel`; regression in `ArchitectureRecommendationSeverityLabelTests`
+
+- [ ] (candidate) `ArchitectureRecommendationAlternatives.Build` — PrivacyCompliance and Integration Fail findings fall through to default defer/evidence alternatives despite dimension-specific `ProposedChange` branches — seeded 2026-09-09; default fallback is intentional for dimensions without dedicated alternative templates unless paraphrase is shown
+- [ ] (candidate) `ArchitectureRecommendationProposedChange` / `ArchitectureRecommendationAlternatives` — Operations and AiSpecificRisk dimensions only receive generic fallback copy and default alternatives — seeded 2026-09-09; no specialist title gates in source yet
+
+2026-09-09 seed hunt #1419 (seed→hit): reseeded architecture-recommendation; proved padded severity label gating gap; seeded PrivacyCompliance/Integration and Operations/AiSpecificRisk branch-gap candidates; 34 scoped recommendation tests passed.
 2026-09-08 seed hunt #1377 (hit): reseeded architecture-recommendation zone; proved evidence-first alternative paraphrase of collect-evidence primary; 19 scoped recommendation unit tests passed.
 
 2026-09-08 seed hunt #1343 (seed→hit): reseeded architecture-recommendation zone; proved Reliability recovery alternative paraphrase of primary proposed change; 20 scoped recommendation tests passed.
