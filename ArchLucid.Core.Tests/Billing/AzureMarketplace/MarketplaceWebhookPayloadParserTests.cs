@@ -255,6 +255,7 @@ public sealed class MarketplaceWebhookPayloadParserTests
     [InlineData("excluded-enterprise-plan")]
     [InlineData("contoso-excluding-enterprise-standard")]
     [InlineData("contoso-exclude-enterprise-standard")]
+    [InlineData("excluding-enterprise-standard")]
     [InlineData("except-enterprise-plan")]
     public void TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan(string planId)
     {
