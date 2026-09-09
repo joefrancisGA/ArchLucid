@@ -1,25 +1,30 @@
-import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+"use client";
+
+import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
 import {
   ADMIN_DIAGNOSTICS_HELP_FOLLOW_UPS_TITLE,
   ADMIN_DIAGNOSTICS_HELP_ORIENTATION_SOURCES_INTRO,
   ADMIN_DIAGNOSTICS_HELP_SOURCES,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
 import { ADMIN_DIAGNOSTICS_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/admin-diagnostics-help-page-copy";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  helpAdminDiagnosticsSourcesDisclosureHrefFromSearch,
+  parseHelpAdminDiagnosticsSourcesOpenFromSearch,
+} from "@/lib/help/help-admin-diagnostics-sources-disclosure-url";
 
-/** Sources-only follow-ups for `/help/admin-diagnostics` buyer-polished shell (HAE). */
+/** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open (HAD). */
 export function HelpAdminDiagnosticsSourcesOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="admin-diagnostics-help"
-      stripTestId={ADMIN_DIAGNOSTICS_HELP_ORIENTATION_BOTTOM_TEST_ID}
+    <UrlSyncedSourcesCollapsibleStrip
+      surfaceId="help-admin-diagnostics-sources"
+      searchParamKey="helpAdminDiagnosticsSourcesOpen"
+      parseOpenFromSearch={parseHelpAdminDiagnosticsSourcesOpenFromSearch}
+      disclosureHrefFromSearch={helpAdminDiagnosticsSourcesDisclosureHrefFromSearch}
+      sectionTestId={ADMIN_DIAGNOSTICS_HELP_ORIENTATION_BOTTOM_TEST_ID}
+      title={ADMIN_DIAGNOSTICS_HELP_FOLLOW_UPS_TITLE}
+      intro={ADMIN_DIAGNOSTICS_HELP_ORIENTATION_SOURCES_INTRO}
+      links={ADMIN_DIAGNOSTICS_HELP_SOURCES}
       sourcesTestId="help-admin-diagnostics-sources"
-      sourcesTitle={ADMIN_DIAGNOSTICS_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={ADMIN_DIAGNOSTICS_HELP_ORIENTATION_SOURCES_INTRO}
-      sources={ADMIN_DIAGNOSTICS_HELP_SOURCES}
-      sourcesHeadingId="where-to-go-next"
-      hubSecondary
-      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }

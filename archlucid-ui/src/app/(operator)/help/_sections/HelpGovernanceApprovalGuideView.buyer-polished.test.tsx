@@ -39,7 +39,6 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpGovernanceApprovalGuideView } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import {
   GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE,
   GOVERNANCE_APPROVAL_HELP_PRIMARY_ACTIONS,
@@ -55,8 +54,8 @@ import {
   GOVERNANCE_APPROVAL_HELP_SKIP_LINK_LABEL,
   GOVERNANCE_APPROVAL_HELP_SKIP_TARGET_ID,
 } from "@/lib/governance/governance-approval-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpGovernanceApprovalGuideView buyer-polished shell (GO)", () => {
   const entry = getProductDocumentationEntry("governance-approval");
@@ -100,10 +99,7 @@ describe("HelpGovernanceApprovalGuideView buyer-polished shell (GO)", () => {
       screen.getByRole("heading", { level: 2, name: GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE }),
     ).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(GOVERNANCE_APPROVAL_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), GOVERNANCE_APPROVAL_HELP_SOURCES, "/help/governance-approval");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

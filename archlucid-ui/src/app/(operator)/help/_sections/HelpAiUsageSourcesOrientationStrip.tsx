@@ -1,25 +1,30 @@
-import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+"use client";
+
+import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
 import {
   AI_USAGE_HELP_FOLLOW_UPS_TITLE,
   AI_USAGE_HELP_ORIENTATION_SOURCES_INTRO,
   AI_USAGE_HELP_SOURCES,
 } from "@/lib/ai-usage-help-evidence-copy";
 import { AI_USAGE_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/ai-usage-help-page-copy";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  helpAiUsageSourcesDisclosureHrefFromSearch,
+  parseHelpAiUsageSourcesOpenFromSearch,
+} from "@/lib/help/help-ai-usage-sources-disclosure-url";
 
-/** Sources-only follow-ups for `/help/ai-usage` buyer-polished shell (HAI). */
+/** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open. */
 export function HelpAiUsageSourcesOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="help-ai-usage"
-      stripTestId={AI_USAGE_HELP_ORIENTATION_BOTTOM_TEST_ID}
+    <UrlSyncedSourcesCollapsibleStrip
+      surfaceId="help-ai-usage-sources"
+      searchParamKey="helpAiUsageSourcesOpen"
+      parseOpenFromSearch={parseHelpAiUsageSourcesOpenFromSearch}
+      disclosureHrefFromSearch={helpAiUsageSourcesDisclosureHrefFromSearch}
+      sectionTestId={AI_USAGE_HELP_ORIENTATION_BOTTOM_TEST_ID}
+      title={AI_USAGE_HELP_FOLLOW_UPS_TITLE}
+      intro={AI_USAGE_HELP_ORIENTATION_SOURCES_INTRO}
+      links={AI_USAGE_HELP_SOURCES}
       sourcesTestId="help-ai-usage-sources"
-      sourcesTitle={AI_USAGE_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={AI_USAGE_HELP_ORIENTATION_SOURCES_INTRO}
-      sources={AI_USAGE_HELP_SOURCES}
-      sourcesHeadingId="where-to-go-next"
-      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
-      hubSecondary
     />
   );
 }

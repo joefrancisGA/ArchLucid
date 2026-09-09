@@ -15,16 +15,6 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
   HelpTopicHashScroll: () => null,
 }));
 
-vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
-  useWhereToGoNextVisible: () => true,
-}));
-
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/help/review-guide",
-  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
-  useSearchParams: () => new URLSearchParams(),
-}));
-
 vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => <div data-testid="help-topic-print-button" />,
 }));
@@ -53,11 +43,9 @@ import {
   REVIEW_GUIDE_HELP_START_HERE_HELPER,
   REVIEW_GUIDE_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/review-guide-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpReviewGuideView buyer-polished shell (HR)", () => {
   const entry = getProductDocumentationEntry("review-guide");
@@ -121,12 +109,6 @@ describe("HelpReviewGuideView buyer-polished shell (HR)", () => {
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterOrientationSourcesForJobContext(
-      filterWhereToGoNextFollowUpLinks(REVIEW_GUIDE_HELP_SOURCES),
-      "/help/review-guide",
-    )) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), REVIEW_GUIDE_HELP_SOURCES, "/");
   });
 });

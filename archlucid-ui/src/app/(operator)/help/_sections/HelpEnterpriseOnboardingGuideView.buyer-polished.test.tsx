@@ -32,9 +32,14 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
 }));
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/help/enterprise-onboarding",
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/help/enterprise-onboarding",
+    useSearchParams: () => new URLSearchParams(),
+  });
+});
 
 import { HelpEnterpriseOnboardingGuideView } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingGuideView";
 import {
@@ -51,9 +56,8 @@ import {
   ENTERPRISE_ONBOARDING_HELP_SKIP_LINK_LABEL,
   ENTERPRISE_ONBOARDING_HELP_SKIP_TARGET_ID,
 } from "@/lib/enterprise-onboarding-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpEnterpriseOnboardingGuideView buyer-polished shell (HEX)", () => {
   const loaded = tryLoadProductDocumentation("enterprise-onboarding");
@@ -102,10 +106,7 @@ describe("HelpEnterpriseOnboardingGuideView buyer-polished shell (HEX)", () => {
       "#onboarding-hub",
     );
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ENTERPRISE_ONBOARDING_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), ENTERPRISE_ONBOARDING_HELP_SOURCES, "/help/enterprise-onboarding");
 
     expect(screen.getByTestId(ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION.testId)).toHaveAttribute(
       "href",

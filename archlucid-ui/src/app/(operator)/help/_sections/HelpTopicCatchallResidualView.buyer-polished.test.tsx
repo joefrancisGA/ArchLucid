@@ -36,9 +36,8 @@ import {
   HELP_TOPIC_CATCHALL_START_HERE_CARD_TITLE,
   HELP_TOPIC_CATCHALL_WORKSPACE_TEST_ID,
 } from "@/lib/help/help-topic-catchall-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 const SAMPLE_MARKDOWN = `## Overview
 
@@ -109,10 +108,7 @@ describe("HelpTopicCatchallResidualView buyer-polished chrome (HE.)", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Overview" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: HELP_TOPIC_CATCHALL_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(HELP_TOPIC_CATCHALL_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), HELP_TOPIC_CATCHALL_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

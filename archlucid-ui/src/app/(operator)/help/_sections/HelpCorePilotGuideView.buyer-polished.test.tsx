@@ -25,10 +25,6 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
-vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
-  useWhereToGoNextVisible: () => true,
-}));
-
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/first-architecture-review",
   useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
@@ -61,10 +57,8 @@ import {
   CORE_PILOT_HELP_START_HERE_HELPER,
   CORE_PILOT_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/core-pilot-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpCorePilotGuideView buyer-polished shell (COR)", () => {
   const entry = getProductDocumentationEntry("first-architecture-review");
@@ -138,12 +132,6 @@ describe("HelpCorePilotGuideView buyer-polished shell (COR)", () => {
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterOrientationSourcesForJobContext(
-      filterWhereToGoNextFollowUpLinks(CORE_PILOT_HELP_SOURCES),
-      "/help/first-architecture-review",
-    )) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), CORE_PILOT_HELP_SOURCES, "/help/first-architecture-review");
   });
 });

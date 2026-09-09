@@ -34,6 +34,7 @@ import {
   CLI_USAGE_HELP_SKIP_LINK_LABEL,
   CLI_USAGE_HELP_SKIP_TARGET_ID,
 } from "@/lib/cli-usage-help-page-copy";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -77,11 +78,7 @@ describe("HelpCliUsageTechnicalReferenceView buyer-polished shell (HCX)", () => 
 
     const visibleSources = CLI_USAGE_HELP_SOURCES.filter((source) => !source.href.startsWith("/administration/"));
 
-    for (const source of visibleSources) {
-      expect(
-        within(sourcesSection).getByRole("link", { name: `Read ${source.label}` }),
-      ).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), visibleSources, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

@@ -46,6 +46,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: () => false,
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
 }));
 
@@ -100,9 +101,8 @@ import {
   BILLING_HELP_SKIP_LINK_LABEL,
   BILLING_HELP_SKIP_TARGET_ID,
 } from "@/lib/billing-and-plans-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpBillingAndPlansGuideView buyer-polished shell (HBX)", () => {
   const entry = getProductDocumentationEntry("billing-and-plans");
@@ -142,11 +142,7 @@ describe("HelpBillingAndPlansGuideView buyer-polished shell (HBX)", () => {
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    const visibleSources = filterWhereToGoNextFollowUpLinks(BILLING_AND_PLANS_HELP_SOURCES);
-    for (const source of visibleSources) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), BILLING_AND_PLANS_HELP_SOURCES, "/help/billing-and-plans");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

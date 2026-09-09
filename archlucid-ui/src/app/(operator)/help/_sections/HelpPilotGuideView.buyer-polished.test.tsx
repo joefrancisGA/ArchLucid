@@ -40,8 +40,8 @@ import {
   PILOT_GUIDE_HELP_SKIP_LINK_LABEL,
   PILOT_GUIDE_HELP_SKIP_TARGET_ID,
 } from "@/lib/pilot-guide-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpPilotGuideView buyer-polished shell (HP)", () => {
   const loaded = tryLoadProductDocumentation("pilot-guide");
@@ -81,10 +81,7 @@ describe("HelpPilotGuideView buyer-polished shell (HP)", () => {
       PILOT_GUIDE_HELP_PRIMARY_ACTIONS.startReview.href,
     );
 
-    for (const source of PILOT_GUIDE_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), PILOT_GUIDE_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

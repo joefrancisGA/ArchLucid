@@ -100,3 +100,24 @@ export function coerceReviewWorkspaceTabToVisible(
 ): ReviewDetailTabId {
   return coerceReviewDetailTabToVisible(tabId, resolved);
 }
+
+export type ResolveActiveReviewDetailTabInput = {
+  readonly searchParams: Pick<URLSearchParams, "get">;
+  readonly tabLifecycle: ResolveReviewDetailVisibleTabsInput;
+  readonly lifecycle?: ReviewWorkspaceLifecycle;
+  readonly workingDesk?: boolean;
+};
+
+/** Stage-aware active tab for chrome that cannot use `useReviewDetailWorkspaceTabs` (TB-2189). */
+export function resolveActiveReviewDetailTabFromSearchParams(
+  input: ResolveActiveReviewDetailTabInput,
+): ReviewDetailTabId {
+  const lifecycle = input.lifecycle ?? "finalized";
+  const resolved = resolveReviewWorkspaceVisibleTabs({
+    ...input.tabLifecycle,
+    lifecycle,
+    workingDesk: input.workingDesk === true,
+  });
+
+  return resolveReviewWorkspaceTabFromSearchParams(input.searchParams, resolved, lifecycle);
+}

@@ -44,8 +44,9 @@ export function useReviewPackageSearchScope(): UseReviewPackageSearchScopeResult
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
   const reviewDetailPath = isReviewDetailHeaderSearchPath(pathname);
   const architecturePath = isWorkingArchitectureSearchPath(pathname);
-  const packageScopeAvailable = architectWorkspaceChrome && reviewDetailPath;
+  const reviewPackageScopeAvailable = reviewDetailPath;
   const architectureScopeAvailable = architectWorkspaceChrome && architecturePath;
+  const packageScopeAvailable = reviewPackageScopeAvailable || architectureScopeAvailable;
   const architectureIdFromPath = resolveWorkingSearchArchitectureIdFromPath(pathname);
   const cachedArchitectureId = readCachedLastOpenArchitectureId();
   const architectureId = architectureIdFromPath ?? cachedArchitectureId;
@@ -54,12 +55,12 @@ export function useReviewPackageSearchScope(): UseReviewPackageSearchScopeResult
     architectureScopeAvailable && architectureId !== null,
   );
   const packageRunId = useMemo(() => {
-    if (!packageScopeAvailable) {
+    if (!reviewPackageScopeAvailable) {
       return null;
     }
 
     return extractReviewIdFromRoutePath(pathname);
-  }, [packageScopeAvailable, pathname]);
+  }, [reviewPackageScopeAvailable, pathname]);
   const architectureScopedRunIds = useMemo(() => {
     if (!architectureScopeAvailable || architectureId === null || architectureQuery.data === undefined) {
       return null;
@@ -69,7 +70,7 @@ export function useReviewPackageSearchScope(): UseReviewPackageSearchScopeResult
   }, [architectureId, architectureQuery.data, architectureScopeAvailable]);
   const [searchScope, setSearchScope] = useState<ReviewPackageSearchScope>("package");
   const scopeLabels =
-    architectureScopeAvailable && !packageScopeAvailable
+    architectureScopeAvailable && !reviewPackageScopeAvailable
       ? WORKING_ARCHITECTURE_SEARCH_SCOPE_LABELS
       : REVIEW_PACKAGE_SEARCH_SCOPE_LABELS;
   const effectiveScope: ReviewPackageSearchScope =

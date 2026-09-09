@@ -27,19 +27,26 @@ type RunDetailSectionNavProps = {
   readonly runId: string;
   readonly parentArchitectureId?: string | null;
   sections: RunDetailSection[];
+  readonly activeReviewTab?: ReviewDetailTabId;
 };
 
 /**
  * Sticky tab navigation for long run detail pages when the tab row is not already visible.
  */
-export function RunDetailSectionNav({ runId, parentArchitectureId, sections }: RunDetailSectionNavProps) {
+export function RunDetailSectionNav({
+  runId,
+  parentArchitectureId,
+  sections,
+  activeReviewTab: activeReviewTabProp,
+}: RunDetailSectionNavProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const architectureId = resolveReviewWorkspaceArchitectureId(parentArchitectureId, pathname);
   const { isGovernanceModeEnabled, vocabulary } = useGovernanceMode();
   const evalChromeShell = useProductionEvalChrome();
   const buyerPolishedShell = evalChromeShell;
-  const activeReviewTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
+  const activeReviewTab =
+    activeReviewTabProp ?? resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
 
   const normalizedSections = useMemo(() => {
     return sections

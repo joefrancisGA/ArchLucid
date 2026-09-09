@@ -33,7 +33,6 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpSecurityTrustGuideView } from "@/app/(operator)/help/_sections/HelpSecurityTrustGuideView";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import {
   SECURITY_TRUST_HELP_CLAIM_DISCIPLINE,
@@ -48,6 +47,7 @@ import {
   SECURITY_TRUST_HELP_SKIP_TARGET_ID,
 } from "@/lib/security-trust-help-page-copy";
 import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpSecurityTrustGuideView buyer-polished shell (HSE)", () => {
   const loaded = tryLoadProductDocumentation("security-trust");
@@ -87,10 +87,7 @@ describe("HelpSecurityTrustGuideView buyer-polished shell (HSE)", () => {
       within(actionPanel).getByRole("link", { name: SECURITY_TRUST_HELP_PRIMARY_ACTION.label }),
     ).toHaveAttribute("href", TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF);
 
-    for (const source of SECURITY_TRUST_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), SECURITY_TRUST_HELP_SOURCES, "/help/security-trust");
 
     expect(screen.getByTestId("security-trust-help-posture-summary")).toBeInTheDocument();
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

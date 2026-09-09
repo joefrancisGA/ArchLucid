@@ -38,8 +38,8 @@ import {
   DIGESTS_HELP_SKIP_LINK_LABEL,
   DIGESTS_HELP_SKIP_TARGET_ID,
 } from "@/lib/digests-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpDigestsGuideView buyer-polished shell (HDG)", () => {
   const entry = getProductDocumentationEntry("digests");
@@ -79,10 +79,7 @@ describe("HelpDigestsGuideView buyer-polished shell (HDG)", () => {
       within(actionPanel).getByRole("link", { name: DIGESTS_HELP_PRIMARY_ACTION.label }),
     ).toHaveAttribute("href", DIGESTS_HELP_PRIMARY_ACTION.href);
 
-    for (const source of DIGESTS_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), DIGESTS_HELP_SOURCES, "/");
 
     expect(screen.getByRole("heading", { level: 2, name: "Manage digests" })).toBeInTheDocument();
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

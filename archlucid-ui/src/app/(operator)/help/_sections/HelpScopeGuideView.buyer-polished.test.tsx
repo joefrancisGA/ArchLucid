@@ -44,8 +44,8 @@ vi.mock("@/lib/operator/operator-scope-storage", async (importOriginal) => {
 });
 
 import { HelpScopeGuideView } from "@/app/(operator)/help/_sections/HelpScopeGuideView";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
   SCOPE_HELP_CLAIM_DISCIPLINE,
   SCOPE_HELP_FOLLOW_UPS_TITLE,
@@ -99,10 +99,7 @@ describe("HelpScopeGuideView buyer-polished shell (HSX)", () => {
       within(actionPanel).getByRole("link", { name: SCOPE_HELP_PRIMARY_ACTION.label }),
     ).toHaveAttribute("href", SCOPE_HELP_PRIMARY_ACTION.href);
 
-    for (const source of SCOPE_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), SCOPE_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

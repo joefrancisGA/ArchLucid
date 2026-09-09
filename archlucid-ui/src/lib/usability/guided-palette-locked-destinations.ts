@@ -12,6 +12,7 @@ export type GuidedPaletteLockedDestination = {
 const GUIDED_FIRST_SESSION_LOCKED_HREFS: readonly string[] = [
   "/insights/sponsor-report",
   "/governance/audit",
+  "/governance/alerts",
   "/insights/evidence-graph",
   "/insights/compare-two-reviews",
   "/insights/architecture-scorecard",

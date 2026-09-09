@@ -114,6 +114,12 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
             runId={model.resolvedDetail.run.runId}
             parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
             sections={model.runDetailNavSections}
+            tabLifecycle={{
+              manifestId: model.manifestId,
+              showProgressTracker: model.showProgressTracker,
+              runCompleted: model.resolvedDetail.run.completedUtc != null,
+            }}
+            lifecycle={resolved.lifecycle}
           />
         }
         inPipelineBanner={resolved.inPipelineBannerEl}

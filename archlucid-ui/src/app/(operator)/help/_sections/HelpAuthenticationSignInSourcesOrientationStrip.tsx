@@ -1,25 +1,30 @@
-import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+"use client";
+
+import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
 import {
   AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE,
   AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_SOURCES_INTRO,
   AUTHENTICATION_SIGN_IN_HELP_SOURCES,
 } from "@/lib/authentication-sign-in-help-evidence-copy";
 import { AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/authentication-sign-in-help-page-copy";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  helpAuthenticationSignInSourcesDisclosureHrefFromSearch,
+  parseHelpAuthenticationSignInSourcesOpenFromSearch,
+} from "@/lib/help/help-authentication-sign-in-sources-disclosure-url";
 
-/** Sources-only follow-ups for `/help/authentication-sign-in` buyer-polished shell (HEA). */
+/** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open. */
 export function HelpAuthenticationSignInSourcesOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="authentication-sign-in-help"
-      stripTestId={AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID}
+    <UrlSyncedSourcesCollapsibleStrip
+      surfaceId="authentication-sign-in-help-sources"
+      searchParamKey="helpAuthenticationSignInSourcesOpen"
+      parseOpenFromSearch={parseHelpAuthenticationSignInSourcesOpenFromSearch}
+      disclosureHrefFromSearch={helpAuthenticationSignInSourcesDisclosureHrefFromSearch}
+      sectionTestId={AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID}
+      title={AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE}
+      intro={AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_SOURCES_INTRO}
+      links={AUTHENTICATION_SIGN_IN_HELP_SOURCES}
       sourcesTestId="authentication-sign-in-help-sources"
-      sourcesTitle={AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_SOURCES_INTRO}
-      sources={AUTHENTICATION_SIGN_IN_HELP_SOURCES}
-      sourcesHeadingId="where-to-go-next"
-      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
-      hubSecondary
     />
   );
 }

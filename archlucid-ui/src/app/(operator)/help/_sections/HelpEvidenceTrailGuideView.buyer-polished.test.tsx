@@ -45,9 +45,8 @@ import {
   EVIDENCE_TRAIL_HELP_SKIP_LINK_LABEL,
   EVIDENCE_TRAIL_HELP_SKIP_TARGET_ID,
 } from "@/lib/evidence-trail-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpEvidenceTrailGuideView buyer-polished shell (EV)", () => {
   const loaded = tryLoadProductDocumentation("evidence-trail");
@@ -88,10 +87,7 @@ describe("HelpEvidenceTrailGuideView buyer-polished shell (EV)", () => {
       EVIDENCE_TRAIL_HELP_PRIMARY_ACTION.href,
     );
 
-    for (const source of filterWhereToGoNextFollowUpLinks(EVIDENCE_TRAIL_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), EVIDENCE_TRAIL_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
