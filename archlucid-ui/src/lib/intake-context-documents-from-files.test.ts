@@ -136,6 +136,55 @@ describe("buildIntakeContextDocumentsFromEvidenceFiles", () => {
     ]);
   });
 
+  it("includes native diagram JSON as application/vnd.archlucid.diagram+json", async () => {
+    const diagramJson = JSON.stringify({
+      nodes: [
+        { id: "api", label: "API Gateway", kind: "system" },
+        { id: "db", label: "SQL Database", kind: "system" },
+      ],
+      edges: [{ id: "e1", sourceId: "api", targetId: "db", label: "queries" }],
+      trustBoundaryLabels: [],
+      extractionMethod: "StructuredParse",
+    });
+    const file = new File([diagramJson], "topology.diagram.json", { type: "application/json" });
+    const documents = await buildIntakeContextDocumentsFromEvidenceFiles([file]);
+
+    expect(documents).toEqual([
+      {
+        name: "topology.diagram.json",
+        contentType: "application/vnd.archlucid.diagram+json",
+        content: diagramJson,
+      },
+    ]);
+  });
+
+  it("classifies diagram-shaped .json attachments as structured diagram JSON", async () => {
+    const diagramJson = JSON.stringify({
+      nodes: [{ id: "web", label: "Web app", kind: "system" }],
+      edges: [],
+      trustBoundaryLabels: [],
+    });
+    const file = new File([diagramJson], "topology.json", { type: "application/json" });
+    const documents = await buildIntakeContextDocumentsFromEvidenceFiles([file]);
+
+    expect(documents[0]?.contentType).toBe("application/vnd.archlucid.diagram+json");
+    expect(documents[0]?.name).toBe("topology.json");
+  });
+
+  it("keeps unrelated JSON as text/plain", async () => {
+    const manifestJson = JSON.stringify({ resources: [{ type: "Microsoft.Storage/storageAccounts" }] });
+    const file = new File([manifestJson], "manifest.json", { type: "application/json" });
+    const documents = await buildIntakeContextDocumentsFromEvidenceFiles([file]);
+
+    expect(documents).toEqual([
+      {
+        name: "manifest.json",
+        contentType: "text/plain",
+        content: manifestJson,
+      },
+    ]);
+  });
+
   it("emits a NotVerifiable diagram stub for PNG and skips failed docx extract", async () => {
     mockedExtract.mockResolvedValue({
       ok: false,
