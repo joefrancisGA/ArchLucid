@@ -18,15 +18,18 @@ export type RouteViewExplanation = {
 
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
-import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { AUTH_DOMAINS_SETTINGS_CANONICAL_PATH } from "@/lib/auth-domains-settings-evidence-copy";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { BASELINE_SETTINGS_CANONICAL_PATH } from "@/lib/baseline-settings-evidence-copy";
 import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
+import { CLOUD_PROVIDER_CONNECTION_PATHS } from "@/lib/cloud-provider-connection-evidence-copy";
 import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
 import { DIGESTS_HUB_PATH, digestsHubTabFromLocation } from "@/lib/digests-route-paths";
+import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import {
@@ -46,6 +49,7 @@ import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route"
 import {
   SETTINGS_ROOT_PATH,
   SETTINGS_SECURITY_TRUST_PATH,
+  SETTINGS_SUPPORT_PATH,
   SETTINGS_USERS_PATH,
   SETTINGS_WORKSPACE_SETTINGS_PATH,
 } from "@/lib/settings-admin-route-paths";
@@ -109,6 +113,16 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
       summary:
         "Browse architecture review packages in this workspace — open one to triage findings, evidence, and approval status.",
       nextAction: "Open the review you need, or start a new review when you are ready to assess a draft architecture.",
+    },
+  },
+  {
+    prefix: REVIEWS_NEW_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Start a review",
+      summary: "Choose an intake path and submit evidence for architecture analysis in this workspace.",
+      nextAction:
+        "Pick quick, guided, or detailed intake, complete the required fields, then submit to create the review.",
     },
   },
   {
@@ -184,6 +198,39 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
     },
   },
   {
+    prefix: SETTINGS_SUPPORT_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Support",
+      summary:
+        "Contact ArchLucid support, gather redacted diagnostics, and follow guided troubleshooting paths for this workspace.",
+      nextAction:
+        "Start with System health, download a support bundle when requested, then open the matching troubleshooting guide.",
+    },
+  },
+  {
+    prefix: AUTH_DOMAINS_SETTINGS_CANONICAL_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Sign-in domains",
+      summary:
+        "Verify email domain ownership, test SSO routing, and enable domain enforcement for this workspace.",
+      nextAction:
+        "Add and verify a domain, test routing, then open Identity providers before enabling SSO enforcement.",
+    },
+  },
+  {
+    prefix: EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Extract and upload",
+      summary:
+        "Run the read-only Azure extractor locally, validate the ZIP, then upload inventory for architecture reviews.",
+      nextAction:
+        "Copy the quick-start command, upload a validated ZIP, then open Start a review when the package is ready.",
+    },
+  },
+  {
     prefix: SETTINGS_ROOT_PATH,
     matchExact: true,
     explanation: {
@@ -223,6 +270,37 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
         "Connect Azure, AWS, or Google Cloud for optional read-only evidence collection, or start evidence-only reviews without a connector.",
       nextAction:
         "Choose platforms to show, open a provider to configure federation, or start an evidence-only review from uploaded packages.",
+    },
+  },
+  {
+    prefix: CLOUD_PROVIDER_CONNECTION_PATHS.azure,
+    matchExact: true,
+    explanation: {
+      title: "Azure cloud connection",
+      summary:
+        "Configure read-only federated service-principal access for subscription inventory collection.",
+      nextAction:
+        "Complete security preflight, run the Tier 2 wizard, save and validate, then return to Cloud connections for workspace status.",
+    },
+  },
+  {
+    prefix: CLOUD_PROVIDER_CONNECTION_PATHS.aws,
+    matchExact: true,
+    explanation: {
+      title: "AWS cloud connection",
+      summary: "Configure a read-only federated IAM role for Resource Explorer inventory collection.",
+      nextAction:
+        "Complete security preflight, enter the role ARN, save the connection, then re-poll to validate access.",
+    },
+  },
+  {
+    prefix: CLOUD_PROVIDER_CONNECTION_PATHS.gcp,
+    matchExact: true,
+    explanation: {
+      title: "GCP cloud connection",
+      summary: "Configure read-only Cloud Asset Inventory through Workload Identity Federation.",
+      nextAction:
+        "Complete security preflight, record the pool provider and service-account email, save the connection, then re-poll to validate access.",
     },
   },
   {

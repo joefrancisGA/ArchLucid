@@ -5,8 +5,12 @@ import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
   REVIEWS_LIST_PATH,
+  REVIEWS_NEW_PATH,
   architectureDraftPath,
 } from "@/lib/architecture/architecture-routes";
+import { AUTH_DOMAINS_SETTINGS_CANONICAL_PATH } from "@/lib/auth-domains-settings-evidence-copy";
+import { CLOUD_PROVIDER_CONNECTION_PATHS } from "@/lib/cloud-provider-connection-evidence-copy";
+import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
@@ -35,6 +39,7 @@ import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route"
 import {
   SETTINGS_ROOT_PATH,
   SETTINGS_SECURITY_TRUST_PATH,
+  SETTINGS_SUPPORT_PATH,
   SETTINGS_USERS_PATH,
   SETTINGS_WORKSPACE_SETTINGS_PATH,
 } from "@/lib/settings-admin-route-paths";
@@ -170,7 +175,7 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname(CONNECTION_STATUS_CANONICAL_PATH)?.title).toBe("Connection status");
 
     expect(routeViewExplanationForPathname(CLOUD_CONNECTIONS_CANONICAL_PATH)?.title).toBe("Cloud connections");
-    expect(routeViewExplanationForPathname(`${CLOUD_CONNECTIONS_CANONICAL_PATH}/azure`)).toBeNull();
+    expect(routeViewExplanationForPathname(CLOUD_PROVIDER_CONNECTION_PATHS.azure)?.title).toBe("Azure cloud connection");
 
     expect(routeViewExplanationForPathname(FIRST_REVIEW_GUIDE_PATH)?.title).toBe("First review guide");
 
@@ -189,6 +194,17 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
 
     expect(routeViewExplanationForPathname(BASELINE_SETTINGS_CANONICAL_PATH)?.title).toBe("Baseline settings");
     expect(routeViewExplanationForPathname(ADMINISTRATION_SYSTEM_HEALTH_PATH)?.title).toBe("System health");
+  });
+
+  it("covers instrument primer wave 8 — cloud provider wizards, review intake, and admin utilities", () => {
+    expect(routeViewExplanationForPathname(REVIEWS_NEW_PATH)?.title).toBe("Start a review");
+
+    expect(routeViewExplanationForPathname(CLOUD_PROVIDER_CONNECTION_PATHS.aws)?.title).toBe("AWS cloud connection");
+    expect(routeViewExplanationForPathname(CLOUD_PROVIDER_CONNECTION_PATHS.gcp)?.title).toBe("GCP cloud connection");
+
+    expect(routeViewExplanationForPathname(SETTINGS_SUPPORT_PATH)?.title).toBe("Support");
+    expect(routeViewExplanationForPathname(AUTH_DOMAINS_SETTINGS_CANONICAL_PATH)?.title).toBe("Sign-in domains");
+    expect(routeViewExplanationForPathname(EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH)?.title).toBe("Extract and upload");
   });
 
   it("keeps drafts-inventory orientation off the draft editor and the new-draft workspace", () => {

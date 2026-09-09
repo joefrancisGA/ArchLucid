@@ -69,6 +69,9 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/insights/sponsor-report")?.title).toBe("Sponsor report");
     expect(routeViewExplanationForPathname("/integrations/jira")?.title).toBe("Jira integration");
     expect(routeViewExplanationForPathname("/administration/system-health")?.title).toBe("System health");
+    expect(routeViewExplanationForPathname("/architecture/reviews/new")?.title).toBe("Start a review");
+    expect(routeViewExplanationForPathname("/integrations/cloud-connections/azure")?.title).toBe("Azure cloud connection");
+    expect(routeViewExplanationForPathname("/administration/support")?.title).toBe("Support");
   });
 
   it("routeViewExplanationForPathname covers alerts hubs (TB-2216)", () => {
