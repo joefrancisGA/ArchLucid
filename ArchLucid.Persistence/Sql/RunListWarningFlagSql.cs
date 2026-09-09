@@ -53,9 +53,9 @@ internal static class RunListWarningFlagSql
     ///     (<c>Runs.ScopeProjectId</c>) — demo seeds store display names in <c>ProjectId</c>
     ///     while UI/live E2E list by the stable scope project id.
     /// </summary>
-    public const string ProjectWherePrefix = """
+    public const string ProjectWherePrefix = $"""
                                              (
-                                                 UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug
+                                                 {RunRepositorySql.CollapsedUpperRunsProjectId} = @NormalizedProjectSlug
                                                  OR r.ScopeProjectId = TRY_CONVERT(uniqueidentifier, @ProjectSlug)
                                              )
                                                AND
@@ -84,7 +84,7 @@ internal static class RunListWarningFlagSql
     /// <summary>
     ///     Pre-aggregated findings and open-alert presence keyed by <c>RunId</c> for dashboard list paths.
     /// </summary>
-    public const string LeftJoinAggregates = """
+    public const string LeftJoinAggregates = $"""
                                              LEFT JOIN (
                                                  SELECT
                                                      fs.RunId,
@@ -102,6 +102,6 @@ internal static class RunListWarningFlagSql
                                                  GROUP BY ar.RunId
                                              ) govWarn ON govWarn.RunId = r.RunId
                                              LEFT JOIN dbo.ArchitectureRequests ar WITH (NOLOCK)
-                                                 ON UPPER(LTRIM(RTRIM(ar.RequestId))) = UPPER(LTRIM(RTRIM(r.ArchitectureRequestId)))
+                                                 ON {RunRepositorySql.CollapsedUpperArchitectureRequestsRequestId} = {RunRepositorySql.CollapsedUpperRunsArchitectureRequestId}
                                              """;
 }

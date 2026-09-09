@@ -1,6 +1,7 @@
 import type { components } from "@/lib/api-types/schemas.generated";
 
-import { apiDelete, apiGet, apiPostJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiDelete, apiPostJson } from "./http";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
@@ -13,7 +14,7 @@ export type AttachArchitectureInventoryBindingRequest =
 export async function getArchitectureInventoryBinding(
   architectureId: string,
 ): Promise<ArchitectureInventoryBindingResponse> {
-  return apiGet<ArchitectureInventoryBindingResponse>(
+  return apiGetSealedManifestAware<ArchitectureInventoryBindingResponse>(
     `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/inventory-binding`,
   );
 }

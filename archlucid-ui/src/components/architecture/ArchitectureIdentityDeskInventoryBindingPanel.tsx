@@ -314,7 +314,14 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
               className="w-fit"
               disabled={!canAttach}
               data-testid="architecture-identity-desk-inventory-binding-attach"
-              onClick={() => void attachMutation.mutate(selection.snapshotId!)}
+              onClick={() => {
+                if (!selection.isValid || selection.snapshotId === null) {
+                  setShowAttachAttempt(true);
+                  return;
+                }
+
+                void attachMutation.mutate(selection.snapshotId);
+              }}
             >
               {ARCHITECTURE_IDENTITY_DESK_INVENTORY_BINDING_ATTACH_LABEL}
             </Button>

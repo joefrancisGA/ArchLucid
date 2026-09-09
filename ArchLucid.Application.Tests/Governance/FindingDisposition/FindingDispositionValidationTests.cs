@@ -247,6 +247,22 @@ public sealed class FindingDispositionValidationTests
     }
 
     [Fact]
+    public void Validate_accepted_rejects_zero_width_space_only_trade_off_acknowledgment()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Accepted,
+            Rationale = "We accept residual risk because rollback is documented.",
+            TradeOffAcknowledgment = new string('\u200B', FindingDispositionValidation.MinimumRationaleLength),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Trade-off acknowledgment*");
+    }
+
+    [Fact]
     public void Validate_rejects_finding_id_with_embedded_format_character()
     {
         RecordFindingDispositionRequest request = new()

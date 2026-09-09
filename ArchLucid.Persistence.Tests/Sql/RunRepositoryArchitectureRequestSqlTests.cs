@@ -278,4 +278,87 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
 
         count.Should().Be(1);
     }
+
+    [Fact]
+    public void Architecture_request_queries_collapse_internal_whitespace_before_compare()
+    {
+        RunRepositorySql.CountActiveRunsForArchitectureRequest.Should().Contain("STRING_SPLIT");
+        RunRepositorySql.CountActiveRunsForArchitectureRequest.Should().Contain("STRING_AGG");
+        RunRepositorySql.ExistsRunForArchitectureRequestInScope.Should().Contain("STRING_SPLIT");
+        RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope.Should().Contain("STRING_SPLIT");
+    }
+
+    [Fact]
+    public async Task InMemory_count_active_runs_matches_internal_whitespace_in_stored_architecture_request_id()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req  internal-space",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        int count = await runs.CountActiveRunsForArchitectureRequestAsync(
+            scope,
+            "req internal-space",
+            CancellationToken.None);
+
+        count.Should().Be(1,
+            "active-run concurrency checks must treat internal whitespace variants as the same request id.");
+    }
+
+    [Fact]
+    public async Task InMemory_exists_run_for_architecture_request_matches_internal_whitespace_in_stored_id()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req  internal-space",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsRunForArchitectureRequestInScopeAsync(
+            scope,
+            "req internal-space",
+            CancellationToken.None);
+
+        exists.Should().BeTrue(
+            "scope existence checks must treat internal whitespace variants as the same request id.");
+    }
+
+    [Fact]
+    public void NormalizeArchitectureRequestId_collapses_internal_whitespace()
+    {
+        RunRepositoryCore.NormalizeArchitectureRequestId("  req   internal  ").Should().Be("REQ INTERNAL");
+    }
 }
