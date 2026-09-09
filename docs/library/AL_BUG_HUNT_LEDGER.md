@@ -1057,11 +1057,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — ISO/FedRAMP/NIST framework markers skipped human review
+- **last-bug:** 2026-09-08 — SOX/GLBA/LGPD/data-protection framework markers skipped human review
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1080,6 +1080,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `RequiresHumanReview` / `HumanReviewRegulatoryMarkers` — shorthand `PCI:`, standalone `PHI`, and `personal data` prose never trigger human review while `pci-dss`/`pii`/`hipaa` did — **hit 2026-09-08 seed hunt #1310:** inspect-classify gap after #1335; short regulatory prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending centralized marker set; regressions in `DifficultyBasedExtractionRouterExtendedRegulatoryMarkersTests`
 - [x] (proven) `RequiresHumanReview` — framework markers (`ISO 27001`, `FedRAMP`, `NIST`) absent from `HumanReviewRegulatoryMarkers` — **hit 2026-09-08 thorough hunt #1350:** short ISO/FedRAMP/NIST prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending centralized marker set with `iso 27001`, `fedramp`, and `nist`; regressions in `Classify_returns_human_review_for_extended_regulatory_markers_without_compliance_keyword` and `Extract_does_not_stamp_fedramp_prose_directly_established`
+- [x] (proven) `RequiresHumanReview` / `HumanReviewRegulatoryMarkers` — financial and privacy framework markers (`SOX`, `GLBA`, `LGPD`, `data protection`) absent from centralized marker set — **hit 2026-09-08 seed hunt #1379:** short SOX/GLBA/LGPD/data-protection prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending marker set with `sox`, `glba`, `lgpd`, and `data protection`; regressions in `Classify_returns_human_review_for_extended_regulatory_markers_without_compliance_keyword` and `Extract_does_not_stamp_sox_prose_directly_established`
+- [ ] (candidate) `InferLifecycleScopeForIndex` — lifecycle synonyms (`present state`, `future state`) not recognized while `current state`/`target state`/`as-is`/`to-be` are — seeded 2026-09-08 seed hunt #1379 after financial/privacy marker hit
+
+2026-09-08 seed hunt #1379 (hit): reseeded extraction-router; proved SOX/GLBA/LGPD/data-protection human-review bypass; seeded present/future lifecycle synonym candidate; 33 scoped DifficultyBasedExtractionRouter tests passed.
 
 2026-09-08 thorough hunt #1350 (hit): proved ISO/FedRAMP/NIST framework marker human-review bypass; 28 scoped DifficultyBasedExtractionRouter tests passed.
 
