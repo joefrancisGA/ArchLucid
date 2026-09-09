@@ -41,6 +41,8 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/billing-and-plans",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({

@@ -8,3 +8,5 @@ export const ADVISORY_SCANS_HELP_SKIP_LINK_LABEL = "Skip to advisory scans guide
 
 export const ADVISORY_SCANS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-advisory-scans-header-claim-discipline" as const;
+
+export const ADVISORY_SCANS_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-advisory-scans-orientation-bottom" as const;

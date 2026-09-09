@@ -384,11 +384,7 @@ export function HelpAdvisoryScansGuideView(props: HelpAdvisoryScansGuideViewProp
         ) : null}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-advisory-scans-orientation-bottom">
-            <HelpAdvisoryScansSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpAdvisoryScansSourcesOrientationStrip /> : null}
       </div>
     </article>
   );
