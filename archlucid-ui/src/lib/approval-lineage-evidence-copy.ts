@@ -32,6 +32,10 @@ export const APPROVAL_LINEAGE_BUYER_START_HERE_HELPER =
 
 export const APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID = "approval-lineage-first-viewport" as const;
 
+export const APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID = "approval-lineage-orientation-bottom" as const;
+
+export const APPROVAL_LINEAGE_OVERVIEW =
+  "The lineage spine below links this approval request to its review package, findings, and finalized record version.";
 
 /** Operator Sources — no self-href to the dynamic lineage route pattern. */
 export const APPROVAL_LINEAGE_SOURCES: readonly EvidenceSourceLink[] = [
