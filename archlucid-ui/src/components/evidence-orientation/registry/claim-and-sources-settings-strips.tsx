@@ -282,7 +282,9 @@ export function NotificationPreferenceCenterEvidenceOrientationStrip(): React.JS
   );
 }
 
-export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function RoleMappingSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="role-mapping-settings"
@@ -290,6 +292,8 @@ export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element
       sourcesIntro={ROLE_MAPPING_SETTINGS_SOURCES_INTRO}
       sources={ROLE_MAPPING_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
