@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { downloadConsultingArchitectureReportDocx } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { consultingDocxMutationBlockedReason } from "@/lib/compare/consulting-docx-mutation-blocked-reason";
 import {
   CONSULTING_DOCX_EXPORT_PERMISSION,
   principalHasPermission,
@@ -154,9 +156,10 @@ export function ReviewBoardWhitelabelConsultingExportButton(
       setOpen(false);
       resetForm();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const failure = toApiLoadFailure(e);
+      const blocked = consultingDocxMutationBlockedReason(failure);
 
-      showError("Could not export consulting DOCX", msg);
+      showError("Could not export consulting DOCX", blocked ?? failure.message);
     } finally {
       setBusy(false);
     }

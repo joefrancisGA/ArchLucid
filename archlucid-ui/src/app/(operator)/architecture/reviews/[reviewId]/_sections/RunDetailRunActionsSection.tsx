@@ -11,6 +11,8 @@ import { ReviewPackageWhatIfControl } from "@/components/reviews/ReviewPackageWh
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { downloadTraceabilityBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -54,10 +56,10 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
 
     void downloadTraceabilityBundleZip(runId)
       .catch((error: unknown) => {
-        showError(
-          "Evidence bundle",
-          error instanceof Error ? error.message : "Could not download traceability bundle.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = artifactBundleMutationBlockedReason(failure);
+
+        showError("Evidence bundle", blocked ?? failure.message);
       })
       .finally(() => {
         setTraceabilityBusy(false);
