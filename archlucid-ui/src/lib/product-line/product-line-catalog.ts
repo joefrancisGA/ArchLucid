@@ -42,7 +42,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/governance/infrastructure/extract-upload": "security",
 
   // Operational-security factory (still parked under Approval nav today).
-  "/governance/remediation-factory": "both",
+  "/governance/remediation-factory": "security",
   "/governance/remediation-patterns": "both",
   "/governance/audit-evidence": "both",
 
