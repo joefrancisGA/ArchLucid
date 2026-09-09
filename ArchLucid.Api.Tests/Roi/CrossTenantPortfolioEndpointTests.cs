@@ -36,7 +36,7 @@ public sealed class CrossTenantPortfolioEndpointTests
             Mock.Of<IManifestHashService>(),
             Mock.Of<ITenantRepository>(),
             Mock.Of<IScimUserRepository>(),
-            Mock.Of<SponsorRoiRunCollector>());
+            RoiControllerTestSupport.CreateRunCollector());
 
         DefaultHttpContext httpContext = new();
         httpContext.Request.Path = "/v1/roi/cross-tenant-portfolio";

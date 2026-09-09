@@ -1740,7 +1740,7 @@ export interface components {
         };
         AttachArchitectureInventoryBindingRequest: {
             /** Format: uuid */
-            snapshotId?: string;
+            snapshotId: string;
         };
         /** @enum {string} */
         AuditEvaluationOutcome: "InsufficientEvidence" | "TechnicallySupported" | "TechnicallyNotSupported";
