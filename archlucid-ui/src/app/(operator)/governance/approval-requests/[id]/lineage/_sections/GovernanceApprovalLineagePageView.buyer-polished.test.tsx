@@ -55,6 +55,9 @@ import {
   APPROVAL_LINEAGE_BUYER_START_HERE_HELPER,
   APPROVAL_LINEAGE_CLAIM_DISCIPLINE,
   APPROVAL_LINEAGE_FOLLOW_UPS_TITLE,
+  APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID,
+  APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID,
+  APPROVAL_LINEAGE_OVERVIEW,
   APPROVAL_LINEAGE_PAGE_LEAD,
   APPROVAL_LINEAGE_PRIMARY_CONTENT_ID,
   APPROVAL_LINEAGE_SKIP_LINK_LABEL,
@@ -125,6 +128,15 @@ describe("GovernanceApprovalLineagePageView buyer-polished chrome (GAI)", () => 
       APPROVAL_LINEAGE_CLAIM_DISCIPLINE,
     );
     expect(screen.getByTestId("approval-lineage-intro")).toHaveTextContent(APPROVAL_LINEAGE_PAGE_LEAD);
+    expect(screen.getByTestId("approval-lineage-overview")).toHaveTextContent(APPROVAL_LINEAGE_OVERVIEW);
+    expect(screen.getByTestId(APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("approval-lineage-intro"),
+    );
+    expect(
+      screen.getByTestId(APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("approval-lineage-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByTestId("approval-lineage-buyer-start-here-helper")).toHaveTextContent(
       APPROVAL_LINEAGE_BUYER_START_HERE_HELPER,
     );
@@ -135,7 +147,7 @@ describe("GovernanceApprovalLineagePageView buyer-polished chrome (GAI)", () => 
 
     const primary = screen.getByTestId("approval-lineage-primary-content");
     const spine = screen.getByTestId("approval-lineage-spine");
-    const orientation = screen.getByTestId("approval-lineage-orientation-bottom");
+    const orientation = screen.getByTestId(APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primary).toContainElement(spine);
     expect(primary).toContainElement(orientation);

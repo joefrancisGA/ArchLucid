@@ -6,14 +6,18 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Advisory;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Advisory.Models;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -33,6 +37,8 @@ namespace ArchLucid.Api.Controllers.Advisory;
 public sealed class AdvisoryController(
     IAdvisoryWorkflowFacade advisoryWorkflowFacade,
     IScopeContextProvider scopeProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IAuditService auditService,
     ILogger<AdvisoryController> logger) : ControllerBase
 {
@@ -41,6 +47,12 @@ public sealed class AdvisoryController(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -51,11 +63,25 @@ public sealed class AdvisoryController(
     [HttpGet("runs/{runId:guid}/improvements")]
     [ProducesResponseType(typeof(ImprovementPlanResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetImprovements(
         Guid runId,
         [FromQuery] Guid? compareToRunId = null,
         CancellationToken ct = default)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        if (compareToRunId is Guid compareRunId)
+        {
+            IActionResult? compareGuardResult = await EnsureSealedManifestReadAllowedAsync(compareRunId, ct);
+
+            if (compareGuardResult is not null)
+                return compareGuardResult;
+        }
+
         ImprovementsPlanLoadResult result =
             await _advisoryWorkflowFacade.GetImprovementsAsync(runId, compareToRunId, ct);
 
@@ -72,8 +98,14 @@ public sealed class AdvisoryController(
 
     [HttpGet("runs/{runId:guid}/recommendations")]
     [ProducesResponseType(typeof(AdvisoryRunRecommendationsListResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<AdvisoryRunRecommendationsListResponse>> ListRecommendations(Guid runId, CancellationToken ct = default)
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ListRecommendations(Guid runId, CancellationToken ct = default)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         AdvisoryRecommendationsListResult result = await _advisoryWorkflowFacade.ListRecommendationsAsync(runId, ct);
         return Ok(new AdvisoryRunRecommendationsListResponse
         {
@@ -140,6 +172,31 @@ public sealed class AdvisoryController(
         RecommendationId = r.RecommendationId, TenantId = r.TenantId, WorkspaceId = r.WorkspaceId, ProjectId = r.ProjectId, RunId = r.RunId, ComparedToRunId = r.ComparedToRunId,
         Title = r.Title, Category = r.Category, Rationale = r.Rationale, SuggestedAction = r.SuggestedAction, Urgency = r.Urgency, ExpectedImpact = r.ExpectedImpact, PriorityScore = r.PriorityScore,
         Status = r.Status, CreatedUtc = r.CreatedUtc, LastUpdatedUtc = r.LastUpdatedUtc, ReviewedByUserId = r.ReviewedByUserId, ReviewedByUserName = r.ReviewedByUserName,
-        ReviewComment = r.ReviewComment, ResolutionRationale = r.ResolutionRationale, SourceEvidenceLinks = RecommendationSourceEvidenceLinksBuilder.Build(r).ToList(),
+        ReviewComment = r.ReviewComment, ResolutionRationale = r.ResolutionRationale,         SourceEvidenceLinks = RecommendationSourceEvidenceLinksBuilder.Build(r).ToList(),
     };
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
 }

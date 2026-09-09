@@ -15,6 +15,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
@@ -372,7 +373,10 @@ public sealed class RunQueryControllerTests
             runGraphQueryService ?? Mock.Of<IRunGraphQueryService>(),
             runFindingsQueryService ?? Mock.Of<IRunFindingsQueryService>(),
             runProvenanceQueryService ?? Mock.Of<IRunProvenanceQueryService>(),
-            traceabilityExport ?? Mock.Of<ITraceabilityBundleExportApplicationService>())
+            traceabilityExport ?? Mock.Of<ITraceabilityBundleExportApplicationService>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

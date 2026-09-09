@@ -161,9 +161,6 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     recordSponsorBannerFirstCommitBadge(badgeDayN);
   }, [badgeDayN]);
 
-  const markdownHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`;
-  const SponsorReviewPacketHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-review-packet`;
-  const sponsorProofPackHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-proof-pack.zip`;
   const executiveBriefHref = resolveInAppDocHref("docs/go-to-market/SPONSOR_SPONSOR_BRIEF.md");
   const pilotRoiModelHref = resolveInAppDocHref("docs/library/PILOT_ROI_MODEL.md");
 
@@ -276,9 +273,6 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     timeToFirstCommitHours,
     proofGate,
     estimatedUsdSavings,
-    markdownHref,
-    SponsorReviewPacketHref,
-    sponsorProofPackHref,
     executiveBriefHref,
     pilotRoiModelHref,
     readinessLoadingPhase,

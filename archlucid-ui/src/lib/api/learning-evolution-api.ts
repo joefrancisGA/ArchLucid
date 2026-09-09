@@ -14,13 +14,14 @@ import type {
   EvolutionSimulateResponse,
 } from "@/types/evolution";
 import { apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders, type ApiGetOptions } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 /** Generates an AI-driven improvement plan for a run, optionally compared to another run. */
 export async function getImprovementPlan(runId: string, compareToRunId?: string): Promise<ImprovementPlan> {
   const params = new URLSearchParams();
   if (compareToRunId?.trim()) params.set("compareToRunId", compareToRunId.trim());
   const q = params.toString();
-  return apiGet<ImprovementPlan>(
+  return apiGetSealedManifestAware<ImprovementPlan>(
     `/v1/advisory/runs/${encodeURIComponent(runId)}/improvements${q ? `?${q}` : ""}`,
   );
 }

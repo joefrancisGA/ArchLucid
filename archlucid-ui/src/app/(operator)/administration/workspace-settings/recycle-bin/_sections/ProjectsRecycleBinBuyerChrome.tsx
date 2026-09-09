@@ -2,7 +2,7 @@
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
-import { ProjectsRecycleBinClaimOrientationStrip } from "./ProjectsRecycleBinClaimOrientationStrip";
+import { ProjectsRecycleBinSourcesOrientationStrip } from "./ProjectsRecycleBinSourcesOrientationStrip";
 
 /** Buyer default: mount Sources follow-ups after primary projects recycle bin workspace (STR). */
 export function ProjectsRecycleBinBuyerChrome(): React.JSX.Element | null {
@@ -10,9 +10,5 @@ export function ProjectsRecycleBinBuyerChrome(): React.JSX.Element | null {
     return null;
   }
 
-  return (
-    <div data-testid="projects-recycle-bin-orientation-bottom">
-      <ProjectsRecycleBinClaimOrientationStrip />
-    </div>
-  );
+  return <ProjectsRecycleBinSourcesOrientationStrip />;
 }

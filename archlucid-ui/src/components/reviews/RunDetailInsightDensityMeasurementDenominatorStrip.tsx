@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
 import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -23,6 +24,7 @@ export type RunDetailInsightDensityMeasurementDenominatorStripProps = {
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
+  readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
   readonly className?: string;
   /** Hide engine-coverage copy when the review is in terminal failure (recovery owns the viewport). */
   readonly suppressOnTerminalFailure?: boolean;
@@ -47,6 +49,7 @@ export function RunDetailInsightDensityMeasurementDenominatorStrip(
     heldCheckLedgerEntries: props.heldCheckLedgerEntries ?? [],
     heldCheckSecondPass: props.heldCheckSecondPass ?? null,
     proseAssumptionRegisterEntries: props.proseAssumptionRegisterEntries ?? [],
+    proseAssumptionHeldCheckAsks: props.proseAssumptionHeldCheckAsks ?? [],
   });
   const heldCheckLabels = formatHeldCheckLedgerRankedLabels(presentation.heldCheckLedgerEntries);
   const proseAssumptionLabels = presentation.proseAssumptionRegisterLabels;

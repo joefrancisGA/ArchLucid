@@ -33,9 +33,11 @@ public sealed class GoldenCorpusActorEngineHarnessTests
             graph,
             CancellationToken.None);
 
-        snapshot.Findings.Select(static finding => finding.EngineType).Should().Contain("privileged-access");
-        snapshot.Findings.Select(static finding => finding.EngineType).Should().NotContain("external-exposure");
-        snapshot.Findings.Select(static finding => finding.EngineType).Should().NotContain("trust-boundary");
+        IEnumerable<string> engineTypes = GoldenCorpusHarnessTestSupport.AllFindingEngineTypes(snapshot);
+
+        engineTypes.Should().Contain("privileged-access");
+        engineTypes.Should().NotContain("external-exposure");
+        engineTypes.Should().NotContain("trust-boundary");
     }
 
     [Fact]
@@ -60,8 +62,10 @@ public sealed class GoldenCorpusActorEngineHarnessTests
             graph,
             CancellationToken.None);
 
-        snapshot.Findings.Select(static finding => finding.EngineType).Should().Contain("trust-boundary");
-        snapshot.Findings.Select(static finding => finding.EngineType).Should().Contain("external-exposure");
-        snapshot.Findings.Select(static finding => finding.EngineType).Should().Contain("privileged-access");
+        IEnumerable<string> engineTypes = GoldenCorpusHarnessTestSupport.AllFindingEngineTypes(snapshot);
+
+        engineTypes.Should().Contain("trust-boundary");
+        engineTypes.Should().Contain("external-exposure");
+        engineTypes.Should().Contain("privileged-access");
     }
 }

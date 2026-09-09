@@ -7,6 +7,9 @@ import {
   APPROVAL_QUEUE_CLAIM_DISCIPLINE,
   APPROVAL_QUEUE_FOLLOW_UPS_TITLE,
   GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER,
+  GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID,
+  GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID,
+  GOVERNANCE_APPROVAL_QUEUE_OVERVIEW,
   GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
   GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID,
   GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL,
@@ -231,6 +234,17 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     expect(screen.getByTestId("governance-approval-queue-intro")).toHaveTextContent(
       GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
     );
+    expect(screen.getByTestId("governance-approval-queue-overview")).toHaveTextContent(
+      GOVERNANCE_APPROVAL_QUEUE_OVERVIEW,
+    );
+    expect(screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("governance-approval-queue-intro"),
+    );
+    expect(
+      screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("governance-approval-queue-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByTestId("governance-approval-queue-buyer-start-here-helper")).toHaveTextContent(
       GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER,
     );
@@ -246,7 +260,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     );
     expect(screen.queryByTestId("layer-header-collapsible-guidance")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-approval-queue-primary-content")).toBeInTheDocument();
-    expect(screen.getByTestId("governance-approval-queue-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("approval-queue-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-interactive-quickstart")).not.toBeInTheDocument();
     expect(screen.queryByText("How approval works")).not.toBeInTheDocument();

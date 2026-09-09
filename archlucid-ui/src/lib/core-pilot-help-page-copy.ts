@@ -20,3 +20,6 @@ export const CORE_PILOT_HELP_START_HERE_HELPER =
 
 export const CORE_PILOT_HELP_PAGE_LEAD =
   "This orientation guide maps the first review path from evidence intake through finalize — not a signed-record export from your workspace." as const;
+
+export const CORE_PILOT_HELP_BUYER_OVERVIEW =
+  "Follow the five steps below in order, then use optional disclosures when you need pilot depth or actor intake detail." as const;

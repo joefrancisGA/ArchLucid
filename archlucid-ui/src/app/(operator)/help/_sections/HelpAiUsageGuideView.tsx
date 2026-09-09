@@ -29,9 +29,9 @@ import {
   AI_USAGE_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/ai-usage-help-evidence-copy";
 import {
+  AI_USAGE_HELP_BUYER_OVERVIEW,
   AI_USAGE_HELP_FIRST_VIEWPORT_TEST_ID,
   AI_USAGE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  AI_USAGE_HELP_ORIENTATION_BOTTOM_TEST_ID,
   AI_USAGE_HELP_PAGE_LEAD,
   AI_USAGE_HELP_PAGE_SUBTITLE_BUYER,
   AI_USAGE_HELP_PRIMARY_CONTENT_ID,
@@ -164,6 +164,12 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
           </div>
         ) : null}
 
+        {buyerPolishedShell ? (
+          <p className={readingBodyClass} data-testid="help-ai-usage-overview">
+            {AI_USAGE_HELP_BUYER_OVERVIEW}
+          </p>
+        ) : null}
+
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? <AiUsageHelpEvidenceOrientationStrip /> : null}
@@ -217,11 +223,7 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
           {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid={AI_USAGE_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-            <HelpAiUsageSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpAiUsageSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

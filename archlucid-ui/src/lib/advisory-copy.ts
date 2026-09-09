@@ -162,6 +162,9 @@ export const ADVISORY_SCANS_SCHEDULES_PAGE_HEADING = "Schedule advisory scans";
 export const ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER =
   "Review how recurring advisory scans are configured in this workspace — schedule changes require admin access on the Schedules workspace below.";
 
+export const ADVISORY_SCHEDULES_PAGE_LEAD =
+  "Configure recurring advisory scans from finalized architecture reviews." as const;
+
 export const ADVISORY_SCANS_SCHEDULES_INTRO =
   "Run advisory scans automatically after reviews are finalized.";
 

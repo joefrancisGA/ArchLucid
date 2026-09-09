@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GovernanceFindingsBulkActions } from "@/components/usability/GovernanceFindingsBulkActions";
 import { GOVERNANCE_BULK_DISPOSITION_REASON_REQUIRED } from "@/lib/governance/governance-mutation-outcome-copy";
-import { DISPOSITION_RATIONALE_REQUIRED_MESSAGE } from "@/lib/review-quality/finding-governance-gates";
 import { ApiRequestError } from "@/lib/api-request-error";
 
 const recordBulkFindingDisposition = vi.fn();
@@ -18,10 +17,18 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
-  defaultDeferredRevisitDueUtc: () => defaultDeferredRevisitDueUtc(),
   recordBulkFindingDisposition: (...args: unknown[]) => recordBulkFindingDisposition(...args),
   listFindingDispositions: (...args: unknown[]) => listFindingDispositions(...args),
 }));
+
+vi.mock("@/lib/findings/finding-disposition-revisit-window", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/findings/finding-disposition-revisit-window")>();
+
+  return {
+    ...actual,
+    computeFindingDispositionRevisitDueUtc: () => defaultDeferredRevisitDueUtc(),
+  };
+});
 
 vi.mock("@/lib/toast", () => ({
   showError: vi.fn(),
@@ -62,7 +69,7 @@ describe("GovernanceFindingsBulkActions", () => {
     expect(showError).not.toHaveBeenCalled();
   });
 
-  it("keeps accept and waive disabled until rationale meets minimum length", () => {
+  it("enables bulk actions once a shared reason is non-empty", () => {
     render(
       <GovernanceFindingsBulkActions
         selectedFindingIds={["f1"]}
@@ -75,10 +82,9 @@ describe("GovernanceFindingsBulkActions", () => {
       target: { value: "too short" },
     });
 
-    expect(screen.getByRole("button", { name: "Accept all" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Waive all" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Accept all" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Waive all" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Defer all" })).toBeEnabled();
-    expect(screen.getByText(DISPOSITION_RATIONALE_REQUIRED_MESSAGE)).toBeInTheDocument();
   });
 
   it("notifies parent with durable success message after bulk disposition succeeds", async () => {
@@ -153,6 +159,10 @@ describe("GovernanceFindingsBulkActions", () => {
         expect.objectContaining({
           disposition: "Deferred",
           revisitDueUtc: "2026-10-03T00:00:00.000Z",
+          expectedCurrentDispositionRowVersionBase64ByFindingId: {
+            f1: "AAA=",
+            f2: "BBB=",
+          },
         }),
         expect.any(Object),
       );

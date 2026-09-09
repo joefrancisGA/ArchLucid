@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 
 import { RootCauseClusterDispositionStrip } from "@/components/findings/RootCauseClusterDispositionStrip";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 const recordBulkFindingDisposition = vi.fn();
 const listFindingDispositions = vi.fn();
-const routerRefresh = vi.fn();
+const navState = {
+  search: new URLSearchParams(),
+  refresh: vi.fn(),
+};
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   recordBulkFindingDisposition: (...args: unknown[]) => recordBulkFindingDisposition(...args),
@@ -17,11 +20,26 @@ vi.mock("@/lib/await-minimum-visible-duration", () => ({
   awaitMinimumVisibleDuration: vi.fn(async () => undefined),
 }));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: routerRefresh, replace: vi.fn() }),
-  usePathname: () => "/",
-  useSearchParams: () => new URLSearchParams(),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/",
+    useSearchParams: () => navState.search,
+    useRouter: () =>
+      ({
+        back: vi.fn(),
+        forward: vi.fn(),
+        prefetch: vi.fn(),
+        push: vi.fn(),
+        refresh: (...args: unknown[]) => navState.refresh(...args),
+        replace: (href: string) => {
+          const queryIndex = href.indexOf("?");
+          navState.search = new URLSearchParams(queryIndex >= 0 ? href.slice(queryIndex + 1) : "");
+        },
+      }) as never,
+  });
+});
 
 function finding(
   overrides: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -45,7 +63,8 @@ describe("RootCauseClusterDispositionStrip", () => {
   beforeEach(() => {
     recordBulkFindingDisposition.mockReset();
     listFindingDispositions.mockReset();
-    routerRefresh.mockReset();
+    navState.refresh.mockReset();
+    navState.search = new URLSearchParams();
     recordBulkFindingDisposition.mockResolvedValue({ processedCount: 2 });
     listFindingDispositions.mockImplementation(async (findingId: string) => {
       if (findingId === "a") {
@@ -96,7 +115,8 @@ describe("RootCauseClusterDispositionStrip", () => {
       target: { value: "Shared cost trade-off accepted for pilot scope." },
     });
     fireEvent.click(screen.getByTestId("root-cause-cluster-accept-rule:cost.budget"));
-    fireEvent.click(screen.getByRole("button", { name: "Accept cluster" }));
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: "Accept cluster" }));
 
     await waitFor(() => {
       expect(recordBulkFindingDisposition).toHaveBeenCalledWith(
@@ -112,7 +132,7 @@ describe("RootCauseClusterDispositionStrip", () => {
       expect(screen.getByTestId("root-cause-cluster-disposition-success")).toHaveTextContent(
         "Marked 2 finding(s) as accepted.",
       );
-      expect(routerRefresh).toHaveBeenCalled();
+      expect(navState.refresh).toHaveBeenCalled();
     });
   });
 });

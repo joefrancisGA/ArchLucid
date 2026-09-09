@@ -20,10 +20,16 @@ public sealed partial class RunQueryController
     [ProducesResponseType(typeof(RunDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRun(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunGraphDetailQueryResult result = await runGraphQueryService.GetRunDetailAsync(runId, cancellationToken);
 
         return result.Outcome switch
@@ -38,10 +44,16 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/roi")]
     [ProducesResponseType(typeof(RunRoiScorecardDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunRoiEstimate(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunRoiEstimateQueryResult result = await runGraphQueryService.GetRunRoiEstimateAsync(runId, cancellationToken);
 
         return result.Outcome == RunGraphQueryOutcome.Success

@@ -127,10 +127,13 @@ export function ArchitectureCreatedFindingsEvidenceOrientationStrip(): React.JSX
   );
 }
 
-export function ArchitectureCreatedEvidenceEvidenceOrientationStrip(): React.JSX.Element {
+export function ArchitectureCreatedEvidenceEvidenceOrientationStrip(
+  props: { readonly part?: EvidenceOrientationStripPart } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="architecture-evidence"
+      part={props.part}
       align="text-left"
       sourcesIntro={ARCHITECTURE_CREATED_EVIDENCE_SOURCES_INTRO}
       sources={ARCHITECTURE_CREATED_EVIDENCE_SOURCES}
@@ -140,10 +143,13 @@ export function ArchitectureCreatedEvidenceEvidenceOrientationStrip(): React.JSX
   );
 }
 
-export function ArchitectureCreatedGovernanceEvidenceOrientationStrip(): React.JSX.Element {
+export function ArchitectureCreatedGovernanceEvidenceOrientationStrip(
+  props: { readonly part?: EvidenceOrientationStripPart } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="architecture-governance"
+      part={props.part}
       align="text-left"
       sourcesIntro={ARCHITECTURE_CREATED_GOVERNANCE_SOURCES_INTRO}
       sources={ARCHITECTURE_CREATED_GOVERNANCE_SOURCES}

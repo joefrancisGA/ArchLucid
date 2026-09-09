@@ -17,9 +17,9 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_PAGE_SCOPE,
 } from "@/lib/authentication-sign-in-help-evidence-copy";
 import {
+  AUTHENTICATION_SIGN_IN_HELP_BUYER_OVERVIEW,
   AUTHENTICATION_SIGN_IN_HELP_FIRST_VIEWPORT_TEST_ID,
   AUTHENTICATION_SIGN_IN_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID,
   AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD,
   AUTHENTICATION_SIGN_IN_HELP_PAGE_SUBTITLE_BUYER,
   AUTHENTICATION_SIGN_IN_HELP_PRIMARY_CONTENT_ID,
@@ -147,6 +147,15 @@ export function HelpAuthenticationSignInGuideView(
         <HelpAuthenticationSignInActionPanel />
       )}
 
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="help-authentication-sign-in-overview"
+        >
+          {AUTHENTICATION_SIGN_IN_HELP_BUYER_OVERVIEW}
+        </p>
+      ) : null}
+
       <div className={contentGridClass}>
         <div className={cn("min-w-0 space-y-4", HELP_PAGE_LAYOUT.contentColumn)}>
           <div data-testid="help-authentication-sign-in-first-viewport" className="space-y-4">
@@ -170,11 +179,7 @@ export function HelpAuthenticationSignInGuideView(
         {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
 
-      {buyerPolishedShell ? (
-        <div data-testid={AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-          <HelpAuthenticationSignInSourcesOrientationStrip />
-        </div>
-      ) : null}
+      {buyerPolishedShell ? <HelpAuthenticationSignInSourcesOrientationStrip /> : null}
     </>
   );
 

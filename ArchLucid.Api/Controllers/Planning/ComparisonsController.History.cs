@@ -3,6 +3,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
 
 using FluentValidation.Results;
 
@@ -15,10 +16,16 @@ public sealed partial class ComparisonsController
     [HttpGet("run/{runId}/comparisons")]
     [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunComparisonHistory(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         IReadOnlyList<ArchLucid.Contracts.Metadata.ComparisonRecord>? records =
             await _comparisons.TryListByRunIdAsync(runId, cancellationToken);
 

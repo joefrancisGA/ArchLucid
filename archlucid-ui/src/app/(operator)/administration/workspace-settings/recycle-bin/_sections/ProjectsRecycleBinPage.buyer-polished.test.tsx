@@ -12,6 +12,8 @@ import {
   PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER,
   PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   PROJECTS_RECYCLE_BIN_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  PROJECTS_RECYCLE_BIN_SETTINGS_ORIENTATION_BOTTOM_TEST_ID,
+  PROJECTS_RECYCLE_BIN_SETTINGS_OVERVIEW,
   PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD,
   PROJECTS_RECYCLE_BIN_SETTINGS_PRIMARY_CONTENT_ID,
   PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_LINK_LABEL,
@@ -97,6 +99,15 @@ describe("ProjectsRecycleBinPage buyer-polished shell (STR)", () => {
     expect(screen.getByText(PROJECTS_RECYCLE_BIN_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(recycleBinPageDescription(30))).not.toBeInTheDocument();
     expect(screen.getByTestId("projects-recycle-bin-intro")).toHaveTextContent(PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD);
+    expect(screen.getByTestId("projects-recycle-bin-overview")).toHaveTextContent(PROJECTS_RECYCLE_BIN_SETTINGS_OVERVIEW);
+    expect(screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("projects-recycle-bin-intro"),
+    );
+    expect(
+      screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("projects-recycle-bin-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByTestId("projects-recycle-bin-buyer-start-here-helper")).toHaveTextContent(
       PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER,
     );
@@ -120,7 +131,7 @@ describe("ProjectsRecycleBinPage buyer-polished shell (STR)", () => {
 
     const primaryContent = screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID);
-    const orientationBottom = screen.getByTestId("projects-recycle-bin-orientation-bottom");
+    const orientationBottom = screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("projects-recycle-bin-settings-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
