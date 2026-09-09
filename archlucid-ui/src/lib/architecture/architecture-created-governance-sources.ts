@@ -51,6 +51,11 @@ export const ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD =
 export const ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW =
   "Governance panels below summarize readiness checks, policy alignment cues, and approval follow-ups for this draft scope.";
 
+/** Buyer bridge between first-viewport lead and governance workspace (REG). */
+export const ARCHITECTURE_CREATED_GOVERNANCE_BUYER_OVERVIEW = ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW;
+
+export const ARCHITECTURE_CREATED_GOVERNANCE_WORKSPACE_TEST_ID = "architecture-created-governance-workspace" as const;
+
 export const ARCHITECTURE_CREATED_GOVERNANCE_START_HERE_CARD_TITLE = "Start here" as const;
 
 export const ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER =
