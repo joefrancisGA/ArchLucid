@@ -4,11 +4,9 @@
 
 # Insight density — excellence Composer prompt set (DX-73–DX-76)
 
-**Created:** 2026-09-09 · **Status:** Ready to run. **DX-01–DX-72 shipped / implemented — do not re-run.**
+**Created:** 2026-09-09 · **Status:** **DX-73–DX-76 shipped / implemented (`#2530`) — do not re-run.**
 
-DX-69 materialized Azure IAM + data-flow path edges from declared principal/scope/backend. DX-70 stopped unanchored `doc:` / `finding:` refs from vetoing demotion. DX-71 demotes fused constituents. DX-72 graded concrete citations. Latest golden case is **`case-65`** (`GoldenCorpusHarnessEngineRegistration.LatestGoldenCorpusCaseNumber`). Harness registers **42** engines. **`case-65`** proves Azure Terraform UAMI + Contributor on data-bearing SQL through `DefaultGraphBuilder` with **no** hand overlay.
-
-What remains Cursor-implementable is still **not** another subtractive flag and **not** a new `EngineType`. The checked-in distribution table (`docs/quality/insight-density-engine-distribution.md`) still describes a **pre–DX-69** slice (`case-01`…`case-63`, 41 engines). Whether DX-72 actually broke the 60 / 65 / 75 / 80 / 85 ladder is **unmeasured**. Path engines that score 80–85 still almost never fire on **non-Azure** IaC: AWS/GCP IAM declarations do not promote into the same path edges, **case-60** (`data-flow-trust-boundary`) is still a **hand overlay**, and **case-39** / **case-44** (`segmentation-semantics`) still overlay NSG rule blobs + `APPLIES_TO` hops.
+DX-69 materialized Azure IAM + data-flow path edges from declared principal/scope/backend. DX-70 stopped unanchored `doc:` / `finding:` refs from vetoing demotion. DX-71 demotes fused constituents. DX-72 graded concrete citations. **DX-73** re-recorded `docs/quality/insight-density-engine-distribution.md` through **`case-69`** with `priorGraphFixture` (includes **case-64** drift). **DX-74** promoted AWS/GCP IAM into path edges (**case-66** / **case-67**). **DX-75** added parse-through data-flow (**case-68**). **DX-76** promoted NSG/SG rules + association edges (**case-69**). Latest golden case is **`case-69`** (`GoldenCorpusHarnessEngineRegistration.LatestGoldenCorpusCaseNumber`). Harness registers **42** engines. Recorded scores **do not** form the old **60 / 65 / 75 / 80 / 85** ladder — see distribution markdown honesty note.
 
 **This set adds zero `EngineType`.** Do not add a 5th `AgentType`. Do not add a coverage engine.
 
@@ -21,7 +19,8 @@ What remains Cursor-implementable is still **not** another subtractive flag and 
 | ID-01–ID-10, PP-01 map | Shipped |
 | **DX-01–DX-68** | Gate, path/contradiction engines, InsightGenerator, ingest, goldens, fusion, held-checks, threshold 65, corroboration, topology-security-drift |
 | **DX-69–DX-72** | Azure declaration IAM/`CONNECTS_TO` edges, evidence-ref vetoes, fuse-then-demote, graduated scores, **case-65** |
-| Coverage-only engines | Still forbidden. This set adds **no** new `EngineType`. |
+| **DX-73–DX-76** | Distribution re-record through **case-69**, AWS/GCP IAM path edges (**case-66** / **case-67**), parse-through data-flow (**case-68**), parse-through segmentation (**case-69**) — `#2530` |
+| Coverage-only engines | Still forbidden. This set added **no** new `EngineType`. |
 
 ## Sequencing
 
@@ -32,7 +31,7 @@ What remains Cursor-implementable is still **not** another subtractive flag and 
 | **DX-75** | Data-flow `CONNECTS_TO` golden without overlay | Yes with DX-74 | DX-69 shipped | **Generative** (data-flow-trust-boundary on parsed ingress/backend) |
 | **DX-76** | NSG/SG/firewall rule promotion + association edges | Yes with DX-74 | DX-07, DX-69 shipped | **Generative** (segmentation-semantics on parsed rules, not overlays) |
 
-**Start DX-73 now.** It only records and documents; it does not compete with mapper edits. **Start DX-74, DX-75, and DX-76 after DX-73 has recorded** (or in parallel if DX-73 is already merged) — they add goldens and must re-record the distribution markdown at the end of **each** golden prompt. Read `LatestGoldenCorpusCaseNumber` at the start of every golden prompt; do not assume 66.
+**Shipped `#2530`.** Read `LatestGoldenCorpusCaseNumber` at the start of any future golden prompt; do not assume 66+ without checking code.
 
 **Do not start from this document:** live extractor-as-default (product/GTM), `EnableProseAssumptionExtraction` default-on, fake named-model frontier transcripts, Graph-RAG buyer claims (ADR 0057 / **TB-883**), raising `MaxJudgedFindingsPerSnapshot` above 40, `portfolio-shared-topology` default-on, SOC 2 CPA (**G-REAL-05**), third-party pen test (**G-ASSURANCE-02**), GTM cohorts **M-90 / M-44 / M-91 / M-92**, a 5th `AgentType`, coverage engines parked on **G-REAL-06**, a second fusion engine, a new path/contradiction `EngineType` (DX-06 / DX-07 / DX-32 already exist — this set only **feeds** them).
 
@@ -314,4 +313,4 @@ Still owner-gated (not Cursor-default):
 | Graph-RAG live ablation **TB-883** | ADR 0057 buyer-claim gate |
 | `PreferHighHumanAcceptResidual` default-on | DX-67 flag; needs calibration table volume |
 
-Do **not** follow this set with another coverage engine or another fusion `EngineType`. If DX-73 shows the score ladder still collapsed after DX-72, the next Cursor-safe lever is more **declared path evidence** (this set), not another penalty flag.
+Do **not** follow this set with another coverage engine or another fusion `EngineType`. DX-73 confirmed the score ladder **did not** spread to five clean rungs after DX-72; DX-74–DX-76 still added **declared path evidence** on AWS/GCP IaC without new engines. Next levers are owner-gated (live extractors, frontier corpus, Graph-RAG ablation) — see [`INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md).
