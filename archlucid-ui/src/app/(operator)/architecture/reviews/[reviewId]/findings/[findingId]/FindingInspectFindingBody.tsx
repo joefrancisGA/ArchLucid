@@ -130,13 +130,14 @@ export function FindingInspectFindingBody({
     ) : null;
 
   const evidenceBlock = (
-    <FindingInspectEvidenceSection
-      demoFillGaps={demoFillGaps}
-      reviewContextHref={reviewContextHref}
-      reviewContextLabel={reviewContextLabel}
-      evidence={payload.evidence}
-      citationModel={citationModel}
-    />
+        <FindingInspectEvidenceSection
+          runId={runId}
+          demoFillGaps={demoFillGaps}
+          reviewContextHref={reviewContextHref}
+          reviewContextLabel={reviewContextLabel}
+          evidence={payload.evidence}
+          citationModel={citationModel}
+        />
   );
 
   const insightDensityBlock = (

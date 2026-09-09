@@ -184,6 +184,7 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
         summaryLine={evidenceBasisSummary}
       >
         <FindingInspectEvidenceSection
+          runId={runId}
           demoFillGaps={demoFillGaps}
           reviewContextHref={reviewPackageHref}
           reviewContextLabel="Open review summary"

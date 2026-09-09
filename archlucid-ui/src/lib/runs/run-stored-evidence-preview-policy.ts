@@ -11,12 +11,13 @@ const IMAGE_CONTENT_TYPES = new Set(["image/png", "image/jpeg", "image/jpg", "im
 const TEXT_CONTENT_TYPES = new Set([
   "text/plain",
   "text/markdown",
+  "text/vnd.mermaid",
   "application/json",
   "application/yaml",
   "text/yaml",
 ]);
 
-const TEXT_EXTENSIONS = new Set([".txt", ".md", ".json", ".yaml", ".yml"]);
+const TEXT_EXTENSIONS = new Set([".txt", ".md", ".mmd", ".mermaid", ".json", ".yaml", ".yml"]);
 
 const IMAGE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp"]);
 
