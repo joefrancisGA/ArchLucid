@@ -20,9 +20,11 @@ import {
 import { downloadArchitecturePackageDocx } from "@/lib/api/downloads-blob-trigger-architecture-package-docx";
 import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
 import { downloadFirstValueReportPdf } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError, showSuccess } from "@/lib/toast";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
@@ -83,9 +85,10 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
       await downloadFirstValueReportPdf(runIdTrimmed);
       showSuccess("Sponsor PDF download started.");
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const failure = toApiLoadFailure(error);
+      const blocked = firstValueReportMutationBlockedReason(failure);
 
-      showError("Sponsor PDF download failed", message);
+      showError("Sponsor PDF download failed", blocked ?? failure.message);
     } finally {
       setPdfBusy(false);
     }

@@ -55,7 +55,6 @@ public sealed partial class AuthorityReadsController(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
     /// <summary>Lists runs across the current tenant/workspace/project scope (newest first, keyset).</summary>
     [HttpGet("")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]

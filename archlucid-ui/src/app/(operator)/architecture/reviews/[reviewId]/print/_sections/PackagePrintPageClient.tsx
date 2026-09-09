@@ -24,6 +24,7 @@ import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
   PACKAGE_PRINT_LOADING_LABEL,
+  buildPackagePrintBackHref,
   buildPackagePrintPresentation,
   PACKAGE_PRINT_BACK_LABEL,
 } from "@/lib/package-print-view";
@@ -159,7 +160,6 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
         <Button type="button" variant="secondary" asChild>
           <Link href={printBackHref} data-testid="package-print-blocked-back">
             {PACKAGE_PRINT_BACK_LABEL}
-
           </Link>
         </Button>
       </div>

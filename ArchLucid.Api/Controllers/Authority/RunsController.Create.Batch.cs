@@ -25,6 +25,7 @@ public sealed partial class RunsController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateRunBatch(
         [FromBody] IReadOnlyList<ArchitectureRequest>? requests,
         CancellationToken cancellationToken)
@@ -44,6 +45,12 @@ public sealed partial class RunsController
             return badRequest!;
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureRunCreateSealedManifestAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         BatchCreateRunOrchestrationResult result = await runLifecycleCommandService.CreateRunBatchAsync(
             scope,

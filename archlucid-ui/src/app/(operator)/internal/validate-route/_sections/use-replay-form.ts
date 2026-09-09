@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "
 import { replayRun } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { reviewReplayMutationBlockedReason } from "@/lib/runs/review-replay-mutation-blocked-reason";
 import { INTERNAL_REPLAY_PATH, replayScopedHref } from "@/lib/internal-ops-route-paths";
 import {
   parseReplayValidationModeFromSearch,
@@ -202,7 +203,9 @@ export function useReplayForm(): ReplayFormViewModel {
         .then(setAuditHistory)
         .catch(() => undefined);
     } catch (err) {
-      setFailure(toApiLoadFailure(err));
+      const failure = toApiLoadFailure(err);
+      const blocked = reviewReplayMutationBlockedReason(failure);
+      setFailure(blocked !== null ? { ...failure, message: blocked } : failure);
       setResult(null);
       const durationMs = Math.round(performance.now() - startedAt);
       const failedEntry = mapSessionReplayHistoryEntry({

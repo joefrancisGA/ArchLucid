@@ -56,7 +56,6 @@ import { RunDetailExportRecordComparisonHistoryCallout } from "./RunDetailExport
 import { RunDetailAssuranceGuardCallouts } from "./RunDetailAssuranceGuardCallouts";
 import { RunDetailExportBlobPushPanel } from "@/components/runs/RunDetailExportBlobPushPanel";
 
-
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
   readonly runId: string;
@@ -580,7 +579,6 @@ export function RunDetailArtifactsExportsSection(
       />
       <RunDetailExportHistoryCallout runId={runId} />
       <RunDetailExportBlobPushPanel runId={runId} disabled={collateralExportBlockedReason !== null} />
-
       <RunDetailAssuranceGuardCallouts runId={runId} />
     </section>
   );

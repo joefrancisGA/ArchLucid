@@ -8,6 +8,8 @@ import { useState, type ReactElement } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { executeArchitectureRunSelectiveInFlight } from "@/lib/api/architecture-runs";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { reviewSelectiveExecuteMutationBlockedReason } from "@/lib/runs/review-selective-execute-mutation-blocked-reason";
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { resolveFailedAgentTypesForSelectiveRetry } from "@/lib/runs/run-detail-selective-agent-retry";
 import type { RunDetailAgentResult, RunRetrievalGroundingSummary } from "@/types/authority";
@@ -87,7 +89,10 @@ export function RunAgentResultsSummaryCard(props: {
       );
       router.refresh();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Selective retry failed.";
+      const failure = toApiLoadFailure(error);
+      const message =
+        reviewSelectiveExecuteMutationBlockedReason(failure)
+        ?? (error instanceof Error ? error.message : "Selective retry failed.");
       setRetryError(message);
     } finally {
       setRetryBusy(false);

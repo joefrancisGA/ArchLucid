@@ -16,6 +16,7 @@ export {
   downloadBoardPackPdf,
   downloadConsultingArchitectureReportDocx,
   downloadFirstValueReportPdf,
+  downloadSponsorOnePagerPdf,
 } from "./downloads-blob-trigger-reports";
 
 export {

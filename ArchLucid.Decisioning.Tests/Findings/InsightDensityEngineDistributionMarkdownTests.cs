@@ -19,8 +19,8 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
     [Fact]
     public void Constants_document_harness_and_catalog_sizes()
     {
-        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(42);
-        InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(53);
+        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(43);
+        InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(54);
     }
 
     [Fact]
@@ -35,7 +35,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-            The golden corpus harness registers **42** engines; **0** appear in this table (≥1 finding across case-01..case-71). **53** built-in product engines are absent from this corpus-derived slice.
+            The golden corpus harness registers **43** engines; **0** appear in this table (≥1 finding across case-01..case-72). **54** built-in product engines are absent from this corpus-derived slice.
             `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
             `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
@@ -64,7 +64,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-            The golden corpus harness registers **42** engines; **1** appear in this table (≥1 finding across case-01..case-71). **52** built-in product engines are absent from this corpus-derived slice.
+            The golden corpus harness registers **43** engines; **1** appear in this table (≥1 finding across case-01..case-72). **53** built-in product engines are absent from this corpus-derived slice.
             `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
             `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
@@ -89,7 +89,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
         ]);
 
         markdown.Should().Contain("**1** appear in this table");
-        markdown.Should().Contain("**52** built-in product engines are absent");
+        markdown.Should().Contain("**53** built-in product engines are absent");
         markdown.Should().Contain("| topology | 2 | 80 | 85 | 90 | 0 | 1 | 2 | 0 | 0 | 1 |");
         markdown.Should().Contain("| TOPOLOGY | 1 | 70 | 75 | 80 | 1 | 0 | 1 | 1 | 0 | 1 |");
     }
@@ -98,13 +98,13 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
     public void Build_absent_count_never_negative_when_table_exceeds_catalog()
     {
         List<InsightDensityEngineDistributionRow> rows = Enumerable
-            .Range(0, 53)
+            .Range(0, 54)
             .Select(index => CreateRow($"engine-{index:D2}", 1, 50, 50, 50, 0, 0, 1, 1, 0, 1))
             .ToList();
 
         string markdown = InsightDensityEngineDistributionMarkdown.Build(rows);
 
-        markdown.Should().Contain("**53** appear in this table");
+        markdown.Should().Contain("**54** appear in this table");
         markdown.Should().Contain("**0** built-in product engines are absent");
         markdown.Should().NotContain("**-1**");
     }

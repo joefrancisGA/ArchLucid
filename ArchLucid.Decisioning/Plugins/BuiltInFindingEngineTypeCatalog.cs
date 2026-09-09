@@ -54,6 +54,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["DeclarationInventoryContradictionFindingEngine"] = "declaration-inventory-contradiction",
             ["PolicyDeclarationInventoryContradictionFindingEngine"] = "policy-declaration-inventory-contradiction",
             ["DanglingDeclarationReferenceFindingEngine"] = "dangling-declaration-reference",
+            ["DiagramDeclarationOmissionFindingEngine"] = "diagram-declaration-omission",
             ["OrphanedAwsResourceFindingEngine"] = "orphaned-aws-resource",
             ["OrphanedGcpResourceFindingEngine"] = "orphaned-gcp-resource",
             ["AwsCostRecommendationFindingEngine"] = "aws-cost-recommendation",

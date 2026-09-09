@@ -10,6 +10,7 @@ import {
   apiPostAcceptedWithLocation,
   apiPostJson,
   apiPostNoContent,
+  apiDelete,
 } from "./http";
 
 /** Pins or unpins a run (PATCH /v1/architecture/review/{runId}/pin). Omit `isPinned` to toggle. */
@@ -127,4 +128,19 @@ export async function seedFakeArchitectureRunResults(runId: string): Promise<{ r
 /** Restores a soft-archived architecture request (POST /v1/architecture/request/{requestId}/restore). */
 export async function restoreArchitectureRequest(requestId: string): Promise<void> {
   return apiPostNoContent(`/v1/architecture/request/${encodeURIComponent(requestId)}/restore`, {});
+}
+
+/** Clones an architecture request as a new template (POST /v1/architecture/request/{requestId}/clone). */
+export async function cloneArchitectureRequest(requestId: string): Promise<unknown> {
+  return apiPostJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/clone`, {});
+}
+
+/** Archives an architecture request (PATCH /v1/architecture/request/{requestId}/archive). */
+export async function archiveArchitectureRequest(requestId: string): Promise<void> {
+  await apiPatchJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/archive`, {});
+}
+
+/** Soft-deletes an architecture request (DELETE /v1/architecture/request/{requestId}). */
+export async function deleteArchitectureRequest(requestId: string): Promise<void> {
+  await apiDelete(`/v1/architecture/request/${encodeURIComponent(requestId)}`);
 }

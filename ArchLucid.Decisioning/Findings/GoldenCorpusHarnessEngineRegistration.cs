@@ -5,7 +5,7 @@ namespace ArchLucid.Decisioning.Findings;
 /// </summary>
 public static class GoldenCorpusHarnessEngineRegistration
 {
-    public const int LatestGoldenCorpusCaseNumber = 71;
+    public const int LatestGoldenCorpusCaseNumber = 72;
 
     public static IReadOnlyList<string> RegisteredEngineTypeIds { get; } =
     [
@@ -32,6 +32,7 @@ public static class GoldenCorpusHarnessEngineRegistration
         "declaration-security-baseline",
         "declaration-premise-conflict",
         "dangling-declaration-reference",
+        "diagram-declaration-omission",
         "orphaned-azure-resource",
         "advisor-cost-recommendation",
         "azure-inventory-reconciliation",
