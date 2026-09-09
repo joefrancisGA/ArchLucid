@@ -146,7 +146,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
             title={SLACK_INTEGRATION_HELP_PAGE_TITLE}
             titleTestId="help-slack-integration-page-title"
             subtitle={slackIntegrationHelpPageSubtitle(buyerPolishedShell)}
-            subtitleClassName="max-w-3xl"
+            subtitleClassName={cn("max-w-3xl", HELP_PAGE_LAYOUT.readingBody)}
             navHref={SLACK_INTEGRATION_HELP_CANONICAL_PATH}
             headingLevel="h1"
             claimDiscipline={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE}
