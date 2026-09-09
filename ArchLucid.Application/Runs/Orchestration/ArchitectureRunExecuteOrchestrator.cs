@@ -98,7 +98,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid runGuid) && _runExecuteOwnershipLeaseService.IsEnabled)
             {
-                await EnsureExecuteRunExistsAsync(runId, cancellationToken).ConfigureAwait(false);
+                await EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync(runId, cancellationToken).ConfigureAwait(false);
 
                 await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
 
@@ -268,7 +268,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         return currentRun;
     }
 
-    private async Task EnsureExecuteRunExistsAsync(string runId, CancellationToken cancellationToken)
+    private async Task EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync(string runId, CancellationToken cancellationToken)
     {
         ArchitectureRun? run =
             await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
@@ -280,6 +280,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         if (run is null)
             throw new RunNotFoundException(runId);
+
+        await _scopeResolveStage.ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken).ConfigureAwait(false);
     }
 
     internal static bool ArePersistedResultsCompleteForTasks(

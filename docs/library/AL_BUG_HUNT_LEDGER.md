@@ -10152,10 +10152,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
 - **hunts:** 8
-- **bugs-found:** 7
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — full execute acquired ownership before run-not-found validation
+- **last-bug:** 2026-09-09 — full execute acquired ownership before run-not-found and authority-pipeline gates
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -10172,6 +10172,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — heartbeat renewal does not consult `IWorkerHostDrainGate.IsDraining` (unlike `AcquireAsync`) — **cheap-disproof 2026-09-08 (#1327):** in-flight execute may keep renewing until scope dispose; drain boundary is `ReleaseAllHeldByThisInstanceAsync` (TB-961), not blocking renew; regression in `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease`.
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — validation and task planning finished before `AcquireAsync`; if the run committed in that window selective still claimed the SQL lease and only failed on the prep reload — **hit 2026-09-08 (#1327):** reload committed/authority gates before acquire via `EnsureSelectiveExecuteStillEligibleAsync`; regression in `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_becomes_committed_before_acquire`.
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ExecuteRunCoreAsync` run reload; a vanished/deleted run id still held the SQL lease until `finally` release (no mutations, admission-before-validation ordering per TB-943) — **hit 2026-09-09 (#1391):** `AcquireAsync` ran before `TryGetArchitectureRunAsync`; not-found execute briefly blocked peer acquire; fixed with `EnsureExecuteRunExistsAsync` before ownership acquire; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_not_found`.
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ThrowIfAuthorityPipelineCompleteAsync` while selective execute re-checked authority completion before acquire (#1327); authority-complete runs held SQL lease until refused execute released it — **hit 2026-09-09 (#1392):** extended pre-acquire eligibility guard to authority-pipeline completion; regression `ExecuteRunAsync_does_not_acquire_ownership_when_authority_pipeline_is_complete`.
+
+2026-09-09 thorough hunt #1392 (hit): proved full execute must validate run existence and authority-pipeline completion before ownership acquire; 41 scoped ownership/orchestrator tests passed.
 
 2026-09-09 thorough hunt #1391 (hit): proved full execute must validate run existence before ownership acquire; mirrors selective eligibility guard.
 2026-09-08 seed hunt #1326 (hit): reseeded selective stale-status paths; proved committed transition after validation must block prep mutations.
