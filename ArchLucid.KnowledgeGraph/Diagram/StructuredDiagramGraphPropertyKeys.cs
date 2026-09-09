@@ -17,6 +17,12 @@ public static class StructuredDiagramGraphPropertyKeys
 
     public const string DiagramSubgraphId = "structuredDiagram.subgraphId";
 
+    public const string DiagramEdgeId = "structuredDiagram.diagramEdgeId";
+
+    public const string DiagramCitationRef = "structuredDiagram.diagramCitationRef";
+
+    public const string DiagramOrigin = "structuredDiagram.diagramOrigin";
+
     public const string DiagramSubgraphLabel = "structuredDiagram.subgraphLabel";
 
     public const string TrustBoundaryLabel = "structuredDiagram.trustBoundaryLabel";

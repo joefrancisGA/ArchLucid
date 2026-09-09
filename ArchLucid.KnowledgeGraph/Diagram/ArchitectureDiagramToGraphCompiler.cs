@@ -134,6 +134,8 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             }
         }
 
+        HashSet<string> compiledDirectedPairs = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (ArchitectureDiagramEdgeRecord edge in model.Edges)
         {
             if (edge.Removed)
@@ -143,6 +145,18 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
 
             if (!nodeIdMap.TryGetValue(edge.SourceId.Trim(), out string? fromNodeId)
                 || !nodeIdMap.TryGetValue(edge.TargetId.Trim(), out string? toNodeId))
+            {
+                continue;
+            }
+
+            if (string.Equals(fromNodeId, toNodeId, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string directedPairKey = $"{fromNodeId}|{toNodeId}";
+
+            if (!compiledDirectedPairs.Add(directedPairKey))
             {
                 continue;
             }
@@ -273,11 +287,17 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         ArchitectureDiagramEdgeRecord edge,
         double confidence)
     {
+        string diagramEdgeId = edge.Id.Trim();
+
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
             [StructuredDiagramGraphPropertyKeys.ExtractionMethod] = model.ExtractionMethod,
             [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = ResolveEdgeProvenanceKind(edge),
             [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = confidence.ToString("0.###"),
+            [StructuredDiagramGraphPropertyKeys.DiagramEdgeId] = diagramEdgeId,
+            [StructuredDiagramGraphPropertyKeys.DiagramOrigin] = "true",
+            [StructuredDiagramGraphPropertyKeys.DiagramCitationRef] =
+                StructuredDiagramCitationRefs.Format(model.SourceEvidenceItemId, diagramEdgeId),
         };
 
         if (!string.IsNullOrWhiteSpace(model.SourceEvidenceItemId))
@@ -285,7 +305,34 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = model.SourceEvidenceItemId.Trim();
         }
 
+        AppendSemanticEdgeProperties(edge, properties);
+
         return properties;
+    }
+
+    private static void AppendSemanticEdgeProperties(
+        ArchitectureDiagramEdgeRecord edge,
+        Dictionary<string, string> properties)
+    {
+        if (edge.Properties is null || edge.Properties.Count == 0)
+        {
+            return;
+        }
+
+        foreach (KeyValuePair<string, string> entry in edge.Properties)
+        {
+            if (StructuredDiagramEdgeStylePropertyFilter.IsStyleOnlyProperty(entry.Key))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(entry.Value))
+            {
+                continue;
+            }
+
+            properties[entry.Key.Trim()] = entry.Value.Trim();
+        }
     }
 
     private static Dictionary<string, string> BuildTrustBoundarySubgraphProperties(
