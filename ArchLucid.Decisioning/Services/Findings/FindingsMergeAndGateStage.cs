@@ -2,6 +2,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Interfaces;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Decisioning.Services.Findings;
@@ -9,6 +10,7 @@ namespace ArchLucid.Decisioning.Services.Findings;
 public sealed class FindingsMergeAndGateStage(
     IOptions<HumanReviewFindingOptions> humanReviewOptions,
     IInsightDensityGate insightDensityGate,
+    IFindingProvenanceValidator provenanceValidator,
     TimeProvider? timeProvider = null) : IFindingsMergeAndGateStage
 {
     private readonly IOptions<HumanReviewFindingOptions> _humanReviewOptions =
@@ -16,6 +18,9 @@ public sealed class FindingsMergeAndGateStage(
 
     private readonly IInsightDensityGate _insightDensityGate =
         insightDensityGate ?? throw new ArgumentNullException(nameof(insightDensityGate));
+
+    private readonly IFindingProvenanceValidator _provenanceValidator =
+        provenanceValidator ?? throw new ArgumentNullException(nameof(provenanceValidator));
 
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
@@ -26,10 +31,10 @@ public sealed class FindingsMergeAndGateStage(
 
         FindingSnapshotMergeResult mergeResult = FindingSnapshotConfluentMerger.Merge(context.AllFindings, _clock);
 
-        foreach (FindingEngineFailure conflict in mergeResult.Conflicts)
+        foreach (FindingSnapshotMergeConflict conflict in mergeResult.Conflicts)
         {
-            context.EngineFailures.Add(conflict);
-            ArchLucidInstrumentation.RecordFindingEngineFailure(conflict.EngineType, conflict.Category);
+            context.EngineFailures.Add(conflict.Failure);
+            ArchLucidInstrumentation.RecordFindingEngineFailure(conflict.Failure.EngineType, conflict.Failure.Category);
         }
 
         List<Finding> dedupedFindings = [.. mergeResult.Findings];
@@ -83,6 +88,7 @@ public sealed class FindingsMergeAndGateStage(
             CreatedUtc = _clock.UtcNowDateTime(),
             Findings = dedupedFindings,
             EngineFailures = context.EngineFailures,
+            WithheldFindings = mergeResult.Conflicts.SelectMany(static conflict => conflict.Dropped).ToList(),
             SchemaVersion = FindingsSchema.CurrentSnapshotVersion,
         };
 
@@ -91,9 +97,15 @@ public sealed class FindingsMergeAndGateStage(
         foreach (Finding finding in snapshot.Findings)
             FindingEnforcementTierClassifier.ApplyToFinding(finding);
 
+        FindingProvenanceEmissionApplicator.EnrichDiagramEvidenceRefs(snapshot.Findings, context.GraphSnapshot);
+
         FindingInsightDensityGateApplicator.ApplyToFindings(snapshot.Findings, _insightDensityGate);
 
+        FindingProvenanceEmissionApplicator.Apply(snapshot.Findings, _provenanceValidator);
+
         snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
+
+        FindingsSnapshotWithheldAdvisoryEngineFailuresApplicator.Apply(snapshot);
 
         context.Snapshot = snapshot;
         return Task.CompletedTask;

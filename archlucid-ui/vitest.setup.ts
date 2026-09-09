@@ -64,6 +64,9 @@ process.env.NEXT_PUBLIC_OPERATOR_NAV_SHOW_PRE_RELEASE_ROUTES = "1";
 /** Default UI is buyer-polished unless `NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator`; pin full operator for tests. */
 process.env.NEXT_PUBLIC_OPERATOR_EXPERIENCE = "operator";
 
+/** Product-line tests opt in explicitly; the default operator suite stays on Architecture. */
+process.env.NEXT_PUBLIC_ARCHLUCID_PRODUCT = "architecture";
+
 /** Keep unit tests on the non-demo path unless a test file explicitly stubs demo env (avoids hiding Operate controls). */
 delete process.env.NEXT_PUBLIC_DEMO_MODE;
 delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;

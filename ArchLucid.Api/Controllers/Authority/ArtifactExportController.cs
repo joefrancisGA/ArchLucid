@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports;
+using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
@@ -50,7 +51,8 @@ public sealed partial class ArtifactExportController(
     IRunExportLineageVerifier runExportLineageVerifier,
     IDecisionReceiptService decisionReceiptService,
     IManifestHashService manifestHashService,
-    IBrandedDiagramExportService brandedDiagramExportService)
+    IBrandedDiagramExportService brandedDiagramExportService,
+    IFindingVerificationReportQueryService findingVerificationReportQueryService)
     : ControllerBase
 {
 }

@@ -14,6 +14,34 @@ export type ResolveArchitectWorkspaceChromeInput = {
 };
 
 /**
+ * True when a paying Working seat must never resolve as buyer-polished eval chrome (ADR 0080 / WS-05).
+ * False for Guided, demo, static showcase, and frictionless trial — those remain eval seats.
+ */
+export function resolveWorkingForbidsBuyerPolish(input: ResolveArchitectWorkspaceChromeInput): boolean {
+  if (!isWorkingWorkspaceMode(input.workspaceMode)) {
+    return false;
+  }
+
+  if (input.staticDemoFallback ?? isStaticDemoPayloadFallbackEnabled()) {
+    return false;
+  }
+
+  if (input.demoMarketingChrome ?? isBuyerSafeDemoMarketingChromeEnv()) {
+    return false;
+  }
+
+  if (input.frictionlessTrial ?? readFrictionlessTrialSessionEnabled()) {
+    return false;
+  }
+
+  if (isNextPublicDemoMode()) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Dense architect-workspace chrome (shortcut chips, nav metadata) for Working seats on production builds.
  * Demo, static fallback, and frictionless trial sessions stay buyer-polished.
  */

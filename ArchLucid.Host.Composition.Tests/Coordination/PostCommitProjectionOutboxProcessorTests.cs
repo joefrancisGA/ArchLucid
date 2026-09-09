@@ -4,15 +4,20 @@ using ArchLucid.Application.Provenance;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Projection;
+using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Coordination.Projection;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -57,12 +62,17 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         authorityQuery
             .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
+            authorityQuery,
+            runId,
+            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => authorityQuery.Object);
         services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(
@@ -113,12 +123,17 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         authorityQuery
             .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
+            authorityQuery,
+            runId,
+            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => authorityQuery.Object);
         services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(
@@ -132,6 +147,72 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         stopped.Should().ContainSingle();
         stopped[0].GetTagItem(ActivityScopeTags.TenantIdTag).Should().Be(tenantId.ToString("D"));
         stopped[0].GetTagItem(ActivityScopeTags.WorkspaceIdTag).Should().Be(workspaceId.ToString("D"));
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_pushes_ambient_scope_before_exhaustion_dead_letter_audit()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid entryTenantId = Guid.NewGuid();
+        Guid entryWorkspaceId = Guid.NewGuid();
+        Guid entryProjectId = Guid.NewGuid();
+        AuditEvent? capturedAudit = null;
+
+        Mock<IPostCommitProjectionOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PostCommitProjectionOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    WorkType = "UnknownWorkType",
+                    RunId = runId,
+                    TenantId = entryTenantId,
+                    WorkspaceId = entryWorkspaceId,
+                    ProjectId = entryProjectId,
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    AttemptCount = 47
+                }
+            ]);
+        outbox
+            .Setup(o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuditRepository> auditRepository = new();
+        auditRepository
+            .Setup(r => r.AppendAsync(
+                It.IsAny<AuditEvent>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection>(),
+                It.IsAny<System.Data.IDbTransaction>()))
+            .Callback<AuditEvent, CancellationToken, System.Data.IDbConnection?, System.Data.IDbTransaction?>(
+                (auditEvent, _, _, _) => capturedAudit = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        HttpContextAccessor httpContextAccessor = new();
+        HttpScopeContextProvider scopeProvider = new(httpContextAccessor);
+        AuditService auditService = new(auditRepository.Object, httpContextAccessor, scopeProvider);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped<IAuditService>(_ => auditService);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        PostCommitProjectionOutboxProcessorOptions options = new() { MaxAttemptsBeforeDeadLetter = 48 };
+        PostCommitProjectionOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(options),
+            TimeProvider.System,
+            NullLogger<PostCommitProjectionOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        capturedAudit.Should().NotBeNull();
+        capturedAudit!.TenantId.Should().Be(entryTenantId, "retry-exhaustion dead-letter audit must follow outbox entry ambient scope, not dev-default {0}", ScopeIds.DefaultTenant);
+        capturedAudit.WorkspaceId.Should().Be(entryWorkspaceId);
+        capturedAudit.ProjectId.Should().Be(entryProjectId);
     }
 
     [Fact]
@@ -247,12 +328,17 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         authorityQuery
             .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
+            authorityQuery,
+            runId,
+            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => authorityQuery.Object);
         services.AddScoped(_ => Mock.Of<IProvenanceGraphAccessService>());
         services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
 
         int scopeCreates = 0;
@@ -310,6 +396,7 @@ public sealed class PostCommitProjectionOutboxProcessorTests
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => materializer.Object);
         services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         PostCommitProjectionOutboxProcessor sut = new(

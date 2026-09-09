@@ -45,7 +45,6 @@ internal static class DraftIntakeCompositionRegistrar
         services.AddScoped<IArchitectureRequestDraftExtractStage, ArchitectureRequestDraftExtractStage>();
         services.AddScoped<IArchitectureRequestDraftNormalizeStage, ArchitectureRequestDraftNormalizeStage>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
-        services.AddSingleton<IAdvisoryDraftOperationStore, InMemoryAdvisoryDraftOperationStore>();
         services.AddSingleton<AdvisoryDraftOperationQueue>();
         services.AddScoped<IAdvisoryDraftOperationAcceptor, AdvisoryDraftOperationAcceptor>();
         services.AddHostedService<AdvisoryDraftOperationHostedService>();

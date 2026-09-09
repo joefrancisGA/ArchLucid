@@ -1,22 +1,76 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import { ARCHITECTURE_CREATED_CONFIRMATION, ARCHITECTURE_CREATED_OVERFLOW_LABEL } from "@/lib/architecture/architecture-created-home-copy";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import {
+  ARCHITECTURE_CREATED_OVERFLOW_OPEN_PARAM,
+  architectureCreatedOverflowDisclosureHrefFromSearch,
+  parseArchitectureCreatedOverflowOpenFromSearch,
+} from "@/lib/architecture/architecture-created-overflow-disclosure-url";
 import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
+import {
+  ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE,
+  ARCHITECTURE_CREATED_EVIDENCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+} from "@/lib/architecture/architecture-created-evidence-sources";
+import {
+  ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE,
+  ARCHITECTURE_CREATED_FINDINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+} from "@/lib/architecture/architecture-created-findings-sources";
+import {
+  ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE,
+  ARCHITECTURE_CREATED_GOVERNANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+} from "@/lib/architecture/architecture-created-governance-sources";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 export type ArchitectureCreatedWorkspaceHeaderProps = {
   readonly model: ArchitectureCreatedHomeModel;
   readonly activeTab: ArchitectureWorkspaceTabId;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
+  readonly buyerPolishedShell?: boolean;
 };
 
 export function ArchitectureCreatedWorkspaceHeader(
   props: ArchitectureCreatedWorkspaceHeaderProps,
 ): React.JSX.Element {
-  const { model, activeTab, onNavigateTab } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureCreatedOverflowParam = searchParams.get(ARCHITECTURE_CREATED_OVERFLOW_OPEN_PARAM);
+  const [architectureCreatedOverflowOpen, setArchitectureCreatedOverflowOpenState] = useState(() =>
+    parseArchitectureCreatedOverflowOpenFromSearch(architectureCreatedOverflowParam),
+  );
+  const syncArchitectureCreatedOverflowOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        architectureCreatedOverflowDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setArchitectureCreatedOverflowOpen = useCallback(
+    (open: boolean) => {
+      setArchitectureCreatedOverflowOpenState(open);
+      syncArchitectureCreatedOverflowOpenToUrl(open);
+    },
+    [syncArchitectureCreatedOverflowOpenToUrl],
+  );
+  useEffect(() => {
+    setArchitectureCreatedOverflowOpenState(
+      parseArchitectureCreatedOverflowOpenFromSearch(architectureCreatedOverflowParam),
+    );
+  }, [architectureCreatedOverflowParam]);
+  const { model, activeTab, onNavigateTab, buyerPolishedShell = false } = props;
+  const showEvidenceClaimDiscipline = buyerPolishedShell && activeTab === "evidence";
+  const showFindingsClaimDiscipline = buyerPolishedShell && activeTab === "findings";
+  const showGovernanceClaimDiscipline = buyerPolishedShell && activeTab === "governance";
 
   return (
     <header
@@ -24,9 +78,11 @@ export function ArchitectureCreatedWorkspaceHeader(
       data-testid="architecture-created-workspace-header"
     >
       <div className="min-w-0 space-y-2">
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {ARCHITECTURE_CREATED_CONFIRMATION}
-        </p>
+        {!buyerPolishedShell ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {ARCHITECTURE_CREATED_CONFIRMATION}
+          </p>
+        ) : null}
         <h1
           className={cn(
             "m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-3xl",
@@ -37,18 +93,49 @@ export function ArchitectureCreatedWorkspaceHeader(
         </h1>
         <div className="flex flex-wrap items-center gap-2">
           <StatusTag kind={model.lifecycleStatusTagKind} label={model.lifecycleLabel} />
-          {model.ownerLabel !== null ? (
+          {!buyerPolishedShell && model.ownerLabel !== null ? (
             <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Owner: {model.ownerLabel}
             </span>
           ) : null}
-          <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Updated {model.lastUpdatedLabel}
-          </span>
+          {!buyerPolishedShell ? (
+            <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Updated {model.lastUpdatedLabel}
+            </span>
+          ) : null}
         </div>
+        {showEvidenceClaimDiscipline ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", HELP_PAGE_LAYOUT.readingBody)}
+            data-testid={ARCHITECTURE_CREATED_EVIDENCE_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          >
+            {ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE}
+          </p>
+        ) : null}
+        {showFindingsClaimDiscipline ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", HELP_PAGE_LAYOUT.readingBody)}
+            data-testid={ARCHITECTURE_CREATED_FINDINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          >
+            {ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE}
+          </p>
+        ) : null}
+        {showGovernanceClaimDiscipline ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", HELP_PAGE_LAYOUT.readingBody)}
+            data-testid={ARCHITECTURE_CREATED_GOVERNANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+          >
+            {ARCHITECTURE_CREATED_GOVERNANCE_CLAIM_DISCIPLINE}
+          </p>
+        ) : null}
       </div>
 
-      <details className="relative">
+      {!buyerPolishedShell ? (
+        <details
+          className="relative"
+          open={architectureCreatedOverflowOpen}
+          onToggle={(event) => setArchitectureCreatedOverflowOpen(event.currentTarget.open)}
+        >
         <summary
           className={cn(
             "cursor-pointer list-none rounded-md border border-neutral-200 px-3 py-1.5 font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-200",
@@ -105,6 +192,7 @@ export function ArchitectureCreatedWorkspaceHeader(
           </ul>
         </div>
       </details>
+      ) : null}
     </header>
   );
 }

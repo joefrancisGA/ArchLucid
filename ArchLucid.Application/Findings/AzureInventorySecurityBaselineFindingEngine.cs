@@ -3,6 +3,9 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -17,6 +20,7 @@ namespace ArchLucid.Application.Findings;
 public sealed class AzureInventorySecurityBaselineFindingEngine(
     IScopeContextProvider scopeContextProvider,
     IAzureExtractorPackageRepository packageRepository,
+    IComplianceRulePackProvider rulePackProvider,
     TimeProvider clock,
     IOptions<RoiCostEvidenceFreshnessOptions> freshnessOptions) : IEffectfulFindingEngine
 {
@@ -25,6 +29,9 @@ public sealed class AzureInventorySecurityBaselineFindingEngine(
 
     private readonly IAzureExtractorPackageRepository _packageRepository =
         packageRepository ?? throw new ArgumentNullException(nameof(packageRepository));
+
+    private readonly IComplianceRulePackProvider _rulePackProvider =
+        rulePackProvider ?? throw new ArgumentNullException(nameof(rulePackProvider));
 
     private readonly TimeProvider _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
@@ -70,19 +77,33 @@ public sealed class AzureInventorySecurityBaselineFindingEngine(
             return [];
         }
 
+        ComplianceRulePack rulePack = await _rulePackProvider.GetRulePackAsync(ct).ConfigureAwait(false);
+        HashSet<string> activeRuleIds = DeclarationSignalPolicyKeyMap.CollectActiveRuleIds(rulePack);
+
         IReadOnlyList<InventorySecurityBaselineFinding> gaps =
             AzureInventorySecurityBaselineClassifier.ClassifyFromResourcesJson(resourcesJson);
 
         InventoryTopologyResourceNodeIndex topologyNodes =
             InventoryTopologyResourceNodeIndex.Build(graphSnapshot, InventoryTopologyCloudProvider.Azure);
 
-        return gaps
-            .Select(gap => InventorySecurityBaselineFindingMapper.ToFinding(
+        List<Finding> findings = [];
+
+        foreach (InventorySecurityBaselineFinding gap in gaps)
+        {
+            if (!DeclarationSignalPolicyGate.ShouldEmitTheme(gap.ControlFamily, activeRuleIds))
+                continue;
+
+            string? policyRuleId = DeclarationSignalPolicyGate.TryGetPolicyRuleId(gap.ControlFamily, activeRuleIds);
+
+            findings.Add(InventorySecurityBaselineFindingMapper.ToFinding(
                 gap,
                 EngineType,
                 "AzureInventorySecurityBaseline",
                 "Azure",
-                topologyNodes))
-            .ToList();
+                topologyNodes,
+                policyRuleId));
+        }
+
+        return findings;
     }
 }

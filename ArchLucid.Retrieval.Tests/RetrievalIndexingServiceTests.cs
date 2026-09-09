@@ -290,6 +290,69 @@ public sealed class RetrievalIndexingServiceTests
     }
 
     [Fact]
+    public async Task IndexDocumentsAsync_when_content_chunks_to_empty_removes_stale_vectors_and_updates_catalog()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryVectorIndex index = new();
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            index,
+            catalog,
+            caps.Object);
+
+        const string documentId = "d-empty-reindex";
+        RetrievalDocument indexedDoc = new()
+        {
+            DocumentId = documentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "corpus text that produces retrievable chunks",
+            ContentHash = "HASH1",
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([indexedDoc], CancellationToken.None);
+
+        index.GetEmbeddingMetadata()!.ChunkCount.Should().BeGreaterThan(0);
+        catalog.TryGet(documentId, out RetrievalDocumentIndexState? priorState).Should().BeTrue();
+        priorState!.ContentHash.Should().Be("HASH1");
+
+        RetrievalDocument emptiedDoc = new()
+        {
+            DocumentId = documentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "   ",
+            ContentHash = "HASH2",
+            CreatedUtc = indexedDoc.CreatedUtc,
+        };
+
+        await sut.IndexDocumentsAsync([emptiedDoc], CancellationToken.None);
+
+        index.GetEmbeddingMetadata().Should().BeNull("whitespace-only reindex must remove prior vectors");
+        catalog.TryGet(documentId, out RetrievalDocumentIndexState? updatedState).Should().BeTrue();
+        updatedState!.ContentHash.Should().Be("HASH2");
+    }
+
+    [Fact]
     public void ChunkingStrategyFingerprint_differs_when_semantic_strategy_enabled()
     {
         string simple = ChunkingStrategyFingerprint.Compute(CorpusKind.Conversation, RetrievalChunkingStrategy.Simple);

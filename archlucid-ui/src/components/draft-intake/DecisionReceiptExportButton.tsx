@@ -5,6 +5,7 @@ import { downloadRunDecisionReceiptJson } from "@/lib/api/downloads-blob-trigger
 import { downloadDraftDecisionReceiptJson } from "@/lib/api/downloads-blob-trigger-draft-decision-receipt";
 import {
   type DecisionReceiptContext,
+  resolveDecisionReceiptExportBlockedReason,
   triggerDecisionReceiptDownload,
 } from "@/lib/decision-receipt-export";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
@@ -22,6 +23,8 @@ export type DecisionReceiptExportButtonProps = {
 export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonProps) {
   const runId = props.context.runId?.trim() ?? "";
   const draftId = props.context.draftId?.trim() ?? "";
+  const citationBlockedReason = resolveDecisionReceiptExportBlockedReason(props.context);
+
   const sealedManifestBlockedReason =
     runId.length > 0
       ? runCollateralSealedManifestCopyBlockedReason({
@@ -29,9 +32,10 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
           manifestVersion: props.manifestVersion,
         })
       : null;
+  const exportBlockedReason = citationBlockedReason ?? sealedManifestBlockedReason;
 
   if (runId.length > 0) {
-    const exportBlocked = sealedManifestBlockedReason !== null;
+    const exportBlocked = exportBlockedReason !== null;
 
     return (
       <div className="flex flex-col gap-1">
@@ -62,7 +66,7 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
             className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="decision-receipt-export-blocked-reason"
           >
-            {sealedManifestBlockedReason}
+            {exportBlockedReason}
           </p>
         ) : null}
       </div>
@@ -92,17 +96,28 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
   }
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      disabled={props.disabled === true}
-      data-testid="decision-receipt-export"
-      onClick={() => {
-        triggerDecisionReceiptDownload(props.context);
-      }}
-    >
-      Download decision receipt (JSON)
-    </Button>
+    <div className="flex flex-col gap-1">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={props.disabled === true || citationBlockedReason !== null}
+        data-testid="decision-receipt-export"
+        onClick={() => {
+          triggerDecisionReceiptDownload(props.context);
+        }}
+      >
+        Download decision receipt (JSON)
+      </Button>
+      {citationBlockedReason !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="decision-receipt-export-blocked-reason"
+        >
+          {citationBlockedReason}
+        </p>
+      ) : null}
+    </div>
   );
 }

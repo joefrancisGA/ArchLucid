@@ -22,7 +22,6 @@ public sealed class UserInvitationEmailNotifier(
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
     ILogger<UserInvitationEmailNotifier> logger) : IUserInvitationEmailNotifier
 {
-    private const string DefaultProductName = "ArchLucid";
     private const string TemplateId = "user-workspace-invitation";
     private static readonly System.Text.RegularExpressions.Regex PersonalMessageMarkdownLinkRegex =
         new(@"\[(?<label>[^\]]+)\]\((?<url>[^)]+)\)", System.Text.RegularExpressions.RegexOptions.Compiled);
@@ -48,9 +47,7 @@ public sealed class UserInvitationEmailNotifier(
         ArgumentException.ThrowIfNullOrWhiteSpace(acceptUrl);
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName)
-            ? DefaultProductName
-            : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
         string subject = $"You're invited to {productName}";
         string text = BuildTextBody(productName, acceptUrl, appRole, expiryDays, personalMessage);

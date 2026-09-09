@@ -22,6 +22,8 @@ public sealed class ItsmInboundDispositionSyncTests
 
     private static readonly Guid ProjectA = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
+    private const string PointerToken = "cG9pbnRlci10b2tlbg==";
+
     [Fact]
     public async Task TryRecordFromWebhookAsync_when_disposition_unmapped_skips_without_history_lookup()
     {
@@ -34,6 +36,8 @@ public sealed class ItsmInboundDispositionSyncTests
             mappedDisposition: null,
             "Done",
             "jira-webhook",
+            PointerToken,
+            inspectLatestDisposition: null,
             CancellationToken.None);
 
         result.WasRecorded.Should().BeFalse();
@@ -44,27 +48,9 @@ public sealed class ItsmInboundDispositionSyncTests
     }
 
     [Fact]
-    public async Task TryRecordFromWebhookAsync_when_latest_disposition_matches_skips_record()
+    public async Task TryRecordFromWebhookAsync_when_inspect_latest_disposition_matches_skips_record()
     {
         Mock<IFindingDispositionService> dispositionService = new();
-        dispositionService
-            .Setup(s => s.ListHistoryAsync(It.Is<Core.Scoping.ScopeContext>(scope =>
-                    scope.TenantId == TenantA
-                    && scope.WorkspaceId == WorkspaceA
-                    && scope.ProjectId == ProjectA),
-                "f1",
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new FindingDispositionEventDto
-                {
-                    EventId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                    FindingId = "f1",
-                    Disposition = FindingDisposition.Remediated,
-                    ReviewerUserId = "prior",
-                    OccurredAtUtc = DateTimeOffset.UtcNow,
-                }
-            ]);
         ItsmInboundDispositionSync sut =
             new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
 
@@ -73,6 +59,8 @@ public sealed class ItsmInboundDispositionSyncTests
             FindingDisposition.Remediated,
             "Done",
             "jira-webhook",
+            PointerToken,
+            FindingDisposition.Remediated,
             CancellationToken.None);
 
         result.WasRecorded.Should().BeFalse();
@@ -83,21 +71,15 @@ public sealed class ItsmInboundDispositionSyncTests
     }
 
     [Fact]
-    public async Task TryRecordFromWebhookAsync_records_remediated_disposition_with_integration_actor()
+    public async Task TryRecordFromWebhookAsync_records_remediated_disposition_with_cas_token()
     {
         Mock<IFindingDispositionService> dispositionService = new();
         dispositionService
-            .Setup(s => s.ListHistoryAsync(It.Is<Core.Scoping.ScopeContext>(scope =>
-                    scope.TenantId == TenantA
-                    && scope.WorkspaceId == WorkspaceA
-                    && scope.ProjectId == ProjectA),
-                "f1",
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
-        dispositionService
             .Setup(s => s.RecordAsync(
                 It.Is<RecordFindingDispositionRequest>(r =>
-                    r.FindingId == "f1" && r.Disposition == FindingDisposition.Remediated),
+                    r.FindingId == "f1"
+                    && r.Disposition == FindingDisposition.Remediated
+                    && r.ExpectedCurrentDispositionRowVersionBase64 == PointerToken),
                 It.IsAny<Core.Scoping.ScopeContext>(),
                 "jira-webhook",
                 It.IsAny<CancellationToken>()))
@@ -118,11 +100,54 @@ public sealed class ItsmInboundDispositionSyncTests
             FindingDisposition.Remediated,
             "Done",
             "jira-webhook",
+            PointerToken,
+            FindingDisposition.Accepted,
             CancellationToken.None);
 
         result.WasRecorded.Should().BeTrue();
         result.Disposition.Should().Be(FindingDisposition.Remediated);
         result.DispositionEventId.Should().Be(Guid.Parse("22222222-2222-2222-2222-222222222222"));
+    }
+
+    [Fact]
+    public async Task TryRecordFromWebhookAsync_when_cas_conflict_returns_disposition_conflict_without_throwing()
+    {
+        Mock<IFindingDispositionService> dispositionService = new();
+        dispositionService
+            .Setup(s => s.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                It.IsAny<Core.Scoping.ScopeContext>(),
+                "jira-webhook",
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(
+                new FindingDispositionConflictException(
+                    "f1",
+                    new FindingDispositionConflictDetail
+                    {
+                        EventId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                        FindingId = "f1",
+                        Disposition = FindingDisposition.Accepted,
+                        ReviewerUserId = "alice",
+                        OccurredAtUtc = DateTimeOffset.UtcNow,
+                        CurrentDispositionRowVersionBase64 = PointerToken,
+                    }));
+        ItsmInboundDispositionSync sut =
+            new(dispositionService.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
+
+        ItsmInboundDispositionSyncResult result = await sut.TryRecordFromWebhookAsync(
+            CreateRow(),
+            FindingDisposition.Remediated,
+            "Done",
+            "jira-webhook",
+            PointerToken,
+            FindingDisposition.Accepted,
+            CancellationToken.None);
+
+        result.WasRecorded.Should().BeFalse();
+        result.IsDispositionConflict.Should().BeTrue();
+        result.SkipReason.Should().Be("disposition_conflict");
+        result.ConflictDetail.Should().NotBeNull();
+        result.ConflictDetail!.Disposition.Should().Be(FindingDisposition.Accepted);
     }
 
     [Fact]
@@ -140,6 +165,8 @@ public sealed class ItsmInboundDispositionSyncTests
             FindingDisposition.Remediated,
             "Done",
             "jira-webhook",
+            currentDispositionRowVersionBase64: null,
+            inspectLatestDisposition: null,
             CancellationToken.None);
 
         result.WasRecorded.Should().BeFalse();
@@ -153,9 +180,6 @@ public sealed class ItsmInboundDispositionSyncTests
     public async Task TryRecordFromWebhookAsync_when_record_fails_with_non_argument_exception_skips_without_throwing()
     {
         Mock<IFindingDispositionService> dispositionService = new();
-        dispositionService
-            .Setup(s => s.ListHistoryAsync(It.IsAny<Core.Scoping.ScopeContext>(), "f1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
         dispositionService
             .Setup(s => s.RecordAsync(
                 It.IsAny<RecordFindingDispositionRequest>(),
@@ -171,6 +195,8 @@ public sealed class ItsmInboundDispositionSyncTests
             FindingDisposition.Remediated,
             "Done",
             "jira-webhook",
+            PointerToken,
+            FindingDisposition.Accepted,
             CancellationToken.None);
 
         result.WasRecorded.Should().BeFalse();

@@ -41,6 +41,8 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         if (suspendBlocker is not null)
             return (suspendBlocker.Value, null);
 
+        bool appliedScopeFreezeSuspend = suspendOutcome == TenantSuspendOutcome.Applied;
+
         Guid migrationId = Guid.NewGuid();
 
         TenantCatalogMigrationRecord record = new()
@@ -53,7 +55,21 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             MaintenanceMessage = DefaultMaintenanceMessage,
         };
 
-        await _migrationRepository.InsertAsync(record, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await _migrationRepository.InsertAsync(record, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            if (appliedScopeFreezeSuspend)
+            {
+                await _tenantSuspendCommandService
+                    .TryUnsuspendAsync(tenantId, actorUserId, actorUserName, correlationId, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            throw;
+        }
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantCatalogMigrationStarted,

@@ -27,7 +27,9 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/help/webhooks-integration",
+  usePathname: (): string => "/help/webhooks-integration",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: (): URLSearchParams => new URLSearchParams(),
 }));
 
 import { HelpWebhooksIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView";

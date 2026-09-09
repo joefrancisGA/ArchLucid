@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.Explanation;
 
 using FluentAssertions;
@@ -290,7 +292,8 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
             """
             {
-              "faithfulnessSupportRatio": "on"
+              "faithfulnessSupportRatio": "on",
+              "citations": 1
             }
             """);
 
@@ -328,5 +331,54 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals.Should().NotBeNull();
         signals!.DeterministicFallbackUsed.Should().BeTrue();
         RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+    }
+
+    [Fact]
+    public void FromAggregateJson_treats_omitted_citations_as_empty_for_disposition()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(0);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
+    public void FromAggregateJson_maps_object_citation_as_single_citation_count()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": {
+                "id": "c1"
+              }
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(1);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
+
+    [Fact]
+    public void FromAggregateJson_maps_string_encoded_decision_count_without_throwing()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "decisionCount": "5"
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse("""{"decisionCount":"5"}""").RootElement).Should().Be(5);
     }
 }

@@ -1,4 +1,5 @@
 import type { OperatorNextBestActionDto } from "@/lib/api/tenant-customer-success";
+import type { OperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import type { EmptyHomeDoThisNextAction } from "@/lib/resolve-empty-home-do-this-next";
 import type { PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 
@@ -60,5 +61,16 @@ export function toOperatorCanonicalNextActionFromEmptyHome(
     label: action.label,
     href: action.href,
     bridgeCopy: action.bridgeCopy,
+  };
+}
+
+export function toOperatorCanonicalNextActionFromLatestDraft(
+  action: OperatorHomeLatestDraftPrimaryAction,
+  bridgeCopy: string,
+): Omit<OperatorCanonicalNextAction, "source"> {
+  return {
+    label: action.ctaLabel,
+    href: action.href,
+    bridgeCopy,
   };
 }

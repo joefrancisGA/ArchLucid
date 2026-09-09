@@ -62,6 +62,55 @@ public sealed class SponsorReviewCoverageHonestyMarkdownFormatterTests
     }
 
     [Fact]
+    public void AppendMarkdownSection_includes_transparency_trail_excerpt_for_infeasible_verdict()
+    {
+        SponsorReviewCoverageHonestyContext context = new(
+            RunId: "run-infeasible",
+            Verdict: new FeasibilityVerdict
+            {
+                Kind = FeasibilityVerdictKind.SoftInfeasible,
+                Summary = "Policy controls are not satisfied.",
+                TransparencyTrail = new TransparencyTrail
+                {
+                    Asserted =
+                    [
+                        new AssertedTrailEntry { Key = "businessOutcome", Value = "Reduce triage time" },
+                    ],
+                    Inferred =
+                    [
+                        new InferredTrailEntry
+                        {
+                            Key = "policy.violation.CIS-1.1",
+                            Value = "Encrypt data at rest",
+                            Confidence = 85,
+                        },
+                    ],
+                    Skipped =
+                    [
+                        new SkippedQuestionTrailEntry
+                        {
+                            QuestionKey = "l0.pillar.security",
+                            Tier = ElicitationQuestionTier.Must,
+                        },
+                    ],
+                },
+            },
+            AnalysisStagesComplete: true,
+            ActorNodeCount: 1);
+
+        StringBuilder sb = new();
+        SponsorReviewCoverageHonestyMarkdownFormatter.AppendMarkdownSection(sb, context);
+        string markdown = sb.ToString();
+
+        markdown.Should().Contain("Feasibility verdict:");
+        markdown.Should().Contain("Soft infeasible");
+        markdown.Should().Contain("## Transparency trail");
+        markdown.Should().Contain("### Asserted (1)");
+        markdown.Should().Contain("businessOutcome");
+        markdown.Should().Contain("l0.pillar.security");
+    }
+
+    [Fact]
     public void AppendMarkdownSection_omits_section_when_coverage_is_complete()
     {
         SponsorReviewCoverageHonestyContext context = new(

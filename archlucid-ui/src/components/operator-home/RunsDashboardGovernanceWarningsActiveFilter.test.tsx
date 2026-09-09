@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { RunsDashboardGovernanceWarningsActiveFilter } from "@/components/operator-home/RunsDashboardGovernanceWarningsActiveFilter";
 
 describe("RunsDashboardGovernanceWarningsActiveFilter", () => {
-  it("renders a clear affordance when governance warnings filter is active", () => {
+  it("renders a clear affordance when approval warnings filter is active", () => {
     const onClear = vi.fn();
 
     render(<RunsDashboardGovernanceWarningsActiveFilter visible={true} onClear={onClear} />);

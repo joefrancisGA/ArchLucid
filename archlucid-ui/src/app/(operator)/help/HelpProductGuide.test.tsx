@@ -12,6 +12,10 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 1,
 }));
 
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: "architecture" }),
+}));
+
 describe("HelpProductGuide", () => {
   it("surfaces getting started, completed-package guidance, and deep links", () => {
     render(<HelpProductGuide />);

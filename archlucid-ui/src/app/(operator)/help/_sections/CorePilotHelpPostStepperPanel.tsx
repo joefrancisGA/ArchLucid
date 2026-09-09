@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +26,10 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  corePilotOptionalPathsDisclosureHrefFromSearch,
+  parseCorePilotOptionalPathsOpenFromSearch,
+} from "@/lib/help/core-pilot-optional-paths-disclosure-url";
 
 function PostStepperSectionHeading(props: { readonly id: string; readonly children: string }): React.JSX.Element {
   return (
@@ -36,12 +44,49 @@ function PostStepperSectionHeading(props: { readonly id: string; readonly childr
 
 /** TB-1334: one optional cluster after the stepper instead of four peer orientation sections. */
 export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const corePilotOptionalPathsOpenParam = searchParams.get("corePilotOptionalPathsOpen");
+  const [optionalPathsOpen, setOptionalPathsOpenState] = useState(() =>
+    parseCorePilotOptionalPathsOpenFromSearch(corePilotOptionalPathsOpenParam),
+  );
+
+  const syncOptionalPathsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        corePilotOptionalPathsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOptionalPathsOpen = useCallback(
+    (open: boolean) => {
+      setOptionalPathsOpenState(open);
+      syncOptionalPathsOpenToUrl(open);
+    },
+    [syncOptionalPathsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOptionalPathsOpenState(parseCorePilotOptionalPathsOpenFromSearch(corePilotOptionalPathsOpenParam));
+  }, [corePilotOptionalPathsOpenParam]);
+
   return (
     <>
       <section aria-labelledby="optional-paths" className="space-y-3" data-testid="core-pilot-optional-paths">
         <PostStepperSectionHeading id="optional-paths">{CORE_PILOT_HELP_OPTIONAL_PATHS_TITLE}</PostStepperSectionHeading>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{CORE_PILOT_HELP_OPTIONAL_PATHS_SUMMARY}</p>
-        <details className={HELP_PAGE_LAYOUT.details} data-testid="core-pilot-optional-paths-disclosure">
+        <details
+          className={HELP_PAGE_LAYOUT.details}
+          data-testid="core-pilot-optional-paths-disclosure"
+          open={optionalPathsOpen}
+          onToggle={(event) => {
+            setOptionalPathsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
             Show optional cloud, evidence-only, and later topics
           </summary>

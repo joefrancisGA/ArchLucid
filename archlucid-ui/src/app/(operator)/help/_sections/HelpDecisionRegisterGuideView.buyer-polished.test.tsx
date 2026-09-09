@@ -28,6 +28,8 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/decision-register",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpDecisionRegisterGuideView } from "@/app/(operator)/help/_sections/HelpDecisionRegisterGuideView";

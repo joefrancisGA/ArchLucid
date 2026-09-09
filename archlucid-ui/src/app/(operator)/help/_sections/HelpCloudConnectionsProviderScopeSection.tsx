@@ -1,15 +1,15 @@
 import Link from "next/link";
 
+import { HelpCloudConnectionsPackagingScriptsDisclosure } from "@/app/(operator)/help/_sections/HelpCloudConnectionsPackagingScriptsDisclosure";
 import { Button } from "@/components/ui/button";
 import {
   CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE,
-  CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS,
-  CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS_HINT,
   CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
-  CLOUD_CONNECTIONS_HELP_PROVIDER_SCOPE_ROWS,
   CLOUD_CONNECTIONS_HELP_TIER_1,
-  CLOUD_CONNECTIONS_HELP_TIER_2,
+  cloudConnectionsHelpProviderScopeRows,
+  cloudConnectionsHelpTier2,
 } from "@/lib/cloud-connections-help-guide-content";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   DESIGN_TOKENS,
   OPERATOR_LINK,
@@ -37,6 +37,9 @@ function TierCardEyebrow(props: { readonly children: string }): React.ReactEleme
 /** Evidence tiers and provider permission scope for `/help/cloud-connections` (HCE). */
 export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const productLine = resolveProductLineIdFromEnv();
+  const tier2 = cloudConnectionsHelpTier2(productLine);
+  const providerRows = cloudConnectionsHelpProviderScopeRows(productLine);
 
   return (
     <section
@@ -65,28 +68,7 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {CLOUD_CONNECTIONS_HELP_TIER_1.useWhen}
           </p>
-          <details className="rounded-md border border-neutral-200 bg-neutral-50/60 p-3 dark:border-neutral-800 dark:bg-neutral-900/30">
-            <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}>
-              Packaging scripts
-            </summary>
-            <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
-              {CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS.map((script) => (
-                <li key={script}>
-                  <code>{script}</code>
-                </li>
-              ))}
-            </ul>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-              {CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS_HINT}{" "}
-              <Link
-                href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.href}
-                className={OPERATOR_LINK.inline}
-              >
-                {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.label}
-              </Link>
-              .
-            </p>
-          </details>
+          <HelpCloudConnectionsPackagingScriptsDisclosure />
           {buyerPolishedShell ? null : (
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild size="sm" variant="primary" data-testid="help-cloud-connections-primary-cta">
@@ -99,10 +81,10 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
         </div>
 
         <div className={cn(DESIGN_TOKENS.surface.card, "space-y-3 p-4")} data-testid="help-cloud-connections-tier-2-card">
-          <TierCardEyebrow>{CLOUD_CONNECTIONS_HELP_TIER_2.eyebrow}</TierCardEyebrow>
-          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{CLOUD_CONNECTIONS_HELP_TIER_2.title}</h3>
+          <TierCardEyebrow>{tier2.eyebrow}</TierCardEyebrow>
+          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{tier2.title}</h3>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            {CLOUD_CONNECTIONS_HELP_TIER_2.useWhen}
+            {tier2.useWhen}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="outline">
@@ -133,7 +115,7 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
             </tr>
           </thead>
           <tbody>
-            {CLOUD_CONNECTIONS_HELP_PROVIDER_SCOPE_ROWS.map((row, index) => (
+            {providerRows.map((row, index) => (
               <tr
                 key={row.platform}
                 className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
