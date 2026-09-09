@@ -320,7 +320,13 @@ public sealed class GovernanceStickinessControllerTests
             facade.Object,
             scopeProvider.Object,
             tenants.Object,
-            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>())
+            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
+            CreateAuthorityQueryService(),
+            CreateManifestHashService(),
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IRiskExceptionService>(),
+            Mock.Of<IFindingInspectReadRepository>(),
+            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

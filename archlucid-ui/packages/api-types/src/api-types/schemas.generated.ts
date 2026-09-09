@@ -1300,6 +1300,19 @@ export interface components {
         };
         /** @enum {string} */
         ArchitectureIntelligenceReviewTier: "Trial" | "Standard" | "Deep";
+        ArchitectureInventoryBindingResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            boundBy?: null | string;
+            /** Format: date-time */
+            boundUtc?: null | string;
+            isBound?: boolean;
+            /** Format: date-time */
+            snapshotCapturedUtc?: null | string;
+            /** Format: uuid */
+            snapshotId?: null | string;
+            snapshotSubscriptionName?: null | string;
+        };
         ArchitectureKnowledgeModel: {
             /** Format: date-time */
             createdUtc?: string;
@@ -1724,6 +1737,10 @@ export interface components {
         };
         AsyncJobResponse: {
             jobId?: string;
+        };
+        AttachArchitectureInventoryBindingRequest: {
+            /** Format: uuid */
+            snapshotId?: string;
         };
         /** @enum {string} */
         AuditEvaluationOutcome: "InsufficientEvidence" | "TechnicallySupported" | "TechnicallyNotSupported";
