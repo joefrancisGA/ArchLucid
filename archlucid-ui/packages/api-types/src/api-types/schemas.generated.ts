@@ -1084,7 +1084,10 @@ export interface components {
         };
         ArchitectureDiagramModelRecord: {
             edges?: components["schemas"]["ArchitectureDiagramEdgeRecord"][];
+            extractionMethod?: string;
             nodes?: components["schemas"]["ArchitectureDiagramNodeRecord"][];
+            sourceEvidenceItemId?: null | string;
+            subgraphs?: components["schemas"]["ArchitectureDiagramSubgraphRecord"][];
             trustBoundaryLabels?: string[];
         };
         ArchitectureDiagramNodeRecord: {
@@ -1094,6 +1097,13 @@ export interface components {
             label?: string;
             provenance?: string;
             removed?: boolean;
+            subgraphId?: null | string;
+        };
+        ArchitectureDiagramSubgraphRecord: {
+            id?: string;
+            label?: string;
+            orderKey?: number;
+            parentSubgraphId?: null | string;
         };
         ArchitectureDigest: {
             /** Format: date-time */
