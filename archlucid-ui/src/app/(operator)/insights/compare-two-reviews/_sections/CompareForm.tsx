@@ -39,6 +39,7 @@ import {
   COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID,
   COMPARE_TWO_REVIEWS_SKIP_LINK_LABEL,
   COMPARE_TWO_REVIEWS_SKIP_TARGET_ID,
+  COMPARE_TWO_REVIEWS_WORKSPACE_TEST_ID,
 } from "@/lib/compare-two-reviews-page-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -197,13 +198,16 @@ export function CompareForm(props: CompareFormProps = {}) {
       ) : null}
       {buyerPolished ? (
         <p
-          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          className={cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
           data-testid="compare-two-reviews-overview"
         >
           {COMPARE_BUYER_OVERVIEW}
         </p>
       ) : null}
-      <div className={cn("flex flex-col", OPERATOR_LAYOUT.unrelatedClusterGap)} data-testid="compare-workspace">
+      <section
+        className={cn("flex flex-col", OPERATOR_LAYOUT.unrelatedClusterGap)}
+        data-testid={COMPARE_TWO_REVIEWS_WORKSPACE_TEST_ID}
+      >
 
         <IntegrationConnectChecklist
           title="Compare checklist"
@@ -292,7 +296,7 @@ export function CompareForm(props: CompareFormProps = {}) {
             resultsFirst={compareInsightFirstLayout}
           />
         ) : null}
-      </div>
+      </section>
 
       {urlPairComplete ? (
         <CompareLastRequestOutcomeDetails

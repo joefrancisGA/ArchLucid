@@ -372,6 +372,37 @@ public sealed class GoldenCorpusMaterializerTests
     }
 
     [Fact]
+    public async Task Record_hand_authored_cases_66_69_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-66",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase66AwsIamIdentityPathGraphAsync(),
+            null,
+            "Simple Terraform AWS IAM role + AmazonS3FullAccess attachment on data-bearing S3, parsed through DefaultGraphBuilder with no Actor/path overlay — expect **identity-blast-radius** (DX-74).");
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-67",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase67GcpIamIdentityPathGraphAsync(),
+            null,
+            "Simple Terraform GCP service account + secretmanager.admin IAM member on data-bearing secret, parsed through DefaultGraphBuilder with no Actor/path overlay — expect **identity-blast-radius** (DX-74).");
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-68",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase68TerraformDataFlowPathGraphAsync(),
+            null,
+            "Simple Terraform ALB + Lambda + RDS parsed through DefaultGraphBuilder with no Actor/path overlay — expect **data-flow-trust-boundary** (DX-75).");
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-69",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase69TerraformSegmentationPathGraphAsync(),
+            null,
+            "Simple Terraform NSG SSH-from-internet + subnet association + SQL parsed through DefaultGraphBuilder with no path overlay — expect **segmentation-semantics** (DX-76).");
+    }
+
+    [Fact]
     public async Task Record_hand_authored_cases_61_63_when_env_flag_set()
     {
         if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))

@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Materialization;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Analysis;
@@ -194,13 +195,13 @@ public static class IdentityPathAnalyzer
         }
 
         if (TryGetProperty(node.Properties, "terraformType", out string? terraformType)
-            && IsRoleAssignmentTerraformType(terraformType))
+            && DeclarationIamTerraformTypes.IsRoleAssignmentTerraformType(terraformType))
         {
             return TryReadRoleName(node.Properties, out roleName);
         }
 
         if (TryGetProperty(node.Properties, "resourceType", out string? resourceType)
-            && IsRoleAssignmentResourceType(resourceType))
+            && DeclarationIamTerraformTypes.IsRoleAssignmentResourceType(resourceType))
         {
             return TryReadRoleName(node.Properties, out roleName);
         }
@@ -208,30 +209,6 @@ public static class IdentityPathAnalyzer
         roleName = null;
 
         return false;
-    }
-
-    private static bool IsRoleAssignmentTerraformType(string? terraformType)
-    {
-        if (string.IsNullOrWhiteSpace(terraformType))
-        {
-            return false;
-        }
-
-        return terraformType.Contains("role_assignment", StringComparison.OrdinalIgnoreCase)
-            || terraformType.Contains("iam_role_policy", StringComparison.OrdinalIgnoreCase)
-            || terraformType.Contains("iam_policy", StringComparison.OrdinalIgnoreCase)
-            || terraformType.Contains("project_iam", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsRoleAssignmentResourceType(string? resourceType)
-    {
-        if (string.IsNullOrWhiteSpace(resourceType))
-        {
-            return false;
-        }
-
-        return resourceType.Contains("roleAssignments", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("iam", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryReadRoleName(IReadOnlyDictionary<string, string> properties, out string? roleName)
@@ -245,6 +222,9 @@ public static class IdentityPathAnalyzer
             "tf.role_name",
             "tf.role_definition_id",
             "roleDefinitionId",
+            "tf.policy_arn",
+            "policy_arn",
+            "tf.role",
         ];
 
         foreach (string key in candidateKeys)

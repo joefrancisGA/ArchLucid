@@ -14,6 +14,7 @@ import { fetchArchitectureComparisonReplayCostEstimate } from "@/lib/api/compari
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { comparisonReplayCostBlockedReason } from "@/lib/compare/comparison-replay-cost-blocked-reason";
+import { useComparisonRecordQuery } from "@/hooks/use-comparison-record-query";
 import { replayModeLabel, REPLAY_MODE_PLAIN_OPTIONS } from "@/lib/replay-display";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReplayValidationModeId } from "@/lib/replay-validation-workflow";
@@ -73,6 +74,11 @@ export function ArchitectureComparisonReplayCostSection() {
   }, [comparisonRecordId, format, persistReplay, replayMode, router, searchParams]);
 
   const trimmedId = comparisonRecordId.trim();
+
+  const comparisonRecordQuery = useComparisonRecordQuery(trimmedId, {
+    enabled: trimmedId.length > 0,
+  });
+  const comparisonRecordBlockedReason = comparisonRecordQuery.blockedReason;
 
   const executeEstimate = useCallback(
     async (opts: Readonly<{ showBusySpinner: boolean }>): Promise<void> => {
@@ -210,6 +216,15 @@ export function ArchitectureComparisonReplayCostSection() {
             Estimates also refresh silently ~450ms after you stop typing.
           </p>
         </div>
+
+        {comparisonRecordBlockedReason ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="comparison-record-blocked-reason"
+          >
+            {comparisonRecordBlockedReason}
+          </p>
+        ) : null}
 
         {failure !== null ? (
           <>
