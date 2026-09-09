@@ -86,6 +86,7 @@ import {
   ADVISORY_SCHEDULES_FOLLOW_UPS_TITLE,
   ADVISORY_SCHEDULES_ORIENTATION_BOTTOM_TEST_ID,
   ADVISORY_SCHEDULES_ORIENTATION_SOURCES,
+  ADVISORY_SCHEDULES_WORKSPACE_TEST_ID,
 } from "@/lib/advisory-schedules-evidence-copy";
 
 describe("AdvisorySchedulesContent buyer-polished shell (AD)", () => {
@@ -95,6 +96,7 @@ describe("AdvisorySchedulesContent buyer-polished shell (AD)", () => {
     const content = screen.getByTestId("advisory-schedules-content");
     const firstViewport = screen.getByTestId("advisory-schedules-first-viewport");
     const overview = screen.getByTestId("advisory-schedules-overview");
+    const workspace = screen.getByTestId(ADVISORY_SCHEDULES_WORKSPACE_TEST_ID);
     const existingSection = screen.getByTestId("advisory-schedules-existing");
     const orientationBottom = screen.getByTestId(ADVISORY_SCHEDULES_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("advisory-schedules-sources");
@@ -102,9 +104,13 @@ describe("AdvisorySchedulesContent buyer-polished shell (AD)", () => {
     expect(content).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(screen.getByTestId("advisory-schedules-intro"));
     expect(screen.getByTestId("advisory-schedules-intro")).toHaveTextContent(ADVISORY_SCHEDULES_PAGE_LEAD);
+    expect(firstViewport).not.toContainElement(overview);
     expect(content).toContainElement(overview);
     expect(overview).toHaveTextContent(ADVISORY_SCHEDULES_BUYER_OVERVIEW);
+    expect(content).toContainElement(workspace);
+    expect(workspace).toContainElement(existingSection);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByTestId("advisory-schedules-pick-review-before-scheduling-strip")).not.toBeInTheDocument();
     expect(screen.getByTestId("advisory-schedules-buyer-start-here-helper")).toHaveTextContent(
       ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER,
@@ -116,10 +122,9 @@ describe("AdvisorySchedulesContent buyer-polished shell (AD)", () => {
     );
     expect(screen.getByRole("heading", { level: 2, name: ADVISORY_SCHEDULES_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    expect(content).toContainElement(existingSection);
     expect(content).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
-    expect(existingSection.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const source of filterWhereToGoNextFollowUpLinks(ADVISORY_SCHEDULES_ORIENTATION_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
