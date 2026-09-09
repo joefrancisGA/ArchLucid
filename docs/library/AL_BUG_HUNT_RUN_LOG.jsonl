@@ -1677,3 +1677,5 @@
 {"at":"2026-09-09T21:16:08.6893042Z","zoneId":"commit-output-integrity","outcome":"hit"}
 {"at":"2026-09-09T21:16:10.7344493Z","zoneId":"ui-webhooks-settings","outcome":"seed-only"}
 {"at":"2026-09-09T21:16:12.8245699Z","zoneId":"auth-return-path","outcome":"seed-only"}
+{"at":"2026-09-09T21:46:50.6710059Z","zoneId":"auth-return-path","outcome":"seed-only"}
+{"at":"2026-09-09T21:46:50.9244589Z","zoneId":"auth-return-path","outcome":"seed-only"}

@@ -607,7 +607,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -638,6 +638,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AuthSignInReturnPathGuard` omits rejection of tab/control characters after decode cap — **invalid 2026-09-09 seed hunt #1487:** `TryNormalize` rejects control chars each decode pass; regression `TryNormalize_rejects_open_redirect_shapes` covers `%09`/`%00` payloads
 
 2026-09-09 seed hunt #1487 (seed-only): reseeded auth-return-path; cheap-disproved post-decode control-char bypass candidate; 35 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (valid-no-repro) Unicode bidirectional format characters (U+200E/U+200F) in return path bypass `char.IsControl` while altering browser URL display — **valid-no-repro 2026-09-09 seed hunt #1488:** `/\u200E/reviews` accepted as same-origin relative path; not an open-redirect class; UI `stripControlChars` also leaves format chars; no external host introduced
+
+2026-09-09 seed hunt #1488 (seed-only): reseeded auth-return-path after master merge; cheap-disproved bidi format-char bypass candidate; 35 scoped AuthSignInReturnPathGuard tests passed.
 
 2026-09-07 seed hunt #1222 (hit): proved Unicode dot homoglyph traversal and residual percent after decode cap; reseeded from exhausted zone.
 
