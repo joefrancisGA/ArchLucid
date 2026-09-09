@@ -3,6 +3,7 @@ import {
   formatInfraEvidenceChangeTypeLabel,
   normalizeInfraEvidenceChangeTypeKey,
 } from "@/lib/infra-evidence/infra-evidence-drift-display";
+import { formatAzureResourceDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { normalizeFindingSeverity } from "@/lib/design-tokens";
 
 export const DRIFT_TABLE_RISK_FILTER_PARAM = "risk";
@@ -13,7 +14,13 @@ export const DRIFT_TABLE_SORT_DIR_PARAM = "sortDir";
 export const DRIFT_TABLE_CHANGES_PAGE_PARAM = "changesPage";
 export const DRIFT_SNAPSHOTS_PAGE_PARAM = "snapshotsPage";
 
-export type DriftTableSortKey = "resource" | "change" | "property" | "risk";
+export type DriftTableSortKey =
+  | "resource"
+  | "resourceGroup"
+  | "resourceType"
+  | "change"
+  | "property"
+  | "risk";
 export type DriftTableSortDir = "asc" | "desc";
 
 export type DriftTableFilterState = {
@@ -36,7 +43,14 @@ export const DEFAULT_DRIFT_TABLE_FILTER_STATE: DriftTableFilterState = {
   snapshotsPage: 1,
 };
 
-const SORT_KEYS: readonly DriftTableSortKey[] = ["resource", "change", "property", "risk"];
+const SORT_KEYS: readonly DriftTableSortKey[] = [
+  "resource",
+  "resourceGroup",
+  "resourceType",
+  "change",
+  "property",
+  "risk",
+];
 
 export function parseDriftTableSortKey(raw: string | null | undefined): DriftTableSortKey {
   const trimmed = raw?.trim() ?? "";
@@ -136,7 +150,24 @@ export function sortDriftChanges(
 
     switch (sortBy) {
       case "resource":
-        result = compareStrings(left.azureResourceId, right.azureResourceId);
+        result = compareStrings(
+          formatAzureResourceDisplay(left.azureResourceId).name,
+          formatAzureResourceDisplay(right.azureResourceId).name,
+        );
+        break;
+
+      case "resourceGroup":
+        result = compareStrings(
+          formatAzureResourceDisplay(left.azureResourceId).resourceGroup,
+          formatAzureResourceDisplay(right.azureResourceId).resourceGroup,
+        );
+        break;
+
+      case "resourceType":
+        result = compareStrings(
+          formatAzureResourceDisplay(left.azureResourceId).resourceType,
+          formatAzureResourceDisplay(right.azureResourceId).resourceType,
+        );
         break;
 
       case "change":
@@ -154,9 +185,11 @@ export function sortDriftChanges(
         result = compareStrings(left.riskClassification, right.riskClassification);
         break;
 
-      default:
-        result = 0;
+      default: {
+        const exhaustive: never = sortBy;
+        result = exhaustive;
         break;
+      }
     }
 
     return result * direction;
