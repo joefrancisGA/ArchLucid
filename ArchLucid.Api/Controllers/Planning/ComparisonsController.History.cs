@@ -120,8 +120,10 @@ public sealed partial class ComparisonsController
     [HttpGet("comparisons")]
     [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SearchComparisonRecords(
         [FromQuery] ComparisonHistoryQuery query,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken = default)
     {
         ValidationResult? vr = await _comparisonHistoryQueryValidator.ValidateAsync(query, cancellationToken);
@@ -132,6 +134,14 @@ public sealed partial class ComparisonsController
                 string.Join(" ", vr.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForComparisonSearchQueryAsync(
+            query,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         if (!ApiPaging.TryParseUtcTicksIdCursor(query.Cursor, out DateTime? cursorCreatedUtc, out string? cursorId,
                 out string? cursorError))

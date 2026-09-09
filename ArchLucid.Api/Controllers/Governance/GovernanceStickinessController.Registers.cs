@@ -56,6 +56,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(GovernanceAssignedToMeFindingsCountResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetAssignedToMeFindingsCount(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
@@ -72,9 +73,16 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        int count = await _facade.GetAssignedToMeFindingsCountAsync(projectId, cancellationToken);
+        try
+        {
+            int count = await _facade.GetAssignedToMeFindingsCountAsync(projectId, cancellationToken);
 
-        return Ok(new GovernanceAssignedToMeFindingsCountResponse { Count = count });
+            return Ok(new GovernanceAssignedToMeFindingsCountResponse { Count = count });
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("reviews-awaiting-action")]

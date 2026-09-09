@@ -143,6 +143,8 @@ public sealed partial class GovernanceStickinessFacade(
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return 0;
 
+        await EnsureRegistersSealedManifestOrThrowAsync(resolvedProjectId, ct).ConfigureAwait(false);
+
         IReadOnlyList<string> identities =
             ArchitectureRiskRegisterAssignedToMeIdentityResolver.Resolve(_actorContext);
 

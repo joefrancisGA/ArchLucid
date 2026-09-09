@@ -107,8 +107,28 @@ public sealed partial class ExportsController(
     public async Task<IActionResult> CompareExportRecords(
         [FromQuery] string leftExportRecordId,
         [FromQuery] string rightExportRecordId,
-        CancellationToken cancellationToken) =>
-        MapExportRecordDiffResult(await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
+    {
+        IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            leftExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (leftGuardResult is not null)
+            return leftGuardResult;
+
+        IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            rightExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (rightGuardResult is not null)
+            return rightGuardResult;
+
+        return MapExportRecordDiffResult(
+            await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
+    }
 
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/exports/compare/summary")]
@@ -121,8 +141,25 @@ public sealed partial class ExportsController(
         [FromQuery] string leftExportRecordId,
         [FromQuery] string rightExportRecordId,
         [FromBody] PersistComparisonRequest? request,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
+        IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            leftExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (leftGuardResult is not null)
+            return leftGuardResult;
+
+        IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            rightExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (rightGuardResult is not null)
+            return rightGuardResult;
+
         request ??= new PersistComparisonRequest();
         ExportRecordDiffSummaryQueryResult result = await _runExportQueryFacade.CompareExportRecordsSummaryAsync(
             leftExportRecordId, rightExportRecordId, request.Persist, cancellationToken);

@@ -1,3 +1,4 @@
+using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
@@ -51,6 +52,66 @@ public sealed partial class ComparisonsController
             return null;
 
         return await EnsureSealedManifestReadAllowedAsync(record.RunId, cancellationToken);
+    }
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(
+        string comparisonRecordId,
+        CancellationToken cancellationToken)
+    {
+        ComparisonRecord? record = await _comparisons.TryGetScopedRecordAsync(comparisonRecordId, cancellationToken);
+
+        if (record is null)
+            return null;
+
+        return await EnsureSealedManifestReadAllowedForComparisonRecordAsync(record, cancellationToken);
+    }
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedForComparisonSearchQueryAsync(
+        ComparisonHistoryQuery query,
+        IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrWhiteSpace(query.LeftRunId))
+        {
+            IActionResult? leftRunGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(query.LeftRunId, cancellationToken);
+
+            if (leftRunGuardResult is not null)
+                return leftRunGuardResult;
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.RightRunId))
+        {
+            IActionResult? rightRunGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(query.RightRunId, cancellationToken);
+
+            if (rightRunGuardResult is not null)
+                return rightRunGuardResult;
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.LeftExportRecordId))
+        {
+            IActionResult? leftExportGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                query.LeftExportRecordId,
+                exportRecordRepository,
+                cancellationToken);
+
+            if (leftExportGuardResult is not null)
+                return leftExportGuardResult;
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.RightExportRecordId))
+        {
+            IActionResult? rightExportGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                query.RightExportRecordId,
+                exportRecordRepository,
+                cancellationToken);
+
+            if (rightExportGuardResult is not null)
+                return rightExportGuardResult;
+        }
+
+        return null;
     }
 
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedForComparisonRecordAsync(
