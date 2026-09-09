@@ -7950,11 +7950,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 12
-- **bugs-found:** 13
+- **hunts:** 13
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — graph snapshot pagination dropped case-mismatched edges; duplicate SupportedBy on case-variant SupportingFindingIds
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — duplicate ContainedInManifest edges when manifest lists case-variant DecisionIds
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7979,8 +7979,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ProvenanceBuilder` — duplicate `InfluencedByGraphNode` edges when `RelatedNodeIds` casing variants reference the same graph node — **hit 2026-09-08 seed hunt #1353:** loop emitted one edge per list entry without case-insensitive dedup though `graphNodeIds`/`nodeMap` resolve the same node; fixed with `RelatedNodeIds.Distinct(StringComparer.OrdinalIgnoreCase)`; regression `Build_deduplicates_related_node_ids_when_casing_differs_only`
 - [x] (proven) `ProvenanceBuilder` — duplicate `SupportedBy` edges when `SupportingFindingIds` casing variants reference the same finding — **hit 2026-09-08 seed hunt #1356:** `nodeMap` is case-insensitive but the decision→finding loop iterated every list entry; fixed with `SupportingFindingIds.Distinct(StringComparer.OrdinalIgnoreCase)` matching `ContributingDecisionIds`/`RelatedNodeIds`; regression `Build_deduplicates_supporting_finding_ids_when_casing_differs_only`
 - [x] (proven) `GraphSnapshotPagination.CreatePage` — paged graph slices dropped edges when endpoint casing differed from page node ids — **hit 2026-09-08 seed hunt #1356:** page node-id set used `StringComparer.Ordinal` while `GraphValidator` accepts case-insensitive endpoint matches (parity gap vs `KnowledgeGraphService` truncation fix #713); fixed with `OrdinalIgnoreCase` on page filter set; regression `CreatePage_retains_edges_when_endpoint_casing_differs_from_node_id`
-- [ ] (candidate) `ArchitectureKnowledgeModelGraphProjector.Project` — second structural element silently dropped when `ElementId` differs only by case from an earlier element (node materialization loop uses ordinal id map)
-- [ ] (candidate) `ProvenanceBuilder.Build` — duplicate `ContainedInManifest` edges when `manifest.Decisions` lists two entries whose `DecisionId` differs only by case (nodes collapse via `nodeMap`, manifest edge loop does not dedup)
+- [x] (invalid) `ArchitectureKnowledgeModelGraphProjector.Project` — second structural element silently dropped when `ElementId` differs only by case — **cheap-disproof 2026-09-09 thorough hunt #1426:** node materialization uses `canonicalNodeIdsByKey` with `StringComparer.OrdinalIgnoreCase`; case-variant `ElementId` values are duplicate ids under graph case-insensitive semantics, not a missing node parity gap; regression `Project_deduplicates_structural_elements_when_element_id_differs_only_by_case`
+- [x] (proven) `ProvenanceBuilder.Build` — duplicate `ContainedInManifest` edges when `manifest.Decisions` lists two entries whose `DecisionId` differs only by case (`nodeMap` collapses nodes; manifest edge loop iterated every list entry) — **hit 2026-09-09 thorough hunt #1426:** `DistinctDecisionKeys()` case-insensitive dedup on manifest decision edge loops; merged case-variant `SupportingFindingIds` in SupportedBy path; regression `Build_deduplicates_contained_in_manifest_when_manifest_lists_case_variant_decision_ids`
+
+2026-09-09 thorough hunt #1426 (hit): cheap-disproof closed κ→Γ projector duplicate-element candidate; proved manifest decision-id duplicate `ContainedInManifest`/`TriggeredByRule`/`SupportedBy` edges; 209 scoped KnowledgeGraph + 42 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
 2026-09-08 seed hunt #1356 (hit): reseeded knowledge-graph-provenance; proved `SupportingFindingIds` SupportedBy dedup gap and graph snapshot pagination edge filter casing parity; seeded projector element-id and manifest decision-id duplicate-edge candidates; 201 scoped KnowledgeGraph + 39 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 

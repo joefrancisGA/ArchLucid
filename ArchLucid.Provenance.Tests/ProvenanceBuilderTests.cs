@@ -398,6 +398,49 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_deduplicates_contained_in_manifest_when_manifest_lists_case_variant_decision_ids()
+    {
+        ResolvedArchitectureDecision lower = new()
+        {
+            DecisionId = "dec-1",
+            Category = "c",
+            Title = "Lower",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ResolvedArchitectureDecision upper = new()
+        {
+            DecisionId = "DEC-1",
+            Category = "c",
+            Title = "Upper",
+            SelectedOption = "opt",
+            Rationale = "why",
+            SupportingFindingIds = [],
+        };
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot { Findings = [] },
+            Graph = new GraphSnapshot { Nodes = [] },
+            Manifest = new ManifestDocument
+            {
+                ManifestId = ManifestId,
+                ManifestHash = "h",
+                Decisions = [lower, upper],
+            },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Nodes.Count(n => n.Type == ProvenanceNodeType.Decision).Should().Be(1);
+        graph.Edges.Count(e => e.Type == ProvenanceEdgeType.ContainedInManifest).Should().Be(1);
+    }
+
+    [Fact]
     public void Build_duplicate_finding_id_reuses_single_node()
     {
         Finding f = new()
