@@ -681,7 +681,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -831,6 +831,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1466 (seed→hit): reseeded sql-run-repository after #1451; proved authority project slug internal-whitespace bypass in list and committed lookups; 126 scoped Persistence tests passed (1 SQL integration skipped).
 
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByArchitectureVersionId` returns pipeline-dead-letter `Failed` rows that retain `CurrentManifestVersion` — **cheap-disproof 2026-09-09 seed hunt #1467:** shared `CommittedRunLookupStatusFilter` excludes `@FailedStatus` / `@QualityRejectedStatus`; InMemory parity in `InMemory_version_scoped_committed_lookup_excludes_failed_dead_letter_runs`.
+- [x] (valid-no-repro) `CommittedArchitectureReviewExistsNoLock` treats dead-letter `Failed` runs with golden manifests as committed reviews for nav narrowing — **cheap-disproof 2026-09-09 seed hunt #1467:** nav EXISTS requires explicit `LegacyRunStatus = @CommittedStatus`; regression `CommittedArchitectureReviewExists_excludes_failed_status_even_with_golden_manifest`.
+
+2026-09-09 seed hunt #1467 (seed-only): reseeded sql-run-repository after #1466; cheap-disproof closed version-scoped committed lookup and nav EXISTS dead-letter parity candidates; 128 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 

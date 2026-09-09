@@ -1619,6 +1619,52 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
             .Contain("NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL");
         RunRepositorySql.SelectLatestCommittedRunIdByArchitectureVersionId.Should()
             .Contain("r.GoldenManifestId IS NOT NULL");
+        RunRepositorySql.SelectLatestCommittedRunIdByArchitectureVersionId.Should()
+            .Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)");
+    }
+
+    [Fact]
+    public void InMemory_version_scoped_committed_lookup_excludes_failed_dead_letter_runs()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid architectureVersionId = Guid.NewGuid();
+        Guid failedRunId = Guid.NewGuid();
+
+        Guid? selected = RunRepositoryCore.SelectLatestCommittedRunIdByArchitectureVersionId(
+            [
+                new RunRecord
+                {
+                    RunId = failedRunId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "billing",
+                    ArchitectureVersionId = architectureVersionId,
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+                    CurrentManifestVersion = "v1",
+                    GoldenManifestId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                },
+            ],
+            scope,
+            architectureVersionId);
+
+        selected.Should().BeNull();
+    }
+
+    [Fact]
+    public void CommittedArchitectureReviewExists_excludes_failed_status_even_with_golden_manifest()
+    {
+        const string sql = HotPathRelationalQueryShapes.CommittedArchitectureReviewExistsNoLock;
+
+        sql.Should().Contain("LegacyRunStatus = @CommittedStatus");
+        sql.Should().NotContain("@FailedStatus");
     }
 
     [Fact]
