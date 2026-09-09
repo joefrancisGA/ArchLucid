@@ -95,4 +95,34 @@ public sealed class StructuredDiagramParseRouterTests
 
         result.Model.Nodes.Should().ContainSingle(node => node.Id == "api" && node.Label == "API Gateway");
     }
+
+    [Fact]
+    public void Parse_DrawIoFixture_YieldsNodesAndEdges()
+    {
+        const string drawIo = """
+            <mxfile host="app.diagrams.net">
+              <diagram id="page-1" name="Page-1">
+                <mxGraphModel>
+                  <root>
+                    <mxCell id="0"/>
+                    <mxCell id="1" parent="0"/>
+                    <mxCell id="2" value="API Gateway" vertex="1" parent="1"/>
+                    <mxCell id="3" value="SQL Database" vertex="1" parent="1"/>
+                    <mxCell id="4" edge="1" parent="1" source="2" target="3"/>
+                  </root>
+                </mxGraphModel>
+              </diagram>
+            </mxfile>
+            """;
+
+        DiagramParseResult result = this.router.Parse(new DiagramSourceReference
+        {
+            Name = "fixture.drawio",
+            Format = DiagramSourceFormats.DrawIoXml,
+            Content = drawIo,
+        });
+
+        result.Model.Nodes.Should().HaveCountGreaterThanOrEqualTo(2);
+        result.Model.Edges.Should().ContainSingle();
+    }
 }
