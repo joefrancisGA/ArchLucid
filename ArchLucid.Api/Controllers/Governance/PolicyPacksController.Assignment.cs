@@ -44,16 +44,25 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackAssignHttpResult result = await _httpFacade.AssignAsync(
-            policyPackId,
-            new PolicyPackAssignBody
-            {
-                Version = request.Version,
-                ScopeLevel = request.ScopeLevel,
-                IsPinned = request.IsPinned,
-                IsOrganizationRequired = request.IsOrganizationRequired,
-            },
-            ct).ConfigureAwait(false);
+        PolicyPackAssignHttpResult result;
+
+        try
+        {
+            result = await _httpFacade.AssignAsync(
+                policyPackId,
+                new PolicyPackAssignBody
+                {
+                    Version = request.Version,
+                    ScopeLevel = request.ScopeLevel,
+                    IsPinned = request.IsPinned,
+                    IsOrganizationRequired = request.IsOrganizationRequired,
+                },
+                ct).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         return this.MapAssign(result);
     }
@@ -72,8 +81,17 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackHttpResult<bool> result = await _httpFacade.ArchiveAssignmentAsync(assignmentId, ct)
-            .ConfigureAwait(false);
+        PolicyPackHttpResult<bool> result;
+
+        try
+        {
+            result = await _httpFacade.ArchiveAssignmentAsync(assignmentId, ct)
+                .ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
