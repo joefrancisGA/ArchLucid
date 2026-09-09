@@ -681,11 +681,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 21
-- **bugs-found:** 9
+- **hunts:** 25
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — golden-manifest committed run lookup lacked RunId tie-break in InMemory parity
+- **last-bug:** 2026-09-09 — authority project slug seeks ignored internal whitespace in stored ProjectId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -793,6 +793,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` backfill queue lacks `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-09-09 seed hunt #1451:** SQL orders `CreatedUtc ASC, RunId ASC`; InMemory uses `ThenBy(RunId)`; regression `InMemory_null_architecture_backfill_orders_by_run_id_when_created_utc_ties`.
 
 2026-09-09 seed hunt #1451 (seed-only): reseeded sql-run-repository after #1450; cheap-disproof closed GoldenManifest tenant join defense-in-depth, manifest-version-only INNER JOIN exclusion, version-scoped committed predicate breadth, optional row-version update, architecture-head latest-run semantics, and null-architecture backfill tie-break; 90 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) `CountActiveRunsForArchitectureRequest` / `ExistsRunForArchitectureRequestInScope` / `SelectRepresentativeRunIdForArchitectureRequestInScope` and `RunListWarningFlagSql.LeftJoinAggregates` compared `ArchitectureRequestId` with trim-only normalization while callers collapse internal whitespace — **hit 2026-09-09 seed hunt #1465 (seed→hit):** `NormalizeArchitectureRequestId` and `CollapsedUpperArchitectureRequestId` SQL collapse internal whitespace before uppercase compare; InMemory `ArchitectureRequestIdMatches` aligned; regressions in `Architecture_request_queries_collapse_internal_whitespace_before_compare`, `InMemory_count_active_runs_matches_internal_whitespace_in_stored_architecture_request_id`, `InMemory_exists_run_for_architecture_request_matches_internal_whitespace_in_stored_id`, and `LeftJoinAggregates_normalizes_architecture_request_id_before_package_origin_join`.
+- [x] (candidate) `ExistsActiveRunWithSystemNameInWorkspace` / project-list SQL compare stored `ProjectId` without collapsing internal whitespace — open on unmerged branches **#1460** / **#1462**; not reproved on this run.
+- [x] (candidate) `HardDeleteStaleUncommittedRunsBatchAsync` omits `IsSample` — open on unmerged branch **#1463**; not reproved on this run.
+- [x] (candidate) Pipeline-dead-letter runs match committed-run lookups via retained manifest headers — open on unmerged branch **#1464**; not reproved on this run.
+
+2026-09-09 seed hunt #1465 (seed→hit): reseeded sql-run-repository after #1451; proved architecture request id internal whitespace bypass in scope seeks and dashboard list join; seeded workspace-name, sample-purge, and dead-letter committed-lookup candidates on open PRs; 94 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) Authority project slug list/committed lookups compare edge-trimmed `ProjectId` only so internal whitespace variants miss dashboard lists and committed-run resolution — **hit 2026-09-09 seed hunt #1466 (seed→hit):** stored `Claims  API` omitted from list/committed seeks for `claims api`; fixed with `NormalizeAuthorityProjectSlug` and SQL `STRING_SPLIT`/`STRING_AGG` collapse across project list, graph-at-or-before, and committed lookup shapes; regressions `Project_list_queries_collapse_internal_whitespace_in_project_slug`, `InMemory_list_by_project_matches_internal_whitespace_in_stored_project_slug`, and `InMemory_matches_internal_whitespace_for_latest_committed_run_lookup`.
+
+2026-09-09 seed hunt #1466 (seed→hit): reseeded sql-run-repository after #1451; proved authority project slug internal-whitespace bypass in list and committed lookups; 126 scoped Persistence tests passed (1 SQL integration skipped).
+
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
