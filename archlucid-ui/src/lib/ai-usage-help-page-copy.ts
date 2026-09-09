@@ -23,3 +23,5 @@ export const AI_USAGE_HELP_PAGE_LEAD =
 
 export const AI_USAGE_HELP_BUYER_OVERVIEW =
   "Tile summaries and read steps below explain estimated spend, budget caps, and workflow filters before you open AI usage." as const;
+
+export const AI_USAGE_HELP_WORKSPACE_TEST_ID = "help-ai-usage-workspace" as const;

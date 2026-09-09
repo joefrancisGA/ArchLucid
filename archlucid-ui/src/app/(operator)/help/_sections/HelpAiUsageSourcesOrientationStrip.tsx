@@ -5,6 +5,7 @@ import {
   AI_USAGE_HELP_SOURCES,
 } from "@/lib/ai-usage-help-evidence-copy";
 import { AI_USAGE_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/ai-usage-help-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 /** Sources-only follow-ups for `/help/ai-usage` buyer-polished shell (HAI). */
 export function HelpAiUsageSourcesOrientationStrip(): React.JSX.Element {
@@ -18,6 +19,7 @@ export function HelpAiUsageSourcesOrientationStrip(): React.JSX.Element {
       sources={AI_USAGE_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
       hubSecondary
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }

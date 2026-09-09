@@ -38,6 +38,7 @@ import {
   AI_USAGE_HELP_SKIP_LINK_LABEL,
   AI_USAGE_HELP_SKIP_TARGET_ID,
   AI_USAGE_HELP_START_HERE_HELPER,
+  AI_USAGE_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/ai-usage-help-page-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -170,6 +171,10 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
           </p>
         ) : null}
 
+        <section
+          className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+          data-testid={buyerPolishedShell ? AI_USAGE_HELP_WORKSPACE_TEST_ID : undefined}
+        >
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? <AiUsageHelpEvidenceOrientationStrip /> : null}
@@ -222,6 +227,7 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
 
           {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
         </div>
+        </section>
 
         {buyerPolishedShell ? <HelpAiUsageSourcesOrientationStrip /> : null}
       </div>
