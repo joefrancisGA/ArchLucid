@@ -52,4 +52,16 @@ public sealed class LlmMonthlySpendPlanIdTests
             .BeNull();
         LlmMonthlySpendPlanId.FromCommercialPackaging(null, null).Should().BeNull();
     }
+
+    [Fact]
+    public void FromCommercialPackaging_returns_null_for_enterprise_one_seat_subscription()
+    {
+        BillingSubscriptionSnapshot subscription = new("stripe", nameof(TenantTier.Enterprise), 1, 1, "Active");
+
+        string? planId = LlmMonthlySpendPlanId.FromCommercialPackaging(
+            CommercialPackagingTierLabels.Enterprise,
+            subscription);
+
+        planId.Should().BeNull();
+    }
 }
