@@ -88,11 +88,13 @@ internal static class ContextIngestionCompositionRegistrar
             return new GraphSnapshotProjectionMemoryCache(memoryCache, monitor);
         });
         services.AddSingleton<PlainTextContextDocumentParser>();
+        services.AddSingleton<ArchLucidDiagramJsonContextDocumentParser>();
         services.AddSingleton<MermaidContextDocumentParser>();
         services.AddSingleton<SvgContextDocumentParser>();
         services.AddSingleton<DrawIoContextDocumentParser>();
         services.AddSingleton<VsdxContextDocumentParser>();
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<PlainTextContextDocumentParser>());
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<ArchLucidDiagramJsonContextDocumentParser>());
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<MermaidContextDocumentParser>());
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<SvgContextDocumentParser>());
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<DrawIoContextDocumentParser>());

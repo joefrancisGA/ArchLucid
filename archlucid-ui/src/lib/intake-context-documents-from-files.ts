@@ -17,6 +17,11 @@ import {
   DRAW_IO_CONTEXT_DOCUMENT_CONTENT_TYPE,
 } from "@/lib/architecture-spine/intake-drawio-context-document";
 import {
+  isArchLucidDiagramJsonIntakeFileName,
+  looksLikeArchLucidDiagramJson,
+  STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE,
+} from "@/lib/architecture-spine/intake-archlucid-diagram-json-context-document";
+import {
   encodeVsdxPackageAsBase64,
   isVsdxIntakeFileName,
   VISIO_VSDX_CONTEXT_DOCUMENT_CONTENT_TYPE,
@@ -90,6 +95,10 @@ async function toIntakeContextDocument(
 
   if (isDrawIoIntakeFileName(trimmedName)) {
     return readDrawIoDocument(name, file);
+  }
+
+  if (isArchLucidDiagramJsonIntakeFileName(trimmedName)) {
+    return readArchLucidDiagramJsonDocument(name, file);
   }
 
   if (isVsdxIntakeFileName(trimmedName)) {
@@ -183,6 +192,34 @@ async function readDrawIoSourceDocument(
   }
 }
 
+function readArchLucidDiagramJsonDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  return readArchLucidDiagramJsonSourceDocument(name, file);
+}
+
+async function readArchLucidDiagramJsonSourceDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  try {
+    const text = (await file.text()).trim();
+
+    if (!looksLikeArchLucidDiagramJson(text)) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE,
+      content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}
+
 function readVsdxDocument(
   name: string,
   file: File,
@@ -246,6 +283,14 @@ async function readReadableTextDocument(
       return {
         name,
         contentType: MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
+        content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+      };
+    }
+
+    if (looksLikeArchLucidDiagramJson(text)) {
+      return {
+        name,
+        contentType: STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE,
         content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
       };
     }

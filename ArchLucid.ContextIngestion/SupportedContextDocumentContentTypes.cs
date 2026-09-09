@@ -65,6 +65,12 @@ public static class SupportedContextDocumentContentTypes
                && string.Equals(contentType.Trim(), "text/markdown", StringComparison.OrdinalIgnoreCase);
     }
 
+    public static bool IsStructuredDiagramJsonContentType(string? contentType)
+    {
+        return !string.IsNullOrWhiteSpace(contentType)
+               && string.Equals(contentType.Trim(), StructuredDiagramJson, StringComparison.OrdinalIgnoreCase);
+    }
+
     public static bool IsMermaidContentType(string? contentType)
     {
         return !string.IsNullOrWhiteSpace(contentType)

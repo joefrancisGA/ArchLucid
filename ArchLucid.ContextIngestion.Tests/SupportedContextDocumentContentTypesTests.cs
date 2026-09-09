@@ -47,7 +47,15 @@ public sealed class SupportedContextDocumentContentTypesTests
     }
 
     [Theory]
-    [InlineData("image/png")]
+    [InlineData("application/vnd.archlucid.diagram+json", true)]
+    [InlineData("APPLICATION/VND.ARCHLUCID.DIAGRAM+JSON", true)]
+    [InlineData("text/vnd.mermaid", false)]
+    public void IsStructuredDiagramJsonContentType_MatchesStructuredDiagramJson(string contentType, bool expected)
+    {
+        SupportedContextDocumentContentTypes.IsStructuredDiagramJsonContentType(contentType).Should().Be(expected);
+    }
+
+    [Theory]
     [InlineData("image/jpeg")]
     [InlineData("IMAGE/SVG+XML")]
     public void IsForbiddenImageContentType_RejectsImageMimeTypes(string contentType)
