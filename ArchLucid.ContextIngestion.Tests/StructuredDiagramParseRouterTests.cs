@@ -73,4 +73,26 @@ public sealed class StructuredDiagramParseRouterTests
         result.Warnings.Should().ContainSingle(warning =>
             warning.Contains("Unsupported diagram format", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void Parse_SvgFixture_YieldsLabeledNodes()
+    {
+        const string svg = """
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <g id="api">
+                <rect x="0" y="0" width="100" height="40"/>
+                <text x="50" y="25">API Gateway</text>
+              </g>
+            </svg>
+            """;
+
+        DiagramParseResult result = this.router.Parse(new DiagramSourceReference
+        {
+            Name = "fixture.svg",
+            Format = DiagramSourceFormats.Svg,
+            Content = svg,
+        });
+
+        result.Model.Nodes.Should().ContainSingle(node => node.Id == "api" && node.Label == "API Gateway");
+    }
 }

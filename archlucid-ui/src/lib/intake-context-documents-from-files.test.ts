@@ -102,6 +102,26 @@ describe("buildIntakeContextDocumentsFromEvidenceFiles", () => {
     expect(documents[0]?.name).toBe("diagram.txt");
   });
 
+  it("includes svg attachments as application/vnd.archlucid.diagram+svg", async () => {
+    const file = new File(
+      [
+        '<svg xmlns="http://www.w3.org/2000/svg"><g id="api"><rect x="0" y="0" width="10" height="10"/><text>API</text></g></svg>',
+      ],
+      "topology.svg",
+      { type: "image/svg+xml" },
+    );
+    const documents = await buildIntakeContextDocumentsFromEvidenceFiles([file]);
+
+    expect(documents).toEqual([
+      {
+        name: "topology.svg",
+        contentType: "application/vnd.archlucid.diagram+svg",
+        content:
+          '<svg xmlns="http://www.w3.org/2000/svg"><g id="api"><rect x="0" y="0" width="10" height="10"/><text>API</text></g></svg>',
+      },
+    ]);
+  });
+
   it("emits a NotVerifiable diagram stub for PNG and skips failed docx extract", async () => {
     mockedExtract.mockResolvedValue({
       ok: false,
