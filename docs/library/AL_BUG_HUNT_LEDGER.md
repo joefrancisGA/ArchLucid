@@ -607,11 +607,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 10
-- **bugs-found:** 8
+- **hunts:** 11
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — Unicode dot leader homoglyphs bypass return-path traversal checks
+- **last-bug:** 2026-09-09 — URL fragment delimiter lets `..` path traversal bypass dot-segment checks
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -642,6 +642,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Unicode bidirectional format characters (U+200E/U+200F) in return path bypass `char.IsControl` while altering browser URL display — **valid-no-repro 2026-09-09 seed hunt #1488:** `/\u200E/reviews` accepted as same-origin relative path; not an open-redirect class; UI `stripControlChars` also leaves format chars; no external host introduced
 
 2026-09-09 seed hunt #1488 (seed-only): reseeded auth-return-path after master merge; cheap-disproved bidi format-char bypass candidate; 35 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (valid-no-repro) Fragment smuggling (`/safe#//evil.example`) bypasses path checks because `#` suffix is not validated — **valid-no-repro 2026-09-09 seed hunt #1490:** fragments are not sent to the server on navigation; guard validates the path prefix only; no external host in the accepted prefix
+
+2026-09-09 seed hunt #1490 (seed-only): reseeded auth-return-path; cheap-disproved fragment smuggling candidate; 35 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) `..` path segments before `#` fragment bypass `ContainsDotDotSegment` — **hit 2026-09-09 #1491:** `ContainsDotDotSegment` stripped query but not fragment, so `/signin/..#fragment` evaded traversal check; fixed with `GetPathWithoutQueryOrFragment`; regression in `TryNormalize_rejects_dot_dot_path_traversal_before_fragment_delimiter` and `TryNormalize_accepts_safe_relative_paths_with_fragment`
+
+2026-09-09 hunt #1491 (hit): proved dot-dot traversal before fragment delimiter bypass; 41 scoped AuthSignInReturnPathGuard tests passed.
 
 2026-09-07 seed hunt #1222 (hit): proved Unicode dot homoglyph traversal and residual percent after decode cap; reseeded from exhausted zone.
 

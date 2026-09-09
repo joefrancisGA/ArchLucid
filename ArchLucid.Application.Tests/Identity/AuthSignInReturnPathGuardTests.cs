@@ -119,4 +119,22 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize("/path%252525252525252525").Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("/signin/..#fragment")]
+    [InlineData("/signin/..%23fragment")]
+    [InlineData("/app/foo/..#bar")]
+    [InlineData("/signin/..%23/evil")]
+    public void TryNormalize_rejects_dot_dot_path_traversal_before_fragment_delimiter(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("/reviews/1#findings")]
+    [InlineData("/architecture/reviews/123?tab=findings#section")]
+    public void TryNormalize_accepts_safe_relative_paths_with_fragment(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().Be(path);
+    }
 }

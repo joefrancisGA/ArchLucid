@@ -184,10 +184,7 @@ public static class AuthSignInReturnPathGuard
 
     private static bool ContainsDotDotSegment(string candidate)
     {
-        int queryIndex = candidate.IndexOf('?', StringComparison.Ordinal);
-        ReadOnlySpan<char> pathOnly = queryIndex >= 0
-            ? candidate.AsSpan(0, queryIndex)
-            : candidate.AsSpan();
+        ReadOnlySpan<char> pathOnly = GetPathWithoutQueryOrFragment(candidate);
 
         foreach (Range segmentRange in pathOnly.Split('/'))
         {
@@ -198,6 +195,26 @@ public static class AuthSignInReturnPathGuard
         }
 
         return false;
+    }
+
+    private static ReadOnlySpan<char> GetPathWithoutQueryOrFragment(string candidate)
+    {
+        int endIndex = candidate.Length;
+        int queryIndex = candidate.IndexOf('?', StringComparison.Ordinal);
+
+        if (queryIndex >= 0)
+        {
+            endIndex = queryIndex;
+        }
+
+        int fragmentIndex = candidate.IndexOf('#', StringComparison.Ordinal);
+
+        if (fragmentIndex >= 0 && fragmentIndex < endIndex)
+        {
+            endIndex = fragmentIndex;
+        }
+
+        return candidate.AsSpan(0, endIndex);
     }
 
     // Browsers may normalize these to "/" or "\\" and treat the path as protocol-relative.
