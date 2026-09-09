@@ -26,3 +26,11 @@ export function resolveRunDetailFindingsReviewed(
 ): boolean {
   return (resolveRunDetailFindingsTabBadgeCount(findingCountDisplay, quickDecisionFindings) ?? 0) > 0;
 }
+
+/** Policy callout and review-package surfaces share tab-badge fallback when explanation is deferred. */
+export function resolveRunDetailDeferredSurfaceFindingCount(
+  findingCountDisplay: number | null,
+  quickDecisionFindings: readonly QuickDecisionFinding[],
+): number | null {
+  return resolveRunDetailFindingsTabBadgeCount(findingCountDisplay, quickDecisionFindings);
+}
