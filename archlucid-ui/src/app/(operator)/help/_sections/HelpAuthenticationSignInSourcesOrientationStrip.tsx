@@ -5,6 +5,7 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_SOURCES,
 } from "@/lib/authentication-sign-in-help-evidence-copy";
 import { AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/authentication-sign-in-help-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 /** Sources-only follow-ups for `/help/authentication-sign-in` buyer-polished shell (HEA). */
 export function HelpAuthenticationSignInSourcesOrientationStrip(): React.JSX.Element {
@@ -18,6 +19,7 @@ export function HelpAuthenticationSignInSourcesOrientationStrip(): React.JSX.Ele
       sources={AUTHENTICATION_SIGN_IN_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
       hubSecondary
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
