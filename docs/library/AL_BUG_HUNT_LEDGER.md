@@ -681,8 +681,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 27
-- **bugs-found:** 14
+- **hunts:** 28
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-09 — authority project slug seeks ignored internal whitespace in stored ProjectId
@@ -793,6 +793,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` backfill queue lacks `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-09-09 seed hunt #1451:** SQL orders `CreatedUtc ASC, RunId ASC`; InMemory uses `ThenBy(RunId)`; regression `InMemory_null_architecture_backfill_orders_by_run_id_when_created_utc_ties`.
 
 2026-09-09 seed hunt #1451 (seed-only): reseeded sql-run-repository after #1450; cheap-disproof closed GoldenManifest tenant join defense-in-depth, manifest-version-only INNER JOIN exclusion, version-scoped committed predicate breadth, optional row-version update, architecture-head latest-run semantics, and null-architecture backfill tie-break; 90 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) `SelectCommittedRunIdByGoldenManifestId` / `IsCommittedRun` treat pipeline dead-letter `Failed` runs with retained manifest headers as committed — **hit 2026-09-09 seed hunt #1459 (seed→hit):** tautological `OR r.GoldenManifestId IS NOT NULL` and `IsCommittedRun` manifest signal let dead-letter rows win seal-delta lookup; fixed SQL `NOT IN (@FailedStatus, @QualityRejectedStatus)` and terminal-failure guard in `IsCommittedRun`; regressions `SelectCommittedRunIdByGoldenManifestId_excludes_failed_runs_after_pipeline_dead_letter`, `InMemory_failed_run_with_retained_golden_manifest_does_not_match_seal_delta_lookup`, and `InMemory_seal_delta_lookup_with_exclude_skips_failed_in_flight_manifest_holder`.
+- [x] (proven) `Archival_PurgeStaleUncommittedRunsBatch` / `IsEligibleForStaleUncommittedPurge` hard-delete `IsSample = 1` runs outside `SampleRunPurgeBatch` policy — **hit 2026-09-09 seed hunt #1459 (seed→hit):** eligibility omitted `IsSample`; fixed InMemory guard and proc `r.IsSample = 0`; regressions `IsEligibleForStaleUncommittedPurge_excludes_sample_runs` and `Archival_PurgeStaleUncommittedRunsBatch_omits_sample_runs`.
+- [x] (valid-no-repro) `Archival_PurgeStaleUncommittedRunsBatch` hard-deletes soft-archived uncommitted runs — **cheap-disproof 2026-09-09 seed hunt #1459:** stale-uncommitted purge intentionally targets aged uncommitted rows regardless of `ArchivedUtc`; regression `IsEligibleForStaleUncommittedPurge_includes_archived_uncommitted_runs_by_design`.
+
+2026-09-09 seed hunt #1459 (seed→hit): reseeded sql-run-repository after #1451; proved dead-letter Failed rows in golden-manifest committed lookup and sample-run overlap in stale-uncommitted purge; cheap-disproof closed archived-uncommitted purge intent; 109 scoped Persistence tests passed (1 SQL integration skipped).
 
 - [x] (valid-no-repro) `SelectCommittedRunIdByGoldenManifestId` returns current rerun when `ExcludeRunId` is supplied — **cheap-disproof 2026-09-09 seed hunt #1456:** SQL and InMemory skip `ExcludeRunId`; regressions `SelectCommittedRunIdByGoldenManifestId_excludes_current_run_via_exclude_run_id` and `InMemory_committed_run_by_golden_manifest_excludes_current_run_when_seal_delta_requested`.
 - [x] (valid-no-repro) `ExistsActiveRunWithSystemNameInWorkspace` ignores optional `ExcludeRunId` and blocks rename of the active run — **cheap-disproof 2026-09-09 seed hunt #1456:** SQL uses `(@ExcludeRunId IS NULL OR RunId <> @ExcludeRunId)`; regression `ExistsActiveRunWithSystemNameInWorkspace_sql_honors_optional_exclude_run_id`.

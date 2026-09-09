@@ -126,6 +126,7 @@ internal static partial class RunRepositoryCore
         run.CreatedUtc < cutoffUtc
         && !run.IsDemoWelcomeRun
         && !run.IsPublicShowcase
+        && !run.IsSample
         && (string.IsNullOrWhiteSpace(run.LegacyRunStatus)
             || !string.Equals(
                 run.LegacyRunStatus,
