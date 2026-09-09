@@ -123,7 +123,9 @@ export function CompareForm(props: CompareFormProps = {}) {
         title={buyerPolished ? buyerComparePageTitle : "Compare two reviews"}
         titleTestId="compare-page-heading"
         subtitle={buyerPolished ? COMPARE_PAGE_SUBTITLE_BUYER : comparePageSubtitle}
-        subtitleClassName="max-w-3xl"
+        subtitleClassName={
+          buyerPolished ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+        }
         claimDiscipline={buyerPolished ? COMPARE_CLAIM_DISCIPLINE : undefined}
         claimDisciplineTestId={buyerPolished ? COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined}
         actions={<ComparePageHeaderActions buyerPolished={buyerPolished} />}
