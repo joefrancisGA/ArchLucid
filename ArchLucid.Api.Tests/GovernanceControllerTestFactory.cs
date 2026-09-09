@@ -99,7 +99,6 @@ internal static class GovernanceControllerTestFactory
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             Mock.Of<IRunDetailQueryService>(),
-
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),
             policyPackGovernanceDryRunService ?? Mock.Of<IPolicyPackGovernanceDryRunService>(),
             policyPackHttpFacade ?? Mock.Of<IPolicyPackHttpFacade>(),

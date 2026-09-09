@@ -42,7 +42,6 @@ public sealed class ArchitecturesControllerTests
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
     private readonly Mock<IAuthorityQueryService> _authorityQueryService = new();
 
-
     public ArchitecturesControllerTests()
     {
         _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);

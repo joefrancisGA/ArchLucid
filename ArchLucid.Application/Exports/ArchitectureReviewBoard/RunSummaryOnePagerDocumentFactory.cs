@@ -63,7 +63,6 @@ public static class RunSummaryOnePagerDocumentFactory
             ArchitectRestatementMarkdown = string.IsNullOrWhiteSpace(architectRestatementMarkdown)
                 ? null
                 : architectRestatementMarkdown.Trim(),
-
         };
     }
 
