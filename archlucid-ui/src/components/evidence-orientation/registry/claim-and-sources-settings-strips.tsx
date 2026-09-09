@@ -166,6 +166,7 @@ export function ExtractUploadSettingsEvidenceOrientationStrip(
       sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -486,6 +487,7 @@ export function ApiKeysSettingsEvidenceOrientationStrip(
       sources={API_KEYS_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
