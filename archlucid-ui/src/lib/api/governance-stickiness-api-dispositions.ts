@@ -1,4 +1,5 @@
-import { apiGet, apiPostJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPostJson } from "./http";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import {
   type FindingDispositionEvent,
@@ -54,7 +55,7 @@ export async function recordBulkFindingDisposition(
 }
 
 export async function listFindingDispositions(findingId: string): Promise<FindingDispositionEvent[]> {
-  return apiGet<FindingDispositionEvent[]>(
+  return apiGetSealedManifestAware<FindingDispositionEvent[]>(
     `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
   );
 }

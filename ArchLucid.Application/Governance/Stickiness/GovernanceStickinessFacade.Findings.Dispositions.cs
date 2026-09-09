@@ -147,6 +147,16 @@ public sealed partial class GovernanceStickinessFacade
         if (finding is null)
             return [];
 
+        if (finding.RunId != Guid.Empty)
+        {
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                finding.RunId,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                ct);
+        }
+
         return await _findingDispositionService.ListHistoryAsync(scope, finding.FindingId, ct);
     }
 }

@@ -6,6 +6,7 @@ import type {
 } from "@/types/governance-dashboard";
 import type { EffectivePolicyPackSet } from "@/types/policy-packs";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiGet } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
@@ -35,7 +36,7 @@ export async function getGovernanceDashboard(
     maxChanges: String(maxChanges),
   });
 
-  return apiGet<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
+  return apiGetSealedManifestAware<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
 }
 
 /** Policy pack change activity buckets for the governance dashboard trend chart. */
@@ -50,7 +51,7 @@ export async function getComplianceDriftTrend(
     bucketMinutes: String(bucketMinutes),
   });
 
-  return apiGet<ComplianceDriftTrendPoint[]>(
+  return apiGetSealedManifestAware<ComplianceDriftTrendPoint[]>(
     `${governanceBase()}/compliance-drift-trend?${query.toString()}`,
   );
 }

@@ -1,6 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -51,5 +52,29 @@ public sealed partial class GovernanceController
             return null;
 
         return await EnsureSealedManifestReadAllowedAsync(approval.RunId, cancellationToken);
+    }
+
+    private async Task<IActionResult?> EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync(
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        try
+        {
+            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                _runDetailQueryService,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
     }
 }

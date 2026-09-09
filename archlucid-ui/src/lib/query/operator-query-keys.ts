@@ -166,6 +166,12 @@ export const operatorQueryKeys = {
   compareGovernanceDiff: (baselineRunId: string, targetRunId: string) =>
     ["operator", "compare", "governance-diff", baselineRunId, targetRunId] as const,
   runExportHistory: (runId: string) => ["operator", "runs", "export-history", runId] as const,
+  exportRecord: (exportRecordId: string) => ["operator", "runs", "export-record", exportRecordId] as const,
+  runComparisonHistory: (runId: string) => ["operator", "compare", "run-history", runId] as const,
+  comparisonRecord: (comparisonRecordId: string) =>
+    ["operator", "compare", "record", comparisonRecordId] as const,
+  comparisonSummary: (comparisonRecordId: string) =>
+    ["operator", "compare", "summary", comparisonRecordId] as const,
   architectureRequest: (requestId: string) => ["operator", "architecture", "request", requestId] as const,
   azureBoardsWorkItemTypes: (projectName: string) =>
     ["operator", "integrations", "azure-boards", "work-item-types", projectName] as const,
