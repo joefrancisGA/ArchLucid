@@ -3740,6 +3740,12 @@
           "label": {
             "type": "string"
           },
+          "properties": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
           "provenance": {
             "type": "string"
           },
