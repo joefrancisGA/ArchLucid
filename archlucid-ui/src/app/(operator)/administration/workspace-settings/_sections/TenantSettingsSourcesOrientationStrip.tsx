@@ -1,4 +1,5 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   TENANT_SETTINGS_FOLLOW_UPS_TITLE,
   TENANT_SETTINGS_ORIENTATION_SOURCES_INTRO,
@@ -16,6 +17,7 @@ export function TenantSettingsSourcesOrientationStrip(): React.JSX.Element {
       sourcesTitle={TENANT_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={TENANT_SETTINGS_ORIENTATION_SOURCES_INTRO}
       sources={TENANT_SETTINGS_SOURCES}
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary
     />
   );
