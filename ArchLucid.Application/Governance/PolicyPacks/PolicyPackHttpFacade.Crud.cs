@@ -14,6 +14,8 @@ public sealed partial class PolicyPackHttpFacade
         if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
             return PolicyPackHttpResult<PolicyPack>.ScopeNotFound();
 
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
         PolicyPack pack = await _workflow.CreatePackAsync(
             request.Name,
             request.Description,
@@ -32,6 +34,8 @@ public sealed partial class PolicyPackHttpFacade
     {
         if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
             return PolicyPackHttpResult<PolicyPackVersion>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
 
         PolicyPackVersion? version = await _workflow.TryPublishVersionAsync(
             policyPackId,
@@ -124,6 +128,8 @@ public sealed partial class PolicyPackHttpFacade
         if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
             return PolicyPackHttpResult<bool>.ScopeNotFound();
 
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
         bool ok = await _workflow.TrySoftDeletePackAsync(policyPackId, ct).ConfigureAwait(false);
 
         return ok
@@ -136,6 +142,8 @@ public sealed partial class PolicyPackHttpFacade
     {
         if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
             return PolicyPackHttpResult<PolicyPack>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
 
         PolicyPack? duplicate = await _workflow.TryDuplicatePackAsync(policyPackId, ct).ConfigureAwait(false);
 
@@ -152,6 +160,8 @@ public sealed partial class PolicyPackHttpFacade
     {
         if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
             return PolicyPackHttpResult<bool>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
 
         PolicyPackSetAssignmentEnabledOutcome outcome =
             await _workflow.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
@@ -181,6 +191,8 @@ public sealed partial class PolicyPackHttpFacade
     {
         if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
             return PolicyPackHttpResult<bool>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
 
         bool ok = await _workflow.TrySetAssignmentOrganizationRequiredAsync(assignmentId, isOrganizationRequired, ct)
             .ConfigureAwait(false);

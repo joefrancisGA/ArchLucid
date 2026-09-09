@@ -8,6 +8,7 @@ import type { ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import { postArchitectureFindingFeedback } from "@/lib/api/findings-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { findingFeedbackMutationBlockedReason } from "@/lib/findings/finding-feedback-mutation-blocked-reason";
 
 export type FindingFeedbackThumbsProps = {
   readonly runId: string;
@@ -30,7 +31,8 @@ export function FindingFeedbackThumbs(props: FindingFeedbackThumbsProps): ReactE
       await postArchitectureFindingFeedback(runId, findingId.trim(), isHelpful);
       setNote(isHelpful ? "Thanks — marked helpful." : "Thanks — feedback recorded.");
     } catch (error) {
-      setNote(toApiLoadFailure(error).message);
+      const failure = toApiLoadFailure(error);
+      setNote(findingFeedbackMutationBlockedReason(failure) ?? failure.message);
     } finally {
       setBusy(false);
     }

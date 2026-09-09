@@ -10,3 +10,8 @@ export function architectureDraftBlockedReason(failure: ApiLoadFailureState | nu
 export function architectureDraftAutosavePatchBlockedReason(failure: ApiLoadFailureState | null): string | null {
   return compareRunPairBlockedReason(failure);
 }
+
+/** Wave-66 suggestion 784: surface lifecycle/sealed-hash draft intake mutation POST 409 copy. */
+export function architectureDraftIntakeMutationBlockedReason(failure: ApiLoadFailureState | null): string | null {
+  return compareRunPairBlockedReason(failure);
+}

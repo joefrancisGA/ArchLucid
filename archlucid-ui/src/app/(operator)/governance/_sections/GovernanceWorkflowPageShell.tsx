@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { GovernanceWorkflowRunListsBlockedCallout } from "@/components/governance/GovernanceWorkflowRunListsBlockedCallout";
+import { GovernanceReviewContextBlockedCallout } from "@/components/governance/GovernanceReviewContextBlockedCallout";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { Separator } from "@/components/ui/separator";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
@@ -108,6 +109,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
     listFailure,
     listsLoading,
     activeReviewDisplayTitle,
+    reviewContextFailure,
     mutations,
     submitBusy,
     submitApprovalComplete,
@@ -372,6 +374,10 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
               void refreshIfActive();
             }}
           />
+
+          {reviewContextFailure !== null ? (
+            <GovernanceReviewContextBlockedCallout failure={reviewContextFailure} />
+          ) : null}
 
           {listFailure !== null ? (
             <div className="mb-6" role="alert">

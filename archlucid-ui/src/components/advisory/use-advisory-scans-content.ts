@@ -27,6 +27,7 @@ import {
 import { getImprovementPlan } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { advisoryRecommendationApplyMutationBlockedReason } from "@/lib/advisory/advisory-recommendation-apply-mutation-blocked-reason";
 import { showSuccess } from "@/lib/toast";
 import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
 import {
@@ -406,7 +407,10 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
 
         setPendingDisposition(null);
       } catch (error) {
-        setDispositionError(toApiLoadFailure(error).message);
+        const failure = toApiLoadFailure(error);
+        setDispositionError(
+          advisoryRecommendationApplyMutationBlockedReason(failure) ?? failure.message,
+        );
       } finally {
         setDispositionBusy(false);
       }

@@ -14,6 +14,8 @@ import {
   architectureIdentityDraftHref,
 } from "@/lib/architecture/architecture-routes";
 import { cloneDraftSnapshot } from "@/lib/api/draft-intake-api";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
 
 export const ARCHITECTURE_DRAFT_CLONE_SNAPSHOT_LABEL = "Start a new draft from this snapshot";
@@ -55,8 +57,11 @@ export function ArchitectureDraftCloneSnapshotControl(
           : architectureDraftPath(response.clone.draftId);
       router.push(nextHref);
     } catch (error) {
+      const failure = toApiLoadFailure(error);
+      const blocked = architectureDraftIntakeMutationBlockedReason(failure);
       setInlineError(
-        formatVerboseApiFailureMessage(error, "Could not start a new draft from this snapshot."),
+        blocked
+          ?? formatVerboseApiFailureMessage(error, "Could not start a new draft from this snapshot."),
       );
     } finally {
       setBusy(false);

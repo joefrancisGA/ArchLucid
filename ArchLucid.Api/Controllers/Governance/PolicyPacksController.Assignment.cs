@@ -3,6 +3,7 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Audit;
@@ -117,11 +118,20 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackHttpResult<bool> result = await _httpFacade.SetAssignmentEnabledAsync(
-                assignmentId,
-                request.IsEnabled,
-                ct)
-            .ConfigureAwait(false);
+        PolicyPackHttpResult<bool> result;
+
+        try
+        {
+            result = await _httpFacade.SetAssignmentEnabledAsync(
+                    assignmentId,
+                    request.IsEnabled,
+                    ct)
+                .ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
@@ -152,6 +162,7 @@ public sealed partial class PolicyPacksController
     [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.SetAssignmentOrganizationRequiredAsync logs PolicyPackAssignmentOrganizationRequiredChanged.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SetAssignmentOrganizationRequired(
         Guid assignmentId,
         [FromBody] SetPolicyPackAssignmentOrganizationRequiredRequest? request,
@@ -165,11 +176,20 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackHttpResult<bool> result = await _httpFacade.SetAssignmentOrganizationRequiredAsync(
-                assignmentId,
-                request.IsOrganizationRequired,
-                ct)
-            .ConfigureAwait(false);
+        PolicyPackHttpResult<bool> result;
+
+        try
+        {
+            result = await _httpFacade.SetAssignmentOrganizationRequiredAsync(
+                    assignmentId,
+                    request.IsOrganizationRequired,
+                    ct)
+                .ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 

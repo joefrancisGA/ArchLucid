@@ -10,6 +10,7 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { architectureDraftQuestionsBlockedReason } from "@/lib/architecture/architecture-draft-list-blocked-reason";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
 import { reasonDraftRequest } from "@/lib/api/draft-intake-api-lifecycle";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { DraftElicitationQuestion } from "@/types/draft-intake-workflow";
@@ -119,6 +120,15 @@ export function useReviewPresenterElicitation(
       try {
         await action();
         await invalidate();
+      } catch (error: unknown) {
+        const failure = toApiLoadFailure(error);
+        const blocked = architectureDraftIntakeMutationBlockedReason(failure);
+
+        if (blocked !== null) {
+          throw new Error(blocked);
+        }
+
+        throw error;
       } finally {
         setBusy(false);
       }

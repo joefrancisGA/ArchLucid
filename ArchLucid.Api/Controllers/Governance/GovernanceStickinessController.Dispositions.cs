@@ -114,6 +114,10 @@ public sealed partial class GovernanceStickinessController
                     ["currentDisposition"] = ex.CurrentDisposition,
                 });
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
@@ -180,6 +184,10 @@ public sealed partial class GovernanceStickinessController
                 {
                     ["currentDisposition"] = ex.CurrentDisposition,
                 });
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
