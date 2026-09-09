@@ -681,9 +681,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-09 — golden-manifest committed run lookup lacked RunId tie-break in InMemory parity
 - **related-pd-tb:** none
@@ -722,6 +722,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` uses ascending CreatedUtc for backfill batching — **cheap-disproof 2026-09-09 seed hunt #1441:** `ArchitectureIdentityBackfillService` consumes oldest unlinked runs first by design; shape regression `ListWithNullArchitectureId_orders_ascending_for_backfill_queue`.
 
 2026-09-09 seed hunt #1441 (hit): reseeded sql-run-repository after #1440; proved golden-manifest committed lookup InMemory/SQL ordering gap; cheap-disproof closed workspace-wide system-name and null-architecture backfill ordering candidates; 38 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `CountActiveRunsForArchitectureRequest` / `ExistsActiveRunWithSystemNameInWorkspace` compare `LegacyRunStatus` with canonical enum names while InMemory uses ignore-case helpers — **cheap-disproof 2026-09-09 seed hunt #1442:** create/update paths persist `nameof(ArchitectureRunStatus.*)`; SQL Server CI collation matches canonical casing; shape regression `CountActiveRunsForArchitectureRequest_uses_canonical_terminal_status_names`.
+- [x] (valid-no-repro) `SelectByRunIdAdmin` returns runs without tenant/workspace/project predicates — **cheap-disproof 2026-09-09 seed hunt #1442:** `[TenantScopeExempt]` operational lookup by run id within active catalog routing; shape regression `SelectByRunIdAdmin_omits_tenant_scope_for_operational_lookup`.
+- [x] (valid-no-repro) `CommittedArchitectureReviewExistsNoLock` ignores manifest-version-only commits that other committed lookups accept — **cheap-disproof 2026-09-09 seed hunt #1442:** nav narrowing signal requires persisted golden manifest plus explicit Committed status; regression `CommittedArchitectureReviewExists_requires_golden_manifest_not_manifest_version_only`.
+- [x] (valid-no-repro) `RunRepositoryCore.SelectLatestCommittedRunIdByManifestCreatedUtc` ranks by `CompletedUtc` while SQL joins `GoldenManifests.CreatedUtc` — **cheap-disproof 2026-09-09 seed hunt #1442:** documented InMemory stand-in for tests/local host; SQL manifest join remains authoritative in production; regression `SelectLatestCommittedRunIdByManifestCreatedUtc_in_memory_uses_completed_utc_stand_in`.
+
+2026-09-09 seed hunt #1442 (seed-only): reseeded sql-run-repository after #1441; cheap-disproof closed terminal-status casing, admin lookup scope, committed-review predicate strictness, and manifest CreatedUtc vs CompletedUtc stand-in candidates; 42 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 

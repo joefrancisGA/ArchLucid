@@ -546,6 +546,82 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void CountActiveRunsForArchitectureRequest_uses_canonical_terminal_status_names()
+    {
+        const string sql = RunRepositorySql.CountActiveRunsForArchitectureRequest;
+
+        sql.Should().Contain("@CommittedStatus");
+        sql.Should().Contain("@FailedStatus");
+        sql.Should().Contain("@QualityRejectedStatus");
+        sql.Should().Contain("LegacyRunStatus NOT IN (@CommittedStatus, @FailedStatus, @QualityRejectedStatus)");
+    }
+
+    [Fact]
+    public void SelectByRunIdAdmin_omits_tenant_scope_for_operational_lookup()
+    {
+        RunRepositorySql.SelectByRunIdAdmin.Should().Contain("WHERE RunId = @RunId");
+        RunRepositorySql.SelectByRunIdAdmin.Should().NotContain("TenantId = @TenantId");
+    }
+
+    [Fact]
+    public void CommittedArchitectureReviewExists_requires_golden_manifest_not_manifest_version_only()
+    {
+        const string sql = HotPathRelationalQueryShapes.CommittedArchitectureReviewExistsNoLock;
+
+        sql.Should().Contain("LegacyRunStatus = @CommittedStatus");
+        sql.Should().Contain("GoldenManifestId IS NOT NULL");
+        sql.Should().NotContain("CurrentManifestVersion");
+    }
+
+    [Fact]
+    public void SelectLatestCommittedRunIdByManifestCreatedUtc_in_memory_uses_completed_utc_stand_in()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid earlierCompletedRunId = Guid.Parse("11111111-0000-0000-0000-000000000001");
+        Guid laterCompletedRunId = Guid.Parse("22222222-0000-0000-0000-000000000002");
+        DateTime createdUtc = new(2026, 9, 9, 0, 0, 0, DateTimeKind.Utc);
+
+        Guid? selected = RunRepositoryCore.SelectLatestCommittedRunIdByManifestCreatedUtc(
+            [
+                new RunRecord
+                {
+                    RunId = earlierCompletedRunId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "billing",
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                    GoldenManifestId = Guid.NewGuid(),
+                    CreatedUtc = createdUtc,
+                    CompletedUtc = createdUtc.AddHours(1),
+                },
+                new RunRecord
+                {
+                    RunId = laterCompletedRunId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "billing",
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                    GoldenManifestId = Guid.NewGuid(),
+                    CreatedUtc = createdUtc,
+                    CompletedUtc = createdUtc.AddHours(2),
+                },
+            ],
+            scope,
+            "billing");
+
+        selected.Should().Be(laterCompletedRunId,
+            "InMemory committed lookup intentionally ranks by CompletedUtc until GoldenManifests join exists in tests.");
+    }
+
+    [Fact]
     public async Task InMemory_offset_list_pages_all_runs_when_created_utc_ties()
     {
         ScopeContext scope = new()
