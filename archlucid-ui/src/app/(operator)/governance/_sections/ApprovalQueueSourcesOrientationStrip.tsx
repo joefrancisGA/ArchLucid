@@ -7,6 +7,7 @@ import {
   APPROVAL_QUEUE_SOURCES_INTRO,
   GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID,
 } from "@/lib/approval-queue-evidence-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 /** Sources-only follow-ups for `/governance/approval-queue` buyer-polished shell (GOP). */
 export function ApprovalQueueSourcesOrientationStrip(): React.JSX.Element {
@@ -20,6 +21,7 @@ export function ApprovalQueueSourcesOrientationStrip(): React.JSX.Element {
       sources={APPROVAL_QUEUE_SOURCES}
       sourcesHeadingId="where-to-go-next"
       hubSecondary
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }

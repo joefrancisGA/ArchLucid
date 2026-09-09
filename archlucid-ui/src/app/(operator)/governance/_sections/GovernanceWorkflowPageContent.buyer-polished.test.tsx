@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD, BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance/governance-overview-copy";
@@ -6,15 +6,19 @@ import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-ro
 import {
   APPROVAL_QUEUE_CLAIM_DISCIPLINE,
   APPROVAL_QUEUE_FOLLOW_UPS_TITLE,
+  APPROVAL_QUEUE_SOURCES,
+  GOVERNANCE_APPROVAL_QUEUE_BUYER_OVERVIEW,
   GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER,
   GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID,
   GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID,
-  GOVERNANCE_APPROVAL_QUEUE_OVERVIEW,
   GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
   GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID,
   GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL,
   GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE,
+  GOVERNANCE_APPROVAL_QUEUE_WORKSPACE_TEST_ID,
 } from "@/lib/approval-queue-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 
@@ -235,11 +239,14 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
       GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
     );
     expect(screen.getByTestId("governance-approval-queue-overview")).toHaveTextContent(
-      GOVERNANCE_APPROVAL_QUEUE_OVERVIEW,
+      GOVERNANCE_APPROVAL_QUEUE_BUYER_OVERVIEW,
     );
     expect(screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
       screen.getByTestId("governance-approval-queue-intro"),
     );
+    expect(
+      screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID),
+    ).not.toContainElement(screen.getByTestId("governance-approval-queue-overview"));
     expect(
       screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
         screen.getByTestId("governance-approval-queue-overview"),
@@ -259,13 +266,35 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
       GOVERNANCE_WORKSPACE_HEALTH_HREF,
     );
     expect(screen.queryByTestId("layer-header-collapsible-guidance")).not.toBeInTheDocument();
-    expect(screen.getByTestId("governance-approval-queue-primary-content")).toBeInTheDocument();
-    expect(screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID)).toBeInTheDocument();
-    expect(screen.getByTestId("approval-queue-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("governance-approval-queue-pick-review-before-submitting-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("governance-interactive-quickstart")).not.toBeInTheDocument();
     expect(screen.queryByText("How approval works")).not.toBeInTheDocument();
     expect(screen.queryByTestId("governance-sample-overview-banner")).not.toBeInTheDocument();
     expect(screen.queryByTestId("inline-guidance-governance-overview-next")).not.toBeInTheDocument();
     expect(screen.queryByTestId("governance-overview-submit-action")).not.toBeInTheDocument();
+
+    const primaryContent = screen.getByTestId("governance-approval-queue-primary-content");
+    const firstViewport = screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("governance-approval-queue-overview");
+    const workspace = screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_WORKSPACE_TEST_ID);
+    const overviewPanel = screen.getByTestId("governance-overview-panel");
+    const orientationBottom = screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("approval-queue-sources");
+
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(workspace);
+    expect(primaryContent).toContainElement(orientationBottom);
+    expect(workspace).toContainElement(overviewPanel);
+    expect(orientationBottom).toContainElement(sourcesSection);
+
+    for (const source of filterWhereToGoNextFollowUpLinks(APPROVAL_QUEUE_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
+
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
