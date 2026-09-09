@@ -15029,6 +15029,16 @@
               "string"
             ]
           },
+          "semanticSupportBand": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingSemanticSupportBand"
+              }
+            ]
+          },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
           },
@@ -15925,6 +15935,15 @@
           }
         },
         "type": "object"
+      },
+      "FindingSemanticSupportBand": {
+        "enum": [
+          "Supported",
+          "Unchecked",
+          "Unsupported",
+          "NotScored",
+          null
+        ]
       },
       "FindingSeverity": {
         "enum": [
