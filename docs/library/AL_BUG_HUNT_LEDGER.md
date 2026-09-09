@@ -9964,11 +9964,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 12
-- **bugs-found:** 14
+- **hunts:** 13
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — operational-errors detail panel survived filter changes; ask page stale `thread` URL blocked continue-last auto-resume
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — compare pickers kept stale run ids when URL params were cleared
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9990,6 +9990,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `useAdminTenantsState` URL-sync effect cleared `pendingTenantAction` whenever URL params were empty — **hit 2026-09-05 (#811):** shut-off/turn-on confirm dialog vanished before `router.replace` wrote `tenantAction`/`tenantId`; fixed by clearing only on set→cleared URL transitions (`AdminTenantsPageClient.test.tsx`).
 - [x] (proven) Operational-errors detail panel survived filter changes that hid the selected row — **hit 2026-09-08 (#1331):** `OperationalErrorsPageClient` kept `selectedRow` while `filteredRows` excluded it after category/status/tenant/correlation filter changes; clear selection and `errorId` URL when the row drops out of the filtered set; regression in `OperationalErrorsPageClient.test.tsx`.
 - [x] (proven) Ask page stale `thread` search param blocked continue-last auto-resume — **hit 2026-09-08 (#1331):** `useAskPageUrlSync` returned early on unknown `thread` without clearing the param, and `useAskPage` auto-resume treated any non-empty URL thread as authoritative; clear stale thread after thread-list hydration and only block auto-resume when the URL thread exists in the loaded list; regression in `use-ask-page-url-sync.test.ts`.
+- [x] (proven) `useCompareFormUrlSync` URL→state sync only applied non-empty `priorRunId`/`laterRunId` — **hit 2026-09-09 seed hunt #1416:** clearing compare query params left picker state on the previous pair while bare `/insights/compare-two-reviews` loaded; fixed by always syncing empty ids from URL; regression `clears_picker_run_ids_when_compare_URL_params_are_removed`.
+- [ ] (candidate) `useGraphPageUrlState` + `useGraphPageState` debounced URL writer — empty `runId` in URL does not clear local state and stale `runId` is re-injected into the query string within the debounce window.
+- [ ] (candidate) `SlackIntegrationPageClient` — non-empty `slackDisableId` URL param persists when the subscription id is missing from loaded rows (no stale-param cleanup unlike ask `thread`).
+- [ ] (candidate) `DiagramReconcileWorkbenchClient` — `selectedCorrespondenceId` and URL `correspondenceId` survive match-kind filter changes that hide the selected row from `filteredRows` (operational-errors filter/detail desync pattern).
+
+2026-09-09 seed hunt #1416 (hit): reseeded operator routes after 204 commits since last hunt; proved compare picker stale run ids on cleared URL params; seeded evidence-graph runId reinjection, Slack disable deep-link, and diagram reconcile filter/selection desync candidates.
 
 2026-09-08 thorough hunt #1331 (hit): proved operational-errors filter/detail desync and ask stale-thread resume block in operator routes.
 
