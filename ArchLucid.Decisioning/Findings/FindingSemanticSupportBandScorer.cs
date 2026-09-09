@@ -1,5 +1,7 @@
 using System.Text;
 
+using ArchLucid.Contracts.Findings;
+
 namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>

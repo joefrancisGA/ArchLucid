@@ -113,6 +113,8 @@ public sealed class FindingsMergeAndGateStage(
 
         FindingProvenanceEmissionApplicator.Apply(snapshot.Findings, _provenanceValidator);
 
+        FindingSemanticSupportBandDefaultsApplicator.Apply(snapshot.Findings);
+
         snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
 
         FindingsSnapshotWithheldAdvisoryEngineFailuresApplicator.Apply(snapshot);

@@ -595,6 +595,8 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ArchitectureIdentityPatched` | `ArchitectureIdentity.Patched` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}`) |
 | `ArchitectureIdentityArchived` | `ArchitectureIdentity.Archived` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}` — `archived: true`) |
 | `ArchitectureIdentityRestored` | `ArchitectureIdentity.Restored` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}` — `archived: false`) |
+| `ArchitectureInventorySnapshotBound` | `ArchitectureIdentity.InventorySnapshotBound` | `ArchitecturesController` (`POST /v1/architectures/{architectureId}/inventory-binding`) — **Required** (`LogOrThrowAsync`) |
+| `ArchitectureInventorySnapshotDetached` | `ArchitectureIdentity.InventorySnapshotDetached` | `ArchitecturesController` (`DELETE /v1/architectures/{architectureId}/inventory-binding`) — **Required** (`LogOrThrowAsync`) |
 | `DraftIntakeQuestionAnswered` | `DraftIntake.QuestionAnswered` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/answer`) |
 | `DraftIntakeQuestionSkipped` | `DraftIntake.QuestionSkipped` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/skip`) |
 | `DraftIntakeReasoned` | `DraftIntake.Reasoned` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/reason`) |

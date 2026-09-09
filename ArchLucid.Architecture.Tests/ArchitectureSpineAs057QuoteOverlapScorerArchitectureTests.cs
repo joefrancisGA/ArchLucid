@@ -34,7 +34,7 @@ public sealed class ArchitectureSpineAs057QuoteOverlapScorerArchitectureTests
     {
         string enumPath = Path.Combine(
             RepoRoot,
-            "ArchLucid.Decisioning",
+            "ArchLucid.Contracts",
             "Findings",
             "FindingSemanticSupportBand.cs");
 

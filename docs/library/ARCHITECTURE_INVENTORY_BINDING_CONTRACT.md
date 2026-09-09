@@ -59,6 +59,22 @@ Canonical collector entry points:
 
 AS-054 ratchet expands forbidden type names; this contract is the human-readable source of truth.
 
+### AS-054 — Forbidden type names (CI ratchet)
+
+`ArchitectureSpineAs054ForbiddenCollectorArchitectureTests` fails CI when architecture bind paths declare or reference a second collector. **Do not add** types or dependencies matching these fragments under `ArchLucid.Application/Architecture`, `ArchLucid.Api/Controllers/Architecture`, or `BoundArchitectureInventoryGraphOverlayApplicator.cs`:
+
+| Forbidden type name fragment | Why |
+|------------------------------|-----|
+| `ArmHarvest` | Inline ARM collection in the decide path |
+| `AzureResourceGraphClient` | Duplicate Resource Graph client beside IE plane |
+| `InlineArmCollector` | Review-API harvest shortcut |
+| `ReviewApiAzureCollector` | Parallel collector in authority API |
+| `ArchitectureInventoryCollector` | Bind wave must reference snapshots, not collect |
+| `DuplicateAzureExtractor` | Fork of `Get-ArchLucidAzurePackage` family |
+| `SecondAzureCollector` | Explicit second collector family |
+
+Forbidden dependency tokens in those paths: `IHostedAzureExtractorClient`, `HostedAzureExtractorClient`, `Get-ArchLucidAzurePackage`, `AzureResourceGraph`.
+
 ---
 
 ## Three finding streams stay distinct

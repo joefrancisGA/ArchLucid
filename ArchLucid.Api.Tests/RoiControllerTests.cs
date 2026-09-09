@@ -2,10 +2,12 @@ using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Roi;
+using ArchLucid.Api.Tests.Roi;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
