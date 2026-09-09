@@ -29,6 +29,7 @@ export type HelpTopicMarkdownPageHeaderProps = {
   readonly signInFailureTriageLine?: ReactNode;
   readonly claimDiscipline?: string;
   readonly claimDisciplineTestId?: string;
+  readonly subtitleClassName?: string;
 };
 
 function hasExportActions(props: HelpTopicMarkdownPageHeaderProps): boolean {
@@ -56,6 +57,7 @@ export function HelpTopicMarkdownPageHeader(props: HelpTopicMarkdownPageHeaderPr
       title={props.entry.title}
       titleTestId="help-topic-page-title"
       subtitle={props.subtitle ?? props.entry.summary}
+      subtitleClassName={props.subtitleClassName}
       breadcrumb={props.breadcrumb}
       claimDiscipline={props.claimDiscipline}
       claimDisciplineTestId={props.claimDisciplineTestId}
