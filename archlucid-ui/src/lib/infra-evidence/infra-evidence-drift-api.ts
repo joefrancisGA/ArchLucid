@@ -1,5 +1,7 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { infraEvidenceDriftMutationBlockedReason } from "@/lib/infra-evidence/infra-evidence-drift-mutation-blocked-reason";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import {
   ensureOidcBearerReady,
@@ -113,5 +115,12 @@ export async function downloadInfraEvidenceTerraformAdvisoryZip(snapshotId: stri
 }
 
 export function formatInfraEvidenceApiError(error: unknown): string {
+  const failure = toApiLoadFailure(error);
+  const blockedReason = infraEvidenceDriftMutationBlockedReason(failure);
+
+  if (blockedReason !== null) {
+    return blockedReason;
+  }
+
   return formatInfraEvidenceSealedManifestAwareApiError(error);
 }

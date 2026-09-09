@@ -41,8 +41,8 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 import {
   fetchInfraEvidenceSnapshots,
-  formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-evidence-diagrams-api";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
@@ -215,7 +215,7 @@ export function DiagramsWorkbenchClient() {
         }
       } catch (error: unknown) {
         if (!cancelled) {
-          setLoadError(formatInfraEvidenceApiError(error));
+          setLoadError(formatInfraEvidenceDiagramsApiError(error));
         }
       } finally {
         if (!cancelled) {
