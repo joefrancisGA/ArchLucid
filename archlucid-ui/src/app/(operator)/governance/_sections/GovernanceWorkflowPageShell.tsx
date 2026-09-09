@@ -212,6 +212,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
         title={pageTitle}
         titleTestId="governance-overview-page-title"
         subtitle={pageLead}
+        subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
         claimDiscipline={buyerPolishedShell ? APPROVAL_QUEUE_CLAIM_DISCIPLINE : undefined}
         claimDisciplineTestId="approval-queue-header-claim-discipline"
         metadata={

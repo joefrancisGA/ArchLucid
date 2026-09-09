@@ -97,6 +97,7 @@ export function OperatorPageHeader({
           bordered
           titleTestId={titleTestId}
           descriptionTestId={subtitleTestId}
+          descriptionClassName={subtitleClassName}
         >
           {children}
         </PageHeading>
