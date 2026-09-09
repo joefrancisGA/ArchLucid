@@ -42,6 +42,32 @@ describe("presentSponsorEstimatedSavings", () => {
 
     expect(result.display).toBe("$125,000");
   });
+
+  it("includes ROI basis description footnote when savings are shown (FC-47)", () => {
+    const result = presentSponsorEstimatedSavings(125000, {
+      loading: false,
+      summary: summary({
+        systemCount: 1,
+        totalEstimatedUsdSavings: 125000,
+        savingsPricingBasisDescription: "List-price Azure retail rates.",
+      }),
+    });
+
+    expect(result.display).toBe("$125,000");
+    expect(result.footnote).toBe("List-price Azure retail rates.");
+  });
+
+  it("falls back to savingsPricingBasis label when description is absent (FC-47)", () => {
+    const result = presentSponsorEstimatedSavings(50000, {
+      loading: false,
+      summary: summary({
+        systemCount: 1,
+        savingsPricingBasis: "Tenant-adjusted list pricing",
+      }),
+    });
+
+    expect(result.footnote).toBe("Basis: Tenant-adjusted list pricing");
+  });
 });
 
 describe("workspaceHasCostEvidenceBasis", () => {

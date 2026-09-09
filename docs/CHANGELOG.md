@@ -5,6 +5,14 @@
 
 # ArchLucid changelog
 
+## 2026-09-07 - Pricing: **M-305** profit re-rate
+
+**Outcome.** Product leadership ratified the profit-maximizing list: apply the overdue §5.3 self-serve gate, destack the −25% trust concession from Architect/Team list (keep it baked into Professional/Enterprise only), fix the Professional public bundle as a 10-seat / 1-workspace expansion SKU, raise architecture-package overage above typical LLM COGS, mark up wallet overage **1.4×**, and scale hosted LLM hard stops by plan.
+
+**Locked list (effective 2026-09-07):** Architect **$169**/mo (1 seat); Team Stripe **$1,169**/mo (5 seats, 10-seat cap, add-on **$211**); Professional **$2,299**/mo (10 seats, 1 workspace, add-on seat **$215**, add-on workspace **$1,079**); overage **$30 / $25 / $20** per architecture package. LLM included/hard-stop: Architect $20/$35, Team $50/$75, Professional $200/$300; Enterprise requires a contracted schedule. No grandfathering (zero subscribers, same as **M-200**).
+
+**Surfaces.** [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) §3 / §3.3 / §4.3 / §5; [`ORDER_FORM_TEMPLATE.md`](go-to-market/ORDER_FORM_TEMPLATE.md); [`ROI_MODEL.md`](go-to-market/ROI_MODEL.md) §8–9; `archlucid-ui/public/pricing.json`; `CommercialPackagingLimits`; `LlmMonthlyTenantDollarBudget:ByPlan`; wallet `OverageDebitMarkupMultiplier`.
+
 ## 2026-08-13 - Vocabulary: sealed review record
 
 - Buyer noun is **sealed review record** (former **signed review record**). Finalize still write-locks and hash-anchors the record; the word no longer implies a PKI signature.

@@ -29,6 +29,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+
 namespace ArchLucid.Application.Tests.Governance;
 
 [Trait("Suite", "Core")]
@@ -131,6 +133,110 @@ public sealed class PreCommitGovernanceGateTests
 
         r.Blocked.Should().BeTrue();
         r.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-critical");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAsync_allows_when_critical_finding_is_remediated()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        const string findingId = "f-critical-remediated";
+        Guid policyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-1",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = BuildPinnedPolicyPackIdsJson((policyPackId, "1.0.0")),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findings = new();
+        await findings.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = findingId,
+                        FindingType = "Compliance",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Critical,
+                        Title = "t",
+                        Rationale = "r",
+                        EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+        await assignments.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                ScopeLevel = GovernanceScopeLevel.Project,
+                PolicyPackId = policyPackId,
+                PolicyPackVersion = "1.0.0",
+                IsEnabled = true,
+                BlockCommitOnCritical = true,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
+                    FindingId = findingId,
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = Disposition.Remediated,
+                    OccurredAtUtc = DateTimeOffset.Parse("2026-09-08T12:00:00Z"),
+                },
+            ]);
+
+        PreCommitGovernanceGate sut = CreateGate(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            runs,
+            findings,
+            assignments,
+            findingReviewTrailRepository: trail.Object);
+
+        PreCommitGateResult result = await sut.EvaluateAsync(runId, CancellationToken.None);
+
+        result.Blocked.Should().BeFalse();
+        result.BlockingFindingIds.Should().BeEmpty();
     }
 
     [SkippableFact]
@@ -1634,8 +1740,18 @@ public sealed class PreCommitGovernanceGateTests
         IOptions<TechnologyConsistencyFindingEngineOptions>? consistencyOptions = null,
         ITechnologyConsistencyFindingEngine? consistencyEngine = null,
         IFindingEvidenceLinkageFindingEngine? linkageEngine = null,
-        IOptions<FindingEvidenceLinkageFindingEngineOptions>? linkageOptions = null)
+        IOptions<FindingEvidenceLinkageFindingEngineOptions>? linkageOptions = null,
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null)
     {
+        Mock<IFindingReviewTrailRepository> trailMock = new();
+        trailMock
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         return new PreCommitGovernanceGate(
             gateOptions,
             scopeProvider,
@@ -1649,6 +1765,7 @@ public sealed class PreCommitGovernanceGateTests
             consistencyEngine ?? new TechnologyConsistencyFindingEngine(),
             consistencyOptions ?? Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
             linkageEngine ?? new FindingEvidenceLinkageFindingEngine(),
-            linkageOptions ?? Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }));
+            linkageOptions ?? Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            findingReviewTrailRepository ?? trailMock.Object);
     }
 }

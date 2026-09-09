@@ -8,7 +8,7 @@ import {
   BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -22,7 +22,7 @@ export function FindingInspectAuditSection({
   auditRowId,
   demoFillGaps,
 }: FindingInspectAuditSectionProps): ReactElement {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
 
   return (
     <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">

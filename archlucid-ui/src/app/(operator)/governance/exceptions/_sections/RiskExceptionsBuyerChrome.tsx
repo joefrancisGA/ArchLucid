@@ -10,5 +10,9 @@ export function RiskExceptionsBuyerChrome(): React.JSX.Element | null {
     return null;
   }
 
-  return <RiskExceptionsClaimOrientationStrip />;
+  return (
+    <div className="mb-4 text-left" data-testid="risk-exceptions-orientation-bottom">
+      <RiskExceptionsClaimOrientationStrip />
+    </div>
+  );
 }

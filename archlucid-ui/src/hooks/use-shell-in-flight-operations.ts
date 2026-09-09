@@ -5,6 +5,11 @@ import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 
 import { getOperation } from "@/lib/api/operations-api";
+import { isApiRequestError } from "@/lib/api-request-error";
+import {
+  advisoryDraftOperationMissingMessage,
+  isAdvisoryDraftOperationMissingError,
+} from "@/lib/operations/advisory-draft-operation-missing";
 import {
   clearInFlightOperations,
   getInFlightOperations,
@@ -211,7 +216,21 @@ export function useShellInFlightOperations(): readonly TrackedInFlightOperation[
               removeInFlightOperation(operationId);
             }, SHELL_IN_FLIGHT_TERMINAL_HOLD_MS);
           }
-        } catch {
+        } catch (error: unknown) {
+          if (isAdvisoryDraftOperationMissingError(error)) {
+            patchInFlightOperation(operationId, {
+              stepLabel: advisoryDraftOperationMissingMessage(),
+              state: "Failed",
+            });
+            removeInFlightOperation(operationId);
+            continue;
+          }
+
+          if (isApiRequestError(error)) {
+            // Keep the row; next interval retries. Avoid toast spam on transient poll failures.
+            continue;
+          }
+
           // Keep the row; next interval retries. Avoid toast spam on transient poll failures.
         }
       }

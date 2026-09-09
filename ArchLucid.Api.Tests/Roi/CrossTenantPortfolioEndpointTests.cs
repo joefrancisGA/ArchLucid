@@ -5,6 +5,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -47,10 +48,10 @@ public sealed class CrossTenantPortfolioEndpointTests
 
         sut.ControllerContext = new ControllerContext { HttpContext = httpContext };
 
-        ActionResult<CrossTenantPortfolioSummaryResponse> action =
+        IActionResult action =
             await sut.GetCrossTenantPortfolioSummaryAsync(CancellationToken.None);
 
-        ObjectResult result = action.Result.Should().BeOfType<ObjectResult>().Subject;
+        ObjectResult result = action.Should().BeOfType<ObjectResult>().Subject;
         result.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
 
         Microsoft.AspNetCore.Mvc.ProblemDetails problem =

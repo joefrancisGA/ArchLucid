@@ -4,7 +4,7 @@
 
 **Audience:** Founder / principal architect deciding whether to fund full framework rule coverage in the merged file catalog.
 
-**Status:** Option **B** pilot slice **shipped** (2026-08-28) — twelve previously unbacked declaration-mapped ids added to `ga-starter-compliance.rules.json` (`soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021`). Full Option A (~144 rules) remains deferred.
+**Status:** Option **B** pilot slice **shipped** (2026-08-28) — twelve previously unbacked declaration-mapped ids added to `ga-starter-compliance.rules.json` (`soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021`). **QR-12 (2026-09-09)** extended the HIPAA clinical boundary slice (`hipaa-011`..`hipaa-025`) and wired `hipaa-architecture.json` keys so the pack emits declaration themes at **P1**. Full Option A (~144 rules) remains deferred.
 
 ## Problem statement
 
@@ -86,4 +86,5 @@ HIPAA, ISO 27001, and Zero Trust stay declaration-silent at **any** floor until 
 
 - [`policy-filter-golden-delta.md`](policy-filter-golden-delta.md) § Bundled-pack declaration coverage (PP-01)
 - [`WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md`](../architecture/WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md) PP-01 follow-up
+- [`V9_QUALITY_ROI_COMPOSER_PROMPTS.md`](../architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md) **QR-12** — next Option B framework slice
 - [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](../go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md) — `-DeclarationPriorityFloor P1` for SOC 2 vs CIS Azure

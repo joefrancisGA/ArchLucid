@@ -19,6 +19,8 @@ export type MutatingInTenantChipProps = {
    * When omitted, the chip reads the active tenant after mount.
    */
   readonly tenantScopeLabel?: string;
+  /** When false, the chip label omits the tenant catalog id (display name only). */
+  readonly showTenantId?: boolean;
   /** Optional full copy override for tests. */
   readonly copy?: MutatingInTenantChipCopy;
 };
@@ -28,17 +30,19 @@ export type MutatingInTenantChipProps = {
  * Mount beside save controls on tenant-wide identity provider surfaces.
  */
 export function MutatingInTenantChip(props: MutatingInTenantChipProps): JSX.Element {
+  const includeTenantScopeLabel = props.showTenantId !== false;
+
   const [copy, setCopy] = useState<MutatingInTenantChipCopy>(() => {
     if (props.copy !== undefined) {
       return props.copy;
     }
 
     if (props.tenantScopeLabel !== undefined) {
-      return buildMutatingInTenantChipCopy(props.tenantScopeLabel);
+      return buildMutatingInTenantChipCopy(props.tenantScopeLabel, includeTenantScopeLabel);
     }
 
     // SSR / first paint: avoid storage so hydration matches the server.
-    return resolveMutatingInTenantChipFromRecord(null);
+    return resolveMutatingInTenantChipFromRecord(null, includeTenantScopeLabel);
   });
 
   useEffect(() => {
@@ -48,12 +52,12 @@ export function MutatingInTenantChip(props: MutatingInTenantChipProps): JSX.Elem
     }
 
     if (props.tenantScopeLabel !== undefined) {
-      setCopy(buildMutatingInTenantChipCopy(props.tenantScopeLabel));
+      setCopy(buildMutatingInTenantChipCopy(props.tenantScopeLabel, includeTenantScopeLabel));
       return;
     }
 
-    setCopy(readMutatingInTenantChipCopy());
-  }, [props.copy, props.tenantScopeLabel]);
+    setCopy(readMutatingInTenantChipCopy(includeTenantScopeLabel));
+  }, [includeTenantScopeLabel, props.copy, props.tenantScopeLabel]);
 
   return (
     <span

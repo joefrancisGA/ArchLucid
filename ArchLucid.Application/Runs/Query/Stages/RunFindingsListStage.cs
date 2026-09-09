@@ -25,15 +25,6 @@ public sealed class RunFindingsListStage(
         Guid? cursorFindingRecordId,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(runId))
-        {
-            return new RunFindingsListQueryResult
-            {
-                Outcome = RunFindingsQueryOutcome.BadRequest,
-                ProblemDetail = "runId is required."
-            };
-        }
-
         if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
         {
             return new RunFindingsListQueryResult

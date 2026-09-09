@@ -36,6 +36,10 @@ import {
   systemHealthPageSubtitle,
 } from "@/lib/system-health-page-copy";
 import {
+  parseSystemHealthDemoScopeNoteOpenFromSearch,
+  systemHealthDemoScopeNoteDisclosureHrefFromSearch,
+} from "@/lib/system-health/system-health-demo-scope-note-disclosure-url";
+import {
   parseSystemHealthTechnicalDetailsOpenFromSearch,
   systemHealthTechnicalDetailsDisclosureHrefFromSearch,
 } from "@/lib/system-health/system-health-technical-details-disclosure-url";
@@ -75,8 +79,12 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const systemHealthTechnicalDetailsOpenParam = searchParams.get("systemHealthTechnicalDetailsOpen");
+  const systemHealthDemoScopeNoteOpenParam = searchParams.get("systemHealthDemoScopeNoteOpen");
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
     parseSystemHealthTechnicalDetailsOpenFromSearch(systemHealthTechnicalDetailsOpenParam),
+  );
+  const [demoScopeNoteOpen, setDemoScopeNoteOpenState] = useState(() =>
+    parseSystemHealthDemoScopeNoteOpenFromSearch(systemHealthDemoScopeNoteOpenParam),
   );
 
   const syncTechnicalDetailsOpenToUrl = useCallback(
@@ -96,9 +104,30 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
     [syncTechnicalDetailsOpenToUrl],
   );
 
+  const syncDemoScopeNoteOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(systemHealthDemoScopeNoteDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDemoScopeNoteOpen = useCallback(
+    (open: boolean) => {
+      setDemoScopeNoteOpenState(open);
+      syncDemoScopeNoteOpenToUrl(open);
+    },
+    [syncDemoScopeNoteOpenToUrl],
+  );
+
   useEffect(() => {
     setTechnicalDetailsOpenState(parseSystemHealthTechnicalDetailsOpenFromSearch(systemHealthTechnicalDetailsOpenParam));
   }, [systemHealthTechnicalDetailsOpenParam]);
+
+  useEffect(() => {
+    setDemoScopeNoteOpenState(parseSystemHealthDemoScopeNoteOpenFromSearch(systemHealthDemoScopeNoteOpenParam));
+  }, [systemHealthDemoScopeNoteOpenParam]);
 
   const summaryTiles = buildDemoHealthSummaryTiles();
   const operationalChecks = buildDemoOperationalChecks();
@@ -130,6 +159,10 @@ export function SystemHealthDemoPageView(props: SystemHealthDemoPageViewProps) {
           OPERATOR_TYPOGRAPHY.body,
         )}
         data-testid="system-health-demo-scope-note"
+        open={demoScopeNoteOpen}
+        onToggle={(event) => {
+          setDemoScopeNoteOpen(event.currentTarget.open);
+        }}
       >
         <summary className="cursor-pointer font-medium text-al-text-primary">{SYSTEM_HEALTH_DEMO_SCOPE_SUMMARY}</summary>
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{DEMO_SYSTEM_HEALTH_CONTEXT_NOTE}</p>

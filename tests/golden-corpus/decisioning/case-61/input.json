@@ -1,0 +1,37 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000061",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000061",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000061-0000-4000-8000-000000000061",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000061",
+    "runId": "20000000-0000-4000-8000-000000000061",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "cmp-golden-61",
+        "nodeType": "TopologyResource",
+        "label": "orders-api",
+        "category": "compute",
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "ds-golden-61",
+        "nodeType": "TopologyResource",
+        "label": "orders-sql",
+        "category": "data",
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

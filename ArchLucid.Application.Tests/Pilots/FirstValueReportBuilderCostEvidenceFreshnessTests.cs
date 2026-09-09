@@ -1,6 +1,7 @@
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Tests.Exports;
 using ArchLucid.Application.Tests.Roi;
@@ -248,6 +249,8 @@ public sealed class FirstValueReportBuilderCostEvidenceFreshnessTests
             authorityQuery,
             manifestHashService,
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            Mock.Of<IRunRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 

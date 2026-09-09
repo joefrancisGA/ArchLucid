@@ -16,9 +16,11 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
@@ -33,6 +35,7 @@ import { AUDIT_TRAIL_PAGE_TITLE } from "@/lib/audit-trail-page-copy";
 import { GOVERNANCE_OVERVIEW_PAGE_TITLE } from "@/lib/governance/governance-overview-copy";
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
+import { EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH } from "@/lib/extract-upload-settings-evidence-copy";
 import { OPERATOR_NAV_LINK_LABELS, RUNS_LIST_PAGE_TITLES } from "@/lib/i18n";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
@@ -43,6 +46,7 @@ import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
 import { ALERTS_CONFIGURATION_PAGE_TITLE } from "@/lib/alerts-page-copy";
+import { PRODUCT_LINE_PLAYGROUND_TITLE } from "@/lib/product-line/product-line-copy";
 
 /**
  * Static pathname → announcement title mappings for canonical architect workspace routes only.
@@ -85,6 +89,8 @@ export const ROUTE_TITLES: Record<string, string> = {
   [GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
   [GOVERNANCE_INFRASTRUCTURE_ASK_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
   [GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation,
+  [GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
+  [GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH]: OPERATOR_NAV_LINK_LABELS.extractUpload,
   "/internal/validate-route": OPERATOR_NAV_LINK_LABELS.replayReview,
   "/administration/system-health": OPERATOR_NAV_LINK_LABELS.systemHealth,
   [PLANNING_PATH]: OPERATOR_NAV_LINK_LABELS.planning,
@@ -97,6 +103,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/administration/api-keys": API_KEYS_PAGE_TITLE,
   "/account/preferences": "Preferences",
   "/administration/notifications": OPERATOR_NAV_LINK_LABELS.notifications,
+  [EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH]: OPERATOR_NAV_LINK_LABELS.extractUpload,
   "/integrations/jira": OPERATOR_NAV_LINK_LABELS.jira,
   "/integrations/servicenow": OPERATOR_NAV_LINK_LABELS.servicenow,
   [INTEGRATIONS_READINESS_PATH]: OPERATOR_NAV_LINK_LABELS.connectionStatus,
@@ -134,4 +141,5 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/internal/platform-bundled-policy-packs": "Platform policy packs",
   "/internal/recommendation-learning": OPERATOR_NAV_LINK_LABELS.recommendationTuning,
   "/internal/product-learning": OPERATOR_NAV_LINK_LABELS.pilotFeedback,
+  "/internal/product-line": PRODUCT_LINE_PLAYGROUND_TITLE,
 };

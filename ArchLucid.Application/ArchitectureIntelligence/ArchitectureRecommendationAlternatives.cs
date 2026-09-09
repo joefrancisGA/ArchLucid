@@ -15,6 +15,7 @@ internal static class ArchitectureRecommendationAlternatives
         }
 
         if (finding.Dimension == QualityDimension.Security
+            && finding.Title.Contains("public", StringComparison.OrdinalIgnoreCase)
             && finding.Title.Contains("trust boundary", StringComparison.OrdinalIgnoreCase))
         {
             return
@@ -34,9 +35,10 @@ internal static class ArchitectureRecommendationAlternatives
         {
             return
             [
+                // Distinct from ProposedChange (align backup/replication/failover with RTO and record recovery test).
                 Create(
-                    "Increase backup frequency or add replication to meet the stated RTO",
-                    "Measured restore or failover time meets the stated recovery objective."),
+                    "Implement warm standby failover and chaos recovery drills before accepting production traffic",
+                    "Chaos or failover drills prove recovery within the stated RTO before production cutover."),
                 Create(
                     "Revise the stated RTO with sponsor approval and document compensating controls",
                     "Sponsor-approved RTO and compensating controls are recorded in the architecture package."),
@@ -48,9 +50,10 @@ internal static class ArchitectureRecommendationAlternatives
         {
             return
             [
+                // Distinct from ProposedChange (map drivers + guardrails or revise ceiling).
                 Create(
-                    "Map cost drivers to the stated ceiling with spend guardrails",
-                    "Each cost driver has a guardrail that keeps spend within the stated ceiling."),
+                    "Apply service-level spend caps and alerts without changing architecture cost drivers",
+                    "Spend caps and alerts enforce the stated ceiling without unmapped driver growth."),
                 Create(
                     "Revise the monthly ceiling with documented business rationale",
                     "The revised ceiling and business rationale are recorded and approved."),
@@ -61,9 +64,10 @@ internal static class ArchitectureRecommendationAlternatives
         {
             return
             [
+                // Distinct from ProposedChange (document flows, classification, and storage boundaries).
                 Create(
-                    "Document data flows for sensitive data paths before production",
-                    "Sensitive-data flows are recorded from source to sink before production processing."),
+                    "Record data classification and retention boundaries before expanding production data processing",
+                    "Classification and retention boundaries are recorded before new sensitive processing begins."),
                 Create(
                     "Defer sensitive data processing until classification and flows are recorded",
                     "No sensitive data is processed until classification and flow records exist."),
@@ -74,9 +78,10 @@ internal static class ArchitectureRecommendationAlternatives
         {
             return
             [
+                // Distinct from ProposedChange (record capacity expectation with peak load and scaling).
                 Create(
-                    "Add a capacity expectation that states peak load and scaling approach",
-                    "Peak load and scaling approach are recorded as a capacity expectation."),
+                    "Implement autoscaling and documented load tests before accepting peak production traffic",
+                    "Load tests prove the design meets peak traffic before production cutover."),
                 Create(
                     "Reduce stated load targets until capacity design is documented",
                     "Load targets match documented capacity, or capacity design is recorded first."),
@@ -101,9 +106,10 @@ internal static class ArchitectureRecommendationAlternatives
             Create(
                 "Defer with documented exception and compensating controls",
                 "The exception, compensating controls, and expiry are recorded in the architecture package."),
+            // Distinct from ProposedChange (collect additional evidence before changing the design).
             Create(
-                "Collect additional evidence before changing the design",
-                "New evidence artifacts are attached and the finding is re-reviewed before the design changes."),
+                "Run a time-boxed discovery spike with named owners to produce the missing evidence artifacts",
+                "Spike outputs are attached as evidence artifacts and the finding is re-reviewed before the design changes."),
         ];
     }
 

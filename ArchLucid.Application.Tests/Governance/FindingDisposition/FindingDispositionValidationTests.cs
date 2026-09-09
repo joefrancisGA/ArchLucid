@@ -233,6 +233,34 @@ public sealed class FindingDispositionValidationTests
     }
 
     [Fact]
+    public void Validate_rejects_zero_width_space_only_finding_id()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "\u200B",
+            Disposition = Disposition.Remediated,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Finding id*");
+    }
+
+    [Fact]
+    public void Validate_rejects_finding_id_with_embedded_format_character()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = $"finding-\u200B-001",
+            Disposition = Disposition.Remediated,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Finding id*");
+    }
+
+    [Fact]
     public void Validate_rejects_undefined_disposition_enum_value()
     {
         RecordFindingDispositionRequest request = new()
@@ -244,5 +272,109 @@ public sealed class FindingDispositionValidationTests
         Action act = () => FindingDispositionValidation.Validate(request);
 
         act.Should().Throw<ArgumentException>().WithMessage("*disposition*");
+    }
+
+    [Fact]
+    public void Validate_rejects_negative_disposition_enum_value()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = (Disposition)(-1),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*disposition*");
+    }
+
+    [Fact]
+    public void Validate_deferred_accepts_revisit_due_at_max_value()
+    {
+        DateTimeOffset nowUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Deferred,
+            RevisitDueUtc = DateTimeOffset.MaxValue,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request, nowUtc);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Validate_accepts_finding_id_at_max_length()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = new string('f', FindingDispositionValidation.MaxFindingIdLength),
+            Disposition = Disposition.Remediated,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Validate_rejects_finding_id_with_embedded_control_character()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "finding-\u0001-001",
+            Disposition = Disposition.Remediated,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Finding id*");
+    }
+
+    [Fact]
+    public void Validate_rejects_overlong_architect_restatement()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Remediated,
+            ArchitectRestatement = new string('a', FindingDispositionValidation.MaximumRationaleLength + 1),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithMessage($"*exceed*{FindingDispositionValidation.MaximumRationaleLength}*");
+    }
+
+    [Fact]
+    public void Validate_remediated_without_rationale_passes()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Remediated,
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Validate_working_remediated_rejects_short_preview_override_reason()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Remediated,
+            PreviewOverrideReason = "too short",
+        };
+
+        Action act = () => FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation(request, true);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Impact preview attestation*");
     }
 }

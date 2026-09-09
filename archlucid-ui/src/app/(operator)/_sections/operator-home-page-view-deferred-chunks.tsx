@@ -29,7 +29,10 @@ export const OperatorHomeSponsorRoiStripDeferred = createDeferredComponentFromMa
 
 export const OperatorHomeBelowFoldPanelsDeferred = createDeferredComponentFromManifest(
   "operator-home-below-fold",
-  { suppressLoading: true },
+  {
+    loadingClassName: cn(OPERATOR_SURFACE_CARD_CLASS, "h-32"),
+    loadingTestId: "operator-home-below-fold-deferred-skeleton",
+  },
 );
 
 /** TB-2191 — stickiness cockpit off home First Load JS (both cards hydrate after first paint). */
@@ -54,9 +57,3 @@ export const OperatorHomeGateDeferred = createDeferredComponentFromManifest("ope
   loadingClassName: "min-h-[12rem]",
   loadingTestId: "operator-home-gate-deferred-chunk-loading",
 });
-
-/** Local-dev footer rail — always last on home so stickiness/ROI strips stay above it. */
-export const DevTestingQuickSwitchPanelDeferred = createDeferredComponentFromManifest(
-  "operator-home-dev-testing-quick-switch",
-  { suppressLoading: true },
-);

@@ -8,6 +8,7 @@ import type { CorePilotCommitPresentationContext } from "@/lib/core-pilot-step-p
 const emptyContext: CorePilotCommitPresentationContext = {
   hasCommittedManifest: false,
   latestCommittedRunId: null,
+  latestRunId: null,
 };
 
 /** Loads tenant commit state for Core Pilot step-5 sample vs finalized review CTAs. */
@@ -22,6 +23,7 @@ export function useCorePilotCommitPresentationContext(): CorePilotCommitPresenta
     return {
       hasCommittedManifest: query.data.hasCommittedManifest,
       latestCommittedRunId: query.data.firstCommittedRunId ?? query.data.latestRunId,
+      latestRunId: query.data.latestRunId,
     };
   }, [query.isPending, query.isError, query.data]);
 }

@@ -1,0 +1,160 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000067",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000067",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000067-0000-4000-8000-000000000067",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000067",
+    "runId": "20000000-0000-4000-8000-000000000067",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "obj-71f91e7e1fb43e61757c1658b0135da2",
+        "nodeType": "TopologyResource",
+        "label": "pay_runner",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-tf-golden-67",
+        "properties": {
+          "terraformType": "google_service_account",
+          "tf.account_id": "pay-runner"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-20e802c9f328be36e29db119fe242dc8",
+        "nodeType": "TopologyResource",
+        "label": "pay_secret",
+        "category": "storage",
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-tf-golden-67",
+        "properties": {
+          "terraformType": "google_secret_manager_secret",
+          "tf.secret_id": "[REDACTED]",
+          "category": "storage",
+          "topologySensitivity": "data-bearing"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-655b04ee3ad8bb6a0f02e512a10f5360",
+        "nodeType": "TopologyResource",
+        "label": "runner_admin",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-tf-golden-67",
+        "properties": {
+          "terraformType": "google_secret_manager_secret_iam_member",
+          "tf.member": "pay_runner",
+          "tf.role": "roles/secretmanager.admin",
+          "tf.secret_id": "[REDACTED]",
+          "tf.scope": "pay_secret",
+          "principalId": "pay_runner",
+          "roleName": "roles/secretmanager.admin",
+          "declarationTargetResourceId": "pay_secret"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "declaration-actor-10000000000040008000000000000067-1",
+        "nodeType": "Actor",
+        "label": "pay_runner",
+        "category": null,
+        "sourceType": "DeclarationIdentity",
+        "sourceId": "decl-tf-golden-67",
+        "properties": {
+          "kind": "Machine",
+          "trustOrigin": "Internal",
+          "contract": "Sync",
+          "origin": "Inferred",
+          "confidence": "70",
+          "declarationSourceNodeId": "obj-71f91e7e1fb43e61757c1658b0135da2"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": "30f38c14505c4c7cad4b147f418760f0",
+        "fromNodeId": "context-10000000000040008000000000000067",
+        "toNodeId": "obj-71f91e7e1fb43e61757c1658b0135da2",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "c9c271aaaa074a2dab896d09fe0c8dd5",
+        "fromNodeId": "context-10000000000040008000000000000067",
+        "toNodeId": "obj-20e802c9f328be36e29db119fe242dc8",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "a486a62b14ec4d60a360df81c1209129",
+        "fromNodeId": "context-10000000000040008000000000000067",
+        "toNodeId": "obj-655b04ee3ad8bb6a0f02e512a10f5360",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "a739bafcc290419ab7c8a3f7d15abbbd",
+        "fromNodeId": "context-10000000000040008000000000000067",
+        "toNodeId": "declaration-actor-10000000000040008000000000000067-1",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "0a8a06b1362b4ea28c56fbdf9ec774fa",
+        "fromNodeId": "declaration-actor-10000000000040008000000000000067-1",
+        "toNodeId": "obj-71f91e7e1fb43e61757c1658b0135da2",
+        "edgeType": "RELATES_TO",
+        "label": "Actor linked to pay_runner",
+        "weight": 1,
+        "inferenceSource": "declaration-identity-actor-link",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked a declaration-seeded Actor to the topology node that declared it."
+      },
+      {
+        "edgeId": "16c12f17ed6f403683bc27d4a945c9e4",
+        "fromNodeId": "obj-655b04ee3ad8bb6a0f02e512a10f5360",
+        "toNodeId": "obj-20e802c9f328be36e29db119fe242dc8",
+        "edgeType": "APPLIES_TO",
+        "label": "Role assignment applies to declared scope",
+        "weight": 1,
+        "inferenceSource": "declaration-identity-iam-path",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment\u0027s declared scope when principalId and target resource both already exist on the snapshot."
+      },
+      {
+        "edgeId": "a30c644da23c412faa790ad15b60a8a8",
+        "fromNodeId": "declaration-actor-10000000000040008000000000000067-1",
+        "toNodeId": "obj-655b04ee3ad8bb6a0f02e512a10f5360",
+        "edgeType": "RELATES_TO",
+        "label": "Actor relates to declared role assignment",
+        "weight": 1,
+        "inferenceSource": "declaration-identity-iam-path",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment\u0027s declared scope when principalId and target resource both already exist on the snapshot."
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null,
+  "priorGraphFixture": null
+}

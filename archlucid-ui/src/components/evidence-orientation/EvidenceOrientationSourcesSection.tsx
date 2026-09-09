@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import {
   EVIDENCE_ORIENTATION_HEADING_CLASS,
@@ -16,6 +17,7 @@ import {
   filterWhereToGoNextFollowUpLinks,
   isWhereToGoNextFollowUpsTitle,
 } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { cn } from "@/lib/utils";
 
@@ -85,10 +87,14 @@ export function EvidenceOrientationSourcesSection({
   distinguishFollowUpDestinations = true,
   promotedSourceHref,
 }: EvidenceOrientationSourcesSectionProps): React.JSX.Element | null {
+  const pathname = usePathname() ?? "/";
   const whereToGoNextVisible = useWhereToGoNextVisible();
-  const resolvedLinks = isWhereToGoNextFollowUpsTitle(title)
+  const adminFilteredLinks = isWhereToGoNextFollowUpsTitle(title)
     ? filterWhereToGoNextFollowUpLinks(links)
     : links;
+  const resolvedLinks = isWhereToGoNextFollowUpsTitle(title)
+    ? filterOrientationSourcesForJobContext(adminFilteredLinks, pathname)
+    : adminFilteredLinks;
 
   if (!whereToGoNextVisible) {
     return null;

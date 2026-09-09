@@ -78,7 +78,7 @@ function tplMicroservices(): Partial<WizardFormValues> {
       "Azure Cosmos DB with choice of API (SQL) and defined RU/s autoscale policies",
       "Azure API Management with named values in Key Vault and revision-based deployment",
       "Application Insights workspace with distributed tracing across APIM backends",
-      "Schema or contract versioning for integration events surfaced to governance",
+      "Schema or contract versioning for integration events surfaced to approval workflows",
     ],
     assumptions: [
       "Peak catalog read traffic is cache-heavy; Cosmos point reads dominate write ratio for carts",
@@ -93,7 +93,7 @@ function tplMicroservices(): Partial<WizardFormValues> {
     topologyHints: [
       "Outbound-only Service Bus connectivity from subnets; no inbound listener on workloads except APIM ingress",
       "Co-locate write-heavy Cosmos accounts in transaction-heavy regions with failover policy justified",
-      "Prefer dedicated namespaces or topic hierarchy per bounded context with shared governance registry",
+      "Prefer dedicated namespaces or topic hierarchy per bounded context with shared policy registry",
     ],
     securityBaselineHints: [
       "Secrets rotated via Key Vault; APIM backends use managed identity to Azure resources",
@@ -233,7 +233,7 @@ function tplGcpAnalytics(): Partial<WizardFormValues> {
       "CMEK for Cloud Storage and BigQuery where policy mandates customer key control",
       "Access logs retained per regulated retention schedules",
     ],
-    policyReferences: ["GCP data governance standard — internal reference"],
+    policyReferences: ["GCP data policy standard — internal reference"],
     documents: [],
     infrastructureDeclarations: [],
   };

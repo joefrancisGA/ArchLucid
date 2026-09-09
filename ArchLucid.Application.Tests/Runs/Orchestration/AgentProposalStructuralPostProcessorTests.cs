@@ -352,4 +352,47 @@ public sealed class AgentProposalStructuralPostProcessorTests
         proposal.AddedServices.Should().ContainSingle();
         proposal.AddedServices[0].ServiceId.Should().Be("svc-1");
     }
+
+    [Fact]
+    public void ApplyToProposal_preserves_relationship_when_target_uses_svc_prefix_for_declared_datastore()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedDatastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreName = "sql",
+                    DatastoreId = "ds-sql",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                },
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-api",
+                    TargetId = "svc-sql",
+                    RelationshipType = RelationshipType.ReadsFrom,
+                },
+            ],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Topology, proposal);
+
+        proposal.AddedRelationships.Should().ContainSingle();
+        proposal.AddedRelationships![0].TargetId.Should().Be("svc-sql");
+    }
 }

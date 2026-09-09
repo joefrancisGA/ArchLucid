@@ -1,38 +1,59 @@
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
-using ArchLucid.Contracts.Architecture;
 
 namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
 ///     Surfaces internal human actors for privileged-access review (TB-2344).
 /// </summary>
-public sealed class PrivilegedAccessFindingEngine : IFindingEngine
+public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider rulePackProvider) : IFindingEngine
 {
+    private readonly IComplianceRulePackProvider _rulePackProvider =
+        rulePackProvider ?? throw new ArgumentNullException(nameof(rulePackProvider));
+
     public string EngineType => "privileged-access";
 
     public string Category => "Security";
 
-    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(
+        GraphSnapshot graphSnapshot,
+        FindingAnalysisContext? analysisContext,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
+        ComplianceRulePack rulePack = await _rulePackProvider.GetRulePackAsync(ct).ConfigureAwait(false);
+        HashSet<string> activeRuleIds = DeclarationSignalPolicyKeyMap.CollectActiveRuleIds(rulePack);
+
+        if (!GraphSecurityEnginePolicyThemeMap.TryGetTheme(EngineType, out string theme)
+            || !DeclarationSignalPolicyGate.ShouldEmitTheme(theme, activeRuleIds))
+        {
+            return [];
+        }
+
+        string? policyRuleId = DeclarationSignalPolicyGate.TryGetPolicyRuleId(theme, activeRuleIds);
         List<GraphNode> privilegedActors = graphSnapshot
             .GetNodesByType(GraphNodeTypes.Actor)
             .Where(IsInternalHumanActor)
             .ToList();
 
         if (privilegedActors.Count == 0)
-            return Task.FromResult<IReadOnlyList<Finding>>([]);
+            return [];
 
         List<Finding> findings = [];
 
         foreach (GraphNode actor in privilegedActors)
         {
             string label = string.IsNullOrWhiteSpace(actor.Label) ? actor.NodeId : actor.Label;
+            List<string> rulesApplied = policyRuleId is null
+                ? ["privileged-access-internal-human"]
+                : [policyRuleId, theme];
 
             findings.Add(new Finding
             {
@@ -56,10 +77,11 @@ public sealed class PrivilegedAccessFindingEngine : IFindingEngine
                 [
                     "Document IdP/MFA requirements and least-privilege roles for this actor surface.",
                 ],
+                PolicyRuleId = policyRuleId,
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [actor.NodeId],
-                    RulesApplied = ["privileged-access-internal-human"],
+                    RulesApplied = rulesApplied,
                     DecisionsTaken =
                     [
                         "Internal human actor requires privileged-access verification.",
@@ -68,7 +90,7 @@ public sealed class PrivilegedAccessFindingEngine : IFindingEngine
             });
         }
 
-        return Task.FromResult<IReadOnlyList<Finding>>(findings);
+        return findings;
     }
 
     private static bool IsInternalHumanActor(GraphNode actor)

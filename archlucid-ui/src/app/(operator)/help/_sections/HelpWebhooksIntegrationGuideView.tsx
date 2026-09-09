@@ -260,9 +260,7 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
         </div>
 
         {buyerPolishedShell ? (
-          <div data-testid="help-webhooks-integration-orientation-bottom">
-            <HelpWebhooksIntegrationSourcesOrientationStrip />
-          </div>
+          <HelpWebhooksIntegrationSourcesOrientationStrip />
         ) : null}
       </div>
     </article>

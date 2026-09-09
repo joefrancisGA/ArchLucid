@@ -17,15 +17,18 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
 
 import { SETTINGS_MASTER_SECTIONS, settingsMasterSectionDomId } from "./settings-master-catalog";
-import { buildSettingsMasterVisibleSections } from "./settings-master-page-model";
+import { buildSettingsMasterVisibleSections, countSettingsMasterMatchingDestinations, type SettingsMasterVisibleSection } from "./settings-master-page-model";
+import type { SettingsMasterDestination } from "./settings-master-types";
 import { SettingsMasterDestinationCard } from "./SettingsMasterDestinationCard";
 import { SettingsMasterOverviewHeader } from "./SettingsMasterOverviewHeader";
 import { SettingsMasterSearchField } from "./SettingsMasterSearchField";
 import { SettingsMasterSectionNav } from "./SettingsMasterSectionNav";
-import { SETTINGS_MASTER_FIRST_VIEWPORT_ID,
+import { SETTINGS_MASTER_CATALOG_GRID_ID,
+  SETTINGS_MASTER_FIRST_VIEWPORT_ID,
   SETTINGS_MASTER_PRIMARY_CONTENT_ID,
   SETTINGS_MASTER_SKIP_LINK_LABEL,
   SETTINGS_MASTER_SKIP_TARGET_ID,
@@ -40,6 +43,16 @@ import {
   settingsMasterAdvancedHrefFromSearch,
 } from "@/lib/administration/settings-master-advanced-url";
 
+function shouldHideDestinationCardTitle(
+  section: SettingsMasterVisibleSection,
+  destination: SettingsMasterDestination,
+): boolean {
+  return (
+    section.destinations.length === 1
+    && destination.title.trim().toLowerCase() === section.title.trim().toLowerCase()
+  );
+}
+
 export function SettingsPageView() {
   const router = useRouter();
   const pathname = usePathname() ?? "/administration";
@@ -49,6 +62,7 @@ export function SettingsPageView() {
   const settingsMasterAdvancedOpenParam = searchParams.get("settingsMasterAdvancedOpen");
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
+  const { productLine, assignmentOverrides } = useProductLine();
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [showAdvanced, setShowAdvancedState] = useState(() =>
     parseSettingsMasterAdvancedOpenFromSearch(settingsMasterAdvancedOpenParam),
@@ -112,8 +126,24 @@ export function SettingsPageView() {
         showInternalShell: isArchLucidInternalOperatorShellEnv(),
         searchQuery,
         showAdvanced,
+        productLine,
+        productLineAssignmentOverrides: assignmentOverrides,
       }),
-    [callerAuthorityRank, isAuthorityLoading, searchQuery, showAdvanced],
+    [assignmentOverrides, callerAuthorityRank, isAuthorityLoading, productLine, searchQuery, showAdvanced],
+  );
+
+  const matchingDestinationCount = useMemo(
+    () =>
+      countSettingsMasterMatchingDestinations(SETTINGS_MASTER_SECTIONS, {
+        callerAuthorityRank,
+        isAuthorityLoading,
+        showInternalShell: isArchLucidInternalOperatorShellEnv(),
+        searchQuery,
+        showAdvanced,
+        productLine,
+        productLineAssignmentOverrides: assignmentOverrides,
+      }),
+    [assignmentOverrides, callerAuthorityRank, isAuthorityLoading, productLine, searchQuery, showAdvanced],
   );
 
   const hasAdvancedCatalog = SETTINGS_MASTER_SECTIONS.some((section) => section.tier === "advanced");
@@ -121,7 +151,7 @@ export function SettingsPageView() {
   const canViewPrerequisitesBoard = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   return (
-    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="settings-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="settings-page">
       <a
         href={`#${SETTINGS_MASTER_SKIP_TARGET_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
@@ -134,26 +164,26 @@ export function SettingsPageView() {
         data-testid="settings-master-primary-content"
         className={OPERATOR_LAYOUT.sectionStack}
       >
+        <SettingsMasterOverviewHeader
+          scope={scope}
+          environmentLabel={environmentLabel}
+          buyerPolishedShell={buyerPolishedShell}
+        />
+
         <div
-          id={SETTINGS_MASTER_FIRST_VIEWPORT_ID}
+          id={SETTINGS_MASTER_SKIP_TARGET_ID}
           data-testid={SETTINGS_MASTER_FIRST_VIEWPORT_ID}
           className={cn(
             "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
-          <SettingsMasterOverviewHeader
-            scope={scope}
-            environmentLabel={environmentLabel}
-            buyerPolishedShell={buyerPolishedShell}
-          />
-
           <AdminPrerequisitesReadinessBoard enabled={canViewPrerequisitesBoard && !isAuthorityLoading} />
           <SettingsMasterSearchField
             value={searchQuery}
             onChange={setSearchQuery}
             onClear={clearSearch}
-            resultCount={visibleSections.length}
+            resultCount={matchingDestinationCount}
           />
 
           {showAdvancedToggle ? (
@@ -163,6 +193,7 @@ export function SettingsPageView() {
                 variant="outline"
                 size="sm"
                 aria-expanded={showAdvanced}
+                aria-controls={SETTINGS_MASTER_CATALOG_GRID_ID}
                 data-testid="settings-advanced-toggle"
                 onClick={() => setShowAdvanced((current) => !current)}
               >
@@ -183,7 +214,11 @@ export function SettingsPageView() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
+            <div
+              id={SETTINGS_MASTER_CATALOG_GRID_ID}
+              data-testid={SETTINGS_MASTER_CATALOG_GRID_ID}
+              className="scroll-mt-24 grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]"
+            >
               <SettingsMasterSectionNav sections={visibleSections} />
 
               <div className={OPERATOR_LAYOUT.sectionStack}>
@@ -199,12 +234,17 @@ export function SettingsPageView() {
                       <h2 id={`${settingsMasterSectionDomId(section.id)}-title`} className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                         {section.title}
                       </h2>
-                      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                      <p
+                        className={cn(
+                          "m-0 mt-1 text-al-text-secondary",
+                          buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : OPERATOR_TYPOGRAPHY.body,
+                        )}
+                      >
                         {section.description}
                       </p>
                     </div>
 
-                    <div className="grid gap-4">
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       {section.showSupportBundle ? (
                         <Card data-testid="settings-support-bundle-card">
                           <CardHeader>
@@ -224,7 +264,11 @@ export function SettingsPageView() {
                       ) : null}
 
                       {section.destinations.map((destination) => (
-                        <SettingsMasterDestinationCard key={destination.id} destination={destination} />
+                        <SettingsMasterDestinationCard
+                          key={destination.id}
+                          destination={destination}
+                          hideTitle={shouldHideDestinationCardTitle(section, destination)}
+                        />
                       ))}
                     </div>
                   </section>

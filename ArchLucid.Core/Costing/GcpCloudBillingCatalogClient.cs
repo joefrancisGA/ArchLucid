@@ -52,6 +52,7 @@ public sealed class GcpCloudBillingCatalogClient
             RuntimePlatform.ComputeEngine => TryGetComputeEngineMonthlyUsdAsync(
                 node.SkuOrTier.Trim(),
                 Math.Max(1, node.Quantity),
+                node.ArmRegion,
                 ct),
             _ => Task.FromResult<decimal?>(null),
         };
@@ -60,6 +61,13 @@ public sealed class GcpCloudBillingCatalogClient
     public async Task<decimal?> TryGetComputeEngineMonthlyUsdAsync(
         string machineType,
         int quantity,
+        CancellationToken ct)
+        => await TryGetComputeEngineMonthlyUsdAsync(machineType, quantity, regionCode: null, ct).ConfigureAwait(false);
+
+    public async Task<decimal?> TryGetComputeEngineMonthlyUsdAsync(
+        string machineType,
+        int quantity,
+        string? regionCode,
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
@@ -72,13 +80,16 @@ public sealed class GcpCloudBillingCatalogClient
         if (quantity < 1)
             quantity = 1;
 
-        string cacheKey = $"GCE|{machineType.ToUpperInvariant()}|{quantity}";
+        string normalizedRegion = string.IsNullOrWhiteSpace(regionCode) ? string.Empty : regionCode.Trim();
+        string cacheKey = $"GCE|{machineType.ToUpperInvariant()}|{normalizedRegion.ToUpperInvariant()}|{quantity}";
         DateTimeOffset nowUtc = _clock.GetUtcNow();
 
         if (_skuCache.TryGetFresh(cacheKey, nowUtc, out decimal? cachedMonthly))
             return cachedMonthly;
 
-        decimal? hourly = await _catalogHttpClient.TryFetchComputeHourlyUsdAsync(apiKey, machineType, ct).ConfigureAwait(false);
+        decimal? hourly = await _catalogHttpClient
+            .TryFetchComputeHourlyUsdAsync(apiKey, machineType, normalizedRegion, ct)
+            .ConfigureAwait(false);
 
         if (hourly is not { } hourlyRate || hourlyRate <= 0m)
         {

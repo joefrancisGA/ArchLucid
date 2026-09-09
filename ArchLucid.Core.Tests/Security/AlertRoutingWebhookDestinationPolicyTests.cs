@@ -46,4 +46,24 @@ public sealed class AlertRoutingWebhookDestinationPolicyTests
 
         Assert.Null(reason);
     }
+
+    [Fact]
+    public async Task TryGetRejectionReasonAfterDnsResolveAsync_WhenSyncGuardRejects_SkipsDnsLookup()
+    {
+        string? reason = await AlertRoutingWebhookDestinationPolicy.TryGetRejectionReasonAfterDnsResolveAsync(
+            "https://127.0.0.1/hook");
+
+        Assert.Equal(
+            "Webhook URL must not target loopback, link-local, or private network addresses.",
+            reason);
+    }
+
+    [Fact]
+    public async Task TryGetRejectionReasonAfterDnsResolveAsync_WhenHostnameDoesNotResolve_RewritesUrlPrefixToWebhookUrl()
+    {
+        string? reason = await AlertRoutingWebhookDestinationPolicy.TryGetRejectionReasonAfterDnsResolveAsync(
+            "https://archlucid-invalid-dns-host.example/hook");
+
+        Assert.Equal("Webhook URL hostname could not be resolved.", reason);
+    }
 }

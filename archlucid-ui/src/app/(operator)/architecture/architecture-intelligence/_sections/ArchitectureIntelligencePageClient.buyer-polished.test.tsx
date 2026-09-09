@@ -1,11 +1,17 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE } from "@/lib/architecture/architecture-intelligence-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE, ARCHITECTURE_INTELLIGENCE_SOURCES } from "@/lib/architecture/architecture-intelligence-evidence-copy";
 import {
+  ARCHITECTURE_INTELLIGENCE_FIRST_VIEWPORT_TEST_ID,
   ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER,
   ARCHITECTURE_INTELLIGENCE_PAGE_TITLE,
+  ARCHITECTURE_INTELLIGENCE_PRIMARY_CONTENT_ID,
   ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL,
+  ARCHITECTURE_INTELLIGENCE_SKIP_LINK_LABEL,
+  ARCHITECTURE_INTELLIGENCE_SKIP_TARGET_ID,
 } from "@/lib/architecture/architecture-intelligence-page-copy";
 
 import { ArchitectureIntelligencePageClient } from "./ArchitectureIntelligencePageClient";
@@ -77,7 +83,7 @@ vi.mock("./ArchitectureIntelligenceNextReviewFooterClient", () => ({
   ),
 }));
 
-describe("ArchitectureIntelligencePageClient buyer-polished shell", () => {
+describe("ArchitectureIntelligencePageClient buyer-polished shell (AIN)", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);
     vi.stubGlobal(
@@ -90,16 +96,24 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell", () => {
     );
   });
 
-  it("uses help, claim orientation strip, and buyer subtitle", () => {
+  it("renders skip link, first-viewport band, orientation above intake, and Sources links", () => {
     render(<ArchitectureIntelligencePageClient />);
 
+    expect(screen.getByRole("link", { name: ARCHITECTURE_INTELLIGENCE_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${ARCHITECTURE_INTELLIGENCE_SKIP_TARGET_ID}`,
+    );
+    expect(screen.getByTestId("architecture-intelligence-primary-content")).toHaveAttribute(
+      "id",
+      ARCHITECTURE_INTELLIGENCE_PRIMARY_CONTENT_ID,
+    );
     expect(screen.getByTestId("architecture-intelligence-page-title")).toHaveTextContent(
       ARCHITECTURE_INTELLIGENCE_PAGE_TITLE,
     );
     expect(screen.getByText(ARCHITECTURE_INTELLIGENCE_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-intelligence-page-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-intelligence-breadcrumb")).not.toBeInTheDocument();
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-intelligence-claim-discipline").textContent).toContain(
       ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE.slice(0, 40),
     );
@@ -107,6 +121,24 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell", () => {
     expect(screen.queryByTestId("architecture-intelligence-evidence-graph-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-capability-boundary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-intelligence-active-run")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Where to go next" })).toBeInTheDocument();
+
+    const primaryContent = screen.getByTestId("architecture-intelligence-primary-content");
+    const firstViewport = screen.getByTestId(ARCHITECTURE_INTELLIGENCE_FIRST_VIEWPORT_TEST_ID);
+    const orientationTop = screen.getByTestId("architecture-intelligence-orientation-top");
+    const pickReviewStrip = screen.getByTestId("architecture-intelligence-pick-review-before-analysis-strip");
+    const sourcesSection = screen.getByTestId("architecture-intelligence-sources");
+
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(orientationTop);
+    expect(firstViewport).toContainElement(pickReviewStrip);
+    expect(orientationTop).toContainElement(sourcesSection);
+    expect(orientationTop.compareDocumentPosition(pickReviewStrip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURE_INTELLIGENCE_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 
   it("shows intake load failure with retry when deep-linked product context fails", async () => {

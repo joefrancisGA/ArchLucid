@@ -3,12 +3,12 @@ import { strToU8, zipSync } from "fflate";
 
 import { uploadAzureExtractorPackage } from "@/lib/upload-azure-extractor-package";
 
-function buildValidAzureExtractorZipFile(): File {
+function buildValidAzureExtractorZipFile(schemaVersion: number): File {
   const bytes = zipSync({
     "manifest.json": strToU8(
       JSON.stringify({
-        schemaVersion: 1,
-        scriptVersion: "0.2.0",
+        schemaVersion,
+        scriptVersion: "0.4.0",
         collectionTimestamp: "2026-05-17T12:00:00.000Z",
         subscriptionId: "11111111-1111-1111-1111-111111111111",
         scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/RgName",
@@ -61,9 +61,26 @@ describe("uploadAzureExtractorPackage", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await uploadAzureExtractorPackage(buildValidAzureExtractorZipFile(), {
+    const result = await uploadAzureExtractorPackage(buildValidAzureExtractorZipFile(1), {
       runId: "run-1",
     });
+
+    expect(result.ok).toBe(true);
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("uploads current packager schemaVersion 2 after client validation passes", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ packageId: "pkg-v2" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await uploadAzureExtractorPackage(buildValidAzureExtractorZipFile(2));
 
     expect(result.ok).toBe(true);
     expect(fetchMock).toHaveBeenCalledOnce();

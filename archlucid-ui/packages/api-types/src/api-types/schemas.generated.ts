@@ -988,7 +988,9 @@ export interface components {
         };
         AnswerDraftQuestionRequest: {
             answer?: string;
+            presenterCapture?: boolean;
             questionKey?: string;
+            responderLabel?: null | string;
         };
         ApiKeySlotStatusDto: {
             /** Format: date-time */
@@ -1075,6 +1077,9 @@ export interface components {
         ArchitectureDiagramEdgeRecord: {
             id?: string;
             label?: string;
+            properties?: {
+                [key: string]: string;
+            };
             provenance?: string;
             removed?: boolean;
             sourceId?: string;
@@ -1082,7 +1087,10 @@ export interface components {
         };
         ArchitectureDiagramModelRecord: {
             edges?: components["schemas"]["ArchitectureDiagramEdgeRecord"][];
+            extractionMethod?: string;
             nodes?: components["schemas"]["ArchitectureDiagramNodeRecord"][];
+            sourceEvidenceItemId?: null | string;
+            subgraphs?: components["schemas"]["ArchitectureDiagramSubgraphRecord"][];
             trustBoundaryLabels?: string[];
         };
         ArchitectureDiagramNodeRecord: {
@@ -1092,6 +1100,14 @@ export interface components {
             label?: string;
             provenance?: string;
             removed?: boolean;
+            subgraphId?: null | string;
+        };
+        ArchitectureDiagramSubgraphRecord: {
+            id?: string;
+            label?: string;
+            /** Format: int32 */
+            orderKey?: number;
+            parentSubgraphId?: null | string;
         };
         ArchitectureDigest: {
             /** Format: date-time */
@@ -1284,6 +1300,19 @@ export interface components {
         };
         /** @enum {string} */
         ArchitectureIntelligenceReviewTier: "Trial" | "Standard" | "Deep";
+        ArchitectureInventoryBindingResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            boundBy?: null | string;
+            /** Format: date-time */
+            boundUtc?: null | string;
+            isBound?: boolean;
+            /** Format: date-time */
+            snapshotCapturedUtc?: null | string;
+            /** Format: uuid */
+            snapshotId?: null | string;
+            snapshotSubscriptionName?: null | string;
+        };
         ArchitectureKnowledgeModel: {
             /** Format: date-time */
             createdUtc?: string;
@@ -1562,6 +1591,28 @@ export interface components {
         };
         /** @enum {string} */
         ArchitectureRunStatus: "Created" | "TasksGenerated" | "WaitingForResults" | "ReadyForCommit" | "Committed" | "Failed" | "Retrying" | "ExecutionCompletedQualityRejected" | "PartiallyCompleted" | "FailedPartial";
+        ArchitectureSealDeltaItem: {
+            afterValue?: null | string;
+            beforeValue?: null | string;
+            diffKind?: string;
+            key?: string;
+            notes?: null | string;
+            section?: string;
+        };
+        ArchitectureSealDeltaResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            /** Format: uuid */
+            currentDraftId?: null | string;
+            diffs?: components["schemas"]["ArchitectureSealDeltaItem"][];
+            emptyStateCopy?: null | string;
+            hasPriorSeal?: boolean;
+            honestyCopy?: string;
+            /** Format: uuid */
+            latestSealedManifestId?: null | string;
+            /** Format: uuid */
+            latestSealedReviewRunId?: null | string;
+        };
         ArchitectureTraceTimelineEntry: {
             kind: string;
             label: string;
@@ -1669,6 +1720,10 @@ export interface components {
         };
         AssertedTrailEntry: {
             key?: string;
+            questionId?: null | string;
+            /** Format: date-time */
+            recordedUtc?: null | string;
+            responderLabel?: null | string;
             value?: string;
         };
         AssignPolicyPackRequest: {
@@ -1682,6 +1737,10 @@ export interface components {
         };
         AsyncJobResponse: {
             jobId?: string;
+        };
+        AttachArchitectureInventoryBindingRequest: {
+            /** Format: uuid */
+            snapshotId?: string;
         };
         /** @enum {string} */
         AuditEvaluationOutcome: "InsufficientEvidence" | "TechnicallySupported" | "TechnicallyNotSupported";
@@ -2207,6 +2266,13 @@ export interface components {
             sourceId?: string;
             sourceType?: string;
         };
+        /** @description RFC 9457 Problem Details for ADR 0078 career artifact export blocks (HTTP 409). */
+        CareerArtifactBlockedProblemDetails: {
+            /** @description User-safe ADR 0078 block sentence explaining why the career export cannot render. */
+            blockReason: string;
+            /** @description Machine-readable ADR 0078 block code (for example transparency_trail_incomplete, measurement_floor_incomplete). */
+            blockReasonCode?: string;
+        } & components["schemas"]["ProblemDetails"];
         CategoryBenchmarkScore: {
             category?: components["schemas"]["BenchmarkScoreCategory"];
             detail?: string;
@@ -2849,10 +2915,14 @@ export interface components {
             resolvedProfileDisplayName?: string;
             wasAutoSelected?: boolean;
         };
-        /** @description When present in ArchitectureRequest.documents[], name, contentType, and content are required by FluentValidation (empty arrays are allowed on the parent request). */
+        /** @description When present in ArchitectureRequest.documents[], name, contentType, and content are required by FluentValidation (empty arrays are allowed on the parent request). Structured diagram documents use application/vnd.archlucid.diagram+json (ArchitectureDiagramModelRecord JSON), text/vnd.mermaid, application/vnd.archlucid.diagram+svg, or application/vnd.jgraph.mxfile. Raster image/* MIME types are forbidden. */
         ContextDocumentRequest: {
             content: string;
-            contentType: string;
+            /**
+             * @description Supported inline context document MIME type. See docs/library/ARCHITECTURE_REVIEW_DIAGRAM_INPUT_CONTRACT.md.
+             * @enum {string}
+             */
+            contentType: "text/plain" | "text/markdown" | "application/vnd.archlucid.diagram+json" | "text/vnd.mermaid" | "application/vnd.archlucid.diagram+svg" | "application/vnd.jgraph.mxfile" | "application/vnd.ms-visio.drawing.main+xml";
             name: string;
             sourceDocumentUrl?: null | string;
         };
@@ -3038,6 +3108,10 @@ export interface components {
             freeTextIntent?: string;
             priorRunId?: null | string;
             workflowIntent?: null | string;
+        };
+        CreateFindingVerificationReportRequest: {
+            /** Format: uuid */
+            verificationFindingsSnapshotId?: null | string;
         };
         CreateGovernanceActivationRequest: {
             environment?: string;
@@ -3448,6 +3522,7 @@ export interface components {
             snapshotId?: string;
         };
         DeskContinuityDto: {
+            lastOpenArchitectureId?: null | string;
             lastOpenDraftId?: null | string;
             lastOpenReviewId?: null | string;
             lastVisitWatermarkUtc?: null | string;
@@ -3659,6 +3734,7 @@ export interface components {
             conversationThreadId?: null | string;
             focusedPilotModeEnabled?: null | boolean;
             freeTextIntent?: string;
+            openQuestions?: null | string;
             /** Format: uuid */
             parentDraftId?: null | string;
             priorRunId?: null | string;
@@ -3838,6 +3914,38 @@ export interface components {
         EndToEndReplayComparisonSummaryResponse: {
             format?: string;
             summary?: string;
+        };
+        EngineInsightNoveltyRateRow: {
+            /** Format: int32 */
+            decisionGradeCount?: number;
+            /** Format: int32 */
+            didNotThinkOfThatCount?: number;
+            engineType?: string;
+            /** Format: double */
+            rate?: null | number | string;
+        };
+        EngineInsightNoveltyRatesResponse: {
+            /** Format: date-time */
+            fromUtc?: string;
+            rows?: components["schemas"]["EngineInsightNoveltyRateRow"][];
+            /** Format: date-time */
+            toUtcExclusive?: string;
+        };
+        EngineVerificationConfirmedRateRow: {
+            /** Format: int32 */
+            confirmedNumerator?: number;
+            /** Format: double */
+            confirmedRate?: null | number | string;
+            engineType?: string;
+            /** Format: int32 */
+            verifiableDenominator?: number;
+        };
+        EngineVerificationConfirmedRatesResponse: {
+            /** Format: date-time */
+            fromUtc?: string;
+            rows?: components["schemas"]["EngineVerificationConfirmedRateRow"][];
+            /** Format: date-time */
+            toUtcExclusive?: string;
         };
         EntityTagHeaderValue: {
             isWeak?: boolean;
@@ -4194,6 +4302,7 @@ export interface components {
             evaluationConfidenceScore?: null | number;
             /** Format: uuid */
             evidencePackageId?: null | string;
+            evidenceRefs?: string[];
             findingId?: string;
             /** Format: int32 */
             findingSchemaVersion?: number;
@@ -4250,6 +4359,8 @@ export interface components {
         /** @enum {string} */
         FindingDisposition: "Accepted" | "Deferred" | "NeedsEvidence" | "Remediated" | "RejectedAsNotApplicable";
         FindingDispositionEventDto: {
+            architectRestatement?: null | string;
+            currentDispositionRowVersionBase64?: null | string;
             disposition?: components["schemas"]["FindingDisposition"];
             /** Format: uuid */
             eventId?: string;
@@ -4346,6 +4457,11 @@ export interface components {
         };
         /** @enum {string} */
         FindingHumanReviewStatus: "NotRequired" | "Pending" | "Approved" | "Rejected" | "Overridden";
+        /** @enum {string} */
+        FindingInsightSignalKind: "DidNotThinkOfThat" | "Expected" | "DismissAsChecklist";
+        FindingInsightSignalStatusResponse: {
+            kinds?: components["schemas"]["FindingInsightSignalKind"][];
+        };
         FindingInspectEvidenceItem: {
             artifactId?: null | string;
             excerpt?: null | string;
@@ -4372,8 +4488,12 @@ export interface components {
             isMuted?: boolean;
             itsmLinkedTicketsSummary?: null | string;
             latestDisposition?: null | components["schemas"]["FindingDisposition"];
+            /** Format: uuid */
+            latestDispositionEventId?: null | string;
             /** Format: date-time */
             latestDispositionOccurredAtUtc?: null | string;
+            latestDispositionReviewerUserId?: null | string;
+            latestDispositionRowVersionBase64?: null | string;
             manifestVersion?: null | string;
             modelAlias?: null | string;
             modelDeploymentName?: null | string;
@@ -4469,6 +4589,42 @@ export interface components {
             traceConfidenceLabel: string;
         };
         FindingTreatment: number;
+        FindingVerificationReportResponse: {
+            /** Format: date-time */
+            createdUtc: string;
+            reportHash: string;
+            /** Format: uuid */
+            reportId: string;
+            results: components["schemas"]["FindingVerificationResultResponse"][];
+            /** Format: uuid */
+            runId: string;
+            sourceManifestHash: string;
+            /** Format: uuid */
+            verificationFindingsSnapshotId?: null | string;
+        };
+        FindingVerificationReportSummaryResponse: {
+            /** Format: double */
+            confirmedRate?: null | number | string;
+            /** Format: date-time */
+            createdUtc: string;
+            reportHash: string;
+            /** Format: uuid */
+            reportId: string;
+            /** Format: int32 */
+            resultCount: number;
+            /** Format: uuid */
+            runId: string;
+            sourceManifestHash: string;
+            /** Format: uuid */
+            verificationFindingsSnapshotId?: null | string;
+        };
+        FindingVerificationResultResponse: {
+            findingId: string;
+            status: components["schemas"]["FindingVerificationStatus"];
+            traceText: string;
+        };
+        /** @enum {string} */
+        FindingVerificationStatus: "Materialized" | "Mitigated" | "NotObserved" | "NotVerifiable";
         FindingsSnapshot: {
             checklistCoverage?: components["schemas"]["Finding"][];
             /** Format: uuid */
@@ -4490,6 +4646,7 @@ export interface components {
             schemaVersion?: number;
             /** Format: double */
             totalEstimatedSavings?: number | string;
+            withheldFindings?: components["schemas"]["WithheldFindingSummary"][];
         };
         /** @enum {string} */
         FindingsSnapshotGenerationStatus: "Generating" | "Complete" | "PartiallyComplete" | "Failed";
@@ -4949,6 +5106,24 @@ export interface components {
             nodeCount?: number;
             nodes?: components["schemas"]["GraphNodeVm"][];
         };
+        /** @enum {string} */
+        HeldCheckInputCode: "AzureInventoryZip" | "AwsInventoryZip" | "GcpInventoryZip" | "ActorNodes" | "RbacBindings" | "SecretRotationMetadata" | "ReplicaOrFailoverProperties" | "NetworkPolicyRules" | "PriorRunSnapshot" | "AssignedPolicyPack";
+        HeldCheckLedgerRollupEntry: {
+            /** Format: int32 */
+            engineCount?: number;
+            engineTypes?: string[];
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+        };
+        /** @enum {string} */
+        HeldCheckSecondPassStatus: "Completed" | "NotEligible" | "NoPriorLedger" | "NoNewFindings";
+        HeldCheckSecondPassSummary: {
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+            /** Format: int32 */
+            newDecisionGradeCount?: number;
+            status?: components["schemas"]["HeldCheckSecondPassStatus"];
+            /** Format: int32 */
+            unblockedEngineCount?: number;
+        };
         HolisticCriticRequest: {
             focus?: null | string;
         };
@@ -5230,6 +5405,16 @@ export interface components {
         InsightDensityCurationSummary: {
             /** Format: int32 */
             demotedToChecklistCount?: number;
+            heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
+            heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
+            /** Format: int32 */
+            judgeConfiguredCap?: null | number;
+            /** Format: int32 */
+            judgeEffectiveCap?: null | number;
+            /** Format: int32 */
+            judgeSkippedByCap?: number;
+            proseAssumptionHeldCheckAsks?: null | components["schemas"]["ProseAssumptionHeldCheckAsk"][];
+            proseAssumptionRegisterEntries?: null | components["schemas"]["ProseAssumptionRegisterEntry"][];
             /** Format: int32 */
             retainedFindingCount?: number;
         };
@@ -6394,6 +6579,7 @@ export interface components {
             focusedPilotModeEnabled?: null | boolean;
             forceOverwrite?: null | boolean;
             freeTextIntent?: null | string;
+            openQuestions?: null | string;
             structuredBrief?: null | components["schemas"]["ArchitectureDraftStructuredBrief"];
             systemName?: null | string;
             workflowIntent?: null | string;
@@ -6699,6 +6885,7 @@ export interface components {
             governanceRejections?: number;
             /** Format: int32 */
             policyPackAssignments?: number;
+            roiSourceFreshnessDisposition?: string;
             /** Format: int32 */
             runDetailCap?: number;
             runDetailsTruncated?: boolean;
@@ -7230,6 +7417,7 @@ export interface components {
             /** Format: int32 */
             blockingCount?: number;
             items?: components["schemas"]["PreFinalizeChecklistItem"][];
+            preCommitGateEnabled?: boolean;
             readyToFinalize?: boolean;
             runId?: string;
         };
@@ -7419,6 +7607,7 @@ export interface components {
             buyerSafeRedactionProfile?: string;
             committedManifestPresent?: boolean;
             committedManifestTimestampResolved?: boolean;
+            deferredBuyerRequirementsPresent?: boolean;
             demoTenantWarningRequired?: boolean;
             evidenceCompleteness?: string;
             findingsBySeverityPresent?: boolean;
@@ -7439,6 +7628,23 @@ export interface components {
         ProposedRelaxation: {
             invariantKey?: string;
             tradeOffDescription?: string;
+        };
+        /** @enum {string} */
+        ProseAssumptionDisposition: "Contradicted" | "Consistent" | "NotVerifiable";
+        ProseAssumptionHeldCheckAsk: {
+            evidenceRef?: string;
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+            statement?: string;
+        };
+        ProseAssumptionRegisterEntry: {
+            disposition?: components["schemas"]["ProseAssumptionDisposition"];
+            documentPath?: string;
+            evidenceRef?: string;
+            findingId?: null | string;
+            /** Format: int32 */
+            lineNumber?: number;
+            logicalPropertyName?: null | string;
+            statement?: string;
         };
         ProvenanceEdge: {
             /** Format: uuid */
@@ -7832,6 +8038,9 @@ export interface components {
         RecordBulkFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            expectedCurrentDispositionRowVersionBase64ByFindingId?: null | {
+                [key: string]: string;
+            };
             findingIds: string[];
             rationale: string;
             /** Format: date-time */
@@ -7839,20 +8048,30 @@ export interface components {
             tradeOffAcknowledgment?: null | string;
         };
         RecordBulkFindingDispositionResponse: {
+            currentDispositionRowVersionBase64ByFindingId?: null | {
+                [key: string]: string;
+            };
             /** Format: int32 */
             processedCount?: number;
             updatedFindingIds: string[];
         };
         RecordFindingDispositionRequest: {
+            architectRestatement?: null | string;
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            expectedCurrentDispositionRowVersionBase64?: null | string;
             findingId: string;
+            impactPreviewCompleted?: null | boolean;
+            previewOverrideReason?: null | string;
             rationale?: null | string;
             /** Format: date-time */
             revisitDueUtc?: null | string;
             /** Format: uuid */
             runId?: null | string;
             tradeOffAcknowledgment?: null | string;
+        };
+        RecordFindingInsightSignalRequest: {
+            kind?: components["schemas"]["FindingInsightSignalKind"];
         };
         RecordGovernanceMutationCorrectionRequest: {
             mutationKind?: string;
@@ -8819,6 +9038,7 @@ export interface components {
         };
         RunDetailWorkspaceContextBundleResponse: {
             priorCommittedRunComparison?: null | components["schemas"]["RunComparisonResponse"];
+            priorCommittedRunComparisonBlockedReason?: null | string;
             /** Format: date-time */
             priorCommittedRunCreatedUtc?: null | string;
             /** Format: uuid */
@@ -9239,6 +9459,15 @@ export interface components {
             manifestModeledElementApproxCount?: number;
             runId: string;
         };
+        RunStoredEvidenceFileDto: {
+            /** Format: int64 */
+            byteLength?: number;
+            contentType?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            evidenceItemId?: string;
+            originalFileName?: string;
+        };
         RunSummaryResponse: {
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             createdByUserId?: null | string;
@@ -9260,6 +9489,7 @@ export interface components {
             isDemoWelcomeRun?: boolean;
             isPinned?: boolean;
             isSample?: boolean;
+            legacyRunStatus?: null | string;
             packageOrigin?: null | string;
             projectId: string;
             runDegradedExecution?: boolean;
@@ -11028,6 +11258,15 @@ export interface components {
             generatedUtc?: string;
             /** Format: int64 */
             runsCreatedTotal?: number;
+        };
+        WithheldFindingSummary: {
+            conflictFindingId?: null | string;
+            originAgentType?: null | string;
+            originEngineType?: string;
+            reason?: string;
+            title?: string;
+            traceTargetId?: null | string;
+            withheldFindingId?: string;
         };
         WizardIntakeDraftResponse: {
             stateJson?: string;

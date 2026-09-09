@@ -7,6 +7,7 @@ import {
 export type RunDetailCreateHomeFindingsPanelProps = {
   readonly runId: string;
   readonly packageCommitted: boolean;
+  readonly buyerPolished: boolean;
   readonly children: ReactNode;
 };
 
@@ -14,7 +15,7 @@ export type RunDetailCreateHomeFindingsPanelProps = {
 export function RunDetailCreateHomeFindingsPanel(props: RunDetailCreateHomeFindingsPanelProps): ReactElement {
   return (
     <div className="space-y-4" data-testid="run-detail-create-home-findings">
-      {!props.packageCommitted ? (
+      {!props.packageCommitted && !props.buyerPolished ? (
         <div
           className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
           data-testid="run-detail-create-home-findings-orientation"

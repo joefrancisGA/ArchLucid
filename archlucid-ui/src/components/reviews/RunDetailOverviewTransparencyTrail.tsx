@@ -5,6 +5,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { buildInferredTrailFindingTrustLookup } from "@/lib/feasibility/format-inferred-trail-entry-label";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import {
   parseTransparencyTrailOpenFromSearch,
   transparencyTrailHrefFromSearch,
@@ -14,6 +16,7 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 export type RunDetailOverviewTransparencyTrailProps = {
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly runCompleted: boolean;
+  readonly quickDecisionFindings?: readonly QuickDecisionFinding[];
 };
 
 /** Overview transparency trail with defect callout when a completed review omits the mandatory record. */
@@ -57,6 +60,7 @@ export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTrans
       defaultExpanded={isWorkingMode}
       detailsOpen={isWorkingMode ? undefined : detailsOpen}
       onDetailsOpenChange={isWorkingMode ? undefined : setDetailsOpen}
+      inferredFindingTrustById={buildInferredTrailFindingTrustLookup(props.quickDecisionFindings)}
     />
   );
 }

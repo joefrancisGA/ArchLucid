@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -69,6 +70,7 @@ public sealed class ExecDigestComposerTests
             deltas.Object,
             decisionNeeded.Object,
             CreateManifestHashService(),
+            Mock.Of<IRunRepository>(),
             NullLogger<ExecDigestComposer>.Instance);
 
         Guid tenantId = Guid.Parse("11111111-2222-3333-4444-555555555555");
@@ -191,6 +193,7 @@ public sealed class ExecDigestComposerTests
             deltas.Object,
             decisionNeeded.Object,
             CreateManifestHashService(),
+            Mock.Of<IRunRepository>(),
             NullLogger<ExecDigestComposer>.Instance);
 
         Guid tenantId = Guid.Parse("11111111-2222-3333-4444-555555555555");

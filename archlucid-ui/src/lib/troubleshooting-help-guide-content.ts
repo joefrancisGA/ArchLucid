@@ -196,9 +196,9 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     whatYouSee: "Export is disabled or the download fails.",
     likelyCause: "Review not finalized, missing finalized review record, or your role cannot export.",
     tryFirst: "Confirm the review is finalized and you have export permission.",
-    ifStillBlocked: "Review governance approval requirements and retry after refresh.",
+    ifStillBlocked: "Review approval requirements and retry after refresh.",
     nextSteps: [
-      { label: "Open governance approval", href: inAppHelpHref("governance-approval") },
+      { label: "Open approval", href: inAppHelpHref("governance-approval") },
       { label: "Open reviews", href: "/architecture/reviews" },
       { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
     ],
@@ -212,7 +212,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     tryFirst: "Review blocking findings, remediate or accept risk per policy, then retry finalize.",
     ifStillBlocked: "Ask a workspace admin to adjust policy thresholds if the block is not appropriate.",
     nextSteps: [
-      { label: "Open governance approval", href: inAppHelpHref("governance-approval") },
+      { label: "Open approval", href: inAppHelpHref("governance-approval") },
       { label: "Open policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
       ...supportEscalationLinks(),
     ],

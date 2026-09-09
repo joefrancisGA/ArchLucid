@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.Core.Manifest.Sections;
 
 using DocumentFormat.OpenXml;
@@ -13,6 +14,16 @@ public static class WordDocumentBuilder
                    .Replace('\n', ' ')
                    .Replace('\r', ' ')
                ?? string.Empty;
+    }
+
+    private static string SanitizeTableCellText(string? text)
+    {
+        string sanitized = LlmArtifactFreeTextSanitizer.Sanitize(text);
+
+        return sanitized
+            .Replace("\r\n", " ", StringComparison.Ordinal)
+            .Replace('\n', ' ')
+            .Replace('\r', ' ');
     }
 
     public static void AddParagraph(Body body, string text)
@@ -153,7 +164,7 @@ public static class WordDocumentBuilder
 
         foreach (ManifestIssue issue in issues)
         {
-            Run severityRun = new(new Text(Sanitize(issue.Severity)));
+            Run severityRun = new(new Text(SanitizeTableCellText(issue.Severity)));
             if (IsHighSeverity(issue.Severity))
                 severityRun.RunProperties = new RunProperties(
                     new Bold(),
@@ -162,8 +173,8 @@ public static class WordDocumentBuilder
             table.AppendChild(
                 new TableRow(
                     new TableCell(new Paragraph(severityRun)),
-                    new TableCell(new Paragraph(new Run(new Text(Sanitize(issue.Title))))),
-                    new TableCell(new Paragraph(new Run(new Text(Sanitize(issue.Description)))))));
+                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(issue.Title))))),
+                    new TableCell(new Paragraph(new Run(new Text(SanitizeTableCellText(issue.Description)))))));
         }
 
         body.AppendChild(table);

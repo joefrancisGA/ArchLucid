@@ -6,6 +6,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -166,10 +167,10 @@ public sealed class RoiControllerTests
             Mock.Of<ISponsorRoiSummaryService>(),
             Mock.Of<ISponsorRoiBoardPackExporter>());
 
-        ActionResult<CrossTenantPortfolioSummaryResponse> action =
+        IActionResult action =
             await controller.GetCrossTenantPortfolioSummaryAsync(CancellationToken.None);
 
-        ObjectResult forbidden = action.Result.Should().BeOfType<ObjectResult>().Subject;
+        ObjectResult forbidden = action.Should().BeOfType<ObjectResult>().Subject;
         forbidden.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 

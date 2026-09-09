@@ -176,11 +176,7 @@ export function HelpSecurityTrustGuideView(props: HelpSecurityTrustGuideViewProp
 
         {!buyerPolishedShell ? <SecurityTrustHelpNextSteps /> : null}
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-security-trust-orientation-bottom">
-            <HelpSecurityTrustSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpSecurityTrustSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

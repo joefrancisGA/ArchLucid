@@ -35,6 +35,8 @@ import {
   runsListCompareInspectorHrefFromSearch,
 } from "@/lib/runs/runs-list-compare-inspector-url";
 
+import { shouldIgnoreRunsListRowActivation } from "./runs-list-row-activation";
+
 function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
 }
@@ -305,11 +307,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       : `/architecture/reviews?${baseQuery}&page=${page + 1}`;
 
   const onRowActivate = useCallback((run: RunSummary, e: MouseEvent<HTMLTableRowElement>) => {
-    if ((e.target as HTMLElement).closest("a")) {
-      return;
-    }
-
-    if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
+    if (shouldIgnoreRunsListRowActivation(e.target)) {
       return;
     }
 

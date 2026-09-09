@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Governance;
 
 using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
@@ -30,6 +32,9 @@ public static class FindingDispositionValidation
             throw new ArgumentException("Finding id is required.", nameof(request));
 
         string normalizedFindingId = request.FindingId.Trim();
+
+        if (!HasSubstantiveFindingId(normalizedFindingId))
+            throw new ArgumentException("Finding id is required.", nameof(request));
 
         if (normalizedFindingId.Length > MaxFindingIdLength)
         {
@@ -108,5 +113,76 @@ public static class FindingDispositionValidation
                     nameof(request));
             }
         }
+
+        if (!string.IsNullOrWhiteSpace(request.ArchitectRestatement)
+            && request.ArchitectRestatement.Trim().Length > MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Architect restatement must not exceed {MaximumRationaleLength} characters.",
+                nameof(request));
+        }
+    }
+
+    /// <summary>Working desk Remediated requires server-attested impact preview completion or an explicit override (LP-14).</summary>
+    public static void ValidateWorkingRemediatedImpactPreviewAttestation(
+        RecordFindingDispositionRequest request,
+        bool isWorkingDesk)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (!isWorkingDesk || request.Disposition != Disposition.Remediated)
+        {
+            return;
+        }
+
+        if (request.ImpactPreviewCompleted == true)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.PreviewOverrideReason)
+            && request.PreviewOverrideReason.Trim().Length >= MinimumRationaleLength)
+        {
+            if (request.PreviewOverrideReason.Trim().Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Preview override reason must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
+
+            return;
+        }
+
+        throw new ArgumentException(
+            "Impact preview attestation is required when marking a finding remediated on a Working desk.",
+            nameof(request));
+    }
+
+    /// <summary>
+    /// Rejects blank and invisible-only ids (for example U+200B) that pass
+    /// <see cref="string.IsNullOrWhiteSpace(string?)"/> but are not usable finding ids.
+    /// </summary>
+    private static bool HasSubstantiveFindingId(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        bool hasSubstantive = false;
+
+        foreach (char character in value)
+        {
+
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            UnicodeCategory category = char.GetUnicodeCategory(character);
+
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control)
+                return false;
+
+            hasSubstantive = true;
+        }
+
+        return hasSubstantive;
     }
 }

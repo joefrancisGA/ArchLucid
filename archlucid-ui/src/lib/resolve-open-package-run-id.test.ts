@@ -12,6 +12,15 @@ describe("resolveOpenPackageRunId (LS-05)", () => {
     ).toBe("run-in-path");
   });
 
+  it("AO-30: prefers nested architecture review paths over last-open review", () => {
+    expect(
+      resolveOpenPackageRunId({
+        pathname: "/architecture/architectures/arch-7/reviews/run-nested",
+        lastOpenReviewId: "run-last",
+      }),
+    ).toBe("run-nested");
+  });
+
   it("falls back to last-open review when path has no package", () => {
     expect(
       resolveOpenPackageRunId({

@@ -116,6 +116,7 @@ internal static partial class RunRepositorySql
                                                                                    AND WorkspaceId = @WorkspaceId
                                                                                    AND ScopeProjectId = @ScopeProjectId
                                                                                    AND UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId
+                                                                                   AND GoldenManifestId IS NOT NULL
                                                                                  ORDER BY CreatedUtc DESC;
                                                                                  """;
 

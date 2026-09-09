@@ -5,6 +5,7 @@ import { MessageCircle } from "lucide-react";
 import type { ReactElement } from "react";
 
 import { FindingListDispositionRowActions } from "@/components/governance/findings/FindingListDispositionRowActions";
+import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
@@ -19,6 +20,7 @@ import { NewSinceLastVisitMarker } from "@/components/usability/NewSinceLastVisi
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveFindingActivityAtUtc } from "@/lib/findings/finding-activity-at-utc";
 import { findingEnforcementTierLabel } from "@/lib/findings/finding-enforcement-tier";
+import { quickDecisionFindingHasRecordedDisposition } from "@/lib/findings/finding-recorded-disposition";
 import { getFindingDetailHref, getFindingGovernanceDispositionHref } from "@/lib/findings/finding-evidence-navigation";
 import {
   buildQuickDecisionFindingEvidenceLinks,
@@ -218,6 +220,14 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
       </div>
       {architectWorkspaceChrome ? (
         <FindingListDispositionRowActions findingId={finding.findingId} />
+      ) : null}
+      {architectWorkspaceChrome && quickDecisionFindingHasRecordedDisposition(finding) ? (
+        <FindingDispositionRecordCorrectionControl
+          findingId={finding.findingId}
+          runId={runId}
+          hasRecordedDisposition={true}
+          testId={`finding-workspace-record-correction-${finding.findingId}`}
+        />
       ) : null}
       {props.askPanelOpen ? (
         <div className="mt-3">

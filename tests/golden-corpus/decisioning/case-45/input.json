@@ -1,0 +1,77 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000045",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000045",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000045-0000-4000-8000-000000000045",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000045",
+    "runId": "20000000-0000-4000-8000-000000000045",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "req-dr-2",
+        "nodeType": "Requirement",
+        "label": "Ledger DR",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "text": "Ledger SQL must meet RPO 5 min."
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "svc-ledger",
+        "nodeType": "TopologyResource",
+        "label": "ledger-api",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "compute"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "sql-ledger-prod",
+        "nodeType": "TopologyResource",
+        "label": "sql-ledger-prod",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "data",
+          "terraformType": "azurerm_mssql_database"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": null,
+        "fromNodeId": "req-dr-2",
+        "toNodeId": "svc-ledger",
+        "edgeType": "RELATES_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "edgeId": null,
+        "fromNodeId": "svc-ledger",
+        "toNodeId": "sql-ledger-prod",
+        "edgeType": "DEPENDS_ON",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

@@ -205,11 +205,7 @@ export function HelpCloudConnectionsGuideView(
           )}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-cloud-connections-orientation-bottom">
-            <HelpCloudConnectionsSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpCloudConnectionsSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

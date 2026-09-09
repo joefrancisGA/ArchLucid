@@ -88,7 +88,7 @@ export function PolicyPackWorkspaceAttachPreviewDialog(
         <DialogHeader>
           <DialogTitle>Preview policy pack impact</DialogTitle>
           <DialogDescription>
-            Simulate how <span className="font-medium">{item.name}</span> affects governance gates before you{" "}
+            Simulate how <span className="font-medium">{item.name}</span> affects approval gates before you{" "}
             {nextEnabled ? "attach" : "detach"} it for this workspace.
           </DialogDescription>
         </DialogHeader>

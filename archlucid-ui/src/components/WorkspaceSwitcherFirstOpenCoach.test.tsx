@@ -1,12 +1,18 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { WorkspaceSwitcherFirstOpenCoach } from "@/components/WorkspaceSwitcherFirstOpenCoach";
 import {
   WORKSPACE_SWITCHER_TEACHING_DISMISS_KEY,
   WORKSPACE_SWITCHER_TEACHING_HEADING,
-  WORKSPACE_SWITCHER_TEACHING_LEAD,
+  workspaceSwitcherTeachingLead,
 } from "@/lib/workspace-switcher-teaching";
+
+const productLineMock = vi.hoisted(() => ({ productLine: "architecture" as "architecture" | "security" }));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({ productLine: productLineMock.productLine }),
+}));
 
 describe("WorkspaceSwitcherFirstOpenCoach (TB-2234)", () => {
   afterEach(() => {
@@ -14,6 +20,8 @@ describe("WorkspaceSwitcherFirstOpenCoach (TB-2234)", () => {
   });
 
   it("renders hierarchy steps when open and not dismissed", async () => {
+    productLineMock.productLine = "architecture";
+
     render(<WorkspaceSwitcherFirstOpenCoach open />);
 
     await waitFor(() => {
@@ -21,10 +29,23 @@ describe("WorkspaceSwitcherFirstOpenCoach (TB-2234)", () => {
     });
 
     expect(screen.getByText(WORKSPACE_SWITCHER_TEACHING_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(WORKSPACE_SWITCHER_TEACHING_LEAD)).toBeInTheDocument();
+    expect(screen.getByText(workspaceSwitcherTeachingLead("architecture"))).toBeInTheDocument();
     expect(screen.getByTestId("workspace-switcher-first-open-coach-step-tenant")).toBeInTheDocument();
     expect(screen.getByTestId("workspace-switcher-first-open-coach-step-workspace")).toBeInTheDocument();
     expect(screen.getByTestId("workspace-switcher-first-open-coach-step-project")).toBeInTheDocument();
+  });
+
+  it("uses SecureNow lead copy in the Security shell", async () => {
+    productLineMock.productLine = "security";
+
+    render(<WorkspaceSwitcherFirstOpenCoach open />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("workspace-switcher-first-open-coach")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(workspaceSwitcherTeachingLead("security"))).toBeInTheDocument();
+    expect(screen.queryByText(/ArchLucid organizes work/i)).not.toBeInTheDocument();
   });
 
   it("stays hidden when the popover is closed", async () => {

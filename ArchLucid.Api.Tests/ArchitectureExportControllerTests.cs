@@ -1,6 +1,9 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Application.Exports;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 
 using FluentAssertions;
 
@@ -23,7 +26,12 @@ public sealed class ArchitectureExportControllerTests
         Mock<IOptionsMonitor<GenerateRunSummaryOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new GenerateRunSummaryOptions { Enabled = true });
 
-        ArchitectureExportController controller = new(exportService.Object, options.Object)
+        ArchitectureExportController controller = new(
+            exportService.Object,
+            options.Object,
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

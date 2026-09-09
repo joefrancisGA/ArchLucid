@@ -4,35 +4,10 @@ namespace ArchLucid.Core.Configuration;
 
 public sealed partial class QuickScanSafetyOptionsValidator
 {
-    private bool RequiresProductionLikeAnonymousGuardrails()
-    {
-        if (_hostEnvironment.IsProduction() || _hostEnvironment.IsStaging())
-        {
-            return true;
-        }
-
-        if (string.Equals(_hostEnvironment.EnvironmentName, "SaaS", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        string? archLucidEnv = _configuration["ARCHLUCID_ENVIRONMENT"];
-
-        if (string.IsNullOrWhiteSpace(archLucidEnv))
-        {
-            archLucidEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
-        }
-
-        if (string.IsNullOrWhiteSpace(archLucidEnv))
-        {
-            return false;
-        }
-
-        string trimmed = archLucidEnv.Trim();
-
-        return string.Equals(trimmed, "Production", StringComparison.OrdinalIgnoreCase)
-               || string.Equals(trimmed, "Staging", StringComparison.OrdinalIgnoreCase);
-    }
+    private bool RequiresProductionLikeAnonymousGuardrails() =>
+        QuickScanSafetyProductionLikeHostClassification.RequiresProductionLikeAnonymousGuardrails(
+            _hostEnvironment,
+            _configuration);
 
     private static void ValidateProgressiveFriction(QuickScanSafetyProgressiveFrictionLimits limits, List<string> failures)
     {

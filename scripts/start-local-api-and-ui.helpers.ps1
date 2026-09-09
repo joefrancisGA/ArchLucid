@@ -142,19 +142,112 @@ function Get-LocalApiWindowCommand {
     return ($lines -join '; ')
 }
 
+function Get-LocalUiSiteSpecs {
+    param(
+        [ValidateRange(1, 65535)]
+        [int] $ArchitecturePort = 3000,
+
+        [ValidateRange(1, 65535)]
+        [int] $SecurityPort = 3001,
+
+        [bool] $IncludeSecurity = $true
+    )
+
+    if ($IncludeSecurity -and $ArchitecturePort -eq $SecurityPort) {
+        throw 'Architecture and Security UI ports must differ.'
+    }
+
+    [System.Collections.Generic.List[object]] $sites = [System.Collections.Generic.List[object]]::new()
+    $sites.Add([pscustomobject]@{
+            Name           = 'Architecture'
+            ProductLine    = 'architecture'
+            Port           = $ArchitecturePort
+            RootUrl        = ('http://127.0.0.1:{0}/' -f $ArchitecturePort)
+            ProxyHealthUrl = ('http://127.0.0.1:{0}/api/proxy/health/live' -f $ArchitecturePort)
+        })
+
+    if ($IncludeSecurity) {
+        $sites.Add([pscustomobject]@{
+                Name           = 'Security'
+                ProductLine    = 'security'
+                Port           = $SecurityPort
+                RootUrl        = ('http://127.0.0.1:{0}/' -f $SecurityPort)
+                ProxyHealthUrl = ('http://127.0.0.1:{0}/api/proxy/health/live' -f $SecurityPort)
+            })
+    }
+
+    return $sites
+}
+
+function Ensure-EnvLocalFromExample {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $EnvLocalPath,
+
+        [Parameter(Mandatory = $true)]
+        [string] $EnvExamplePath,
+
+        [ValidateRange(1, 65535)]
+        [int] $ApiPort = 5128
+    )
+
+    if (Test-Path -LiteralPath $EnvLocalPath) {
+        return $false
+    }
+
+    if (-not (Test-Path -LiteralPath $EnvExamplePath)) {
+        return $false
+    }
+
+    Copy-Item -LiteralPath $EnvExamplePath -Destination $EnvLocalPath
+
+    if ($ApiPort -ne 5128) {
+        [string[]] $lines = Get-Content -LiteralPath $EnvLocalPath
+        [System.Collections.Generic.List[string]] $updated = [System.Collections.Generic.List[string]]::new()
+
+        foreach ($line in $lines) {
+            if ($line -match '^\s*(ARCHLUCID_API_BASE_URL|NEXT_PUBLIC_ARCHLUCID_API_BASE_URL)\s*=') {
+                $updated.Add(($line -replace 'http://localhost:\d+', ('http://localhost:{0}' -f $ApiPort)))
+            }
+            else {
+                $updated.Add($line)
+            }
+        }
+
+        Set-Content -LiteralPath $EnvLocalPath -Value $updated -Encoding UTF8
+    }
+
+    return $true
+}
+
 function Get-LocalUiWindowCommand {
     param(
         [Parameter(Mandatory = $true)]
-        [string] $UiRoot
+        [string] $UiRoot,
+
+        [ValidateSet('architecture', 'security')]
+        [string] $ProductLine = 'architecture',
+
+        [ValidateRange(1, 65535)]
+        [int] $Port = 3000
     )
 
     [string] $quotedRoot = ConvertTo-PowerShellSingleQuotedLiteral -Value $UiRoot
     [System.Collections.Generic.List[string]] $lines = [System.Collections.Generic.List[string]]::new()
     $lines.Add("Set-Location -LiteralPath $quotedRoot")
     # Engineer-local shell: show Internal nav (operator-system-admin) even when .env.local follows pilot API posture.
+    $productEnvLine = '$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT = ''{0}''' -f $ProductLine
+    $lines.Add($productEnvLine)
     $lines.Add('$env:NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV = ''true''')
     $lines.Add('$env:NEXT_PUBLIC_OPERATOR_EXPERIENCE = ''operator''')
-    $lines.Add('npm run dev')
+    if ($ProductLine -eq 'security') {
+        # Next.js 16+ dev lock is per distDir; Security must not share Architecture's `.next`.
+        $lines.Add('$env:NEXT_DIST_DIR = ''.next-security''')
+    }
+    $lines.Add(('Write-Host ''Starting {0} UI on port {1}...''' -f $ProductLine, $Port))
+    # Set product + port in this window. Do not use `npm run dev:security` here — that script
+    # prefixes a Unix env assignment which Windows powershell.exe does not apply.
+    $lines.Add(('npx --no-install next dev --webpack -p {0}' -f $Port))
 
     return ($lines -join '; ')
 }

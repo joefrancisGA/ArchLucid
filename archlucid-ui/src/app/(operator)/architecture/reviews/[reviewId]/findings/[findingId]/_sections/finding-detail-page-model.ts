@@ -4,6 +4,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { StatedConstraintContext } from "@/lib/review-quality/assumption-and-severity";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
+
 /** Preloaded data for {@link FindingDetailPageView} after inspect load succeeds for the route. */
 export type FindingDetailPageModel = {
   readonly runId: string;
@@ -19,4 +21,8 @@ export type FindingDetailPageModel = {
   readonly runExecutionFootnote: OperatorEvidenceLimitsExecutionProps | null;
   readonly statedConstraintContext: StatedConstraintContext | null;
   readonly nextFindingInReview: FindingDetailNextFindingTarget | null;
+  /** Parent architecture identity when the authority run record includes it (AO-44 back locator). */
+  readonly parentArchitectureId: string | null;
+  /** Package transparency trail for Working clipboard honesty (FC-40). */
+  readonly transparencyTrail: TransparencyTrail | null;
 };

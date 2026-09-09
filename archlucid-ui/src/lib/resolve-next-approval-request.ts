@@ -14,7 +14,7 @@ function displayTitle(requestComment: string | null | undefined): string {
   const approvalTitle = (requestComment ?? "").trim();
 
   if (approvalTitle.length === 0) {
-    return "Governance approval request";
+    return "Approval request";
   }
 
   if (approvalTitle.length > 80) {

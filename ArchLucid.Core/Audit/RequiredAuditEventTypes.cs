@@ -47,10 +47,14 @@ public static class RequiredAuditEventTypes
         AuditEventTypes.RiskExceptionRenewed,
         AuditEventTypes.RiskExceptionExpired,
         AuditEventTypes.ManifestFinalized,
+        AuditEventTypes.Run.CommitCompleted,
         AuditEventTypes.IdentityCustomRoleAssigned,
         AuditEventTypes.RoleOverriddenByScim,
         AuditEventTypes.ScimGroupMembershipChanged,
         AuditEventTypes.ArchitectureDocxExportGenerated,
+        AuditEventTypes.FindingFeedbackRecorded,
+        AuditEventTypes.FindingAskConversationPersisted,
+        AuditEventTypes.AuthorityCommittedChainPersisted,
     ];
 
     /// <summary>
@@ -72,10 +76,14 @@ public static class RequiredAuditEventTypes
         nameof(AuditEventTypes.RiskExceptionRenewed),
         nameof(AuditEventTypes.RiskExceptionExpired),
         nameof(AuditEventTypes.ManifestFinalized),
+        nameof(AuditEventTypes.Run) + "." + nameof(AuditEventTypes.Run.CommitCompleted),
         nameof(AuditEventTypes.IdentityCustomRoleAssigned),
         nameof(AuditEventTypes.RoleOverriddenByScim),
         nameof(AuditEventTypes.ScimGroupMembershipChanged),
         nameof(AuditEventTypes.ArchitectureDocxExportGenerated),
+        nameof(AuditEventTypes.FindingFeedbackRecorded),
+        nameof(AuditEventTypes.FindingAskConversationPersisted),
+        nameof(AuditEventTypes.AuthorityCommittedChainPersisted),
     ];
 
     public static bool IsRequired(string? eventType)
