@@ -40,6 +40,7 @@ import {
   REVIEW_GUIDE_HELP_SKIP_LINK_LABEL,
   REVIEW_GUIDE_HELP_SKIP_TARGET_ID,
   REVIEW_GUIDE_HELP_START_HERE_HELPER,
+  REVIEW_GUIDE_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/review-guide-help-page-copy";
 import { cn } from "@/lib/utils";
 
@@ -182,16 +183,17 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
       ) : null}
 
       {buyerPolishedShell ? (
-        <p
-          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="help-review-guide-overview"
-        >
+        <p className={readingBodyClass} data-testid="help-review-guide-overview">
           {REVIEW_GUIDE_HELP_BUYER_OVERVIEW}
         </p>
       ) : null}
 
-      <div className={contentGridClass}>
-        <div className="min-w-0 space-y-6">
+      <section
+        className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+        data-testid={buyerPolishedShell ? REVIEW_GUIDE_HELP_WORKSPACE_TEST_ID : undefined}
+      >
+        <div className={contentGridClass}>
+          <div className="min-w-0 space-y-6">
           {!buyerPolishedShell ? (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-review-guide-overview">
               {REVIEW_GUIDE_HELP_OVERVIEW}
@@ -228,8 +230,9 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
           )}
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
-      </div>
+          {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
+        </div>
+      </section>
 
       {buyerPolishedShell ? <HelpReviewGuideSourcesOrientationStrip /> : null}
     </>
