@@ -32,6 +32,7 @@ import {
   PROCUREMENT_HELP_PAGE_TITLE,
 } from "@/lib/procurement-help-guide-content";
 import {
+  PROCUREMENT_HELP_BUYER_OVERVIEW,
   PROCUREMENT_HELP_FIRST_VIEWPORT_TEST_ID,
   PROCUREMENT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID,
@@ -73,23 +74,27 @@ describe("HelpProcurementGuideView buyer-polished shell (PRO)", () => {
     expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: PROCUREMENT_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-procurement-page-title")).toHaveTextContent(PROCUREMENT_HELP_PAGE_TITLE);
+    expect(screen.getByTestId("help-procurement-intro")).toHaveTextContent(PROCUREMENT_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-procurement-overview")).toHaveTextContent(PROCUREMENT_HELP_BUYER_OVERVIEW);
 
     const primaryContent = screen.getByTestId(PROCUREMENT_HELP_PRIMARY_CONTENT_ID);
     const buyerFirstViewport = screen.getByTestId(PROCUREMENT_HELP_FIRST_VIEWPORT_TEST_ID);
     const diligenceCtas = screen.getByTestId("procurement-help-diligence-ctas");
+    const overview = screen.getByTestId("help-procurement-overview");
     const faqContent = screen.getByTestId("help-procurement-faq-content");
     const orientationBottom = screen.getByTestId(PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primaryContent).toContainElement(buyerFirstViewport);
-    expect(screen.getByTestId("help-procurement-intro")).toHaveTextContent(PROCUREMENT_HELP_PAGE_LEAD);
     expect(buyerFirstViewport).toContainElement(diligenceCtas);
     expect(within(diligenceCtas).getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", "/trust");
     expect(screen.getByTestId("help-procurement-start-here-helper")).toHaveTextContent(
       PROCUREMENT_HELP_START_HERE_HELPER,
     );
+    expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(faqContent);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(buyerFirstViewport.compareDocumentPosition(faqContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(buyerFirstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(faqContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(faqContent.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sourcesSection = screen.getByTestId("procurement-help-sources");
