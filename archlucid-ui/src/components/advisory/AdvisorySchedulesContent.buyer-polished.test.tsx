@@ -78,7 +78,7 @@ vi.mock("@/components/advisory/AdvisorySchedulesNextReviewFooterClient", () => (
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import {
   ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER,
-  ADVISORY_SCANS_SCHEDULES_INTRO,
+  ADVISORY_SCHEDULES_BUYER_OVERVIEW,
   ADVISORY_SCHEDULES_PAGE_LEAD,
 } from "@/lib/advisory-copy";
 import {
@@ -103,8 +103,9 @@ describe("AdvisorySchedulesContent buyer-polished shell (AD)", () => {
     expect(firstViewport).toContainElement(screen.getByTestId("advisory-schedules-intro"));
     expect(screen.getByTestId("advisory-schedules-intro")).toHaveTextContent(ADVISORY_SCHEDULES_PAGE_LEAD);
     expect(content).toContainElement(overview);
-    expect(overview).toHaveTextContent(ADVISORY_SCANS_SCHEDULES_INTRO);
+    expect(overview).toHaveTextContent(ADVISORY_SCHEDULES_BUYER_OVERVIEW);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByTestId("advisory-schedules-pick-review-before-scheduling-strip")).not.toBeInTheDocument();
     expect(screen.getByTestId("advisory-schedules-buyer-start-here-helper")).toHaveTextContent(
       ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER,
     );
