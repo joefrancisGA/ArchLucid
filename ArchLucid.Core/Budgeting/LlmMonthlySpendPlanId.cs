@@ -21,6 +21,11 @@ public static class LlmMonthlySpendPlanId
         string? commercialTierLabel,
         BillingSubscriptionSnapshot? subscription)
     {
+        if (string.Equals(commercialTierLabel, CommercialPackagingTierLabels.Enterprise, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
         if (subscription is not null
             && subscription.SeatsPurchased <= 1
             && subscription.WorkspacesPurchased <= CommercialPackagingLimits.TeamWorkspacesIncluded)
