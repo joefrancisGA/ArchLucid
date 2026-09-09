@@ -38,6 +38,7 @@ import {
   SYSTEM_HEALTH_HELP_SKIP_LINK_LABEL,
   SYSTEM_HEALTH_HELP_SKIP_TARGET_ID,
   SYSTEM_HEALTH_HELP_START_HERE_HELPER,
+  SYSTEM_HEALTH_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/system-health-help-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -78,12 +79,15 @@ describe("HelpSystemHealthGuideView buyer-polished shell (HEY)", () => {
     const firstViewport = screen.getByTestId(SYSTEM_HEALTH_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-system-health-action-panel");
     const overview = screen.getByTestId("help-system-health-overview");
+    const workspace = screen.getByTestId(SYSTEM_HEALTH_HELP_WORKSPACE_TEST_ID);
     const tileItems = screen.getByTestId("help-system-health-tile-items");
     const orientationBottom = screen.getByTestId(SYSTEM_HEALTH_HELP_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("help-system-health-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(screen.getByTestId("help-system-health-intro")).toHaveTextContent(SYSTEM_HEALTH_HELP_PAGE_LEAD);
     expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).not.toContainElement(overview);
     expect(
       within(actionPanel).getByRole("link", { name: SYSTEM_HEALTH_HELP_PRIMARY_ACTION.label }),
     ).toHaveAttribute("href", SYSTEM_HEALTH_HELP_PRIMARY_ACTION.href);
@@ -94,13 +98,13 @@ describe("HelpSystemHealthGuideView buyer-polished shell (HEY)", () => {
       SYSTEM_HEALTH_HELP_START_HERE_HELPER,
     );
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(tileItems);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(tileItems);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(orientationBottom).toContainElement(sourcesSection);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(tileItems) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(tileItems.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    const sourcesSection = screen.getByTestId("help-system-health-sources");
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const source of filterWhereToGoNextFollowUpLinks(SYSTEM_HEALTH_HELP_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);

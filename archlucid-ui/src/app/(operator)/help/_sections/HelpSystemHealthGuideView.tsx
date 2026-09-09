@@ -52,6 +52,7 @@ import {
   SYSTEM_HEALTH_HELP_SKIP_LINK_LABEL,
   SYSTEM_HEALTH_HELP_SKIP_TARGET_ID,
   SYSTEM_HEALTH_HELP_START_HERE_HELPER,
+  SYSTEM_HEALTH_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/system-health-help-page-copy";
 import { cn } from "@/lib/utils";
 
@@ -169,8 +170,12 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
         </p>
       ) : null}
 
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+      <section
+        className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+        data-testid={buyerPolishedShell ? SYSTEM_HEALTH_HELP_WORKSPACE_TEST_ID : undefined}
+      >
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
           {buyerPolishedShell ? null : <SystemHealthHelpEvidenceOrientationStrip />}
 
           {!buyerPolishedShell ? (
@@ -230,8 +235,9 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
           </section>
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
-      </div>
+          {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
+        </div>
+      </section>
 
       {buyerPolishedShell ? <HelpSystemHealthSourcesOrientationStrip /> : null}
     </>
