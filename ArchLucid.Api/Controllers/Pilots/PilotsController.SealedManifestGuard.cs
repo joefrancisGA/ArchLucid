@@ -1,5 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -30,6 +31,30 @@ public sealed partial class PilotsController
                 detail.GoldenManifest,
                 runGuid.ToString("D"),
                 _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
+
+    private async Task<IActionResult?> EnsurePilotRecentDeltasSealedManifestReadAllowedAsync(
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        try
+        {
+            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                _runDetailQueryService,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
         }
         catch (ConflictException ex)
         {

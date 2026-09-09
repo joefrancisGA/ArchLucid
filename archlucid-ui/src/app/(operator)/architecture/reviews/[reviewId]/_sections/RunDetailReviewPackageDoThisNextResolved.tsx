@@ -60,6 +60,8 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
   readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
   readonly pixelDiagramNotVerifiableSources?: readonly PixelDiagramNotVerifiableSource[];
+  readonly architectureRequestId?: string | null;
+  readonly azureInventoryEvidencePresent?: boolean;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -227,6 +229,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
+        architectureRequestId={props.architectureRequestId}
         manifestVersion={props.manifestId}
         suppressMeasurementDenominator={suppressMeasurementDenominator}
         pipelineTerminalFailure={suppressMeasurementDenominator}
@@ -247,6 +250,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
         proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
         pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
+        azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
       />
       <FinalizeReadinessStrip
         commitBlockedReason={

@@ -24,6 +24,7 @@ function isStaleActionGeneration(
   return actionGenerationRef.current !== generation;
 }
 
+
 export type UseArchitectureIntelligenceActionsResult = {
   isBusy: boolean;
   analyzeThisReview: () => Promise<void>;

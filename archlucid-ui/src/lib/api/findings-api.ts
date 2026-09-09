@@ -144,3 +144,5 @@ export async function postFindingMute(
     reason,
   });
 }
+
+export { deleteFindingMute } from "@/lib/findings/finding-unmute-client";

@@ -4,9 +4,11 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -30,7 +32,10 @@ public sealed partial class GovernanceStickinessController(
     ITenantRepository tenantRepository,
     IArchitectureReviewRecurrenceNextRunCalculator recurrenceNextRunCalculator,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IRiskExceptionService riskExceptionService,
+    IFindingInspectReadRepository findingInspectReadRepository,
+    IArchitectureReviewRecurrenceScheduleRepository recurrenceScheduleRepository) : ControllerBase
 {
     private readonly IGovernanceStickinessFacade _facade =
         facade ?? throw new ArgumentNullException(nameof(facade));
@@ -49,6 +54,15 @@ public sealed partial class GovernanceStickinessController(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRiskExceptionService _riskExceptionService =
+        riskExceptionService ?? throw new ArgumentNullException(nameof(riskExceptionService));
+
+    private readonly IFindingInspectReadRepository _findingInspectReadRepository =
+        findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
+
+    private readonly IArchitectureReviewRecurrenceScheduleRepository _recurrenceScheduleRepository =
+        recurrenceScheduleRepository ?? throw new ArgumentNullException(nameof(recurrenceScheduleRepository));
 
     private async Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken)
     {

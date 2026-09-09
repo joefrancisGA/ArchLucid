@@ -71,6 +71,11 @@ public sealed partial class RoiController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorDashboardBundleAsync(CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -116,6 +121,11 @@ public sealed partial class RoiController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportAsync(CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             SponsorRoiSummaryResponse body = await _sponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
@@ -224,6 +234,11 @@ public sealed partial class RoiController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportHistoryAsync(CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             SponsorRoiHistoryResponse body = await _sponsorRoiSummaryService.BuildHistoryAsync(cancellationToken).ConfigureAwait(false);
@@ -248,6 +263,11 @@ public sealed partial class RoiController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorReportExportAsync(CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSponsorRoiSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             SponsorRoiExportResponse body = await _sponsorRoiSummaryService.BuildExportAsync(cancellationToken).ConfigureAwait(false);

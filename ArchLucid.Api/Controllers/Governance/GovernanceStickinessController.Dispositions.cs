@@ -142,7 +142,6 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(RecordBulkFindingDispositionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: IFindingReviewTrailAppendService logs FindingReviewDispositionRecorded via IAuditService.")]
     public async Task<IActionResult> RecordBulkDisposition(
@@ -177,6 +176,13 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureBulkDispositionSealedManifestAllowedAsync(
+            request!.FindingIds,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         RecordBulkFindingDispositionResponse response;
 

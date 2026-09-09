@@ -3,11 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { downloadRunDecisionReceiptJson } from "@/lib/api/downloads-blob-trigger-decision-receipt";
 import { downloadDraftDecisionReceiptJson } from "@/lib/api/downloads-blob-trigger-draft-decision-receipt";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   type DecisionReceiptContext,
   resolveDecisionReceiptExportBlockedReason,
   triggerDecisionReceiptDownload,
 } from "@/lib/decision-receipt-export";
+import { decisionReceiptMutationBlockedReason } from "@/lib/runs/decision-receipt-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -50,10 +52,10 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
             }
 
             void downloadRunDecisionReceiptJson(runId).catch((error: unknown) => {
-              showError(
-                "Decision receipt",
-                error instanceof Error ? error.message : "Download failed.",
-              );
+              const failure = toApiLoadFailure(error);
+              const blocked = decisionReceiptMutationBlockedReason(failure);
+
+              showError("Decision receipt", blocked ?? failure.message);
             });
           }}
         >
