@@ -2,7 +2,7 @@
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
-import { ProvenanceClaimOrientationStrip } from "./ProvenanceClaimOrientationStrip";
+import { ProvenanceSourcesOrientationStrip } from "./ProvenanceSourcesOrientationStrip";
 
 export type ProvenanceBuyerChromeProps = {
   readonly runId: string;
@@ -16,8 +16,6 @@ export function ProvenanceBuyerChrome(props: ProvenanceBuyerChromeProps): React.
   }
 
   return (
-    <div data-testid="provenance-orientation-bottom">
-      <ProvenanceClaimOrientationStrip runId={props.runId} architectureId={props.architectureId} />
-    </div>
+    <ProvenanceSourcesOrientationStrip runId={props.runId} architectureId={props.architectureId} />
   );
 }

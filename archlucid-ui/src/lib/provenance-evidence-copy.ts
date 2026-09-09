@@ -1,4 +1,5 @@
 import { REVIEWS_LIST_PATH, resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { resolveWorkingReviewsInboxParentLink } from "@/lib/resolve-working-evidence-parent-link";
@@ -11,6 +12,9 @@ export const PROVENANCE_FOLLOW_UPS_TITLE = "Where to go next";
 export const PROVENANCE_SOURCES_INTRO =
   "Use these follow-ups when provenance nodes need a fuller evidence trail, search, or review context.";
 
+export const PROVENANCE_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "provenance nodes need a fuller evidence trail, search, or review context",
+);
 
 /** Build operator Sources for a run — never self-links the provenance path. */
 export function buildProvenanceSources(

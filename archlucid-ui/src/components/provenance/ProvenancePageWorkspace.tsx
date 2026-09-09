@@ -17,6 +17,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   PROVENANCE_BUYER_START_HERE_HELPER,
   PROVENANCE_FIRST_VIEWPORT_TEST_ID,
+  PROVENANCE_OVERVIEW,
   PROVENANCE_PAGE_LEAD,
   PROVENANCE_PRIMARY_CONTENT_ID,
   PROVENANCE_SKIP_LINK_LABEL,
@@ -174,6 +175,12 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                       {PROVENANCE_BUYER_START_HERE_HELPER}
                     </p>
                   </section>
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                    data-testid="provenance-overview"
+                  >
+                    {PROVENANCE_OVERVIEW}
+                  </p>
                 </div>
               ) : null}
 

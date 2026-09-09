@@ -14,6 +14,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+import { PROVENANCE_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/provenance-page-copy";
+
 import { ProvenanceBuyerChrome } from "./ProvenanceBuyerChrome";
 
 describe("ProvenanceBuyerChrome", () => {
@@ -24,7 +26,7 @@ describe("ProvenanceBuyerChrome", () => {
   it("renders bottom orientation strip in buyer shell", () => {
     render(<ProvenanceBuyerChrome runId="demo-run" />);
 
-    expect(screen.getByTestId("provenance-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId(PROVENANCE_ORIENTATION_BOTTOM_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("provenance-settings-sources")).toBeInTheDocument();
   });
 
