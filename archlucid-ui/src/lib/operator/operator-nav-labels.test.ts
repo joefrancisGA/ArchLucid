@@ -14,7 +14,7 @@ import {
   resolveReviewsListNavLinkLabel,
 } from "@/lib/operator/operator-nav-labels";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 
 describe("operator-nav-labels", () => {
   it("returns Start review for left nav in buyer-polished and default shells", () => {
@@ -137,6 +137,17 @@ describe("operator-nav-labels", () => {
 
     expect(resolveNavLinkPresentation(source, false, false, false, "security").label).toBe("Teams");
     expect(resolveNavLinkPresentation(source, false, false, false, "architecture").label).toBe("Microsoft Teams");
+  });
+
+  it("uses Azure connections instead of Cloud connections in the SecureNow shell", () => {
+    const source = {
+      href: CLOUD_CONNECTIONS_PATH,
+      label: OPERATOR_NAV_LINK_LABELS.cloudConnections,
+      title: OPERATOR_NAV_LINK_LABELS.cloudConnections,
+    };
+
+    expect(resolveNavLinkPresentation(source, false, false, false, "security").label).toBe("Azure connections");
+    expect(resolveNavLinkPresentation(source, false, false, false, "architecture").label).toBe("Cloud connections");
   });
 
   it("TB-882: curated operator surfaces keep sidebar labels aligned with route titles", () => {

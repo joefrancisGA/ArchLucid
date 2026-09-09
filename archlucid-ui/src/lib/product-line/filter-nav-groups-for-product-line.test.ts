@@ -9,6 +9,9 @@ import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility"
 import { SECURENOW_COMPLIANCE_NAV_GROUP_LABEL } from "@/lib/product-line/securenow-compliance-home-copy";
 import {
   SECURENOW_COMPLIANCE_NAV_GROUP_ID,
+  SECURENOW_INTEGRATION_NAV_GROUP_ID,
+  SECURENOW_INTEGRATION_NAV_GROUP_LABEL,
+  SECURENOW_AZURE_CONNECTIONS_NAV_LABEL,
   SECURENOW_SECURITY_NAV_GROUP_ID,
 } from "@/lib/product-line/securenow-nav-reshape";
 
@@ -42,7 +45,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     vi.unstubAllEnvs();
   });
 
-  it("puts Security first with Home, then ARC-AMPE compliance and Infrastructure without Infrastructure overview", () => {
+  it("puts Security first with Home, then Integration, ARC-AMPE compliance, and Infrastructure without Infrastructure overview", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       AUTHORITY_RANK.AdminAuthority,
@@ -54,9 +57,11 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
 
     expect(rows[0]?.group.id).toBe(SECURENOW_SECURITY_NAV_GROUP_ID);
     expect(rows[0]?.group.label).toBe(OPERATOR_NAV_GROUP_LABELS.security);
-    expect(rows[1]?.group.id).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_ID);
-    expect(rows[1]?.group.label).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_LABEL);
-    expect(rows[2]?.group.id).toBe("operate-infrastructure");
+    expect(rows[1]?.group.id).toBe(SECURENOW_INTEGRATION_NAV_GROUP_ID);
+    expect(rows[1]?.group.label).toBe(SECURENOW_INTEGRATION_NAV_GROUP_LABEL);
+    expect(rows[2]?.group.id).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_ID);
+    expect(rows[2]?.group.label).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_LABEL);
+    expect(rows[3]?.group.id).toBe("operate-infrastructure");
 
     const groupIds = rows.map((row) => row.group.id);
 
@@ -68,6 +73,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     const complianceLinks = rows.find((row) => row.group.id === SECURENOW_COMPLIANCE_NAV_GROUP_ID)?.visibleLinks ?? [];
     const infrastructureLinks = rows.find((row) => row.group.id === "operate-infrastructure")?.visibleLinks ?? [];
     const securityLinks = rows.find((row) => row.group.id === SECURENOW_SECURITY_NAV_GROUP_ID)?.visibleLinks ?? [];
+    const integrationLinks = rows.find((row) => row.group.id === SECURENOW_INTEGRATION_NAV_GROUP_ID)?.visibleLinks ?? [];
 
     expect(complianceLinks.map((link) => link.href)).toEqual([
       "/governance/policy-packs",
@@ -84,11 +90,16 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "/governance/findings/assigned-to-me",
       "/governance/remediation-factory",
       "/governance/remediation-patterns",
+    ]);
+    expect(integrationLinks.map((link) => link.href)).toEqual([
       "/integrations/cloud-connections",
       "/integrations/jira",
       "/integrations/servicenow",
       "/integrations/teams",
     ]);
+    expect(integrationLinks.find((link) => link.href === "/integrations/cloud-connections")?.label).toBe(
+      SECURENOW_AZURE_CONNECTIONS_NAV_LABEL,
+    );
 
     const adminLinks = rows.find((row) => row.group.id === "operator-admin")?.visibleLinks ?? [];
 
