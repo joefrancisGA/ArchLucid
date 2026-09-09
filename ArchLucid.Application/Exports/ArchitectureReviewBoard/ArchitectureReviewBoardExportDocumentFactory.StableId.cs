@@ -40,7 +40,6 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         string? activeTrialExportNotice = null,
         string? careerExportHonestyPlainText = null,
         string? architectRestatementMarkdown = null)
-
         => RunSummaryOnePagerDocumentFactory.Create(
             detail,
             SponsorReport,

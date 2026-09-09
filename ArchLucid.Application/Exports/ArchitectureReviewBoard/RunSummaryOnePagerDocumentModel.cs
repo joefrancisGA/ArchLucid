@@ -104,11 +104,9 @@ public sealed class RunSummaryOnePagerDocumentModel
         get;
         init;
     }
-
     public string? ArchitectRestatementMarkdown
     {
         get;
         init;
     }
-
 }
