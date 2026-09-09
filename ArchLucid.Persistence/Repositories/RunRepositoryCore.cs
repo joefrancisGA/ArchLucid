@@ -49,6 +49,19 @@ internal static partial class RunRepositoryCore
     }
 
     /// <summary>
+    ///     Normalizes workspace system names for collision checks: trim edges, collapse internal whitespace, uppercase.
+    /// </summary>
+    public static string NormalizeWorkspaceSystemName(string systemName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(systemName);
+
+        return string.Join(
+            ' ',
+            systemName.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            .ToUpperInvariant();
+    }
+
+    /// <summary>
     ///     Normalizes authority project slugs for list and committed lookups: trim edges, collapse internal whitespace, uppercase.
     /// </summary>
     public static string NormalizeAuthorityProjectSlug(string authorityProjectSlug)

@@ -50,6 +50,13 @@ public sealed class RunRepositoryCoreTests
             .Should().BeTrue();
 
         RunRepositoryCore.IsCommittedRun(new RunRecord()).Should().BeFalse();
+
+        RunRepositoryCore.IsCommittedRun(new RunRecord
+        {
+            GoldenManifestId = Guid.NewGuid(),
+            CurrentManifestVersion = "v1",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+        }).Should().BeFalse("pipeline dead-letter rows retain manifest headers but are not committed lookups.");
     }
 
     [Fact]

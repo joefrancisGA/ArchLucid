@@ -67,6 +67,17 @@ internal static partial class RunRepositoryCore
     {
         ArgumentNullException.ThrowIfNull(run);
 
+        if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Failed), StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (string.Equals(
+                run.LegacyRunStatus,
+                nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
         if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
             return true;
 

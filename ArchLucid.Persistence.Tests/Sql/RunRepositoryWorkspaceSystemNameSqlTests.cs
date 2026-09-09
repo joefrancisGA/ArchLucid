@@ -1499,6 +1499,53 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void ExistsActiveRunWithSystemNameInWorkspace_sql_collapses_internal_whitespace_before_compare()
+    {
+        RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace.Should().Contain("STRING_SPLIT");
+        RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace.Should().Contain("STRING_AGG");
+    }
+
+    [Fact]
+    public async Task InMemory_workspace_collision_treats_internal_whitespace_as_equivalent()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "Claims  API",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+            scope,
+            "claims api",
+            ct: CancellationToken.None);
+
+        exists.Should().BeTrue(
+            "workspace system-name guard must treat internal whitespace variants as the same occupied name.");
+    }
+
+    [Fact]
+    public void NormalizeWorkspaceSystemName_collapses_internal_whitespace()
+    {
+        RunRepositoryCore.NormalizeWorkspaceSystemName("  claims   api  ").Should().Be("CLAIMS API");
+    }
+
+    [Fact]
     public void SelectCommittedRunIdByGoldenManifestId_excludes_current_run_via_exclude_run_id()
     {
         RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should().Contain("r.RunId <> @ExcludeRunId");
@@ -1789,5 +1836,84 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     public void NormalizeAuthorityProjectSlug_collapses_internal_whitespace()
     {
         RunRepositoryCore.NormalizeAuthorityProjectSlug("  claims   api  ").Should().Be("CLAIMS API");
+    }
+
+    [Fact]
+    public void SelectPriorCommittedRunIdBeforeCurrent_excludes_failed_runs_with_retained_manifest_headers()
+    {
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should()
+            .Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)");
+    }
+
+    [Fact]
+    public void SelectLatestCommittedRunIdByManifestCreatedUtc_excludes_failed_runs_with_retained_manifest_headers()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should()
+            .Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)");
+    }
+
+    [Fact]
+    public void SelectCommittedRunIdByGoldenManifestId_excludes_failed_runs_after_pipeline_dead_letter()
+    {
+        RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should()
+            .Contain("LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)");
+        RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should()
+            .NotContain("OR r.GoldenManifestId IS NOT NULL");
+    }
+
+    [Fact]
+    public async Task InMemory_failed_run_with_retained_golden_manifest_does_not_match_seal_delta_lookup()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid architectureId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        Guid committedRunId = Guid.Parse("11111111-0000-0000-0000-000000000001");
+        Guid failedRunId = Guid.Parse("22222222-0000-0000-0000-000000000002");
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                GoldenManifestId = manifestId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = new DateTime(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc),
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = failedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                GoldenManifestId = manifestId,
+                CurrentManifestVersion = "v1",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+                CreatedUtc = new DateTime(2026, 9, 2, 0, 0, 0, DateTimeKind.Utc),
+            },
+            CancellationToken.None);
+
+        Guid? selected = await runs.GetCommittedRunIdByGoldenManifestIdAsync(
+            scope,
+            architectureId,
+            manifestId,
+            Guid.Empty,
+            CancellationToken.None);
+
+        selected.Should().Be(committedRunId);
     }
 }
