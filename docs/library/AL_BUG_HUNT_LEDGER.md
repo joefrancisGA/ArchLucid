@@ -1508,11 +1508,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 14
-- **bugs-found:** 12
+- **hunts:** 15
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — empty product-context hydration cleared freeform architecture description on first deep-link
+- **last-bug:** 2026-09-09 — context-only review switch left hydrated intake from prior deep-linked review
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1552,6 +1552,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `contextRunId` without inbound `runId` clears freeform intake — **cheap-disproof 2026-09-09 seed hunt #1453:** URL-scope reset effect requires both params absent; `contextRunId` alone sets `activeRunId` without wiping intake; regression `keeps freeform intake when only contextRunId scopes the page`.
 
 2026-09-09 seed hunt #1453 (seed-only): reseeded ui-architecture-intelligence after #1452; cheap-disproof closed scope-switch golden carryover, fixture interview/priority reset, product-context retry hydration, and contextRunId-only intake preserve; aligned buyer-polished retry fetch mocks; 29 scoped `ArchitectureIntelligencePageClient` tests passed.
+
+- [x] (valid-no-repro) Empty product context shows Analyze affordance when operator pasted description — **cheap-disproof 2026-09-09 seed hunt #1454:** `canAnalyzeHydratedReview` requires `productContextStatus === "loaded"`; regression `hides analyze affordance when deep-linked review has empty product context`.
+- [x] (valid-no-repro) In-flight `analyzeThisReview` applies stale results after deep-linked `runId` switch — **cheap-disproof 2026-09-09 seed hunt #1454:** `runReasoningWithOptions` shares `actionGenerationRef` stale guards with reasoning; regression `ignores stale analyze results when inbound runId switches before analyze completes`.
+- [x] (valid-no-repro) Removing deep-linked `runId` while matching `contextRunId` clears hydrated intake — **cheap-disproof 2026-09-09 seed hunt #1454:** context-only scope for the same review intentionally keeps intake; regression `keeps hydrated intake when deep-linked runId is removed but matching contextRunId remains`.
+- [x] (valid-no-repro) URL `tier` search param ignored on Architecture intelligence page — **cheap-disproof 2026-09-09 seed hunt #1454:** `useEffect` syncs `reviewTier` from `searchParams`; regression `hydrates review tier from URL tier search param`.
+- [x] (valid-no-repro) Product-context retry after reasoning pass leaves stale reasoning results — **cheap-disproof 2026-09-09 seed hunt #1454:** retry UI only renders during load failure; `productContextReloadNonce` inbound-run reset clears `runState` before reasoning can coexist with a retry-triggered reload in the same session.
+- [x] (proven) Switching to a different `contextRunId` without inbound `runId` leaves hydrated intake from prior deep-linked review — **hit 2026-09-09 seed hunt #1454 (seed→hit):** URL-scope effect only updated `activeRunId`; fixed by clearing intake when inbound `runId` drops to a different context-only review or when context-only scope changes; regression `clears hydrated intake when contextRunId switches to another review without inbound runId`.
+
+2026-09-09 seed hunt #1454 (seed→hit): reseeded ui-architecture-intelligence after #1453; proved context-only review switch stale intake; cheap-disproof closed empty-context analyze gating, analyze stale races, matching contextRunId preserve, tier URL sync, and retry-after-reasoning reachability; 34 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 2026-09-09 seed hunt #1397 (seed→hit): reseeded intake replacement paths after #1344; proved publish-toggle carryover on golden fixture load; cheap-disproof closed in-flight golden-test stale candidate; aligned fetch mocks with `apiGet` text parsing; 14 scoped `ArchitectureIntelligencePageClient` tests passed.
 
