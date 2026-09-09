@@ -31,4 +31,28 @@ public static class FindingGraphEvidenceRefs
 
         return evidenceRefs;
     }
+
+    /// <summary>
+    ///     Collects property- and diagram-backed refs, then appends <c>graph-node:</c> only when the
+    ///     node id remainder is product-shaped inventory (DX-50 / QR-05).
+    /// </summary>
+    public static List<string> CollectWithProductShapedGraphNodeFallback(
+        GraphSnapshot graphSnapshot,
+        IEnumerable<string> nodeIds)
+    {
+        List<string> evidenceRefs = CollectFromNodeIds(graphSnapshot, nodeIds);
+
+        foreach (string nodeId in nodeIds)
+        {
+            if (string.IsNullOrWhiteSpace(nodeId))
+                continue;
+
+            string graphNodeRef = $"graph-node:{nodeId.Trim()}";
+
+            if (GenericArchitectureAdvicePatterns.HasProductShapedInventoryEvidence([graphNodeRef]))
+                FindingEvidenceRefs.TryAppendDistinct(evidenceRefs, graphNodeRef);
+        }
+
+        return evidenceRefs;
+    }
 }

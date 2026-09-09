@@ -43,7 +43,9 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 relatedNodeIds.Add(id);
 
             List<string> examined = [.. relatedNodeIds];
-            List<string> evidenceRefs = CollectEvidenceRefs(graphSnapshot, relatedNodeIds);
+            List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+                graphSnapshot,
+                relatedNodeIds);
 
             findings.Add(new Finding
             {
@@ -97,23 +99,5 @@ public class SecurityBaselineFindingEngine : IFindingEngine
         }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
-    }
-
-    private static List<string> CollectEvidenceRefs(GraphSnapshot graphSnapshot, IReadOnlyList<string> relatedNodeIds)
-    {
-        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, relatedNodeIds);
-
-        foreach (string nodeId in relatedNodeIds)
-        {
-            if (string.IsNullOrWhiteSpace(nodeId))
-                continue;
-
-            string graphNodeRef = $"graph-node:{nodeId.Trim()}";
-
-            if (GenericArchitectureAdvicePatterns.HasProductShapedInventoryEvidence([graphNodeRef]))
-                FindingEvidenceRefs.TryAppendDistinct(evidenceRefs, graphNodeRef);
-        }
-
-        return evidenceRefs;
     }
 }
