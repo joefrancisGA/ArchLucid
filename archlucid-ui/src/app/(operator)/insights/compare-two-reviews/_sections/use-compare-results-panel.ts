@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import { createAndDownloadComparisonPdf } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { comparisonReplayMutationBlockedReason } from "@/lib/compare/comparison-replay-mutation-blocked-reason";
 import { downloadArchitecturePackageDocx } from "@/lib/api/downloads-blob-trigger-architecture-package-docx";
 import { buildCompareVerdictSummary } from "@/lib/build-compare-verdict-summary";
 import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
@@ -61,7 +63,8 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     try {
       await createAndDownloadComparisonPdf(lastComparedPair.left, lastComparedPair.right);
     } catch (e: unknown) {
-      setPdfError(e instanceof Error ? e.message : "Failed to download PDF report.");
+      const failure = toApiLoadFailure(e);
+      setPdfError(comparisonReplayMutationBlockedReason(failure) ?? failure.message);
     } finally {
       setPdfDownloading(false);
     }

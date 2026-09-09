@@ -189,7 +189,6 @@ export function TechnologyBaselinePanel({
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
       const blocked = technologyLedgerMutationBlockedReason(failure);
-
       setActionError({
         message: blocked ?? failure.message,
         correlationId: failure.correlationId,

@@ -19,6 +19,7 @@ public sealed partial class RunsController
     [ProducesResponseType(typeof(PinRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PinRun(
         [FromRoute] string runId,
         [FromBody] PinRunRequest? request,
@@ -26,6 +27,11 @@ public sealed partial class RunsController
     {
         if (!TryParseRunGuidForAudit(runId, out Guid runGuid))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runGuid, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);

@@ -49,6 +49,7 @@ export function FindingInspectDiagramCitationPreviewDialog(
       return;
     }
 
+    const evidenceItemId = citation.evidenceItemId;
     let canceled = false;
 
     async function loadEvidence(): Promise<void> {
@@ -58,7 +59,7 @@ export function FindingInspectDiagramCitationPreviewDialog(
 
       try {
         const { blob, fileName: resolvedFileName, contentType: resolvedContentType } =
-          await fetchRunStoredEvidenceFileBlob(runId, citation.evidenceItemId, "inline");
+          await fetchRunStoredEvidenceFileBlob(runId, evidenceItemId, "inline");
 
         if (canceled) {
           return;
