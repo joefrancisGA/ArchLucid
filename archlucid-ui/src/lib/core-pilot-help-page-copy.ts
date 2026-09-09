@@ -12,6 +12,8 @@ export const CORE_PILOT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 
 export const CORE_PILOT_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-core-pilot-orientation-bottom" as const;
 
+export const CORE_PILOT_HELP_WORKSPACE_TEST_ID = "help-core-pilot-workspace" as const;
+
 export const CORE_PILOT_HELP_PAGE_SUBTITLE_BUYER =
   "Follow the guided path from evidence intake through finalize, then start your first architecture review." as const;
 
