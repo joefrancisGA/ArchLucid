@@ -20,3 +20,6 @@ export const PROCUREMENT_HELP_START_HERE_HELPER =
 
 export const PROCUREMENT_HELP_PAGE_LEAD =
   "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement." as const;
+
+export const PROCUREMENT_HELP_BUYER_OVERVIEW =
+  "Use the diligence next steps above for Trust Center and contract paths, then scan the Q and A below for questionnaire-ready answers." as const;
