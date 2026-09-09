@@ -108,6 +108,7 @@ import {
 } from "@/lib/compare-evidence-copy";
 import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageIntro";
 import {
+  COMPARE_BUYER_OVERVIEW,
   COMPARE_PAGE_LEAD,
   COMPARE_PAGE_SUBTITLE_BUYER,
   COMPARE_START_HERE_HELPER,
@@ -145,6 +146,7 @@ describe("CompareForm buyer-polished shell (CXX)", () => {
     const primaryContent = screen.getByTestId(COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(COMPARE_TWO_REVIEWS_FIRST_VIEWPORT_TEST_ID);
     const dimensionsPreview = screen.getByTestId("compare-dimensions-preview");
+    const overview = screen.getByTestId("compare-two-reviews-overview");
     const workspace = screen.getByTestId("compare-workspace");
     const orientationBottom = screen.getByTestId(COMPARE_TWO_REVIEWS_ORIENTATION_BOTTOM_TEST_ID);
 
@@ -152,9 +154,12 @@ describe("CompareForm buyer-polished shell (CXX)", () => {
     expect(screen.getByTestId("compare-two-reviews-intro")).toHaveTextContent(COMPARE_PAGE_LEAD);
     expect(firstViewport).toContainElement(dimensionsPreview);
     expect(screen.getByTestId("compare-two-reviews-start-here-helper")).toHaveTextContent(COMPARE_START_HERE_HELPER);
+    expect(screen.getByTestId("compare-two-reviews-overview")).toHaveTextContent(COMPARE_BUYER_OVERVIEW);
+    expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(workspace);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sourcesSection = screen.getByTestId("compare-two-reviews-sources");
