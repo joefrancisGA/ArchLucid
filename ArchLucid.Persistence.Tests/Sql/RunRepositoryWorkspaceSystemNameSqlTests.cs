@@ -622,6 +622,75 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void SelectLatestWithGraphAtOrBefore_uses_inclusive_as_of_boundary_with_run_id_tie_break()
+    {
+        RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("CreatedUtc <= @AsOfUtc");
+        RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("ORDER BY CreatedUtc DESC, RunId DESC");
+    }
+
+    [Fact]
+    public void SelectLatestCommittedRunIdByManifestCreatedUtc_excludes_archived_golden_manifests()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should().Contain("gm.ArchivedUtc IS NULL");
+    }
+
+    [Fact]
+    public void CommittedArchitectureReviewExists_excludes_archived_golden_manifests()
+    {
+        HotPathRelationalQueryShapes.CommittedArchitectureReviewExistsNoLock.Should().Contain("gm.ArchivedUtc IS NULL");
+    }
+
+    [Fact]
+    public async Task InMemory_committed_review_flag_reader_scans_bounded_recent_list_not_full_scope()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        DateTime baseUtc = new(2026, 9, 9, 0, 0, 0, DateTimeKind.Utc);
+
+        for (int i = 0; i < 501; i++)
+        {
+            await runs.SaveAsync(
+                new RunRecord
+                {
+                    RunId = Guid.NewGuid(),
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "noise",
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+                    CreatedUtc = baseUtc.AddMinutes(i),
+                },
+                CancellationToken.None);
+        }
+
+        RunRecord committedReview = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "billing",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            GoldenManifestId = Guid.NewGuid(),
+            CreatedUtc = baseUtc.AddMinutes(-1),
+        };
+
+        await runs.SaveAsync(committedReview, CancellationToken.None);
+
+        RunRepositoryCommittedArchitectureReviewFlagReader reader = new(runs);
+        bool hasCommittedReview = await reader.TenantHasCommittedArchitectureReviewAsync(scope, CancellationToken.None);
+
+        hasCommittedReview.Should().BeFalse(
+            "InMemory enrichment reader intentionally scans only the bounded recent list; SQL EXISTS remains authoritative.");
+    }
+
+    [Fact]
     public async Task InMemory_offset_list_pages_all_runs_when_created_utc_ties()
     {
         ScopeContext scope = new()

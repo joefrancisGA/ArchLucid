@@ -681,7 +681,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -729,6 +729,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RunRepositoryCore.SelectLatestCommittedRunIdByManifestCreatedUtc` ranks by `CompletedUtc` while SQL joins `GoldenManifests.CreatedUtc` — **cheap-disproof 2026-09-09 seed hunt #1442:** documented InMemory stand-in for tests/local host; SQL manifest join remains authoritative in production; regression `SelectLatestCommittedRunIdByManifestCreatedUtc_in_memory_uses_completed_utc_stand_in`.
 
 2026-09-09 seed hunt #1442 (seed-only): reseeded sql-run-repository after #1441; cheap-disproof closed terminal-status casing, admin lookup scope, committed-review predicate strictness, and manifest CreatedUtc vs CompletedUtc stand-in candidates; 42 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `RunListWarningFlagSql.KeysetCursorPredicate` omits `RunId` tie-break so keyset pages duplicate or skip tied timestamps — **cheap-disproof 2026-09-09 seed hunt #1443:** cursor predicate pairs `CreatedUtc` with `r.RunId < @CursorRunId`; shape regression `KeysetCursorPredicate_includes_run_id_tie_break_for_stable_keyset_pages`.
+- [x] (valid-no-repro) `RunsListRecentInScopeNoLock` unbounded recent list can scan full scope — **cheap-disproof 2026-09-09 seed hunt #1443:** hot-path shape uses `SELECT TOP (@Take)`; regression `RunsListRecentInScopeNoLock_uses_bounded_top_take`.
+- [x] (valid-no-repro) `SelectLatestWithGraphAtOrBefore` uses exclusive `CreatedUtc < @AsOfUtc` or lacks RunId tie-break — **cheap-disproof 2026-09-09 seed hunt #1443:** inclusive `CreatedUtc <= @AsOfUtc` with `ORDER BY CreatedUtc DESC, RunId DESC`; regression `SelectLatestWithGraphAtOrBefore_uses_inclusive_as_of_boundary_with_run_id_tie_break`.
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByManifestCreatedUtc` / `CommittedArchitectureReviewExistsNoLock` include archived golden manifests — **cheap-disproof 2026-09-09 seed hunt #1443:** both shapes require `gm.ArchivedUtc IS NULL`; regressions `SelectLatestCommittedRunIdByManifestCreatedUtc_excludes_archived_golden_manifests` and `CommittedArchitectureReviewExists_excludes_archived_golden_manifests`.
+- [x] (valid-no-repro) `RunRepositoryCommittedArchitectureReviewFlagReader` scans full scope and misses committed reviews beyond recent window — **cheap-disproof 2026-09-09 seed hunt #1443:** InMemory reader intentionally uses bounded `ListRecentInScopeAsync(take: 500)`; SQL EXISTS remains authoritative; regression `InMemory_committed_review_flag_reader_scans_bounded_recent_list_not_full_scope`.
+
+2026-09-09 seed hunt #1443 (seed-only): reseeded sql-run-repository after #1442; cheap-disproof closed keyset tie-break, bounded recent list, inclusive graph-as-of boundary, archived-manifest exclusion, and InMemory committed-review scan window; 48 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 

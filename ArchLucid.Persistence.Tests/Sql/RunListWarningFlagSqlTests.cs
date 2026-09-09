@@ -84,6 +84,19 @@ public sealed class RunListWarningFlagSqlTests
     }
 
     [Fact]
+    public void KeysetCursorPredicate_includes_run_id_tie_break_for_stable_keyset_pages()
+    {
+        RunListWarningFlagSql.KeysetCursorPredicate.Should().Contain("r.RunId < @CursorRunId");
+        RunListWarningFlagSql.KeysetOrderBy.Should().Be(RunListWarningFlagSql.CreatedUtcDescOrderBy);
+    }
+
+    [Fact]
+    public void RunsListRecentInScopeNoLock_uses_bounded_top_take()
+    {
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should().Contain("SELECT TOP (@Take)");
+    }
+
+    [Fact]
     public void Hot_path_list_shapes_pair_select_run_columns_with_left_join_aggregates()
     {
         HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should()
