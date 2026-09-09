@@ -7,6 +7,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { getGovernanceResolution } from "@/lib/api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { governanceResolutionBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
@@ -20,6 +21,9 @@ export function useGovernanceResolutionPage(
   const [data, setData] = useState<EffectiveGovernanceResolutionResult | null>(serverLoad.data);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(serverLoad.failure);
+  const [blockedReason, setBlockedReason] = useState<string | null>(
+    governanceResolutionBlockedReason(serverLoad.failure),
+  );
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(
     serverLoad.failure === null && serverLoad.data !== null ? new Date() : null,
   );
@@ -27,13 +31,16 @@ export function useGovernanceResolutionPage(
   const load = useCallback(async () => {
     setLoading(true);
     setFailure(null);
+    setBlockedReason(null);
 
     try {
       const r = await getGovernanceResolution();
       setData(r);
       setLastRefreshedAt(new Date());
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      const nextFailure = toApiLoadFailure(e);
+      setFailure(nextFailure);
+      setBlockedReason(governanceResolutionBlockedReason(nextFailure));
     } finally {
       setLoading(false);
     }
@@ -45,6 +52,7 @@ export function useGovernanceResolutionPage(
     data,
     loading,
     failure,
+    blockedReason,
     lastRefreshedAt,
     load,
   };

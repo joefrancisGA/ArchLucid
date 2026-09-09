@@ -89,6 +89,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(GovernanceReviewsAwaitingActionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewsAwaitingAction(CancellationToken cancellationToken = default)
     {
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
@@ -96,18 +97,25 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        GovernanceReviewsAwaitingActionResponse response =
-            await _facade.GetReviewsAwaitingActionAsync(cancellationToken);
+        try
+        {
+            GovernanceReviewsAwaitingActionResponse response =
+                await _facade.GetReviewsAwaitingActionAsync(cancellationToken);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string fingerprint =
-            $"reviews-awaiting|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}";
-        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
-            response,
-            ContractJson.CamelCaseIgnoreNullCompact,
-            fingerprint);
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            string fingerprint =
+                $"reviews-awaiting|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={scope.ProjectId:N}";
+            string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+                response,
+                ContractJson.CamelCaseIgnoreNullCompact,
+                fingerprint);
 
-        return this.OkWithConditionalEtag(response, etag);
+            return this.OkWithConditionalEtag(response, etag);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("decisions-needed-summary")]
@@ -115,6 +123,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetDecisionsNeededSummary(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
@@ -131,18 +140,25 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        GovernanceDecisionsNeededSummaryResponse response =
-            await _facade.GetDecisionsNeededSummaryAsync(projectId, cancellationToken);
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            GovernanceDecisionsNeededSummaryResponse response =
+                await _facade.GetDecisionsNeededSummaryAsync(projectId, cancellationToken);
 
-        string fingerprint =
-            $"decisions-needed|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={projectId ?? scope.ProjectId:N}";
-        string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
-            response,
-            ContractJson.CamelCaseIgnoreNullCompact,
-            fingerprint);
+            string fingerprint =
+                $"decisions-needed|tenant={scope.TenantId:N}|workspace={scope.WorkspaceId:N}|project={projectId ?? scope.ProjectId:N}";
+            string etag = ConditionalGetNegotiation.ComputeJsonResponseEtag(
+                response,
+                ContractJson.CamelCaseIgnoreNullCompact,
+                fingerprint);
 
-        return this.OkWithConditionalEtag(response, etag);
+            return this.OkWithConditionalEtag(response, etag);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("findings-registers-bundle")]

@@ -3,12 +3,17 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Governance.Resolution;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -45,12 +50,27 @@ namespace ArchLucid.Api.Controllers.Governance;
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
-public sealed class GovernanceResolutionController(
+public sealed partial class GovernanceResolutionController(
     IScopeContextProvider scopeProvider,
     IEffectiveGovernanceResolver resolver,
     IAuditService auditService,
-    ITenantRepository tenantRepository) : ControllerBase
+    ITenantRepository tenantRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService) : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
@@ -69,9 +89,10 @@ public sealed class GovernanceResolutionController(
     [ProducesResponseType(typeof(EffectiveGovernanceResolutionResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Resolve(CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
         IActionResult? scopeProblem = await TenantWorkspaceScopePreflight.RequireTenantAndWorkspaceAsync(
             this,
             scope,
@@ -80,6 +101,12 @@ public sealed class GovernanceResolutionController(
 
         if (scopeProblem is not null)
             return scopeProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(
             scope.TenantId,

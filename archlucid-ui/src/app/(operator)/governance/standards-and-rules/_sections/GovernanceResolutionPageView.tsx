@@ -108,6 +108,11 @@ export function GovernanceResolutionPageView(props: Props) {
         <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" variant="compact" />
         {m.failure !== null ? (
           <div className="mb-4 space-y-3" role="alert" data-testid="standards-rules-load-failure">
+            {m.blockedReason !== null ? (
+              <p className="m-0 text-sm text-al-text-secondary" data-testid="standards-rules-blocked-reason">
+                {m.blockedReason}
+              </p>
+            ) : null}
             <OperatorApiProblem failure={m.failure} />
             <Button
               type="button"
@@ -250,7 +255,12 @@ export function GovernanceResolutionPageView(props: Props) {
         </>
       )}
       {m.failure !== null ? (
-        <div role="alert">
+        <div role="alert" data-testid="standards-rules-load-failure">
+          {m.blockedReason !== null ? (
+            <p className="m-0 mb-2 text-sm text-al-text-secondary" data-testid="standards-rules-blocked-reason">
+              {m.blockedReason}
+            </p>
+          ) : null}
           <OperatorApiProblem
             problem={m.failure.problem}
             fallbackMessage={m.failure.message}

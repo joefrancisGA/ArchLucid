@@ -175,6 +175,10 @@ export const operatorQueryKeys = {
   governanceRiskExceptions: (projectId: string) =>
     ["operator", "governance", "risk-exceptions", projectId] as const,
   governanceRecurrenceSchedules: () => ["operator", "governance", "recurrence-schedules"] as const,
+  governanceScopeCoverage: () => ["operator", "governance", "scope-coverage"] as const,
+  compareAgentResults: (leftRunId: string, rightRunId: string) =>
+    ["operator", "compare", "agents", leftRunId, rightRunId] as const,
+  exportLineageVerify: (runId: string) => ["operator", "runs", "export-lineage-verify", runId] as const,
   architectureRequest: (requestId: string) => ["operator", "architecture", "request", requestId] as const,
   azureBoardsWorkItemTypes: (projectName: string) =>
     ["operator", "integrations", "azure-boards", "work-item-types", projectName] as const,

@@ -1,14 +1,18 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Alerts.Delivery;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Governance.PolicyPacks;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Core.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -25,12 +29,24 @@ namespace ArchLucid.Api.Controllers.Governance;
 [Route("v{version:apiVersion}/governance")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class GovernanceSetupController(
+public sealed partial class GovernanceSetupController(
     IScopeContextProvider scopeProvider,
     IPolicyPackResolver resolver,
     IAlertRoutingSubscriptionRepository subscriptionRepository,
-    ITenantRepository tenantRepository) : ControllerBase
+    ITenantRepository tenantRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService) : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
@@ -47,6 +63,7 @@ public sealed class GovernanceSetupController(
     [HttpGet("setup-guide-bundle")]
     [ProducesResponseType(typeof(GovernanceSetupGuideBundleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSetupGuideBundle(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -58,6 +75,12 @@ public sealed class GovernanceSetupController(
 
         if (scopeProblem is not null)
             return scopeProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         Task<EffectivePolicyPackSet> effectiveTask = _resolver.ResolveAsync(
             scope.TenantId,

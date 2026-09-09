@@ -57,7 +57,10 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
 
       {model.bundleLoadFailed === true ? (
         <OperatorSectionLoadFailure
-          message="Could not load governance setup status. Your policy and alert configuration may still be saved — retry to refresh progress."
+          message={
+            model.blockedReason ??
+            "Could not load governance setup status. Your policy and alert configuration may still be saved — retry to refresh progress."
+          }
           onRetry={() => window.location.reload()}
           retryLabel="Reload page"
           testId="governance-setup-bundle-load-failure"
