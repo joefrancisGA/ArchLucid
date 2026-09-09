@@ -234,7 +234,12 @@ export function SettingsPageView() {
                       <h2 id={`${settingsMasterSectionDomId(section.id)}-title`} className={OPERATOR_TYPOGRAPHY.sectionTitle}>
                         {section.title}
                       </h2>
-                      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                      <p
+                        className={cn(
+                          "m-0 mt-1 text-al-text-secondary",
+                          buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : OPERATOR_TYPOGRAPHY.body,
+                        )}
+                      >
                         {section.description}
                       </p>
                     </div>
