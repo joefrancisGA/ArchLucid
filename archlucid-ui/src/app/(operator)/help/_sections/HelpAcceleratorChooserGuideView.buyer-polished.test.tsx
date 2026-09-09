@@ -42,8 +42,10 @@ import {
   ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS,
 } from "@/lib/accelerator-chooser-help-evidence-copy";
 import {
+  ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW,
   ACCELERATOR_CHOOSER_HELP_BUYER_START_HERE_HELPER,
   ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID,
+  ACCELERATOR_CHOOSER_HELP_ORIENTATION_BOTTOM_TEST_ID,
   ACCELERATOR_CHOOSER_HELP_PAGE_LEAD,
   ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID,
   ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL,
@@ -89,6 +91,17 @@ describe("HelpAcceleratorChooserGuideView buyer-polished chrome (HAX)", () => {
     expect(screen.getByTestId("help-accelerator-chooser-intro")).toHaveTextContent(
       ACCELERATOR_CHOOSER_HELP_PAGE_LEAD,
     );
+    expect(screen.getByTestId("help-accelerator-chooser-overview")).toHaveTextContent(
+      ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW,
+    );
+    expect(screen.getByTestId(ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("help-accelerator-chooser-intro"),
+    );
+    expect(
+      screen.getByTestId(ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("help-accelerator-chooser-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByTestId("help-accelerator-chooser-start-here-helper")).toHaveTextContent(
       ACCELERATOR_CHOOSER_HELP_BUYER_START_HERE_HELPER,
     );
@@ -96,7 +109,7 @@ describe("HelpAcceleratorChooserGuideView buyer-polished chrome (HAX)", () => {
     const primary = screen.getByTestId(ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID);
     const packs = screen.getByTestId("help-accelerator-chooser-packs");
-    const orientation = screen.getByTestId("help-accelerator-chooser-orientation-bottom");
+    const orientation = screen.getByTestId(ACCELERATOR_CHOOSER_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-accelerator-chooser-sources");
 
     expect(primary).toContainElement(firstViewport);

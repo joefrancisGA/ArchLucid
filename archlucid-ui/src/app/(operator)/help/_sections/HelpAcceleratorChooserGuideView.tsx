@@ -10,7 +10,7 @@ import { HelpAcceleratorChooserHeaderActions } from "@/app/(operator)/help/_sect
 import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserPrerequisitePanel";
 import { HelpAcceleratorChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
 import { AcceleratorChooserHelpClaimDisciplineStrip } from "@/components/help/AcceleratorChooserHelpClaimDisciplineStrip";
-import { AcceleratorChooserHelpEvidenceOrientationStrip } from "@/components/help/AcceleratorChooserHelpEvidenceOrientationStrip";
+import { AcceleratorChooserHelpSourcesOrientationStrip } from "@/components/help/AcceleratorChooserHelpSourcesOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -35,10 +35,10 @@ import {
 } from "@/lib/accelerator-chooser-help-evidence-copy";
 import { ACCELERATOR_CHOOSER_HELP_PATH } from "@/lib/accelerator-chooser-help-route";
 import {
+  ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW,
   ACCELERATOR_CHOOSER_HELP_BUYER_START_HERE_HELPER,
   ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID,
   ACCELERATOR_CHOOSER_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  ACCELERATOR_CHOOSER_HELP_ORIENTATION_BOTTOM_TEST_ID,
   ACCELERATOR_CHOOSER_HELP_PAGE_LEAD,
   ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID,
   ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL,
@@ -318,6 +318,12 @@ export function HelpAcceleratorChooserGuideView(
                 </p>
               </div>
               <AcceleratorChooserStartHerePanel />
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="help-accelerator-chooser-overview"
+              >
+                {ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW}
+              </p>
             </div>
           ) : null}
 
@@ -414,9 +420,7 @@ export function HelpAcceleratorChooserGuideView(
           )}
 
           {buyerPolishedShell ? (
-            <div data-testid={ACCELERATOR_CHOOSER_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-              <AcceleratorChooserHelpEvidenceOrientationStrip />
-            </div>
+            <AcceleratorChooserHelpSourcesOrientationStrip />
           ) : null}
           </div>
         </div>
