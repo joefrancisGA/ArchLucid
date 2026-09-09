@@ -1929,6 +1929,41 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         sql.Should().Contain("(@CreatedBeforeUtc IS NULL OR r.CreatedUtc < @CreatedBeforeUtc)");
         sql.Should().Contain("r.IsSample = 1");
     }
+    [Fact]
+    public async Task InMemory_stale_uncommitted_purge_skips_sample_runs()
+    {
+        InMemoryRunRepository runs = new();
+        RunRecord sample = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ScopeProjectId = Guid.NewGuid(),
+            ProjectId = "trial-sample",
+            IsSample = true,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            CreatedUtc = new DateTime(2026, 8, 1, 0, 0, 0, DateTimeKind.Utc),
+        };
+
+        await runs.SaveAsync(sample, CancellationToken.None);
+
+        RunStaleUncommittedPurgeBatchResult result = await runs.HardDeleteStaleUncommittedRunsBatchAsync(
+            new DateTimeOffset(2026, 9, 1, 0, 0, 0, TimeSpan.Zero),
+            10,
+            CancellationToken.None);
+
+        result.Deleted.Should().BeEmpty();
+        (await runs.GetByIdAsync(
+            new ScopeContext
+            {
+                TenantId = sample.TenantId,
+                WorkspaceId = sample.WorkspaceId,
+                ProjectId = sample.ScopeProjectId,
+            },
+            sample.RunId,
+            CancellationToken.None)).Should().NotBeNull();
+    }
+
 
     [Fact]
     public void Project_list_queries_collapse_internal_whitespace_in_project_slug()
