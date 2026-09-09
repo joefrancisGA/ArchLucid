@@ -63,6 +63,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
       return;
     }
 
+    setTraceabilityBusy(true);
     setTraceabilityRecovery(null);
 
     try {
