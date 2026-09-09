@@ -53,7 +53,7 @@ import {
   ADVISORY_HUB_SKIP_LINK_LABEL,
   ADVISORY_HUB_SKIP_TARGET_ID,
 } from "@/lib/advisory-hub-page-copy";
-import { ADVISORY_SCANS_PAGE_LEAD, ADVISORY_SCANS_PAGE_LEAD_BUYER } from "@/lib/advisory-copy";
+import { ADVISORY_SCANS_PAGE_LEAD, ADVISORY_SCANS_PAGE_LEAD_BUYER, ADVISORY_SCHEDULES_HUB_PAGE_LEAD_BUYER } from "@/lib/advisory-copy";
 import { ADVISORY_SCANS_ORIENTATION_SOURCES } from "@/lib/advisory-scans-evidence-copy";
 
 describe("AdvisoryHubClient buyer-polished shell (AD)", () => {
@@ -62,14 +62,15 @@ describe("AdvisoryHubClient buyer-polished shell (AD)", () => {
     demoEnvMock.fullShell = false;
   });
 
-  it("renders skip link, buyer page lead, and hides contextual help", () => {
+  it("renders skip link, schedules tab hub lead, and hides contextual help", () => {
     render(<AdvisoryHubClient initialTab="schedules" />);
 
     expect(screen.getByRole("link", { name: ADVISORY_HUB_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
       `#${ADVISORY_HUB_SKIP_TARGET_ID}`,
     );
-    expect(screen.getByTestId("advisory-scans-page-lead")).toHaveTextContent(ADVISORY_SCANS_PAGE_LEAD_BUYER);
+    expect(screen.getByTestId("advisory-scans-page-lead")).toHaveTextContent(ADVISORY_SCHEDULES_HUB_PAGE_LEAD_BUYER);
+    expect(screen.queryByText(ADVISORY_SCANS_PAGE_LEAD_BUYER)).not.toBeInTheDocument();
     expect(screen.queryByText(ADVISORY_SCANS_PAGE_LEAD)).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId(ADVISORY_HUB_PRIMARY_CONTENT_ID)).toContainElement(

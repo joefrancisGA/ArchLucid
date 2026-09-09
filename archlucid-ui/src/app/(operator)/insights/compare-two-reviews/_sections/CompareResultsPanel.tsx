@@ -10,6 +10,8 @@ import type { ComparedPair } from "@/app/(operator)/insights/compare-two-reviews
 import { CompareResultsPanelDiffStack } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanelDiffStack";
 import { CompareResultsPanelVerdictChrome } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanelVerdictChrome";
 import { useCompareResultsPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
+import { comparisonDriftReportBlockedReason } from "@/lib/compare/comparison-drift-blocked-reason";
+import { comparisonSearchBlockedReason } from "@/lib/compare/comparison-search-blocked-reason";
 
 export type CompareResultsPanelProps = {
   showStaleInputsWarning: boolean;
@@ -40,7 +42,7 @@ export type CompareResultsPanelProps = {
 
 export function CompareResultsPanel(props: CompareResultsPanelProps) {
   const viewModel = useCompareResultsPanel(props);
-  const { resultsRegionRef, resultsFirst = false } = viewModel;
+  const { resultsRegionRef, resultsFirst = false, comparisonSearchBlockedReason: searchBlockedReason, comparisonDriftBlockedReason: driftBlockedReason } = viewModel;
 
   return (
     <section
@@ -50,6 +52,16 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       aria-label="Comparison results"
       data-testid="compare-results-region"
     >
+      {searchBlockedReason ? (
+        <p className="m-0 text-sm text-al-text-secondary" data-testid="compare-search-blocked-reason">
+          {searchBlockedReason}
+        </p>
+      ) : null}
+      {driftBlockedReason ? (
+        <p className="m-0 text-sm text-al-text-secondary" data-testid="compare-drift-blocked-reason">
+          {driftBlockedReason}
+        </p>
+      ) : null}
       <CompareResultsPanelVerdictChrome viewModel={viewModel} />
       <CompareResultsPanelDiffStack viewModel={viewModel} />
     </section>

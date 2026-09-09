@@ -6,6 +6,7 @@ import type {
 } from "@/types/draft-intake";
 
 import { apiGet, apiPatchJson, apiPostJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
@@ -73,7 +74,7 @@ export async function getDraftRequest(
   draftId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<DraftRequestResponse> {
-  return apiGet<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, options);
+  return apiGetSealedManifestAware<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, options);
 }
 
 export async function patchDraftRequest(

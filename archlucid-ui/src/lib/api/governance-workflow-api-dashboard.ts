@@ -16,12 +16,12 @@ export async function fetchGovernanceSetupGuideBundle(): Promise<{
   effectivePolicyPacks: EffectivePolicyPackSet;
   alertRoutingSubscriptions: AlertRoutingSubscription[];
 }> {
-  return apiGet(`${governanceBase()}/setup-guide-bundle`);
+  return apiGetSealedManifestAware(`${governanceBase()}/setup-guide-bundle`);
 }
 
 /** Fetches the policy resolution result (merge decisions, conflicts, effective content). */
 export async function getGovernanceResolution(): Promise<EffectiveGovernanceResolutionResult> {
-  return apiGet<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
+  return apiGetSealedManifestAware<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
 }
 
 /** Cross-run approval dashboard: pending approvals, recent decisions, tenant policy change log. */
