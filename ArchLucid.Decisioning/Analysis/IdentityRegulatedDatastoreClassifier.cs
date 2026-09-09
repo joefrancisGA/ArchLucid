@@ -32,29 +32,7 @@ public static class IdentityRegulatedDatastoreClassifier
 
     public static bool IsDatastoreNode(GraphNode node)
     {
-        if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (TryGetProperty(node.Properties, "category", out string? category)
-            && (string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase)))
-        {
-            return true;
-        }
-
-        string combined = $"{node.Label} {node.SourceId}".ToLowerInvariant();
-
-        return combined.Contains("keyvault", StringComparison.Ordinal)
-            || combined.Contains("key-vault", StringComparison.Ordinal)
-            || combined.Contains("sql", StringComparison.Ordinal)
-            || combined.Contains("storage", StringComparison.Ordinal)
-            || combined.Contains("secret", StringComparison.Ordinal)
-            || combined.Contains("cosmos", StringComparison.Ordinal)
-            || combined.Contains("postgres", StringComparison.Ordinal)
-            || combined.Contains("mysql", StringComparison.Ordinal)
-            || combined.Contains("redis", StringComparison.Ordinal);
+        return TopologyDatastoreLabelHeuristic.IsRegulatedDatastoreTopologyNode(node);
     }
 
     private static bool HasSensitiveLabel(GraphNode node)

@@ -44,24 +44,9 @@ import { RunsListContinueLastViewedRow } from "./RunsListContinueLastViewedRow";
 import { BuyerPackageScopeFilterChips } from "./BuyerPackageScopeFilterChips";
 import { RunsListWorkQueueTable } from "./RunsListWorkQueueTable";
 import { inspectorTitle } from "./runs-list-row-presentation";
+import { shouldIgnoreRunsListRowActivation } from "./runs-list-row-activation";
 
 export type { RunsListClientProps } from "./runs-list-types";
-
-function shouldIgnoreRunsListRowActivation(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
-
-  if (target.closest("a") !== null) {
-    return true;
-  }
-
-  if (target.closest('input[type="checkbox"]') !== null) {
-    return true;
-  }
-
-  return false;
-}
 
 function activateBuyerFeaturedCard(
   run: RunSummary,

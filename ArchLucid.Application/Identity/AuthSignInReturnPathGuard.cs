@@ -215,5 +215,7 @@ public static class AuthSignInReturnPathGuard
     private static bool IsDotHomoglyph(char ch) =>
         ch == '\uFF0E' // ． FULLWIDTH FULL STOP
         || ch == '\uFE52' // ﹒ SMALL FULL STOP
-        || ch == '\u00B7'; // · MIDDLE DOT
+        || ch == '\u00B7' // · MIDDLE DOT
+        || ch == '\u2024' // ․ ONE DOT LEADER
+        || ch == '\u2025'; // ‥ TWO DOT LEADER
 }

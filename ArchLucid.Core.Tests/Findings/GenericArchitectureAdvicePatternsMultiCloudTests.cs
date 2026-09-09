@@ -14535,6 +14535,7 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     [InlineData("conflict with retention policy")]
     [InlineData("conflicts with retention policy")]
     [InlineData("Storage account violated the constraint on public blob access.")]
+    [InlineData("Storage account is violating the constraint on public blob access.")]
     public void HasFalsifiabilitySignal_recognizes_conflict_wording_variants(string message)
     {
         GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(message).Should().BeTrue();

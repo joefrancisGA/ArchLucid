@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
@@ -94,6 +95,8 @@ public sealed class RunSummaryOnePagerExportService(
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (Guid.TryParse(runId.Trim(), out Guid runGuid))
         {
             await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
@@ -101,11 +104,17 @@ public sealed class RunSummaryOnePagerExportService(
                 runId.Trim(),
                 _authorityQueryService,
                 _manifestHashService,
-                _scopeContextProvider.GetCurrentScope(),
+                scope,
+                cancellationToken);
+
+            await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId.Trim(),
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
                 cancellationToken);
         }
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
             detail,
             _authorityQueryService,

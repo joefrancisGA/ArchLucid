@@ -111,4 +111,139 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
         boundOptions.LeaseDurationSeconds.Should().Be(30, "VerifyOptions must not mutate the IOptions binding");
         outbox.Verify(o => o.DequeuePendingAsync(25, 60, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_dead_letters_at_shared_max_attempts_ceiling()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = graphSnapshotId,
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        Mock<ICosmosGraphSnapshotOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new CosmosGraphSnapshotOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    GraphSnapshotId = graphSnapshotId,
+                    RunId = snapshot.RunId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    AttemptCount = 998
+                }
+            ]);
+        outbox
+            .Setup(o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<ICosmosGraphSnapshotOutboxSqlLoader> sqlLoader = new();
+        sqlLoader
+            .Setup(l => l.LoadAsync(It.IsAny<ScopeContext>(), graphSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshot);
+
+        Mock<ICosmosGraphSnapshotOutboxCosmosWriter> cosmosWriter = new();
+        cosmosWriter
+            .Setup(w => w.SaveAsync(snapshot, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Cosmos replication failed."));
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => sqlLoader.Object);
+        services.AddScoped(_ => cosmosWriter.Object);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, snapshot.RunId);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        CosmosGraphSnapshotOutboxProcessorOptions options = new() { MaxAttemptsBeforeDeadLetter = 5000 };
+        CosmosGraphSnapshotOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(options),
+            TimeProvider.System,
+            NullLogger<CosmosGraphSnapshotOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(
+            o => o.RecordDeadLetterAsync(outboxId, It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once,
+            "VerifyOptions must apply the shared 999 max-attempts ceiling like sibling outbox processors");
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_marks_processed_when_sql_graph_snapshot_is_missing()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+
+        Mock<ICosmosGraphSnapshotOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new CosmosGraphSnapshotOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    GraphSnapshotId = graphSnapshotId,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<ICosmosGraphSnapshotOutboxSqlLoader> sqlLoader = new();
+        sqlLoader
+            .Setup(l => l.LoadAsync(It.IsAny<ScopeContext>(), graphSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GraphSnapshot?)null);
+
+        Mock<ICosmosGraphSnapshotOutboxCosmosWriter> cosmosWriter = new();
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => sqlLoader.Object);
+        services.AddScoped(_ => cosmosWriter.Object);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        CosmosGraphSnapshotOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new CosmosGraphSnapshotOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<CosmosGraphSnapshotOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        outbox.Verify(
+            o => o.RecordDeadLetterAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        cosmosWriter.Verify(w => w.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

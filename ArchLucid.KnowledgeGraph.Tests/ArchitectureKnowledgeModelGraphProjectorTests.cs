@@ -101,4 +101,43 @@ public sealed class ArchitectureKnowledgeModelGraphProjectorTests
       && edge.ToNodeId == "akm:trust-1"
       && edge.EdgeType == GraphEdgeTypes.RelatesTo);
   }
+
+  [Fact]
+  public void Project_deduplicates_structural_elements_when_element_id_differs_only_by_case()
+  {
+    ArchitectureKnowledgeModel model = new()
+    {
+      ModelId = "model-dedup",
+      TenantId = Guid.NewGuid().ToString("D"),
+      RunId = Guid.NewGuid().ToString("D"),
+      Elements =
+      [
+        new ArchitectureModelElement
+        {
+          ElementId = "comp-1",
+          Kind = ArchitectureElementKind.Component,
+          Name = "First casing",
+        },
+        new ArchitectureModelElement
+        {
+          ElementId = "COMP-1",
+          Kind = ArchitectureElementKind.Component,
+          Name = "Second casing",
+        },
+      ],
+    };
+
+    ContextSnapshot context = new()
+    {
+      SnapshotId = Guid.NewGuid(),
+      RunId = Guid.NewGuid(),
+      ProjectId = "project",
+      CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+    };
+
+    ArchitectureKnowledgeModelGraphProjector projector = new();
+    GraphSnapshot snapshot = projector.Project(model, context, context.RunId);
+
+    snapshot.Nodes.Should().ContainSingle(node => node.NodeId == "akm:comp-1");
+  }
 }

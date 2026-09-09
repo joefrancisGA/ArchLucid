@@ -86,7 +86,7 @@ public sealed class ArchitectureRiskRegisterReaderDispositionScopeSqlIntegration
             cancellationToken: CancellationToken.None);
 
         ArchitectureRiskRegisterEntry row = rows.Should().ContainSingle(e => e.FindingId == sharedFindingId).Subject;
-        row.Disposition.Should().BeNull(
+        row.LatestDisposition.Should().BeNull(
             "register rows must not inherit sibling-project remediated dispositions for the same finding id");
     }
 }

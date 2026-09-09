@@ -240,6 +240,7 @@ public sealed partial class InMemoryRunRepository
                 RunRepositoryCore.MatchesScope(r, scope) &&
                 RunRepositoryCore.ArchitectureRequestIdMatches(r.ArchitectureRequestId, key))
             .OrderByDescending(r => r.CreatedUtc)
+            .ThenByDescending(r => r.RunId)
             .FirstOrDefault();
 
         return Task.FromResult(match?.RunId);

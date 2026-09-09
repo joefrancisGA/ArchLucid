@@ -34,7 +34,7 @@ public static class IdentityBlastRadiusRoleNames
         string normalized = roleName.Trim();
 
         return WriteAdminRoleTokens.Any(token =>
-            normalized.Contains(token, StringComparison.OrdinalIgnoreCase));
+            ContainsAffirmativeRoleToken(normalized, token));
     }
 
     public static bool IsReadOnlyRole(string? roleName)
@@ -47,6 +47,51 @@ public static class IdentityBlastRadiusRoleNames
         string normalized = roleName.Trim();
 
         return ReadOnlyRoleTokens.Any(token =>
-            normalized.Contains(token, StringComparison.OrdinalIgnoreCase));
+            ContainsAffirmativeRoleToken(normalized, token));
+    }
+
+    private static bool ContainsAffirmativeRoleToken(string roleName, string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return false;
+        }
+
+        int index = 0;
+
+        while (index < roleName.Length)
+        {
+            index = roleName.IndexOf(token, index, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+            {
+                return false;
+            }
+
+            if (!IsNonPrefixedRoleToken(roleName, index))
+            {
+                return true;
+            }
+
+            index++;
+        }
+
+        return false;
+    }
+
+    private static bool IsNonPrefixedRoleToken(string roleName, int tokenIndex)
+    {
+        ReadOnlySpan<char> before = roleName.AsSpan(0, tokenIndex).TrimEnd();
+
+        if (before.Length < 3)
+        {
+            return false;
+        }
+
+        return before.EndsWith("non", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("non-", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("non_", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("non.", StringComparison.OrdinalIgnoreCase)
+            || before.EndsWith("non ", StringComparison.OrdinalIgnoreCase);
     }
 }

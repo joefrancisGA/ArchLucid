@@ -312,6 +312,7 @@ export function useArchitectureIntelligenceActions(
 
       setRunState(null);
       setInterviewAnswers({});
+      setPublishToProduct(false);
       setHydratedSourceTexts(sources);
       setArchitectureDescription(primaryDescriptionFromSources(sources));
       setPrioritiesRaw((fixture.declaredPriorities ?? []).join(", "));
@@ -337,6 +338,7 @@ export function useArchitectureIntelligenceActions(
     setInterviewAnswers,
     setLoadingAction,
     setPrioritiesRaw,
+    setPublishToProduct,
     setRunState,
   ]);
 

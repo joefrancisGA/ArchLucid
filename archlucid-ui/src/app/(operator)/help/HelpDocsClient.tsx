@@ -14,6 +14,7 @@ import {
   helpHubSearchHrefFromSearch,
   parseHelpHubSearchQuery,
 } from "@/lib/help/help-hub-search-url";
+import { slugifyHelpHeading } from "@/lib/help/help-heading-slug";
 import type { DocIndexEntry } from "@/lib/help-docs-index";
 
 export type { DocIndexEntry } from "@/lib/help-docs-index";
@@ -74,6 +75,10 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     url: "/help/admin-diagnostics",
   },
 ];
+
+function helpDocCategoryDomId(category: string): string {
+  return `help-cat-${slugifyHelpHeading(category)}`;
+}
 
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
   if (fetched === null || fetched.length === 0) {
@@ -242,9 +247,9 @@ export function HelpDocsClient() {
         }
 
         return (
-          <section key={cat} aria-labelledby={`help-cat-${cat}`} className={OPERATOR_LAYOUT.sectionHeadingStack}>
+          <section key={cat} aria-labelledby={helpDocCategoryDomId(cat)} className={OPERATOR_LAYOUT.sectionHeadingStack}>
             <h2
-              id={`help-cat-${cat}`}
+              id={helpDocCategoryDomId(cat)}
               className={OPERATOR_TYPOGRAPHY.sectionTitle}
             >
               {cat}

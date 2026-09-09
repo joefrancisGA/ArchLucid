@@ -54,6 +54,11 @@ public interface IPolicyPackWorkflowFacade
 
     Task<bool> TrySetAssignmentOrganizationRequiredAsync(Guid assignmentId, bool isOrganizationRequired, CancellationToken ct);
 
+    Task<PolicyPackSetAssignmentOrganizationRequiredOutcome> TrySetAssignmentOrganizationRequiredWithOutcomeAsync(
+        Guid assignmentId,
+        bool isOrganizationRequired,
+        CancellationToken ct);
+
     Task<IReadOnlyList<PolicyPackCatalogListItem>> ListCatalogAsync(CancellationToken ct);
 
     Task<PolicyPackCatalogEntryDetail?> TryGetCatalogEntryAsync(Guid policyPackCatalogEntryId, CancellationToken ct);

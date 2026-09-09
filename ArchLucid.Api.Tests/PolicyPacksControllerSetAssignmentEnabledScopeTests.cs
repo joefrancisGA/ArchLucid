@@ -80,6 +80,29 @@ public sealed class PolicyPacksControllerSetAssignmentEnabledScopeTests
     }
 
     [Fact]
+    public async Task SetAssignmentOrganizationRequired_returns_conflict_when_setting_org_required_on_inactive_platform_pack()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.SetAssignmentOrganizationRequiredAsync(assignmentId, true, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Organization-required policy pack assignments cannot be set while the platform pack is inactive in the global catalog.",
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        SetPolicyPackAssignmentOrganizationRequiredRequest request = new() { IsOrganizationRequired = true };
+
+        IActionResult result = await sut.SetAssignmentOrganizationRequired(assignmentId, request, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
     public async Task ArchiveAssignment_returns_not_found_when_assignment_is_out_of_scope()
     {
         Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

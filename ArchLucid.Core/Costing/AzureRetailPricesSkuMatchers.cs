@@ -84,7 +84,9 @@ public sealed partial class AzureRetailPricesCatalogClient
             || ContainsBoundedToken(trimmed, " h")
             || string.Equals(trimmed, "h", StringComparison.OrdinalIgnoreCase)
             || string.Equals(trimmed, "hr", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, "hrs", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(trimmed, "hrs", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hour", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(trimmed, "hours", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool ContainsHourWordToken(string trimmed)
