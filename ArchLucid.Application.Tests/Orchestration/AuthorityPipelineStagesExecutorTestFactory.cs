@@ -4,6 +4,7 @@ using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Application.Runs.Orchestration.Pipeline.Stages;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Artifacts;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
@@ -315,6 +316,7 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
                 kg.Object,
                 graphRepo.Object,
                 stagePersistence,
+                CreatePassThroughInventoryGraphOverlayApplicator(),
                 NullLogger<AuthorityPipelineGraphStage>.Instance),
             new AuthorityPipelineFindingsStage(
                 findingsOrch.Object,
@@ -396,5 +398,19 @@ internal static class AuthorityPipelineStagesExecutorTestFactory
         options.Setup(o => o.CurrentValue).Returns(new PublicSiteOptions());
 
         return options.Object;
+    }
+
+    private static IBoundArchitectureInventoryGraphOverlayApplicator CreatePassThroughInventoryGraphOverlayApplicator()
+    {
+        Mock<IBoundArchitectureInventoryGraphOverlayApplicator> applicator = new();
+        applicator
+            .Setup(service => service.ApplyAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<RunRecord>(),
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext _, RunRecord _, GraphSnapshot graph, CancellationToken _) => graph);
+
+        return applicator.Object;
     }
 }
