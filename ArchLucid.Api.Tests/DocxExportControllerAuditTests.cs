@@ -14,8 +14,10 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Services;
@@ -148,7 +150,9 @@ public sealed class DocxExportControllerAuditTests
             DocxExportControllerTestSupport.CreateAgentExecutionTraceRepository(),
             configuration,
             audit.Object,
-            NullLogger<DocxExportController>.Instance) { ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext() };
+            NullLogger<DocxExportController>.Instance,
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IArchitectureInventoryBindingRepository>()) { ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext() };
 
         IActionResult result = await sut.ExportRunDocx(runId, compareWith, false, false, CancellationToken.None);
 

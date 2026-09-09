@@ -9,8 +9,10 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Services;
@@ -82,7 +84,9 @@ public sealed class DocxExportControllerCareerHonestyTests
             DocxExportControllerTestSupport.CreateAgentExecutionTraceRepository(),
             configuration,
             Mock.Of<IAuditService>(),
-            NullLogger<DocxExportController>.Instance)
+            NullLogger<DocxExportController>.Instance,
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IArchitectureInventoryBindingRepository>())
         {
             ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext(),
         };

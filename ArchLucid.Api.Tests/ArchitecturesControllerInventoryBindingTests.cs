@@ -12,6 +12,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -34,6 +35,7 @@ public sealed class ArchitecturesControllerInventoryBindingTests
     private readonly Mock<IScopeContextProvider> _scopeProvider = new();
     private readonly Mock<IActorContext> _actorContext = new();
     private readonly Mock<IAuditService> _auditService = new();
+    private readonly ArchitectureInventoryBindingAuditSupport _bindingAuditSupport;
     private readonly Mock<IArchitectureIdentityService> _identityService = new();
     private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
@@ -44,6 +46,9 @@ public sealed class ArchitecturesControllerInventoryBindingTests
     {
         _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
         _actorContext.Setup(static a => a.GetActor()).Returns("actor@example.com");
+        _bindingAuditSupport = new ArchitectureInventoryBindingAuditSupport(
+            _auditService.Object,
+            NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance);
     }
 
     [Fact]
@@ -142,6 +147,67 @@ public sealed class ArchitecturesControllerInventoryBindingTests
     }
 
     [Fact]
+    public async Task DetachInventoryBinding_Success_AuditsDetach()
+    {
+        ArchitectureInventoryBindingResponse bound = new()
+        {
+            ArchitectureId = ArchitectureId,
+            IsBound = true,
+            SnapshotId = SnapshotId,
+        };
+
+        _bindingService
+            .Setup(s => s.TryGetBindingAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(bound);
+        _bindingService
+            .Setup(s => s.TryDetachAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.DetachInventoryBinding(ArchitectureId, CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        _auditService.Verify(
+            s => s.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.ArchitectureInventorySnapshotDetached), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task AttachInventoryBinding_AuditFailure_PropagatesWithoutSilentBind()
+    {
+        ArchitectureInventoryBindingResponse response = new()
+        {
+            ArchitectureId = ArchitectureId,
+            IsBound = true,
+            SnapshotId = SnapshotId,
+        };
+
+        _bindingService
+            .Setup(s => s.AttachAsync(
+                Scope,
+                ArchitectureId,
+                SnapshotId,
+                "actor@example.com",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureInventoryBindingAttachResult.Success(response));
+
+        _auditService
+            .Setup(s => s.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit store unavailable"));
+
+        ArchitecturesController sut = BuildSut();
+
+        Func<Task> act = () => sut.AttachInventoryBinding(
+            ArchitectureId,
+            new AttachArchitectureInventoryBindingRequest { SnapshotId = SnapshotId },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<DurableAuditWriteFailedException>();
+    }
+
+    [Fact]
     public async Task DetachInventoryBinding_ArchitectureNotFound_Returns404()
     {
         _bindingService
@@ -175,6 +241,7 @@ public sealed class ArchitecturesControllerInventoryBindingTests
             _actorContext.Object,
             _identityService.Object,
             _bindingService.Object,
+            _bindingAuditSupport,
             _sealDeltaService.Object,
             _auditService.Object,
             _runRepository.Object,
