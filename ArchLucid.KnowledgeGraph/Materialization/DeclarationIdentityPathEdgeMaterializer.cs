@@ -43,7 +43,7 @@ public static class DeclarationIdentityPathEdgeMaterializer
             return [];
         }
 
-        GraphNode? target = FindExistingTopologyNode(nodes, targetId);
+        GraphNode? target = DeclarationExistingNodeResolver.FindExistingDeclaredNode(nodes, targetId);
 
         if (target is null)
             return [];
@@ -132,38 +132,18 @@ public static class DeclarationIdentityPathEdgeMaterializer
         }
 
         if (TryReadProperty(node.Properties, "terraformType", out string? terraformType)
-            && IsRoleAssignmentTerraformType(terraformType))
+            && DeclarationIamTerraformTypes.IsRoleAssignmentTerraformType(terraformType))
         {
             return true;
         }
 
         if (TryReadProperty(node.Properties, "resourceType", out string? resourceType)
-            && IsRoleAssignmentResourceType(resourceType))
+            && DeclarationIamTerraformTypes.IsRoleAssignmentResourceType(resourceType))
         {
             return true;
         }
 
         return false;
-    }
-
-    private static bool IsRoleAssignmentTerraformType(string? terraformType)
-    {
-        if (string.IsNullOrWhiteSpace(terraformType))
-            return false;
-
-        return terraformType.Contains("role_assignment", StringComparison.OrdinalIgnoreCase)
-            || terraformType.Contains("iam_role_policy", StringComparison.OrdinalIgnoreCase)
-            || terraformType.Contains("iam_policy", StringComparison.OrdinalIgnoreCase)
-            || terraformType.Contains("project_iam", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsRoleAssignmentResourceType(string? resourceType)
-    {
-        if (string.IsNullOrWhiteSpace(resourceType))
-            return false;
-
-        return resourceType.Contains("roleAssignments", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("iam", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDeclarationSeededActor(GraphNode node)
@@ -188,6 +168,9 @@ public static class DeclarationIdentityPathEdgeMaterializer
         string principalId,
         IReadOnlyList<GraphNode> nodes)
     {
+        if (DeclarationExistingNodeResolver.IdsEqual(actor.Label, principalId))
+            return true;
+
         if (TryReadProperty(actor.Properties, "principalId", out string? actorPrincipal)
             && string.Equals(actorPrincipal, principalId, StringComparison.OrdinalIgnoreCase))
         {
@@ -199,17 +182,7 @@ public static class DeclarationIdentityPathEdgeMaterializer
         if (source is null)
             return false;
 
-        if (IdsEqual(source.NodeId, principalId) || IdsEqual(source.Label, principalId))
-            return true;
-
-        if (TryReadProperty(source.Properties, "principalId", out string? sourcePrincipal)
-            && string.Equals(sourcePrincipal, principalId, StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return TryReadProperty(source.Properties, "resourceId", out string? resourceId)
-            && string.Equals(resourceId, principalId, StringComparison.OrdinalIgnoreCase);
+        return DeclarationExistingNodeResolver.NodeMatchesDeclaredId(source, principalId);
     }
 
     private static GraphNode? ResolveDeclarationSource(GraphNode actor, IReadOnlyList<GraphNode> nodes)
@@ -231,7 +204,7 @@ public static class DeclarationIdentityPathEdgeMaterializer
 
         foreach (string candidate in candidates)
         {
-            GraphNode? match = FindExistingTopologyNode(nodes, candidate);
+            GraphNode? match = DeclarationExistingNodeResolver.FindExistingDeclaredNode(nodes, candidate);
 
             if (match is not null && !IdsEqual(match.NodeId, source.NodeId))
                 return match;
@@ -244,7 +217,7 @@ public static class DeclarationIdentityPathEdgeMaterializer
     {
         foreach (string candidate in CollectDeclaredTargetIds(compute))
         {
-            GraphNode? match = FindExistingTopologyNode(nodes, candidate);
+            GraphNode? match = DeclarationExistingNodeResolver.FindExistingDeclaredNode(nodes, candidate);
 
             if (match is null || IdsEqual(match.NodeId, compute.NodeId))
                 continue;
@@ -281,46 +254,6 @@ public static class DeclarationIdentityPathEdgeMaterializer
         }
 
         return values;
-    }
-
-    private static GraphNode? FindExistingTopologyNode(IReadOnlyList<GraphNode> nodes, string? declaredId)
-    {
-        if (string.IsNullOrWhiteSpace(declaredId))
-            return null;
-
-        string needle = declaredId.Trim();
-
-        foreach (GraphNode node in nodes)
-        {
-            if (node is null)
-                continue;
-
-            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            if (IdsEqual(node.NodeId, needle) || IdsEqual(node.Label, needle))
-                return node;
-
-            string[] identityKeys =
-            [
-                "resourceId",
-                "armResourceId",
-                "azureResourceId",
-                "id",
-                "tf.id",
-                "tf.resource_id",
-                "name",
-                "tf.name",
-            ];
-
-            foreach (string key in identityKeys)
-            {
-                if (TryReadProperty(node.Properties, key, out string? value) && IdsEqual(value, needle))
-                    return node;
-            }
-        }
-
-        return null;
     }
 
     private static bool IsExternalEdgeSource(GraphNode node)
@@ -386,7 +319,10 @@ public static class DeclarationIdentityPathEdgeMaterializer
             || combined.Contains("keyvault", StringComparison.Ordinal)
             || combined.Contains("key-vault", StringComparison.Ordinal)
             || combined.Contains("database", StringComparison.Ordinal)
-            || combined.Contains("cosmos", StringComparison.Ordinal);
+            || combined.Contains("cosmos", StringComparison.Ordinal)
+            || combined.Contains("secret", StringComparison.Ordinal)
+            || combined.Contains("s3", StringComparison.Ordinal)
+            || combined.Contains("bucket", StringComparison.Ordinal);
     }
 
     private static bool TryReadProperty(
