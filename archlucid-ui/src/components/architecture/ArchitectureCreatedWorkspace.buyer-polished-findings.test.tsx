@@ -3,19 +3,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureCreatedWorkspace } from "@/components/architecture/ArchitectureCreatedWorkspace";
 import {
+  ARCHITECTURE_CREATED_FINDINGS_BUYER_OVERVIEW,
   ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE,
   ARCHITECTURE_CREATED_FINDINGS_FOLLOW_UPS_TITLE,
   ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID,
   ARCHITECTURE_CREATED_FINDINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   ARCHITECTURE_CREATED_FINDINGS_ORIENTATION_BOTTOM_TEST_ID,
-  ARCHITECTURE_CREATED_FINDINGS_OVERVIEW,
   ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD,
   ARCHITECTURE_CREATED_FINDINGS_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_FINDINGS_SKIP_LINK_LABEL,
   ARCHITECTURE_CREATED_FINDINGS_SKIP_TARGET_ID,
   ARCHITECTURE_CREATED_FINDINGS_SOURCES,
   ARCHITECTURE_CREATED_FINDINGS_START_HERE_CARD_TITLE,
+  ARCHITECTURE_CREATED_FINDINGS_WORKSPACE_TEST_ID,
 } from "@/lib/architecture/architecture-created-findings-sources";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -103,16 +104,14 @@ describe("ArchitectureCreatedWorkspace buyer-polished Findings tab (REF)", () =>
       ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD,
     );
     expect(screen.getByTestId("architecture-created-findings-overview")).toHaveTextContent(
-      ARCHITECTURE_CREATED_FINDINGS_OVERVIEW,
+      ARCHITECTURE_CREATED_FINDINGS_BUYER_OVERVIEW,
     );
     expect(screen.getByTestId(ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID)).toContainElement(
       screen.getByTestId("architecture-created-findings-intro"),
     );
     expect(
-      screen.getByTestId(ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
-        screen.getByTestId("architecture-created-findings-overview"),
-      ) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+      screen.getByTestId(ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID),
+    ).not.toContainElement(screen.getByTestId("architecture-created-findings-overview"));
     expect(screen.getByTestId("architecture-created-findings-buyer-start-here-helper")).toHaveTextContent(
       ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER,
     );
@@ -134,16 +133,27 @@ describe("ArchitectureCreatedWorkspace buyer-polished Findings tab (REF)", () =>
     expect(screen.queryByTestId("architecture-created-compact-first-viewport")).not.toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(ARCHITECTURE_CREATED_FINDINGS_PRIMARY_CONTENT_ID);
+    const firstViewport = screen.getByTestId(ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("architecture-created-findings-overview");
+    const workspace = screen.getByTestId(ARCHITECTURE_CREATED_FINDINGS_WORKSPACE_TEST_ID);
     const orientationBottom = within(findingsPanel).getByTestId(ARCHITECTURE_CREATED_FINDINGS_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("architecture-findings-sources");
 
     expect(findingsPanel).toContainElement(primaryContent);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(workspace);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(workspace).toContainElement(screen.getByTestId("findings-panel-slot"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
     for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURE_CREATED_FINDINGS_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
+
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
