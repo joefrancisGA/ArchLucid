@@ -34,7 +34,6 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
   const exportBlockedReason = citationBlockedReason ?? sealedManifestBlockedReason;
 
   if (runId.length > 0) {
-    const exportBlocked = sealedManifestBlockedReason !== null;
     const exportBlocked = exportBlockedReason !== null;
 
     return (

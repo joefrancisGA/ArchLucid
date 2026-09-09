@@ -306,7 +306,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
         setDispositionInlineSaveError(null);
         setErrorMessage(null);
 
-      const message = resolveMutationError(error);
+        return;
+      }
+
       setDispositionInlineSaveError(message);
       setErrorMessage(message);
     } finally {
@@ -369,7 +371,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
         setDispositionInlineSaveError(null);
         setErrorMessage(null);
 
-      const message = resolveMutationError(error);
+        return;
+      }
+
       setDispositionInlineSaveError(message);
       setErrorMessage(message);
     } finally {

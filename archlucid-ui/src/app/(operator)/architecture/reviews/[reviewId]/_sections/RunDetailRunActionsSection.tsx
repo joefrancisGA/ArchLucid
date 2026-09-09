@@ -23,8 +23,6 @@ import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
-import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
-import { showError } from "@/lib/toast";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { RunDetailRunGovernanceDispositionActions } from "@/components/runs/RunDetailRunGovernanceDispositionActions";
@@ -56,8 +54,6 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
     manifestVersion: sealedManifestVersion,
   });
   const [traceabilityBusy, setTraceabilityBusy] = useState(false);
-
-  const onDownloadTraceabilityBundle = useCallback(() => {
   const [traceabilityRecovery, setTraceabilityRecovery] = useState<ErrorRecoveryContractPresentation | null>(null);
 
   const onDownloadTraceabilityBundle = useCallback(async () => {
@@ -66,18 +62,6 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
     }
 
     setTraceabilityBusy(true);
-
-    void downloadTraceabilityBundleZip(runId)
-      .catch((error: unknown) => {
-        showError(
-          "Evidence bundle",
-          error instanceof Error ? error.message : "Could not download traceability bundle.",
-        );
-      })
-      .finally(() => {
-        setTraceabilityBusy(false);
-      });
-  }, [collateralExportBlockedReason, runId]);
     setTraceabilityRecovery(null);
 
     try {
@@ -150,16 +134,6 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
                 </p>
               </div>
             ) : (
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                disabled={traceabilityBusy}
-                data-testid="run-actions-traceability-bundle-download"
-                onClick={onDownloadTraceabilityBundle}
-              >
-                {traceabilityBusy ? "Downloading…" : "Download evidence bundle (ZIP)"}
-              </Button>
               <div className="flex flex-col gap-1">
                 <Button
                   type="button"

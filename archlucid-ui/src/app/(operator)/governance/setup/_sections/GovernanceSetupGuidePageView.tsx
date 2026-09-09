@@ -55,7 +55,6 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
         <OperatorSectionLoadFailure
           message={
             model.blockedReason ??
-            "Could not load governance setup status. Your policy and alert configuration may still be saved — retry to refresh progress."
             (buyerPolishedShell
               ? GOVERNANCE_SETUP_LOAD_ERROR
               : "Could not load approval setup status. Your policy and alert configuration may still be saved — retry to refresh progress.")
