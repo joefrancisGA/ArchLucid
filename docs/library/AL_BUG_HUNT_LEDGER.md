@@ -681,13 +681,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 10
-- **bugs-found:** 7
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — offset run list missing RunId tie-break
+- **hunts:** 11
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — representative architecture-request run lookup lacked RunId tie-break
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-08-16 dry hunt: listed hypotheses do not hold on `SqlRunRepository`. `SelectByScopedId` and `Update` already require `TenantId` + `WorkspaceId` + `ScopeProjectId`; `GetById_wrong_scope_returns_null_when_run_saved_under_other_tenant` covers cross-tenant get. List shapes use `RunListWarningFlagSql.ScopeWhereTail` with `r.TenantId = @TenantId` always; `WorkspaceId` is a non-nullable `Guid` (empty workspace is not a security boundary). Cross-tenant update matches 0 rows and throws. Admin/archive paths are `[TenantScopeExempt]` by catalog routing, not Layer D bleed.
 
@@ -708,6 +708,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RunListWarningFlagSql.ProjectWherePrefix` compares `TRY_CONVERT(uniqueidentifier, @ProjectSlug)` without trimming `@ProjectSlug` while `MatchesProjectListFilter` accepts padded GUID strings via `Guid.TryParse` — **cheap-disproof 2026-09-07 hunt #1265:** padded scope-project GUID strings parse in both layers (SQL Server uniqueidentifier conversion ignores leading/trailing spaces per engine rules); no reachable caller passes malformed non-GUID padding that would diverge; regressions `MatchesProjectListFilter_accepts_padded_scope_project_guid_string` and `InMemory_list_by_project_matches_padded_scope_project_guid_filter`.
 - [x] (valid-no-repro) `RunListWarningFlagSql.SelectRunColumns` reads `JSON_VALUE(..., '$.workflowIntent')` with case-sensitive property path while legacy request JSON may use PascalCase keys — **cheap-disproof 2026-09-07 hunt #1265:** `ArchitectureRequestRepository` always persists `RequestJson` via `ContractJson.Default` (camelCase); no repo `WorkflowIntent` PascalCase payloads; list COALESCE path matches persisted wire shape; regression `Package_origin_json_fallback_targets_camel_case_workflow_intent_from_contract_json`.
 - [x] (proven) `RunsListRecentInScopeOffsetNoLock` / unpaged list shapes ordered by `CreatedUtc` only while keyset paths use `CreatedUtc, RunId` tie-break — **hit 2026-09-07 seed hunt #1264:** offset pagination (`ListRunSummariesOffsetAsync`) could duplicate or skip runs when timestamps tie; `CreatedUtcDescOrderBy` now `ORDER BY r.CreatedUtc DESC, r.RunId DESC`; InMemory list/offset paths use `ThenByDescending(RunId)`; regressions in `CreatedUtcDescOrderBy_includes_run_id_tie_break_for_stable_offset_pages`, `Runs_list_recent_in_scope_offset_retains_nolock_scope_archived_filter_and_offset_fetch`, and `InMemory_offset_list_pages_all_runs_when_created_utc_ties`.
+
+2026-09-07 seed hunt #1264 (hit): reseeded after #1263; proved offset list ordering lacked RunId tie-break; seeded scope-project GUID trim and JSON property-path candidates.
+
+- [x] (proven) `SelectRepresentativeRunIdForArchitectureRequestInScope` / `TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync` order by `CreatedUtc DESC` only — **hit 2026-09-09 seed hunt #1440:** tied request-run timestamps made sealed-manifest representative lookup non-deterministic; SQL and InMemory now use `RunId DESC` tie-break; regressions in `SelectRepresentativeRunIdForArchitectureRequestInScope_orders_by_created_utc_then_run_id` and `InMemory_representative_run_id_picks_highest_run_id_when_created_utc_ties`.
+- [x] (valid-no-repro) `ExistsRunForArchitectureRequestInScope` omits `ArchivedUtc IS NULL` and treats archived reruns as scope existence — **cheap-disproof 2026-09-09 seed hunt #1440:** existence latch is intentionally historical (request was ever materialized in scope); active concurrency remains on `CountActiveRunsForArchitectureRequest`; shape regression `ExistsRunForArchitectureRequestInScope_includes_archived_runs_by_design`.
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByManifestCreatedUtc` orders by `gm.CreatedUtc` while `SelectPriorCommittedRunIdBeforeCurrent` filters on `r.CreatedUtc` — **cheap-disproof 2026-09-09 seed hunt #1440:** latest-committed picks newest manifest commit; prior-committed walks run timeline before current — different semantics by design; regression `SelectLatestCommittedRunIdByManifestCreatedUtc_orders_by_manifest_created_utc`.
+
+2026-09-09 seed hunt #1440 (hit): reseeded sql-run-repository; proved representative request-run lookup tie-break gap; cheap-disproof closed archived existence and manifest-vs-run ordering candidates; 32 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 

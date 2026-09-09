@@ -1626,3 +1626,4 @@
 {"at":"2026-09-09T14:08:11.1966831Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
 {"at":"2026-09-09T14:15:36.2971822Z","zoneId":"architecture-intelligence-orchestrator","outcome":"seed-only"}
 {"at":"2026-09-09T14:21:24.6400459Z","zoneId":"finding-disposition","outcome":"seed-only"}
+{"at":"2026-09-09T14:27:26.9179054Z","zoneId":"sql-run-repository","outcome":"hit"}

@@ -107,6 +107,77 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public void ExistsRunForArchitectureRequestInScope_includes_archived_runs_by_design()
+    {
+        RunRepositorySql.ExistsRunForArchitectureRequestInScope.Should().NotContain("ArchivedUtc");
+    }
+
+    [Fact]
+    public void SelectLatestCommittedRunIdByManifestCreatedUtc_orders_by_manifest_created_utc()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should()
+            .Contain("ORDER BY gm.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public void SelectRepresentativeRunIdForArchitectureRequestInScope_orders_by_created_utc_then_run_id()
+    {
+        RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope.Should()
+            .Contain("ORDER BY CreatedUtc DESC, RunId DESC");
+    }
+
+    [Fact]
+    public async Task InMemory_representative_run_id_picks_highest_run_id_when_created_utc_ties()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime createdUtc = new(2026, 9, 9, 12, 0, 0, DateTimeKind.Utc);
+        Guid lowerRunId = Guid.Parse("11111111-0000-0000-0000-000000000001");
+        Guid higherRunId = Guid.Parse("22222222-0000-0000-0000-000000000002");
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = lowerRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-tie",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = higherRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-tie",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
+
+        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+            scope,
+            "req-tie",
+            CancellationToken.None);
+
+        representative.Should().Be(higherRunId,
+            "sealed-manifest guard must pick a deterministic representative when request runs share CreatedUtc.");
+    }
+
+    [Fact]
     public async Task InMemory_count_active_runs_ignores_case_on_architecture_request_id()
     {
         ScopeContext scope = new()
