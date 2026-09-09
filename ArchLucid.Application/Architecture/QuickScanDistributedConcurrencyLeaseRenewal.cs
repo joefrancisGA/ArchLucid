@@ -13,11 +13,12 @@ internal static class QuickScanDistributedConcurrencyLeaseRenewal
         IQuickScanDistributedConcurrencyStore store,
         IOptionsMonitor<QuickScanSafetyOptions> safetyOptions,
         TimeProvider timeProvider,
-        CancellationToken cancellationToken)
+        CancellationTokenSource executeCancellationSource)
     {
         QuickScanSafetyConcurrencyLimits limits = safetyOptions.CurrentValue.Concurrency;
         TimeSpan renewalInterval = TimeSpan.FromSeconds(limits.LeaseRenewalIntervalSeconds);
         TimeSpan leaseDuration = TimeSpan.FromSeconds(limits.LeaseDurationSeconds);
+        CancellationToken cancellationToken = executeCancellationSource.Token;
 
         using PeriodicTimer timer = new(renewalInterval);
 
@@ -36,6 +37,8 @@ internal static class QuickScanDistributedConcurrencyLeaseRenewal
                 }
                 catch (Exception) when (cancellationToken.IsCancellationRequested is false)
                 {
+                    executeCancellationSource.Cancel();
+
                     break;
                 }
             }

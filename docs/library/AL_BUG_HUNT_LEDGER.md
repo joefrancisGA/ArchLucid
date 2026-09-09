@@ -10149,11 +10149,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — renewal store failure skipped lease release on dispose
+- **last-bug:** 2026-09-09 — renewal store failure left scan running after lease TTL freed a second slot
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10165,7 +10165,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `QuickScanExecutionBudgetAndConcurrencyStage` — post-admission operational emergency re-check sets `TerminalResult` while admitted lease stays active until orchestrator `finally` dispose — brief slot pin only; `QuickScanDistributedConcurrencyLeaseLifecycleTests.ExecuteAsync_releases_concurrency_lease_when_operational_emergency_flips_after_admission` proves orchestrator `finally` releases lease on budget-stage emergency return (same pattern as #1193 budget rejection)
 - [x] (proven) `QuickScanDistributedConcurrencyLeaseRenewal` — `RenewLeaseAsync` failure faulted the renewal task so `DisposeAsync` rethrew and skipped `ReleaseLeaseAsync`, pinning the slot until lease TTL expiry — **hit 2026-09-09 (#1402):** stop the renewal loop on store renewal errors and swallow faulted renewal tasks during dispose so release always runs; regression `DisposeAsync_releases_lease_when_renewal_loop_faults`
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` — `TryAdmitAsync` store exception returns `StoreUnavailable` without abandoning a queue row when admit partially queued — **cheap-disproof 2026-09-09 thorough hunt #1402:** SQL/in-memory admit is atomic before returning `Queued`; regression `WaitForAdmissionAsync_store_error_on_admit_does_not_pin_queue_capacity`
+- [x] (proven) `QuickScanDistributedConcurrencyLeaseRenewal` / `QuickScanExecutionOrchestrator` — renewal store failure stopped the renewal loop but did not cancel in-flight execute, so the distributed lease expired at TTL while the scan kept running and a peer could acquire a second direct slot (over-capacity window) — **hit 2026-09-09 seed hunt #1403:** cancel linked `ExecutionCancellationToken` on renewal failure and route scan invoke through it; regressions `ExecutionCancellationToken_is_cancelled_when_renewal_store_fails` and `ExecuteAsync_releases_concurrency_lease_when_renewal_store_fails_during_scan`
 
+2026-09-09 seed hunt #1403 (hit): reseeded renewal-failure execute-cancel path; proved renewal loss must cancel in-flight scan before lease TTL frees peer admission; 11 scoped tests passed.
 2026-09-09 thorough hunt #1402 (hit): proved renewal failure skipped lease release on dispose; cheap-disproved admit partial-queue candidate; 9 scoped tests passed.
 2026-09-07 thorough hunt #1210 (dry): cheap-disproved post-admission emergency flip concurrency leak; added lease-release regression test; reseeded renewal-failure and admit-store-error candidates.
 2026-09-07 seed hunt #1209 (hit): reseeded distributed concurrency service/store paths; proved promote cancellation swallowed by promote store-error handler.

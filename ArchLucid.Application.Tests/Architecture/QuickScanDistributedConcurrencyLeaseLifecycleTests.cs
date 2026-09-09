@@ -288,6 +288,124 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task ExecutionCancellationToken_is_cancelled_when_renewal_store_fails()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        ThrowingRenewLeaseStore store = new(inner);
+        Guid leaseId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(leaseId, Guid.NewGuid(), "held", maxConcurrent: 1, maxQueued: 0));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(new QuickScanSafetyOptions
+        {
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 1,
+            },
+        });
+
+        QuickScanGuardContext guardContext = new()
+        {
+            ClientIp = "203.0.113.10",
+            SessionId = "session",
+            PayloadFingerprint = "trace",
+            UseDistributedConcurrencyLimit = true,
+        };
+
+        using CancellationTokenSource executionCancellation = new();
+        QuickScanDistributedConcurrencyAdmissionResult admission = QuickScanDistributedConcurrencyAdmissionResult.Permit(
+            leaseId,
+            store,
+            Mock.Of<IQuickScanTelemetry>(),
+            guardContext,
+            safetyOptions.Object,
+            TimeProvider.System,
+            executionCancellation.Token);
+
+        await Task.Delay(TimeSpan.FromSeconds(1.5));
+
+        admission.ExecutionCancellationToken.IsCancellationRequested.Should().BeTrue(
+            "renewal store failure must cancel in-flight execute so the slot is not lost to lease TTL expiry while scan continues");
+
+        await admission.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_releases_concurrency_lease_when_renewal_store_fails_during_scan()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        ThrowingRenewLeaseStore store = new(inner);
+        Guid leaseId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(leaseId, Guid.NewGuid(), "held", maxConcurrent: 1, maxQueued: 0, leaseDurationSeconds: 60));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        QuickScanAdversarialOrchestratorTestFixture fixture = new();
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(new QuickScanSafetyOptions
+        {
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 1,
+            },
+        });
+
+        QuickScanGuardContext guardContext = new()
+        {
+            ClientIp = "203.0.113.10",
+            SessionId = "session",
+            PayloadFingerprint = "trace",
+            UseDistributedConcurrencyLimit = true,
+        };
+
+        QuickScanDistributedConcurrencyAdmissionResult admission = QuickScanDistributedConcurrencyAdmissionResult.Permit(
+            leaseId,
+            store,
+            fixture.Telemetry.Object,
+            guardContext,
+            safetyOptions.Object,
+            TimeProvider.System,
+            CancellationToken.None);
+
+        fixture.Concurrency
+            .Setup(c => c.WaitForAdmissionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(admission);
+
+        fixture.QuickScanService
+            .Setup(q => q.ScanAsync(It.IsAny<IReadOnlyDictionary<string, string>>(), It.IsAny<CancellationToken>()))
+            .Returns(async (IReadOnlyDictionary<string, string> _, CancellationToken cancellationToken) =>
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken).ConfigureAwait(false);
+
+                return new QuickScanResult { ScanId = "never" };
+            });
+
+        Task<QuickScanExecutionResult> executeTask = fixture.CreateOrchestrator().ExecuteAsync(
+            QuickScanAdversarialOrchestratorTestFixture.ValidRequest(),
+            QuickScanAdversarialOrchestratorTestFixture.AnonymousContext(),
+            CancellationToken.None);
+
+        await Task.Delay(TimeSpan.FromSeconds(2.5));
+
+        QuickScanConcurrencyAdmitResult followUp = await inner.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "follow-up", maxConcurrent: 1, maxQueued: 0, leaseDurationSeconds: 60));
+
+        followUp.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.DirectLease,
+            "renewal failure must cancel in-flight scan and release the slot before lease TTL expiry");
+
+        QuickScanExecutionResult result = await executeTask;
+
+        result.Succeeded.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_store_error_on_admit_does_not_pin_queue_capacity()
     {
         InMemoryQuickScanDistributedConcurrencyStore inner = new();
@@ -358,7 +476,8 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
         Guid queueEntryId,
         string requestKey,
         int maxConcurrent,
-        int maxQueued)
+        int maxQueued,
+        int leaseDurationSeconds = 60)
     {
         DateTimeOffset utcNow = TimeProvider.System.GetUtcNow();
 
@@ -372,7 +491,7 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
             MaxConcurrentScans = maxConcurrent,
             MaxQueuedScans = maxQueued,
             QueueWaitTimeout = TimeSpan.FromSeconds(30),
-            LeaseDuration = TimeSpan.FromSeconds(60),
+            LeaseDuration = TimeSpan.FromSeconds(leaseDurationSeconds),
         };
     }
 

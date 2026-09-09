@@ -11,7 +11,7 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
     private readonly IQuickScanDistributedConcurrencyStore? _store;
     private readonly IQuickScanTelemetry? _telemetry;
     private readonly QuickScanGuardContext? _telemetryContext;
-    private readonly CancellationTokenSource? _renewalCancellation;
+    private readonly CancellationTokenSource? _executeCancellationSource;
     private readonly Task? _renewalTask;
     private Guid? _leaseId;
     private bool _released;
@@ -23,7 +23,7 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
         IQuickScanDistributedConcurrencyStore? store,
         IQuickScanTelemetry? telemetry,
         QuickScanGuardContext? telemetryContext,
-        CancellationTokenSource? renewalCancellation,
+        CancellationTokenSource? executeCancellationSource,
         Task? renewalTask)
     {
         Allowed = allowed;
@@ -32,7 +32,7 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
         _store = store;
         _telemetry = telemetry;
         _telemetryContext = telemetryContext;
-        _renewalCancellation = renewalCancellation;
+        _executeCancellationSource = executeCancellationSource;
         _renewalTask = renewalTask;
     }
 
@@ -41,6 +41,10 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
     public QuickScanConcurrencyRejectionReason? RejectionReason { get; }
 
     public Guid? LeaseId => _leaseId;
+
+    /// <summary>Linked execute token cancelled when distributed lease renewal fails.</summary>
+    public CancellationToken ExecutionCancellationToken =>
+        _executeCancellationSource?.Token ?? CancellationToken.None;
 
     public static QuickScanDistributedConcurrencyAdmissionResult Permit(
         Guid leaseId,
@@ -51,14 +55,15 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
         TimeProvider timeProvider,
         CancellationToken executionCancellationToken)
     {
-        CancellationTokenSource renewalCancellation = CancellationTokenSource.CreateLinkedTokenSource(executionCancellationToken);
+        CancellationTokenSource executeCancellationSource =
+            CancellationTokenSource.CreateLinkedTokenSource(executionCancellationToken);
 
         Task renewalTask = QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync(
             leaseId,
             store,
             safetyOptions,
             timeProvider,
-            renewalCancellation.Token);
+            executeCancellationSource);
 
         return new QuickScanDistributedConcurrencyAdmissionResult(
             true,
@@ -67,7 +72,7 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
             store,
             telemetry,
             telemetryContext,
-            renewalCancellation,
+            executeCancellationSource,
             renewalTask);
     }
 
@@ -81,9 +86,9 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
-        if (_renewalCancellation is not null)
+        if (_executeCancellationSource is not null)
         {
-            await _renewalCancellation.CancelAsync().ConfigureAwait(false);
+            await _executeCancellationSource.CancelAsync().ConfigureAwait(false);
 
             if (_renewalTask is not null)
             {
@@ -100,7 +105,7 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
                 }
             }
 
-            _renewalCancellation.Dispose();
+            _executeCancellationSource.Dispose();
         }
 
         if (_released || !_leaseId.HasValue || _store is null)
