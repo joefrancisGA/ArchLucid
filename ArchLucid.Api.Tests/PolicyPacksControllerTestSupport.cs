@@ -1,8 +1,13 @@
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +24,11 @@ internal static class PolicyPacksControllerTestSupport
             httpFacade.Object,
             new CreatePolicyPackRequestValidator(),
             new PublishPolicyPackVersionRequestValidator(),
-            new AssignPolicyPackRequestValidator())
+            new AssignPolicyPackRequestValidator(),
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

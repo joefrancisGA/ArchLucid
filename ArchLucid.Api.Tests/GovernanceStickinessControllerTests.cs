@@ -232,7 +232,12 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IRunDetailQueryService>()),
                 scope.Object,
                 tenantRepository ?? TenantExistsRepository(),
-                nextRun.Object)
+                nextRun.Object,
+                CreateAuthorityQueryService(),
+                CreateManifestHashService(),
+                riskExceptionService.Object,
+                findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
+                recurrenceRepository.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -268,7 +273,12 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IRunDetailQueryService>()),
                 scopeProvider,
                 tenantRepository ?? TenantExistsRepository(),
-                Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>())
+                Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
+                CreateAuthorityQueryService(),
+                CreateManifestHashService(),
+                Mock.Of<IRiskExceptionService>(),
+                Mock.Of<IFindingInspectReadRepository>(),
+                Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };

@@ -166,6 +166,11 @@ public sealed partial class DraftRequestsController(
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        IActionResult? sealedGuardResult = await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             DraftRequestResponse? updated =
