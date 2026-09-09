@@ -25,15 +25,15 @@ public sealed partial class ArchitectureRiskRegisterReader
 
         string sql = $"""
                       ;WITH latestDisposition AS (
-                          SELECT FindingId, Disposition, RevisitDueUtc, EvidenceRequestText, OccurredAtUtc, ReviewerUserId,
-                                 ROW_NUMBER() OVER (PARTITION BY FindingId ORDER BY OccurredAtUtc DESC) AS rn
+                          SELECT FindingId, ProjectId, Disposition, RevisitDueUtc, EvidenceRequestText, OccurredAtUtc, ReviewerUserId,
+                                 ROW_NUMBER() OVER (PARTITION BY FindingId, ProjectId ORDER BY OccurredAtUtc DESC) AS rn
                           FROM dbo.FindingReviewEvents
                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND Disposition IS NOT NULL
                       )
                       SELECT COUNT(1)
                       FROM dbo.FindingRecords AS fr
                       INNER JOIN dbo.FindingsSnapshots AS fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
-                      LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.rn = 1
+                      LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.ProjectId = fr.ProjectId AND ld.rn = 1
                       WHERE fr.TenantId = @TenantId AND fr.WorkspaceId = @WorkspaceId{projectFilter}{assigneeFilter}{openFindingsFilter};
                       """;
 
