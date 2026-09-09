@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import {
   listFindingDispositions,
   listRiskExceptions,
-  recordFindingDisposition,
+  recordFindingDispositionWith401Resume,
   type FindingDispositionEvent,
   type FindingDispositionKind,
   type RiskExceptionRecord,
@@ -13,13 +14,22 @@ import {
 import { findingDispositionsBlockedReason } from "@/lib/governance/finding-dispositions-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { findingDispositionMutationBlockedReason } from "@/lib/findings/finding-disposition-mutation-blocked-reason";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { useResumePendingLivelihoodMutation } from "@/hooks/use-resume-pending-livelihood-mutation";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import { resolveDispositionConcurrentUpdateNotice } from "@/lib/findings/finding-disposition-concurrent-update";
+import {
+  readFindingDispositionConflictFromError,
+  type FindingDispositionConflictDetail,
+} from "@/lib/findings/finding-disposition-conflict";
+import { resolveExpectedCurrentDispositionRowVersion } from "@/lib/findings/finding-expected-current-disposition-row-version";
 import { collabRecentActorsFromDispositionHistory } from "@/lib/collab-recent-actor-presence";
 import {
+  buildFindingApplyChangeDispositionAttestation,
   canConfirmFindingApplyChange,
   FINDING_APPLY_CHANGE_PREVIEW_REQUIRED_MESSAGE,
   isFindingApplyChangeDisposition,
@@ -59,6 +69,7 @@ export type UseFindingInspectGovernanceStickinessDispositionsInput = {
   readonly busyAction: GovernanceBusyAction | "remediation" | "waiver" | "revoke-waiver" | null;
   readonly setBusyAction: (action: GovernanceBusyAction | "remediation" | "waiver" | "revoke-waiver" | null) => void;
   readonly resolveMutationError: (error: unknown) => string;
+  readonly latestDispositionRowVersionBase64?: string | null;
 };
 
 function latestDispositionLabel(history: readonly FindingDispositionEvent[]): string {
@@ -83,8 +94,14 @@ export function useFindingInspectGovernanceStickinessDispositions({
   busyAction,
   setBusyAction,
   resolveMutationError,
+  latestDispositionRowVersionBase64 = null,
 }: UseFindingInspectGovernanceStickinessDispositionsInput) {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
+  const isWorkingDesk = useProductionDeskChrome();
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
   const [history, setHistory] = useState<FindingDispositionEvent[]>([]);
   const [disposition, setDisposition] = useState<FindingDispositionKind>("Accepted");
   const [rationale, setRationale] = useState("");
@@ -95,6 +112,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   );
   const [applyChangePreviewOverride, setApplyChangePreviewOverride] = useState(false);
   const [tradeOffAcknowledgment, setTradeOffAcknowledgment] = useState("");
+  const [architectRestatement, setArchitectRestatement] = useState("");
   const [showIncrementalRereviewLink, setShowIncrementalRereviewLink] = useState(false);
   const [dispositionLastSavedUtc, setDispositionLastSavedUtc] = useState<string | null>(null);
   const [dispositionInlineSaveError, setDispositionInlineSaveError] = useState<string | null>(null);
@@ -104,6 +122,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
   const [dispositionHistoryAsOfUtc, setDispositionHistoryAsOfUtc] = useState<string | null>(null);
   const [dispositionHistoryFailure, setDispositionHistoryFailure] = useState<ApiLoadFailureState | null>(null);
   const [dispositionHistoryBlockedReason, setDispositionHistoryBlockedReason] = useState<string | null>(null);
+  const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
+    null,
+  );
 
   function captureDispositionBaseline(): FindingInspectDispositionBaseline {
     return {
@@ -112,6 +133,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
       revisitDueUtc,
       evidenceRequestText,
       tradeOffAcknowledgment,
+      architectRestatement,
     };
   }
 
@@ -154,7 +176,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
           setErrorMessage(
             buyerPolishedShell
               ? BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE
-              : "Governance approval workflow data unavailable for this finding.",
+              : "Approval workflow data unavailable for this finding.",
           );
         }
       }
@@ -164,6 +186,60 @@ export function useFindingInspectGovernanceStickinessDispositions({
       canceled = true;
     };
   }, [buyerPolishedShell, findingId, reload, setErrorMessage]);
+
+  const handleDispositionSaved = useCallback(
+    async (saved: FindingDispositionEvent, successMessage: string): Promise<void> => {
+      const refreshed = await reload();
+      const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
+
+      setDispositionLastSavedUtc(new Date().toISOString());
+      setDispositionBaseline(captureDispositionBaseline());
+      setStatusMessage(concurrentNotice ?? successMessage);
+    },
+    [reload],
+  );
+
+  const expectedCurrentDispositionRowVersionBase64 = useMemo(
+    () =>
+      resolveExpectedCurrentDispositionRowVersion({
+        inspectPayloadRowVersionBase64: latestDispositionRowVersionBase64,
+        latestHistoryEvent: history[0] ?? null,
+        conflict: dispositionConflict,
+      }),
+    [dispositionConflict, history, latestDispositionRowVersionBase64],
+  );
+
+  const reloadDispositionConflict = useCallback(async (): Promise<void> => {
+    await reload();
+    setDispositionConflict(null);
+  }, [reload]);
+
+  const dismissDispositionConflict = useCallback((): void => {
+    setDispositionConflict(null);
+  }, []);
+
+  useResumePendingLivelihoodMutation({
+    enabled: canMutate,
+    onReplayed: (_kind, result) => {
+      void (async () => {
+        try {
+          await handleDispositionSaved(
+            result as FindingDispositionEvent,
+            "Disposition recorded after you signed back in.",
+          );
+        } catch (error: unknown) {
+          const message = resolveMutationError(error);
+          setDispositionInlineSaveError(message);
+          setErrorMessage(message);
+        }
+      })();
+    },
+    onReplayError: (error: unknown) => {
+      const message = resolveMutationError(error);
+      setDispositionInlineSaveError(message);
+      setErrorMessage(message);
+    },
+  });
 
   async function submitDisposition(): Promise<void> {
     if (!canMutate || busyAction !== null) {
@@ -176,7 +252,16 @@ export function useFindingInspectGovernanceStickinessDispositions({
     setDispositionInlineSaveError(null);
 
     try {
-      const saved = await recordFindingDisposition(findingId, {
+      const applyChangeAttestation = isFindingApplyChangeDisposition(disposition)
+        ? buildFindingApplyChangeDispositionAttestation({
+            isWorkingDesk,
+            runId,
+            findingId,
+            overrideRecorded: applyChangePreviewOverride,
+          })
+        : null;
+
+      const dispositionBody = {
         disposition,
         rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
         runId,
@@ -189,18 +274,41 @@ export function useFindingInspectGovernanceStickinessDispositions({
           disposition === "NeedsEvidence" && evidenceRequestText.trim().length > 0
             ? evidenceRequestText.trim()
             : undefined,
+        impactPreviewCompleted: applyChangeAttestation?.impactPreviewCompleted,
+        previewOverrideReason: applyChangeAttestation?.previewOverrideReason,
+        architectRestatement:
+          architectRestatement.trim().length > 0 ? architectRestatement.trim() : undefined,
+        ...(expectedCurrentDispositionRowVersionBase64 === undefined
+          ? {}
+          : { expectedCurrentDispositionRowVersionBase64 }),
+      };
+      const idempotencyKey = createGovernanceMutationIdempotencyKey();
+
+      const saved = await recordFindingDispositionWith401Resume(findingId, dispositionBody, {
+        idempotencyKey,
+        returnPath: livelihoodReturnPath,
       });
 
-      const refreshed = await reload();
-      const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
-
-      setDispositionLastSavedUtc(new Date().toISOString());
-      setDispositionBaseline(captureDispositionBaseline());
-      setStatusMessage(concurrentNotice ?? "Disposition recorded.");
+      setDispositionConflict(null);
+      await handleDispositionSaved(saved, "Disposition recorded.");
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
       const message =
         findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
+      const conflict = readFindingDispositionConflictFromError(error);
+
+      if (conflict !== null) {
+        setDispositionConflict(conflict);
+        setDispositionInlineSaveError(null);
+        setErrorMessage(null);
+
+        return;
+      }
+
       setDispositionInlineSaveError(message);
       setErrorMessage(message);
     } finally {
@@ -219,23 +327,53 @@ export function useFindingInspectGovernanceStickinessDispositions({
     setDispositionInlineSaveError(null);
 
     try {
-      const saved = await recordFindingDisposition(findingId, {
-        disposition: "Remediated",
-        rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
+      const applyChangeAttestation = buildFindingApplyChangeDispositionAttestation({
+        isWorkingDesk,
         runId,
+        findingId,
+        overrideRecorded: applyChangePreviewOverride,
       });
 
-      const refreshed = await reload();
-      const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
+      const dispositionBody = {
+        disposition: "Remediated" as const,
+        rationale: rationale.trim().length > 0 ? rationale.trim() : undefined,
+        runId,
+        impactPreviewCompleted: applyChangeAttestation?.impactPreviewCompleted,
+        previewOverrideReason: applyChangeAttestation?.previewOverrideReason,
+        architectRestatement:
+          architectRestatement.trim().length > 0 ? architectRestatement.trim() : undefined,
+        ...(expectedCurrentDispositionRowVersionBase64 === undefined
+          ? {}
+          : { expectedCurrentDispositionRowVersionBase64 }),
+      };
+      const idempotencyKey = createGovernanceMutationIdempotencyKey();
 
-      setDispositionLastSavedUtc(new Date().toISOString());
-      setDispositionBaseline(captureDispositionBaseline());
-      setStatusMessage(concurrentNotice ?? "Finding marked as remediated.");
+      const saved = await recordFindingDispositionWith401Resume(findingId, dispositionBody, {
+        idempotencyKey,
+        returnPath: livelihoodReturnPath,
+      });
+
+      setDispositionConflict(null);
+      await handleDispositionSaved(saved, "Finding marked as remediated.");
       setShowIncrementalRereviewLink(true);
     } catch (error: unknown) {
       const failure = toApiLoadFailure(error);
       const message =
         findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
+      const conflict = readFindingDispositionConflictFromError(error);
+
+      if (conflict !== null) {
+        setDispositionConflict(conflict);
+        setDispositionInlineSaveError(null);
+        setErrorMessage(null);
+
+        return;
+      }
+
       setDispositionInlineSaveError(message);
       setErrorMessage(message);
     } finally {
@@ -291,6 +429,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
     if (
       isFindingApplyChangeDisposition(kind) &&
       !canConfirmFindingApplyChange({
+        isWorkingDesk,
         runId,
         findingId,
         overrideRecorded: applyChangePreviewOverride,
@@ -321,6 +460,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
     setApplyChangePreviewOverride,
     tradeOffAcknowledgment,
     setTradeOffAcknowledgment,
+    architectRestatement,
+    setArchitectRestatement,
     showIncrementalRereviewLink,
     submitDisposition,
     submitExplicitRemediation,
@@ -337,5 +478,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
     dispositionHistoryFailure,
     dispositionHistoryBlockedReason,
     refreshDispositionHistory: reload,
+    expectedCurrentDispositionRowVersionBase64,
+    dispositionConflict,
+    reloadDispositionConflict,
+    dismissDispositionConflict,
   };
 }

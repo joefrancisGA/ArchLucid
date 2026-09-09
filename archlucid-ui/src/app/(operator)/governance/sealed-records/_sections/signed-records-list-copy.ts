@@ -1,4 +1,9 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import {
+  ARCHITECTURES_LIST_PATH,
+  ARCHITECTURES_NEW_PATH,
+  REVIEWS_LIST_PATH,
+} from "@/lib/architecture/architecture-routes";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export const SIGNED_RECORDS_LIST_PAGE_TITLE = "Finalized review records";
@@ -72,7 +77,23 @@ export const SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_
 
 export const SIGNED_RECORDS_LIST_EMPTY_SECONDARY_LABEL = "Browse reviews";
 
-export const SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF = "/architecture/reviews";
+export const SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF = REVIEWS_LIST_PATH;
+
+export function resolveSignedRecordsListEmptyPrimaryHref(workingMode: boolean): string {
+  if (workingMode) {
+    return ARCHITECTURES_NEW_PATH;
+  }
+
+  return "/architecture/reviews/new";
+}
+
+export function resolveSignedRecordsListEmptySecondaryHref(workingMode: boolean): string {
+  if (workingMode) {
+    return ARCHITECTURES_LIST_PATH;
+  }
+
+  return SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF;
+}
 
 export const SIGNED_RECORDS_LIST_TABLE_REVIEW_COLUMN = "Review";
 

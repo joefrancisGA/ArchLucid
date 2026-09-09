@@ -94,5 +94,9 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
+
+    expect(
+      screen.queryByRole("link", { name: RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING }),
+    ).not.toBeInTheDocument();
   });
 });

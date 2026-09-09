@@ -40,7 +40,7 @@ import {
   EXTRACTION_FIDELITY_GATE_MESSAGE,
   isExtractionFidelityGateSatisfied,
 } from "@/lib/review-quality/finalize-quality-scorecard";
-import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
+import type { ManifestSummary, RunSummary, RunTrustEvidenceCard } from "@/types/authority";
 import {
   parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch,
   reviewPackageSponsorHandoffMoreExportsDisclosureHrefFromSearch,
@@ -57,6 +57,10 @@ export type ReviewPackageSponsorHandoffStripProps = {
   readonly lowExtractionConfidenceCount?: number;
   /** Optional rehearsal inputs; empty sections stay honest when omitted. */
   readonly rehearsalPreview?: SponsorRehearsalPreviewInput | null;
+  readonly enginesSucceeded?: number | null;
+  readonly progressSummary?: RunSummary | null;
+  readonly graphSnapshot?: unknown;
+  readonly findingsSnapshot?: unknown;
 };
 
 /** Sponsor export entry on the Finalized review record tab — soft ROI baseline warn (TB-2204). */
@@ -243,6 +247,10 @@ export function ReviewPackageSponsorHandoffStrip(
             goldenManifestJson={props.goldenManifestJsonForExport}
             manifestSummary={props.manifestSummary}
             trustEvidenceCard={props.trustEvidenceCard ?? null}
+            enginesSucceeded={props.enginesSucceeded ?? null}
+            progressSummary={props.progressSummary ?? null}
+            graphSnapshot={props.graphSnapshot ?? null}
+            findingsSnapshot={props.findingsSnapshot ?? null}
             markdownDownloadTestId="review-package-sponsor-handoff-markdown-download"
           />
           {props.showExtendedSponsorBriefing ? (

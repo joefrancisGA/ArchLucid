@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
+import { FindingDidNotThinkOfThatButton } from "@/components/findings/FindingDidNotThinkOfThatButton";
 import { FindingIacStubPanel } from "@/components/findings/FindingIacStubPanel";
 import { FindingItsmExportPanel } from "@/components/findings/FindingItsmExportPanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -28,7 +29,7 @@ type Props = { readonly presentation: FindingDetailPresentation };
 
 /** Finding detail actions and footers. */
 export function FindingDetailActions({ presentation }: Props) {
-  const { model, graphEvidenceHref, linkedManifestHref } = presentation;
+  const { model, graphEvidenceHref, linkedManifestHref, transparencyTrail } = presentation;
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -116,6 +117,12 @@ export function FindingDetailActions({ presentation }: Props) {
       ) : null}
 
       {inspectPayload !== null && !buyerPolishedShell ? (
+        <div className="mt-2">
+          <FindingDidNotThinkOfThatButton runId={runId} findingId={decodedFindingId} />
+        </div>
+      ) : null}
+
+      {inspectPayload !== null && !buyerPolishedShell ? (
         <FindingIacStubPanel
           runId={runId}
           findingId={decodedFindingId}
@@ -134,7 +141,12 @@ export function FindingDetailActions({ presentation }: Props) {
           onToggle={setExportOpen}
           summaryLine="Copy for Jira, Azure Boards, or ServiceNow"
         >
-          <FindingItsmExportPanel runId={runId} findingId={decodedFindingId} payload={inspectPayload} />
+          <FindingItsmExportPanel
+            runId={runId}
+            findingId={decodedFindingId}
+            payload={inspectPayload}
+            transparencyTrail={transparencyTrail}
+          />
         </CollapsibleSection>
       ) : null}
 

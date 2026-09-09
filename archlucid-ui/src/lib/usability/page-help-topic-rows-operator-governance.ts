@@ -10,6 +10,15 @@ import { DECISION_REGISTER_HELP_TOPIC_LABEL } from "@/lib/decision-register-help
 import { APPROVAL_LINEAGE_HELP_TOPIC_LABEL } from "@/lib/approval-lineage-evidence-copy";
 import { APPROVAL_QUEUE_HELP_TOPIC_LABEL } from "@/lib/approval-queue-evidence-copy";
 import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
+} from "@/lib/governance/governance-infrastructure-copy";
+import { GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL } from "@/lib/governance/governance-infrastructure-drift-help-evidence-copy";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { GOVERNANCE_SETUP_HREF, GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
@@ -77,6 +86,14 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly { prefix: string
     prefix: "/governance/standards-and-rules",
     topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
   },
+  {
+    prefix: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+    topic: { slug: "governance-infrastructure-drift", label: GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE },
+  },
+  {
+    prefix: GOVERNANCE_INFRASTRUCTURE_PATH,
+    topic: { slug: "cloud-connections", label: GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE },
+  },
   { prefix: "/governance", topic: { slug: "governance-approval", label: GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } },
   { prefix: "/architecture/digests", topic: { slug: "digests", label: DIGESTS_HELP_TOPIC_LABEL } },
   { prefix: "/digests", topic: { slug: "digests", label: DIGESTS_HELP_TOPIC_LABEL } },
@@ -85,6 +102,10 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly { prefix: string
   {
     prefix: "/help/recurrence-schedules",
     topic: { slug: "recurrence-schedules", label: RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/governance-infrastructure-drift",
+    topic: { slug: "governance-infrastructure-drift", label: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/standards-and-rules",

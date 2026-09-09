@@ -49,9 +49,8 @@ import {
   CONNECTION_STATUS_HELP_SKIP_LINK_LABEL,
   CONNECTION_STATUS_HELP_SKIP_TARGET_ID,
 } from "@/lib/connection-status-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpConnectionStatusGuideView buyer-polished shell (HCO)", () => {
   const entry = getProductDocumentationEntry("connection-status");
@@ -93,10 +92,7 @@ describe("HelpConnectionStatusGuideView buyer-polished shell (HCO)", () => {
     );
     expect(screen.getAllByRole("link", { name: CONNECTION_STATUS_HELP_PRIMARY_ACTION.label })).toHaveLength(1);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(CONNECTION_STATUS_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), CONNECTION_STATUS_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

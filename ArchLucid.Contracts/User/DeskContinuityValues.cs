@@ -37,6 +37,7 @@ public static class DeskContinuityValues
                 return null;
             }
 
+            parsed.LastOpenArchitectureId = NormalizeOptionalId(parsed.LastOpenArchitectureId);
             parsed.LastOpenReviewId = NormalizeOptionalId(parsed.LastOpenReviewId);
             parsed.LastOpenDraftId = NormalizeOptionalId(parsed.LastOpenDraftId);
             parsed.LastVisitWatermarkUtc = NormalizeOptionalTimestamp(parsed.LastVisitWatermarkUtc);
@@ -55,12 +56,44 @@ public static class DeskContinuityValues
 
         DeskContinuityDto normalized = new()
         {
+            LastOpenArchitectureId = NormalizeOptionalId(continuity.LastOpenArchitectureId),
             LastOpenReviewId = NormalizeOptionalId(continuity.LastOpenReviewId),
             LastOpenDraftId = NormalizeOptionalId(continuity.LastOpenDraftId),
             LastVisitWatermarkUtc = NormalizeOptionalTimestamp(continuity.LastVisitWatermarkUtc),
         };
 
         return JsonSerializer.Serialize(normalized, JsonOptions);
+    }
+
+    /// <summary>
+    ///     Read-model backfill: when legacy prefs stored only a review id, promote a resolved architecture id
+    ///     without dropping the child review pointer (AO-48).
+    /// </summary>
+    public static DeskContinuityDto ApplyReadBackfill(
+        DeskContinuityDto continuity,
+        string? architectureIdFromReviewLookup)
+    {
+        ArgumentNullException.ThrowIfNull(continuity);
+
+        if (NormalizeOptionalId(continuity.LastOpenArchitectureId) is not null)
+        {
+            return continuity;
+        }
+
+        string? backfilledArchitectureId = NormalizeOptionalId(architectureIdFromReviewLookup);
+
+        if (backfilledArchitectureId is null)
+        {
+            return continuity;
+        }
+
+        return new DeskContinuityDto
+        {
+            LastOpenArchitectureId = backfilledArchitectureId,
+            LastOpenReviewId = continuity.LastOpenReviewId,
+            LastOpenDraftId = continuity.LastOpenDraftId,
+            LastVisitWatermarkUtc = continuity.LastVisitWatermarkUtc,
+        };
     }
 
     private static string? NormalizeOptionalId(string? value)

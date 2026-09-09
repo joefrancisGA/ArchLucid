@@ -65,9 +65,8 @@ import {
   ALERTS_HELP_SKIP_TARGET_ID,
 } from "@/lib/alerts-help-page-copy";
 import { ALERTS_HELP_PAGE_SUBTITLE } from "@/lib/alerts-help-guide-content";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpAlertsGuideView buyer-polished shell (HA)", () => {
   const entry = getProductDocumentationEntry("alerts");
@@ -111,10 +110,7 @@ describe("HelpAlertsGuideView buyer-polished shell (HA)", () => {
       within(actionPanel).getByRole("link", { name: ALERTS_HELP_PRIMARY_ACTIONS.configureRules.label }),
     ).toHaveAttribute("href", ALERTS_HELP_PRIMARY_ACTIONS.configureRules.href);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ALERTS_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), ALERTS_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

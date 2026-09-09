@@ -1,0 +1,147 @@
+[
+  {
+    "findingId": "deb11716-a5e7-4211-a3c0-435bcdd51c42",
+    "findingType": "ComplianceFinding",
+    "category": "Compliance",
+    "severity": "Warning",
+    "title": "Compliance gap: Compute resources must be protected by security baseline controls",
+    "rationale": "Every compute resource should be protected by at least one security baseline control.",
+    "relatedNodeIds": [
+      "cmp-golden-63"
+    ],
+    "payloadType": "ComplianceFindingPayload",
+    "rulesApplied": [
+      "compute-must-have-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Detected uncovered resources against compliance rule requirements."
+    ]
+  },
+  {
+    "findingId": "6ac1fc0f-2f28-714a-3929-2c207442ff2d",
+    "findingType": "RequiredCapabilityCoverageFinding",
+    "category": "Governance",
+    "severity": "Warning",
+    "title": "Required capabilities are not fully evidenced on the context graph",
+    "rationale": "One or more required capabilities asserted on the request lack matching topology, security, or requirement evidence.",
+    "relatedNodeIds": [],
+    "payloadType": "RequiredCapabilityCoverageFindingPayload",
+    "rulesApplied": [
+      "required-capability-coverage"
+    ],
+    "decisionsTaken": [
+      "Coverage score 0% with 1 missing capabilities."
+    ]
+  },
+  {
+    "findingId": "b0cdd9bb-2641-c4fb-7fe8-da56071de156",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "cmp-golden-63",
+      "ctx-golden-63"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "a071b0a7-ca09-97b4-fe6c-a0e4c291358f",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "cmp-golden-63",
+      "ctx-golden-63"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "d25e03b0-4c8e-7ca3-d6bc-281790275be8",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "cmp-golden-63",
+      "ctx-golden-63"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "89f9e389-6325-f94f-2eb2-88d5b0866b23",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "checkout-api"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "a92988cb-fba5-9c9d-5e3d-328609d9c9d6",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "cmp-golden-63"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  },
+  {
+    "findingId": "1dc36b6a-cdda-81a2-7118-8f0dd6f7e5b9",
+    "findingType": "TopologyGap",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Compute resources lack a network anchor",
+    "rationale": "Compute topology resources exist but no network category resources are present.",
+    "relatedNodeIds": [
+      "cmp-golden-63"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "topology-gap-compute-without-network-anchor"
+    ],
+    "decisionsTaken": [
+      "Detected topology gap: At least one compute resource is declared without any network anchor in the graph."
+    ]
+  }
+]

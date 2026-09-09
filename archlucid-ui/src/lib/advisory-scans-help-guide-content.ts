@@ -280,7 +280,7 @@ export const ADVISORY_SCANS_HELP_TILE_ITEMS: readonly AdvisoryScansHelpTileItem[
   },
   {
     label: "Audit trail",
-    detail: "Open audit when a recommendation needs a governed assurance trail with persisted cites.",
+    detail: "Open audit when a recommendation needs a formal assurance trail with persisted cites.",
     href: GOVERNANCE_AUDIT_PATH,
   },
   {
@@ -355,7 +355,7 @@ export const ADVISORY_SCANS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] 
 export const ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS = {
   overviewMustNotContain: [
     "not a sealed review record",
-    "governance approval",
+    "approval",
     "automatic remediation",
     "not a full audit export",
     "Sources package",

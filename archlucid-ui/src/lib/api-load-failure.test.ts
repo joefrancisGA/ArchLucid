@@ -257,4 +257,16 @@ describe("resolveApiLoadFailurePresentation", () => {
       }),
     ).toBe("error");
   });
+
+  it("returns forbidden for 403 without transient signals", () => {
+    expect(
+      resolveApiLoadFailurePresentation({
+        message: "forbidden",
+        problem: null,
+        correlationId: null,
+        httpStatus: 403,
+        retryAfterSeconds: null,
+      }),
+    ).toBe("forbidden");
+  });
 });

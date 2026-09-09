@@ -15,7 +15,11 @@ Curated zones covering the full product surface (API, persistence, UI, CLI, orch
    - **Dry:** increment `hunts` and `consecutive-dry-hunts`; set `last-hunt` to today; tick attempted hunt-ready rows as `(valid-no-repro)` or `(invalid)`. Do not invent another bug in the same files.
    - **Seed-only:** increment `hunts`; set `last-hunt`; set `status` to `open`; do **not** increment `consecutive-dry-hunts`. Promote or retire candidates. Do not refill with three harm-class templates.
    - **Reopened:** when JSON `reopened` is `true`, set `status` back to `open`.
-4. Record the outcome and print rolling 24h yield: `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h`. Commit `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger update.
+4. Record the outcome and print rolling 24h yield: `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only [-DefectClass boolean-coercion] -Rolling24h`. Commit `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger update.
+
+Proven-row revert honesty (optional batch): `python3 scripts/agent/al-bug-verify-proven-revert.py --limit 5` samples recent `(proven)` rows — the cited test must fail if only the production hunk is reverted.
+
+For proven-row validity see `docs/library/AL_BUG_HUNT_VALIDITY_AUDIT.md` (regenerate with `python3 scripts/agent/al-bug-audit-proven-rows.py`). It classifies every proven row, not a sample: **57.2% (2321 of 4061)** are treadmill rows that re-prove one guard against a new surface form, and **82.7%** of the retired `archlucid-core` mega-zone is treadmill. Read `bugs-found` accordingly — picker preview and scoring use **effective-bugs** (`min(bugs-found, hunts)` when `hunts > 0`); run `python3 scripts/agent/al-bug-lint-ledger-counters.py` to list zones where raw `bugs-found` exceeds `hunts` (retired mega-zones are footnoted, not rewritten).
 
 ### Zone status
 
@@ -33,7 +37,7 @@ New zones start **`unseeded`** with zero hunt-ready rows. Do not template-seed t
 Open rows:
 
 - `[ ] (candidate) â€¦` â€” harm-class or unverified template. Not hunt-ready. No picker tie-break.
-- `[ ] (hunt-ready) â€¦` â€” locus + input + wrong outcome + mechanism filled from **these** files.
+- `[ ] (hunt-ready) …` — locus + input + wrong outcome + mechanism + **reachability** filled from **these** files (cite ARM/config/OpenAPI/UI/trust-boundary origin for the input). Optional defect-class tag: `[class:boolean-coercion]` (closed enum — see Scoring).
 
 Closed rows (never tick a miss as bare `[x]` â€” that counts as proven):
 
@@ -43,38 +47,62 @@ Closed rows (never tick a miss as bare `[x]` â€” that counts as proven):
 
 Untagged `[ ]` on `unseeded` or `hunts: 0` is treated as **candidate**. Untagged `[ ]` after the zone has been hunted is treated as **hunt-ready**. Untagged `[x]` is treated as **proven**.
 
-A hunt-ready row must name a locus, a concrete input, an observable wrong outcome, and a mechanism. Harm-class-only rows stay `(candidate)` until the files show the prerequisite (join, cache, fail-open catch). After a miss, replacement rows must cite a **different mechanism**.
+A hunt-ready row must name a locus, a concrete input, an observable wrong outcome, a mechanism, and **reachability** (where the input originates). Harm-class-only rows stay `(candidate)` until the files show the prerequisite (join, cache, fail-open catch). Constructed literals without reachability (e.g. fictional property names) stay `(candidate)` or `(invalid)`. After a miss, replacement rows must cite a **different mechanism** and reachability.
 
 ## Scoring (picker)
 
-Time unit is **hunts**, not wall-clock minutes. Exploit zones with a short mean hunts-per-bug; explore untried / under-sampled zones so the catalog can learn.
+Time unit is **hunts**, not wall-clock minutes. Exploit zones with a short mean hunts-per-bug; explore untried / under-sampled zones so the catalog can learn. Ledger `bugs-found` must not inflate speed when it exceeds `hunts`; scoring uses at most one hit per hunt.
 
 ```text
-mean_hunts_per_bug = hunts / bugs when bugs > 0, else hunts + 2 (prior)
-speed              = 1 / mean_hunts_per_bug
-explore            = 1 / sqrt(hunts + 1)
+effective_bugs     = min(bugs-found, hunts) when hunts > 0
+mean_hunts_per_bug = hunts / max(1, effective_bugs) when hunts > 0, else hunts + 2 (prior)
+speed              = min(1, 1 / mean_hunts_per_bug)
+explore            = 1 / sqrt(thoroughHunts + 1)   # thorough = run-log hit|dry only (not seed-only)
 precision          = proven / (proven + invalid) when that sum >= 2, else omitted
                      (valid-no-repro is not in the denominator)
 
 base_score =
-  6 Ã— speed
-+ 3 Ã— explore
-+ 2 Ã— recent_churn              (min(3, commitCount since last-hunt))
-+ 1 Ã— related_PD_or_TB          (min(2, id count))
-+ 0.25 Ã— min(3, hunt-ready open hypotheses)
-+ 0.5 Ã— precision               (0 when omitted)
-âˆ’ 2 Ã— consecutive_dry_hunts
+  6 × speed
++ 3 × explore
++ 2 × recent_churn              (min(3, commitCount since last-hunt))
++ 1 × related_PD_or_TB          (min(2, id count))
++ 0.25 × min(3, hunt-ready open hypotheses)
++ 0.5 × precision               (0 when omitted)
+− 2 × consecutive_dry_hunts
+− 1 when escapeCount90d ≥ 1 (escaped defects in last 90d; see escape log)
 
-score = base_score Ã— impact_multiplier   (high Ã—1.40, medium Ã—1.00, low Ã—0.65)
+score = base_score × impact_multiplier   (high ×1.40, medium ×1.00, low ×0.65; missing → medium)
 ```
 
-Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
+Hunt-ready count is a small tie-break only. Candidate/template rows must not inflate score or lock the catalog. Analyzer-seed volume does not score. Precision rewards zones whose hypotheses matched the code; it does not punish valid-no-repro exhaustion.
+
+**Seed-only:** Stanza `hunts` still increments on seed-only runs (audit trail). Seed-only does **not** count toward `thoroughHunts` for explore and does not satisfy a queued thorough hunt.
+
+**Cooldown (hit-rate):** When `AL_BUG_HUNT_RUN_LOG.jsonl` is available, a zone is treated as `cooling` for picker eligibility if it has ≥ 8 hits in the last 7 calendar days **or** a 24h hit rate ≥ 0.7 with ≥ 5 hunts in that window (seed-only excluded from the rate). `cooling` zones are ineligible while any `open` or `unseeded` zone remains. Preview JSON exposes `cooledByHitRate: true` when this applies.
+
+**Cooldown (defect-class saturation):** Optional `[class:boolean-coercion]` tags on hunt-ready/proven rows. Run log hits may record `defectClass`. A class is **saturated** when the last 14 days have ≥ 4 hits with that class across ≥ 2 zones or ≥ 3 production files (`paths` in the run log). Preview JSON lists `saturatedClasses`. Zones whose **only** hunt-ready rows carry a saturated class are `cooling` while any other `open`/`unseeded` zone remains — ship a shared mechanism fix (ABQ-01/04/15 pattern) or close invalid/dry; do not add sibling synonym copies.
+
+**Escape rate:** `docs/library/AL_BUG_ESCAPE_LOG.jsonl` records defects found outside `/al-bug` (`/al-defect`, CI, pilot proof). Preview JSON exposes `escapeCount90d` / `escapeRate90d`. Hunt yield is not product quality — see `/al-defect`. Default-branch CI can **propose** `source: ci` lines via `python3 scripts/agent/al-bug-ingest-ci-escape.py --dry-run` (artifact `ci-escape-candidate.jsonl`); humans still own `PD-###`. Unknown production paths are skipped (not written as `unzoned`). Empty escape log is valid.
+
+**Flake log:** `docs/library/AL_BUG_FLAKE_LOG.jsonl` is separate (retry-then-pass tests). `python3 scripts/agent/al-bug-seed-from-flake-log.py --preview` emits `(candidate)` rows for tests that flaked ≥ 3 times in 30 days. Flakes are not proven hits.
+
+**Window math is UTC.** Picker/escape/class-saturation windows (24h / 7d / 14d / 90d) parse JSONL `at` as UTC (`ConvertTo-RunLogUtcDateTime` accepts ISO strings and `[datetime]`, including Kind Local from `ConvertFrom-Json`).
+
+**Retired-class CI bans:** once a class has a canonical helper, new copies fail CI (`scripts/ci/al-bug-ban-retired-classes.py` + `scripts/ci/al-bug-retired-class-allowlist.txt`). The closed enum does not grow.
+
+**Revert-verifier ratchet (sample window):** new unguarded `(proven)` keys fail vs `scripts/ci/al-bug-unguarded-proven-baseline.json`. Historical unguarded rows stay baselined; do not mass-retick checkboxes.
+
+**Seeded-defect drills** (`scripts/agent/al-bug-seeded-defect-drill.py`) measure picker/seed hit offline. They do not count as hunts and must not push `bugsmash`.
+
+**Mutation score (display-only):** When zone `paths` map to a scheduled Stryker label (`scripts/agent/al-bug-stryker-zone-map.json` + `scripts/ci/stryker-baselines.json`), preview shows `mutationScore` / `strykerLabel`. Unmapped zones use `mutationScoreMissing: true` (not `0`). Test quality signal only — do not run `dotnet stryker` during `/al-bug`.
+
+Rolling 24h preview warns when hit rate ≥ 0.6 with ≥ 8 hunts in the window — a catalog health signal, not a yield celebration.
 
 Eligibility: `open` and `unseeded` always; `cooling` only when no `open` or `unseeded` zone remains; `exhausted` only when git shows commits on `paths` since `last-hunt`.
 
 ## Nominate mode
 
-`.\scripts\agent\al-bug-pick-zone.ps1 -Nominate -Preview` returns the same ranked pick with `nominate: true` in JSON â€” use it to preview which catalog row the picker would surface next when widening coverage.
+`.\scripts\agent\al-bug-pick-zone.ps1 -Nominate -Preview` (optional `-Since`, `-SkipGit` in tests, optional `-CoverageCobertura` from a prior local `dotnet test --collect:"XPlat Code Coverage"`) diffs recent production file churn against every zone `paths` prefix. Files with no covering zone are **gaps**. Rank uses `commitCount × (1 − coverageRatio) × log(1 + lineCount)` when coverage is supplied; otherwise churn-only (preview notes `coverage: omitted`). JSON includes `nominate: true`, `gaps: [{ path, commitCount, coverageRatio?, lineCount, rank }]`, and up to ~15 `proposedZones` entries (`id`, `paths`, `impact`, `testFilterGuess`). Preview prints paste-ready markdown stanzas for agent-led ledger updates — use when implicated files fall outside every current zone. Excludes tests, docs, generated OpenAPI, and lockfiles. Retired mega-zones pointing at this ledger do not cover production paths.
 
 ## Exhaustion (all must hold)
 
@@ -91,15 +119,15 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **status:** open
 - **impact:** medium
 - **aliases:** topology merge; merge gate; graph merge
-- **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs
-- **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 15
+- **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
+- **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
+- **hunts:** 16
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-24
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-07
 - **last-bug:** 2026-08-23 — hunt #50: greenfield compliance declared endpoints but graph merge dropped dangling edges
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are type-family and post-processor disagreements, not the parameterized alias cases already covered.
 
@@ -116,9 +144,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) Duplicate node-id collision when overlay and inventoried node share SourceId but different labels — `TryClaimService` blocks materialization when terraform id already indexed
 - [x] (valid-no-repro) Gate vs merge disagreement after structural post-processor strips a relationship — post-processor defers undeclared endpoints to gate; strip branch unreachable when both declared
 - [x] (valid-no-repro) Relationship-only follow-up when rename overlay is in a different agent result filtered out by inventory — cross-result follow-up passes when rename `ServiceId` matches inventoried node; correctly rejects undeclared rename labels
-- [ ] (hunt-ready) `AgentTopologyProposalMergeGate.FilterValidatedProposals` with a Cost/Compliance agent whose `SanitizeProposal` strips every service/datastore/relationship but leaves `RequiredControls` — agent row vanishes from `validatedResults` when `ProposalIsEmpty` is false for controls-only yet the result id was never stored because an earlier empty-sanitize `continue` dropped the whole `AgentResult` (findings/claims lost at commit).
-- [ ] (hunt-ready) `AgentTopologyProposalGraphMerge.MergeEndpointAliasesInto` (`TryAdd` first-wins) with two agents mapping the same relationship endpoint key to different node ids in one batch — second agent's `MapRelationships` resolves to the first alias while `DropDanglingEdges` drops edges whose resolved ids are absent from `graph.Nodes` union `added`.
-- [ ] (hunt-ready) `AgentTopologyProposalGraphMerge` topology pass with `materializeNodes == true` and claimed services skip `AddDeclaredManifestServiceEndpointAliases` — a relationship referencing only a pre-registered merge-gate key not mirrored in node `Label`/`NodeId`/`svc-{name}` produces zero edges after `TopologyProposalRelationshipEdgeMapper.MapRelationships`.
+- [x] (valid-no-repro) `FilterValidatedProposals` drops Cost/Compliance agent when `SanitizeProposal` strips topology but leaves `RequiredControls` — **disproved 2026-09-07 (#1199):** `ProposalIsEmpty` treats non-empty `RequiredControls` as non-empty; `continue` only runs when all topology and controls are empty; existing regression `FilterValidatedProposals_WhenInventoryExists_AllowsRequiredControlsOnlyComplianceProposal`; `validatedResults` gates graph merge only, not manifest merge.
+- [x] (valid-no-repro) `MergeEndpointAliasesInto` first-wins with two agents mapping the same endpoint key to different node ids drops second agent edges — **disproved 2026-09-07 (#1199):** validated non-topology services on inventoried graphs always take resolved-alias path (`TryClaim` fails on pre-seeded keys); conflicting declared-alias input fails `FilterValidatedProposals`; greenfield materializes nodes instead of bare declared aliases (hunt #50).
+- [x] (valid-no-repro) Claimed topology services with `materializeNodes == true` skip `AddDeclaredManifestServiceEndpointAliases` and drop gate-kept relationships — **disproved 2026-09-07 (#1199):** materialized nodes index `NodeId`, `Label`, and terraform synthetic keys via `AddGraphNodeResolutionKeys`; case-insensitive ARM normalization closes ServiceId/label mismatches; existing merge regressions cover gate/merge alias parity on non-materialize path.
+- [ ] (candidate) `ProposalIsEmpty` ignores `Warnings` — warnings-only Cost/Compliance proposal is dropped from `validatedResults` when topology and controls are empty but `Warnings` carry actionable context; hunt when a caller persists warnings-only proposals that must survive graph merge.
+- [ ] (candidate) `AgentTopologyProposalGraphMergeReference` materializes nodes only for `AgentType.Topology` while production also sets `materializeNodes` on `greenfieldGraph` — property/reference oracle may miss greenfield non-topology edge regressions not exercised by `AgentTopologyProposalGraphMergePropertyTests`.
+
+2026-09-07 thorough hunt #1199 (dry): cheap-disproved three hunt-ready rows (controls-only gate drop, alias first-wins cross-agent conflict, claimed-service alias skip); 403 scoped tests passed; seeded warnings-only and reference-oracle greenfield candidates.
 
 ---
 
@@ -200,11 +232,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 3
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — upsert during in-flight cached read could pin stale miss after write completed
+- **hunts:** 13
+- **bugs-found:** 7
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
@@ -216,8 +248,49 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
 - [x] DefaultTenant FK insert/update disagrees with the cached read path (retired Î“Ã‡Ã¶ PD-003 disposition merged on master: `ArchLucidPersistenceStartup` ApiKey DefaultTenant bootstrap + scoped `ISqlConnectionFactory`; repository uses same `tenantId` on read/write/cache keys)
 - [x] (proven) Upsert during an in-flight cached read pins a stale miss after the write completes — **hit 2026-08-24:** `CachingTenantSettingsRepository` only removed the hybrid-cache key on upsert; a slow `TryGetAsync` loader could still publish a miss after the upsert; fixed by generation-stamped cache keys bumped on write/delete; regression in `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`
-- [ ] (hunt-ready) `CachingTenantSettingsRepository.TryGetAsync` with hybrid-cache loader started before `UpsertAsync` completes — without generation-stamped keys, a slow loader can publish a miss after upsert (regression guard exists; verify delete/upsert bumps generation on all code paths including `DeleteAsync` and bulk invalidation).
-- [ ] (hunt-ready) `SqlTenantSettingsRepository.UpsertAsync` with concurrent readers on the same tenant id — read path uses snapshot isolation while upsert uses row lock; verify no path returns pre-upsert defaults when upsert commits between read start and materialization.
+- [x] (proven) Cached miss at the pre-write generation survives after upsert commits but before the post-write generation bump — **hit 2026-09-07 (#1178):** a prior `TryGetAsync` miss at `g0` was served from hybrid cache while inner upsert had already persisted; fixed by bumping generation before and after inner upsert/delete; regressions in `TenantSettings_TryGetAsync_reflects_upsert_after_cached_miss_before_generation_bump` and `TenantSettings_TryGetAsync_reflects_delete_when_read_started_before_delete_completed`
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertAsync` concurrent readers return pre-upsert defaults — repository returns null when row absent and never materializes defaults; reads use default `ReadCommitted` without snapshot isolation in this file; no fabricated default path in `TryGetCoreAsync`
+- [x] (proven) Cached hit at the post-delete generation survives after inner delete commits but before the caching wrapper finishes `DeleteAsync` — **hit 2026-09-07 (#1239):** `TryGetAsync` during delete could populate hybrid cache at the bumped generation while the row still existed; after inner delete the same-generation cache hit was served until the post-delete bump; fixed by write-in-flight cache bypass plus generation-slot invalidation on upsert/delete; regression in `TenantSettings_TryGetAsync_reflects_delete_after_cached_hit_before_generation_bump`
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.TryGetCoreAsync` returns null for whitespace-only `SettingValue` rows while MERGE upsert rejects whitespace writes — legacy whitespace rows read absent but remain updatable via `UpsertAsync`; no caller path upserts whitespace to simulate delete
+- [x] (invalid) `CachingTenantSettingsRepository` passes pre-normalized keys to inner read/write — `TenantSettingKeyNormalizer.Normalize` is trim + lowercase and idempotent on already-normalized keys
+- [x] (valid-no-repro) Concurrent upserts on the same `(tenantId, settingKey)` drop `WriteInFlightKeys` when the first wrapper still awaits inner completion — `TryAdd`/`TryRemove` is not ref-counted, but generation bumps plus inner persistence still expose the latest value; regression `TenantSettings_TryGetAsync_reflects_second_upsert_while_first_upsert_wrapper_still_in_flight`
+- [x] (valid-no-repro) Upsert-path cached hit at the post-first-bump generation survives after inner upsert commits but before the caching wrapper finishes — symmetric to #1239 delete hit; write-in-flight bypass reads inner during the whole `UpsertAsync`; regression `TenantSettings_TryGetAsync_reflects_upsert_after_cached_hit_before_generation_bump`
+- [x] (invalid) `SqlTenantSettingsRepository.TryGetCoreAsync` throws on duplicate `(TenantId, SettingKey)` rows — migration `173_TenantSettings.sql` defines `PK_TenantSettings` on the pair; repository always normalizes keys before MERGE/read
+- [x] (valid-no-repro) Concurrent upsert clears `WriteInFlightKeys` while the first upsert wrapper still awaits release — `TryAdd`/`TryRemove` is not ref-counted; second upsert removes the slot before the first wrapper finishes, but generation bumps plus inner persistence still expose the latest value; regressions `TenantSettings_TryGetAsync_reflects_second_upsert_while_first_upsert_wrapper_still_in_flight` and `TenantSettings_TryGetAsync_reflects_second_upsert_after_first_upsert_loses_write_in_flight_flag`
+- [x] (valid-no-repro) Concurrent upsert during in-flight delete clears `WriteInFlightKeys` before the delete wrapper finishes — same non-refcounted slot; upsert after inner delete repopulates SQL while delete wrapper still holds post-delete bump; `TryGetAsync` still reads `replacement`; regression `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag`
+- [x] (invalid) `HotPathCacheEviction.RemoveTenantSettingAsync` misses generation-stamped hybrid-cache keys — no call sites in repo; `CachingTenantSettingsRepository` invalidates `{HotPathCacheKeys.TenantSetting}:g{generation}` via `InvalidateCurrentGenerationCacheAsync`
+- [x] (valid-no-repro) `SqlTenantSettingsRepository.UpsertCoreAsync` accepts setting keys longer than `NVARCHAR(128)` — migration `173_TenantSettings.sql` caps `SettingKey`; repository does not pre-validate length before MERGE; watch callers outside fixed `TenantSettingKeys` constants — **cheap-disproof 2026-09-07 hunt #1262:** all production keys are `TenantSettingKeys` constants or `{constant}.{workspaceId:D}` suffixes; longest dynamic key is 72 chars; no caller accepts arbitrary user-supplied setting keys; regression `Longest_known_production_setting_key_fits_migration_nvarchar_128_limit`.
+- [x] (invalid) Static `CacheGenerations` entries are never removed when a tenant is deleted — orphaned generation counters and hybrid-cache slots may linger for deleted tenants until process restart; correctness unaffected for new reads at bumped generations — **cheap-disproof 2026-09-07 hunt #1262:** process-lifetime metadata retention by design; delete + re-upsert on the same tenant/key still reads the latest value via generation bumps; regression `TenantSettings_TryGetAsync_reflects_reupsert_after_delete_without_cache_generation_reset`; tenant deletion does not hook `CachingTenantSettingsRepository` and does not affect read correctness for live tenants.
+
+2026-09-07 thorough hunt #1262 (dry): cheap-disproof closed both open candidates; three scoped unit tests passed.
+
+- [x] (proven) `SqlTenantSettingsRepository.UpsertCoreAsync` accepted `SettingValue` payloads longer than migration `173` `NVARCHAR(512)` — **hit 2026-09-08:** realized-value attestation JSON at `NoteMaxLength` 2000 exceeds column limit; added `TenantSettingsWriteGuard.EnsureSettingValueLength` before MERGE; regressions in `EnsureSettingValueLength_rejects_values_longer_than_migration_nvarchar_512_limit` and `Serialized_realized_value_attestation_at_note_max_length_exceeds_migration_setting_value_limit`.
+- [x] (proven) `RealizedValueAttestationUpsertValidation.NoteMaxLength` (2000) exceeds what `dbo.TenantSettings.SettingValue` can store (512) — **hit 2026-09-08 (#1322):** HTTP/application validation allowed 2000-char notes while serialized attestation JSON exceeds migration `NVARCHAR(512)`; aligned `NoteMaxLength` to 204 (both notes populated), added `EnsureSerializedAttestationFitsOrThrow` before upsert, shared `TenantSettingsSchemaLimits.SettingValueMaxLength`; regressions `SaveAttestationAsync_throws_when_serialized_attestation_exceeds_tenant_setting_value_limit`, `SaveAttestationAsync_persists_when_both_notes_at_note_max_length`, `Serialized_realized_value_attestation_at_note_max_length_fits_migration_setting_value_limit`
+- [x] (valid-no-repro) `CachingTenantSettingsRepository` concurrent `DeleteAsync` on same key clears `WriteInFlightKeys` before first delete wrapper completes — **cheap-disproof 2026-09-08 (#1322):** same non-refcounted slot as prior upsert rows; inner delete idempotency plus generation bumps still expose absent final state; parity with `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag` and delete cached-hit regressions (#1239)
+- [x] (proven) `WorkspaceAllowedEngineSetService.SetAsync` — allowed-engine alias JSON for 14+ catalog aliases exceeds migration `NVARCHAR(512)` without application validation — **hit 2026-09-08 seed hunt #1323:** SettingsController PUT `allowed-engine-set` serializes full alias list to `ModelGovernance.AllowedEngineAliases`; repository guard alone surfaced late `ArgumentException`; added `EnsureSerializedPayloadFitsTenantSettings` before upsert; regressions `SetAsync_throws_when_serialized_allowed_engine_set_exceeds_tenant_setting_value_limit`, `SetAsync_persists_when_default_catalog_alias_count_fits_tenant_setting_value_limit`, `Serialized_allowed_engine_set_with_fourteen_aliases_exceeds_migration_setting_value_limit`
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.UpsertAsync` — inner upsert failure after pre-write generation bump skips cache invalidation — **cheap-disproof 2026-09-08 seed hunt #1323:** failed upsert still leaves `TryGetAsync` reading last committed SQL value via bumped generation miss path; regression `TenantSettings_TryGetAsync_returns_last_committed_value_when_upsert_fails_after_generation_bump`
+- [x] (proven) `InMemoryTenantSettingsRepository.UpsertAsync` — omitted `TenantSettingsWriteGuard` length enforcement used by `SqlTenantSettingsRepository`; dev/in-memory stacks accepted oversize JSON that production SQL rejects — **hit 2026-09-08 thorough hunt #1347:** in-memory upsert accepted `SettingValue` payloads longer than migration `NVARCHAR(512)` while SQL repository rejects via `TenantSettingsWriteGuard`; fixed by sharing guard on in-memory upsert; regression `UpsertAsync_rejects_values_longer_than_migration_nvarchar_512_limit`
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.DeleteAsync` — inner delete failure after pre-write generation bump serves stale absent while SQL row survives — **cheap-disproof 2026-09-08 seed hunt #1358:** symmetric to failed-upsert row #1323; `TryGetAsync` at bumped generation still reads last committed inner value; regression `TenantSettings_TryGetAsync_returns_last_committed_value_when_delete_fails_after_generation_bump`
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.UpsertAsync` — rejected `Guid.Empty` tenant id after pre-write generation bump poisons cache slot for live tenant reads — **cheap-disproof 2026-09-08 seed hunt #1358:** inner rejects before persist; generation bump on `(Guid.Empty, key)` does not affect reads for real tenant ids; regression `TenantSettings_TryGetAsync_still_reads_committed_value_after_upsert_rejects_empty_tenant_id`
+- [x] (invalid) `CachingTenantSettingsRepository` — out-of-band `dbo.TenantSettings` mutation bypasses generation bumps until hybrid-cache TTL expires — **cheap-disproof 2026-09-08 thorough hunt #1359:** read-through cache by design; wrapper upsert/delete bumps generation and invalidates; direct SQL/ops mutation is out of contract; regression `TenantSettings_TryGetAsync_serves_cached_value_after_inner_mutation_until_wrapper_write`
+- [x] (invalid) `TenantFindingEngineControlsService.SetAsync` — three sequential `UpsertAsync` calls without transaction leave partial tenant flag overrides on mid-sequence failure — **cheap-disproof 2026-09-08 thorough hunt #1359:** `SqlTenantSettingsRepository`/`CachingTenantSettingsRepository` correctly implement single-key MERGE with per-key cache bumps; multi-key atomicity is caller orchestration outside zone paths; no repository defect reproduces
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.DeleteAsync` — rejected `Guid.Empty` tenant id after pre-write generation bump poisons cache slot for live tenant reads — **cheap-disproof 2026-09-08 thorough hunt #1359:** symmetric to upsert empty-tenant row; regression `TenantSettings_TryGetAsync_still_reads_committed_value_after_delete_rejects_empty_tenant_id`
+
+2026-09-08 thorough hunt #1359 (dry): cheap-disproof closed both open candidates; no hunt-ready row reproduces; 23 scoped tenant-settings tests passed.
+
+2026-09-08 seed hunt #1358 (seed-only): reseeded after #1347; cheap-disproof closed failed-delete generation-bump and empty-tenant-id cache-poison candidates; seeded out-of-band SQL cache staleness and multi-key partial-write candidates; no hunt-ready row reproduces.
+
+2026-09-08 thorough hunt #1347 (hit): proved in-memory write-guard parity gap; 6 scoped SqlTenantSettingsRepository + 5 InMemoryTenantSettingsRepository tests passed.
+
+2026-09-08 seed hunt #1323 (hit): reseeded after attestation alignment; proved allowed-engine-set JSON budget gap; cheap-disproof closed failed-upsert generation-bump stale-read candidate; seeded in-memory write-guard parity candidate.
+
+2026-09-08 thorough hunt #1322 (hit): proved attestation note validation vs TenantSettings JSON budget mismatch; cheap-disproof closed concurrent delete write-in-flight candidate.
+
+2026-09-08 seed hunt #1308: proved SettingValue length guard gap; reseeded attestation validation alignment and concurrent delete write-in-flight candidates.
+
+2026-09-07 seed hunt #1254 (seed-only): reseeded after #1240 fixes; cheap-disproof on concurrent write-in-flight slot clearing and dead `RemoveTenantSettingAsync` key shape; added delete/upsert and dual-upsert parity regressions; no hunt-ready row reproduces.
+
+2026-09-07 seed hunt #1240 (seed-only): reseeded after #1239 fixes; cheap-disproof on concurrent upsert write-in-flight drop, upsert cached-hit symmetric gap, and duplicate-key SQL read; added upsert/delete parity regressions; no new hunt-ready row reproduces.
 
 ---
 
@@ -257,11 +330,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 8
-- **bugs-found:** 7
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — TaskId casing-only variants bypassed in-memory upsert supersession, leaving duplicate same-attempt rows that blocked commit via latest-per-task selector
+- **hunts:** 11
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-08 — TaskId whitespace/null variants skipped upsert supersession, leaving duplicate same-attempt rows that blocked commit via latest-per-task selector
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
 
@@ -279,6 +352,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` — empty `TaskId` keyed by `TraceId` left superseded same-agent retries blocking commit — **hit 2026-09-03 (#578):** #507 over-correction kept rejected attempt 0 and accepted attempt 2 as separate groups for the same `AgentType`; fixed by grouping missing task ids per `agent:{AgentType}`; regression in `Select_when_task_id_missing_chains_same_agent_retries_by_attempt_index` and `GetBlockingReasons_empty_task_id_same_agent_retry_ignores_superseded_rejected_trace`
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` case-insensitive `TaskId` grouping vs persistence `SharesRunTaskAgent` ordinal match — **hit 2026-09-04 (#710):** casing-only TaskId variants skipped in-memory upsert supersession, leaving duplicate same-attempt rows; fixed `SharesRunTaskAgent` to use `OrdinalIgnoreCase` for `TaskId` (`ShouldRemoveExisting_removes_same_attempt_when_task_id_differs_only_by_casing`, `CreateAsync_upserts_same_attempt_when_task_id_differs_only_by_casing`, `Select_when_task_id_differs_only_by_casing_chains_retries`, `GetBlockingReasons_when_task_id_differs_only_by_casing_chains_retries`)
 - [x] (invalid) `CommitOutputIntegrityService.EnsureCreateTimePinsUnchangedOrThrowAsync` returns when `header` is null — `EnsurePassOrThrowAsync` calls `EnsureArchitectureVersionPinnedOrThrowAsync` first, which throws when the run header is missing before pin verification runs
+- [x] (proven) `AgentExecutionTraceUpsertPolicy.SharesRunTaskAgent` — outer-whitespace and null/empty `TaskId` variants skipped upsert supersession while selector trimmed keys — **hit 2026-09-08 (#1330):** duplicate same-attempt rows let TraceId tiebreaker prefer rejected traces; fixed with `NormalizeTaskId` plus selector quality-preference tie-break; regression in `ShouldRemoveExisting_removes_same_attempt_when_task_id_differs_only_by_outer_whitespace`, `CreateAsync_upserts_same_attempt_when_task_id_differs_only_by_outer_whitespace`, `Select_when_same_attempt_and_created_utc_ties_prefers_non_rejected_trace`, `GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert`
+- [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-Guid `runId` skips authority lifecycle Complete gate — **cheap-disproof 2026-09-08:** lifecycle guard is Guid-gated (lines 91–106) but `EnsureArchitectureVersionPinnedOrThrowAsync` throws `run id is invalid for architecture version pin verification` before quality-gate evaluation; authority commit paths use Guid run ids (`SqlRunIdMapping.ToSqlRunId` rejects non-Guid; `PreFinalizeChecklistServiceTests.BuildAsync_returns_not_ready_for_non_guid_run_id`); lifecycle skip cannot yield a successful seal.
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `RecordedQualityGateOutcome.Warned` with `QualityWarning` does not block PilotStrict commit — **cheap-disproof 2026-09-08:** TB-2226 scopes fail-closed to recorded rejections (`QualityRejected` / `Rejected` only per class summary); `AgentExecutionTraceQueryPatchCore.TryApplyQualityGateRecordedSnapshotPatch` sets `QualityWarning` only for `Warned`; asymmetric dual-flag blocking is intentional for rejects (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`).
+- [x] (valid-no-repro) same-attempt duplicate rows where `QualityPreferenceRank` prefers a clean Accepted trace over a sibling with `QualityRejected` or `Rejected` — **cheap-disproof 2026-09-08:** #1330 quality-preference tie-break intentionally resolves upsert-drift duplicates in favor of non-blocking outcomes (`GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert`); not a fail-open defect in these files.
+- [ ] (candidate) `AgentExecutionTraceInsertParameters.AttemptKey` / SQL `DeleteSameAttempt` — delete-before-insert uses raw `trace.TaskId` without `AgentExecutionTraceUpsertPolicy.NormalizeTaskId` while in-memory upsert normalizes trim + case (#1330); leading/trailing whitespace TaskId variants can leave duplicate same-attempt SQL rows that reach `RealCommitAgentOutputQualityGateEvaluator` (commit blocking mitigated when an accepted sibling exists via quality-preference tie-break)
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — latest per-task trace with higher `AttemptIndex` but null `RecordedQualityGateOutcome` and `QualityRejected=false` does not block — **cheap-disproof 2026-09-09 seed hunt #1422:** TB-2226 fail-closed scope is recorded rejections on persisted traces, not missing evaluation on the winning attempt; normal execute→evaluate→commit flow records outcomes before seal
+
+2026-09-09 seed hunt #1422 (seed-only): reseeded commit-output-integrity after #1330 whitespace hit; cheap-disproof on unevaluated-latest fail-open; seeded SQL AttemptKey normalization drift candidate; 20 scoped commit-output-integrity tests passed.
+
+2026-09-08 thorough hunt (dry): cheap-disproof on non-Guid lifecycle skip and Warned non-block candidates; inverse duplicate-row fail-open probes matched #1330 tie-break policy.
+
+2026-09-08 seed hunt #1330 (hit): reseeded commit-output-integrity; proved TaskId whitespace/null upsert drift vs selector trim; seeded lifecycle skip on non-Guid run id and Warned non-block candidates.
 
 2026-09-04 thorough hunt #710: proved TaskId casing upsert mismatch; cheap-disproof on null-header pin skip (architecture-version guard runs first).
 
@@ -320,10 +405,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-16
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-07
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -335,9 +420,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Post-processor rewrites a datastore to `storage` while the consistency gate still keys it as `data`
 - [x] Consistency gate drops a relationship the post-processor just added
 - [x] Category rewrite does not update synthetic `ds-` aliases
-- [ ] (hunt-ready) `AgentProposalStructuralPostProcessor.ShouldRetainDeclaredProposalRelationship` with proposal declaring a datastore plus relationship using `svc-{datastoreName}` — `CollectKnownEndpointKeys` indexes `ds-{name}` but not `svc-{name}` for manifest datastores; both endpoints appear declared under raw `Contains`, yet `RelationshipEndpointsAreKnown` drops the edge when both source/target match declared keys.
-- [ ] (hunt-ready) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` with relationship endpoints present only as normalized ARM ids — `declaredBatchEndpointKeys` may hold raw plus normalized keys from `AddArmResourceIdEndpointKeys`, but `Contains(relationship.SourceId)` on an unnormalized relationship id marks `sourceDeclaredInBatch` false and retains the row for later gates while `validationEndpointKeys` still fail `RelationshipEndpointsAreKnown`, silently stripping edges before merge.
-- [ ] (hunt-ready) `CrossAgentProposalConsistencyGate.TryAcceptRenameAliasService` accepting a rename — adds manifest endpoint keys to `claimedServiceEndpointKeys` after an earlier agent already claimed the stable id, but `declaredBatchEndpointKeys` was collected pre-claim without the renamed label, so downstream relationship-only proposals referencing only the new name miss batch declaration checks.
+- [x] (valid-no-repro) `AgentProposalStructuralPostProcessor.ShouldRetainDeclaredProposalRelationship` with proposal declaring a datastore plus relationship using `svc-{datastoreName}` — **disproved 2026-09-07 (#1274):** undeclared `svc-{datastoreName}` endpoints defer via `!sourceDeclared || !targetDeclared`; declared `svc-api`/`svc-sql` pairs remain when both keys are indexed (`ApplyToProposal_preserves_relationship_when_target_uses_svc_prefix_for_declared_datastore`)
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` with relationship endpoints present only as normalized ARM ids — **disproved 2026-09-07 (#1274):** mixed-case ARM relationship ids survive via claimed-key normalization union in `validationEndpointKeys` (`ApplyToResults_preserves_relationship_only_proposal_when_arm_endpoint_uses_different_casing_than_batch_declaration`)
+- [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.TryAcceptRenameAliasService` accepting a rename — **disproved 2026-09-07 (#1274):** compliance rename aliases register on `declaredBatchEndpointKeys` during pre-claim batch collection and cost relationship-only rows referencing renamed labels are retained (`ApplyToResults_preserves_cost_relationship_only_proposal_after_compliance_rename_alias_without_prior_batch_declaration`)
+- [ ] (candidate) `AgentProposalStructuralPostProcessor` — compliance agents placing storage synthetic `ds-{label}` on `AddedServices.ServiceId` while relationships target manifest service names; post-processor indexes `svc-{name}` for services only and may defer edges merge gate must alias (see graph merge `storage_synthetic_datastore_id` regression family)
+- [ ] (candidate) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — relationship-only rows whose endpoints match only via `EndpointKeyIsKnownViaArmNormalization` while `declaredBatchEndpointKeys.Contains` is false defer to merge gate by design; confirm merge gate does not silently drop deferred ARM-keyed edges
+
+2026-09-07 thorough hunt #1274 (dry): cheap-disproof closed three hunt-ready endpoint-index hypotheses; 30 scoped unit tests passed; reseeded storage-synthetic-on-service and deferred-ARM merge-handoff candidates.
+
+2026-08-16 dry hunt: listed hypotheses do not hold on `AgentProposalStructuralPostProcessor` / `CrossAgentProposalConsistencyGate`. Neither file rewrites datastore category (`storage` vs `data`); synthetic `ds-` aliases are unchanged. Existing keep-path tests (26) pass; the gate does not drop a relationship the post-processor retained under current claim/validation key unions.
 
 ---
 
@@ -419,10 +510,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-07
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -433,9 +524,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Commit retry exhausts attempts but still returns success to the caller Î“Ã‡Ã¶ retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
 - [x] Transient retry does not include the same isolation / tenant scope on the replay Î“Ã‡Ã¶ retired: `OrchestratorTransientDbRetry` re-invokes caller lambda; scope is captured by caller closure
 - [x] (proven) `AggregateException` with a non-transient `SqlException` listed before a deadlock (`1205`) skips orchestrator retry — fixed: `IsRetriableOrchestratorDbFailure` flattens aggregate inners before `SqlTransientDetector` (`ExecuteAsync_retries_deadlock_when_aggregate_exception_lists_it_after_non_transient_sql`)
-- [ ] (hunt-ready) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` with `AggregateException` containing one transient and one permanent inner — returns true and retries the whole action, so permanent failures wrapped with transient SQL errors cause repeated full orchestration persists instead of immediate fail-fast.
-- [ ] (hunt-ready) `CommitRunTransientRetryPolicy.IsExhausted` with `elapsed >= RetryBudget` (20s) before `attempt >= MaxAttempts` (12) — commit retry loop stops while `OrchestratorTransientDbRetry` may still perform up to three 2s/4s/8s backoff retries per inner operation, producing asymmetric give-up between outer commit reconciliation and inner DB retry layers.
-- [ ] (hunt-ready) `CommitRunTransientRetryPolicy.RetryDelay` linear `150ms * attempt` with `ManifestReconcilePollDelay` using the same multiplier — under manifest contention, eight reconcile polls plus twelve commit attempts can exceed the 20s `RetryBudget` mid-poll, returning exhausted while a concurrent commit is still within reconcile window.
+- [x] (invalid) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` with `AggregateException` containing one transient and one permanent inner — returns true and retries the whole action, so permanent failures wrapped with transient SQL errors cause repeated full orchestration persists instead of immediate fail-fast — **cheap-disproof 2026-09-07 hunt #1259:** intentional parallel-persistence semantics; first attempt retries when any inner is transient, second attempt fail-fast when only permanent remains; regression `ExecuteAsync_does_not_retry_when_second_attempt_raises_permanent_only_after_mixed_aggregate` plus existing `ExecuteAsync_retries_deadlock_when_aggregate_exception_lists_it_after_non_transient_sql`.
+- [x] (invalid) `CommitRunTransientRetryPolicy.IsExhausted` with `elapsed >= RetryBudget` (20s) before `attempt >= MaxAttempts` (12) — commit retry loop stops while `OrchestratorTransientDbRetry` may still perform up to three 2s/4s backoff retries per inner operation, producing asymmetric give-up between outer commit reconciliation and inner DB retry layers — **cheap-disproof 2026-09-07 hunt #1259:** documented wall-clock ceiling in `CommitRunTransientRetryPolicy` comment; `AuthorityDrivenArchitectureRunCommitOrchestrator.IsCommitRetryBudgetExhausted` intentionally layers outer budget over inner DB retry; existing `IsExhausted_returns_true_when_retry_budget_is_reached` plus regression `IsExhausted_returns_false_when_attempt_and_elapsed_are_below_limits`.
+- [x] (invalid) `CommitRunTransientRetryPolicy.RetryDelay` linear `150ms * attempt` with `ManifestReconcilePollDelay` using the same multiplier — under manifest contention, eight reconcile polls plus twelve commit attempts can exceed the 20s `RetryBudget` mid-poll, returning exhausted while a concurrent commit is still within reconcile window — **cheap-disproof 2026-09-07 hunt #1259:** reconcile loop checks budget after polls via `IsExhausted`; client receives `ConflictException` for retry; inter-poll delay sum alone fits inside budget; regression `ManifestReconcilePollDelay_sum_for_inter_poll_waits_fits_inside_retry_budget`.
+
+2026-09-07 thorough hunt #1259 (dry): cheap-disproof closed three hunt-ready rows as intentional layered retry design; ten scoped unit tests passed.
 
 ---
 
@@ -447,11 +540,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 5
-- **bugs-found:** 6
+- **hunts:** 6
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — HTTP challenge logged duplicate `EmailOtpCodeRequested` alongside service
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — verify JWT role ignored invitation/membership AppRole
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -466,6 +559,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `EmailOtpAuthController.VerifyAsync` wrong verify audit event — **hit 2026-08-25:** HTTP verify logged `EmailOtpCodeRequested` with `email_otp_verify_http`, conflating challenge and verify telemetry; removed controller audit (service emits `EmailOtpVerificationSucceeded`/`Failed`); `[MutatingAuditExcluded]` + regression `VerifyAsync_does_not_log_email_otp_code_requested_audit`
 - [x] (proven) `EmailOtpAuthService.VerifyCodeAsync` SSO-blocked verify missing audit — **hit 2026-08-25:** `RequireEnterpriseSso` path passed `emailCorrelation: null` to `FailWithAuditAsync`, skipping `EmailOtpVerificationFailed`; fixed by correlating from challenge email before SSO gate; regression `VerifyCodeAsync_audits_sso_required_failure_for_stale_challenge_when_domain_now_requires_sso`
 - [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` duplicate `EmailOtpCodeRequested` audit — **hit 2026-08-26:** HTTP challenge logged `EmailOtpCodeRequested` with `email_otp_challenge_http` before service also logged `EmailOtpCodeRequested`, doubling telemetry for valid emails; removed controller audit, added `[MutatingAuditExcluded]`, and preserved invalid-email audit in `EmailOtpRequestFlow`; regression `RequestChallengeAsync_logs_email_otp_code_requested_once_for_valid_email` + `RequestCodeAsync_returns_neutral_message_for_invalid_email_and_audits_once`
+- [x] (invalid) `EmailOtpRequestFlow` logs `EmailOtpCodeRequested` before bot-challenge / SSO / rate-limit gates — **cheap-disproof 2026-09-09 seed hunt #1428:** event correlates valid-email sign-in attempts (same pattern as invalid-email reason code); `EmailOtpCodeSent` remains the challenge-created signal.
+- [x] (proven) `EmailOtpVerifyFlow.ExecuteAsync` JWT role hardcoded `Reader` after invitation accept or single-workspace complete — **hit 2026-09-09 seed hunt #1428:** `ResolveNextStepAsync` now returns membership/invitation `AppRole` for `Complete` paths; regression `VerifyCodeAsync_returns_invitation_app_role_when_invitation_is_accepted`.
+
+2026-09-09 seed hunt #1428 (hit): reseeded email-otp-auth; proved verify JWT role ignored invitation AppRole; cheap-disproved premature `EmailOtpCodeRequested` audit ordering; 21 scoped EmailOtp tests passed.
 
 2026-08-26 seed hunt #5: reseeded challenge HTTP audit path; proved duplicate `EmailOtpCodeRequested` on valid challenge requests.
 
@@ -479,11 +576,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 7
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — Unicode dot leader homoglyphs bypass return-path traversal checks
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -497,9 +594,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Residual double-encoded slashes survive the eight-pass decode cap — **hit 2026-08-21:** `%252F%252F` residue evaded single-level `%2f` detection after the decode loop; regression in `TryNormalize_rejects_residual_double_encoded_slashes_after_decode_cap`
 - [x] (proven) Unicode slash homoglyphs bypass ASCII-only protocol-relative checks — **hit 2026-08-22:** fullwidth solidus (`／`, `%EF%BC%8F`) and fullwidth reverse solidus (`＼`) evaded `ContainsProtocolRelativeTraversal`; regression in `TryNormalize_rejects_unicode_slash_homoglyph_protocol_relative_paths`
 - [x] (proven) Additional Unicode slash homoglyphs bypass `IsSlashHomoglyph` — **hit 2026-08-23:** light diagonal (`╱`, `%E2%95%B1`), big solidus (`⧸`, `%E2%A7%B8`), and solidus overlay (`⧶`) evaded slash-homoglyph checks; regression in `TryNormalize_rejects_additional_unicode_slash_homoglyph_protocol_relative_paths` and `TryNormalize_rejects_deeply_encoded_additional_unicode_slash_homoglyph_segment`
-- [ ] (hunt-ready) `AuthSignInReturnPathGuard.TryNormalize` with return path `/app/foo/../bar` or `/signin/../../other` — passes `TryNormalizeRelativePath` (no `..` segment rejection/canonicalization) but browsers normalize to `/bar` or `/other`, yielding an unintended post-login destination outside the intended subtree.
-- [ ] (hunt-ready) `AuthSignInReturnPathGuard.TryNormalizeAfterPercentDecoding` with path that decodes across multiple passes to introduce `//` or `\` only after the eighth `%` decode — loop capped at `MaxPercentDecodePasses = 8` may return a normalized relative path while a ninth decode would expose protocol-relative traversal blocked in `ContainsResidualEncodedTraversal`.
-- [ ] (hunt-ready) `AuthSignInReturnPathGuard.TryNormalize` with path containing percent-encoded slash homoglyphs (e.g. fullwidth solidus) not present before decoding — initial `ContainsSlashHomoglyph` misses the literal; partially decoded `working` strings that still encode the homoglyph may return null inconsistently depending on pass count.
+- [x] (proven) `..` path segments bypass return-path normalization — **hit 2026-09-07 (#1176):** `/signin/../../other` and `/app/foo/../bar` passed `TryNormalizeRelativePath` while browsers normalize to destinations outside the intended subtree; fixed with `ContainsDotDotSegment` parity to UI `isSafeReturnPath`; regression in `TryNormalize_rejects_dot_dot_path_traversal_segments`
+- [x] (valid-no-repro) Ninth percent-decode pass introducing `//` after the eight-pass cap — `TryNormalize_rejects_residual_double_encoded_slashes_after_decode_cap` (10 encode passes) and `ContainsResidualEncodedTraversal` `%2f`/`%5c`/`%2e` residue checks already reject before redirect
+- [x] (valid-no-repro) Percent-encoded slash homoglyphs absent before first decode — decode loop re-runs `ContainsSlashHomoglyph`/`TryNormalizeRelativePath` each pass; regressions in `TryNormalize_rejects_unicode_slash_homoglyph_protocol_relative_paths` and `TryNormalize_rejects_deeply_encoded_additional_unicode_slash_homoglyph_segment`
+- [x] (proven) Unicode dot homoglyphs bypass ASCII `..` segment check — **hit 2026-09-07 (#1222):** fullwidth full stop (`．`, `%EF%BC%8E`) evaded `ContainsDotDotSegment`; fixed with `ContainsDotHomoglyph`; regression in `TryNormalize_rejects_unicode_dot_homoglyph_path_traversal_segments`
+- [x] (proven) Residual percent signs survive eight-pass decode cap — **hit 2026-09-07 (#1222):** deeply nested `%25` left `/path%25` accepted while UI rejects any residual `%`; fixed with `ContainsTrailingPercentAfterDecodeCap` parity; regression in `TryNormalize_rejects_residual_percent_after_decode_cap`
+- [x] (valid-no-repro) Percent-encoded backslash dot-dot chains — `/welcome%5c..%5c..%5coperator` already rejected via `%5c`/`%2e` residual checks
+- [x] (proven) Unicode dot leader homoglyphs bypass `ContainsDotHomoglyph` — **hit 2026-09-09 seed hunt #1399 (seed→hit):** ONE DOT LEADER (`․`, `%E2%80%A4`) and TWO DOT LEADER (`‥`, `%E2%80%A5`) evaded ASCII `..` and prior fullwidth/middle-dot homoglyph set; fixed by extending `IsDotHomoglyph`; regression in `TryNormalize_rejects_unicode_dot_homoglyph_path_traversal_segments`
+
+2026-09-09 seed hunt #1399 (seed→hit): reseeded after #1222; proved dot-leader homoglyph traversal bypass; 35 scoped `AuthSignInReturnPathGuardTests` passed.
+
+2026-09-07 seed hunt #1222 (hit): proved Unicode dot homoglyph traversal and residual percent after decode cap; reseeded from exhausted zone.
 
 ---
 
@@ -575,12 +680,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **impact:** high
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
-- **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests
-- **hunts:** 5
-- **bugs-found:** 4
+- **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
+- **hunts:** 19
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `CountActiveRunsForArchitectureRequest` / `ExistsRunForArchitectureRequestInScope` compared raw `ArchitectureRequestId` while project-slug paths trim and ignore case
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — golden-manifest committed run lookup lacked RunId tie-break in InMemory parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -596,6 +701,93 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GetLatestWithGraphAtOrBefore` / `GetLatestCommittedRunIdByManifestCreatedUtc` / `GetPriorCommittedRunIdBeforeCurrent` compare raw `ProjectId` while collision guard trims and ignores case — **hit 2026-08-24:** padded or differently-cased stored slugs missed committed/graph lookups (advisory eligibility, temporal graph); SQL uses `UPPER(LTRIM(RTRIM(ProjectId)))`; InMemory uses trim + ordinal-ignore-case; regressions in `RunRepositoryWorkspaceSystemNameSqlTests` / `InMemoryRunRepositoryGetLatestWithGraphAtOrBeforeTests`
 - [x] (proven) `ListByProjectAsync` / `ListByProjectKeysetAsync` compared raw `ProjectId` while workspace collision and committed-run lookups trim and ignore case — **hit 2026-08-24:** padded or differently-cased stored slugs omitted from dashboard project lists; SQL uses `UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug`; InMemory uses `MatchesProjectListFilter`; regressions in `InMemory_matches_padded_project_id_for_list_by_project` and `Project_list_queries_trim_project_id_before_upper_compare`
 - [x] (proven) `CountActiveRunsForArchitectureRequestAsync` / `ExistsRunForArchitectureRequestInScopeAsync` compared raw `ArchitectureRequestId` while project-slug paths trim stored values — **hit 2026-09-03 hunt #603 (seed→hit):** padded stored request ids missed active-run concurrency and scope-existence checks (`RequestReleased` latch, idempotency guard); SQL uses `UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId`; InMemory uses `ArchitectureRequestIdMatches`; regressions in `RunRepositoryArchitectureRequestSqlTests`
+- [x] (proven) `RunListWarningFlagSql.LeftJoinAggregates` joined `ArchitectureRequests` on raw `ArchitectureRequestId` while scoped existence paths trim and ignore case — **hit 2026-09-07 hunt #1183 (seed→hit):** padded stored request ids missed the join so `PackageOrigin` COALESCE defaulted to `Reviewed` instead of reading `workflowIntent`; SQL uses `UPPER(LTRIM(RTRIM(ar.RequestId))) = UPPER(LTRIM(RTRIM(r.ArchitectureRequestId)))`; regression in `LeftJoinAggregates_normalizes_architecture_request_id_before_package_origin_join`
+- [x] (valid-no-repro) `SelectByScopedId` / `GetRunSummaryAsync` omit `RunListWarningFlagSql` request-JSON `PackageOrigin` COALESCE while dashboard list paths include it — **cheap-disproof 2026-09-07 hunt #1255:** TB-738/TB-740 shipped list-only JSON fallback for legacy NULL `Runs.PackageOrigin` rows; create paths persist origin via `ArchitecturePackageOriginResolver`; detail UI hides badge when origin is unknown; shape regressions in `Run_detail_read_reads_persisted_package_origin_without_request_json_fallback` and `SelectRunColumns_coalesces_persisted_package_origin_with_request_json_fallback`
+- [x] (proven) `RunListWarningFlagSql.SelectRunColumns` compares `JSON_VALUE(..., '$.workflowIntent')` case-sensitively to `N'create-architecture'` while `ArchitecturePackageOriginResolver` uses ordinal-ignore-case — legacy NULL `PackageOrigin` rows whose stored request JSON used non-canonical intent casing could list as `Reviewed` despite create intent — **hit 2026-09-07 hunt #1263:** dashboard list COALESCE used exact JSON string match; fixed with `UPPER(LTRIM(RTRIM(JSON_VALUE(...)))) = N'CREATE-ARCHITECTURE'`; regression `SelectRunColumns_workflow_intent_fallback_uses_case_insensitive_json_compare` plus `Resolve_returns_Created_when_workflow_intent_casing_differs`.
+- [x] (valid-no-repro) `SqlRunRepository.ListByArchitectureIdAsync` / `ListWithNullArchitectureIdAsync` read raw `Runs.PackageOrigin` without list COALESCE fallback — architecture-scoped run lists diverge from dashboard list badges for legacy NULL origin rows if those surfaces ever project origin — **cheap-disproof 2026-09-07 hunt #1263:** architecture identity child review/version summaries project `RunId`/`Description`/`CreatedUtc` only; TB-738 list-only JSON fallback remains dashboard-scoped by design; regression `Architecture_list_queries_read_persisted_package_origin_without_dashboard_coalesce`.
+- [x] (valid-no-repro) `RunListWarningFlagSql.ProjectWherePrefix` compares `TRY_CONVERT(uniqueidentifier, @ProjectSlug)` without trimming `@ProjectSlug` while `MatchesProjectListFilter` accepts padded GUID strings via `Guid.TryParse` — **cheap-disproof 2026-09-07 hunt #1265:** padded scope-project GUID strings parse in both layers (SQL Server uniqueidentifier conversion ignores leading/trailing spaces per engine rules); no reachable caller passes malformed non-GUID padding that would diverge; regressions `MatchesProjectListFilter_accepts_padded_scope_project_guid_string` and `InMemory_list_by_project_matches_padded_scope_project_guid_filter`.
+- [x] (valid-no-repro) `RunListWarningFlagSql.SelectRunColumns` reads `JSON_VALUE(..., '$.workflowIntent')` with case-sensitive property path while legacy request JSON may use PascalCase keys — **cheap-disproof 2026-09-07 hunt #1265:** `ArchitectureRequestRepository` always persists `RequestJson` via `ContractJson.Default` (camelCase); no repo `WorkflowIntent` PascalCase payloads; list COALESCE path matches persisted wire shape; regression `Package_origin_json_fallback_targets_camel_case_workflow_intent_from_contract_json`.
+- [x] (proven) `RunsListRecentInScopeOffsetNoLock` / unpaged list shapes ordered by `CreatedUtc` only while keyset paths use `CreatedUtc, RunId` tie-break — **hit 2026-09-07 seed hunt #1264:** offset pagination (`ListRunSummariesOffsetAsync`) could duplicate or skip runs when timestamps tie; `CreatedUtcDescOrderBy` now `ORDER BY r.CreatedUtc DESC, r.RunId DESC`; InMemory list/offset paths use `ThenByDescending(RunId)`; regressions in `CreatedUtcDescOrderBy_includes_run_id_tie_break_for_stable_offset_pages`, `Runs_list_recent_in_scope_offset_retains_nolock_scope_archived_filter_and_offset_fetch`, and `InMemory_offset_list_pages_all_runs_when_created_utc_ties`.
+
+2026-09-07 seed hunt #1264 (hit): reseeded after #1263; proved offset list ordering lacked RunId tie-break; seeded scope-project GUID trim and JSON property-path candidates.
+
+- [x] (proven) `SelectRepresentativeRunIdForArchitectureRequestInScope` / `TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync` order by `CreatedUtc DESC` only — **hit 2026-09-09 seed hunt #1440:** tied request-run timestamps made sealed-manifest representative lookup non-deterministic; SQL and InMemory now use `RunId DESC` tie-break; regressions in `SelectRepresentativeRunIdForArchitectureRequestInScope_orders_by_created_utc_then_run_id` and `InMemory_representative_run_id_picks_highest_run_id_when_created_utc_ties`.
+- [x] (valid-no-repro) `ExistsRunForArchitectureRequestInScope` omits `ArchivedUtc IS NULL` and treats archived reruns as scope existence — **cheap-disproof 2026-09-09 seed hunt #1440:** existence latch is intentionally historical (request was ever materialized in scope); active concurrency remains on `CountActiveRunsForArchitectureRequest`; shape regression `ExistsRunForArchitectureRequestInScope_includes_archived_runs_by_design`.
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByManifestCreatedUtc` orders by `gm.CreatedUtc` while `SelectPriorCommittedRunIdBeforeCurrent` filters on `r.CreatedUtc` — **cheap-disproof 2026-09-09 seed hunt #1440:** latest-committed picks newest manifest commit; prior-committed walks run timeline before current — different semantics by design; regression `SelectLatestCommittedRunIdByManifestCreatedUtc_orders_by_manifest_created_utc`.
+
+2026-09-09 seed hunt #1440 (hit): reseeded sql-run-repository; proved representative request-run lookup tie-break gap; cheap-disproof closed archived existence and manifest-vs-run ordering candidates; 34 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) `RunRepositoryCore.SelectCommittedRunIdByGoldenManifestId` returns first in-memory match while SQL orders by `CreatedUtc DESC, RunId DESC` — **hit 2026-09-09 seed hunt #1441:** tied CreatedUtc on shared manifest made seal-delta lookup pick lower RunId in tests; fixed InMemory parity ordering; regressions in `SelectCommittedRunIdByGoldenManifestId_picks_highest_run_id_when_created_utc_ties` and `InMemory_committed_run_by_golden_manifest_picks_newest_when_manifest_is_shared`.
+- [x] (valid-no-repro) `ExistsActiveRunWithSystemNameInWorkspace` omits `ScopeProjectId` and blocks duplicate system names workspace-wide — **cheap-disproof 2026-09-09 seed hunt #1441:** workspace intake guard intentionally spans projects; shape regression `ExistsActiveRunWithSystemNameInWorkspace_scopes_to_workspace_not_scope_project`.
+- [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` uses ascending CreatedUtc for backfill batching — **cheap-disproof 2026-09-09 seed hunt #1441:** `ArchitectureIdentityBackfillService` consumes oldest unlinked runs first by design; shape regression `ListWithNullArchitectureId_orders_ascending_for_backfill_queue`.
+
+2026-09-09 seed hunt #1441 (hit): reseeded sql-run-repository after #1440; proved golden-manifest committed lookup InMemory/SQL ordering gap; cheap-disproof closed workspace-wide system-name and null-architecture backfill ordering candidates; 38 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `CountActiveRunsForArchitectureRequest` / `ExistsActiveRunWithSystemNameInWorkspace` compare `LegacyRunStatus` with canonical enum names while InMemory uses ignore-case helpers — **cheap-disproof 2026-09-09 seed hunt #1442:** create/update paths persist `nameof(ArchitectureRunStatus.*)`; SQL Server CI collation matches canonical casing; shape regression `CountActiveRunsForArchitectureRequest_uses_canonical_terminal_status_names`.
+- [x] (valid-no-repro) `SelectByRunIdAdmin` returns runs without tenant/workspace/project predicates — **cheap-disproof 2026-09-09 seed hunt #1442:** `[TenantScopeExempt]` operational lookup by run id within active catalog routing; shape regression `SelectByRunIdAdmin_omits_tenant_scope_for_operational_lookup`.
+- [x] (valid-no-repro) `CommittedArchitectureReviewExistsNoLock` ignores manifest-version-only commits that other committed lookups accept — **cheap-disproof 2026-09-09 seed hunt #1442:** nav narrowing signal requires persisted golden manifest plus explicit Committed status; regression `CommittedArchitectureReviewExists_requires_golden_manifest_not_manifest_version_only`.
+- [x] (valid-no-repro) `RunRepositoryCore.SelectLatestCommittedRunIdByManifestCreatedUtc` ranks by `CompletedUtc` while SQL joins `GoldenManifests.CreatedUtc` — **cheap-disproof 2026-09-09 seed hunt #1442:** documented InMemory stand-in for tests/local host; SQL manifest join remains authoritative in production; regression `SelectLatestCommittedRunIdByManifestCreatedUtc_in_memory_uses_completed_utc_stand_in`.
+
+2026-09-09 seed hunt #1442 (seed-only): reseeded sql-run-repository after #1441; cheap-disproof closed terminal-status casing, admin lookup scope, committed-review predicate strictness, and manifest CreatedUtc vs CompletedUtc stand-in candidates; 42 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `RunListWarningFlagSql.KeysetCursorPredicate` omits `RunId` tie-break so keyset pages duplicate or skip tied timestamps — **cheap-disproof 2026-09-09 seed hunt #1443:** cursor predicate pairs `CreatedUtc` with `r.RunId < @CursorRunId`; shape regression `KeysetCursorPredicate_includes_run_id_tie_break_for_stable_keyset_pages`.
+- [x] (valid-no-repro) `RunsListRecentInScopeNoLock` unbounded recent list can scan full scope — **cheap-disproof 2026-09-09 seed hunt #1443:** hot-path shape uses `SELECT TOP (@Take)`; regression `RunsListRecentInScopeNoLock_uses_bounded_top_take`.
+- [x] (valid-no-repro) `SelectLatestWithGraphAtOrBefore` uses exclusive `CreatedUtc < @AsOfUtc` or lacks RunId tie-break — **cheap-disproof 2026-09-09 seed hunt #1443:** inclusive `CreatedUtc <= @AsOfUtc` with `ORDER BY CreatedUtc DESC, RunId DESC`; regression `SelectLatestWithGraphAtOrBefore_uses_inclusive_as_of_boundary_with_run_id_tie_break`.
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByManifestCreatedUtc` / `CommittedArchitectureReviewExistsNoLock` include archived golden manifests — **cheap-disproof 2026-09-09 seed hunt #1443:** both shapes require `gm.ArchivedUtc IS NULL`; regressions `SelectLatestCommittedRunIdByManifestCreatedUtc_excludes_archived_golden_manifests` and `CommittedArchitectureReviewExists_excludes_archived_golden_manifests`.
+- [x] (valid-no-repro) `RunRepositoryCommittedArchitectureReviewFlagReader` scans full scope and misses committed reviews beyond recent window — **cheap-disproof 2026-09-09 seed hunt #1443:** InMemory reader intentionally uses bounded `ListRecentInScopeAsync(take: 500)`; SQL EXISTS remains authoritative; regression `InMemory_committed_review_flag_reader_scans_bounded_recent_list_not_full_scope`.
+
+2026-09-09 seed hunt #1443 (seed-only): reseeded sql-run-repository after #1442; cheap-disproof closed keyset tie-break, bounded recent list, inclusive graph-as-of boundary, archived-manifest exclusion, and InMemory committed-review scan window; 48 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectCommittedRunIdByGoldenManifestId` omits `GoldenManifests` join and returns runs for archived manifests — **cheap-disproof 2026-09-09 seed hunt #1444:** lookup filters `r.ArchivedUtc IS NULL`; run archival cascades `GoldenManifests.ArchivedUtc` in the same batch; regression `SelectCommittedRunIdByGoldenManifestId_excludes_archived_runs_via_run_archival_cascade`.
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByArchitectureVersionId` omits golden-manifest archival filter — **cheap-disproof 2026-09-09 seed hunt #1444:** version-scoped committed lookup ranks active runs only; manifest archival follows run cascade; regression `SelectLatestCommittedRunIdByArchitectureVersionId_excludes_archived_runs_without_golden_manifest_join`.
+- [x] (valid-no-repro) `RunRepositorySql.Update` mutates soft-archived runs because WHERE omits `ArchivedUtc IS NULL` — **cheap-disproof 2026-09-09 seed hunt #1444:** update SET includes `ArchivedUtc = @ArchivedUtc` for archive/unarchive batches; regression `Update_omits_archived_filter_to_allow_archival_and_unarchive_writes`.
+- [x] (valid-no-repro) `SelectRepresentativeRunIdForArchitectureRequestInScope` picks archived reruns and breaks sealed-manifest guard — **cheap-disproof 2026-09-09 seed hunt #1444:** representative lookup is historical like existence latch; active detail reads filter archived separately; regressions `SelectRepresentativeRunIdForArchitectureRequestInScope_includes_archived_reruns_by_design` and `InMemory_representative_run_id_includes_archived_rerun_when_newest`.
+
+2026-09-09 seed hunt #1444 (seed-only): reseeded sql-run-repository after #1443; cheap-disproof closed golden-manifest join parity, architecture-version committed lookup, update archival write path, and representative archived-rerun semantics; 53 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectPriorCommittedRunIdForArchitectureBeforeCurrent` omits archived golden-manifest filter — **cheap-disproof 2026-09-09 seed hunt #1445:** shape joins `GoldenManifests` with `gm.ArchivedUtc IS NULL` and RunId tie-break; regression `SelectPriorCommittedRunIdForArchitectureBeforeCurrent_excludes_archived_golden_manifests`.
+- [x] (valid-no-repro) `SelectLatestRunIdForArchitecture` lacks RunId tie-break or includes archived runs — **cheap-disproof 2026-09-09 seed hunt #1445:** filters `r.ArchivedUtc IS NULL` and orders `CreatedUtc DESC, RunId DESC`; regression `SelectLatestRunIdForArchitecture_orders_active_runs_by_created_utc_then_run_id`.
+- [x] (valid-no-repro) `ClearGraphSnapshotForArchitecture` clears graph pointers on archived runs — **cheap-disproof 2026-09-09 seed hunt #1445:** update requires `ArchivedUtc IS NULL` and existing `GraphSnapshotId`; regression `ClearGraphSnapshotForArchitecture_targets_active_runs_only`.
+- [x] (valid-no-repro) `SelectAnchorGuardByScopedId` omits archived filter and skips anchor guard on archived saves — **cheap-disproof 2026-09-09 seed hunt #1445:** SaveAsync anchor guard intentionally loads persisted headers without `ArchivedUtc IS NULL`; regression `SelectAnchorGuardByScopedId_omits_archived_filter_for_save_path_anchor_reads`.
+- [x] (valid-no-repro) `ExistsActiveRunWithSystemNameInWorkspace` treats Committed runs as available for reuse unlike `CountActiveRunsForArchitectureRequest` — **cheap-disproof 2026-09-09 seed hunt #1445:** workspace name collision guard blocks while committed reviews occupy the name; concurrency guard excludes Committed by design; regressions `ExistsActiveRunWithSystemNameInWorkspace_treats_committed_runs_as_occupying`, `InMemory_committed_run_occupies_workspace_system_name`, and `CountActiveRunsForArchitectureRequest_excludes_committed_for_concurrency_not_name_collision`.
+
+2026-09-09 seed hunt #1445 (seed-only): reseeded sql-run-repository after #1444; cheap-disproof closed architecture prior-committed manifest filter, latest architecture run ordering, graph snapshot clear scope, save anchor guard, and Committed-vs-concurrency occupancy split; 60 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `ArchiveRunsCreatedBeforeInScope` omits tenant/workspace/project predicates and archives cross-scope runs — **cheap-disproof 2026-09-09 seed hunt #1446:** scoped bulk archive binds `TenantId`, `WorkspaceId`, `ScopeProjectId`, and `ArchivedUtc IS NULL`; regression `ArchiveRunsCreatedBeforeInScope_scopes_bulk_archive_to_active_scope`.
+- [x] (valid-no-repro) `SelectPriorCommittedRunIdBeforeCurrent` omits archived golden-manifest filter on project-slug path — **cheap-disproof 2026-09-09 seed hunt #1446:** shape joins `GoldenManifests` with `gm.ArchivedUtc IS NULL` and RunId tie-break; regression `SelectPriorCommittedRunIdBeforeCurrent_excludes_archived_golden_manifests`.
+- [x] (valid-no-repro) `UpdateOperatorGovernanceDisposition` mutates soft-archived runs — **cheap-disproof 2026-09-09 seed hunt #1446:** SQL requires `ArchivedUtc IS NULL`; InMemory uses `IsActiveInScope`; regressions `UpdateOperatorGovernanceDisposition_requires_active_run` and `InMemory_operator_governance_disposition_skips_archived_run`.
+- [x] (valid-no-repro) `SelectByScopedIdIncludingArchived` / `GetByIdIncludingArchivedAsync` leak archived runs without tenant scope — **cheap-disproof 2026-09-09 seed hunt #1446:** replay read keeps tenant/workspace/project predicates and intentionally omits `ArchivedUtc IS NULL`; regression `SelectByScopedIdIncludingArchived_omits_archived_filter_for_replay_reads` plus `InMemory_get_by_id_including_archived_returns_soft_archived_run`.
+- [x] (valid-no-repro) Dashboard list shapes include archived runs because `ScopeWhereTail` omits archival filter — **cheap-disproof 2026-09-09 seed hunt #1446:** `RunListWarningFlagSql.ScopeWhereTail` requires `r.ArchivedUtc IS NULL`; regression `ScopeWhereTail_excludes_archived_runs_from_dashboard_lists`.
+- [x] (valid-no-repro) `ListByArchitectureIdAsync` returns archived architecture child runs — **cheap-disproof 2026-09-09 seed hunt #1446:** SQL and InMemory filter active in-scope runs and order by `CreatedUtc DESC, RunId DESC`; regression `InMemory_architecture_list_excludes_archived_runs`.
+
+2026-09-09 seed hunt #1446 (seed-only): reseeded sql-run-repository after #1445; cheap-disproof closed scoped bulk archive, prior-committed manifest filter, operator governance active-run guard, archived replay read split, list archival filter, and architecture child list scope; 68 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectLatestWithGraphAtOrBefore` returns runs without `GraphSnapshotId` — **cheap-disproof 2026-09-09 seed hunt #1447:** temporal graph lookup requires non-null graph pointer; regressions `SelectLatestWithGraphAtOrBefore_requires_graph_snapshot_id` and `InMemory_select_latest_with_graph_skips_runs_without_graph_snapshot`.
+- [x] (valid-no-repro) `SelectPriorCommittedRunIdBeforeCurrent` ranks all committed runs and ignores current-run timeline — **cheap-disproof 2026-09-09 seed hunt #1447:** SQL excludes current id and requires strictly earlier `(CreatedUtc, RunId)` tuple; regression `SelectPriorCommittedRunIdBeforeCurrent_excludes_current_and_later_timeline`.
+- [x] (valid-no-repro) `ArchiveRunsByIds` re-archives already soft-archived runs — **cheap-disproof 2026-09-09 seed hunt #1447:** update targets `ArchivedUtc IS NULL` only and second result set reports already-archived ids; regression `ArchiveRunsByIds_targets_active_rows_and_reports_already_archived`.
+- [x] (valid-no-repro) Global `ArchiveRunsCreatedBefore` archives cross-tenant runs because scoped variant exists — **cheap-disproof 2026-09-09 seed hunt #1447:** catalog retention path is TenantScopeExempt and filters by cutoff only; regression `ArchiveRunsCreatedBefore_omits_tenant_scope_for_catalog_retention`.
+- [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` includes archived backfill candidates — **cheap-disproof 2026-09-09 seed hunt #1447:** backfill batch requires `ArchivedUtc IS NULL`; regression `ListWithNullArchitectureId_excludes_archived_backfill_candidates` plus `InMemory_list_with_null_architecture_id_excludes_archived_runs`.
+
+2026-09-09 seed hunt #1447 (seed-only): reseeded sql-run-repository after #1446; cheap-disproof closed graph-at-time snapshot requirement, prior-committed timeline guard, archive-by-ids idempotency, catalog retention scope, and null-architecture backfill archival filter; 74 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectPriorCommittedRunIdForArchitectureBeforeCurrent` ranks all architecture commits and ignores current-run timeline — **cheap-disproof 2026-09-09 seed hunt #1448:** SQL excludes current id and requires strictly earlier `(CreatedUtc, RunId)` tuple; regression `SelectPriorCommittedRunIdForArchitectureBeforeCurrent_excludes_current_and_later_timeline`.
+- [x] (valid-no-repro) `RunRepositorySql.Insert` omits row-version output for optimistic concurrency — **cheap-disproof 2026-09-09 seed hunt #1448:** insert captures `OUTPUT inserted.RowVersionStamp`; regression `Insert_outputs_row_version_stamp_for_optimistic_concurrency`.
+- [x] (valid-no-repro) `HardDeleteStaleUncommittedRunsBatchAsync` purges committed/demo/showcase runs — **cheap-disproof 2026-09-09 seed hunt #1448:** `IsEligibleForStaleUncommittedPurge` excludes committed, demo welcome, and public showcase rows; regressions `IsEligibleForStaleUncommittedPurge_excludes_committed_demo_and_showcase_runs` and `InMemory_stale_uncommitted_purge_skips_committed_runs`.
+- [x] (valid-no-repro) `CountByArchitectureIdAsync` includes archived architecture child runs — **cheap-disproof 2026-09-09 seed hunt #1448:** SQL and InMemory count active in-scope runs only; regression `InMemory_count_by_architecture_id_excludes_archived_runs`.
+- [x] (valid-no-repro) `ArchiveRunsCreatedBeforeForScopeAsync` archives cross-scope runs when global variant exists — **cheap-disproof 2026-09-09 seed hunt #1448:** InMemory scoped archive leaves other scope-project rows active; regression `InMemory_archive_runs_created_before_for_scope_leaves_other_scopes_active`.
+- [x] (valid-no-repro) Recent-in-scope keyset list uses ad-hoc cursor predicate — **cheap-disproof 2026-09-09 seed hunt #1448:** `RunsListRecentInScopeKeysetNoLock` reuses shared `KeysetCursorPredicate` and `KeysetOrderBy`; regression `RunsListRecentInScopeKeysetNoLock_reuses_shared_keyset_cursor_predicate`.
+
+2026-09-09 seed hunt #1448 (seed-only): reseeded sql-run-repository after #1447; cheap-disproof closed architecture prior-committed timeline, insert row-version output, stale-uncommitted purge eligibility, architecture count scope, scoped archive isolation, and recent keyset cursor reuse; 81 scoped Persistence tests passed (1 SQL integration skipped).
+
+2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
+
+2026-09-07 seed hunt #1264 (hit): reseeded after #1263; proved offset list ordering lacked RunId tie-break; seeded scope-project GUID trim and JSON property-path candidates.
+
+2026-09-07 thorough hunt #1263 (hit): proved workflowIntent JSON fallback case mismatch; cheap-disproof closed architecture-list PackageOrigin projection candidate; 28 scoped unit tests passed (25 Persistence + 3 Application), 1 SQL integration skipped.
+
+2026-09-07 seed hunt #1255 (seed-only): reseeded after #1183; cheap-disproof closed detail-vs-list PackageOrigin parity as documented TB-738 list-only fallback; seeded workflowIntent case-sensitivity and architecture-list projection candidates; shape regressions for COALESCE/list/detail split.
+
+2026-09-07 seed hunt #1183 (hit): reseeded run repository list SQL; proved ArchitectureRequests join missed padded stored request ids for PackageOrigin fallback.
 
 ---
 
@@ -607,13 +799,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 12
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — `ResolveRuleFields` threw `NullReferenceException` when `AppliedRuleIdsJson` deserialized a null first element instead of falling back to trace rule text
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — inspect `TryParseEvaluationConfidenceLevel` accepted undefined numeric confidence strings
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -626,6 +818,30 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ParseFindingSeverity` unknown `Severity` column defaults to `Info` — documented contract in `FindingInspectReadModelMapperTests`; invalid DB values cannot be recovered without a separate mapping table
 - [x] (valid-no-repro) `BuildMetadataTypedPayload` duplicates `rationale` into `whyThisMatters` for metadata-only inspect — intentional slim first-paint payload; UI `findingWhyThisMattersText` already falls back to rationale
 - [x] (proven) `ResolveRuleFields` with `AppliedRuleIdsJson` containing a null first element — **hit 2026-09-03:** `ids[0].Trim()` threw `NullReferenceException` on `[null]` instead of falling back to `firstRuleText`; fixed with null/whitespace guard; consolidated regressions in `FindingInspectReadRepositoryCoreTests` (removed stale reflection tests on moved helper)
+- [x] (proven) `ResolveRuleFields` with null/blank prefix in `AppliedRuleIdsJson` drops later rule ids — **hit 2026-09-07 (#1179 seed→hit):** `[null, "cost-guardrail"]` returned `(null, null)` after the #603 null guard because only `ids[0]` was considered; fixed by selecting the first non-blank id in the array; regression in `ResolveRuleFields_when_first_applied_rule_id_is_null_uses_next_non_blank_id`
+- [x] (proven) `FindingInspectReadSql.FollowUpBatch` disposition subquery reads `FindingReviewEvents` directly instead of joining `FindingCurrentDispositions` — **hit 2026-09-07 hunt #1230:** inspect omitted `LatestDispositionEventId` / `LatestDispositionRowVersionBase64` / `LatestDispositionReviewerUserId`; fixed with pointer-table join + mapper; regressions in `FollowUpBatch_scopes_latest_disposition_to_workspace_and_project` and `GetInspectAsync_surfaces_current_disposition_pointer_fields_from_FindingCurrentDispositions`
+- [x] (proven) `FindingInspectReadSql.FollowUpBatch` disposition join omits `RevisitDueUtc` from current pointer event — **hit 2026-09-07 hunt #1233 (seed→hit):** deferred disposition inspect returned null `RevisitDueUtc` at repository layer; fixed SQL projection + mapper; regressions in `FollowUpBatch_disposition_subquery_projects_revisit_due_from_current_pointer_event` and ADR 0076 integration test
+- [x] (valid-no-repro) `MainInspect*` `AND (r.ArchivedUtc IS NULL)` serves older active run when newest rerun is archived — **cheap-disproof 2026-09-07 hunt #1233:** intentional soft-archive parity with list/run surfaces; archived runs remain in DB but drop out of active inspect selection
+- [x] (proven) Corrupt non-empty `PayloadJson` returned `TypedPayload: null` indistinguishable from a missing payload column — **hit 2026-09-07 hunt #1238:** `TryParsePayloadJson` swallowed `JsonException`; `FindingRecords.PayloadJson` has no ISJSON guard unlike `DecisioningTraces.AppliedRuleIdsJson`; fixed with `ResolveTypedPayloadForInspect` metadata fallback when the column is non-empty but invalid JSON; regressions in `ResolveTypedPayloadForInspect_falls_back_to_metadata_when_payload_json_is_corrupt` and related core tests.
+- [x] (invalid) Run-scoped `AppliedRuleIdsJson` wins over per-finding `FindingTraceRulesApplied` when JSON non-empty — **cheap-disproof 2026-09-07 hunt #1238:** `docs/library/EXPLAINABILITY.md` and #667 fix require first applied rule id from `DecisioningTraces` when present; per-finding trace text is the fallback when JSON is absent.
+
+2026-09-07 thorough hunt #1238 (hit): proved corrupt PayloadJson metadata fallback gap; cheap-disproved run-level rule-id precedence candidate as documented contract.
+
+- [x] (proven) `FindingInspectReadModelMapper.ParseDisposition` accepts undefined numeric `FindingReviewEvents.Disposition` strings (e.g. `"999"`) — **hit 2026-09-07 seed hunt #1243:** `Enum.TryParse` without `Enum.IsDefined` parity to disposition validation (#750); inspect surfaced invalid `LatestDisposition` instead of null; fixed in mapper; regressions in `ParseDisposition_returns_null_for_undefined_or_unrecognized_values`.
+- [x] (proven) `FindingInspectReadModelMapper.ParseHumanReview` accepts undefined numeric `FindingRecords.HumanReviewStatus` strings — **hit 2026-09-08 hunt #1293:** same `Enum.TryParse` gap as #1243 `ParseDisposition`; inspect surfaced `(FindingHumanReviewStatus)99` instead of `NotRequired`; fixed with `Enum.IsDefined` guard; regressions in `ParseHumanReview_maps_or_defaults` for `"99"`/`"999"`.
+- [x] (invalid) `MainInspect*` selects `r.GoldenManifestId` into `MainRow` but `MapInspectResponse` never projects it on `FindingInspectResponse` — **cheap-disproof 2026-09-08 hunt #1293:** `FindingInspectResponse` has no golden-manifest field by contract; evidence chain exposes it separately; unused column fetch is optimization/backlog, not incorrect inspect data.
+
+2026-09-08 thorough hunt #1293 (hit): proved undefined numeric human-review status on inspect read; cheap-disproved golden-manifest projection gap as non-defect.
+2026-09-07 seed hunt #1243 (hit): reseeded after #1238; proved undefined numeric disposition on inspect read; seeded golden-manifest projection gap candidate.
+
+- [x] (proven) `FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel` accepts undefined numeric `FindingRecords.EvaluationConfidenceLevel` strings — **hit 2026-09-08 seed hunt #1309:** `Enum.TryParse` without `Enum.IsDefined` parity to #1243/#1293; inspect surfaced `(FindingConfidenceLevel)999` instead of null; fixed in mapper; regressions in `TryParseEvaluationConfidenceLevel_returns_null_for_undefined_or_unrecognized_values`
+- [x] (proven) `FindingInspectReadModelMapper.ParseFindingSeverity` accepts undefined numeric `FindingRecords.Severity` strings — **hit 2026-09-08 seed hunt #1309:** same `Enum.TryParse` gap; `"999"` mapped to `(FindingSeverity)999` instead of documented `Info` default; fixed with `Enum.IsDefined` guard; regression in `ParseFindingSeverity_maps_or_defaults` for `"999"`
+- [ ] (candidate) `ResolveRuleFields` when `AppliedRuleIdsJson` deserializes to a non-array JSON shape (object/scalar) — silently falls through to `firstRuleText`; locus in `FindingInspectReadRepositoryCore.cs`; no failing repro yet
+
+2026-09-08 seed hunt #1309 (hit): reseeded inspect mapper enum parity; proved undefined numeric evaluation-confidence and severity strings; seeded non-array `AppliedRuleIdsJson` fallback candidate.
+
+2026-09-07 seed hunt #1233 (hit): reseeded inspect SQL zone; proved deferred disposition `RevisitDueUtc` gap; cheap-disproved archived-run stale fallback; seeded corrupt-payload and run-level rule-id candidates.
+2026-09-07 thorough hunt #1230 (hit): proved ADR 0076 disposition pointer fields missing on inspect read; fixed FollowUpBatch join through `FindingCurrentDispositions`.
 
 ---
 
@@ -637,11 +853,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 5
-- **bugs-found:** 7
+- **hunts:** 6
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — wallet GET surfaced prior-month auto-refill count after UTC month rollover
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — partial wallet PUT could not enable auto-replenish when monthly cap already persisted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -659,7 +875,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Overage reconciliation delta consume dropped when remaining balance insufficient — **hit 2026-08-24:** `ReconcileOverageInternalAsync` called `ConsumeInternalAsync` for positive delta; `InsufficientFunds` returned silently without re-queue; fixed via `TryConsumeWithRetryAsync` + full reconcile re-queue; regression in `ReconcileOverageInternalAsync_requeues_settlement_when_delta_consume_insufficient_funds`
 - [x] (invalid) `ConsumeInternalAsync` plain settlement re-queue on insufficient funds — **dry 2026-08-25:** `TryConsumeWithRetryAsync` returns false on `InsufficientFunds`; `ConsumeInternalAsync` re-queues via shared `!consumed` path (same as concurrency exhaustion); regression in `ConsumeInternalAsync_requeues_settlement_when_consume_hits_insufficient_funds`
 - [x] (proven) `GetWalletAsync` returned stale `AutoRefillsThisUtcMonthCount` after UTC month rollover — **hit 2026-09-03 (#584):** `MapView` echoed persisted count while `CanAutoRefill` already treated a new month as zero refills; operators saw prior-month cap usage in billing UI; fixed by normalizing count on read; regression in `GetWalletAsync_returns_zero_auto_refill_count_after_utc_month_rollover_when_prior_month_at_cap`.
-- [ ] (candidate) `UpdateWalletAsync` allows enabling auto-replenish without Stripe payment method on file — refill path no-ops when customer/payment method missing; operator may think auto-replenish is armed when it cannot charge.
+- [x] (proven) `UpdateWalletAsync` rejected enabling auto-replenish when `MonthlyCapUsd` omitted but already persisted — **hit 2026-09-09 hunt #1432:** `GetValueOrDefault()` treated omitted cap as zero; partial PUT returned null/409 even when wallet already had a valid cap; fixed by validating persisted cap when enabling without resubmitting cap; regression `UpdateWalletAsync_allows_enabling_auto_replenish_when_monthly_cap_already_persisted`
+- [x] (invalid) `UpdateWalletAsync` allows enabling auto-replenish without Stripe payment method on file — **cheap-disproof 2026-09-09 hunt #1432:** billing UI blocks save without payment method; GET exposes `hasPaymentMethod`; `TryAutoRefillAsync` no-ops safely when customer/payment method missing; no charge or overspend wrong outcome
+
+2026-09-09 thorough hunt #1432 (hit): proved partial auto-replenish enable regression; cheap-disproved payment-method UX candidate; 16 scoped LlmTenantWalletServiceTests passed.
 
 2026-09-03 seed hunt #584: reseeded llm-wallet; proved wallet read month-rollover display gap vs `CanAutoRefill` parity; seeded auto-replenish-without-payment-method UX candidate.
 
@@ -673,11 +892,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 4
-- **bugs-found:** 3
+- **hunts:** 7
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — undefined disposition enum bypassed application validation
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — zero-width/format finding id bypassed disposition validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -692,10 +911,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `FindingDispositionService.ListHistoryAsync` with same-tenant finding id reused across projects — workspace/project equality filter hides foreign-project events; regression in `ListHistoryAsync_excludes_disposition_events_from_other_project`.
 - [x] (invalid) `FindingDispositionValidation.Validate` for `RejectedAsNotApplicable` — whitespace-padded rationale below 10 characters after trim — `Trim().Length` gate enforced; regression in `Validate_rejected_as_not_applicable_rejects_short_rationale`.
 - [x] (proven) `FindingDispositionValidation.Validate` — undefined `FindingDisposition` numeric cast (e.g. `(FindingDisposition)999`) passes validation — **hit 2026-09-04 (#750):** HTTP mapper already used `Enum.IsDefined`; application `Validate` skipped enum guard so non-HTTP callers could persist invalid disposition; fixed with `Enum.IsDefined` parity to `RunOperatorGovernanceDispositionValidation`; regression in `Validate_rejects_undefined_disposition_enum_value`.
-- [ ] (candidate) `FindingDispositionService.RecordAsync` — negative numeric disposition cast `(FindingDisposition)(-1)` — same `Enum.IsDefined` gate as undefined positive ordinals; cheap-disproof after #750 fix.
-- [ ] (candidate) `FindingDispositionValidation.Validate` for `Deferred` — `RevisitDueUtc` exactly at `DateTimeOffset.MaxValue` — upper-bound not validated; unlikely harm but worth one probe.
+- [x] (invalid) `FindingDispositionService.RecordAsync` — negative numeric disposition cast `(FindingDisposition)(-1)` — `#750` `Enum.IsDefined` gate rejects negative ordinals; regression in `Validate_rejects_negative_disposition_enum_value`.
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` for `Deferred` — `RevisitDueUtc` exactly at `DateTimeOffset.MaxValue` — upper bound not validated; passes validation and persists; no wrong outcome in zone files; regression in `Validate_deferred_accepts_revisit_due_at_max_value`.
+- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format finding ids (e.g. U+200B-only or embedded format chars) pass `IsNullOrWhiteSpace` and persist via non-HTTP callers — **hit 2026-09-09 (#1400):** added `HasSubstantiveFindingId` parity to `AuthorityPipelineWorkPayload.HasSubstantiveText`; regressions in `Validate_rejects_zero_width_space_only_finding_id` / `Validate_rejects_finding_id_with_embedded_format_character`.
 
 2026-09-04 seed hunt #750: reseeded after closed hypothesis set; proved undefined disposition enum bypass; seeded negative-ordinal and max-revisit candidates.
+
+2026-09-07 thorough hunt #1182 (dry): cheap-disproved negative ordinal via existing `Enum.IsDefined` guard; max-revisit probe valid-no-repro.
+
+2026-09-09 seed hunt #1400: proved invisible/format finding id bypass; closed zero-width and embedded-format rows.
+
+- [x] (invalid) `FindingDispositionValidation.Validate` accepts finding ids with embedded Unicode control characters — **cheap-disproof 2026-09-09 seed hunt #1439:** `HasSubstantiveFindingId` rejects `UnicodeCategory.Control` like format chars; regression `Validate_rejects_finding_id_with_embedded_control_character`.
+- [x] (valid-no-repro) `ValidateWorkingRemediatedImpactPreviewAttestation` accepts single-character preview override reasons — **cheap-disproof 2026-09-09 seed hunt #1439:** override branch requires `PreviewOverrideReason.Trim().Length >= MinimumRationaleLength`; regression `Validate_working_remediated_rejects_short_preview_override_reason`.
+- [x] (valid-no-repro) `Validate` rejects finding ids longer than 64 characters after trim only — **cheap-disproof 2026-09-09 seed hunt #1439:** max-length boundary is inclusive on trimmed value; regression `Validate_accepts_finding_id_at_max_length`.
+- [x] (valid-no-repro) `ListHistoryAsync` omits `HasSubstantiveFindingId` and could persist invisible ids via read path — **cheap-disproof 2026-09-09 seed hunt #1439:** history lookup is read-only and uses `findingId.Trim()`; writes still pass `FindingDispositionValidation.Validate` before append.
+
+2026-09-09 seed hunt #1439 (seed-only): reseeded finding-disposition after #1400 hit; cheap-disproof closed control-char, short preview override, max-length boundary, and ListHistory read-path candidates; 23 scoped FindingDispositionValidation tests passed.
 
 ---
 
@@ -742,11 +973,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 3
-- **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — empty FindingsSnapshot.RunId bypassed run binding guard
+- **hunts:** 5
+- **bugs-found:** 3
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — findings snapshot anchor ids not bound to golden manifest
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -756,6 +987,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Dry-run simulation persists a real alert delivery — retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
 - [x] Missing workspace still returns 200 with another workspace's rules — (valid-no-repro): `RunMatchesCallerScope` rejects foreign-workspace run detail; `StampSimulationScope` overwrites embedded rule scope before `SimulateAsync`; covered by `GetContextsAsync_when_authority_returns_foreign_workspace_run_returns_empty`
 - [x] (proven) Findings snapshot with empty `RunId` bypasses run binding and simulates unscoped findings — **hit 2026-08-24:** guard only rejected mismatched ids when `findings.RunId != Guid.Empty`; empty id skipped check; fixed by requiring `findings.RunId == runId` and matching golden-manifest run ids before compare
+- [x] (proven) `BuildContextAsync` accepted findings whose snapshot anchor ids did not match the golden manifest — **hit 2026-09-07 (#1165):** only `RunId` was checked; cross-linked `FindingsSnapshotId`/`ContextSnapshotId`/`GraphSnapshotId` could simulate foreign findings; fixed via `FindingsSnapshotMatchesGoldenManifest` (`GetContextsAsync_when_findings_snapshot_id_mismatches_golden_manifest_returns_empty`)
+- [x] (valid-no-repro) Compared-to run path builds manifest comparison without validating compared findings snapshot anchors — **cheap-disproof 2026-09-07 hunt #1258:** `BuildContextAsync` validates primary `FindingsSnapshotMatchesGoldenManifest` before plan generation; compared-to branch calls `IComparisonService.Compare` on golden manifests only and never reads `comparedDetail.FindingsSnapshot`; regression `GetContextsAsync_when_compared_to_findings_snapshot_mismatches_compares_manifests_only_with_primary_findings`
+- [x] (invalid) Batch recent-run replay silently drops runs with sealed-hash failures while single-run mode throws — **cheap-disproof 2026-09-07 hunt #1258:** intentional wave-27 suggestion 261 (`skipOnSealedHashFailure: true` on recent-run sweep vs `false` on explicit `runId`); `RuleSimulationResult.EvaluatedRunCount` reflects successfully built contexts; regression `GetContextsAsync_recent_run_batch_skips_runs_with_sealed_hash_failure_without_throwing`; architecture test `Suggestion261_alert_simulation_multi_run_sweep_skips_unverified_runs`
+
+2026-09-07 thorough hunt #1258 (dry): cheap-disproof closed both open candidates; eight scoped unit tests passed.
+2026-09-07 seed hunt #1165 (hit): proved findings snapshot anchor mismatch bypassed golden manifest binding.
 
 ---
 
@@ -767,11 +1004,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — case-differing duplicate mailboxes bypassed per-recipient ledger keys in multi-recipient weekly dispatch
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — `WeeklySponsorSummaryEmailDispatcher` padded ISO week idempotency keys duplicated weekly summary sends
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -784,24 +1021,31 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Template render failures after ledger reservation block weekly retry for the ISO week — fixed by rendering templates before `TryRecordSentAsync` while keeping ledger-before-send for outbound idempotency.
 - [x] (valid-no-repro) Partial multi-recipient send failure on weekly sponsor report permanently suppresses remaining recipients — shared `MultiRecipientEmailDispatch` skips ledger-recorded mailboxes on retry (`WeeklySponsorReportEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry`).
 - [x] (proven) Case-differing duplicate mailboxes in multi-recipient weekly dispatch bypass per-recipient ledger keys and send duplicate emails — fixed by case-insensitive dedupe and lowercase mailbox suffixes in `MultiRecipientEmailDispatch`.
+- [x] (proven) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` used raw `isoWeekIdempotencyKey` in ledger prefix without trim/whitespace guard — **hit 2026-09-08 seed hunt #1338:** padded keys like `" 2026-W22 "` bypassed the same-week ledger scope and sent duplicate Sponsor reports; fixed by rejecting whitespace-only keys and trimming before `weekly-sponsor-report:{tenant}:{isoWeek}` idempotency; regression in `WeeklySponsorReportEmailDispatcher_padded_iso_week_idempotency_key_does_not_duplicate_weekly_send`
+- [x] (invalid) `WeeklySponsorReportEmailDispatcher` pre-renders templates before `MultiRecipientEmailDispatch` validates recipient mailboxes via `IdentityEmailNormalizer` — **cheap-disproof 2026-09-09 hunt #1431:** invalid-only lists pay render cost but produce no send/ledger wrong outcome; dispatcher returns false when all mailboxes fail normalization
+- [x] (proven) `WeeklySponsorSummaryEmailDispatcher` shared unpadded ISO-week idempotency behavior — **hit 2026-09-09 hunt #1431:** padded keys like `" 2026-W23 "` bypassed weekly ledger scope and sent duplicate sponsor summary emails; fixed with trim/whitespace guard parity to #1338 report dispatcher; regression `WeeklySponsorSummaryEmailDispatcher_padded_iso_week_idempotency_key_does_not_duplicate_weekly_send`
+
+2026-09-09 thorough hunt #1431 (hit): cheap-disproved invalid-recipient pre-render candidate; proved sibling summary dispatcher ISO week padding duplicate-send gap; 18 scoped DigestEmailDispatcherIdempotency tests passed.
+
+2026-09-08 seed hunt #1338 (hit): reseeded weekly-digest-email zone; proved ISO week idempotency padding duplicate-send gap; seeded invalid-recipient pre-render and sibling-dispatcher parity candidates.
 
 ---
 
 ## Zone: outbound-webhook-dry-run
 
 - **id:** outbound-webhook-dry-run
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 12
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — dry-run/simulate webhook probes omitted HTTPS/private-network SSRF guard before outbound POST
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — webhook dry-run connect-time guard blocks DNS rebind to private networks
 - **related-pd-tb:** none
-- **code-changed-since:** 3
+- **code-changed-since:** 7
 
 ### Hypotheses
 
@@ -809,9 +1053,50 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Dry-run payload includes secrets from another tenant's webhook config — retired: controller uses request `SharedSecret` only; no tenant webhook lookup in zone paths
 - [x] (invalid) Controller returns success when the dry-run service throws — retired: `ProbeWithBodyAsync` catches transport errors and returns `TransportSucceeded=false`; controller intentionally returns 200 with probe outcome in body
 - [x] (proven) Operator webhook dry-run POSTs to loopback/private targets without SSRF guard — **hit 2026-08-24:** `AllowedOutboundWebhookProbeUrlPolicy` blocks unsafe `TargetUrl` before probe in dry-run and simulate controllers
-- [ ] (hunt-ready) `OutboundWebhookDryRunController.DryRunAsync` when `OutboundWebhookDryRunService` returns `TransportSucceeded = false` — still responds `200 OK` with `StatusCode = 0`, so API clients treating HTTP success as delivery success mark dead URLs as healthy unless they inspect `TransportSucceeded`.
-- [ ] (hunt-ready) `OutboundWebhookDryRunService.ProbeWithBodyAsync` with `sharedSecret` of whitespace — `trimmedSecret` becomes empty, skips `WebhookSignature` header, but controller audit records `hasSharedSecret` from raw `body.SharedSecret is { Length: > 0 }`, logging that a secret was provided when the probe was unsigned.
-- [ ] (hunt-ready) `OutboundWebhookDryRunService.ProbeWithBodyAsync` on large subscriber responses — reads the full body via `ReadAsStringAsync` before applying `PreviewMaxChars` truncation, so a probe to a URL returning a multi-megabyte body allocates the entire payload server-side even though only 8192 chars are returned.
+- [x] (invalid) `OutboundWebhookDryRunController.DryRunAsync` when `OutboundWebhookDryRunService` returns `TransportSucceeded = false` — still responds `200 OK` with `StatusCode = 0` — **invalid 2026-09-07 hunt #1266:** same contract as retired transport-throws row; probe outcome is intentionally returned in body (`TransportSucceeded`, `Error`); regression `DryRunAsync_returns_200_with_transport_failed_outcome_in_body`.
+- [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` with `sharedSecret` of whitespace — `trimmedSecret` becomes empty, skips `WebhookSignature` header, but controller audit records `hasSharedSecret` from raw `body.SharedSecret is { Length: > 0 }` — **hit 2026-09-07 hunt #1266:** audit now uses `!string.IsNullOrEmpty(body.SharedSecret?.Trim())`; regression `DryRunAsync_audit_records_hasSharedSecret_false_when_shared_secret_is_whitespace_only`.
+- [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` on large subscriber responses — reads the full body via `ReadAsStringAsync` before applying `PreviewMaxChars` truncation — **hit 2026-09-07 hunt #1266:** capped stream read stops after preview window; regression `ProbeWithBodyAsync_does_not_read_entire_oversized_subscriber_response`.
+- [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` when HTTP headers arrive but response body preview read throws (or `response.Content` is null) — outer catch returned `TransportSucceeded=false` and `StatusCode=0` — **hit 2026-09-07 seed hunt #1267:** body preview is best-effort after `SendAsync`; preserve subscriber status/reason; regressions `ProbeWithBodyAsync_preserves_status_code_when_response_body_read_fails` and `ProbeWithBodyAsync_treats_no_content_response_as_transport_success`.
+- [x] (valid-no-repro) `OutboundWebhookDryRunController.DryRunAsync` validates `body.TargetUrl.ToString()` but probes `body.TargetUrl` — **thorough hunt #1268:** `ToString()` round-trip preserves `IdnHost` and SSRF guard decision for representative absolute HTTPS URLs; regression `DryRunAsync_target_url_to_string_round_trip_matches_ssrf_guard_decision`.
+- [x] (proven) Dry-run audit omits `responseBodyTruncated` when probe returns truncated preview — API response exposes `ResponseBodyTruncated` but audit JSON lacked the flag — **hit 2026-09-07 hunt #1268:** audit now records `responseBodyTruncated`; regression `DryRunAsync_audit_records_response_body_truncated_when_preview_truncated`.
+- [x] (proven) `OutboundWebhookDryRunController.DryRunAsync` runs probe before audit — when `IAuditService.LogAsync` throws after a successful probe, exception escapes and operator gets 5xx despite subscriber already receiving the POST (retry risk) — **hit 2026-09-07 seed hunt #1269:** audit after probe is best-effort; regression `DryRunAsync_returns_probe_outcome_when_audit_logging_fails`.
+- [x] (proven) `OutboundWebhookDryRunService.ProbeWithBodyAsync` uses injected `HttpClient` with default redirect following — SSRF guard validates initial URL only; auto-followed redirect can POST to loopback/private targets — **hit 2026-09-07 thorough hunt #1270:** typed probe client sets `AllowAutoRedirect=false`; regression `ProbeWithBodyAsync_does_not_follow_redirect_to_loopback`.
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` swallows body preview read failures with empty preview and `ResponseBodyTruncated=false` — **thorough hunt #1270:** intentional best-effort preview after headers (same class as #1267 no-content/502 body read); empty preview with preserved status is the contract.
+- [x] (proven) `OutboundWebhookDryRunController.DryRunAsync` / `OutboundWebhookDryRunService.ProbeWithBodyAsync` — DNS rebind TOCTOU between SSRF preflight and socket connect let TTL-flip hostnames POST synthetic webhooks to private targets — **hit 2026-09-08 thorough hunt #1361:** typed probe client now uses `OutboundHttpsConnectGuard` connect callback to re-resolve DNS and reject forbidden addresses at connect time; regressions `ProbeWithBodyAsync_rejects_private_network_connect_endpoint_at_socket_connect`, `ProbeWithBodyAsync_succeeds_against_loopback_without_connect_guard`, and `OutboundHttpsConnectGuardTests`
+- [x] (invalid) `OutboundWebhookDryRunController.DryRunAsync` audit JSON omits `TargetUrl` query string — **cheap-disproof 2026-09-08 seed hunt #1360:** query strings commonly carry webhook auth tokens; audit records authority + path only by design; regression `DryRunAsync_audit_omits_query_string_from_target_metadata`
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — typed HttpClient 30s timeout during `SendAsync` returns `TransportSucceeded=false` / `StatusCode=0` even when subscriber may have consumed the POST — **cheap-disproof 2026-09-08 thorough hunt #1361:** operator probe contract treats timeout as transport failure; no response headers means no subscriber status to preserve
+- [x] (valid-no-repro) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — inbound `CancellationToken` abort during pre-header `SendAsync` is indistinguishable from subscriber transport failure in outer catch — **cheap-disproof 2026-09-08 thorough hunt #1361:** same catch-all as other transport faults; ambiguous diagnosis is acceptable for operator-initiated cancel vs retry risk on rare client disconnect
+- [x] (invalid) `OutboundWebhookDryRunController.DryRunAsync` audit JSON omits `responseBodyPreview` while API response includes `ResponseBodyPreview` — **cheap-disproof 2026-09-08 seed hunt #1362:** subscriber bodies may contain secrets; audit stores transport metadata only (same class as query omission); regression `DryRunAsync_audit_omits_response_body_preview_from_metadata`
+- [x] (valid-no-repro) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — connect-guard rejection surfaces as generic `TransportSucceeded=false` / `Error` string — **cheap-disproof 2026-09-08 seed hunt #1362:** operator probe contract; `Error` still names the block (`private network`); regression `ProbeWithBodyAsync_rejects_private_network_connect_endpoint_at_socket_connect`
+- [x] (invalid) `OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8` — hard-coded `tenantId: Guid.Empty` in synthetic envelope — **cheap-disproof 2026-09-08 seed hunt #1362:** `note` field documents non-persistent sample; dry-run endpoint contract per OpenAPI
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeAuthorityRunCompletedAsync` — authority-run payload builder not invoked by zone controller (`DryRunAsync` calls `ProbeAsync` only, `OutboundWebhookDryRunController.cs` L48-49) — **cheap-disproof 2026-09-08 seed hunt #1362:** simulate endpoint owns authority payload path; out of dry-run trust boundary
+- [x] (valid-no-repro) `OutboundWebhookDryRunController.DryRunAsync` — hostname resolution failure during SSRF preflight returns `400` (`TryGetRejectionReasonAfterDnsResolveAsync`, L42-46) but the same class of failure at connect time returns `200` with `TransportSucceeded=false` (`OutboundHttpsConnectGuard` + `ProbeWithBodyAsync` catch, service L90-95) — **cheap-disproof 2026-09-08 seed hunt #1363:** validation rejects before probe; connect/probe failures stay in response body (same split as transport contract #1266)
+- [x] (invalid) `OutboundWebhookDryRunService.BuildSyntheticFindingCreatedWebhookBodyUtf8` — fresh `id` / `findingId` / `runId` GUIDs on every probe (`OutboundWebhookDryRunService.cs` L144-151) block byte-identical replay for subscriber idempotency tests — **cheap-disproof 2026-09-08 seed hunt #1363:** OpenAPI `OutboundWebhookDryRunExamplesOperationFilter` documents synthetic sample; each dry-run POST is intentionally unique
+- [x] (valid-no-repro) `OutboundWebhookDryRunController.DryRunAsync` — API response includes `ResponseBodyPreview` (`L56-57`) while audit omits preview (#1362) — subscriber may return secrets in body to the operator who initiated the probe — **cheap-disproof 2026-09-08 seed hunt #1363:** ExecuteAuthority-gated operator diagnostic; audit omission is the conservative store
+- [x] (valid-no-repro) `OutboundWebhookDryRunService.ReadResponseBodyPreviewAsync` — UTF-8 `StreamReader` with BOM detection (`L106-111`) can mis-render non-UTF-8 subscriber bodies in preview — **cheap-disproof 2026-09-08 seed hunt #1363:** preview is best-effort after headers; status/reason preserved (#1267 class)
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — typed `HttpClient` 30s timeout (`ServiceCollectionExtensions.IntegrationsOutboundHttpClients.cs` L38) covers entire `SendAsync` including capped preview read — slow subscriber body trickle returns `TransportSucceeded=false` after headers — **cheap-disproof 2026-09-08 seed hunt #1364:** preview read stops at `PreviewMaxChars`; timeout is operator-side transport ceiling (same class as #1361 timeout row)
+- [x] (valid-no-repro) `OutboundWebhookDryRunController.DryRunAsync` — audit JSON stores probe `error` string (`OutboundWebhookDryRunController.cs` L77) echoing exception messages that may repeat subscriber hostnames — **cheap-disproof 2026-09-08 seed hunt #1364:** operator-initiated ExecuteAuthority probe; forensics only; TargetUrl already operator-supplied
+- [x] (invalid) `OutboundWebhookDryRunService.ProbeWithBodyAsync` — `HttpCompletionOption.ResponseHeadersRead` (`L63`) delivers POST body to subscriber before preview read completes — preview failure still leaves subscriber with synthetic POST — **cheap-disproof 2026-09-08 seed hunt #1364:** POST delivery is the dry-run feature; preview failures preserve HTTP status (#1267)
+
+2026-09-08 seed hunt #1364 (seed-only): fourth consecutive seed pass with zero hunt-ready rows; cheap-disproof closed timeout/preview ordering and audit error forensics; zone set to **cooling**; 22 scoped controller/service tests passed.
+
+2026-09-08 seed hunt #1363 (seed-only): reseeded after #1362; cheap-disproof closed DNS outcome split, unique synthetic ids, operator preview trust boundary, and BOM preview limitation; 22 scoped controller/service tests passed.
+
+2026-09-08 seed hunt #1362 (seed-only): reseeded after #1361 connect-guard hit; cheap-disproof closed audit preview omission, connect error shape, synthetic tenant id, and unreachable authority payload path; 22 scoped controller/service tests passed.
+
+2026-09-08 thorough hunt #1361 (hit): proved DNS rebind connect-time SSRF gap; cheap-disproof closed timeout and cancellation diagnosis candidates; 25 scoped webhook dry-run + 4 connect-guard tests passed.
+
+2026-09-08 seed hunt #1360 (seed-only): reseeded after #1270; cheap-disproof closed audit query omission as intentional; seeded DNS rebind TOCTOU hunt-ready row and timeout/cancellation diagnosis candidates; no hunt-ready row reproduces in scoped tests.
+
+2026-09-07 thorough hunt #1270 (hit): disabled redirect following on webhook dry-run HttpClient; closed silent preview-read row as intentional; 18 scoped unit tests passed.
+
+2026-09-07 seed hunt #1269 (hit): reseeded zone; proved audit failure masked successful probe; seeded redirect SSRF and silent preview-read candidates.
+
+2026-09-07 thorough hunt #1268 (hit): closed URL ToString/guard drift as valid-no-repro; fixed audit missing truncation flag; 16 scoped unit tests passed.
+
+2026-09-07 seed hunt #1267 (hit): reseeded zone; proved post-header body preview failures misclassified transport; seeded URL-validation drift and audit-truncation candidates.
+
+2026-09-07 thorough hunt #1266 (hit): closed transport-failed HTTP contract as intentional; fixed audit whitespace secret mismatch and uncapped subscriber response reads; 9 scoped unit tests passed.
 
 ---
 
@@ -823,13 +1108,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 10
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — padded Critical severity skipped human approval and High effort band
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -837,6 +1122,30 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Alternative list duplicates the primary recommendation as if it were distinct
 - [x] Engine emits a must-change when evidence only supports a suggestion (proven)
 - [x] (proven) Unverified/indeterminate findings still emit production-control alternatives — **hit 2026-08-23:** `ArchitectureRecommendationAlternatives.Build` ignored `ProvenancePresentationMapper` and returned private-network/API-gateway paths while `ProposedChange` asked to collect evidence first
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.TryAddTradeOff` — competing-dimension trade-off attaches to `recommendations.First` list order instead of the primary dimension recommendation — **hit 2026-09-07 seed hunt #1283:** when Cost preceded Security in finding order, Security/Cost trade-off landed on the Cost card and the Security recommendation had no trade-off; fixed by resolving the target recommendation via primary dimension first; regression in `ArchitectureRecommendationTradeOffBuilderTests`
+- [x] (valid-no-repro) `ArchitectureRecommendationProposedChange` / `ArchitectureRecommendationAlternatives` — hypothesis-tier (`SystemProposed`) Fail findings still emit production-control copy — **valid-no-repro 2026-09-07 seed hunt #1283:** Fail + `EvidenceCondition.Sufficient` is an intentional must-change path; only `ProvenancePresentationBucket.Unverified` (including Indeterminate) gates evidence-first copy
+- [x] (proven) `ArchitectureRecommendationAlternatives.Build` — security trust-boundary branch keys on title substring only, so non-public trust-boundary gaps can still receive public-exposure remediation alternatives while `ProposedChange` stays generic — **hit 2026-09-07 hunt #1294:** `Alternatives.Build` matched any title containing "trust boundary" while `ProposedChange.Build` requires both "public" and "trust boundary"; internal-tier gaps got private-network/API-gateway alternatives with generic primary copy; fixed by aligning the alternatives gate with ProposedChange; regressions in `ArchitectureRecommendationAlternativesTrustBoundaryTests`
+
+- [x] (proven) `ArchitectureRecommendationAlternatives.Build` — Cost and DataArchitecture branches emit alternatives that restate the primary `ProposedChange` path — **hit 2026-09-08 seed hunt #1334:** Fail cost-ceiling and data-flow findings from specialist rules got guardrail/document-flow alternatives that paraphrased the primary recommendation; fixed by replacing alt[0] with spend-cap and classification-first paths distinct from primary; regressions in `ArchitectureRecommendationAlternativesDistinctnessTests`
+- [x] (proven) `ArchitectureRecommendationAlternatives.Build` — PerformanceScalability branch emits alternatives that restate the primary capacity-expectation `ProposedChange` — **hit 2026-09-08 seed hunt #1336:** alt[0] paraphrased "Record a capacity expectation… peak load… scaling" with "Add a capacity expectation… peak load… scaling approach"; fixed by replacing alt[0] with autoscaling/load-test path distinct from primary; regression in `BuildRecommendations_performance_capacity_alternatives_are_distinct_from_proposed_change`
+- [x] (proven) `ArchitectureRecommendationAlternatives.Build` — Reliability recovery branch emits alternatives that restate the primary RTO backup/replication `ProposedChange` — **hit 2026-09-08 seed hunt #1343 (seed→hit):** alt[0] paraphrased "Align backup, replication… stated RTO… recovery test" with "Increase backup frequency or add replication to meet the stated RTO"; fixed by replacing alt[0] with warm-standby/chaos-drill path distinct from primary; regression in `BuildRecommendations_reliability_recovery_alternatives_are_distinct_from_proposed_change`
+- [x] (proven) `ArchitectureRecommendationAlternatives.BuildEvidenceFirstAlternatives` — unverified/indeterminate findings emit alt[1] that restates the primary collect-evidence `ProposedChange` — **hit 2026-09-08 seed hunt #1377:** PrivacyCompliance and Integration indeterminate findings (and other Unverified-bucket rows) got primary "Collect additional evidence before changing the design for: {title}" while alt[1] repeated "Collect additional evidence before changing the design"; fixed by replacing alt[1] with discovery-spike path distinct from primary; regressions in `ArchitectureRecommendationAlternativesEvidenceFirstDistinctnessTests`
+
+- [x] (proven) `ArchitectureRecommendationEngine` / `ArchitectureRecommendationEffortEstimate` — severity label match uses raw string equality without trimming — **hit 2026-09-09 seed hunt #1419:** `" Critical "` skipped `RequiresHumanApproval` and downgraded effort/risk bands to Medium/Low; fixed via `ArchitectureRecommendationSeverityLabel`; regression in `ArchitectureRecommendationSeverityLabelTests`
+
+- [ ] (candidate) `ArchitectureRecommendationAlternatives.Build` — PrivacyCompliance and Integration Fail findings fall through to default defer/evidence alternatives despite dimension-specific `ProposedChange` branches — seeded 2026-09-09; default fallback is intentional for dimensions without dedicated alternative templates unless paraphrase is shown
+- [ ] (candidate) `ArchitectureRecommendationProposedChange` / `ArchitectureRecommendationAlternatives` — Operations and AiSpecificRisk dimensions only receive generic fallback copy and default alternatives — seeded 2026-09-09; no specialist title gates in source yet
+
+2026-09-09 seed hunt #1419 (seed→hit): reseeded architecture-recommendation; proved padded severity label gating gap; seeded PrivacyCompliance/Integration and Operations/AiSpecificRisk branch-gap candidates; 34 scoped recommendation tests passed.
+2026-09-08 seed hunt #1377 (hit): reseeded architecture-recommendation zone; proved evidence-first alternative paraphrase of collect-evidence primary; 19 scoped recommendation unit tests passed.
+
+2026-09-08 seed hunt #1343 (seed→hit): reseeded architecture-recommendation zone; proved Reliability recovery alternative paraphrase of primary proposed change; 20 scoped recommendation tests passed.
+
+2026-09-08 seed hunt #1336 (seed→hit): reseeded architecture-recommendation zone; proved PerformanceScalability alternative paraphrase of primary proposed change; 16 scoped recommendation tests passed.
+
+2026-09-08 seed hunt #1334 (hit): reseeded architecture-recommendation zone; proved Cost/DataArchitecture alternative paraphrase of primary proposed change; 26 scoped recommendation tests passed.
+2026-09-07 thorough hunt #1294 (hit): proved trust-boundary alternatives mismatch for non-public security gaps; aligned alternatives gate with ProposedChange public+trust-boundary predicate.
+2026-09-07 seed hunt #1283 (hit): reseeded architecture-recommendation zone; proved trade-off attachment order bug; disproved hypothesis-tier must-change gap; seeded trust-boundary alternative mismatch candidate.
 
 ---
 
@@ -848,13 +1157,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 10
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — present/future lifecycle synonyms ignored in `InferLifecycleScopeForIndex`
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -862,6 +1171,29 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Router swallows a failed extraction and returns an empty graph as success (retired: no failure/empty-success path; placeholder Assumption on miss)
 - [x] Difficulty score is computed from a different document than the one extracted (retired: Classify and Extract share the same sourceText)
 - [x] (proven) `InferLifecycleScopeForIndex` tags elements TargetState when any target marker appears before matchIndex, ignoring a later current-state section (`Extract_tags_component_after_current_state_section_even_when_target_state_appears_first`, `Extract_tags_component_after_as_is_section_even_when_to_be_appears_first`)
+- [x] (proven) `RequiresHumanReview` low-clarity gate let long structured compliance JSON classify as `StructuredParse` / `DirectlyEstablished` — **hit 2026-09-07 seed hunt #1244:** sensitive-marker docs with JSON/YAML/table shape bypassed human review when length ≥ 200 and colons present; fixed by requiring human review when sensitive content also matches `LooksStructured`; regressions in `Classify_returns_human_review_for_long_structured_gdpr_json` and `Extract_does_not_stamp_sensitive_structured_content_directly_established`.
+- [x] (proven) `RequiresHumanReview` — long non-structured sensitive prose (>200 chars with colons) classified `ClearExtraction` / `DirectlyEstablished` — **hit 2026-09-07 hunt #1286:** colon presence inverted the low-clarity gate so long GDPR/compliance prose skipped human review after the structured fix in #1244; fixed by requiring human review for sensitive content with length ≥ 200 regardless of colon; regressions in `Classify_returns_human_review_for_long_sensitive_prose_without_structure` and `Extract_does_not_stamp_long_sensitive_prose_directly_established`.
+- [x] (proven) `RequiresHumanReview` — short sensitive compliance snippets with colons classified `ClearExtraction` or `AmbiguousExtraction` instead of `HumanReviewRequired` — **hit 2026-09-07 seed hunt #1296:** trailing `!Contains(':')` gate let `GDPR: … PII …` bypass human review (and ambiguous markers could outrank review when colon present); fixed by requiring human review for all sensitive-marker content; regressions in `DifficultyBasedExtractionRouterSensitiveColonTests`
+- [x] (proven) `RequiresHumanReview` / `ContainsAny` — privacy/regulatory markers outside the fixed keyword list (`CCPA`, `SOC 2`, `PCI-DSS` without the word `compliance`) never trigger human review — **hit 2026-09-08 thorough hunt #1335:** `HumanReviewRegulatoryMarkers` omitted `ccpa`, `soc 2`, and `pci-dss`, so short regulatory prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by centralizing markers and extending the set; regressions in `DifficultyBasedExtractionRouterExtendedRegulatoryMarkersTests`
+
+2026-09-08 thorough hunt #1335 (hit): proved extended regulatory marker human-review bypass for CCPA/SOC 2/PCI-DSS; 20 scoped extraction-router tests passed.
+
+- [x] (proven) `RequiresHumanReview` / `HumanReviewRegulatoryMarkers` — shorthand `PCI:`, standalone `PHI`, and `personal data` prose never trigger human review while `pci-dss`/`pii`/`hipaa` did — **hit 2026-09-08 seed hunt #1310:** inspect-classify gap after #1335; short regulatory prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending centralized marker set; regressions in `DifficultyBasedExtractionRouterExtendedRegulatoryMarkersTests`
+- [x] (proven) `RequiresHumanReview` — framework markers (`ISO 27001`, `FedRAMP`, `NIST`) absent from `HumanReviewRegulatoryMarkers` — **hit 2026-09-08 thorough hunt #1350:** short ISO/FedRAMP/NIST prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending centralized marker set with `iso 27001`, `fedramp`, and `nist`; regressions in `Classify_returns_human_review_for_extended_regulatory_markers_without_compliance_keyword` and `Extract_does_not_stamp_fedramp_prose_directly_established`
+- [x] (proven) `RequiresHumanReview` / `HumanReviewRegulatoryMarkers` — financial and privacy framework markers (`SOX`, `GLBA`, `LGPD`, `data protection`) absent from centralized marker set — **hit 2026-09-08 seed hunt #1379:** short SOX/GLBA/LGPD/data-protection prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending marker set with `sox`, `glba`, `lgpd`, and `data protection`; regressions in `Classify_returns_human_review_for_extended_regulatory_markers_without_compliance_keyword` and `Extract_does_not_stamp_sox_prose_directly_established`
+- [x] (proven) `InferLifecycleScopeForIndex` — lifecycle synonyms (`present state`, `future state`) not recognized while `current state`/`target state`/`as-is`/`to-be` are — **hit 2026-09-09 thorough hunt #1421:** docs using present/future section headers left components at `LifecycleScope.Unspecified`; fixed by extending lifecycle boundary markers; regression in `Extract_tags_component_after_present_state_section_even_when_future_state_appears_first`
+
+2026-09-09 thorough hunt #1421 (hit): proved present/future lifecycle synonym gap in `InferLifecycleScopeForIndex`; 14 scoped DifficultyBasedExtractionRouter tests passed.
+
+2026-09-08 seed hunt #1379 (hit): reseeded extraction-router; proved SOX/GLBA/LGPD/data-protection human-review bypass; seeded present/future lifecycle synonym candidate; 33 scoped DifficultyBasedExtractionRouter tests passed.
+
+2026-09-08 thorough hunt #1350 (hit): proved ISO/FedRAMP/NIST framework marker human-review bypass; 28 scoped DifficultyBasedExtractionRouter tests passed.
+
+2026-09-08 seed hunt #1310 (hit): reseeded extraction-router; proved PCI/PHI/personal-data shorthand human-review bypass; seeded ISO/FedRAMP/NIST framework marker candidate; 24 scoped extraction-router tests passed.
+2026-09-07 seed hunt #1296 (hit): reseeded extraction-router; proved short sensitive colon human-review bypass; seeded extended regulatory keyword candidate.
+2026-09-07 thorough hunt #1286 (hit): proved long sensitive prose human-review bypass; promoted ledger candidate to proven.
+
+2026-09-07 seed hunt #1244 (hit): reseeded extraction-router zone; proved sensitive structured compliance bypass; seeded long-form sensitive prose candidate.
 
 ---
 
@@ -873,11 +1205,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 4
-- **bugs-found:** 4
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — cross-tenant run-list probe used `limit` on `/v1/runs`, which only honors `take`, so leaks beyond the default page could false-pass
+- **hunts:** 11
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -891,6 +1223,38 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Run-list probe missed foreign run ids when the API returned compact `N` guids but the CLI `--run-id` used dashed formatting — **hit 2026-08-24:** `TryFindRunIdInRunList` compared raw strings, so a leaked compact id was treated as absent and the cross-tenant list probe falsely passed; fixed by normalizing both sides to canonical `N` before comparison.
 - [x] (proven) Cross-tenant artifacts probe targeted a non-canonical route — **hit 2026-08-24:** live probes called `GET /v1/artifacts/runs/{runId}` (export-only prefix) instead of `GET /v1/architecture/runs/{runId}/artifacts`, so a 404 on the wrong path reported PASS without exercising artifact isolation; fixed probe path to the product route.
 - [x] (proven) Cross-tenant run-list probe used `limit=200` on canonical `GET /v1/runs`, which ignores `limit` and defaults `take` to 25 — a leaked foreign run beyond the first page could false-pass; fixed probe to `take=200` (`RunLiveAsync_FailsRunListProbeWhenForeignRunIdOnlyVisibleWithFullTakePage`).
+- [x] (proven) Cross-tenant run-list probe scanned only the first `/v1/runs` page — **hit 2026-09-07 (#1181):** `take=200` is clamped to `RunPagination.MaxTake` (100) and the probe did not follow `nextCursor`; a foreign run visible only on page 2+ false-passed; fixed with cursor pagination at max take; regressions `RunLiveAsync_FailsRunListProbeWhenForeignRunIdAppearsOnSecondCursorPage` and updated full-page test.
+
+2026-09-07 seed hunt #1181 (hit): promoted run-list cursor pagination gap after `RunPagination.MaxTake` review; proved foreign run on second page false-passed.
+
+- [x] (proven) Cross-tenant run-list probe false-passed when the 50-page scan cap was reached while `hasMore` remained true — **hit 2026-09-07 hunt #1235 (seed→hit):** `ScanRunListForForeignRunIdAsync` returned absent after `maxPages` without treating an incomplete scan as unverified; a foreign run beyond page 50 could ship as PASS; fixed by emitting `ScanIncomplete` and mapping to SKIP like server errors; regression `RunLiveAsync_SkipsRunListProbeWhenPaginationCapReachedBeforeExhaustingList`.
+- [x] (invalid) `TryFindRunIdInRunList` only reads camelCase `runId` items — a PascalCase `RunId` payload would miss a leaked id — **cheap-disproof 2026-09-07 (#1241):** `ArchLucidApiJsonSerializerOptions` sets `PropertyNamingPolicy = JsonNamingPolicy.CamelCase` for all MVC/API run-list payloads (`RunListItemResponse.RunId` → `runId`); regression `TryFindRunIdInRunList_IgnoresPascalCaseRunIdProperty`.
+- [x] (proven) Cross-tenant run-list exclude-run-id probe false-passed on HTTP 401/403 when the alternate scope could not read `/v1/runs` — **hit 2026-09-07 (#1241):** `ScanRunListForForeignRunIdAsync` parsed empty `items` on non-2xx responses and reported foreign runId absent; fixed by emitting `ListUnavailable` for non-success statuses and mapping to SKIP (offline manifest replay aligned); regression `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceivesUnauthorized`.
+- [x] (valid-no-repro) `EvaluateDenyStatus` treats HTTP 401 like 403/404 for deny-status probes — intentional: alternate-scope tokens may receive Unauthorized instead of Forbidden on cross-tenant reads; still counts as denied access, not leak.
+
+2026-09-07 seed hunt #1235 (hit): reseeded cli-tenant-isolation zone; proved run-list pagination cap false-pass; seeded PascalCase runId candidate; cheap-disproved 401-as-pass concern.
+
+2026-09-07 thorough hunt #1241 (hit): proved run-list exclude probe false-pass on HTTP 401; cheap-disproof PascalCase `RunId` candidate against `ArchLucidApiJsonSerializerOptions` camelCase policy.
+
+- [x] (proven) Cross-tenant run-list exclude probe false-passed when `/v1/runs` returned `hasMore: true` without `nextCursor` — **hit 2026-09-07 seed hunt #1245:** `AuthorityReadsController` omits `nextCursor` when `HasMore` is true but the page is empty; probe treated the truncated scan as foreign runId absent; fixed with `RunListClaimsMorePages` → `ScanIncomplete` → SKIP; regressions in `RunListClaimsMorePages_DetectsHasMoreWhenNextCursorMissing` and `RunLiveAsync_SkipsRunListProbeWhenHasMoreTrueWithoutNextCursor`.
+- [x] (invalid) Offline manifest replay cannot express run-list scan truncation (`hasMore` without cursor or pagination cap) — **cheap-disproof 2026-09-07 hunt #1246:** `EvaluateReplayProbe` honors explicit manifest `verdict: "skip"` for exclude-run-id probes before status/visibility re-derivation; non-2xx list statuses also map to SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksSkipForScanTruncation`.
+- [x] (valid-no-repro) Offline overall verdict stays PASS when a cross-tenant list probe is SKIP while other probes pass — **cheap-disproof 2026-09-07 hunt #1246:** intentional fixture-mode divergence from live-api (`DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped`); offline manifests replay authored scenarios rather than re-executing live pagination.
+
+2026-09-07 thorough hunt #1246 (dry): cheap-disproved offline scan-truncation manifest candidate; documented offline-vs-live overall SKIP divergence as valid-no-repro.
+
+- [x] (valid-no-repro) Primary sanity FAIL skips cross-tenant probes and reports overall FAIL — **cheap-disproof 2026-09-08 seed hunt #1371:** intentional gate when primary scope cannot read `--run-id`; blocks ship without claiming isolation passed; regression `RunLiveAsync_WhenPrimaryRunInvisible_SkipsCrossTenantProbesAndReportsFail`.
+- [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 429 on deny-status probes to FAIL not SKIP — **cheap-disproof 2026-09-08 seed hunt #1371:** conservative fail-closed when rate limited rather than treating throttling as denied access; regression `EvaluateDenyStatus_Treats429AsFailNotSkip`.
+- [x] (valid-no-repro) `TryFindRunIdInRunList` JsonException substring fallback false-negates structured run ids — **cheap-disproof 2026-09-08 seed hunt #1371:** malformed payloads still match embedded foreign ids via substring fallback (fail-closed); regression `TryFindRunIdInRunList_FallsBackToSubstringSearchWhenJsonMalformed`.
+- [x] (invalid) `RunListClaimsMorePages` misses `hasMore` encoded as JSON string `"true"` — **cheap-disproof 2026-09-08 seed hunt #1371:** `AuthorityReadsController` returns `CursorPagedResponse` with `bool HasMore` via `ArchLucidApiJsonSerializerOptions`; no string-typed writer in zone paths.
+
+2026-09-08 seed hunt #1371 (seed-only): reseeded cli-tenant-isolation after #1246 dry; cheap-disproof closed primary-skip, HTTP 429 deny, malformed-json fallback, and string-hasMore candidates; 25 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (valid-no-repro) Run-list exclude probe maps HTTP 429 to SKIP via `ListUnavailable` — **cheap-disproof 2026-09-09 seed hunt #1437:** throttled `/v1/runs` cannot verify foreign runId exclusion; conservative SKIP like HTTP 401/403 list-unavailable handling; regression `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives429`.
+- [x] (invalid) `ScanRunListForForeignRunIdAsync` post-loop fallthrough returns `ForeignRunIdAbsent` — **cheap-disproof 2026-09-09 seed hunt #1437:** loop always returns on the final page index (`ScanIncomplete` or inner branch); line after the loop is unreachable dead code, not a false-pass path.
+- [x] (valid-no-repro) Deny matrix omits canonical `GET /v1/runs/{runId}` detail alias — **cheap-disproof 2026-09-09 seed hunt #1437:** `AuthorityReadsController.GetRunDetail` and `RunQueryController.GetRun` both require `ReadAuthority` with scope middleware; probe catalog targets architecture review/export surfaces without zone-file evidence of authz divergence between aliases.
+- [x] (invalid) Run-list exclude probe should scan `GET /v1/architecture/reviews` — **cheap-disproof 2026-09-09 seed hunt #1437:** product canonical list is `GET /v1/runs` (`AuthorityReadsController` remarks); architecture reviews list delegates through the same scoped query services — no alternate-tenant leak reachable on reviews-only in these files.
+
+2026-09-09 seed hunt #1437 (seed-only): reseeded cli-tenant-isolation after #1371 dry streak; cheap-disproof closed HTTP 429 list-throttle SKIP, dead pagination fallthrough, missing `/v1/runs/{runId}` deny alias, and architecture-reviews list scan candidates; 27 scoped TenantIsolationNegativeTestRunner tests passed.
 
 ---
 
@@ -938,13 +1302,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -957,6 +1321,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Composition roots in evidence diverge from `$hostedCompositionRoots` — same apply-saas source; `DefaultApplyOrderRoots_composition_roots_match_apply_saas_ps1_hostedCompositionRoots` (2026-09-04).
 - [x] (invalid) `DocumentationRelativePath` cites missing stack-order doc — `DocumentationRelativePath_points_to_existing_reference_doc` confirms `docs/library/REFERENCE_SAAS_STACK_ORDER.md` on disk (2026-09-04).
 - [x] (invalid) Optional infra roots (`terraform-otel-collector`, `terraform-customer-onboarding`, etc.) must appear in deployment evidence — evidence lists canonical hosted SaaS apply order per `REFERENCE_SAAS_STACK_ORDER.md`, not every `infra/terraform*` directory.
+- [x] (valid-no-repro) Evidence default pilot profile path drifts from `$pilotProfileOnly` in `infra/apply-saas.ps1` — **cheap-disproof 2026-09-09 seed hunt #1436:** paths match today; added `DefaultApplyOrderRoots_default_pilot_profile_matches_apply_saas_ps1_pilotProfileOnly` guard alongside existing `$multiRootSequence` / `$hostedCompositionRoots` sync tests.
+- [x] (valid-no-repro) Hardcoded `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_multi_root_order` could pass while `$multiRootSequence` diverges — **cheap-disproof 2026-09-09 seed hunt #1436:** live ps1 parse test `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_ps1_multiRootSequence` fails first on drift; hardcoded test is redundant fast-check only.
+- [x] (invalid) Evidence lists pilot after full leaf sequence so deployment-evidence readers assume `-MultiRoot` default — pilot line cites `canonical default profile (metadata + cost knobs; no Azure apply)` and `DocumentationRelativePath` points to `REFERENCE_SAAS_STACK_ORDER.md` § default path (`apply-saas.ps1` without flags runs `$pilotProfileOnly` only).
+
+2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-04 seed hunt #734: seeded four drift/doc-scope candidates; cheap-disproved all; added apply-saas.ps1 sync regression tests. No hunt-ready rows; seed-only.
 
@@ -970,11 +1339,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -984,6 +1353,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Failed load still shows a previous tenant's cached rows — props-only client; loader clears runs upstream when hub load fails.
 - [x] (invalid) Empty state is skipped so a spinner never ends after a 403 — no spinner in `RunsListClient`; 403 surfaces via `OperatorApiProblem` upstream.
 - [x] (proven) Space on a compare checkbox bubbled to the row keyboard handler and opened the inspector — fixed by ignoring checkbox targets in `activateRowKeyboard` (matching click behavior).
+- [x] (proven) Buyer featured cards (`showBuyerPackageCards`) rendered `RunsListBuyerFeaturedCard` without row activation while the docked inspector stayed visible — **hit 2026-09-08 seed hunt #1355:** card shell click/keyboard now routes through `activateBuyerFeaturedCard` with the same link/checkbox guards as the work-queue table; regression `buyer-polished: card layout opens inspector preview when the card shell is activated`.
+- [x] (proven) Escape on the filter search field cleared filter text but bubbled to the window inspector-close handler — **hit 2026-09-08 seed hunt #1355:** filter `onKeyDown` now calls `stopPropagation` when clearing on Escape; regression `Escape in the filter field clears the query without closing an open inspector`.
+- [x] (valid-no-repro) `runsListFilterOpen` URL-synced `<details>` branch — `buyerCollapseFilters` (`buyerPolished && totalCount <= 1`) matches the outer hide-filters gate, so the disclosure element is unreachable and deep links have no mount target in current UX.
+- [x] (invalid) Buyer featured card footer CTA Space/Enter bubbles to card-shell keyboard handler and opens the inspector — **cheap-disproof 2026-09-09 seed hunt #1427:** `shouldIgnoreRunsListRowActivation` already ignores `<a>` targets; Button `asChild` renders the explore Link as an anchor; regression `buyer-polished: Space on the featured card CTA does not open the inspector`.
+- [x] (proven) Space on the baseline menu `<summary>` bubbled to `activateRowKeyboard` and opened the inspector while toggling More — **hit 2026-09-09 seed hunt #1427:** extracted shared `shouldIgnoreRunsListRowActivation` (also ignores `button` and `summary`) for work-queue keyboard, buyer card shell, and `onRowActivate`; regression `does not open inspector when Space activates the baseline menu summary`.
+
+2026-09-08 seed hunt #1355 (hit): reseeded ui-runs-list; proved buyer card inspector activation gap and filter Escape inspector-dismiss leak; cheap-disproved runsListFilterOpen disclosure reachability; 16 scoped `RunsListClient` tests passed.
+
+2026-09-09 seed hunt #1427 (hit): reseeded ui-runs-list; cheap-disproved buyer card CTA keyboard double-activation; proved baseline menu summary Space opens inspector; 18 scoped `RunsListClient` tests passed.
 
 ---
 
@@ -1021,13 +1399,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — doc-index entries outside CATEGORY_ORDER silently omitted from help hub
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — category section headings used raw category text in invalid HTML id tokens
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1036,8 +1414,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Index lists topics the current role is not allowed to open (fixed: generate_doc_index no longer bleeds internal-runbook titles onto public slugs)
 - [x] (proven) Fetched doc-index rows duplicate static quick links when the same URL appears under a different category or title — **hit 2026-08-23:** `mergeDocIndex` deduped only on `category|title|url`, so `/help/choose-your-next-step` rendered twice (Getting Started static + Go-to-Market fetched) and `/help/admin-diagnostics` showed both static and fetched titles.
 - [x] (proven) `HelpDocsClient` renders only `CATEGORY_ORDER` sections — fetched doc-index rows with a category outside that list merge into `grouped` but never render — **hit 2026-09-04 (#670):** append unknown categories after the fixed order via `helpDocCategoriesForDisplay`; regression in `HelpDocsClient.test.tsx`.
-- [ ] (candidate) Help hub search filter matches only `title` and `summary`, not `category` — operators filtering by section name (e.g. "Security") may see "No results" when no row text contains the token.
-- [ ] (candidate) Debounced `router.replace` for `?q=` can leave the search input and URL briefly out of sync when the operator clears the box and immediately navigates away.
+- [x] (proven) Help hub search filter matched only `title` and `summary`, not `category` — **hit 2026-09-08 thorough hunt #1348:** filtering `"security"` hid Security-section rows such as Policy packs whose title/summary omit the token; fixed by indexing `e.category` in filter haystack; regression `filters entries by category name when title and summary omit the token`
+- [x] (valid-no-repro) Debounced `router.replace` for `?q=` leaves search input and URL briefly out of sync when the operator clears the box and immediately navigates away — **cheap-disproof 2026-09-08 thorough hunt #1348:** `clearSearch` and Escape call immediate `router.replace`; pending debounce is cleared on unmount when navigating to a topic route, so a late timer cannot rewrite the destination URL
+- [x] (proven) Help hub search haystack omitted entry `url` — **hit 2026-09-08 seed hunt #1349 (seed→hit):** filtering `search-review-evidence` hid Indexed search at `/insights/search-review-evidence` when title/summary/category omitted the path token; fixed by indexing `e.url` in filter haystack; regression `filters entries by documentation url path when title summary and category omit the token`
+- [x] (proven) Category section headings use raw category text in `id` / `aria-labelledby` (`help-cat-${cat}`) — spaced category labels such as Getting Started produced invalid HTML id tokens and broke `getElementById` / strict `aria-labelledby` pairing — **hit 2026-09-09 (#1401):** slugify via `helpDocCategoryDomId` + `slugifyHelpHeading`; regression `uses valid html id tokens for category section headings`
+- [x] (valid-no-repro) Active search while `indexQuery.isPending` filters static quick links only — fetched doc-index matches appear only after refresh completes even when the operator already typed a matching query — **cheap-disproof 2026-09-09 thorough hunt #1401:** during initial pending only static rows are searchable; once fetch settles an active query re-filters merged entries and fetched-only matches render; regression `shows fetched index matches for an active search after the index load completes`
+
+2026-09-08 thorough hunt #1348 (hit): proved category-name search gap; cheap-disproof closed debounced URL sync on navigate-away candidate; 6 scoped HelpDocsClient tests passed.
+
+2026-09-08 seed hunt #1349 (seed→hit): reseeded after #1348 category/url fixes; proved URL path search gap; seeded invalid category id and pending-index filter timing candidates.
+
+2026-09-09 thorough hunt #1401 (hit): proved invalid category section id tokens; cheap-disproved pending-index active-search candidate; 9 scoped HelpDocsClient tests passed.
 
 2026-09-04 seed hunt #670: proved unknown-category doc-index omission; seeded category-name search and debounced URL sync candidates.
 
@@ -1106,11 +1493,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 11
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-02
-- **last-bug:** 2026-09-02 — deep-linked source-context query reused prior workspace cache after operator scope switch
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — load golden fixture left publish-to-product toggle checked after replacing hydrated intake
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1123,8 +1510,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `loadGoldenFixture` left `productContextStatus` at `idle` on deep-linked reviews — **hit 2026-08-25:** inbound context fell back to "Scoped to run" and Analyze stayed hidden after fixture hydration (`shows loaded intake context after golden fixture on deep-linked review`)
 - [x] (proven) Deep-linked product source-context query key omitted operator scope — **hit 2026-09-02:** React Query reused prior workspace intake after scope switch; fixed scoped query key plus intake reset on scope change (`reloads hydrated intake when operator scope switches on a deep-linked review`)
 - [x] (invalid) Successful product-context retry leaves stale inline error alert — `productContextReloadNonce` bump clears `error` before refetch; regression in `clears stale error alert after successful product context retry`
+- [x] (proven) Deep-linked `runId` switch leaves stale `prioritiesRaw` when next review has no `declaredPriorities` — **hit 2026-09-07 seed hunt #1292 (seed→hit):** hydration effect only updated priorities when the new payload was non-empty; fixed by always assigning `hydratedPrioritiesFromQuery`; regression in `clears declared priorities when deep-linked review switches to one without priorities`
+- [x] (proven) Clearing deep-linked `runId` from the URL leaves stale `activeRunId`, hydrated intake, and analyze affordances — **hit 2026-09-08 seed hunt #1333:** `useArchitectureIntelligenceProductContext` reset intake only on operator scope change, not when both `runId` and `contextRunId` search params are absent; fixed by resetting freeform intake when no URL run scope remains; regression in `clears hydrated intake and review scope when deep-linked runId is removed from the URL`
+- [x] (proven) Deep-linked review switch leaves publish-to-product toggle checked for the prior review — **hit 2026-09-08:** inbound-run effect cleared reasoning but not `publishToProduct`; fixed by resetting toggle on `inboundRunId` change; regression in `clears publish-to-product toggle when deep-linked review switches to another review`
+- [x] (proven) In-flight architecture reasoning POST applies stale results after deep-linked `runId` switch — **hit 2026-09-08 seed hunt #1342 (seed→hit):** `runReasoningWithOptions` always called `setRunState` on completion while inbound-run reset only cleared synchronous state; fixed with `actionGenerationRef` invalidation on scope/run reset and stale-completion guards in async actions; regression in `ignores stale reasoning results when inbound runId switches before run completes`
+- [x] (proven) `loadGoldenFixture` leaves stale reasoning results after replacing hydrated intake — **hit 2026-09-08 seed hunt #1344 (seed→hit):** fixture load updated description/priorities but not `runState`; fixed by invalidating in-flight actions and clearing reasoning/interview state on successful fixture hydration; regression in `clears reasoning results when golden fixture replaces hydrated intake`
+- [x] (proven) `loadGoldenFixture` leaves publish-to-product toggle checked after replacing hydrated intake — **hit 2026-09-09 seed hunt #1397 (seed→hit):** fixture load reset reasoning and intake but not `publishToProduct` while run switch and scope reset already cleared the toggle; fixed by calling `setPublishToProduct(false)` on successful fixture hydration; regression in `clears publish-to-product toggle when golden fixture replaces hydrated intake`
+- [x] (valid-no-repro) In-flight `runGoldenTest` applies stale golden results after deep-linked `runId` switch — **cheap-disproof 2026-09-09 seed hunt #1397:** `actionGenerationRef` invalidation on inbound run change plus stale guards in `runGoldenTest` mirror proven reasoning stale fix #1342
 
-2026-09-02 seed hunt #420 (hit): scoped architecture-intelligence source-context query to operator scope; cleared deep-linked intake on workspace switch; cheap-disproved stale retry error row.
+2026-09-09 seed hunt #1397 (seed→hit): reseeded intake replacement paths after #1344; proved publish-toggle carryover on golden fixture load; cheap-disproof closed in-flight golden-test stale candidate; aligned fetch mocks with `apiGet` text parsing; 14 scoped `ArchitectureIntelligencePageClient` tests passed.
+
+2026-09-08 seed hunt #1344 (seed→hit): reseeded intake replacement paths; proved stale reasoning after golden fixture load; 16 scoped `ArchitectureIntelligencePageClient` tests passed.
+
+2026-09-08 seed hunt #1342 (seed→hit): reseeded async action races; proved in-flight reasoning carryover on deep-linked run switch; 15 scoped `ArchitectureIntelligencePageClient` tests passed.
+
+2026-09-08 thorough hunt (hit): proved publish-toggle carryover on deep-linked review switch; 11 scoped `ArchitectureIntelligencePageClient` tests passed.
+
+2026-09-08 seed hunt #1333 (hit): reseeded URL-scope hydration; proved stale intake after clearing deep-linked runId; seeded publish-toggle carryover candidate.
+
+2026-09-07 seed hunt #1292 (seed→hit): reseeded deep-link intake hydration; proved stale declared priorities on run switch; 12 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 ---
 
@@ -1382,11 +1786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 13
-- **bugs-found:** 20
+- **hunts:** 16
+- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — blob push accepted lifecycle-incomplete runs
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — export guard parity gaps (manifest hash, metadata lifecycle, replay career gate)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1419,11 +1823,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 thorough hunt #665: proved board export simulator rehearsal notice parity and uncommitted-manifest export guard gap.
 
 - [x] (proven) `ArtifactExportController.PushRunExportToBlob` — accepted lifecycle-incomplete runs with a golden manifest and returned 202 while sibling export paths reject via `AuthorityLifecycleCompareExportGuard` — **hit 2026-09-05 (#799):** added `EnsureAuthorityLifecycleCompleteOrConflict` preflight before outbox enqueue; regression in `PushRunExportToBlob_returns_409_when_authority_lifecycle_not_complete`.
-- [ ] (candidate) `ArtifactExportController.PushRunExportToBlob` — omits sealed-manifest hash preflight at accept time while `CreateTerraformPr` / download paths call `EnsureSealedManifestHashOrConflict`; bad hash may enqueue then dead-letter in worker.
-- [ ] (candidate) `ArchitectureReviewBoardExportDocumentFactory` — sets simulator rehearsal notice only when `StructuralExecutionMode == Simulator`; Fallback/Mixed modes and `RealModeFellBackToSimulator` lack sponsor-packet execution-mode honesty sections.
-- [ ] (candidate) `ExportReplayService.ReplayAsync` — rebuilds analysis DOCX after sealed-hash guard but without `AuthorityLifecycleCompareExportGuard`; lifecycle-incomplete runs may replay export bytes while board/one-pager paths 409.
+- [x] (valid-no-repro) `ArtifactExportController.PushRunExportToBlob` — omits sealed-manifest hash preflight at accept time while `CreateTerraformPr` / download paths call `EnsureSealedManifestHashOrConflict`; bad hash may enqueue then dead-letter in worker — cheap-disproved 2026-09-07 (#1228): `ArtifactExportController.Export.Push.cs` calls `EnsureSealedManifestHashOrConflict` before enqueue; regression `PushRunExportToBlob_returns_409_when_sealed_manifest_hash_missing`.
+- [x] (valid-no-repro) `ArchitectureReviewBoardExportDocumentFactory` — sets simulator rehearsal notice only when `StructuralExecutionMode == Simulator`; Fallback/Mixed modes and `RealModeFellBackToSimulator` lack sponsor-packet execution-mode honesty sections — cheap-disproved 2026-09-07 (#1228): `BoardExportExecutionModeNoticeResolver` handles Fallback, Mixed, and `RealModeFellBackToSimulator`; regressions in `ArchitectureReviewBoardSimulatorModeExportTests`.
+- [x] (valid-no-repro) `ExportReplayService.ReplayAsync` — rebuilds analysis DOCX after sealed-hash guard but without `AuthorityLifecycleCompareExportGuard`; lifecycle-incomplete runs may replay export bytes while board/one-pager paths 409 — cheap-disproved 2026-09-07 (#1228): `ExportReplayService.ReplayAsync` calls `AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow` after sealed-hash guard (wave 35 #405).
 
-2026-09-05 seed hunt #799: reseeded blob-push sealed-hash preflight, board Fallback/Mixed execution-mode notice, and export-replay lifecycle candidates; proved blob push lifecycle-incomplete accept gap promoted from seed read.
+- [x] (proven) `ArchitectureReviewExportServiceTests` / `CareerExportCoverageHonestyMaterialLoader` — scoped export tests failed after wave-36 career honesty loader integration because SUT used `Mock.Of<IConfiguration>()` (cannot bind `GetSection().GetValue`) and `Mock.Of<IAgentExecutionTraceRepository>()` (null traces) — **hit 2026-09-07 (#1228):** shared `SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration` and `CreateEmptyAgentExecutionTraceRepository`; `ArchitectureReviewExportServiceTests` wired both.
+
+2026-09-07 thorough hunt #1228: cheap-disproved three stale seed candidates; proved export unit-test harness gap after career honesty loader integration.
+
+- [x] (proven) `ArchitectureReviewExportService.GenerateReportAsync` / `RunSummaryOnePagerExportService.GenerateMarkdownAsync` — loaded career honesty for embedding but omitted `CareerArtifactExportCompletenessGate.EnsureCanExport` used by `DocxExportController`; sample-workspace runs returned distributable PDF/HTML/one-pager bytes — **hit 2026-09-08:** added `EnsureCanExportFromHonestyMaterial` before analysis/LLM work; regressions in `GenerateReportAsync_throws_career_blocked_for_sample_workspace_run`, `GenerateMarkdownAsync_throws_career_blocked_for_sample_workspace_run`.
+- [x] (proven) `RunSummaryOnePagerExportService.GenerateMarkdownAsync` — sealed receipt guard only; omitted `RunExportSealedManifestHashGuard` present on board export sibling path — **hit 2026-09-09 (#1396):** tampered `ManifestHash` passed receipt verification but exported one-pager markdown; aligned with `ArchitectureReviewExportService` / `FirstValueReportBuilder`; regression `GenerateMarkdownAsync_throws_conflict_when_sealed_manifest_hash_mismatches`.
+- [x] (proven) `ExportReplayService.ReplayAsync` — lifecycle + sealed manifest hash guards but no `CareerArtifactExportCompletenessGate` before regenerating analysis DOCX — **hit 2026-09-09 (#1396):** sample-workspace runs replayed analysis DOCX while `DocxExportController` rejects; added career gate before `BuildAsync`; regression `ExportReplayServiceCareerGateTests.ReplayAsync_sample_workspace_run_throws_career_blocked_before_regenerating_docx`.
+- [x] (proven) `RunExportQueryFacade.GetExportRecordAsync` — lineage + sealed hash only; compare/replay siblings also enforce `AuthorityLifecycleCompareExportGuard` — **hit 2026-09-09 (#1396):** lifecycle-incomplete runs returned export metadata while compare paths returned `LineageUnverified`; added `TryEnsureExportRunLifecycleCompleteAsync` to get path; regression `GetExportRecordAsync_returns_lineage_unverified_when_authority_lifecycle_not_complete`.
+- [x] (proven) `SponsorReviewPacketBuilder` — sealed receipt guard only; omitted `RunExportSealedManifestHashGuard` present on `FirstValueReportBuilder` sibling — **hit 2026-09-09 (#1396):** tampered manifest hash exported sponsor packet markdown; aligned guard chain with first-value report builder; regression `BuildMarkdownAsync_throws_conflict_when_sealed_manifest_hash_mismatches`.
+
+2026-09-09 thorough hunt #1396: proved four seed-hunt #1307 export guard parity gaps (manifest hash on one-pager/sponsor packet, lifecycle on export-record get, career gate on replay).
+
+2026-09-08 seed hunt #1307: reseeded from export surfaces after career-honesty integration; proved ADR 0078 gate parity gap on board PDF/DOCX/HTML and one-pager markdown; seeded manifest-hash, replay, metadata lifecycle, and sponsor-packet parity candidates.
 
 2026-09-03 seed hunt #543: proved board export authority lifecycle Complete guard gap; cheap-disproved blob URL policy; seeded simulator-notice parity candidate.
 
@@ -1439,13 +1855,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 9
-- **bugs-found:** 9
+- **hunts:** 16
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-03
-- **last-bug:** 2026-09-03 — durable background job processor overwrote `Canceled` with `Pending`/`Failed` on executor failure after cancel during run
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — watchdog mid-batch notify failure left orphan Pending rows
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1459,10 +1875,33 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync` read `DateTime.UtcNow` directly while `IntegrationEventDlqRetryPolicy` accepts an explicit UTC instant — **hit 2026-08-26:** rows with unexpired backoff were requeued when wall clock advanced past eligibility while tests and policy expected a frozen pass instant; fixed by resolving `TimeProvider` from DI scope (`IntegrationEventDlqRetryBackgroundWorkTests.RunSinglePassAsync_does_not_requeue_before_backoff_when_clock_is_injected`, `RunSinglePassAsync_requeues_after_backoff_when_clock_is_injected`).
 - [x] (proven) `BackgroundJobQueueProcessorHostedService` overwrote `Canceled` with `Succeeded` when cancel landed during executor run — **hit 2026-09-02:** durable processor called `MarkSucceededAsync` without re-reading row state after `ExecuteAsync`, unlike the in-memory queue cancel fix; fixed by skipping success/retry when `GetAsync` reports `Canceled` (`ProcessOneMessageAsync_does_not_mark_succeeded_when_job_canceled_during_execution`).
 - [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` overwrote `Canceled` with `Pending` or `Failed` when cancel landed during a failing executor run — **hit 2026-09-03:** failure path called `MarkPendingRetryAsync` / `MarkFailedTerminalAsync` from the pre-execution row snapshot without re-reading cancel state; fixed by checking `GetAsync` before any failure transition (`ProcessOneMessageAsync_does_not_mark_pending_retry_when_job_canceled_during_failed_execution`, `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_job_canceled_during_failed_execution`).
+- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` terminal path skipped second cancel re-read before `MarkFailedTerminalAsync` — **hit 2026-09-07 (#1198 seed→hit):** retry path re-read `GetAsync` after backoff but exhausted-retry terminal branch called `MarkFailedTerminalAsync` from the catch-entry snapshot when cancel landed between the two reads; fixed with second `GetAsync` before terminal failure and in-memory terminal parity re-read; regression in `ProcessOneMessageAsync_does_not_mark_failed_terminal_when_cancel_visible_on_second_state_read`.
+- [x] (proven) `InMemoryBackgroundJobQueue` terminal failure re-read missed cancel when `MarkCanceledAsync` raced after first terminal read but before `Failed` assignment — **hit 2026-09-08 hunt #1303:** terminal branch re-read `_info` once then logged before writing `Failed`, leaving a window cancel could land in; fixed with second `_info` re-read before terminal assignment; regression in `MarkCanceled_during_terminal_failure_does_not_overwrite_with_failed_after_second_state_read`.
+- [x] (proven) `InMemoryBackgroundJobQueue` retry scheduling overwrote `Canceled` with `Pending` when cancel landed after first failure read but before retry assignment — **hit 2026-09-08 seed hunt #1352:** catch block re-read cancel once then logged before writing `Pending`; capacity-exhausted and writer-rejected failure branches also used stale snapshots; fixed with re-read before Pending and before each retry-side terminal failure; durable processor gained matching re-read before `MarkPendingRetryAsync` and capacity `MarkFailedTerminalAsync`; regressions `MarkCanceled_during_retry_scheduling_does_not_overwrite_with_pending` and `ProcessOneMessageAsync_does_not_mark_pending_retry_when_cancel_visible_before_retry_assignment`.
+- [x] (proven) `BackgroundJobQueueProcessorHostedService` retry path sent Azure queue notification after cancel landed between post-backoff `GetAsync` and `SendMessageAsync` — **hit 2026-09-08 seed hunt #1354:** failure handler re-read cancel after retry delay but called `SendMessageAsync` without a final state read, so a canceled job could be re-notified; fixed with third `GetAsync` before queue send; regression `ProcessOneMessageAsync_does_not_send_retry_notification_when_cancel_visible_before_queue_send`.
+- [x] (proven) `BackgroundJobQueueProcessorHostedService` success path called `MarkSucceededAsync` when cancel landed after the post-execute `GetAsync` — **hit 2026-09-08 seed hunt #1357:** success branch had a single cancel re-read unlike failure/retry paths (#1198/#1352/#1354); fixed with second `GetAsync` before `MarkSucceededAsync`; aligned in-memory success assignment with second `_info` re-read; regression `ProcessOneMessageAsync_does_not_mark_succeeded_when_cancel_visible_before_success_assignment`.
+- [x] (proven) `DurableBackgroundJobQueue.EnqueueAsync` — `CountNonTerminalAsync` then `InsertAsync` is not atomic; concurrent enqueues at capacity-1 can exceed `MaxPendingJobs` — **hit 2026-09-08 thorough hunt #1365:** `TryInsertPendingJobIfUnderCapacityAsync` counts and inserts under `UPDLOCK, HOLDLOCK`; regression `DurableBackgroundJobQueue_EnqueueAsync_concurrent_at_capacity_minus_one_inserts_only_one_job`.
+- [x] (proven) `DurableBackgroundJobQueue.EnqueueAsync` — row inserted before queue notify; notify failure leaves orphan `Pending` row without Azure notification until manual/watchdog intervention — **hit 2026-09-08 thorough hunt #1365:** failed notify now marks the row terminal before rethrowing; regression `DurableBackgroundJobQueue_EnqueueAsync_marks_job_failed_when_queue_notify_fails`.
+- [x] (valid-no-repro) `BackgroundJobStuckRunningWatchdogBackgroundWork` — jobs running longer than `ProcessorVisibilityMinutes + 1` can be reclaimed while the original worker still executes, enabling duplicate side effects — **cheap-disproof 2026-09-08 thorough hunt #1365:** `ResolveStaleRunningThreshold` intentionally exceeds queue visibility to avoid reclaim during the in-flight window; duplicate notify while `Running` is dropped by `TryPrepareQueuedJobAsync`; regression `ResolveStaleRunningThreshold_exceeds_processor_visibility_minutes`.
+- [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — mid-batch `SendJobIdAsync` failure aborted later re-notifies and left reclaimed rows orphan `Pending` without queue messages — **hit 2026-09-09 seed hunt #1429:** per-job try/catch now marks notify failures terminal (parity with `DurableBackgroundJobQueue.EnqueueAsync`) and continues the batch; regressions `RunSinglePassAsync_continues_notifying_after_mid_batch_notify_failure` and `RunSinglePassAsync_marks_job_failed_when_queue_notify_fails_after_reclaim`.
+
+2026-09-09 seed hunt #1429 (hit): reseeded host-core-jobs; proved watchdog partial notify failure after stale Running reclaim; 22 scoped background-job unit tests passed.
+
+2026-09-08 thorough hunt #1365 (hit): proved durable enqueue capacity TOCTOU and notify-failure orphan Pending rows; closed watchdog long-run duplicate as valid-no-repro; scoped background-job tests passed.
+
+2026-09-08 seed hunt #1357 (hit): reseeded host-core-jobs; proved success-path cancel re-read gap (parity with failure/retry fixes); seeded enqueue TOCTOU, notify-failure orphan Pending, and long-running watchdog duplicate-execution candidates; 27 scoped background-job unit tests passed.
+
+2026-09-08 thorough hunt #1303 (hit): proved in-memory terminal cancel race after first re-read; aligned with durable processor second-read parity.
 
 2026-09-02 seed hunt #423 (hit): promoted durable-processor cancel/success race from in-memory parity gap; proved with failing repro.
 
 2026-09-03 seed hunt #579 (hit): promoted cancel-on-failure parity gap from success-path fix #423; proved retry and terminal failure paths both overwrote `Canceled`.
+
+2026-09-07 seed hunt #1198 (hit): reseeded after #579 closure; proved terminal failure path lacked second cancel re-read before `MarkFailedTerminalAsync` unlike retry backoff path; seeded in-memory terminal race candidate.
+
+2026-09-08 seed hunt #1352 (hit): seeded retry-scheduling cancel race from terminal/success parity pattern; proved in-memory Pending overwrite and aligned durable `MarkPendingRetryAsync` + capacity terminal paths; 90 unit job-queue tests passed.
+
+2026-09-08 seed hunt #1354 (hit): seeded post-backoff cancel gap before durable `SendMessageAsync`; fixed third cancel re-read; 92 unit job-queue tests passed.
 
 ---
 
@@ -1474,11 +1913,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 11
-- **bugs-found:** 14
+- **hunts:** 13
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — disposition sync infrastructure failure returned HTTP 500 after human-review update; replay released on retry
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — ServiceNow disposition ignored incident_state when primary state mapped human review only
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1511,6 +1950,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-05 thorough hunt #804: proved disposition sync infrastructure failure surfaced as HTTP 500 after human-review update; fixed skip handling and restored sealed-manifest test doubles in sync service tests.
 
+- [x] (proven) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — sealed-manifest guard ran after human-review update and replay claim, so `sealed_manifest_unverified` rejected the webhook after mutating `FindingHumanReviewStatus` and consuming the replay slot — **hit 2026-09-08 seed hunt #1318:** Wave-23 fail-closed guard was ordered after `UpdateHumanReviewStatusForFindingAsync`; fixed by loading inspect + `ItsmInboundSealedManifestHashGuard` before replay claim and mutation; regression `Jira_when_sealed_manifest_unverified_does_not_mutate_human_review_or_claim_replay`.
+- [x] (proven) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` / `ItsmInboundExternalStatusMapper` — configured `ServiceNowStateDispositionMap` on `incident_state` was not consulted when primary `state` mapped human review but disposition was unmapped (alternate path existed for human review since #717 but disposition still used primary `effectivePayload.StatusValue` only) — **hit 2026-09-09 thorough hunt #1409:** fall back to `AlternateStatusValue` for disposition when primary status is unmapped; regression `ServiceNow_inbound_uses_incident_state_disposition_when_primary_state_maps_human_review_only`.
+
+2026-09-09 thorough hunt #1409 (hit): proved ServiceNow disposition alternate asymmetry; 48 scoped ITSM inbound webhook tests passed.
+
 ---
 
 ## Zone: ui-auth-proxy
@@ -1521,11 +1965,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 10
-- **bugs-found:** 9
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-04 — anonymous marketing allowlist omitted why-archlucid-pack.pdf proxy download
+- **hunts:** 16
+- **bugs-found:** 16
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — cross-origin BFF session POST/DELETE and unstable legacy v1 migrated CSRF
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1544,6 +1988,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/why-archlucid-pack.pdf` — **hit 2026-09-04 (#711 seed):** `/why` and `/see-it` link `/api/proxy/v1/marketing/why-archlucid-pack.pdf` but server bearer still attached; extended allowlist (+ proactive `enterprise-comparison.pdf` / `sponsor-brief.pdf`); regression `does not attach server bearer for marketing why-archlucid pack PDF download`.
 - [x] (candidate) `resolveShowcasePageRenderPlan` fetches `v1/marketing/showcase/{runKey}` directly against API base — invalid: SSR uses anonymous server `fetch` with no `Authorization` or `X-Api-Key`; `GET /v1/marketing/showcase/{runKey}` is `[AllowAnonymous]` and does not need proxy bearer stripping
 - [x] (candidate) Browser-supplied `Authorization` on anonymous marketing proxy paths still forwards upstream — invalid: by design; `buildProxyUpstreamHeaders` strips only the configured server bearer on allowlisted marketing paths while preserving a signed-in visitor's bearer
+- [x] (proven) `enforceProxyBffSessionGuard` blocks anonymous marketing proxy mutations when BFF session is enabled — **hit 2026-09-07 (#1177 seed→hit):** LK-07 guard returned 401 for POST `/api/proxy/v1/marketing/early-access` with no HttpOnly cookie or browser bearer once `ARCHLUCID_BFF_SESSION_SIGNING_SECRET` is set; fixed by skipping the no-session mutation gate on `isAnonymousMarketingProxyPath`; regression in `forwards anonymous marketing early-access POST when BFF session is enabled`
+- [x] (proven) `isAnonymousMarketingProxyPath` allowlist omits `v1/marketing/showcase/{runKey}` — **hit 2026-09-07 (#1250):** `/api/proxy/v1/marketing/showcase/{runKey}` attached `ARCHLUCID_PROXY_BEARER_TOKEN` unlike other anonymous marketing GETs; extended allowlist with `startsWith("v1/marketing/showcase/")`; regression `does not attach server bearer for marketing showcase GET`.
+
+- [x] (proven) `enforceProxyBffSessionGuard` blocked anonymous marketing proxy mutations when a stale HttpOnly BFF cookie was present — **hit 2026-09-07 (#1251):** expired or idle-expired session returned 401 before `isAnonymousMarketingProxyPath` bypass; marketing POSTs (e.g. `/api/proxy/v1/marketing/early-access`) failed for returning visitors; fixed by allowing anonymous marketing paths and clearing stale cookies; regressions in `proxy-bff-session-guard.test.ts` and `forwards anonymous marketing early-access POST when BFF session cookie is expired`.
+- [x] (valid-no-repro) `isAnonymousMarketingProxyPath` remains a manual prefix allowlist — OpenAPI `/v1/marketing/*` paths in `paths.generated.ts` (early-access, enterprise-comparison.pdf, pricing/quote-request, quick-scan + sample/status, showcase/{runKey}, sponsor-brief.pdf, trust-center/evidence-pack.zip, why-archlucid-pack.pdf) all match `proxy-anonymous-marketing-paths.ts`; UI proxy callers grep to the same set; no uncovered route today — process risk only when new marketing endpoints ship without allowlist update.
+- [x] (proven) `enforceProxyBffSessionGuard` blocked anonymous marketing proxy mutations when a valid BFF session lacked CSRF — **hit 2026-09-07 (#1252):** signed-in visitor with active HttpOnly session got 403 on POST `/api/proxy/v1/marketing/early-access` because LK-07 CSRF gate ran after stale-session bypass; marketing hooks omit BFF CSRF header; fixed by skipping same-origin/CSRF mutation guard on `isAnonymousMarketingProxyPath`; regressions in `proxy-bff-session-guard.test.ts` and `forwards anonymous marketing early-access POST when BFF session cookie is valid but CSRF is omitted`.
+- [x] (valid-no-repro) New `[AllowAnonymous]` marketing routes under `/v1/marketing/*` still require manual `isAnonymousMarketingProxyPath` updates — OpenAPI `/v1/marketing/*` paths in `paths.generated.ts` match allowlist; UI proxy callers grep to same set; no uncovered route today — process risk only when new marketing endpoints ship without allowlist update.
+- [x] (proven) `enforceProxyBffSessionGuard` blocked pre-auth sign-in proxy calls when a stale HttpOnly BFF cookie was present — **hit 2026-09-07 (#1253):** expired or idle-expired session returned 401 on `POST /api/proxy/v1/auth/routing/evaluate` and `GET /api/proxy/v1/auth/invitations/validate` while marketing paths already bypassed; `evaluateAuthSignInRouting` silently returned null; extended `isPublicAnonymousProxyPath` with pre-auth `[AllowAnonymous]` auth routes (`routing/evaluate`, `email-otp/challenge`, `email-otp/verify`, `invitations/validate`); regressions in `proxy-route-pre-auth-anonymous.test.ts`, `proxy-anonymous-marketing-paths.test.ts`, and `proxy-bff-session-guard.test.ts`.
+- [x] (proven) `POST /api/auth/bff-session` accepted cross-origin token posts without origin validation — **hit 2026-09-08 hunt #1294:** attacker `Origin` could establish a victim-browser HttpOnly session (login CSRF / session swap); fixed with shared `isSameOriginBffRequest` on POST/DELETE; regressions in `route.test.ts`.
+- [x] (proven) Legacy v1 BFF session cookies regenerated a new CSRF on every parse — **hit 2026-09-08 hunt #1294:** `normalizeLegacyPayload` called `generateBffSessionCsrfToken()` per parse so migrated CSRF could never match the companion cookie until full re-login; fixed with deterministic `deriveLegacyV1MigrationCsrfToken`; regression `keeps stable migrated CSRF when parsing legacy v1 session cookies`.
+
+2026-09-08 thorough hunt #1294 (hit): proved cross-origin BFF session establishment and legacy v1 CSRF migration instability; shared same-origin guard with proxy mutations.
+2026-09-07 thorough hunt #1253 (hit): cheap-disproof closed allowlist-maintenance candidate; proved stale BFF cookie blocked pre-auth sign-in routing and invitation validate proxy; extended public anonymous proxy path class beyond marketing.
+
+2026-09-07 thorough hunt #1252 (hit): cheap-disproof closed allowlist-maintenance candidate (OpenAPI/UI parity complete); proved valid BFF session CSRF blocked public marketing POST; reseeded allowlist-maintenance process candidate.
+
+2026-09-07 seed hunt #1251 (hit): reseeded BFF guard vs anonymous marketing; proved stale session cookie blocked public marketing POST; seeded allowlist-maintenance candidate.
+
+2026-09-07 thorough hunt #1250 (hit): proved showcase proxy allowlist gap; extended anonymous marketing bearer stripping parity.
+
+2026-09-07 seed hunt #1177 (hit): reseeded after LK-07 BFF guard landed; proved anonymous marketing POST blocked when BFF enabled; seeded showcase proxy allowlist gap candidate.
 
 2026-09-05 thorough hunt #809 (dry): cheap-disproof closed showcase-direct-fetch and client-bearer-forward candidates; regressions in `proxy-route-anonymous-marketing.test.ts` and `showcase-page.test.tsx`.
 
@@ -1612,13 +2077,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 15
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — Unicode line separators bypassed #1410 newline collapse and enabled prompt field spoofing inside quarantine
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1628,6 +2093,42 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `StreamJsonAsync` yielded completion chunks before output content-safety scan — blocked output could reach streaming callers; fixed by buffering until `CheckOutputAsync` passes.
 - [x] (proven) Sanitizer wrapped only `evidence.Request` while `AgentUserPromptComposer` reads live `ArchitectureRequest` fields — untrusted-input wrapping bypassed for description/constraints; fixed by sanitizing both objects in `AgentEvidenceUntrustedInputSanitizer`.
 - [x] (proven) `SystemName` and `Environment` reached prompts with delimiter escape only — no `<untrusted_input>` wrap unlike description; fixed by extending sanitizer coverage to package scalars and architecture request identity fields.
+- [x] (proven) Case-variant `<untrusted_input>` / `</untrusted_input>` tags bypass delimiter neutralization — **hit 2026-09-07 (#1224):** `EscapeEmbeddedUntrustedTags` used case-sensitive `Replace`, so uppercase homoglyphs like `</UNTRUSTED_INPUT>` broke out of the outer wrapper; fixed with `OrdinalIgnoreCase` replacement; regressions in `EscapeEmbeddedUntrustedTags_neutralizes_case_variant_close_and_open_tags` and `SanitizeScalar_keeps_case_variant_tag_payload_inside_single_outer_wrapper`; parity hardening on `CustomerContentPromptDelimiters.EscapeEmbeddedMarkers`.
+
+2026-09-07 seed hunt #1224 (hit): proved case-variant untrusted delimiter bypass; hardened customer-content marker escape for ignore-case parity.
+
+- [x] (proven) `PriorManifest.ManifestVersion` — omitted from `AgentEvidenceUntrustedInputSanitizer` while rendered via `EscapeData` in `AgentUserPromptBuilder` — **hit 2026-09-07 hunt #1232:** parity gap with SystemName/Environment sanitizer coverage; version label now wrapped via `SanitizeScalar`; regressions in `SanitizeAsync_wraps_prior_manifest_version_used_by_user_prompt_composer` and scalar-fields test
+- [x] (valid-no-repro) Staged Critic `StagedPriorAgentsSummary` notes appended after execute-time sanitize without re-run of `AgentEvidenceUntrustedInputSanitizer` — **cheap-disproof 2026-09-07 hunt #1232:** Critic prompt quarantines staged notes in a second TB-949 section with `EscapeEmbeddedMarkers` at compose time; regression `CriticUserPrompt_staged_prior_summary_with_embedded_end_marker_stays_quarantined_without_resanitize`
+
+2026-09-07 thorough hunt #1232 (hit): proved PriorManifest version sanitizer gap; cheap-disproved staged-summary re-sanitize requirement.
+
+- [x] (invalid) `AgentEvidenceUntrustedInputSanitizer` omits `ServiceCatalogEvidence.Category` / `Tags` while `EvidencePackageInjectionMitigator` redacts them — **cheap-disproof 2026-09-07 hunt #1242:** `AgentUserPromptBuilder` renders only `ServiceName`, `Summary`, and `RecommendedUseCases` for service catalog hints; `Category`/`Tags` never reach agent user prompts.
+- [x] (invalid) `PatternEvidence.ApplicableCapabilities` omitted from untrusted-input sanitizer — **cheap-disproof 2026-09-07 hunt #1242:** `AgentUserPromptBuilder` renders only `Name`, `Summary`, and `SuggestedServices` for pattern hints; `ApplicableCapabilities` is markdown-export-only (`MarkdownEvidenceSummaryFormatter`), out of zone scope.
+- [x] (proven) `InsightDensityJudgeEvidenceSummary` char cap truncates quarantined evidence without preserving `CUSTOMER_CONTENT_END` — **hit 2026-09-07 hunt #1237:** `builder.ToString(0, MaxCharacters)` dropped the closing TB-949 marker on large architecture descriptions, leaving an unclosed customer-data section in insight-density judge prompts; fixed with `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds`; regressions in `TruncatePreservingSectionBounds_appends_end_marker_when_truncation_would_drop_it` and `InsightDensityJudgeEvidenceSummary_Build_preserves_customer_content_end_marker_when_truncated`.
+- [x] (valid-no-repro) `CircuitBreakingContentSafetyGuard` fail-open on inner exception skips deny-list scrub while circuit-open fail-open scrubs — **cheap-disproof 2026-09-07 hunt #1237 / reconfirmed #1242:** production inner `AzureContentSafetyGuard` maps SDK failures to `SdkError` results rather than throwing (`HandleSdkFailure`); circuit-open degraded path already covered by `CircuitBreakingContentSafetyGuardTests`.
+
+2026-09-07 seed hunt #1237 (hit): proved insight-density evidence truncation dropped TB-949 end marker; seeded and cheap-disproved service-catalog scalar parity and circuit-breaker exception-scrub candidates.
+
+2026-09-07 thorough hunt #1242 (dry): cheap-disproved service-catalog `Category`/`Tags` and pattern `ApplicableCapabilities` sanitizer parity candidates (no `AgentUserPromptBuilder` reachability); reconfirmed circuit-breaker inner-throw scrub gap as valid-no-repro.
+
+- [x] (proven) `AgentEvidenceUntrustedInputSanitizer` omitted client-supplied `RequestId` / `EvidencePackageId` while `AgentUserPromptBuilder` rendered them inside TB-949 quarantine without `EscapeEmbeddedMarkers` — **hit 2026-09-08 seed hunt #1337:** embedded `CUSTOMER_CONTENT_END` in RequestId closed the architecture section early and left task objective inside customer DATA; fixed via `SanitizePromptIdentifier` (marker escape + scalar wrap); regressions in `SanitizeAsync_request_id_with_embedded_customer_content_end_marker_does_not_break_quarantine` and evidence-package-id sibling test
+- [x] (proven) `ContextLengthGuardAgentCompletionClient` token truncation used `TokenAwareContextBudget.TruncateToTokenBudget` without `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` — **hit 2026-09-08 thorough hunt #1308:** oversized topology user prompts truncated inside the architecture quarantine without `CUSTOMER_CONTENT_END`, leaving trusted task framing inside customer DATA; fixed via `TruncateUserPromptPreservingCustomerContentBounds`; regression in `CompleteJsonAsync_truncation_preserves_customer_content_end_marker_in_topology_prompt`
+
+2026-09-08 thorough hunt #1308 (hit): proved context-length guard TB-949 truncation parity gap seeded in #1337; 129 scoped agent-runtime-safety unit tests passed.
+
+- [x] (invalid) `PolicyEvidence.Tags` / `PolicyId` sanitizer parity — **cheap-disproof 2026-09-08 seed hunt #1340:** `AgentUserPromptBuilder` renders policy `Title`, `Summary`, and `RequiredControls` only; `Tags` and `PolicyId` never reach agent user prompts; regression `TopologyUserPrompt_does_not_render_policy_tags_or_prior_manifest_inventory_lists`
+- [x] (invalid) `PriorManifestEvidence.ExistingServices` / `ExistingDatastores` / `ExistingRequiredControls` sanitizer parity — **cheap-disproof 2026-09-08 seed hunt #1340:** same builder renders only prior `Version` and `Summary`; inventory lists are markdown-export-only; regression `TopologyUserPrompt_does_not_render_policy_tags_or_prior_manifest_inventory_lists`
+- [x] (valid-no-repro) `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` drops `CUSTOMER_CONTENT_END` when truncating multi-section topology user prompts — **cheap-disproof 2026-09-08 seed hunt #1340:** architecture + task quarantine sections keep the last open section closed under char budget; regression `TruncatePreservingSectionBounds_closes_last_open_section_in_multi_quarantine_prompt`
+- [x] (valid-no-repro) `CircuitBreakingContentSafetyGuard` fail-open on inner throw skips deny-list scrub while circuit-open fail-open scrubs — **cheap-disproof 2026-09-08 seed hunt #1340 / reconfirmed:** pre-threshold inner throw returns allow without `RedactAlways`; production `AzureContentSafetyGuard` maps SDK failures via `HandleSdkFailure` rather than throwing; regression `When_inner_throws_and_fail_open_allows_without_scrub_before_circuit_threshold`
+
+- [x] (invalid) `AgentEvidencePackage.CloudProvider` string omitted from `AgentEvidenceUntrustedInputSanitizer` — **cheap-disproof 2026-09-09 thorough hunt #1410 / reconfirmed #1341:** package `CloudProvider` is grounding-index only; `AgentUserPromptBuilder` renders request enum, never evidence string
+- [x] (invalid) `EvidenceSummarizationService.CapEvidenceText` blind `[..cap]` truncation can split TB-949 markers — **cheap-disproof 2026-09-09 thorough hunt #1410:** locus outside zone paths; in-zone context-length truncation already uses `TruncatePreservingSectionBounds` (#1308)
+- [x] (proven) `AzureResourceTagPromptSanitizer.StripControlChars` preserved `\n`/`\r`/`\t` in sanitized scalars — embedded newline in `SystemName` broke line-oriented TB-949 architecture layout and injected a spoof `Description:` field line inside quarantine — **hit 2026-09-09 thorough hunt #1410:** collapse newline/tab runs to spaces in `StripControlChars`; regressions `SanitizeScalar_collapses_newlines_to_prevent_field_spoofing` and `SanitizeAsync_system_name_newline_does_not_spoof_description_field_in_topology_prompt`
+- [x] (proven) `AzureResourceTagPromptSanitizer.StripControlChars` preserved Unicode `\u2028`/`\u2029` line separators after #1410 — `char.IsControl` is false for LINE/PARAGRAPH SEPARATOR, so embedded `\u2028` in `SystemName` still broke line-oriented TB-949 layout and injected a spoof `Description:` field line inside quarantine — **hit 2026-09-09 seed hunt #1411:** extend line-break collapse to `\u2028`/`\u2029`; regressions `SanitizeScalar_collapses_unicode_line_separators_to_prevent_field_spoofing` and `SanitizeAsync_system_name_unicode_line_separator_does_not_spoof_description_field_in_topology_prompt`
+
+2026-09-09 thorough hunt #1410 (hit): cheap-disproof closed CloudProvider and CapEvidenceText candidates; proved scalar newline field-spoofing inside customer quarantine; 130 scoped agent-runtime-safety unit tests passed.
+
+2026-09-09 seed hunt #1411 (hit): proved Unicode line-separator bypass of #1410 newline collapse; 132 scoped agent-runtime-safety unit tests passed.
 
 ---
 
@@ -1768,11 +2269,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 9
-- **bugs-found:** 12
+- **hunts:** 12
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — buyer proof ZIP ROI freshness badge used 90-day window while deltas JSON used 30-day HOLD
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — equal-count snapshot severity tie kept agent buckets; muted cost findings inflated estimated USD savings rollups
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1798,10 +2299,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 thorough hunt #667: proved sponsor-one-pager PDF gate bypass on incomplete ROI baselines and demo tenants.
 
 - [x] (proven) `FirstValueReportBuilder.ResolveCostEvidenceFreshnessForBadges` — sponsor badge freshness used 90-day `StaleAfterDays` while `pilot-run-deltas.json` `roiSourceFreshnessDisposition` uses 30-day `RoiMetricSourceFreshnessRules` HOLD — **hit 2026-09-05 (#802):** 31–89-day extractor timestamps showed Fresh/HOLD mismatch inside buyer proof ZIP; fixed by capping badge stale window to sponsor handoff threshold (`TryBuildZipAsync_when_extractor_is_stale_emits_hold_freshness_in_deltas_json`, `BuildMarkdownAsync_when_run_linked_extractor_is_stale_for_sponsor_handoff_emits_stale_badge_before_ninety_day_window`).
-- [ ] (candidate) `SponsorReviewPacketBuilder` / `SelectTopHighCriticalFindings` — operator-muted Critical/Error findings may appear in `sponsor-review-packet.md` while deltas JSON excludes muted rows.
-- [ ] (candidate) `SponsorEvidencePackService.BuildAsync` — `ToResponse` omits ROI freshness disposition wiring; demo-run delta may report blind `PASS` when savings + stale extractor would HOLD.
+- [x] (invalid) `SponsorReviewPacketBuilder` / `SelectTopHighCriticalFindings` — operator-muted Critical/Error findings may appear in `sponsor-review-packet.md` while deltas JSON excludes muted rows — **invalid 2026-09-07 hunt #1293:** `RunSummaryOnePagerDocumentFactory.SelectTopHighCriticalFindings` skips `IsMuted`; regression in `SelectTopHighCriticalFindings_excludes_muted_findings`
+- [x] (invalid) `SponsorEvidencePackService.BuildAsync` — `ToResponse` omits ROI freshness disposition wiring — **invalid 2026-09-07 hunt #1293:** `BuildAsync` calls `PilotRunDeltasResponseMapper.ToResponseWithProofPackage` with extractor timestamp and scorecard baselines; regression in `BuildAsync_loads_findings_snapshot_and_computes_pilot_delta_when_run_present`
+- [x] (proven) `PilotSponsorMaterialFindingsResolver` / `SponsorDecisionDeltaNoveltyResolver` — sparse agent results left decision-delta markdown on Info advisory while severity buckets used persisted snapshot Critical/Warning — **hit 2026-09-07 thorough hunt #1293:** populated `SponsorNarrativeFindings` when snapshot drives severity and prefer snapshot narrative when agent rows are sparser; regressions in `Resolve_when_sparse_agent_results_prefers_snapshot_material_findings` and `ComputeAsync_WhenAgentResultsHaveSparseFindings_StillUsesFindingsSnapshotForSeverityTopFindingAndGovernedCoverage`
 
 2026-09-05 seed hunt #802: reseeded buyer-proof cross-surface freshness after Wave-22 guards; proved 30-day vs 90-day sponsor badge parity gap; reseeded muted-finding and evidence-pack freshness candidates.
+
+- [x] (proven) `PilotRunDeltaComputer` TB-930 coverage projection omitted `IsMuted` from `FindingsSnapshotCoverageSql` / `FindingsCoverageProjectionMapper` — **hit 2026-09-08 seed hunt #1332:** operator-muted snapshot rows defaulted to active in `GetCoverageProjectionByIdAsync`, defeating `.Where(!IsMuted)` in severity/governed/top-finding paths; fixed by projecting `IsMuted` from `dbo.FindingRecords`; regression in `FindingsCoverageProjectionMapperTests.Map_preserves_is_muted_from_coverage_projection`.
+- [x] (proven) `PilotRunDeltaComputer` equal-count agent/snapshot tie keeps agent severity when snapshot has equal count but higher severities — **hit 2026-09-09 hunt #1417:** `SumFindingCounts` tie left sparse agent Warning buckets over persisted snapshot Error rows; fixed by preferring snapshot when equal counts and snapshot max severity rank is higher; regression `ComputeAsync_WhenAgentAndSnapshotHaveEqualCounts_PrefersSnapshotWhenSeverityIsHigher`.
+- [x] (proven) `FindingsSnapshotEstimatedSavingsCalculator` / `TenantEstimatedUsdSavingsResolver` rollup ignores operator-muted cost findings — **hit 2026-09-09 hunt #1417:** operator-muted Cost rows with high `ProjectedImpactUsd` still rolled into savings totals while delta severity paths exclude `IsMuted`; fixed with mute filter in `FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal` and `TenantAdjustedFindingsSavingsCalculator.ComputeTotal`; regressions `ComputeTotal_excludes_operator_muted_cost_findings` and `ComputeTotal_excludes_operator_muted_findings_when_scaling_tenant_rates`.
+
+2026-09-09 thorough hunt #1417 (hit): proved equal-count snapshot severity tie and muted cost savings rollup gaps; 30 scoped pilot/ROI/savings unit tests passed (pre-existing `BuyerProofPackBuilderRoiFreshnessTests` null-traces failure unchanged on bugsmash).
+
+2026-09-08 seed hunt #1332 (hit): reseeded after Wave-22 mute guards; proved TB-930 coverage projection dropped `IsMuted`; seeded equal-count snapshot tie and muted-savings rollup candidates.
+
+2026-09-07 thorough hunt #1293 (hit): disproved two reseeded sponsor-packet candidates; proved sparse-agent decision-delta vs snapshot severity split; 20 scoped BuyerProofPack/BoardPack/SponsorDecisionDelta tests (19 pass; 1 pre-existing `BuyerProofPackBuilderRoiFreshnessTests` null-traces failure unrelated to this diff).
 
 ---
 
@@ -1858,11 +2370,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 10
-- **bugs-found:** 13
+- **hunts:** 13
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — cross-run diff engines suppressed expansion findings when prior revision was empty
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — decisioning substring heuristics: nosql/sql datastore labels, non-contributor role tokens, bare cluster SKU/RPO heuristic, tradeoff budget token in budgetary prose
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1888,7 +2400,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPackCategoryCoverageValidator` omitted topology engine-type inference — **hit 2026-09-05 (#810 seed):** clean `topology-structure` runs false-failed `RequiredFindingCategories` Topology coverage; added topology substring credit; regression `GetMissingCategoryViolations_treats_successful_topology_engine_type_as_topology_coverage`
 - [x] (proven) `SecurityDeltaRegressionClassifier` ranked `gap` before `planned` and treated remediation phrases as worst-tier regression — **hit 2026-09-05 (#810 seed):** Compliant→`Gap remediation planned` fired false compliance alerts; rank planned/remediation phrases before bare `gap`; regression `IsRegression_gap_remediation_planned_from_compliant_is_not_regression`
 - [x] (proven) `FindingSnapshotMergeKey.FromFinding` used case-sensitive `PolicyRuleId` — **hit 2026-09-05 (#810 seed):** `SEC-01` vs `sec-01` duplicated ADR-0063 merge keys; lowercased policy rule id segment; regression `Merge_joins_policy_rule_ids_case_insensitively`
-- [ ] (candidate) `DeclarationPremiseConflictClassifier.ContainsAnyPhrase` — leading `"No {phrase}"` prohibitive intent (e.g. `"No private network required"`) may still match affirmative conflict phrases; negation suffix list covers `"No requirement to …"` / `"Do not …"` but not bare leading `"No …"`
+- [x] (proven) `DeclarationPremiseConflictClassifier.ContainsAnyPhrase` — leading `"No {phrase}"` prohibitive intent false-matched affirmative conflict phrases — **hit 2026-09-07 hunt #1287:** `IsPhraseNegated` covered `"No requirement to …"` / `"Do not …"` but not bare leading `"no"` before `"private network"`; fixed with word-bounded `"no"` negation suffix; regression in `Classify_does_not_fire_private_network_conflict_for_prohibitive_no_private_network_phrase`.
+- [x] (proven) `TradeoffAcknowledgmentResolver.AcceptsSacrifice` — negated acceptance text false-matched acknowledgment tokens — **hit 2026-09-08 (#1329):** `"unacceptable"` substring-matched `"accept"`; fixed with rejection phrases and whole-token acceptance matching; regression in `ResolveAcknowledgmentAnswerKey_returns_null_when_answer_contains_unacceptable` and `DetectAsync_does_not_acknowledge_tradeoff_when_l0_answer_is_unacceptable`.
+- [x] (proven) `DeclarationPremiseConflictClassifier.AdminIngressIntentMatches` — `"block ssh"` matched inside `"unblock ssh"` — **hit 2026-09-08 (#1329):** prefix negation for embedded block phrases; regression in `Classify_does_not_fire_admin_ingress_conflict_for_unblock_ssh_phrase`.
+- [x] (proven) `TradeoffRequirementConflictDetector.DetectConflict` — bare substring tokens (`sla`, `pci`, `mfa`, `budget`) in requirement prose false-trigger conflicting tradeoffs — **hit 2026-09-09 hunt #1414:** `"budgetary"` matched `"budget"` when Cost was sacrificed; fixed with standalone-word pattern matching via `DecisioningTextTokenMatcher`; regression `DetectConflict_does_not_false_positive_on_budgetary_requirement_when_cost_sacrificed`.
+- [x] (proven) `IdentityRegulatedDatastoreClassifier.IsDatastoreNode` — `"sql"` substring matches inside `"nosql"` labels and false-classifies Cosmos/NoSQL nodes as SQL datastores — **hit 2026-09-09 hunt #1414:** standalone-word `sql` matching; regression `IsDatastoreNode_does_not_false_positive_on_nosql_label`.
+- [x] (proven) `IdentityBlastRadiusRoleNames.IsWriteAdminRole` — `"Contributor"`/`"Owner"` substring tokens match inside deny-list role names such as `"Non-Contributor Access Reviewer"` — **hit 2026-09-09 hunt #1414:** non-prefix negation before role tokens; regressions `IsWriteAdminRole_does_not_match_non_contributor_deny_list_role` and `IsWriteAdminRole_does_not_match_non_owner_deny_list_role`.
+- [x] (proven) `RequirementSkuTierAnalyzer` / `DrRpoTopologyAnalyzer` — `"cluster"` topology heuristic treats AKS/app cluster nodes as datastores for SKU/RPO gap findings — **hit 2026-09-09 hunt #1414:** bare `cluster` now requires co-occurring datastore keywords; shared `TopologyDatastoreLabelHeuristic`; regressions `IsSkuRpoDatastoreTopologyNode_does_not_treat_aks_cluster_as_datastore` and `IsSkuRpoDatastoreTopologyNode_still_matches_sql_failover_cluster`.
+
+2026-09-09 thorough hunt #1414 (hit): proved four seeded substring-heuristic false positives in decisioning (tradeoff budget token, nosql/sql datastore label, non-contributor role token, bare cluster SKU/RPO heuristic); consolidated label matching in `TopologyDatastoreLabelHeuristic` + `DecisioningTextTokenMatcher`.
+
+2026-09-07 thorough hunt #1287 (hit): proved bare `"No …"` negation gap on private-network premise conflict matching.
 
 2026-09-05 seed hunt #810 (hit): reseeded from zone files; proved empty-prior cross-run expansion suppression, topology category coverage false-fail, gap/planned security delta regression noise, and case-sensitive policy-rule merge keys.
 
@@ -1949,11 +2471,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 8
-- **bugs-found:** 13
+- **hunts:** 9
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — lexical reranker policy-pack boost at zero overlap; Graph-RAG shared neighbor kept first seed score
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — zero-chunk reindex left stale vectors and catalog hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1976,8 +2498,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GraphRagNeighborExpander.ExpandAsync` skipped score upgrade when the same neighbor was reachable from multiple seeds — **hit 2026-09-05 (#814):** first seed's discounted score was kept even when a later seed had a higher vector score; fixed by upgrading existing neighbor hits on collision (`ExpandAsync_shared_neighbor_uses_highest_seed_score_not_first_seed`).
 - [x] (valid-no-repro) `GraphRagNeighborExpander.ExpandAsync` re-sorts by vector score after lexical rerank — post-expansion score ordering blends neighbor relevance with seed scores by design; lexical fallback reranker does not mutate `RetrievalHit.Score`, so any downstream score sort reflects vector/neighbor scores rather than overlap rank.
 - [x] (valid-no-repro) `InMemoryVectorIndex.UpsertChunksAsync` silently evicts oldest chunks past `MaxChunks` — documented dev/single-node bound (`MaxChunks = 10_000`); production path uses Azure Search, not in-memory eviction.
+- [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — document reindexed to zero chunks (`split.Count == 0`) skipped delete/catalog update, leaving prior vectors searchable and stale catalog `ContentHash` — **hit 2026-09-09 seed hunt #1408:** remove prior vectors and `RecordIndexed` when chunker returns empty; regression `IndexDocumentsAsync_when_content_chunks_to_empty_removes_stale_vectors_and_updates_catalog`.
+- [ ] (candidate) `PolicyPackChunker.Chunk` — `IndexOf(':')` splits on first colon in long control lines, corrupting headers when `controlName` or URLs contain `:` (not reproduced on shipped compliance-rules templates).
+- [ ] (candidate) `LouvainGraphCommunityDetector.DetectCommunities` — ordinal edge endpoint lookup drops edges when casing differs from `GraphNode.NodeId` (community fragmentation; reachability depends on merge/projection casing drift).
 
-2026-09-05 seed hunt #814 (hit): proved lexical policy-pack zero-overlap boost and Graph-RAG shared-neighbor stale score gaps.
+2026-09-09 seed hunt #1408 (hit): proved zero-chunk reindex stale-vector gap; seeded policy-pack colon-split and Louvain casing candidates; 344 scoped retrieval/indexing tests passed.
 
 2026-09-04 seed hunt #708 (hit): proved iterative retrieval final merge ignored `RetrievalQuery.MaxTopK` when `query.TopK` exceeded the contract ceiling.
 
@@ -1993,11 +2518,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 14
-- **bugs-found:** 19
+- **hunts:** 15
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — OIDC authority hash fragment broke discovery URL; javascript: authorization_endpoint passed discovery parse
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — non-http(s) end_session_endpoint accepted at discovery parse and used for RP-initiated logout redirect
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2030,6 +2555,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-05 seed hunt #805 (hit): reseeded zone; proved authority hash-fragment discovery URL bug and non-http(s) endpoint scheme gap.
 
+- [x] (proven) `parseDiscoveryDocument` accepted non-http(s) `end_session_endpoint` values such as `javascript:` — **hit 2026-09-07 hunt #1234 (seed→hit):** optional logout URL was validated with `new URL()` only, so a compromised discovery payload could supply a script-scheme RP-initiated logout redirect via `resolveRpLogoutUrlFromBffSession`; fixed by requiring `http:` or `https:` for optional logout endpoints (`discovery.test.ts` omits javascript scheme on end_session).
+- [ ] (candidate) `bff-session-sync.resolveExpiresInSeconds` maps `expires_in` zero/negative to default 3600 while `session.resolveExpiresInSeconds` honors zero — client expiry hint can disagree with BFF cookie TTL until the next successful refresh.
+- [ ] (candidate) `resolveRpLogoutUrlFromBffSession` returns BFF-built logout URLs without client-side scheme validation before `window.location.assign` — defense-in-depth gap if server-side discovery parsing regresses.
+- [x] (valid-no-repro) `CallbackClient` skips id_token nonce binding when the token response omits `id_token` — primary OIDC scopes request `openid`; supplemental Google flow uses the same nonce check when `id_token` is present; absent id_token is treated as provider non-compliance rather than a reachable cross-flow bypass in these files.
+
+2026-09-07 seed hunt #1234 (hit): reseeded ui-oidc zone; proved end_session_endpoint scheme gap (parity with #805 authorization_endpoint fix); cheap-disproved id_token-absent nonce bypass; seeded BFF expiry skew and client logout URL validation candidates.
+
 ---
 
 ## Zone: archlucid-core
@@ -2037,16 +2569,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **id:** archlucid-core
 - **status:** open
 - **impact:** high
-- **aliases:** core domain; security policies; tenancy models
-- **paths:** ArchLucid.Core/
+- **aliases:** core domain; security policies; tenancy models; retired mega-zone
+- **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 350
-- **bugs-found:** 2478
+- **hunts:** 436
+- **bugs-found:** 3499
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-06
-- **last-bug:** 2026-09-06 — BearAccessKey/BeatAccessKey/BeefAccessKey redaction, didn't configure/mandate/apply/enforce to constraint negation, advice mightn't configure/mandate/apply/enforce/provision to prefix
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — `GraphSnapshotKnowledgeModelMerger` duplicate nodes when context/model node ids differ only by case
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -4701,6 +5233,1286 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-06 seed hunt #1078 (hit): reseeded after #1077 closure; proved twelve hunt-ready rows — BearAccessKey/BeatAccessKey/BeefAccessKey redaction parity, didn't configure/mandate/apply/enforce to constraint negation, and advice mightn't configure/mandate/apply/enforce/provision to prefix.
 
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BeerAccessKey` not redacted — **hit 2026-09-06 (#1079):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_beer_access_key_config_path`, `IsSensitiveKey_detects_beer_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BellAccessKey` not redacted — **hit 2026-09-06 (#1079):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bell_access_key_config_path`, `IsSensitiveKey_detects_bell_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BenchAccessKey` not redacted — **hit 2026-09-06 (#1079):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bench_access_key_config_path`, `IsSensitiveKey_detects_bench_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightn't configure` suffix gap — **hit 2026-09-06 (#1079):** didn't-only advice suffix guard; missed `enable encryption mightn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightn't mandate` suffix gap — **hit 2026-09-06 (#1079):** didn't-only advice suffix guard; missed `enable encryption mightn't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightn't apply` suffix gap — **hit 2026-09-06 (#1079):** didn't-only advice suffix guard; missed `enable encryption mightn't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightn't enforce` suffix gap — **hit 2026-09-06 (#1079):** didn't-only advice suffix guard; missed `enable encryption mightn't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightn't maintain` suffix gap — **hit 2026-09-06 (#1079):** didn't-only advice suffix guard; missed `enable encryption mightn't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightn't ensure` suffix gap — **hit 2026-09-06 (#1079):** didn't-only advice suffix guard; missed `enable encryption mightn't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightn't provision` suffix gap — **hit 2026-09-06 (#1079):** didn't-only advice suffix guard; missed `enable encryption mightn't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightn't require` suffix gap — **hit 2026-09-06 (#1079):** didn't-only advice suffix guard; missed `enable encryption mightn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightn't need` suffix gap — **hit 2026-09-06 (#1079):** didn't-only advice suffix guard; missed `enable encryption mightn't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1079 (hit): reseeded after #1078 closure; proved twelve hunt-ready rows — BeerAccessKey/BellAccessKey/BenchAccessKey redaction parity and advice mightn't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BerryAccessKey` not redacted — **hit 2026-09-06 (#1080):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_berry_access_key_config_path`, `IsSensitiveKey_detects_berry_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BeltAccessKey` not redacted — **hit 2026-09-06 (#1080):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_belt_access_key_config_path`, `IsSensitiveKey_detects_belt_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BendAccessKey` not redacted — **hit 2026-09-06 (#1080):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bend_access_key_config_path`, `IsSensitiveKey_detects_bend_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shan't configure` suffix gap — **hit 2026-09-06 (#1080):** mightn't/didn't-only advice suffix guard; missed `enable encryption shan't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shan't mandate` suffix gap — **hit 2026-09-06 (#1080):** mightn't/didn't-only advice suffix guard; missed `enable encryption shan't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shan't apply` suffix gap — **hit 2026-09-06 (#1080):** mightn't/didn't-only advice suffix guard; missed `enable encryption shan't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shan't enforce` suffix gap — **hit 2026-09-06 (#1080):** mightn't/didn't-only advice suffix guard; missed `enable encryption shan't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shan't maintain` suffix gap — **hit 2026-09-06 (#1080):** mightn't/didn't-only advice suffix guard; missed `enable encryption shan't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shan't ensure` suffix gap — **hit 2026-09-06 (#1080):** mightn't/didn't-only advice suffix guard; missed `enable encryption shan't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shan't provision` suffix gap — **hit 2026-09-06 (#1080):** mightn't/didn't-only advice suffix guard; missed `enable encryption shan't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shan't require` suffix gap — **hit 2026-09-06 (#1080):** mightn't/didn't-only advice suffix guard; missed `enable encryption shan't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shan't need` suffix gap — **hit 2026-09-06 (#1080):** mightn't/didn't-only advice suffix guard; missed `enable encryption shan't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1080 (hit): reseeded after #1079 closure; proved twelve hunt-ready rows — BerryAccessKey/BeltAccessKey/BendAccessKey redaction parity and advice shan't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BetaAccessKey` not redacted — **hit 2026-09-06 (#1081):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_beta_access_key_config_path`, `IsSensitiveKey_detects_beta_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BethAccessKey` not redacted — **hit 2026-09-06 (#1081):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_beth_access_key_config_path`, `IsSensitiveKey_detects_beth_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BestAccessKey` not redacted — **hit 2026-09-06 (#1081):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_best_access_key_config_path`, `IsSensitiveKey_detects_best_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `daren't configure` suffix gap — **hit 2026-09-06 (#1081):** shan't/mightn't-only advice suffix guard; missed `enable encryption daren't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `daren't mandate` suffix gap — **hit 2026-09-06 (#1081):** shan't/mightn't-only advice suffix guard; missed `enable encryption daren't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `daren't apply` suffix gap — **hit 2026-09-06 (#1081):** shan't/mightn't-only advice suffix guard; missed `enable encryption daren't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `daren't enforce` suffix gap — **hit 2026-09-06 (#1081):** shan't/mightn't-only advice suffix guard; missed `enable encryption daren't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `daren't maintain` suffix gap — **hit 2026-09-06 (#1081):** shan't/mightn't-only advice suffix guard; missed `enable encryption daren't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `daren't ensure` suffix gap — **hit 2026-09-06 (#1081):** shan't/mightn't-only advice suffix guard; missed `enable encryption daren't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `daren't provision` suffix gap — **hit 2026-09-06 (#1081):** shan't/mightn't-only advice suffix guard; missed `enable encryption daren't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `daren't require` suffix gap — **hit 2026-09-06 (#1081):** shan't/mightn't-only advice suffix guard; missed `enable encryption daren't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `daren't need` suffix gap — **hit 2026-09-06 (#1081):** shan't/mightn't-only advice suffix guard; missed `enable encryption daren't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1081 (hit): reseeded after #1080 closure; proved twelve hunt-ready rows — BetaAccessKey/BethAccessKey/BestAccessKey redaction parity and advice daren't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BidAccessKey` not redacted — **hit 2026-09-06 (#1082):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bid_access_key_config_path`, `IsSensitiveKey_detects_bid_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BigAccessKey` not redacted — **hit 2026-09-06 (#1082):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_big_access_key_config_path`, `IsSensitiveKey_detects_big_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BikeAccessKey` not redacted — **hit 2026-09-06 (#1082):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bike_access_key_config_path`, `IsSensitiveKey_detects_bike_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ain't configure` suffix gap — **hit 2026-09-06 (#1082):** daren't/shan't-only advice suffix guard; missed `enable encryption ain't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ain't mandate` suffix gap — **hit 2026-09-06 (#1082):** daren't/shan't-only advice suffix guard; missed `enable encryption ain't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ain't apply` suffix gap — **hit 2026-09-06 (#1082):** daren't/shan't-only advice suffix guard; missed `enable encryption ain't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ain't enforce` suffix gap — **hit 2026-09-06 (#1082):** daren't/shan't-only advice suffix guard; missed `enable encryption ain't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ain't maintain` suffix gap — **hit 2026-09-06 (#1082):** daren't/shan't-only advice suffix guard; missed `enable encryption ain't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ain't ensure` suffix gap — **hit 2026-09-06 (#1082):** daren't/shan't-only advice suffix guard; missed `enable encryption ain't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ain't provision` suffix gap — **hit 2026-09-06 (#1082):** daren't/shan't-only advice suffix guard; missed `enable encryption ain't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ain't require` suffix gap — **hit 2026-09-06 (#1082):** daren't/shan't-only advice suffix guard; missed `enable encryption ain't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `ain't need` suffix gap — **hit 2026-09-06 (#1082):** daren't/shan't-only advice suffix guard; missed `enable encryption ain't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1082 (hit): reseeded after #1081 closure; proved twelve hunt-ready rows — BidAccessKey/BigAccessKey/BikeAccessKey redaction parity and advice ain't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BindAccessKey` not redacted — **hit 2026-09-06 (#1083):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bind_access_key_config_path`, `IsSensitiveKey_detects_bind_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BirdAccessKey` not redacted — **hit 2026-09-06 (#1083):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bird_access_key_config_path`, `IsSensitiveKey_detects_bird_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BitAccessKey` not redacted — **hit 2026-09-06 (#1083):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bit_access_key_config_path`, `IsSensitiveKey_detects_bit_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mayn't configure` suffix gap — **hit 2026-09-06 (#1083):** ain't/daren't-only advice suffix guard; missed `enable encryption mayn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mayn't mandate` suffix gap — **hit 2026-09-06 (#1083):** ain't/daren't-only advice suffix guard; missed `enable encryption mayn't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mayn't apply` suffix gap — **hit 2026-09-06 (#1083):** ain't/daren't-only advice suffix guard; missed `enable encryption mayn't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mayn't enforce` suffix gap — **hit 2026-09-06 (#1083):** ain't/daren't-only advice suffix guard; missed `enable encryption mayn't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mayn't maintain` suffix gap — **hit 2026-09-06 (#1083):** ain't/daren't-only advice suffix guard; missed `enable encryption mayn't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mayn't ensure` suffix gap — **hit 2026-09-06 (#1083):** ain't/daren't-only advice suffix guard; missed `enable encryption mayn't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mayn't provision` suffix gap — **hit 2026-09-06 (#1083):** ain't/daren't-only advice suffix guard; missed `enable encryption mayn't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mayn't require` suffix gap — **hit 2026-09-06 (#1083):** ain't/daren't-only advice suffix guard; missed `enable encryption mayn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mayn't need` suffix gap — **hit 2026-09-06 (#1083):** ain't/daren't-only advice suffix guard; missed `enable encryption mayn't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1083 (hit): reseeded after #1082 closure; proved twelve hunt-ready rows — BindAccessKey/BirdAccessKey/BitAccessKey redaction parity and advice mayn't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BiteAccessKey` not redacted — **hit 2026-09-06 (#1084):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bite_access_key_config_path`, `IsSensitiveKey_detects_bite_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BlankAccessKey` not redacted — **hit 2026-09-06 (#1084):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_blank_access_key_config_path`, `IsSensitiveKey_detects_blank_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BlendAccessKey` not redacted — **hit 2026-09-06 (#1084):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_blend_access_key_config_path`, `IsSensitiveKey_detects_blend_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtn't configure` suffix gap — **hit 2026-09-06 (#1084):** mayn't/ain't-only advice suffix guard; missed `enable encryption oughtn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtn't mandate` suffix gap — **hit 2026-09-06 (#1084):** mayn't/ain't-only advice suffix guard; missed `enable encryption oughtn't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtn't apply` suffix gap — **hit 2026-09-06 (#1084):** mayn't/ain't-only advice suffix guard; missed `enable encryption oughtn't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtn't enforce` suffix gap — **hit 2026-09-06 (#1084):** mayn't/ain't-only advice suffix guard; missed `enable encryption oughtn't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtn't maintain` suffix gap — **hit 2026-09-06 (#1084):** mayn't/ain't-only advice suffix guard; missed `enable encryption oughtn't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtn't ensure` suffix gap — **hit 2026-09-06 (#1084):** mayn't/ain't-only advice suffix guard; missed `enable encryption oughtn't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtn't provision` suffix gap — **hit 2026-09-06 (#1084):** mayn't/ain't-only advice suffix guard; missed `enable encryption oughtn't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtn't require` suffix gap — **hit 2026-09-06 (#1084):** mayn't/ain't-only advice suffix guard; missed `enable encryption oughtn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtn't need` suffix gap — **hit 2026-09-06 (#1084):** mayn't/ain't-only advice suffix guard; missed `enable encryption oughtn't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1084 (hit): reseeded after #1083 closure; proved twelve hunt-ready rows — BiteAccessKey/BlankAccessKey/BlendAccessKey redaction parity and advice oughtn't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BlinkAccessKey` not redacted — **hit 2026-09-06 (#1085):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_blink_access_key_config_path`, `IsSensitiveKey_detects_blink_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BloomAccessKey` not redacted — **hit 2026-09-06 (#1085):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bloom_access_key_config_path`, `IsSensitiveKey_detects_bloom_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BlowAccessKey` not redacted — **hit 2026-09-06 (#1085):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_blow_access_key_config_path`, `IsSensitiveKey_detects_blow_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `needn't configure` suffix gap — **hit 2026-09-06 (#1085):** oughtn't/mayn't-only advice suffix guard; missed `enable encryption needn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `needn't mandate` suffix gap — **hit 2026-09-06 (#1085):** oughtn't/mayn't-only advice suffix guard; missed `enable encryption needn't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `needn't apply` suffix gap — **hit 2026-09-06 (#1085):** oughtn't/mayn't-only advice suffix guard; missed `enable encryption needn't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `needn't enforce` suffix gap — **hit 2026-09-06 (#1085):** oughtn't/mayn't-only advice suffix guard; missed `enable encryption needn't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `needn't maintain` suffix gap — **hit 2026-09-06 (#1085):** oughtn't/mayn't-only advice suffix guard; missed `enable encryption needn't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `needn't ensure` suffix gap — **hit 2026-09-06 (#1085):** oughtn't/mayn't-only advice suffix guard; missed `enable encryption needn't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `needn't provision` suffix gap — **hit 2026-09-06 (#1085):** oughtn't/mayn't-only advice suffix guard; missed `enable encryption needn't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `needn't require` suffix gap — **hit 2026-09-06 (#1085):** oughtn't/mayn't-only advice suffix guard; missed `enable encryption needn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `needn't need` suffix gap — **hit 2026-09-06 (#1085):** oughtn't/mayn't-only advice suffix guard; missed `enable encryption needn't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1085 (hit): reseeded after #1084 closure; proved twelve hunt-ready rows — BlinkAccessKey/BloomAccessKey/BlowAccessKey redaction parity and advice needn't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BoatAccessKey` not redacted — **hit 2026-09-06 (#1086):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_boat_access_key_config_path`, `IsSensitiveKey_detects_boat_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BodyAccessKey` not redacted — **hit 2026-09-06 (#1086):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_body_access_key_config_path`, `IsSensitiveKey_detects_body_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BoldAccessKey` not redacted — **hit 2026-09-06 (#1086):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bold_access_key_config_path`, `IsSensitiveKey_detects_bold_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustn't configure` suffix gap — **hit 2026-09-06 (#1086):** needn't/oughtn't-only advice suffix guard; missed `enable encryption mustn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustn't mandate` suffix gap — **hit 2026-09-06 (#1086):** needn't/oughtn't-only advice suffix guard; missed `enable encryption mustn't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustn't apply` suffix gap — **hit 2026-09-06 (#1086):** needn't/oughtn't-only advice suffix guard; missed `enable encryption mustn't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustn't enforce` suffix gap — **hit 2026-09-06 (#1086):** needn't/oughtn't-only advice suffix guard; missed `enable encryption mustn't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustn't maintain` suffix gap — **hit 2026-09-06 (#1086):** needn't/oughtn't-only advice suffix guard; missed `enable encryption mustn't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustn't ensure` suffix gap — **hit 2026-09-06 (#1086):** needn't/oughtn't-only advice suffix guard; missed `enable encryption mustn't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustn't provision` suffix gap — **hit 2026-09-06 (#1086):** needn't/oughtn't-only advice suffix guard; missed `enable encryption mustn't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustn't require` suffix gap — **hit 2026-09-06 (#1086):** needn't/oughtn't-only advice suffix guard; missed `enable encryption mustn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustn't need` suffix gap — **hit 2026-09-06 (#1086):** needn't/oughtn't-only advice suffix guard; missed `enable encryption mustn't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1086 (hit): reseeded after #1085 closure; proved twelve hunt-ready rows — BoatAccessKey/BodyAccessKey/BoldAccessKey redaction parity and advice mustn't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BoneAccessKey` not redacted — **hit 2026-09-06 (#1087):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bone_access_key_config_path`, `IsSensitiveKey_detects_bone_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BookAccessKey` not redacted — **hit 2026-09-06 (#1087):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_book_access_key_config_path`, `IsSensitiveKey_detects_book_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BoomAccessKey` not redacted — **hit 2026-09-06 (#1087):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_boom_access_key_config_path`, `IsSensitiveKey_detects_boom_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldn't configure` suffix gap — **hit 2026-09-06 (#1087):** mustn't/needn't-only advice suffix guard; missed `enable encryption couldn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldn't mandate` suffix gap — **hit 2026-09-06 (#1087):** mustn't/needn't-only advice suffix guard; missed `enable encryption couldn't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldn't apply` suffix gap — **hit 2026-09-06 (#1087):** mustn't/needn't-only advice suffix guard; missed `enable encryption couldn't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldn't enforce` suffix gap — **hit 2026-09-06 (#1087):** mustn't/needn't-only advice suffix guard; missed `enable encryption couldn't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldn't maintain` suffix gap — **hit 2026-09-06 (#1087):** mustn't/needn't-only advice suffix guard; missed `enable encryption couldn't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldn't ensure` suffix gap — **hit 2026-09-06 (#1087):** mustn't/needn't-only advice suffix guard; missed `enable encryption couldn't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldn't provision` suffix gap — **hit 2026-09-06 (#1087):** mustn't/needn't-only advice suffix guard; missed `enable encryption couldn't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldn't require` suffix gap — **hit 2026-09-06 (#1087):** mustn't/needn't-only advice suffix guard; missed `enable encryption couldn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldn't need` suffix gap — **hit 2026-09-06 (#1087):** mustn't/needn't-only advice suffix guard; missed `enable encryption couldn't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1087 (hit): reseeded after #1086 closure; proved twelve hunt-ready rows — BoneAccessKey/BookAccessKey/BoomAccessKey redaction parity and advice couldn't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BootAccessKey` not redacted — **hit 2026-09-06 (#1088):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_boot_access_key_config_path`, `IsSensitiveKey_detects_boot_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BorderAccessKey` not redacted — **hit 2026-09-06 (#1088):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_border_access_key_config_path`, `IsSensitiveKey_detects_border_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BossAccessKey` not redacted — **hit 2026-09-06 (#1088):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_boss_access_key_config_path`, `IsSensitiveKey_detects_boss_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldn't configure` suffix gap — **hit 2026-09-06 (#1088):** couldn't/mustn't-only advice suffix guard; missed `enable encryption wouldn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldn't mandate` suffix gap — **hit 2026-09-06 (#1088):** couldn't/mustn't-only advice suffix guard; missed `enable encryption wouldn't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldn't apply` suffix gap — **hit 2026-09-06 (#1088):** couldn't/mustn't-only advice suffix guard; missed `enable encryption wouldn't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldn't enforce` suffix gap — **hit 2026-09-06 (#1088):** couldn't/mustn't-only advice suffix guard; missed `enable encryption wouldn't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldn't maintain` suffix gap — **hit 2026-09-06 (#1088):** couldn't/mustn't-only advice suffix guard; missed `enable encryption wouldn't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldn't ensure` suffix gap — **hit 2026-09-06 (#1088):** couldn't/mustn't-only advice suffix guard; missed `enable encryption wouldn't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldn't provision` suffix gap — **hit 2026-09-06 (#1088):** couldn't/mustn't-only advice suffix guard; missed `enable encryption wouldn't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldn't require` suffix gap — **hit 2026-09-06 (#1088):** couldn't/mustn't-only advice suffix guard; missed `enable encryption wouldn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldn't need` suffix gap — **hit 2026-09-06 (#1088):** couldn't/mustn't-only advice suffix guard; missed `enable encryption wouldn't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1088 (hit): reseeded after #1087 closure; proved twelve hunt-ready rows — BootAccessKey/BorderAccessKey/BossAccessKey redaction parity and advice wouldn't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BotAccessKey` not redacted — **hit 2026-09-06 (#1089):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bot_access_key_config_path`, `IsSensitiveKey_detects_bot_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BowlAccessKey` not redacted — **hit 2026-09-06 (#1089):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bowl_access_key_config_path`, `IsSensitiveKey_detects_bowl_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BoxAccessKey` not redacted — **hit 2026-09-06 (#1089):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_box_access_key_config_path`, `IsSensitiveKey_detects_box_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can't configure` suffix gap — **hit 2026-09-06 (#1089):** wouldn't/couldn't-only advice suffix guard; missed `enable encryption can't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can't mandate` suffix gap — **hit 2026-09-06 (#1089):** wouldn't/couldn't-only advice suffix guard; missed `enable encryption can't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can't apply` suffix gap — **hit 2026-09-06 (#1089):** wouldn't/couldn't-only advice suffix guard; missed `enable encryption can't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can't enforce` suffix gap — **hit 2026-09-06 (#1089):** wouldn't/couldn't-only advice suffix guard; missed `enable encryption can't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can't maintain` suffix gap — **hit 2026-09-06 (#1089):** wouldn't/couldn't-only advice suffix guard; missed `enable encryption can't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can't ensure` suffix gap — **hit 2026-09-06 (#1089):** wouldn't/couldn't-only advice suffix guard; missed `enable encryption can't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can't provision` suffix gap — **hit 2026-09-06 (#1089):** wouldn't/couldn't-only advice suffix guard; missed `enable encryption can't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can't require` suffix gap — **hit 2026-09-06 (#1089):** wouldn't/couldn't-only advice suffix guard; missed `enable encryption can't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can't need` suffix gap — **hit 2026-09-06 (#1089):** wouldn't/couldn't-only advice suffix guard; missed `enable encryption can't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1089 (hit): reseeded after #1088 closure; proved twelve hunt-ready rows — BotAccessKey/BowlAccessKey/BoxAccessKey redaction parity and advice can't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BoyAccessKey` not redacted — **hit 2026-09-06 (#1090):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_boy_access_key_config_path`, `IsSensitiveKey_detects_boy_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BrainAccessKey` not redacted — **hit 2026-09-06 (#1090):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_brain_access_key_config_path`, `IsSensitiveKey_detects_brain_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BranchAccessKey` not redacted — **hit 2026-09-06 (#1090):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_branch_access_key_config_path`, `IsSensitiveKey_detects_branch_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isn't configure` suffix gap — **hit 2026-09-06 (#1090):** can't/wouldn't-only advice suffix guard; missed `enable encryption isn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isn't mandate` suffix gap — **hit 2026-09-06 (#1090):** can't/wouldn't-only advice suffix guard; missed `enable encryption isn't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isn't apply` suffix gap — **hit 2026-09-06 (#1090):** can't/wouldn't-only advice suffix guard; missed `enable encryption isn't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isn't enforce` suffix gap — **hit 2026-09-06 (#1090):** can't/wouldn't-only advice suffix guard; missed `enable encryption isn't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isn't maintain` suffix gap — **hit 2026-09-06 (#1090):** can't/wouldn't-only advice suffix guard; missed `enable encryption isn't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isn't ensure` suffix gap — **hit 2026-09-06 (#1090):** can't/wouldn't-only advice suffix guard; missed `enable encryption isn't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isn't provision` suffix gap — **hit 2026-09-06 (#1090):** can't/wouldn't-only advice suffix guard; missed `enable encryption isn't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isn't require` suffix gap — **hit 2026-09-06 (#1090):** can't/wouldn't-only advice suffix guard; missed `enable encryption isn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isn't need` suffix gap — **hit 2026-09-06 (#1090):** can't/wouldn't-only advice suffix guard; missed `enable encryption isn't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1090 (hit): reseeded after #1089 closure; proved twelve hunt-ready rows — BoyAccessKey/BrainAccessKey/BranchAccessKey redaction parity and advice isn't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BrandAccessKey` not redacted — **hit 2026-09-06 (#1091):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_brand_access_key_config_path`, `IsSensitiveKey_detects_brand_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BreadAccessKey` not redacted — **hit 2026-09-06 (#1091):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bread_access_key_config_path`, `IsSensitiveKey_detects_bread_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BreakAccessKey` not redacted — **hit 2026-09-06 (#1091):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_break_access_key_config_path`, `IsSensitiveKey_detects_break_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aren't configure` suffix gap — **hit 2026-09-06 (#1091):** isn't/can't-only advice suffix guard; missed `enable encryption aren't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aren't mandate` suffix gap — **hit 2026-09-06 (#1091):** isn't/can't-only advice suffix guard; missed `enable encryption aren't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aren't apply` suffix gap — **hit 2026-09-06 (#1091):** isn't/can't-only advice suffix guard; missed `enable encryption aren't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aren't enforce` suffix gap — **hit 2026-09-06 (#1091):** isn't/can't-only advice suffix guard; missed `enable encryption aren't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aren't maintain` suffix gap — **hit 2026-09-06 (#1091):** isn't/can't-only advice suffix guard; missed `enable encryption aren't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aren't ensure` suffix gap — **hit 2026-09-06 (#1091):** isn't/can't-only advice suffix guard; missed `enable encryption aren't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aren't provision` suffix gap — **hit 2026-09-06 (#1091):** isn't/can't-only advice suffix guard; missed `enable encryption aren't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aren't require` suffix gap — **hit 2026-09-06 (#1091):** isn't/can't-only advice suffix guard; missed `enable encryption aren't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aren't need` suffix gap — **hit 2026-09-06 (#1091):** isn't/can't-only advice suffix guard; missed `enable encryption aren't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1091 (hit): reseeded after #1090 closure; proved twelve hunt-ready rows — BrandAccessKey/BreadAccessKey/BreakAccessKey redaction parity and advice aren't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BrickAccessKey` not redacted — **hit 2026-09-06 (#1092):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_brick_access_key_config_path`, `IsSensitiveKey_detects_brick_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BriefAccessKey` not redacted — **hit 2026-09-06 (#1092):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_brief_access_key_config_path`, `IsSensitiveKey_detects_brief_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BrightAccessKey` not redacted — **hit 2026-09-06 (#1092):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bright_access_key_config_path`, `IsSensitiveKey_detects_bright_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haven't configure` suffix gap — **hit 2026-09-06 (#1092):** aren't/isn't-only advice suffix guard; missed `enable encryption haven't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haven't mandate` suffix gap — **hit 2026-09-06 (#1092):** aren't/isn't-only advice suffix guard; missed `enable encryption haven't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haven't apply` suffix gap — **hit 2026-09-06 (#1092):** aren't/isn't-only advice suffix guard; missed `enable encryption haven't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haven't enforce` suffix gap — **hit 2026-09-06 (#1092):** aren't/isn't-only advice suffix guard; missed `enable encryption haven't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haven't maintain` suffix gap — **hit 2026-09-06 (#1092):** aren't/isn't-only advice suffix guard; missed `enable encryption haven't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haven't ensure` suffix gap — **hit 2026-09-06 (#1092):** aren't/isn't-only advice suffix guard; missed `enable encryption haven't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haven't provision` suffix gap — **hit 2026-09-06 (#1092):** aren't/isn't-only advice suffix guard; missed `enable encryption haven't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haven't require` suffix gap — **hit 2026-09-06 (#1092):** aren't/isn't-only advice suffix guard; missed `enable encryption haven't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haven't need` suffix gap — **hit 2026-09-06 (#1092):** aren't/isn't-only advice suffix guard; missed `enable encryption haven't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1092 (hit): reseeded after #1091 closure; proved twelve hunt-ready rows — BrickAccessKey/BriefAccessKey/BrightAccessKey redaction parity and advice haven't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BringAccessKey` not redacted — **hit 2026-09-06 (#1093):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bring_access_key_config_path`, `IsSensitiveKey_detects_bring_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BroadAccessKey` not redacted — **hit 2026-09-06 (#1093):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_broad_access_key_config_path`, `IsSensitiveKey_detects_broad_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BroadcastAccessKey` not redacted — **hit 2026-09-06 (#1093):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_broadcast_access_key_config_path`, `IsSensitiveKey_detects_broadcast_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasn't configure` suffix gap — **hit 2026-09-06 (#1093):** haven't/aren't-only advice suffix guard; missed `enable encryption hasn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasn't mandate` suffix gap — **hit 2026-09-06 (#1093):** haven't/aren't-only advice suffix guard; missed `enable encryption hasn't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasn't apply` suffix gap — **hit 2026-09-06 (#1093):** haven't/aren't-only advice suffix guard; missed `enable encryption hasn't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasn't enforce` suffix gap — **hit 2026-09-06 (#1093):** haven't/aren't-only advice suffix guard; missed `enable encryption hasn't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasn't maintain` suffix gap — **hit 2026-09-06 (#1093):** haven't/aren't-only advice suffix guard; missed `enable encryption hasn't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasn't ensure` suffix gap — **hit 2026-09-06 (#1093):** haven't/aren't-only advice suffix guard; missed `enable encryption hasn't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasn't provision` suffix gap — **hit 2026-09-06 (#1093):** haven't/aren't-only advice suffix guard; missed `enable encryption hasn't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasn't require` suffix gap — **hit 2026-09-06 (#1093):** haven't/aren't-only advice suffix guard; missed `enable encryption hasn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasn't need` suffix gap — **hit 2026-09-06 (#1093):** haven't/aren't-only advice suffix guard; missed `enable encryption hasn't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1093 (hit): reseeded after #1092 closure; proved twelve hunt-ready rows — BringAccessKey/BroadAccessKey/BroadcastAccessKey redaction parity and advice hasn't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BrowAccessKey` not redacted — **hit 2026-09-06 (#1094):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_brow_access_key_config_path`, `IsSensitiveKey_detects_brow_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BrownAccessKey` not redacted — **hit 2026-09-06 (#1094):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_brown_access_key_config_path`, `IsSensitiveKey_detects_brown_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BrowserAccessKey` not redacted — **hit 2026-09-06 (#1094):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_browser_access_key_config_path`, `IsSensitiveKey_detects_browser_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadn't configure` suffix gap — **hit 2026-09-06 (#1094):** hasn't/haven't-only advice suffix guard; missed `enable encryption hadn't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadn't mandate` suffix gap — **hit 2026-09-06 (#1094):** hasn't/haven't-only advice suffix guard; missed `enable encryption hadn't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadn't apply` suffix gap — **hit 2026-09-06 (#1094):** hasn't/haven't-only advice suffix guard; missed `enable encryption hadn't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadn't enforce` suffix gap — **hit 2026-09-06 (#1094):** hasn't/haven't-only advice suffix guard; missed `enable encryption hadn't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadn't maintain` suffix gap — **hit 2026-09-06 (#1094):** hasn't/haven't-only advice suffix guard; missed `enable encryption hadn't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadn't ensure` suffix gap — **hit 2026-09-06 (#1094):** hasn't/haven't-only advice suffix guard; missed `enable encryption hadn't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadn't provision` suffix gap — **hit 2026-09-06 (#1094):** hasn't/haven't-only advice suffix guard; missed `enable encryption hadn't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadn't require` suffix gap — **hit 2026-09-06 (#1094):** hasn't/haven't-only advice suffix guard; missed `enable encryption hadn't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadn't need` suffix gap — **hit 2026-09-06 (#1094):** hasn't/haven't-only advice suffix guard; missed `enable encryption hadn't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1094 (hit): reseeded after #1093 closure; proved twelve hunt-ready rows — BrowAccessKey/BrownAccessKey/BrowserAccessKey redaction parity and advice hadn't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BrushAccessKey` not redacted — **hit 2026-09-06 (#1095):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_brush_access_key_config_path`, `IsSensitiveKey_detects_brush_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BucketAccessKey` not redacted — **hit 2026-09-06 (#1095):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bucket_access_key_config_path`, `IsSensitiveKey_detects_bucket_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BulkAccessKey` not redacted — **hit 2026-09-06 (#1095):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bulk_access_key_config_path`, `IsSensitiveKey_detects_bulk_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `weren't configure` suffix gap — **hit 2026-09-06 (#1095):** hadn't/hasn't-only advice suffix guard; missed `enable encryption weren't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `weren't mandate` suffix gap — **hit 2026-09-06 (#1095):** hadn't/hasn't-only advice suffix guard; missed `enable encryption weren't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `weren't apply` suffix gap — **hit 2026-09-06 (#1095):** hadn't/hasn't-only advice suffix guard; missed `enable encryption weren't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `weren't enforce` suffix gap — **hit 2026-09-06 (#1095):** hadn't/hasn't-only advice suffix guard; missed `enable encryption weren't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `weren't maintain` suffix gap — **hit 2026-09-06 (#1095):** hadn't/hasn't-only advice suffix guard; missed `enable encryption weren't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `weren't ensure` suffix gap — **hit 2026-09-06 (#1095):** hadn't/hasn't-only advice suffix guard; missed `enable encryption weren't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `weren't provision` suffix gap — **hit 2026-09-06 (#1095):** hadn't/hasn't-only advice suffix guard; missed `enable encryption weren't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `weren't require` suffix gap — **hit 2026-09-06 (#1095):** hadn't/hasn't-only advice suffix guard; missed `enable encryption weren't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `weren't need` suffix gap — **hit 2026-09-06 (#1095):** hadn't/hasn't-only advice suffix guard; missed `enable encryption weren't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1095 (hit): reseeded after #1094 closure; proved twelve hunt-ready rows — BrushAccessKey/BucketAccessKey/BulkAccessKey redaction parity and advice weren't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BumpAccessKey` not redacted — **hit 2026-09-06 (#1096):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bump_access_key_config_path`, `IsSensitiveKey_detects_bump_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BurnAccessKey` not redacted — **hit 2026-09-06 (#1096):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_burn_access_key_config_path`, `IsSensitiveKey_detects_burn_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BurstAccessKey` not redacted — **hit 2026-09-06 (#1096):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_burst_access_key_config_path`, `IsSensitiveKey_detects_burst_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `could not configure` suffix gap — **hit 2026-09-06 (#1096):** weren't/hadn't-only advice suffix guard; missed `enable encryption could not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_could_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `could not mandate` suffix gap — **hit 2026-09-06 (#1096):** weren't/hadn't-only advice suffix guard; missed `enable encryption could not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_could_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `could not apply` suffix gap — **hit 2026-09-06 (#1096):** weren't/hadn't-only advice suffix guard; missed `enable encryption could not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_could_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `could not enforce` suffix gap — **hit 2026-09-06 (#1096):** weren't/hadn't-only advice suffix guard; missed `enable encryption could not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_could_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `could not maintain` suffix gap — **hit 2026-09-06 (#1096):** weren't/hadn't-only advice suffix guard; missed `enable encryption could not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_could_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `could not ensure` suffix gap — **hit 2026-09-06 (#1096):** weren't/hadn't-only advice suffix guard; missed `enable encryption could not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_could_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `could not provision` suffix gap — **hit 2026-09-06 (#1096):** weren't/hadn't-only advice suffix guard; missed `enable encryption could not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_could_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `could not require` suffix gap — **hit 2026-09-06 (#1096):** weren't/hadn't-only advice suffix guard; missed `enable encryption could not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_could_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `could not need` suffix gap — **hit 2026-09-06 (#1096):** weren't/hadn't-only advice suffix guard; missed `enable encryption could not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_could_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1096 (hit): reseeded after #1095 closure; proved twelve hunt-ready rows — BumpAccessKey/BurnAccessKey/BurstAccessKey redaction parity and advice could not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BusinessAccessKey` not redacted — **hit 2026-09-06 (#1097):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_business_access_key_config_path`, `IsSensitiveKey_detects_business_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ButtonAccessKey` not redacted — **hit 2026-09-06 (#1097):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_button_access_key_config_path`, `IsSensitiveKey_detects_button_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BuyerAccessKey` not redacted — **hit 2026-09-06 (#1097):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_buyer_access_key_config_path`, `IsSensitiveKey_detects_buyer_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can not configure` suffix gap — **hit 2026-09-06 (#1097):** could not/couldn't-only advice suffix guard; missed `enable encryption can not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_can_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can not mandate` suffix gap — **hit 2026-09-06 (#1097):** could not/couldn't-only advice suffix guard; missed `enable encryption can not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_can_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can not apply` suffix gap — **hit 2026-09-06 (#1097):** could not/couldn't-only advice suffix guard; missed `enable encryption can not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_can_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can not enforce` suffix gap — **hit 2026-09-06 (#1097):** could not/couldn't-only advice suffix guard; missed `enable encryption can not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_can_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can not maintain` suffix gap — **hit 2026-09-06 (#1097):** could not/couldn't-only advice suffix guard; missed `enable encryption can not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_can_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can not ensure` suffix gap — **hit 2026-09-06 (#1097):** could not/couldn't-only advice suffix guard; missed `enable encryption can not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_can_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can not provision` suffix gap — **hit 2026-09-06 (#1097):** could not/couldn't-only advice suffix guard; missed `enable encryption can not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_can_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can not require` suffix gap — **hit 2026-09-06 (#1097):** could not/couldn't-only advice suffix guard; missed `enable encryption can not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_can_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `can not need` suffix gap — **hit 2026-09-06 (#1097):** could not/couldn't-only advice suffix guard; missed `enable encryption can not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_can_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1097 (hit): reseeded after #1096 closure; proved twelve hunt-ready rows — BusinessAccessKey/ButtonAccessKey/BuyerAccessKey redaction parity and advice can not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ByteAccessKey` not redacted — **hit 2026-09-06 (#1098):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_byte_access_key_config_path`, `IsSensitiveKey_detects_byte_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BypassAccessKey` not redacted — **hit 2026-09-06 (#1098):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bypass_access_key_config_path`, `IsSensitiveKey_detects_bypass_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BundleAccessKey` not redacted — **hit 2026-09-06 (#1098):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_bundle_access_key_config_path`, `IsSensitiveKey_detects_bundle_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `might not configure` suffix gap — **hit 2026-09-06 (#1098):** mightn't/can not-only advice suffix guard; missed `enable encryption might not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_might_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `might not mandate` suffix gap — **hit 2026-09-06 (#1098):** mightn't/can not-only advice suffix guard; missed `enable encryption might not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_might_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `might not apply` suffix gap — **hit 2026-09-06 (#1098):** mightn't/can not-only advice suffix guard; missed `enable encryption might not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_might_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `might not enforce` suffix gap — **hit 2026-09-06 (#1098):** mightn't/can not-only advice suffix guard; missed `enable encryption might not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_might_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `might not maintain` suffix gap — **hit 2026-09-06 (#1098):** mightn't/can not-only advice suffix guard; missed `enable encryption might not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_might_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `might not ensure` suffix gap — **hit 2026-09-06 (#1098):** mightn't/can not-only advice suffix guard; missed `enable encryption might not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_might_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `might not provision` suffix gap — **hit 2026-09-06 (#1098):** mightn't/can not-only advice suffix guard; missed `enable encryption might not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_might_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `might not require` suffix gap — **hit 2026-09-06 (#1098):** mightn't/can not-only advice suffix guard; missed `enable encryption might not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_might_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `might not need` suffix gap — **hit 2026-09-06 (#1098):** mightn't/can not-only advice suffix guard; missed `enable encryption might not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_might_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1098 (hit): reseeded after #1097 closure; proved twelve hunt-ready rows — ByteAccessKey/BypassAccessKey/BundleAccessKey redaction parity and advice might not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `BuzzAccessKey` not redacted — **hit 2026-09-06 (#1099):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_buzz_access_key_config_path`, `IsSensitiveKey_detects_buzz_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CableAccessKey` not redacted — **hit 2026-09-06 (#1099):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cable_access_key_config_path`, `IsSensitiveKey_detects_cable_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CalendarAccessKey` not redacted — **hit 2026-09-06 (#1099):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_calendar_access_key_config_path`, `IsSensitiveKey_detects_calendar_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `may not configure` suffix gap — **hit 2026-09-06 (#1099):** mayn't/might not-only advice suffix guard; missed `enable encryption may not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_may_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `may not mandate` suffix gap — **hit 2026-09-06 (#1099):** mayn't/might not-only advice suffix guard; missed `enable encryption may not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_may_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `may not apply` suffix gap — **hit 2026-09-06 (#1099):** mayn't/might not-only advice suffix guard; missed `enable encryption may not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_may_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `may not enforce` suffix gap — **hit 2026-09-06 (#1099):** mayn't/might not-only advice suffix guard; missed `enable encryption may not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_may_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `may not maintain` suffix gap — **hit 2026-09-06 (#1099):** mayn't/might not-only advice suffix guard; missed `enable encryption may not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_may_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `may not ensure` suffix gap — **hit 2026-09-06 (#1099):** mayn't/might not-only advice suffix guard; missed `enable encryption may not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_may_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `may not provision` suffix gap — **hit 2026-09-06 (#1099):** mayn't/might not-only advice suffix guard; missed `enable encryption may not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_may_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `may not require` suffix gap — **hit 2026-09-06 (#1099):** mayn't/might not-only advice suffix guard; missed `enable encryption may not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_may_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `may not need` suffix gap — **hit 2026-09-06 (#1099):** mayn't/might not-only advice suffix guard; missed `enable encryption may not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_may_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1099 (hit): reseeded after #1098 closure; proved twelve hunt-ready rows — BuzzAccessKey/CableAccessKey/CalendarAccessKey redaction parity and advice may not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CallAccessKey` not redacted — **hit 2026-09-06 (#1100):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_call_access_key_config_path`, `IsSensitiveKey_detects_call_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CameraAccessKey` not redacted — **hit 2026-09-06 (#1100):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_camera_access_key_config_path`, `IsSensitiveKey_detects_camera_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CampusAccessKey` not redacted — **hit 2026-09-06 (#1100):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_campus_access_key_config_path`, `IsSensitiveKey_detects_campus_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dare not configure` suffix gap — **hit 2026-09-06 (#1100):** daren't/may not-only advice suffix guard; missed `enable encryption dare not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dare_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dare not mandate` suffix gap — **hit 2026-09-06 (#1100):** daren't/may not-only advice suffix guard; missed `enable encryption dare not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dare_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dare not apply` suffix gap — **hit 2026-09-06 (#1100):** daren't/may not-only advice suffix guard; missed `enable encryption dare not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dare_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dare not enforce` suffix gap — **hit 2026-09-06 (#1100):** daren't/may not-only advice suffix guard; missed `enable encryption dare not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dare_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dare not maintain` suffix gap — **hit 2026-09-06 (#1100):** daren't/may not-only advice suffix guard; missed `enable encryption dare not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dare_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dare not ensure` suffix gap — **hit 2026-09-06 (#1100):** daren't/may not-only advice suffix guard; missed `enable encryption dare not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dare_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dare not provision` suffix gap — **hit 2026-09-06 (#1100):** daren't/may not-only advice suffix guard; missed `enable encryption dare not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dare_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dare not require` suffix gap — **hit 2026-09-06 (#1100):** daren't/may not-only advice suffix guard; missed `enable encryption dare not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dare_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dare not need` suffix gap — **hit 2026-09-06 (#1100):** daren't/may not-only advice suffix guard; missed `enable encryption dare not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dare_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1100 (hit): reseeded after #1099 closure; proved twelve hunt-ready rows — CallAccessKey/CameraAccessKey/CampusAccessKey redaction parity and advice dare not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CancelAccessKey` not redacted — **hit 2026-09-06 (#1101):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cancel_access_key_config_path`, `IsSensitiveKey_detects_cancel_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CandidateAccessKey` not redacted — **hit 2026-09-06 (#1101):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_candidate_access_key_config_path`, `IsSensitiveKey_detects_candidate_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CanvasAccessKey` not redacted — **hit 2026-09-06 (#1101):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_canvas_access_key_config_path`, `IsSensitiveKey_detects_canvas_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `is not configure` suffix gap — **hit 2026-09-06 (#1101):** dare not/is not required-only advice suffix guard; missed `enable encryption is not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_is_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `is not mandate` suffix gap — **hit 2026-09-06 (#1101):** dare not/is not required-only advice suffix guard; missed `enable encryption is not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_is_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `is not apply` suffix gap — **hit 2026-09-06 (#1101):** dare not/is not required-only advice suffix guard; missed `enable encryption is not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_is_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `is not enforce` suffix gap — **hit 2026-09-06 (#1101):** dare not/is not required-only advice suffix guard; missed `enable encryption is not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_is_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `is not maintain` suffix gap — **hit 2026-09-06 (#1101):** dare not/is not required-only advice suffix guard; missed `enable encryption is not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_is_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `is not ensure` suffix gap — **hit 2026-09-06 (#1101):** dare not/is not required-only advice suffix guard; missed `enable encryption is not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_is_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `is not provision` suffix gap — **hit 2026-09-06 (#1101):** dare not/is not required-only advice suffix guard; missed `enable encryption is not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_is_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `is not require` suffix gap — **hit 2026-09-06 (#1101):** dare not/is not required-only advice suffix guard; missed `enable encryption is not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_is_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `is not need` suffix gap — **hit 2026-09-06 (#1101):** dare not/is not required-only advice suffix guard; missed `enable encryption is not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_is_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1101 (hit): reseeded after #1100 closure; proved twelve hunt-ready rows — CancelAccessKey/CandidateAccessKey/CanvasAccessKey redaction parity and advice is not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CapabilityAccessKey` not redacted — **hit 2026-09-06 (#1102):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_capability_access_key_config_path`, `IsSensitiveKey_detects_capability_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CapitalAccessKey` not redacted — **hit 2026-09-06 (#1102):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_capital_access_key_config_path`, `IsSensitiveKey_detects_capital_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CaptainAccessKey` not redacted — **hit 2026-09-06 (#1102):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_captain_access_key_config_path`, `IsSensitiveKey_detects_captain_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `was not configure` suffix gap — **hit 2026-09-06 (#1102):** wasn't/is not-only advice suffix guard; missed `enable encryption was not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_was_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `was not mandate` suffix gap — **hit 2026-09-06 (#1102):** wasn't/is not-only advice suffix guard; missed `enable encryption was not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_was_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `was not apply` suffix gap — **hit 2026-09-06 (#1102):** wasn't/is not-only advice suffix guard; missed `enable encryption was not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_was_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `was not enforce` suffix gap — **hit 2026-09-06 (#1102):** wasn't/is not-only advice suffix guard; missed `enable encryption was not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_was_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `was not maintain` suffix gap — **hit 2026-09-06 (#1102):** wasn't/is not-only advice suffix guard; missed `enable encryption was not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_was_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `was not ensure` suffix gap — **hit 2026-09-06 (#1102):** wasn't/is not-only advice suffix guard; missed `enable encryption was not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_was_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `was not provision` suffix gap — **hit 2026-09-06 (#1102):** wasn't/is not-only advice suffix guard; missed `enable encryption was not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_was_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `was not require` suffix gap — **hit 2026-09-06 (#1102):** wasn't/is not-only advice suffix guard; missed `enable encryption was not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_was_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `was not need` suffix gap — **hit 2026-09-06 (#1102):** wasn't/is not-only advice suffix guard; missed `enable encryption was not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_was_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1102 (hit): reseeded after #1101 closure; proved twelve hunt-ready rows — CapabilityAccessKey/CapitalAccessKey/CaptainAccessKey redaction parity and advice was not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CaptureAccessKey` not redacted — **hit 2026-09-06 (#1103):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_capture_access_key_config_path`, `IsSensitiveKey_detects_capture_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CareerAccessKey` not redacted — **hit 2026-09-06 (#1103):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_career_access_key_config_path`, `IsSensitiveKey_detects_career_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CargoAccessKey` not redacted — **hit 2026-09-06 (#1103):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cargo_access_key_config_path`, `IsSensitiveKey_detects_cargo_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `are not configure` suffix gap — **hit 2026-09-06 (#1103):** aren't/was not-only advice suffix guard; missed `enable encryption are not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_are_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `are not mandate` suffix gap — **hit 2026-09-06 (#1103):** aren't/was not-only advice suffix guard; missed `enable encryption are not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_are_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `are not apply` suffix gap — **hit 2026-09-06 (#1103):** aren't/was not-only advice suffix guard; missed `enable encryption are not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_are_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `are not enforce` suffix gap — **hit 2026-09-06 (#1103):** aren't/was not-only advice suffix guard; missed `enable encryption are not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_are_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `are not maintain` suffix gap — **hit 2026-09-06 (#1103):** aren't/was not-only advice suffix guard; missed `enable encryption are not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_are_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `are not ensure` suffix gap — **hit 2026-09-06 (#1103):** aren't/was not-only advice suffix guard; missed `enable encryption are not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_are_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `are not provision` suffix gap — **hit 2026-09-06 (#1103):** aren't/was not-only advice suffix guard; missed `enable encryption are not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_are_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `are not require` suffix gap — **hit 2026-09-06 (#1103):** aren't/was not-only advice suffix guard; missed `enable encryption are not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_are_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `are not need` suffix gap — **hit 2026-09-06 (#1103):** aren't/was not-only advice suffix guard; missed `enable encryption are not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_are_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1103 (hit): reseeded after #1102 closure; proved twelve hunt-ready rows — CaptureAccessKey/CareerAccessKey/CargoAccessKey redaction parity and advice are not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CarryAccessKey` not redacted — **hit 2026-09-06 (#1104):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_carry_access_key_config_path`, `IsSensitiveKey_detects_carry_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CarterAccessKey` not redacted — **hit 2026-09-06 (#1104):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_carter_access_key_config_path`, `IsSensitiveKey_detects_carter_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CartAccessKey` not redacted — **hit 2026-09-06 (#1104):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cart_access_key_config_path`, `IsSensitiveKey_detects_cart_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `were not configure` suffix gap — **hit 2026-09-06 (#1104):** weren't/are not-only advice suffix guard; missed `enable encryption were not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_were_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `were not mandate` suffix gap — **hit 2026-09-06 (#1104):** weren't/are not-only advice suffix guard; missed `enable encryption were not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_were_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `were not apply` suffix gap — **hit 2026-09-06 (#1104):** weren't/are not-only advice suffix guard; missed `enable encryption were not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_were_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `were not enforce` suffix gap — **hit 2026-09-06 (#1104):** weren't/are not-only advice suffix guard; missed `enable encryption were not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_were_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `were not maintain` suffix gap — **hit 2026-09-06 (#1104):** weren't/are not-only advice suffix guard; missed `enable encryption were not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_were_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `were not ensure` suffix gap — **hit 2026-09-06 (#1104):** weren't/are not-only advice suffix guard; missed `enable encryption were not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_were_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `were not provision` suffix gap — **hit 2026-09-06 (#1104):** weren't/are not-only advice suffix guard; missed `enable encryption were not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_were_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `were not require` suffix gap — **hit 2026-09-06 (#1104):** weren't/are not-only advice suffix guard; missed `enable encryption were not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_were_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `were not need` suffix gap — **hit 2026-09-06 (#1104):** weren't/are not-only advice suffix guard; missed `enable encryption were not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_were_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1104 (hit): reseeded after #1103 closure; proved twelve hunt-ready rows — CarryAccessKey/CarterAccessKey/CartAccessKey redaction parity and advice were not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CaseAccessKey` not redacted — **hit 2026-09-06 (#1105):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_case_access_key_config_path`, `IsSensitiveKey_detects_case_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CashAccessKey` not redacted — **hit 2026-09-06 (#1105):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cash_access_key_config_path`, `IsSensitiveKey_detects_cash_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CastAccessKey` not redacted — **hit 2026-09-06 (#1105):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cast_access_key_config_path`, `IsSensitiveKey_detects_cast_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `has not configure` suffix gap — **hit 2026-09-06 (#1105):** hasn't/were not-only advice suffix guard; missed `enable encryption has not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_has_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `has not mandate` suffix gap — **hit 2026-09-06 (#1105):** hasn't/were not-only advice suffix guard; missed `enable encryption has not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_has_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `has not apply` suffix gap — **hit 2026-09-06 (#1105):** hasn't/were not-only advice suffix guard; missed `enable encryption has not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_has_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `has not enforce` suffix gap — **hit 2026-09-06 (#1105):** hasn't/were not-only advice suffix guard; missed `enable encryption has not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_has_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `has not maintain` suffix gap — **hit 2026-09-06 (#1105):** hasn't/were not-only advice suffix guard; missed `enable encryption has not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_has_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `has not ensure` suffix gap — **hit 2026-09-06 (#1105):** hasn't/were not-only advice suffix guard; missed `enable encryption has not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_has_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `has not provision` suffix gap — **hit 2026-09-06 (#1105):** hasn't/were not-only advice suffix guard; missed `enable encryption has not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_has_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `has not require` suffix gap — **hit 2026-09-06 (#1105):** hasn't/were not-only advice suffix guard; missed `enable encryption has not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_has_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `has not need` suffix gap — **hit 2026-09-06 (#1105):** hasn't/were not-only advice suffix guard; missed `enable encryption has not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_has_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1105 (hit): reseeded after #1104 closure; proved twelve hunt-ready rows — CaseAccessKey/CashAccessKey/CastAccessKey redaction parity and advice has not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CatalogAccessKey` not redacted — **hit 2026-09-06 (#1106):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_catalog_access_key_config_path`, `IsSensitiveKey_detects_catalog_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CascadeAccessKey` not redacted — **hit 2026-09-06 (#1106):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cascade_access_key_config_path`, `IsSensitiveKey_detects_cascade_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CassetteAccessKey` not redacted — **hit 2026-09-06 (#1106):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cassette_access_key_config_path`, `IsSensitiveKey_detects_cassette_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `have not configure` suffix gap — **hit 2026-09-06 (#1106):** haven't/has not-only advice suffix guard; missed `enable encryption have not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_have_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `have not mandate` suffix gap — **hit 2026-09-06 (#1106):** haven't/has not-only advice suffix guard; missed `enable encryption have not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_have_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `have not apply` suffix gap — **hit 2026-09-06 (#1106):** haven't/has not-only advice suffix guard; missed `enable encryption have not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_have_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `have not enforce` suffix gap — **hit 2026-09-06 (#1106):** haven't/has not-only advice suffix guard; missed `enable encryption have not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_have_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `have not maintain` suffix gap — **hit 2026-09-06 (#1106):** haven't/has not-only advice suffix guard; missed `enable encryption have not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_have_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `have not ensure` suffix gap — **hit 2026-09-06 (#1106):** haven't/has not-only advice suffix guard; missed `enable encryption have not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_have_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `have not provision` suffix gap — **hit 2026-09-06 (#1106):** haven't/has not-only advice suffix guard; missed `enable encryption have not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_have_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `have not require` suffix gap — **hit 2026-09-06 (#1106):** haven't/has not-only advice suffix guard; missed `enable encryption have not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_have_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `have not need` suffix gap — **hit 2026-09-06 (#1106):** haven't/has not-only advice suffix guard; missed `enable encryption have not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_have_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1106 (hit): reseeded after #1105 closure; proved twelve hunt-ready rows — CatalogAccessKey/CascadeAccessKey/CassetteAccessKey redaction parity and advice have not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CastleAccessKey` not redacted — **hit 2026-09-06 (#1107):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_castle_access_key_config_path`, `IsSensitiveKey_detects_castle_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CasualAccessKey` not redacted — **hit 2026-09-06 (#1107):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_casual_access_key_config_path`, `IsSensitiveKey_detects_casual_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CatchAccessKey` not redacted — **hit 2026-09-06 (#1107):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_catch_access_key_config_path`, `IsSensitiveKey_detects_catch_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `had not configure` suffix gap — **hit 2026-09-06 (#1107):** hadn't/have not-only advice suffix guard; missed `enable encryption had not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_had_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `had not mandate` suffix gap — **hit 2026-09-06 (#1107):** hadn't/have not-only advice suffix guard; missed `enable encryption had not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_had_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `had not apply` suffix gap — **hit 2026-09-06 (#1107):** hadn't/have not-only advice suffix guard; missed `enable encryption had not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_had_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `had not enforce` suffix gap — **hit 2026-09-06 (#1107):** hadn't/have not-only advice suffix guard; missed `enable encryption had not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_had_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `had not maintain` suffix gap — **hit 2026-09-06 (#1107):** hadn't/have not-only advice suffix guard; missed `enable encryption had not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_had_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `had not ensure` suffix gap — **hit 2026-09-06 (#1107):** hadn't/have not-only advice suffix guard; missed `enable encryption had not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_had_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `had not provision` suffix gap — **hit 2026-09-06 (#1107):** hadn't/have not-only advice suffix guard; missed `enable encryption had not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_had_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `had not require` suffix gap — **hit 2026-09-06 (#1107):** hadn't/have not-only advice suffix guard; missed `enable encryption had not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_had_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `had not need` suffix gap — **hit 2026-09-06 (#1107):** hadn't/have not-only advice suffix guard; missed `enable encryption had not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_had_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1107 (hit): reseeded after #1106 closure; proved twelve hunt-ready rows — CastleAccessKey/CasualAccessKey/CatchAccessKey redaction parity and advice had not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CategoryAccessKey` not redacted — **hit 2026-09-06 (#1108):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_category_access_key_config_path`, `IsSensitiveKey_detects_category_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CaterAccessKey` not redacted — **hit 2026-09-06 (#1108):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cater_access_key_config_path`, `IsSensitiveKey_detects_cater_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CaveAccessKey` not redacted — **hit 2026-09-06 (#1108):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cave_access_key_config_path`, `IsSensitiveKey_detects_cave_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `did not configure` suffix gap — **hit 2026-09-06 (#1108):** hadn't/have not-only advice suffix guard; missed `enable encryption did not configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_did_not_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `did not mandate` suffix gap — **hit 2026-09-06 (#1108):** hadn't/have not-only advice suffix guard; missed `enable encryption did not mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_did_not_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `did not apply` suffix gap — **hit 2026-09-06 (#1108):** hadn't/have not-only advice suffix guard; missed `enable encryption did not apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_did_not_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `did not enforce` suffix gap — **hit 2026-09-06 (#1108):** hadn't/have not-only advice suffix guard; missed `enable encryption did not enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_did_not_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `did not maintain` suffix gap — **hit 2026-09-06 (#1108):** hadn't/have not-only advice suffix guard; missed `enable encryption did not maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_did_not_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `did not ensure` suffix gap — **hit 2026-09-06 (#1108):** hadn't/have not-only advice suffix guard; missed `enable encryption did not ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_did_not_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `did not provision` suffix gap — **hit 2026-09-06 (#1108):** hadn't/have not-only advice suffix guard; missed `enable encryption did not provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_did_not_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `did not require` suffix gap — **hit 2026-09-06 (#1108):** hadn't/have not-only advice suffix guard; missed `enable encryption did not require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_did_not_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `did not need` suffix gap — **hit 2026-09-06 (#1108):** hadn't/have not-only advice suffix guard; missed `enable encryption did not need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_did_not_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1108 (hit): reseeded after #1107 closure; proved twelve hunt-ready rows — CategoryAccessKey/CaterAccessKey/CaveAccessKey redaction parity and advice did not configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CauseAccessKey` not redacted — **hit 2026-09-06 (#1109):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cause_access_key_config_path`, `IsSensitiveKey_detects_cause_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CautionAccessKey` not redacted — **hit 2026-09-06 (#1109):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_caution_access_key_config_path`, `IsSensitiveKey_detects_caution_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CelebrateAccessKey` not redacted — **hit 2026-09-06 (#1109):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_celebrate_access_key_config_path`, `IsSensitiveKey_detects_celebrate_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `don't configure` suffix gap — **hit 2026-09-06 (#1109):** mid-sentence don't-only advice suffix guard; missed `enable encryption don't configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `don't mandate` suffix gap — **hit 2026-09-06 (#1109):** mid-sentence don't-only advice suffix guard; missed `enable encryption don't mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `don't apply` suffix gap — **hit 2026-09-06 (#1109):** mid-sentence don't-only advice suffix guard; missed `enable encryption don't apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `don't enforce` suffix gap — **hit 2026-09-06 (#1109):** mid-sentence don't-only advice suffix guard; missed `enable encryption don't enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `don't maintain` suffix gap — **hit 2026-09-06 (#1109):** mid-sentence don't-only advice suffix guard; missed `enable encryption don't maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `don't ensure` suffix gap — **hit 2026-09-06 (#1109):** mid-sentence don't-only advice suffix guard; missed `enable encryption don't ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `don't provision` suffix gap — **hit 2026-09-06 (#1109):** mid-sentence don't-only advice suffix guard; missed `enable encryption don't provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `don't require` suffix gap — **hit 2026-09-06 (#1109):** mid-sentence don't-only advice suffix guard; missed `enable encryption don't require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `don't need` suffix gap — **hit 2026-09-06 (#1109):** mid-sentence don't-only advice suffix guard; missed `enable encryption don't need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1109 (hit): reseeded after #1108 closure; proved twelve hunt-ready rows — CauseAccessKey/CautionAccessKey/CelebrateAccessKey redaction parity and advice don't configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CellAccessKey` not redacted — **hit 2026-09-06 (#1110):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cell_access_key_config_path`, `IsSensitiveKey_detects_cell_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CenterAccessKey` not redacted — **hit 2026-09-06 (#1110):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_center_access_key_config_path`, `IsSensitiveKey_detects_center_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CentralAccessKey` not redacted — **hit 2026-09-06 (#1110):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_central_access_key_config_path`, `IsSensitiveKey_detects_central_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wont configure` suffix gap — **hit 2026-09-06 (#1110):** won't-only advice suffix guard; missed unquoted `enable encryption wont configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wont_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wont mandate` suffix gap — **hit 2026-09-06 (#1110):** won't-only advice suffix guard; missed unquoted `enable encryption wont mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wont_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wont apply` suffix gap — **hit 2026-09-06 (#1110):** won't-only advice suffix guard; missed unquoted `enable encryption wont apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wont_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wont enforce` suffix gap — **hit 2026-09-06 (#1110):** won't-only advice suffix guard; missed unquoted `enable encryption wont enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wont_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wont maintain` suffix gap — **hit 2026-09-06 (#1110):** won't-only advice suffix guard; missed unquoted `enable encryption wont maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wont_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wont ensure` suffix gap — **hit 2026-09-06 (#1110):** won't-only advice suffix guard; missed unquoted `enable encryption wont ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wont_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wont provision` suffix gap — **hit 2026-09-06 (#1110):** won't-only advice suffix guard; missed unquoted `enable encryption wont provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wont_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wont require` suffix gap — **hit 2026-09-06 (#1110):** won't-only advice suffix guard; missed unquoted `enable encryption wont require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wont_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wont need` suffix gap — **hit 2026-09-06 (#1110):** won't-only advice suffix guard; missed unquoted `enable encryption wont need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wont_unquoted_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1110 (hit): reseeded after #1109 closure; proved twelve hunt-ready rows — CellAccessKey/CenterAccessKey/CentralAccessKey redaction parity and advice wont configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CenturyAccessKey` not redacted — **hit 2026-09-06 (#1111):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_century_access_key_config_path`, `IsSensitiveKey_detects_century_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CeramicAccessKey` not redacted — **hit 2026-09-06 (#1111):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_ceramic_access_key_config_path`, `IsSensitiveKey_detects_ceramic_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CertainAccessKey` not redacted — **hit 2026-09-06 (#1111):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_certain_access_key_config_path`, `IsSensitiveKey_detects_certain_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dont configure` suffix gap — **hit 2026-09-06 (#1111):** don't-only advice suffix guard; missed unquoted `enable encryption dont configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dont mandate` suffix gap — **hit 2026-09-06 (#1111):** don't-only advice suffix guard; missed unquoted `enable encryption dont mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dont apply` suffix gap — **hit 2026-09-06 (#1111):** don't-only advice suffix guard; missed unquoted `enable encryption dont apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dont enforce` suffix gap — **hit 2026-09-06 (#1111):** don't-only advice suffix guard; missed unquoted `enable encryption dont enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dont maintain` suffix gap — **hit 2026-09-06 (#1111):** don't-only advice suffix guard; missed unquoted `enable encryption dont maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dont ensure` suffix gap — **hit 2026-09-06 (#1111):** don't-only advice suffix guard; missed unquoted `enable encryption dont ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dont provision` suffix gap — **hit 2026-09-06 (#1111):** don't-only advice suffix guard; missed unquoted `enable encryption dont provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dont require` suffix gap — **hit 2026-09-06 (#1111):** don't-only advice suffix guard; missed unquoted `enable encryption dont require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `dont need` suffix gap — **hit 2026-09-06 (#1111):** don't-only advice suffix guard; missed unquoted `enable encryption dont need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_dont_unquoted_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1111 (hit): reseeded after #1110 closure; proved twelve hunt-ready rows — CenturyAccessKey/CeramicAccessKey/CertainAccessKey redaction parity and advice dont configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChainAccessKey` not redacted — **hit 2026-09-06 (#1112):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chain_access_key_config_path`, `IsSensitiveKey_detects_chain_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChairAccessKey` not redacted — **hit 2026-09-06 (#1112):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chair_access_key_config_path`, `IsSensitiveKey_detects_chair_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChallengeAccessKey` not redacted — **hit 2026-09-06 (#1112):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_challenge_access_key_config_path`, `IsSensitiveKey_detects_challenge_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnt configure` suffix gap — **hit 2026-09-06 (#1112):** doesn't-only advice suffix guard; missed unquoted `enable encryption doesnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnt mandate` suffix gap — **hit 2026-09-06 (#1112):** doesn't-only advice suffix guard; missed unquoted `enable encryption doesnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnt apply` suffix gap — **hit 2026-09-06 (#1112):** doesn't-only advice suffix guard; missed unquoted `enable encryption doesnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnt enforce` suffix gap — **hit 2026-09-06 (#1112):** doesn't-only advice suffix guard; missed unquoted `enable encryption doesnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnt maintain` suffix gap — **hit 2026-09-06 (#1112):** doesn't-only advice suffix guard; missed unquoted `enable encryption doesnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnt ensure` suffix gap — **hit 2026-09-06 (#1112):** doesn't-only advice suffix guard; missed unquoted `enable encryption doesnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnt provision` suffix gap — **hit 2026-09-06 (#1112):** doesn't-only advice suffix guard; missed unquoted `enable encryption doesnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnt require` suffix gap — **hit 2026-09-06 (#1112):** doesn't-only advice suffix guard; missed unquoted `enable encryption doesnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnt need` suffix gap — **hit 2026-09-06 (#1112):** doesn't-only advice suffix guard; missed unquoted `enable encryption doesnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnt_unquoted_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1112 (hit): reseeded after #1111 closure; proved twelve hunt-ready rows — ChainAccessKey/ChairAccessKey/ChallengeAccessKey redaction parity and advice doesnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChangeAccessKey` not redacted — **hit 2026-09-06 (#1113):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_change_access_key_config_path`, `IsSensitiveKey_detects_change_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CharacterAccessKey` not redacted — **hit 2026-09-06 (#1113):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_character_access_key_config_path`, `IsSensitiveKey_detects_character_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChargeAccessKey` not redacted — **hit 2026-09-06 (#1113):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_charge_access_key_config_path`, `IsSensitiveKey_detects_charge_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `cant configure` suffix gap — **hit 2026-09-06 (#1113):** can't-only advice suffix guard; missed unquoted `enable encryption cant configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `cant mandate` suffix gap — **hit 2026-09-06 (#1113):** can't-only advice suffix guard; missed unquoted `enable encryption cant mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `cant apply` suffix gap — **hit 2026-09-06 (#1113):** can't-only advice suffix guard; missed unquoted `enable encryption cant apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `cant enforce` suffix gap — **hit 2026-09-06 (#1113):** can't-only advice suffix guard; missed unquoted `enable encryption cant enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `cant maintain` suffix gap — **hit 2026-09-06 (#1113):** can't-only advice suffix guard; missed unquoted `enable encryption cant maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `cant ensure` suffix gap — **hit 2026-09-06 (#1113):** can't-only advice suffix guard; missed unquoted `enable encryption cant ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `cant provision` suffix gap — **hit 2026-09-06 (#1113):** can't-only advice suffix guard; missed unquoted `enable encryption cant provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `cant require` suffix gap — **hit 2026-09-06 (#1113):** can't-only advice suffix guard; missed unquoted `enable encryption cant require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `cant need` suffix gap — **hit 2026-09-06 (#1113):** can't-only advice suffix guard; missed unquoted `enable encryption cant need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_cant_unquoted_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1113 (hit): reseeded after #1112 closure; proved twelve hunt-ready rows — ChangeAccessKey/CharacterAccessKey/ChargeAccessKey redaction parity and advice cant configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CharmAccessKey` not redacted — **hit 2026-09-06 (#1114):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_charm_access_key_config_path`, `IsSensitiveKey_detects_charm_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChartAccessKey` not redacted — **hit 2026-09-06 (#1114):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chart_access_key_config_path`, `IsSensitiveKey_detects_chart_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChaseAccessKey` not redacted — **hit 2026-09-06 (#1114):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chase_access_key_config_path`, `IsSensitiveKey_detects_chase_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnt configure` suffix gap — **hit 2026-09-06 (#1114):** isn't-only advice suffix guard; missed unquoted `enable encryption isnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnt mandate` suffix gap — **hit 2026-09-06 (#1114):** isn't-only advice suffix guard; missed unquoted `enable encryption isnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnt apply` suffix gap — **hit 2026-09-06 (#1114):** isn't-only advice suffix guard; missed unquoted `enable encryption isnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnt enforce` suffix gap — **hit 2026-09-06 (#1114):** isn't-only advice suffix guard; missed unquoted `enable encryption isnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnt maintain` suffix gap — **hit 2026-09-06 (#1114):** isn't-only advice suffix guard; missed unquoted `enable encryption isnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnt ensure` suffix gap — **hit 2026-09-06 (#1114):** isn't-only advice suffix guard; missed unquoted `enable encryption isnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnt provision` suffix gap — **hit 2026-09-06 (#1114):** isn't-only advice suffix guard; missed unquoted `enable encryption isnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnt require` suffix gap — **hit 2026-09-06 (#1114):** isn't-only advice suffix guard; missed unquoted `enable encryption isnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnt need` suffix gap — **hit 2026-09-06 (#1114):** isn't-only advice suffix guard; missed unquoted `enable encryption isnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnt_unquoted_need_suffix_phrasing`).
+
+2026-09-06 seed hunt #1114 (hit): reseeded after #1113 closure; proved twelve hunt-ready rows — CharmAccessKey/ChartAccessKey/ChaseAccessKey redaction parity and advice isnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChatAccessKey` not redacted — **hit 2026-09-07 (#1115):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chat_access_key_config_path`, `IsSensitiveKey_detects_chat_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CheckAccessKey` not redacted — **hit 2026-09-07 (#1115):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_check_access_key_config_path`, `IsSensitiveKey_detects_check_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CheerAccessKey` not redacted — **hit 2026-09-07 (#1115):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cheer_access_key_config_path`, `IsSensitiveKey_detects_cheer_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnt configure` suffix gap — **hit 2026-09-07 (#1115):** wasn't-only advice suffix guard; missed unquoted `enable encryption wasnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnt mandate` suffix gap — **hit 2026-09-07 (#1115):** wasn't-only advice suffix guard; missed unquoted `enable encryption wasnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnt apply` suffix gap — **hit 2026-09-07 (#1115):** wasn't-only advice suffix guard; missed unquoted `enable encryption wasnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnt enforce` suffix gap — **hit 2026-09-07 (#1115):** wasn't-only advice suffix guard; missed unquoted `enable encryption wasnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnt maintain` suffix gap — **hit 2026-09-07 (#1115):** wasn't-only advice suffix guard; missed unquoted `enable encryption wasnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnt ensure` suffix gap — **hit 2026-09-07 (#1115):** wasn't-only advice suffix guard; missed unquoted `enable encryption wasnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnt provision` suffix gap — **hit 2026-09-07 (#1115):** wasn't-only advice suffix guard; missed unquoted `enable encryption wasnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnt require` suffix gap — **hit 2026-09-07 (#1115):** wasn't-only advice suffix guard; missed unquoted `enable encryption wasnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnt need` suffix gap — **hit 2026-09-07 (#1115):** wasn't-only advice suffix guard; missed unquoted `enable encryption wasnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1115 (hit): reseeded after #1114 closure; proved twelve hunt-ready rows — ChatAccessKey/CheckAccessKey/CheerAccessKey redaction parity and advice wasnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CheeseAccessKey` not redacted — **hit 2026-09-07 (#1116):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cheese_access_key_config_path`, `IsSensitiveKey_detects_cheese_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChemicalAccessKey` not redacted — **hit 2026-09-07 (#1116):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chemical_access_key_config_path`, `IsSensitiveKey_detects_chemical_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChickenAccessKey` not redacted — **hit 2026-09-07 (#1116):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chicken_access_key_config_path`, `IsSensitiveKey_detects_chicken_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnt configure` suffix gap — **hit 2026-09-07 (#1116):** hasn't-only advice suffix guard; missed unquoted `enable encryption hasnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnt mandate` suffix gap — **hit 2026-09-07 (#1116):** hasn't-only advice suffix guard; missed unquoted `enable encryption hasnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnt apply` suffix gap — **hit 2026-09-07 (#1116):** hasn't-only advice suffix guard; missed unquoted `enable encryption hasnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnt enforce` suffix gap — **hit 2026-09-07 (#1116):** hasn't-only advice suffix guard; missed unquoted `enable encryption hasnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnt maintain` suffix gap — **hit 2026-09-07 (#1116):** hasn't-only advice suffix guard; missed unquoted `enable encryption hasnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnt ensure` suffix gap — **hit 2026-09-07 (#1116):** hasn't-only advice suffix guard; missed unquoted `enable encryption hasnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnt provision` suffix gap — **hit 2026-09-07 (#1116):** hasn't-only advice suffix guard; missed unquoted `enable encryption hasnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnt require` suffix gap — **hit 2026-09-07 (#1116):** hasn't-only advice suffix guard; missed unquoted `enable encryption hasnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnt need` suffix gap — **hit 2026-09-07 (#1116):** hasn't-only advice suffix guard; missed unquoted `enable encryption hasnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1116 (hit): reseeded after #1115 closure; proved twelve hunt-ready rows — CheeseAccessKey/ChemicalAccessKey/ChickenAccessKey redaction parity and advice hasnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChiefAccessKey` not redacted — **hit 2026-09-07 (#1117):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chief_access_key_config_path`, `IsSensitiveKey_detects_chief_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChildAccessKey` not redacted — **hit 2026-09-07 (#1117):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_child_access_key_config_path`, `IsSensitiveKey_detects_child_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChipAccessKey` not redacted — **hit 2026-09-07 (#1117):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chip_access_key_config_path`, `IsSensitiveKey_detects_chip_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnt configure` suffix gap — **hit 2026-09-07 (#1117):** couldn't-only advice suffix guard; missed unquoted `enable encryption couldnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnt mandate` suffix gap — **hit 2026-09-07 (#1117):** couldn't-only advice suffix guard; missed unquoted `enable encryption couldnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnt apply` suffix gap — **hit 2026-09-07 (#1117):** couldn't-only advice suffix guard; missed unquoted `enable encryption couldnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnt enforce` suffix gap — **hit 2026-09-07 (#1117):** couldn't-only advice suffix guard; missed unquoted `enable encryption couldnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnt maintain` suffix gap — **hit 2026-09-07 (#1117):** couldn't-only advice suffix guard; missed unquoted `enable encryption couldnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnt ensure` suffix gap — **hit 2026-09-07 (#1117):** couldn't-only advice suffix guard; missed unquoted `enable encryption couldnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnt provision` suffix gap — **hit 2026-09-07 (#1117):** couldn't-only advice suffix guard; missed unquoted `enable encryption couldnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnt require` suffix gap — **hit 2026-09-07 (#1117):** couldn't-only advice suffix guard; missed unquoted `enable encryption couldnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnt need` suffix gap — **hit 2026-09-07 (#1117):** couldn't-only advice suffix guard; missed unquoted `enable encryption couldnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1117 (hit): reseeded after #1116 closure; proved twelve hunt-ready rows — ChiefAccessKey/ChildAccessKey/ChipAccessKey redaction parity and advice couldnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChocolateAccessKey` not redacted — **hit 2026-09-07 (#1118):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chocolate_access_key_config_path`, `IsSensitiveKey_detects_chocolate_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChoiceAccessKey` not redacted — **hit 2026-09-07 (#1118):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_choice_access_key_config_path`, `IsSensitiveKey_detects_choice_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChooseAccessKey` not redacted — **hit 2026-09-07 (#1118):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_choose_access_key_config_path`, `IsSensitiveKey_detects_choose_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnt configure` suffix gap — **hit 2026-09-07 (#1118):** wouldn't-only advice suffix guard; missed unquoted `enable encryption wouldnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnt mandate` suffix gap — **hit 2026-09-07 (#1118):** wouldn't-only advice suffix guard; missed unquoted `enable encryption wouldnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnt apply` suffix gap — **hit 2026-09-07 (#1118):** wouldn't-only advice suffix guard; missed unquoted `enable encryption wouldnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnt enforce` suffix gap — **hit 2026-09-07 (#1118):** wouldn't-only advice suffix guard; missed unquoted `enable encryption wouldnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnt maintain` suffix gap — **hit 2026-09-07 (#1118):** wouldn't-only advice suffix guard; missed unquoted `enable encryption wouldnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnt ensure` suffix gap — **hit 2026-09-07 (#1118):** wouldn't-only advice suffix guard; missed unquoted `enable encryption wouldnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnt provision` suffix gap — **hit 2026-09-07 (#1118):** wouldn't-only advice suffix guard; missed unquoted `enable encryption wouldnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnt require` suffix gap — **hit 2026-09-07 (#1118):** wouldn't-only advice suffix guard; missed unquoted `enable encryption wouldnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnt need` suffix gap — **hit 2026-09-07 (#1118):** wouldn't-only advice suffix guard; missed unquoted `enable encryption wouldnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1118 (hit): reseeded after #1117 closure; proved twelve hunt-ready rows — ChocolateAccessKey/ChoiceAccessKey/ChooseAccessKey redaction parity and advice wouldnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChristianAccessKey` not redacted — **hit 2026-09-07 (#1119):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_christian_access_key_config_path`, `IsSensitiveKey_detects_christian_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChristmasAccessKey` not redacted — **hit 2026-09-07 (#1119):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_christmas_access_key_config_path`, `IsSensitiveKey_detects_christmas_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChromeAccessKey` not redacted — **hit 2026-09-07 (#1119):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_chrome_access_key_config_path`, `IsSensitiveKey_detects_chrome_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnt configure` suffix gap — **hit 2026-09-07 (#1119):** shouldn't-only advice suffix guard; missed unquoted `enable encryption shouldnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnt mandate` suffix gap — **hit 2026-09-07 (#1119):** shouldn't-only advice suffix guard; missed unquoted `enable encryption shouldnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnt apply` suffix gap — **hit 2026-09-07 (#1119):** shouldn't-only advice suffix guard; missed unquoted `enable encryption shouldnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnt enforce` suffix gap — **hit 2026-09-07 (#1119):** shouldn't-only advice suffix guard; missed unquoted `enable encryption shouldnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnt maintain` suffix gap — **hit 2026-09-07 (#1119):** shouldn't-only advice suffix guard; missed unquoted `enable encryption shouldnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnt ensure` suffix gap — **hit 2026-09-07 (#1119):** shouldn't-only advice suffix guard; missed unquoted `enable encryption shouldnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnt provision` suffix gap — **hit 2026-09-07 (#1119):** shouldn't-only advice suffix guard; missed unquoted `enable encryption shouldnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnt require` suffix gap — **hit 2026-09-07 (#1119):** shouldn't-only advice suffix guard; missed unquoted `enable encryption shouldnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnt need` suffix gap — **hit 2026-09-07 (#1119):** shouldn't-only advice suffix guard; missed unquoted `enable encryption shouldnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1119 (hit): reseeded after #1118 closure; proved twelve hunt-ready rows — ChristianAccessKey/ChristmasAccessKey/ChromeAccessKey redaction parity and advice shouldnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ChurchAccessKey` not redacted — **hit 2026-09-07 (#1120):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_church_access_key_config_path`, `IsSensitiveKey_detects_church_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CircleAccessKey` not redacted — **hit 2026-09-07 (#1120):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_circle_access_key_config_path`, `IsSensitiveKey_detects_circle_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CircuitAccessKey` not redacted — **hit 2026-09-07 (#1120):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_circuit_access_key_config_path`, `IsSensitiveKey_detects_circuit_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnt configure` suffix gap — **hit 2026-09-07 (#1120):** mightn't-only advice suffix guard; missed unquoted `enable encryption mightnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnt mandate` suffix gap — **hit 2026-09-07 (#1120):** mightn't-only advice suffix guard; missed unquoted `enable encryption mightnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnt apply` suffix gap — **hit 2026-09-07 (#1120):** mightn't-only advice suffix guard; missed unquoted `enable encryption mightnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnt enforce` suffix gap — **hit 2026-09-07 (#1120):** mightn't-only advice suffix guard; missed unquoted `enable encryption mightnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnt maintain` suffix gap — **hit 2026-09-07 (#1120):** mightn't-only advice suffix guard; missed unquoted `enable encryption mightnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnt ensure` suffix gap — **hit 2026-09-07 (#1120):** mightn't-only advice suffix guard; missed unquoted `enable encryption mightnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnt provision` suffix gap — **hit 2026-09-07 (#1120):** mightn't-only advice suffix guard; missed unquoted `enable encryption mightnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnt require` suffix gap — **hit 2026-09-07 (#1120):** mightn't-only advice suffix guard; missed unquoted `enable encryption mightnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnt need` suffix gap — **hit 2026-09-07 (#1120):** mightn't-only advice suffix guard; missed unquoted `enable encryption mightnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1120 (hit): reseeded after #1119 closure; proved twelve hunt-ready rows — ChurchAccessKey/CircleAccessKey/CircuitAccessKey redaction parity and advice mightnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CitizenAccessKey` not redacted — **hit 2026-09-07 (#1121):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_citizen_access_key_config_path`, `IsSensitiveKey_detects_citizen_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CityAccessKey` not redacted — **hit 2026-09-07 (#1121):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_city_access_key_config_path`, `IsSensitiveKey_detects_city_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CivilAccessKey` not redacted — **hit 2026-09-07 (#1121):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_civil_access_key_config_path`, `IsSensitiveKey_detects_civil_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shant configure` suffix gap — **hit 2026-09-07 (#1121):** shan't-only advice suffix guard; missed unquoted `enable encryption shant configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shant mandate` suffix gap — **hit 2026-09-07 (#1121):** shan't-only advice suffix guard; missed unquoted `enable encryption shant mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shant apply` suffix gap — **hit 2026-09-07 (#1121):** shan't-only advice suffix guard; missed unquoted `enable encryption shant apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shant enforce` suffix gap — **hit 2026-09-07 (#1121):** shan't-only advice suffix guard; missed unquoted `enable encryption shant enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shant maintain` suffix gap — **hit 2026-09-07 (#1121):** shan't-only advice suffix guard; missed unquoted `enable encryption shant maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shant ensure` suffix gap — **hit 2026-09-07 (#1121):** shan't-only advice suffix guard; missed unquoted `enable encryption shant ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shant provision` suffix gap — **hit 2026-09-07 (#1121):** shan't-only advice suffix guard; missed unquoted `enable encryption shant provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shant require` suffix gap — **hit 2026-09-07 (#1121):** shan't-only advice suffix guard; missed unquoted `enable encryption shant require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shant need` suffix gap — **hit 2026-09-07 (#1121):** shan't-only advice suffix guard; missed unquoted `enable encryption shant need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shant_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1121 (hit): reseeded after #1120 closure; proved twelve hunt-ready rows — CitizenAccessKey/CityAccessKey/CivilAccessKey redaction parity and advice shant configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ClaimAccessKey` not redacted — **hit 2026-09-07 (#1122):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_claim_access_key_config_path`, `IsSensitiveKey_detects_claim_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ClassAccessKey` not redacted — **hit 2026-09-07 (#1122):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_class_access_key_config_path`, `IsSensitiveKey_detects_class_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ClassicAccessKey` not redacted — **hit 2026-09-07 (#1122):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_classic_access_key_config_path`, `IsSensitiveKey_detects_classic_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnt configure` suffix gap — **hit 2026-09-07 (#1122):** didn't-only advice suffix guard; missed unquoted `enable encryption didnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnt mandate` suffix gap — **hit 2026-09-07 (#1122):** didn't-only advice suffix guard; missed unquoted `enable encryption didnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnt apply` suffix gap — **hit 2026-09-07 (#1122):** didn't-only advice suffix guard; missed unquoted `enable encryption didnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnt enforce` suffix gap — **hit 2026-09-07 (#1122):** didn't-only advice suffix guard; missed unquoted `enable encryption didnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnt maintain` suffix gap — **hit 2026-09-07 (#1122):** didn't-only advice suffix guard; missed unquoted `enable encryption didnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnt ensure` suffix gap — **hit 2026-09-07 (#1122):** didn't-only advice suffix guard; missed unquoted `enable encryption didnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnt provision` suffix gap — **hit 2026-09-07 (#1122):** didn't-only advice suffix guard; missed unquoted `enable encryption didnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnt require` suffix gap — **hit 2026-09-07 (#1122):** didn't-only advice suffix guard; missed unquoted `enable encryption didnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnt need` suffix gap — **hit 2026-09-07 (#1122):** didn't-only advice suffix guard; missed unquoted `enable encryption didnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1122 (hit): reseeded after #1121 closure; proved twelve hunt-ready rows — ClaimAccessKey/ClassAccessKey/ClassicAccessKey redaction parity and advice didnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CleanAccessKey` not redacted — **hit 2026-09-07 (#1123):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_clean_access_key_config_path`, `IsSensitiveKey_detects_clean_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ClearAccessKey` not redacted — **hit 2026-09-07 (#1123):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_clear_access_key_config_path`, `IsSensitiveKey_detects_clear_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ClickAccessKey` not redacted — **hit 2026-09-07 (#1123):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_click_access_key_config_path`, `IsSensitiveKey_detects_click_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aint configure` suffix gap — **hit 2026-09-07 (#1123):** ain't-only advice suffix guard; missed unquoted `enable encryption aint configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aint mandate` suffix gap — **hit 2026-09-07 (#1123):** ain't-only advice suffix guard; missed unquoted `enable encryption aint mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aint apply` suffix gap — **hit 2026-09-07 (#1123):** ain't-only advice suffix guard; missed unquoted `enable encryption aint apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aint enforce` suffix gap — **hit 2026-09-07 (#1123):** ain't-only advice suffix guard; missed unquoted `enable encryption aint enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aint maintain` suffix gap — **hit 2026-09-07 (#1123):** ain't-only advice suffix guard; missed unquoted `enable encryption aint maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aint ensure` suffix gap — **hit 2026-09-07 (#1123):** ain't-only advice suffix guard; missed unquoted `enable encryption aint ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aint provision` suffix gap — **hit 2026-09-07 (#1123):** ain't-only advice suffix guard; missed unquoted `enable encryption aint provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aint require` suffix gap — **hit 2026-09-07 (#1123):** ain't-only advice suffix guard; missed unquoted `enable encryption aint require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aint need` suffix gap — **hit 2026-09-07 (#1123):** ain't-only advice suffix guard; missed unquoted `enable encryption aint need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aint_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1123 (hit): reseeded after #1122 closure; proved twelve hunt-ready rows — CleanAccessKey/ClearAccessKey/ClickAccessKey redaction parity and advice aint configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ClimateAccessKey` not redacted — **hit 2026-09-07 (#1124):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_climate_access_key_config_path`, `IsSensitiveKey_detects_climate_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ClockAccessKey` not redacted — **hit 2026-09-07 (#1124):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_clock_access_key_config_path`, `IsSensitiveKey_detects_clock_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CloseAccessKey` not redacted — **hit 2026-09-07 (#1124):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_close_access_key_config_path`, `IsSensitiveKey_detects_close_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnt configure` suffix gap — **hit 2026-09-07 (#1124):** mustn't-only advice suffix guard; missed unquoted `enable encryption mustnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnt mandate` suffix gap — **hit 2026-09-07 (#1124):** mustn't-only advice suffix guard; missed unquoted `enable encryption mustnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnt apply` suffix gap — **hit 2026-09-07 (#1124):** mustn't-only advice suffix guard; missed unquoted `enable encryption mustnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnt enforce` suffix gap — **hit 2026-09-07 (#1124):** mustn't-only advice suffix guard; missed unquoted `enable encryption mustnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnt maintain` suffix gap — **hit 2026-09-07 (#1124):** mustn't-only advice suffix guard; missed unquoted `enable encryption mustnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnt ensure` suffix gap — **hit 2026-09-07 (#1124):** mustn't-only advice suffix guard; missed unquoted `enable encryption mustnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnt provision` suffix gap — **hit 2026-09-07 (#1124):** mustn't-only advice suffix guard; missed unquoted `enable encryption mustnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnt require` suffix gap — **hit 2026-09-07 (#1124):** mustn't-only advice suffix guard; missed unquoted `enable encryption mustnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnt need` suffix gap — **hit 2026-09-07 (#1124):** mustn't-only advice suffix guard; missed unquoted `enable encryption mustnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1124 (hit): reseeded after #1123 closure; proved twelve hunt-ready rows — ClimateAccessKey/ClockAccessKey/CloseAccessKey redaction parity and advice mustnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ClothAccessKey` not redacted — **hit 2026-09-07 (#1125):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cloth_access_key_config_path`, `IsSensitiveKey_detects_cloth_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ClubAccessKey` not redacted — **hit 2026-09-07 (#1125):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_club_access_key_config_path`, `IsSensitiveKey_detects_club_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CoachAccessKey` not redacted — **hit 2026-09-07 (#1125):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_coach_access_key_config_path`, `IsSensitiveKey_detects_coach_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednt configure` suffix gap — **hit 2026-09-07 (#1125):** needn't-only advice suffix guard; missed unquoted `enable encryption neednt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednt mandate` suffix gap — **hit 2026-09-07 (#1125):** needn't-only advice suffix guard; missed unquoted `enable encryption neednt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednt apply` suffix gap — **hit 2026-09-07 (#1125):** needn't-only advice suffix guard; missed unquoted `enable encryption neednt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednt enforce` suffix gap — **hit 2026-09-07 (#1125):** needn't-only advice suffix guard; missed unquoted `enable encryption neednt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednt maintain` suffix gap — **hit 2026-09-07 (#1125):** needn't-only advice suffix guard; missed unquoted `enable encryption neednt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednt ensure` suffix gap — **hit 2026-09-07 (#1125):** needn't-only advice suffix guard; missed unquoted `enable encryption neednt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednt provision` suffix gap — **hit 2026-09-07 (#1125):** needn't-only advice suffix guard; missed unquoted `enable encryption neednt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednt require` suffix gap — **hit 2026-09-07 (#1125):** needn't-only advice suffix guard; missed unquoted `enable encryption neednt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednt need` suffix gap — **hit 2026-09-07 (#1125):** needn't-only advice suffix guard; missed unquoted `enable encryption neednt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1125 (hit): reseeded after #1124 closure; proved twelve hunt-ready rows — ClothAccessKey/ClubAccessKey/CoachAccessKey redaction parity and advice neednt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CoastAccessKey` not redacted — **hit 2026-09-07 (#1126):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_coast_access_key_config_path`, `IsSensitiveKey_detects_coast_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CodeAccessKey` not redacted — **hit 2026-09-07 (#1126):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_code_access_key_config_path`, `IsSensitiveKey_detects_code_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CoffeeAccessKey` not redacted — **hit 2026-09-07 (#1126):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_coffee_access_key_config_path`, `IsSensitiveKey_detects_coffee_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havent configure` suffix gap — **hit 2026-09-07 (#1126):** haven't-only advice suffix guard; missed unquoted `enable encryption havent configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havent mandate` suffix gap — **hit 2026-09-07 (#1126):** haven't-only advice suffix guard; missed unquoted `enable encryption havent mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havent apply` suffix gap — **hit 2026-09-07 (#1126):** haven't-only advice suffix guard; missed unquoted `enable encryption havent apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havent enforce` suffix gap — **hit 2026-09-07 (#1126):** haven't-only advice suffix guard; missed unquoted `enable encryption havent enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havent maintain` suffix gap — **hit 2026-09-07 (#1126):** haven't-only advice suffix guard; missed unquoted `enable encryption havent maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havent ensure` suffix gap — **hit 2026-09-07 (#1126):** haven't-only advice suffix guard; missed unquoted `enable encryption havent ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havent provision` suffix gap — **hit 2026-09-07 (#1126):** haven't-only advice suffix guard; missed unquoted `enable encryption havent provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havent require` suffix gap — **hit 2026-09-07 (#1126):** haven't-only advice suffix guard; missed unquoted `enable encryption havent require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havent need` suffix gap — **hit 2026-09-07 (#1126):** haven't-only advice suffix guard; missed unquoted `enable encryption havent need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havent_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1126 (hit): reseeded after #1125 closure; proved twelve hunt-ready rows — CoastAccessKey/CodeAccessKey/CoffeeAccessKey redaction parity and advice havent configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CoinAccessKey` not redacted — **hit 2026-09-07 (#1127):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_coin_access_key_config_path`, `IsSensitiveKey_detects_coin_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ColdAccessKey` not redacted — **hit 2026-09-07 (#1127):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cold_access_key_config_path`, `IsSensitiveKey_detects_cold_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ColorAccessKey` not redacted — **hit 2026-09-07 (#1127):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_color_access_key_config_path`, `IsSensitiveKey_detects_color_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werent configure` suffix gap — **hit 2026-09-07 (#1127):** weren't-only advice suffix guard; missed unquoted `enable encryption werent configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werent mandate` suffix gap — **hit 2026-09-07 (#1127):** weren't-only advice suffix guard; missed unquoted `enable encryption werent mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werent apply` suffix gap — **hit 2026-09-07 (#1127):** weren't-only advice suffix guard; missed unquoted `enable encryption werent apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werent enforce` suffix gap — **hit 2026-09-07 (#1127):** weren't-only advice suffix guard; missed unquoted `enable encryption werent enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werent maintain` suffix gap — **hit 2026-09-07 (#1127):** weren't-only advice suffix guard; missed unquoted `enable encryption werent maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werent ensure` suffix gap — **hit 2026-09-07 (#1127):** weren't-only advice suffix guard; missed unquoted `enable encryption werent ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werent provision` suffix gap — **hit 2026-09-07 (#1127):** weren't-only advice suffix guard; missed unquoted `enable encryption werent provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werent require` suffix gap — **hit 2026-09-07 (#1127):** weren't-only advice suffix guard; missed unquoted `enable encryption werent require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werent need` suffix gap — **hit 2026-09-07 (#1127):** weren't-only advice suffix guard; missed unquoted `enable encryption werent need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werent_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1127 (hit): reseeded after #1126 closure; proved twelve hunt-ready rows — CoinAccessKey/ColdAccessKey/ColorAccessKey redaction parity and advice werent configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ColumnAccessKey` not redacted — **hit 2026-09-07 (#1128):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_column_access_key_config_path`, `IsSensitiveKey_detects_column_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ComicAccessKey` not redacted — **hit 2026-09-07 (#1128):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_comic_access_key_config_path`, `IsSensitiveKey_detects_comic_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CommonAccessKey` not redacted — **hit 2026-09-07 (#1128):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_common_access_key_config_path`, `IsSensitiveKey_detects_common_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arent configure` suffix gap — **hit 2026-09-07 (#1128):** aren't-only advice suffix guard; missed unquoted `enable encryption arent configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arent mandate` suffix gap — **hit 2026-09-07 (#1128):** aren't-only advice suffix guard; missed unquoted `enable encryption arent mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arent apply` suffix gap — **hit 2026-09-07 (#1128):** aren't-only advice suffix guard; missed unquoted `enable encryption arent apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arent enforce` suffix gap — **hit 2026-09-07 (#1128):** aren't-only advice suffix guard; missed unquoted `enable encryption arent enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arent maintain` suffix gap — **hit 2026-09-07 (#1128):** aren't-only advice suffix guard; missed unquoted `enable encryption arent maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arent ensure` suffix gap — **hit 2026-09-07 (#1128):** aren't-only advice suffix guard; missed unquoted `enable encryption arent ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arent provision` suffix gap — **hit 2026-09-07 (#1128):** aren't-only advice suffix guard; missed unquoted `enable encryption arent provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arent require` suffix gap — **hit 2026-09-07 (#1128):** aren't-only advice suffix guard; missed unquoted `enable encryption arent require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arent need` suffix gap — **hit 2026-09-07 (#1128):** aren't-only advice suffix guard; missed unquoted `enable encryption arent need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arent_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1128 (hit): reseeded after #1127 closure; proved twelve hunt-ready rows — ColumnAccessKey/ComicAccessKey/CommonAccessKey redaction parity and advice arent configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CompanyAccessKey` not redacted — **hit 2026-09-07 (#1129):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_company_access_key_config_path`, `IsSensitiveKey_detects_company_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CompareAccessKey` not redacted — **hit 2026-09-07 (#1129):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_compare_access_key_config_path`, `IsSensitiveKey_detects_compare_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ComputerAccessKey` not redacted — **hit 2026-09-07 (#1129):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_computer_access_key_config_path`, `IsSensitiveKey_detects_computer_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent configure` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent mandate` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent apply` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent enforce` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent maintain` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent ensure` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent provision` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent require` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darent need` suffix gap — **hit 2026-09-07 (#1129):** daren't-only advice suffix guard; missed unquoted `enable encryption darent need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darent_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1129 (hit): reseeded after #1128 closure; proved twelve hunt-ready rows — CompanyAccessKey/CompareAccessKey/ComputerAccessKey redaction parity and advice darent configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConcertAccessKey` not redacted — **hit 2026-09-07 (#1130):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_concert_access_key_config_path`, `IsSensitiveKey_detects_concert_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConceptAccessKey` not redacted — **hit 2026-09-07 (#1130):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_concept_access_key_config_path`, `IsSensitiveKey_detects_concept_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConcernAccessKey` not redacted — **hit 2026-09-07 (#1130):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_concern_access_key_config_path`, `IsSensitiveKey_detects_concern_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynt configure` suffix gap — **hit 2026-09-07 (#1130):** mayn't-only advice suffix guard; missed unquoted `enable encryption maynt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynt mandate` suffix gap — **hit 2026-09-07 (#1130):** mayn't-only advice suffix guard; missed unquoted `enable encryption maynt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynt apply` suffix gap — **hit 2026-09-07 (#1130):** mayn't-only advice suffix guard; missed unquoted `enable encryption maynt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynt enforce` suffix gap — **hit 2026-09-07 (#1130):** mayn't-only advice suffix guard; missed unquoted `enable encryption maynt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynt maintain` suffix gap — **hit 2026-09-07 (#1130):** mayn't-only advice suffix guard; missed unquoted `enable encryption maynt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynt ensure` suffix gap — **hit 2026-09-07 (#1130):** mayn't-only advice suffix guard; missed unquoted `enable encryption maynt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynt provision` suffix gap — **hit 2026-09-07 (#1130):** mayn't-only advice suffix guard; missed unquoted `enable encryption maynt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynt require` suffix gap — **hit 2026-09-07 (#1130):** mayn't-only advice suffix guard; missed unquoted `enable encryption maynt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynt need` suffix gap — **hit 2026-09-07 (#1130):** mayn't-only advice suffix guard; missed unquoted `enable encryption maynt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1130 (hit): reseeded after #1129 closure; proved twelve hunt-ready rows — ConcertAccessKey/ConceptAccessKey/ConcernAccessKey redaction parity and advice maynt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConcreteAccessKey` not redacted — **hit 2026-09-07 (#1131):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_concrete_access_key_config_path`, `IsSensitiveKey_detects_concrete_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConditionAccessKey` not redacted — **hit 2026-09-07 (#1131):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_condition_access_key_config_path`, `IsSensitiveKey_detects_condition_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConfirmAccessKey` not redacted — **hit 2026-09-07 (#1131):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_confirm_access_key_config_path`, `IsSensitiveKey_detects_confirm_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnt configure` suffix gap — **hit 2026-09-07 (#1131):** oughtn't-only advice suffix guard; missed unquoted `enable encryption oughtnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnt mandate` suffix gap — **hit 2026-09-07 (#1131):** oughtn't-only advice suffix guard; missed unquoted `enable encryption oughtnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnt apply` suffix gap — **hit 2026-09-07 (#1131):** oughtn't-only advice suffix guard; missed unquoted `enable encryption oughtnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnt enforce` suffix gap — **hit 2026-09-07 (#1131):** oughtn't-only advice suffix guard; missed unquoted `enable encryption oughtnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnt maintain` suffix gap — **hit 2026-09-07 (#1131):** oughtn't-only advice suffix guard; missed unquoted `enable encryption oughtnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnt ensure` suffix gap — **hit 2026-09-07 (#1131):** oughtn't-only advice suffix guard; missed unquoted `enable encryption oughtnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnt provision` suffix gap — **hit 2026-09-07 (#1131):** oughtn't-only advice suffix guard; missed unquoted `enable encryption oughtnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnt require` suffix gap — **hit 2026-09-07 (#1131):** oughtn't-only advice suffix guard; missed unquoted `enable encryption oughtnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnt need` suffix gap — **hit 2026-09-07 (#1131):** oughtn't-only advice suffix guard; missed unquoted `enable encryption oughtnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1131 (hit): reseeded after #1130 closure; proved twelve hunt-ready rows — ConcreteAccessKey/ConditionAccessKey/ConfirmAccessKey redaction parity and advice oughtnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConnectAccessKey` not redacted — **hit 2026-09-07 (#1132):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_connect_access_key_config_path`, `IsSensitiveKey_detects_connect_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ContextAccessKey` not redacted — **hit 2026-09-07 (#1132):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_context_access_key_config_path`, `IsSensitiveKey_detects_context_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ContractAccessKey` not redacted — **hit 2026-09-07 (#1132):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_contract_access_key_config_path`, `IsSensitiveKey_detects_contract_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnt configure` suffix gap — **hit 2026-09-07 (#1132):** hadn't-only advice suffix guard; missed unquoted `enable encryption hadnt configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnt mandate` suffix gap — **hit 2026-09-07 (#1132):** hadn't-only advice suffix guard; missed unquoted `enable encryption hadnt mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnt apply` suffix gap — **hit 2026-09-07 (#1132):** hadn't-only advice suffix guard; missed unquoted `enable encryption hadnt apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnt enforce` suffix gap — **hit 2026-09-07 (#1132):** hadn't-only advice suffix guard; missed unquoted `enable encryption hadnt enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnt maintain` suffix gap — **hit 2026-09-07 (#1132):** hadn't-only advice suffix guard; missed unquoted `enable encryption hadnt maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnt ensure` suffix gap — **hit 2026-09-07 (#1132):** hadn't-only advice suffix guard; missed unquoted `enable encryption hadnt ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnt provision` suffix gap — **hit 2026-09-07 (#1132):** hadn't-only advice suffix guard; missed unquoted `enable encryption hadnt provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnt require` suffix gap — **hit 2026-09-07 (#1132):** hadn't-only advice suffix guard; missed unquoted `enable encryption hadnt require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnt need` suffix gap — **hit 2026-09-07 (#1132):** hadn't-only advice suffix guard; missed unquoted `enable encryption hadnt need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnt_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1132 (hit): reseeded after #1131 closure; proved twelve hunt-ready rows — ConnectAccessKey/ContextAccessKey/ContractAccessKey redaction parity and advice hadnt configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `ConvertAccessKey` not redacted — **hit 2026-09-07 (#1133):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_convert_access_key_config_path`, `IsSensitiveKey_detects_convert_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CookieAccessKey` not redacted — **hit 2026-09-07 (#1133):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cookie_access_key_config_path`, `IsSensitiveKey_detects_cookie_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CorrectAccessKey` not redacted — **hit 2026-09-07 (#1133):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_correct_access_key_config_path`, `IsSensitiveKey_detects_correct_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednot configure` suffix gap — **hit 2026-09-07 (#1133):** need not-only advice suffix guard; missed unquoted `enable encryption neednot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednot mandate` suffix gap — **hit 2026-09-07 (#1133):** need not-only advice suffix guard; missed unquoted `enable encryption neednot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednot apply` suffix gap — **hit 2026-09-07 (#1133):** need not-only advice suffix guard; missed unquoted `enable encryption neednot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednot enforce` suffix gap — **hit 2026-09-07 (#1133):** need not-only advice suffix guard; missed unquoted `enable encryption neednot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednot maintain` suffix gap — **hit 2026-09-07 (#1133):** need not-only advice suffix guard; missed unquoted `enable encryption neednot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednot ensure` suffix gap — **hit 2026-09-07 (#1133):** need not-only advice suffix guard; missed unquoted `enable encryption neednot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednot provision` suffix gap — **hit 2026-09-07 (#1133):** need not-only advice suffix guard; missed unquoted `enable encryption neednot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednot require` suffix gap — **hit 2026-09-07 (#1133):** need not-only advice suffix guard; missed unquoted `enable encryption neednot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `neednot need` suffix gap — **hit 2026-09-07 (#1133):** need not-only advice suffix guard; missed unquoted `enable encryption neednot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_neednot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1133 (hit): reseeded after #1132 closure; proved twelve hunt-ready rows — ConvertAccessKey/CookieAccessKey/CorrectAccessKey redaction parity and advice neednot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CostAccessKey` not redacted — **hit 2026-09-07 (#1134):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cost_access_key_config_path`, `IsSensitiveKey_detects_cost_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CounterAccessKey` not redacted — **hit 2026-09-07 (#1134):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_counter_access_key_config_path`, `IsSensitiveKey_detects_counter_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CountryAccessKey` not redacted — **hit 2026-09-07 (#1134):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_country_access_key_config_path`, `IsSensitiveKey_detects_country_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnot configure` suffix gap — **hit 2026-09-07 (#1134):** must not-only advice suffix guard; missed unquoted `enable encryption mustnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnot mandate` suffix gap — **hit 2026-09-07 (#1134):** must not-only advice suffix guard; missed unquoted `enable encryption mustnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnot apply` suffix gap — **hit 2026-09-07 (#1134):** must not-only advice suffix guard; missed unquoted `enable encryption mustnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnot enforce` suffix gap — **hit 2026-09-07 (#1134):** must not-only advice suffix guard; missed unquoted `enable encryption mustnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnot maintain` suffix gap — **hit 2026-09-07 (#1134):** must not-only advice suffix guard; missed unquoted `enable encryption mustnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnot ensure` suffix gap — **hit 2026-09-07 (#1134):** must not-only advice suffix guard; missed unquoted `enable encryption mustnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnot provision` suffix gap — **hit 2026-09-07 (#1134):** must not-only advice suffix guard; missed unquoted `enable encryption mustnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnot require` suffix gap — **hit 2026-09-07 (#1134):** must not-only advice suffix guard; missed unquoted `enable encryption mustnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mustnot need` suffix gap — **hit 2026-09-07 (#1134):** must not-only advice suffix guard; missed unquoted `enable encryption mustnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mustnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1134 (hit): reseeded after #1133 closure; proved twelve hunt-ready rows — CostAccessKey/CounterAccessKey/CountryAccessKey redaction parity and advice mustnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CourseAccessKey` not redacted — **hit 2026-09-07 (#1135):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_course_access_key_config_path`, `IsSensitiveKey_detects_course_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CoverAccessKey` not redacted — **hit 2026-09-07 (#1135):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cover_access_key_config_path`, `IsSensitiveKey_detects_cover_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CraftAccessKey` not redacted — **hit 2026-09-07 (#1135):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_craft_access_key_config_path`, `IsSensitiveKey_detects_craft_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `donot configure` suffix gap — **hit 2026-09-07 (#1135):** do not-only advice suffix guard; missed unquoted `enable encryption donot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_donot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `donot mandate` suffix gap — **hit 2026-09-07 (#1135):** do not-only advice suffix guard; missed unquoted `enable encryption donot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_donot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `donot apply` suffix gap — **hit 2026-09-07 (#1135):** do not-only advice suffix guard; missed unquoted `enable encryption donot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_donot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `donot enforce` suffix gap — **hit 2026-09-07 (#1135):** do not-only advice suffix guard; missed unquoted `enable encryption donot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_donot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `donot maintain` suffix gap — **hit 2026-09-07 (#1135):** do not-only advice suffix guard; missed unquoted `enable encryption donot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_donot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `donot ensure` suffix gap — **hit 2026-09-07 (#1135):** do not-only advice suffix guard; missed unquoted `enable encryption donot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_donot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `donot provision` suffix gap — **hit 2026-09-07 (#1135):** do not-only advice suffix guard; missed unquoted `enable encryption donot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_donot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `donot require` suffix gap — **hit 2026-09-07 (#1135):** do not-only advice suffix guard; missed unquoted `enable encryption donot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_donot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `donot need` suffix gap — **hit 2026-09-07 (#1135):** do not-only advice suffix guard; missed unquoted `enable encryption donot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_donot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1135 (hit): reseeded after #1134 closure; proved twelve hunt-ready rows — CourseAccessKey/CoverAccessKey/CraftAccessKey redaction parity and advice donot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CrashAccessKey` not redacted — **hit 2026-09-07 (#1136):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_crash_access_key_config_path`, `IsSensitiveKey_detects_crash_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CreateAccessKey` not redacted — **hit 2026-09-07 (#1136):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_create_access_key_config_path`, `IsSensitiveKey_detects_create_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CreativeAccessKey` not redacted — **hit 2026-09-07 (#1136):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_creative_access_key_config_path`, `IsSensitiveKey_detects_creative_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnot configure` suffix gap — **hit 2026-09-07 (#1136):** did not-only advice suffix guard; missed unquoted `enable encryption didnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnot mandate` suffix gap — **hit 2026-09-07 (#1136):** did not-only advice suffix guard; missed unquoted `enable encryption didnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnot apply` suffix gap — **hit 2026-09-07 (#1136):** did not-only advice suffix guard; missed unquoted `enable encryption didnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnot enforce` suffix gap — **hit 2026-09-07 (#1136):** did not-only advice suffix guard; missed unquoted `enable encryption didnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnot maintain` suffix gap — **hit 2026-09-07 (#1136):** did not-only advice suffix guard; missed unquoted `enable encryption didnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnot ensure` suffix gap — **hit 2026-09-07 (#1136):** did not-only advice suffix guard; missed unquoted `enable encryption didnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnot provision` suffix gap — **hit 2026-09-07 (#1136):** did not-only advice suffix guard; missed unquoted `enable encryption didnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnot require` suffix gap — **hit 2026-09-07 (#1136):** did not-only advice suffix guard; missed unquoted `enable encryption didnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didnot need` suffix gap — **hit 2026-09-07 (#1136):** did not-only advice suffix guard; missed unquoted `enable encryption didnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1136 (hit): reseeded after #1135 closure; proved twelve hunt-ready rows — CrashAccessKey/CreateAccessKey/CreativeAccessKey redaction parity and advice didnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CreditAccessKey` not redacted — **hit 2026-09-07 (#1137):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_credit_access_key_config_path`, `IsSensitiveKey_detects_credit_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CrisisAccessKey` not redacted — **hit 2026-09-07 (#1137):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_crisis_access_key_config_path`, `IsSensitiveKey_detects_crisis_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CriticalAccessKey` not redacted — **hit 2026-09-07 (#1137):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_critical_access_key_config_path`, `IsSensitiveKey_detects_critical_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnot configure` suffix gap — **hit 2026-09-07 (#1137):** had not-only advice suffix guard; missed unquoted `enable encryption hadnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnot mandate` suffix gap — **hit 2026-09-07 (#1137):** had not-only advice suffix guard; missed unquoted `enable encryption hadnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnot apply` suffix gap — **hit 2026-09-07 (#1137):** had not-only advice suffix guard; missed unquoted `enable encryption hadnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnot enforce` suffix gap — **hit 2026-09-07 (#1137):** had not-only advice suffix guard; missed unquoted `enable encryption hadnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnot maintain` suffix gap — **hit 2026-09-07 (#1137):** had not-only advice suffix guard; missed unquoted `enable encryption hadnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnot ensure` suffix gap — **hit 2026-09-07 (#1137):** had not-only advice suffix guard; missed unquoted `enable encryption hadnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnot provision` suffix gap — **hit 2026-09-07 (#1137):** had not-only advice suffix guard; missed unquoted `enable encryption hadnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnot require` suffix gap — **hit 2026-09-07 (#1137):** had not-only advice suffix guard; missed unquoted `enable encryption hadnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadnot need` suffix gap — **hit 2026-09-07 (#1137):** had not-only advice suffix guard; missed unquoted `enable encryption hadnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1137 (hit): reseeded after #1136 closure; proved twelve hunt-ready rows — CreditAccessKey/CrisisAccessKey/CriticalAccessKey redaction parity and advice hadnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CropAccessKey` not redacted — **hit 2026-09-07 (#1138):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_crop_access_key_config_path`, `IsSensitiveKey_detects_crop_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CrownAccessKey` not redacted — **hit 2026-09-07 (#1138):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_crown_access_key_config_path`, `IsSensitiveKey_detects_crown_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CruiseAccessKey` not redacted — **hit 2026-09-07 (#1138):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_cruise_access_key_config_path`, `IsSensitiveKey_detects_cruise_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnot configure` suffix gap — **hit 2026-09-07 (#1138):** has not-only advice suffix guard; missed unquoted `enable encryption hasnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnot mandate` suffix gap — **hit 2026-09-07 (#1138):** has not-only advice suffix guard; missed unquoted `enable encryption hasnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnot apply` suffix gap — **hit 2026-09-07 (#1138):** has not-only advice suffix guard; missed unquoted `enable encryption hasnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnot enforce` suffix gap — **hit 2026-09-07 (#1138):** has not-only advice suffix guard; missed unquoted `enable encryption hasnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnot maintain` suffix gap — **hit 2026-09-07 (#1138):** has not-only advice suffix guard; missed unquoted `enable encryption hasnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnot ensure` suffix gap — **hit 2026-09-07 (#1138):** has not-only advice suffix guard; missed unquoted `enable encryption hasnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnot provision` suffix gap — **hit 2026-09-07 (#1138):** has not-only advice suffix guard; missed unquoted `enable encryption hasnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnot require` suffix gap — **hit 2026-09-07 (#1138):** has not-only advice suffix guard; missed unquoted `enable encryption hasnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasnot need` suffix gap — **hit 2026-09-07 (#1138):** has not-only advice suffix guard; missed unquoted `enable encryption hasnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1138 (hit): reseeded after #1137 closure; proved twelve hunt-ready rows — CropAccessKey/CrownAccessKey/CruiseAccessKey redaction parity and advice hasnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CrystalAccessKey` not redacted — **hit 2026-09-07 (#1139):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_crystal_access_key_config_path`, `IsSensitiveKey_detects_crystal_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CultureAccessKey` not redacted — **hit 2026-09-07 (#1139):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_culture_access_key_config_path`, `IsSensitiveKey_detects_culture_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `CurrentAccessKey` not redacted — **hit 2026-09-07 (#1139):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_current_access_key_config_path`, `IsSensitiveKey_detects_current_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnot configure` suffix gap — **hit 2026-09-07 (#1139):** was not-only advice suffix guard; missed unquoted `enable encryption wasnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnot mandate` suffix gap — **hit 2026-09-07 (#1139):** was not-only advice suffix guard; missed unquoted `enable encryption wasnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnot apply` suffix gap — **hit 2026-09-07 (#1139):** was not-only advice suffix guard; missed unquoted `enable encryption wasnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnot enforce` suffix gap — **hit 2026-09-07 (#1139):** was not-only advice suffix guard; missed unquoted `enable encryption wasnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnot maintain` suffix gap — **hit 2026-09-07 (#1139):** was not-only advice suffix guard; missed unquoted `enable encryption wasnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnot ensure` suffix gap — **hit 2026-09-07 (#1139):** was not-only advice suffix guard; missed unquoted `enable encryption wasnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnot provision` suffix gap — **hit 2026-09-07 (#1139):** was not-only advice suffix guard; missed unquoted `enable encryption wasnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnot require` suffix gap — **hit 2026-09-07 (#1139):** was not-only advice suffix guard; missed unquoted `enable encryption wasnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasnot need` suffix gap — **hit 2026-09-07 (#1139):** was not-only advice suffix guard; missed unquoted `enable encryption wasnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1139 (hit): reseeded after #1138 closure; proved twelve hunt-ready rows — CrystalAccessKey/CultureAccessKey/CurrentAccessKey redaction parity and advice wasnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DailyAccessKey` not redacted — **hit 2026-09-07 (#1140):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_daily_access_key_config_path`, `IsSensitiveKey_detects_daily_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DamageAccessKey` not redacted — **hit 2026-09-07 (#1140):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_damage_access_key_config_path`, `IsSensitiveKey_detects_damage_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DanceAccessKey` not redacted — **hit 2026-09-07 (#1140):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dance_access_key_config_path`, `IsSensitiveKey_detects_dance_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnot configure` suffix gap — **hit 2026-09-07 (#1140):** is not-only advice suffix guard; missed unquoted `enable encryption isnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnot mandate` suffix gap — **hit 2026-09-07 (#1140):** is not-only advice suffix guard; missed unquoted `enable encryption isnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnot apply` suffix gap — **hit 2026-09-07 (#1140):** is not-only advice suffix guard; missed unquoted `enable encryption isnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnot enforce` suffix gap — **hit 2026-09-07 (#1140):** is not-only advice suffix guard; missed unquoted `enable encryption isnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnot maintain` suffix gap — **hit 2026-09-07 (#1140):** is not-only advice suffix guard; missed unquoted `enable encryption isnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnot ensure` suffix gap — **hit 2026-09-07 (#1140):** is not-only advice suffix guard; missed unquoted `enable encryption isnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnot provision` suffix gap — **hit 2026-09-07 (#1140):** is not-only advice suffix guard; missed unquoted `enable encryption isnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnot require` suffix gap — **hit 2026-09-07 (#1140):** is not-only advice suffix guard; missed unquoted `enable encryption isnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isnot need` suffix gap — **hit 2026-09-07 (#1140):** is not-only advice suffix guard; missed unquoted `enable encryption isnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1140 (hit): reseeded after #1139 closure; proved twelve hunt-ready rows — DailyAccessKey/DamageAccessKey/DanceAccessKey redaction parity and advice isnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DarkAccessKey` not redacted — **hit 2026-09-07 (#1141):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dark_access_key_config_path`, `IsSensitiveKey_detects_dark_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DateAccessKey` not redacted — **hit 2026-09-07 (#1141):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_date_access_key_config_path`, `IsSensitiveKey_detects_date_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DayAccessKey` not redacted — **hit 2026-09-07 (#1141):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_day_access_key_config_path`, `IsSensitiveKey_detects_day_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arenot configure` suffix gap — **hit 2026-09-07 (#1141):** are not-only advice suffix guard; missed unquoted `enable encryption arenot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arenot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arenot mandate` suffix gap — **hit 2026-09-07 (#1141):** are not-only advice suffix guard; missed unquoted `enable encryption arenot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arenot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arenot apply` suffix gap — **hit 2026-09-07 (#1141):** are not-only advice suffix guard; missed unquoted `enable encryption arenot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arenot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arenot enforce` suffix gap — **hit 2026-09-07 (#1141):** are not-only advice suffix guard; missed unquoted `enable encryption arenot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arenot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arenot maintain` suffix gap — **hit 2026-09-07 (#1141):** are not-only advice suffix guard; missed unquoted `enable encryption arenot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arenot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arenot ensure` suffix gap — **hit 2026-09-07 (#1141):** are not-only advice suffix guard; missed unquoted `enable encryption arenot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arenot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arenot provision` suffix gap — **hit 2026-09-07 (#1141):** are not-only advice suffix guard; missed unquoted `enable encryption arenot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arenot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arenot require` suffix gap — **hit 2026-09-07 (#1141):** are not-only advice suffix guard; missed unquoted `enable encryption arenot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arenot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arenot need` suffix gap — **hit 2026-09-07 (#1141):** are not-only advice suffix guard; missed unquoted `enable encryption arenot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arenot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1141 (hit): reseeded after #1140 closure; proved twelve hunt-ready rows — DarkAccessKey/DateAccessKey/DayAccessKey redaction parity and advice arenot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DealAccessKey` not redacted — **hit 2026-09-07 (#1142):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_deal_access_key_config_path`, `IsSensitiveKey_detects_deal_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DealerAccessKey` not redacted — **hit 2026-09-07 (#1142):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dealer_access_key_config_path`, `IsSensitiveKey_detects_dealer_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DeathAccessKey` not redacted — **hit 2026-09-07 (#1142):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_death_access_key_config_path`, `IsSensitiveKey_detects_death_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werenot configure` suffix gap — **hit 2026-09-07 (#1142):** were not-only advice suffix guard; missed unquoted `enable encryption werenot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werenot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werenot mandate` suffix gap — **hit 2026-09-07 (#1142):** were not-only advice suffix guard; missed unquoted `enable encryption werenot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werenot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werenot apply` suffix gap — **hit 2026-09-07 (#1142):** were not-only advice suffix guard; missed unquoted `enable encryption werenot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werenot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werenot enforce` suffix gap — **hit 2026-09-07 (#1142):** were not-only advice suffix guard; missed unquoted `enable encryption werenot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werenot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werenot maintain` suffix gap — **hit 2026-09-07 (#1142):** were not-only advice suffix guard; missed unquoted `enable encryption werenot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werenot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werenot ensure` suffix gap — **hit 2026-09-07 (#1142):** were not-only advice suffix guard; missed unquoted `enable encryption werenot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werenot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werenot provision` suffix gap — **hit 2026-09-07 (#1142):** were not-only advice suffix guard; missed unquoted `enable encryption werenot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werenot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werenot require` suffix gap — **hit 2026-09-07 (#1142):** were not-only advice suffix guard; missed unquoted `enable encryption werenot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werenot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werenot need` suffix gap — **hit 2026-09-07 (#1142):** were not-only advice suffix guard; missed unquoted `enable encryption werenot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werenot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1142 (hit): reseeded after #1141 closure; proved twelve hunt-ready rows — DealAccessKey/DealerAccessKey/DeathAccessKey redaction parity and advice werenot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DebugAccessKey` not redacted — **hit 2026-09-07 (#1143):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_debug_access_key_config_path`, `IsSensitiveKey_detects_debug_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DecisionAccessKey` not redacted — **hit 2026-09-07 (#1143):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_decision_access_key_config_path`, `IsSensitiveKey_detects_decision_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DeckAccessKey` not redacted — **hit 2026-09-07 (#1143):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_deck_access_key_config_path`, `IsSensitiveKey_detects_deck_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnot configure` suffix gap — **hit 2026-09-07 (#1143):** could not-only advice suffix guard; missed unquoted `enable encryption couldnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnot mandate` suffix gap — **hit 2026-09-07 (#1143):** could not-only advice suffix guard; missed unquoted `enable encryption couldnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnot apply` suffix gap — **hit 2026-09-07 (#1143):** could not-only advice suffix guard; missed unquoted `enable encryption couldnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnot enforce` suffix gap — **hit 2026-09-07 (#1143):** could not-only advice suffix guard; missed unquoted `enable encryption couldnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnot maintain` suffix gap — **hit 2026-09-07 (#1143):** could not-only advice suffix guard; missed unquoted `enable encryption couldnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnot ensure` suffix gap — **hit 2026-09-07 (#1143):** could not-only advice suffix guard; missed unquoted `enable encryption couldnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnot provision` suffix gap — **hit 2026-09-07 (#1143):** could not-only advice suffix guard; missed unquoted `enable encryption couldnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnot require` suffix gap — **hit 2026-09-07 (#1143):** could not-only advice suffix guard; missed unquoted `enable encryption couldnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `couldnot need` suffix gap — **hit 2026-09-07 (#1143):** could not-only advice suffix guard; missed unquoted `enable encryption couldnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_couldnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1143 (hit): reseeded after #1142 closure; proved twelve hunt-ready rows — DebugAccessKey/DecisionAccessKey/DeckAccessKey redaction parity and advice couldnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DecodeAccessKey` not redacted — **hit 2026-09-07 (#1144):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_decode_access_key_config_path`, `IsSensitiveKey_detects_decode_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DeclareAccessKey` not redacted — **hit 2026-09-07 (#1144):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_declare_access_key_config_path`, `IsSensitiveKey_detects_declare_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DeclineAccessKey` not redacted — **hit 2026-09-07 (#1144):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_decline_access_key_config_path`, `IsSensitiveKey_detects_decline_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `willnot configure` suffix gap — **hit 2026-09-07 (#1144):** will not-only advice suffix guard; missed unquoted `enable encryption willnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_willnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `willnot mandate` suffix gap — **hit 2026-09-07 (#1144):** will not-only advice suffix guard; missed unquoted `enable encryption willnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_willnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `willnot apply` suffix gap — **hit 2026-09-07 (#1144):** will not-only advice suffix guard; missed unquoted `enable encryption willnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_willnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `willnot enforce` suffix gap — **hit 2026-09-07 (#1144):** will not-only advice suffix guard; missed unquoted `enable encryption willnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_willnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `willnot maintain` suffix gap — **hit 2026-09-07 (#1144):** will not-only advice suffix guard; missed unquoted `enable encryption willnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_willnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `willnot ensure` suffix gap — **hit 2026-09-07 (#1144):** will not-only advice suffix guard; missed unquoted `enable encryption willnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_willnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `willnot provision` suffix gap — **hit 2026-09-07 (#1144):** will not-only advice suffix guard; missed unquoted `enable encryption willnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_willnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `willnot require` suffix gap — **hit 2026-09-07 (#1144):** will not-only advice suffix guard; missed unquoted `enable encryption willnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_willnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `willnot need` suffix gap — **hit 2026-09-07 (#1144):** will not-only advice suffix guard; missed unquoted `enable encryption willnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_willnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1144 (hit): reseeded after #1143 closure; proved twelve hunt-ready rows — DecodeAccessKey/DeclareAccessKey/DeclineAccessKey redaction parity and advice willnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DecorAccessKey` not redacted — **hit 2026-09-07 (#1145):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_decor_access_key_config_path`, `IsSensitiveKey_detects_decor_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DefenseAccessKey` not redacted — **hit 2026-09-07 (#1145):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_defense_access_key_config_path`, `IsSensitiveKey_detects_defense_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DeliverAccessKey` not redacted — **hit 2026-09-07 (#1145):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_deliver_access_key_config_path`, `IsSensitiveKey_detects_deliver_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shallnot configure` suffix gap — **hit 2026-09-07 (#1145):** shall not-only advice suffix guard; missed unquoted `enable encryption shallnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shallnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shallnot mandate` suffix gap — **hit 2026-09-07 (#1145):** shall not-only advice suffix guard; missed unquoted `enable encryption shallnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shallnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shallnot apply` suffix gap — **hit 2026-09-07 (#1145):** shall not-only advice suffix guard; missed unquoted `enable encryption shallnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shallnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shallnot enforce` suffix gap — **hit 2026-09-07 (#1145):** shall not-only advice suffix guard; missed unquoted `enable encryption shallnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shallnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shallnot maintain` suffix gap — **hit 2026-09-07 (#1145):** shall not-only advice suffix guard; missed unquoted `enable encryption shallnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shallnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shallnot ensure` suffix gap — **hit 2026-09-07 (#1145):** shall not-only advice suffix guard; missed unquoted `enable encryption shallnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shallnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shallnot provision` suffix gap — **hit 2026-09-07 (#1145):** shall not-only advice suffix guard; missed unquoted `enable encryption shallnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shallnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shallnot require` suffix gap — **hit 2026-09-07 (#1145):** shall not-only advice suffix guard; missed unquoted `enable encryption shallnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shallnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shallnot need` suffix gap — **hit 2026-09-07 (#1145):** shall not-only advice suffix guard; missed unquoted `enable encryption shallnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shallnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1145 (hit): reseeded after #1144 closure; proved twelve hunt-ready rows — DecorAccessKey/DefenseAccessKey/DeliverAccessKey redaction parity and advice shallnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DeltaAccessKey` not redacted — **hit 2026-09-07 (#1146):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_delta_access_key_config_path`, `IsSensitiveKey_detects_delta_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DemandAccessKey` not redacted — **hit 2026-09-07 (#1146):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_demand_access_key_config_path`, `IsSensitiveKey_detects_demand_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DemoAccessKey` not redacted — **hit 2026-09-07 (#1146):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_demo_access_key_config_path`, `IsSensitiveKey_detects_demo_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnot configure` suffix gap — **hit 2026-09-07 (#1146):** should not-only advice suffix guard; missed unquoted `enable encryption shouldnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnot mandate` suffix gap — **hit 2026-09-07 (#1146):** should not-only advice suffix guard; missed unquoted `enable encryption shouldnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnot apply` suffix gap — **hit 2026-09-07 (#1146):** should not-only advice suffix guard; missed unquoted `enable encryption shouldnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnot enforce` suffix gap — **hit 2026-09-07 (#1146):** should not-only advice suffix guard; missed unquoted `enable encryption shouldnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnot maintain` suffix gap — **hit 2026-09-07 (#1146):** should not-only advice suffix guard; missed unquoted `enable encryption shouldnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnot ensure` suffix gap — **hit 2026-09-07 (#1146):** should not-only advice suffix guard; missed unquoted `enable encryption shouldnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnot provision` suffix gap — **hit 2026-09-07 (#1146):** should not-only advice suffix guard; missed unquoted `enable encryption shouldnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnot require` suffix gap — **hit 2026-09-07 (#1146):** should not-only advice suffix guard; missed unquoted `enable encryption shouldnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `shouldnot need` suffix gap — **hit 2026-09-07 (#1146):** should not-only advice suffix guard; missed unquoted `enable encryption shouldnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_shouldnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1146 (hit): reseeded after #1145 closure; proved twelve hunt-ready rows — DeltaAccessKey/DemandAccessKey/DemoAccessKey redaction parity and advice shouldnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DenyAccessKey` not redacted — **hit 2026-09-07 (#1147):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_deny_access_key_config_path`, `IsSensitiveKey_detects_deny_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DepthAccessKey` not redacted — **hit 2026-09-07 (#1147):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_depth_access_key_config_path`, `IsSensitiveKey_detects_depth_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DesignAccessKey` not redacted — **hit 2026-09-07 (#1147):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_design_access_key_config_path`, `IsSensitiveKey_detects_design_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnot configure` suffix gap — **hit 2026-09-07 (#1147):** would not-only advice suffix guard; missed unquoted `enable encryption wouldnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnot mandate` suffix gap — **hit 2026-09-07 (#1147):** would not-only advice suffix guard; missed unquoted `enable encryption wouldnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnot apply` suffix gap — **hit 2026-09-07 (#1147):** would not-only advice suffix guard; missed unquoted `enable encryption wouldnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnot enforce` suffix gap — **hit 2026-09-07 (#1147):** would not-only advice suffix guard; missed unquoted `enable encryption wouldnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnot maintain` suffix gap — **hit 2026-09-07 (#1147):** would not-only advice suffix guard; missed unquoted `enable encryption wouldnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnot ensure` suffix gap — **hit 2026-09-07 (#1147):** would not-only advice suffix guard; missed unquoted `enable encryption wouldnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnot provision` suffix gap — **hit 2026-09-07 (#1147):** would not-only advice suffix guard; missed unquoted `enable encryption wouldnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnot require` suffix gap — **hit 2026-09-07 (#1147):** would not-only advice suffix guard; missed unquoted `enable encryption wouldnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wouldnot need` suffix gap — **hit 2026-09-07 (#1147):** would not-only advice suffix guard; missed unquoted `enable encryption wouldnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wouldnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1147 (hit): reseeded after #1146 closure; proved twelve hunt-ready rows — DenyAccessKey/DepthAccessKey/DesignAccessKey redaction parity and advice wouldnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DetailAccessKey` not redacted — **hit 2026-09-07 (#1148):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_detail_access_key_config_path`, `IsSensitiveKey_detects_detail_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DetectAccessKey` not redacted — **hit 2026-09-07 (#1148):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_detect_access_key_config_path`, `IsSensitiveKey_detects_detect_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DeskAccessKey` not redacted — **hit 2026-09-07 (#1148):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_desk_access_key_config_path`, `IsSensitiveKey_detects_desk_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnot configure` suffix gap — **hit 2026-09-07 (#1148):** does not-only advice suffix guard; missed unquoted `enable encryption doesnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnot mandate` suffix gap — **hit 2026-09-07 (#1148):** does not-only advice suffix guard; missed unquoted `enable encryption doesnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnot apply` suffix gap — **hit 2026-09-07 (#1148):** does not-only advice suffix guard; missed unquoted `enable encryption doesnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnot enforce` suffix gap — **hit 2026-09-07 (#1148):** does not-only advice suffix guard; missed unquoted `enable encryption doesnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnot maintain` suffix gap — **hit 2026-09-07 (#1148):** does not-only advice suffix guard; missed unquoted `enable encryption doesnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnot ensure` suffix gap — **hit 2026-09-07 (#1148):** does not-only advice suffix guard; missed unquoted `enable encryption doesnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnot provision` suffix gap — **hit 2026-09-07 (#1148):** does not-only advice suffix guard; missed unquoted `enable encryption doesnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnot require` suffix gap — **hit 2026-09-07 (#1148):** does not-only advice suffix guard; missed unquoted `enable encryption doesnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesnot need` suffix gap — **hit 2026-09-07 (#1148):** does not-only advice suffix guard; missed unquoted `enable encryption doesnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1148 (hit): reseeded after #1147 closure; proved twelve hunt-ready rows — DetailAccessKey/DetectAccessKey/DeskAccessKey redaction parity and advice doesnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DesktopAccessKey` not redacted — **hit 2026-09-07 (#1149):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_desktop_access_key_config_path`, `IsSensitiveKey_detects_desktop_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DestroyAccessKey` not redacted — **hit 2026-09-07 (#1149):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_destroy_access_key_config_path`, `IsSensitiveKey_detects_destroy_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DigestAccessKey` not redacted — **hit 2026-09-07 (#1149):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_digest_access_key_config_path`, `IsSensitiveKey_detects_digest_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnot configure` suffix gap — **hit 2026-09-07 (#1149):** ought not-only advice suffix guard; missed unquoted `enable encryption oughtnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnot mandate` suffix gap — **hit 2026-09-07 (#1149):** ought not-only advice suffix guard; missed unquoted `enable encryption oughtnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnot apply` suffix gap — **hit 2026-09-07 (#1149):** ought not-only advice suffix guard; missed unquoted `enable encryption oughtnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnot enforce` suffix gap — **hit 2026-09-07 (#1149):** ought not-only advice suffix guard; missed unquoted `enable encryption oughtnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnot maintain` suffix gap — **hit 2026-09-07 (#1149):** ought not-only advice suffix guard; missed unquoted `enable encryption oughtnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnot ensure` suffix gap — **hit 2026-09-07 (#1149):** ought not-only advice suffix guard; missed unquoted `enable encryption oughtnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnot provision` suffix gap — **hit 2026-09-07 (#1149):** ought not-only advice suffix guard; missed unquoted `enable encryption oughtnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnot require` suffix gap — **hit 2026-09-07 (#1149):** ought not-only advice suffix guard; missed unquoted `enable encryption oughtnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `oughtnot need` suffix gap — **hit 2026-09-07 (#1149):** ought not-only advice suffix guard; missed unquoted `enable encryption oughtnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_oughtnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1149 (hit): reseeded after #1148 closure; proved twelve hunt-ready rows — DesktopAccessKey/DestroyAccessKey/DigestAccessKey redaction parity and advice oughtnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DialogAccessKey` not redacted — **hit 2026-09-07 (#1150):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dialog_access_key_config_path`, `IsSensitiveKey_detects_dialog_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DiamondAccessKey` not redacted — **hit 2026-09-07 (#1150):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_diamond_access_key_config_path`, `IsSensitiveKey_detects_diamond_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DialectAccessKey` not redacted — **hit 2026-09-07 (#1150):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dialect_access_key_config_path`, `IsSensitiveKey_detects_dialect_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnot configure` suffix gap — **hit 2026-09-07 (#1150):** might not-only advice suffix guard; missed unquoted `enable encryption mightnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnot mandate` suffix gap — **hit 2026-09-07 (#1150):** might not-only advice suffix guard; missed unquoted `enable encryption mightnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnot apply` suffix gap — **hit 2026-09-07 (#1150):** might not-only advice suffix guard; missed unquoted `enable encryption mightnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnot enforce` suffix gap — **hit 2026-09-07 (#1150):** might not-only advice suffix guard; missed unquoted `enable encryption mightnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnot maintain` suffix gap — **hit 2026-09-07 (#1150):** might not-only advice suffix guard; missed unquoted `enable encryption mightnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnot ensure` suffix gap — **hit 2026-09-07 (#1150):** might not-only advice suffix guard; missed unquoted `enable encryption mightnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnot provision` suffix gap — **hit 2026-09-07 (#1150):** might not-only advice suffix guard; missed unquoted `enable encryption mightnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnot require` suffix gap — **hit 2026-09-07 (#1150):** might not-only advice suffix guard; missed unquoted `enable encryption mightnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `mightnot need` suffix gap — **hit 2026-09-07 (#1150):** might not-only advice suffix guard; missed unquoted `enable encryption mightnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_mightnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1150 (hit): reseeded after #1149 closure; proved twelve hunt-ready rows — DialogAccessKey/DiamondAccessKey/DialectAccessKey redaction parity and advice mightnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DimensionAccessKey` not redacted — **hit 2026-09-07 (#1151):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dimension_access_key_config_path`, `IsSensitiveKey_detects_dimension_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DisableAccessKey` not redacted — **hit 2026-09-07 (#1151):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_disable_access_key_config_path`, `IsSensitiveKey_detects_disable_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DisplayAccessKey` not redacted — **hit 2026-09-07 (#1151):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_display_access_key_config_path`, `IsSensitiveKey_detects_display_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynot configure` suffix gap — **hit 2026-09-07 (#1151):** may not-only advice suffix guard; missed unquoted `enable encryption maynot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynot mandate` suffix gap — **hit 2026-09-07 (#1151):** may not-only advice suffix guard; missed unquoted `enable encryption maynot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynot apply` suffix gap — **hit 2026-09-07 (#1151):** may not-only advice suffix guard; missed unquoted `enable encryption maynot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynot enforce` suffix gap — **hit 2026-09-07 (#1151):** may not-only advice suffix guard; missed unquoted `enable encryption maynot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynot maintain` suffix gap — **hit 2026-09-07 (#1151):** may not-only advice suffix guard; missed unquoted `enable encryption maynot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynot ensure` suffix gap — **hit 2026-09-07 (#1151):** may not-only advice suffix guard; missed unquoted `enable encryption maynot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynot provision` suffix gap — **hit 2026-09-07 (#1151):** may not-only advice suffix guard; missed unquoted `enable encryption maynot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynot require` suffix gap — **hit 2026-09-07 (#1151):** may not-only advice suffix guard; missed unquoted `enable encryption maynot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `maynot need` suffix gap — **hit 2026-09-07 (#1151):** may not-only advice suffix guard; missed unquoted `enable encryption maynot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_maynot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1151 (hit): reseeded after #1150 closure; proved twelve hunt-ready rows — DimensionAccessKey/DisableAccessKey/DisplayAccessKey redaction parity and advice maynot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DiscAccessKey` not redacted — **hit 2026-09-07 (#1152):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_disc_access_key_config_path`, `IsSensitiveKey_detects_disc_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DispatchAccessKey` not redacted — **hit 2026-09-07 (#1152):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dispatch_access_key_config_path`, `IsSensitiveKey_detects_dispatch_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DistrictAccessKey` not redacted — **hit 2026-09-07 (#1152):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_district_access_key_config_path`, `IsSensitiveKey_detects_district_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havenot configure` suffix gap — **hit 2026-09-07 (#1152):** have not-only advice suffix guard; missed unquoted `enable encryption havenot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havenot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havenot mandate` suffix gap — **hit 2026-09-07 (#1152):** have not-only advice suffix guard; missed unquoted `enable encryption havenot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havenot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havenot apply` suffix gap — **hit 2026-09-07 (#1152):** have not-only advice suffix guard; missed unquoted `enable encryption havenot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havenot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havenot enforce` suffix gap — **hit 2026-09-07 (#1152):** have not-only advice suffix guard; missed unquoted `enable encryption havenot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havenot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havenot maintain` suffix gap — **hit 2026-09-07 (#1152):** have not-only advice suffix guard; missed unquoted `enable encryption havenot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havenot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havenot ensure` suffix gap — **hit 2026-09-07 (#1152):** have not-only advice suffix guard; missed unquoted `enable encryption havenot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havenot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havenot provision` suffix gap — **hit 2026-09-07 (#1152):** have not-only advice suffix guard; missed unquoted `enable encryption havenot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havenot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havenot require` suffix gap — **hit 2026-09-07 (#1152):** have not-only advice suffix guard; missed unquoted `enable encryption havenot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havenot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `havenot need` suffix gap — **hit 2026-09-07 (#1152):** have not-only advice suffix guard; missed unquoted `enable encryption havenot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_havenot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1152 (hit): reseeded after #1151 closure; proved twelve hunt-ready rows — DiscAccessKey/DispatchAccessKey/DistrictAccessKey redaction parity and advice havenot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DivideAccessKey` not redacted — **hit 2026-09-07 (#1153):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_divide_access_key_config_path`, `IsSensitiveKey_detects_divide_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DiverAccessKey` not redacted — **hit 2026-09-07 (#1153):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_diver_access_key_config_path`, `IsSensitiveKey_detects_diver_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DockAccessKey` not redacted — **hit 2026-09-07 (#1153):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dock_access_key_config_path`, `IsSensitiveKey_detects_dock_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aintnot configure` suffix gap — **hit 2026-09-07 (#1153):** ain't not-only advice suffix guard; missed unquoted `enable encryption aintnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aintnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aintnot mandate` suffix gap — **hit 2026-09-07 (#1153):** ain't not-only advice suffix guard; missed unquoted `enable encryption aintnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aintnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aintnot apply` suffix gap — **hit 2026-09-07 (#1153):** ain't not-only advice suffix guard; missed unquoted `enable encryption aintnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aintnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aintnot enforce` suffix gap — **hit 2026-09-07 (#1153):** ain't not-only advice suffix guard; missed unquoted `enable encryption aintnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aintnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aintnot maintain` suffix gap — **hit 2026-09-07 (#1153):** ain't not-only advice suffix guard; missed unquoted `enable encryption aintnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aintnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aintnot ensure` suffix gap — **hit 2026-09-07 (#1153):** ain't not-only advice suffix guard; missed unquoted `enable encryption aintnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aintnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aintnot provision` suffix gap — **hit 2026-09-07 (#1153):** ain't not-only advice suffix guard; missed unquoted `enable encryption aintnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aintnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aintnot require` suffix gap — **hit 2026-09-07 (#1153):** ain't not-only advice suffix guard; missed unquoted `enable encryption aintnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aintnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `aintnot need` suffix gap — **hit 2026-09-07 (#1153):** ain't not-only advice suffix guard; missed unquoted `enable encryption aintnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_aintnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1153 (hit): reseeded after #1152 closure; proved twelve hunt-ready rows — DivideAccessKey/DiverAccessKey/DockAccessKey redaction parity and advice aintnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DiverseAccessKey` not redacted — **hit 2026-09-07 (#1154):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_diverse_access_key_config_path`, `IsSensitiveKey_detects_diverse_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DividerAccessKey` not redacted — **hit 2026-09-07 (#1154):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_divider_access_key_config_path`, `IsSensitiveKey_detects_divider_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DistributorAccessKey` not redacted — **hit 2026-09-07 (#1154):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_distributor_access_key_config_path`, `IsSensitiveKey_detects_distributor_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darentnot configure` suffix gap — **hit 2026-09-07 (#1154):** dare not-only advice suffix guard; missed unquoted `enable encryption darentnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darentnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darentnot mandate` suffix gap — **hit 2026-09-07 (#1154):** dare not-only advice suffix guard; missed unquoted `enable encryption darentnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darentnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darentnot apply` suffix gap — **hit 2026-09-07 (#1154):** dare not-only advice suffix guard; missed unquoted `enable encryption darentnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darentnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darentnot enforce` suffix gap — **hit 2026-09-07 (#1154):** dare not-only advice suffix guard; missed unquoted `enable encryption darentnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darentnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darentnot maintain` suffix gap — **hit 2026-09-07 (#1154):** dare not-only advice suffix guard; missed unquoted `enable encryption darentnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darentnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darentnot ensure` suffix gap — **hit 2026-09-07 (#1154):** dare not-only advice suffix guard; missed unquoted `enable encryption darentnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darentnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darentnot provision` suffix gap — **hit 2026-09-07 (#1154):** dare not-only advice suffix guard; missed unquoted `enable encryption darentnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darentnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darentnot require` suffix gap — **hit 2026-09-07 (#1154):** dare not-only advice suffix guard; missed unquoted `enable encryption darentnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darentnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `darentnot need` suffix gap — **hit 2026-09-07 (#1154):** dare not-only advice suffix guard; missed unquoted `enable encryption darentnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_darentnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1154 (hit): reseeded after #1153 closure; proved twelve hunt-ready rows — DiverseAccessKey/DividerAccessKey/DistributorAccessKey redaction parity and advice darentnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DoctorAccessKey` not redacted — **hit 2026-09-07 (#1155):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_doctor_access_key_config_path`, `IsSensitiveKey_detects_doctor_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DollarAccessKey` not redacted — **hit 2026-09-07 (#1155):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dollar_access_key_config_path`, `IsSensitiveKey_detects_dollar_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DolphinAccessKey` not redacted — **hit 2026-09-07 (#1155):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dolphin_access_key_config_path`, `IsSensitiveKey_detects_dolphin_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arentnot configure` suffix gap — **hit 2026-09-07 (#1155):** are not-only advice suffix guard; missed unquoted `enable encryption arentnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arentnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arentnot mandate` suffix gap — **hit 2026-09-07 (#1155):** are not-only advice suffix guard; missed unquoted `enable encryption arentnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arentnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arentnot apply` suffix gap — **hit 2026-09-07 (#1155):** are not-only advice suffix guard; missed unquoted `enable encryption arentnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arentnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arentnot enforce` suffix gap — **hit 2026-09-07 (#1155):** are not-only advice suffix guard; missed unquoted `enable encryption arentnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arentnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arentnot maintain` suffix gap — **hit 2026-09-07 (#1155):** are not-only advice suffix guard; missed unquoted `enable encryption arentnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arentnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arentnot ensure` suffix gap — **hit 2026-09-07 (#1155):** are not-only advice suffix guard; missed unquoted `enable encryption arentnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arentnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arentnot provision` suffix gap — **hit 2026-09-07 (#1155):** are not-only advice suffix guard; missed unquoted `enable encryption arentnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arentnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arentnot require` suffix gap — **hit 2026-09-07 (#1155):** are not-only advice suffix guard; missed unquoted `enable encryption arentnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arentnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `arentnot need` suffix gap — **hit 2026-09-07 (#1155):** are not-only advice suffix guard; missed unquoted `enable encryption arentnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_arentnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1155 (hit): reseeded after #1154 closure; proved twelve hunt-ready rows — DoctorAccessKey/DollarAccessKey/DolphinAccessKey redaction parity and advice arentnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DodgeAccessKey` not redacted — **hit 2026-09-07 (#1156):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dodge_access_key_config_path`, `IsSensitiveKey_detects_dodge_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DomeAccessKey` not redacted — **hit 2026-09-07 (#1156):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dome_access_key_config_path`, `IsSensitiveKey_detects_dome_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DonorAccessKey` not redacted — **hit 2026-09-07 (#1156):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_donor_access_key_config_path`, `IsSensitiveKey_detects_donor_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isntnot configure` suffix gap — **hit 2026-09-07 (#1156):** is not-only advice suffix guard; missed unquoted `enable encryption isntnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isntnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isntnot mandate` suffix gap — **hit 2026-09-07 (#1156):** is not-only advice suffix guard; missed unquoted `enable encryption isntnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isntnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isntnot apply` suffix gap — **hit 2026-09-07 (#1156):** is not-only advice suffix guard; missed unquoted `enable encryption isntnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isntnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isntnot enforce` suffix gap — **hit 2026-09-07 (#1156):** is not-only advice suffix guard; missed unquoted `enable encryption isntnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isntnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isntnot maintain` suffix gap — **hit 2026-09-07 (#1156):** is not-only advice suffix guard; missed unquoted `enable encryption isntnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isntnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isntnot ensure` suffix gap — **hit 2026-09-07 (#1156):** is not-only advice suffix guard; missed unquoted `enable encryption isntnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isntnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isntnot provision` suffix gap — **hit 2026-09-07 (#1156):** is not-only advice suffix guard; missed unquoted `enable encryption isntnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isntnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isntnot require` suffix gap — **hit 2026-09-07 (#1156):** is not-only advice suffix guard; missed unquoted `enable encryption isntnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isntnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `isntnot need` suffix gap — **hit 2026-09-07 (#1156):** is not-only advice suffix guard; missed unquoted `enable encryption isntnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_isntnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1156 (hit): reseeded after #1155 closure; proved twelve hunt-ready rows — DodgeAccessKey/DomeAccessKey/DonorAccessKey redaction parity and advice isntnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DoorAccessKey` not redacted — **hit 2026-09-07 (#1157):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_door_access_key_config_path`, `IsSensitiveKey_detects_door_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DoseAccessKey` not redacted — **hit 2026-09-07 (#1157):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dose_access_key_config_path`, `IsSensitiveKey_detects_dose_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DotAccessKey` not redacted — **hit 2026-09-07 (#1157):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dot_access_key_config_path`, `IsSensitiveKey_detects_dot_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasntnot configure` suffix gap — **hit 2026-09-07 (#1157):** was not-only advice suffix guard; missed unquoted `enable encryption wasntnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasntnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasntnot mandate` suffix gap — **hit 2026-09-07 (#1157):** was not-only advice suffix guard; missed unquoted `enable encryption wasntnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasntnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasntnot apply` suffix gap — **hit 2026-09-07 (#1157):** was not-only advice suffix guard; missed unquoted `enable encryption wasntnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasntnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasntnot enforce` suffix gap — **hit 2026-09-07 (#1157):** was not-only advice suffix guard; missed unquoted `enable encryption wasntnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasntnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasntnot maintain` suffix gap — **hit 2026-09-07 (#1157):** was not-only advice suffix guard; missed unquoted `enable encryption wasntnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasntnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasntnot ensure` suffix gap — **hit 2026-09-07 (#1157):** was not-only advice suffix guard; missed unquoted `enable encryption wasntnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasntnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasntnot provision` suffix gap — **hit 2026-09-07 (#1157):** was not-only advice suffix guard; missed unquoted `enable encryption wasntnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasntnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasntnot require` suffix gap — **hit 2026-09-07 (#1157):** was not-only advice suffix guard; missed unquoted `enable encryption wasntnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasntnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `wasntnot need` suffix gap — **hit 2026-09-07 (#1157):** was not-only advice suffix guard; missed unquoted `enable encryption wasntnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_wasntnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1157 (hit): reseeded after #1156 closure; proved twelve hunt-ready rows — DoorAccessKey/DoseAccessKey/DotAccessKey redaction parity and advice wasntnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DoubleAccessKey` not redacted — **hit 2026-09-07 (#1158):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_double_access_key_config_path`, `IsSensitiveKey_detects_double_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DownAccessKey` not redacted — **hit 2026-09-07 (#1158):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_down_access_key_config_path`, `IsSensitiveKey_detects_down_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DraftAccessKey` not redacted — **hit 2026-09-07 (#1158):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_draft_access_key_config_path`, `IsSensitiveKey_detects_draft_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werentnot configure` suffix gap — **hit 2026-09-07 (#1158):** were not-only advice suffix guard; missed unquoted `enable encryption werentnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werentnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werentnot mandate` suffix gap — **hit 2026-09-07 (#1158):** were not-only advice suffix guard; missed unquoted `enable encryption werentnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werentnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werentnot apply` suffix gap — **hit 2026-09-07 (#1158):** were not-only advice suffix guard; missed unquoted `enable encryption werentnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werentnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werentnot enforce` suffix gap — **hit 2026-09-07 (#1158):** were not-only advice suffix guard; missed unquoted `enable encryption werentnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werentnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werentnot maintain` suffix gap — **hit 2026-09-07 (#1158):** were not-only advice suffix guard; missed unquoted `enable encryption werentnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werentnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werentnot ensure` suffix gap — **hit 2026-09-07 (#1158):** were not-only advice suffix guard; missed unquoted `enable encryption werentnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werentnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werentnot provision` suffix gap — **hit 2026-09-07 (#1158):** were not-only advice suffix guard; missed unquoted `enable encryption werentnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werentnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werentnot require` suffix gap — **hit 2026-09-07 (#1158):** were not-only advice suffix guard; missed unquoted `enable encryption werentnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werentnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `werentnot need` suffix gap — **hit 2026-09-07 (#1158):** were not-only advice suffix guard; missed unquoted `enable encryption werentnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_werentnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1158 (hit): reseeded after #1157 closure; proved twelve hunt-ready rows — DoubleAccessKey/DownAccessKey/DraftAccessKey redaction parity and advice werentnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DrainAccessKey` not redacted — **hit 2026-09-07 (#1159):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_drain_access_key_config_path`, `IsSensitiveKey_detects_drain_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DrawAccessKey` not redacted — **hit 2026-09-07 (#1159):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_draw_access_key_config_path`, `IsSensitiveKey_detects_draw_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DreamAccessKey` not redacted — **hit 2026-09-07 (#1159):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dream_access_key_config_path`, `IsSensitiveKey_detects_dream_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haventnot configure` suffix gap — **hit 2026-09-07 (#1159):** have not-only advice suffix guard; missed unquoted `enable encryption haventnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_haventnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haventnot mandate` suffix gap — **hit 2026-09-07 (#1159):** have not-only advice suffix guard; missed unquoted `enable encryption haventnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_haventnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haventnot apply` suffix gap — **hit 2026-09-07 (#1159):** have not-only advice suffix guard; missed unquoted `enable encryption haventnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_haventnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haventnot enforce` suffix gap — **hit 2026-09-07 (#1159):** have not-only advice suffix guard; missed unquoted `enable encryption haventnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_haventnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haventnot maintain` suffix gap — **hit 2026-09-07 (#1159):** have not-only advice suffix guard; missed unquoted `enable encryption haventnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_haventnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haventnot ensure` suffix gap — **hit 2026-09-07 (#1159):** have not-only advice suffix guard; missed unquoted `enable encryption haventnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_haventnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haventnot provision` suffix gap — **hit 2026-09-07 (#1159):** have not-only advice suffix guard; missed unquoted `enable encryption haventnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_haventnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haventnot require` suffix gap — **hit 2026-09-07 (#1159):** have not-only advice suffix guard; missed unquoted `enable encryption haventnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_haventnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `haventnot need` suffix gap — **hit 2026-09-07 (#1159):** have not-only advice suffix guard; missed unquoted `enable encryption haventnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_haventnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1159 (hit): reseeded after #1158 closure; proved twelve hunt-ready rows — DrainAccessKey/DrawAccessKey/DreamAccessKey redaction parity and advice haventnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DressAccessKey` not redacted — **hit 2026-09-07 (#1160):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dress_access_key_config_path`, `IsSensitiveKey_detects_dress_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DriftAccessKey` not redacted — **hit 2026-09-07 (#1160):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_drift_access_key_config_path`, `IsSensitiveKey_detects_drift_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DropAccessKey` not redacted — **hit 2026-09-07 (#1160):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_drop_access_key_config_path`, `IsSensitiveKey_detects_drop_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasntnot configure` suffix gap — **hit 2026-09-07 (#1160):** has not-only advice suffix guard; missed unquoted `enable encryption hasntnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasntnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasntnot mandate` suffix gap — **hit 2026-09-07 (#1160):** has not-only advice suffix guard; missed unquoted `enable encryption hasntnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasntnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasntnot apply` suffix gap — **hit 2026-09-07 (#1160):** has not-only advice suffix guard; missed unquoted `enable encryption hasntnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasntnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasntnot enforce` suffix gap — **hit 2026-09-07 (#1160):** has not-only advice suffix guard; missed unquoted `enable encryption hasntnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasntnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasntnot maintain` suffix gap — **hit 2026-09-07 (#1160):** has not-only advice suffix guard; missed unquoted `enable encryption hasntnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasntnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasntnot ensure` suffix gap — **hit 2026-09-07 (#1160):** has not-only advice suffix guard; missed unquoted `enable encryption hasntnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasntnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasntnot provision` suffix gap — **hit 2026-09-07 (#1160):** has not-only advice suffix guard; missed unquoted `enable encryption hasntnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasntnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasntnot require` suffix gap — **hit 2026-09-07 (#1160):** has not-only advice suffix guard; missed unquoted `enable encryption hasntnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasntnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hasntnot need` suffix gap — **hit 2026-09-07 (#1160):** has not-only advice suffix guard; missed unquoted `enable encryption hasntnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hasntnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1160 (hit): reseeded after #1159 closure; proved twelve hunt-ready rows — DressAccessKey/DriftAccessKey/DropAccessKey redaction parity and advice hasntnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DrumAccessKey` not redacted — **hit 2026-09-07 (#1161):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_drum_access_key_config_path`, `IsSensitiveKey_detects_drum_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DryAccessKey` not redacted — **hit 2026-09-07 (#1161):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dry_access_key_config_path`, `IsSensitiveKey_detects_dry_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DuckAccessKey` not redacted — **hit 2026-09-07 (#1161):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_duck_access_key_config_path`, `IsSensitiveKey_detects_duck_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadntnot configure` suffix gap — **hit 2026-09-07 (#1161):** had not-only advice suffix guard; missed unquoted `enable encryption hadntnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadntnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadntnot mandate` suffix gap — **hit 2026-09-07 (#1161):** had not-only advice suffix guard; missed unquoted `enable encryption hadntnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadntnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadntnot apply` suffix gap — **hit 2026-09-07 (#1161):** had not-only advice suffix guard; missed unquoted `enable encryption hadntnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadntnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadntnot enforce` suffix gap — **hit 2026-09-07 (#1161):** had not-only advice suffix guard; missed unquoted `enable encryption hadntnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadntnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadntnot maintain` suffix gap — **hit 2026-09-07 (#1161):** had not-only advice suffix guard; missed unquoted `enable encryption hadntnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadntnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadntnot ensure` suffix gap — **hit 2026-09-07 (#1161):** had not-only advice suffix guard; missed unquoted `enable encryption hadntnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadntnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadntnot provision` suffix gap — **hit 2026-09-07 (#1161):** had not-only advice suffix guard; missed unquoted `enable encryption hadntnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadntnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadntnot require` suffix gap — **hit 2026-09-07 (#1161):** had not-only advice suffix guard; missed unquoted `enable encryption hadntnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadntnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `hadntnot need` suffix gap — **hit 2026-09-07 (#1161):** had not-only advice suffix guard; missed unquoted `enable encryption hadntnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_hadntnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1161 (hit): reseeded after #1160 closure; proved twelve hunt-ready rows — DrumAccessKey/DryAccessKey/DuckAccessKey redaction parity and advice hadntnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DukeAccessKey` not redacted — **hit 2026-09-07 (#1162):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_duke_access_key_config_path`, `IsSensitiveKey_detects_duke_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DullAccessKey` not redacted — **hit 2026-09-07 (#1162):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dull_access_key_config_path`, `IsSensitiveKey_detects_dull_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DuneAccessKey` not redacted — **hit 2026-09-07 (#1162):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dune_access_key_config_path`, `IsSensitiveKey_detects_dune_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didntnot configure` suffix gap — **hit 2026-09-07 (#1162):** did not-only advice suffix guard; missed unquoted `enable encryption didntnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didntnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didntnot mandate` suffix gap — **hit 2026-09-07 (#1162):** did not-only advice suffix guard; missed unquoted `enable encryption didntnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didntnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didntnot apply` suffix gap — **hit 2026-09-07 (#1162):** did not-only advice suffix guard; missed unquoted `enable encryption didntnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didntnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didntnot enforce` suffix gap — **hit 2026-09-07 (#1162):** did not-only advice suffix guard; missed unquoted `enable encryption didntnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didntnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didntnot maintain` suffix gap — **hit 2026-09-07 (#1162):** did not-only advice suffix guard; missed unquoted `enable encryption didntnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didntnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didntnot ensure` suffix gap — **hit 2026-09-07 (#1162):** did not-only advice suffix guard; missed unquoted `enable encryption didntnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didntnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didntnot provision` suffix gap — **hit 2026-09-07 (#1162):** did not-only advice suffix guard; missed unquoted `enable encryption didntnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didntnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didntnot require` suffix gap — **hit 2026-09-07 (#1162):** did not-only advice suffix guard; missed unquoted `enable encryption didntnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didntnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `didntnot need` suffix gap — **hit 2026-09-07 (#1162):** did not-only advice suffix guard; missed unquoted `enable encryption didntnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_didntnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1162 (hit): reseeded after #1161 closure; proved twelve hunt-ready rows — DukeAccessKey/DullAccessKey/DuneAccessKey redaction parity and advice didntnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DustAccessKey` not redacted — **hit 2026-09-07 (#1163):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dust_access_key_config_path`, `IsSensitiveKey_detects_dust_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DutchAccessKey` not redacted — **hit 2026-09-07 (#1163):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_dutch_access_key_config_path`, `IsSensitiveKey_detects_dutch_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `DutyAccessKey` not redacted — **hit 2026-09-07 (#1163):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_duty_access_key_config_path`, `IsSensitiveKey_detects_duty_access_key_property_names_matching_config_redactor`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesntnot configure` suffix gap — **hit 2026-09-07 (#1163):** does not-only advice suffix guard; missed unquoted `enable encryption doesntnot configure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesntnot_unquoted_configure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesntnot mandate` suffix gap — **hit 2026-09-07 (#1163):** does not-only advice suffix guard; missed unquoted `enable encryption doesntnot mandate` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesntnot_unquoted_mandate_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesntnot apply` suffix gap — **hit 2026-09-07 (#1163):** does not-only advice suffix guard; missed unquoted `enable encryption doesntnot apply` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesntnot_unquoted_apply_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesntnot enforce` suffix gap — **hit 2026-09-07 (#1163):** does not-only advice suffix guard; missed unquoted `enable encryption doesntnot enforce` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesntnot_unquoted_enforce_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesntnot maintain` suffix gap — **hit 2026-09-07 (#1163):** does not-only advice suffix guard; missed unquoted `enable encryption doesntnot maintain` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesntnot_unquoted_maintain_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesntnot ensure` suffix gap — **hit 2026-09-07 (#1163):** does not-only advice suffix guard; missed unquoted `enable encryption doesntnot ensure` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesntnot_unquoted_ensure_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesntnot provision` suffix gap — **hit 2026-09-07 (#1163):** does not-only advice suffix guard; missed unquoted `enable encryption doesntnot provision` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesntnot_unquoted_provision_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesntnot require` suffix gap — **hit 2026-09-07 (#1163):** does not-only advice suffix guard; missed unquoted `enable encryption doesntnot require` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesntnot_unquoted_require_suffix_phrasing`).
+- [x] (proven) `GenericArchitectureAdvicePatterns.IsSuffixNegatedAdviceFragment` — `doesntnot need` suffix gap — **hit 2026-09-07 (#1163):** does not-only advice suffix guard; missed unquoted `enable encryption doesntnot need` phrasing; fixed with suffix guard (`IsObviousGenericAdvice_does_not_flag_doesntnot_unquoted_need_suffix_phrasing`).
+
+2026-09-07 seed hunt #1163 (hit): reseeded after #1162 closure; proved twelve hunt-ready rows — DustAccessKey/DutchAccessKey/DutyAccessKey redaction parity and advice doesntnot configure/mandate/apply/enforce/maintain/ensure/provision/require/need suffix negation.
+
+- [x] (proven) `GraphSnapshotKnowledgeModelMerger.Merge` — ordinal `modelNodeIds` / edge keys allowed duplicate nodes and edges when context ids differed only by case from κ-projected model graph — **hit 2026-09-08 seed hunt #1290:** `modelNodeIds` and edge dedup used `StringComparer.Ordinal` while `GraphValidator` and inferrers treat node ids case-insensitively; context node `SHARED` merged alongside model node `shared`; fixed with `OrdinalIgnoreCase`; regression `Merge_deduplicates_context_nodes_when_node_id_differs_only_by_case_from_model_graph`
+- [ ] (candidate) `GraphSnapshotPagination.CreatePage` — ordinal page node id set may omit edges when `FromNodeId`/`ToNodeId` casing differs from paged node `NodeId` (same parity family as #713 truncation filter)
+
+2026-09-08 seed hunt #1290 (hit): reseeded after git-churn reopen; promoted and proved κ→Γ merge node-id casing parity gap; 5937 scoped ArchLucid.Core + merger tests passed.
+
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StripeAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_stripe_access_key_config_path`, `IsSensitiveKey_detects_stripe_access_key_property_names_matching_config_redactor`).
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StrongAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_strong_access_key_config_path`, `IsSensitiveKey_detects_strong_access_key_property_names_matching_config_redactor`).
 - [x] (proven) `ConfigurationSensitiveConfigPathMatcher` / `AzureExtractorSensitivePropertyRedactor` — `StrikeAccessKey` not redacted — **hit 2026-09-06 (#1020):** same compound access-key class; fixed with explicit credential detection (`Resolve_redacts_strike_access_key_config_path`, `IsSensitiveKey_detects_strike_access_key_property_names_matching_config_redactor`).
@@ -5486,6 +7298,377 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ---
 
+## Zone: core-azure-extractor
+
+- **id:** core-azure-extractor
+- **split-from:** archlucid-core
+- **status:** open
+- **impact:** high
+- **aliases:** azure extractor; manifest schema; split from archlucid-core
+- **paths:** ArchLucid.Core/AzureExtractor/
+- **test-filter:** FullyQualifiedName~AzureExtractor
+- **hunts:** 3
+- **bugs-found:** 5
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — companion inventory JSON arrays silently dropped on non-array root while resources.json fails closed
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+- [x] (proven) `AzureExtractorPackageInventoryReader.ReadProperties` serialized nested object values via `GetRawText()` without evaluating inner sensitive keys — **hit 2026-09-07 (#1166):** App Service-style `siteConfig.connectionString` persisted plaintext; fixed via `RedactStructuredJson` recursive walk (`TryReadFromZip_redacts_nested_sensitive_keys_in_object_property_values`)
+- [x] (proven) `AzureExtractorSensitivePropertyRedactor` omitted `apiKey` and `*Token` suffix keys present in config redactor — **hit 2026-09-07 (#1200):** `apiKey` missed `apikey` fragment; `sasToken` missed suffix-token credential class; fixed via `apikey` fragment + `IsSuffixTokenCredentialKey`; regressions `IsSensitiveKey_detects_api_key_property_names_matching_config_redactor`, `TryReadFromZip_redacts_api_key_property_values`, `TryReadFromZip_redacts_sas_token_property_values`
+- [x] (proven) `AzureExtractorPackageZipValidator` accepted schema v2 ZIP with non-array `resources.json` while inventory reader silently returned zero rows — **hit 2026-09-07 (#1200):** validator only checked entry presence; `PackageInventoryReader` swallowed non-array root; fixed via `TryReadResourcesSchemaError` and inventory reader failure; regression `Validate_rejects_non_array_resources_json`
+- [x] (proven) `ReadStringDictionary` for resource tags never redacted sensitive tag values — **hit 2026-09-07 (#1200):** tag map copied string values verbatim while property reader redacted sensitive keys; fixed by applying `IsSensitiveKey` to tag keys; regression `TryReadFromZip_redacts_secret_like_tag_keys`
+- [x] (proven) `ReadOptionalArray` for schema v2 companion files (`roleAssignments.json`, etc.) silently returned empty on non-array root while `resources.json` fails closed — **hit 2026-09-08 hunt #1300:** validator only shape-checked `resources.json`; inventory reader swallowed malformed companion arrays; fixed by fail-closed array-root checks in `ReadOptionalArray` and validator loop over `OptionalInventoryEntryNames`; regressions `TryReadFromZip_fails_on_non_array_role_assignments_json`, `Validate_rejects_non_array_role_assignments_json`
+
+2026-09-08 thorough hunt #1300 (hit): promoted companion-array candidate; proved silent empty companion inventory on non-array root; aligned validator and inventory reader with resources.json fail-closed parity.
+
+2026-09-07 seed hunt #1166 (hit): proved nested object property values bypassed sensitive-key redaction.
+
+2026-09-07 thorough hunt #1200 (hit): promoted three candidates to hunt-ready; proved apiKey/token property redaction gap, validator/inventory non-array resources.json skew, and tag key redaction gap.
+
+---
+## Zone: core-configuration-summary
+
+- **id:** core-configuration-summary
+- **split-from:** archlucid-core
+- **status:** open
+- **impact:** high
+- **aliases:** configuration summary; config paths; split from archlucid-core
+- **paths:** ArchLucid.Core/Configuration/
+- **test-filter:** FullyQualifiedName~Configuration
+- **hunts:** 8
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — compound ConnectionString config paths leaked through config summary redaction
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+- [x] (proven) `ConfigurationEffectiveValueResolver` returned raw values for catalog-documented HMAC key material — **hit 2026-09-07 (#1167):** `PseudonymizationSalt` segment did not match sensitive path fragments; fixed via `IsKeyMaterialCredentialSegment` for `Salt`/`Pepper` suffixes (`Resolve_redacts_internal_cross_tenant_analytics_pseudonymization_salt`)
+- [x] (invalid) `LlmPromptRedaction:ReplacementToken` over-redacted by embedded `Token` fragment match — **disproved 2026-09-07 (#1201):** `ConfigurationSensitiveConfigPathMatcher` treats embedded `Token` in `ReplacementToken` as non-sensitive; catalog default `[REDACTED]` is the configured value, not summary redaction; regression `Resolve_preserves_llm_prompt_redaction_replacement_token`
+- [x] (proven) `QuickScanSafetyOperationalStateProvider` fail-closed scope narrower than validator production-like scope — **hit 2026-09-07 (#1201):** provider only checked ASP.NET `Production`/`Staging` while `QuickScanSafetyOptionsValidator` also treats `SaaS` and `ARCHLUCID_ENVIRONMENT=Production|Staging` as production-like; store failures left anonymous Quick Scan enabled on those hosts; fixed via shared `QuickScanSafetyProductionLikeHostClassification` and provider `IConfiguration` wiring; regressions `GetSnapshotAsync_store_failure_in_saas_environment_fails_closed`, `GetSnapshotAsync_store_failure_when_archlucid_environment_is_production_fails_closed`
+- [x] (proven) `EmailOtpAuthOptionsValidator.IsProductionLike` omits `SaaS` and `ARCHLUCID_ENVIRONMENT` unlike Quick Scan validator — **hit 2026-09-07 (#1214):** validator only checked ASP.NET `Production`/`Staging` and bypassed all checks on `IsDevelopment()` even when `ARCHLUCID_ENVIRONMENT=Production`; hosted SaaS or archlucid-prod dev hosts could start with Email OTP enabled and short/missing `HashPepper`; fixed by reusing `QuickScanSafetyProductionLikeHostClassification` with `IConfiguration`; regressions `Validate_saas_environment_requires_hash_pepper_when_enabled`, `Validate_archlucid_environment_production_requires_hash_pepper_when_enabled`
+- [x] (proven) Compound Stripe webhook signing secrets bypass embedded-`Secret` fragment matching — **hit 2026-09-07 (#1223):** catalog paths `Billing:Stripe:*SigningSecret` and `CheckoutSecretKey` leaked raw values because `IsEmbeddedSensitiveFragment` skipped mid-segment `Secret`; fixed with `IsCompoundSecretCredentialSegment` suffix rules; regression in `Resolve_redacts_compound_stripe_secret_config_paths`
+- [x] (valid-no-repro) `Auth:EmailOtp:HashPepper` and `Auth:EmailOtp:BotChallenge:SecretKey` catalog-adjacent paths — already redacted via `Pepper` suffix and standalone `SecretKey` segment matching
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound OAuth/PAT token paths bypass embedded-`Token` fragment matching — **hit 2026-09-07 (#1227):** catalog paths such as `AzureDevOps:PersonalAccessToken` and `OAuthRefreshToken` leaked raw values because mid-segment `Token` is treated as embedded; fixed with `IsCompoundTokenCredentialSegment` suffix rules for `AccessToken`, `RefreshToken`, `IdToken`, and `BearerToken`; regression in `Resolve_redacts_compound_token_credential_config_paths` and `Resolve_preserves_access_token_lifetime_minutes_path`
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound password paths bypass embedded-`Password` fragment matching — **hit 2026-09-08 (#1292):** documented path `Email:SmtpPassword` leaked raw SMTP credentials because mid-segment `Password` is treated as embedded; fixed with `IsCompoundPasswordCredentialSegment` suffix rule; regression `Resolve_redacts_compound_password_credential_config_paths`
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound ApiKey credential segments bypass embedded-`ApiKey` fragment matching — **hit 2026-09-08 (#1313):** production path `AzureDevOps:ArchLucidApiKey` leaked raw API key because mid-segment `ApiKey` is treated as embedded; fixed with `IsCompoundApiKeyCredentialSegment` suffix rule; regression `Resolve_redacts_compound_api_key_credential_config_paths`
+- [x] (proven) `ConfigurationEffectiveValueResolver` / `ConfigurationSensitiveConfigPathMatcher` — compound ConnectionString credential segments bypass embedded-`ConnectionString` fragment matching — **hit 2026-09-08 (#1314):** catalog paths such as `HotPathCache:RedisConnectionString` and `IntegrationEvents:ServiceBusConnectionString` leaked raw connection strings because mid-segment `ConnectionString` is treated as embedded; fixed with `IsCompoundConnectionStringCredentialSegment` suffix rule; regression `Resolve_redacts_compound_connection_string_config_paths`
+
+2026-09-08 seed hunt #1314 (hit): reseeded after compound ApiKey fix; proved compound ConnectionString segment redaction gap on catalog Redis/ServiceBus/AppInsights paths.
+2026-09-08 thorough hunt #1313 (hit): proved compound ApiKey credential segment redaction gap on `AzureDevOps:ArchLucidApiKey`.
+2026-09-08 seed hunt #1292 (hit): reseeded after master merge; proved `Email:SmtpPassword` leaked through config summary redaction; seeded compound ApiKey candidate.
+2026-09-07 seed hunt #1227 (hit): reseeded config summary redaction paths; proved compound OAuth/PAT token segments leaked through embedded-Token skip.
+2026-09-07 seed hunt #1223 (hit): proved compound Stripe signing secrets leaked through config summary redaction; cheap-disproof on Email OTP HashPepper/BotChallenge paths.
+
+---
+## Zone: core-findings-advice
+
+- **id:** core-findings-advice
+- **split-from:** archlucid-core
+- **status:** open
+- **impact:** medium
+- **aliases:** findings advice; generic architecture advice; split from archlucid-core
+- **paths:** ArchLucid.Core/Findings/
+- **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
+- **hunts:** 4
+- **bugs-found:** 7
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — present-tense conflict falsifiability missed; underscore-delimited resource tokens under-penalized duplication
+- **related-pd-tb:** none
+- **code-changed-since:** no
+
+Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Findings/` hunts.
+
+### Hypotheses
+
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — plural `violates constraints` missed falsifiability and architecture-anchor routing — **hit 2026-09-07 hunt #1184 (seed→hit):** regex required singular `constraint`; insight-density gate skipped falsifiability bonus and under-specified/conflict anchor path for common plural phrasing; fixed with `violates? constraints?`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `violates the constraint(s)` with determiner between verb and noun missed falsifiability — **hit 2026-09-07 hunt #1276:** regex required adjacent `violates constraint`; LLM conflict titles with `the`/`a`/`an` skipped `HasFalsifiabilitySignal` and falsifiability bonus; fixed with optional determiner group `(?:the |a |an )?`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — hyphenated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-09-07 hunt #1276:** `prod-sql-db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `-`; regression in `Jaccard_similarity_treats_hyphenated_resource_tokens_as_space_separated_peers`
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — past-tense `violated the constraint` missed falsifiability — **hit 2026-09-08 hunt #1288:** regex used `violates?` only; LLM retrospective conflict titles with `violated the constraint` skipped `HasFalsifiabilitySignal`; fixed with `violate[ds]?`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — slash-separated ARM path segments stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-09-08 hunt #1288:** `/subscriptions/.../prod-db` vs space-separated peer Jaccard 0.167 missed 0.85 high-duplication threshold; fixed by splitting on `/`; regression in `Jaccard_similarity_treats_slash_separated_arm_path_tokens_as_space_separated_peers`
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — present-tense `violating the constraint` missed falsifiability — **hit 2026-09-09 seed hunt #1398 (seed→hit):** regex used `violate[ds]?` only; LLM progressive conflict titles with `is violating the constraint` skipped `HasFalsifiabilitySignal`; fixed with `violat(?:e[ds]?|ing)`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — underscore-separated resource tokens stayed single tokens so space-separated near-duplicates under-penalized duplication — **hit 2026-09-09 seed hunt #1398 (seed→hit):** `prod_sql_db` vs `prod sql db` Jaccard 0.625 missed 0.85 high-duplication threshold; fixed by splitting on `_`; regression in `Jaccard_similarity_treats_underscore_separated_resource_tokens_as_space_separated_peers`
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — backslash-separated Windows path segments may under-penalize duplication parity with `/` and `_` fixes — seeded 2026-09-09 seed hunt #1398; not cheap-disproof'd this run
+
+2026-09-09 seed hunt #1398 (seed→hit): reseeded after #1288; proved present-tense conflict falsifiability and underscore-token duplication parity; seeded backslash path delimiter candidate; 1704 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
+
+2026-09-08 thorough hunt #1288 (hit): proved past-tense conflict falsifiability and slash-separated ARM path duplication parity; 1675 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
+
+---
+## Zone: core-requests-constraints
+
+- **id:** core-requests-constraints
+- **split-from:** archlucid-core
+- **status:** open
+- **impact:** medium
+- **aliases:** request constraints; split from archlucid-core
+- **paths:** ArchLucid.Core/Requests/
+- **test-filter:** FullyQualifiedName~RequestConstraint
+- **hunts:** 8
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — pipe/plus-delimited product names false-positive phrase and token constraints
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Requests/` hunts.
+
+### Hypotheses
+
+- [x] (proven) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — keyword-leading modal negation gap — **hit 2026-09-07 hunt #1185 (seed→hit):** prefix negation via `IsAdviceStyleNegation` only inspects text before the matched phrase; constraints like `encryption should not require customer-managed keys` and `encryption must not be required for legacy blobs` false-positive because trailing `should not` / `must not be required` sat outside the hard-coded suffix list; fixed by delegating trailing text to `EnglishNegationTokenizer.ContainsNegation`; removed dead `ContainsMidSentenceNegation`; regressions in `HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_should_not_require_phrasing`, `HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_must_not_be_required_phrasing`
+- [x] (proven) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — trailing-clause negation on unrelated requirement heads over-suppressed leading affirmative constraint mentions — **hit 2026-09-07 hunt #1277:** suffix negation scanned full trailing text so `encryption for tenants that do not require isolation` and `encryption that does not require customer-managed keys` missed `HasEncryptionConstraint`; fixed by scoping suffix negation to immediate text before subordinate introducers and treating object-style `that does not require` relative clauses separately from antecedent negation; regressions in `HasEncryptionConstraint_returns_true_when_trailing_clause_negates_unrelated_requirement`, `HasEncryptionConstraint_returns_true_when_encryption_leads_subordinate_clause_without_customer_keys`, `HasEncryptionConstraint_does_not_false_positive_on_encryption_that_is_not_required_phrasing`
+- [x] (valid-no-repro) `RequestConstraintTokenMatcher.IsNegatedPhrasePrefix` — mid-sentence `, not ` comma negation may still false-positive on trailing affirmative constraint tokens — **thorough hunt #1278:** comma-contrast and leading-exclusion inputs preserve affirmative encryption detection; regressions in `HasEncryptionConstraint_returns_true_when_comma_contrast_negates_later_scope_only`, `HasEncryptionConstraint_returns_true_when_leading_exclusion_clause_precedes_affirmative_encryption`
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsStandaloneWordToken` — capability tokens embedded inside longer product names may false-positive `RequiresAiCapability` — **hit 2026-09-07 hunt #1278:** hyphen/underscore compound segments like `email-ai-gateway` treated `ai` as standalone because connectors are non-letters; fixed via `IsEmbeddedInCompoundIdentifier` requiring alphanumeric segments on both sides of the token; regression in `RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_ai_token`
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — hyphenated compound product names false-positive phrase constraints (`openai`, `encryption`) — **hit 2026-09-07 seed hunt #1288:** `#1278` guarded standalone tokens only; `ContainsAffirmativePhrase` still matched `email-openai-gateway` and `field-encryption-module`; fixed by reusing `IsEmbeddedInCompoundIdentifier` on phrase hits; regressions in `RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_openai_token`, `HasEncryptionConstraint_does_not_false_positive_on_hyphenated_product_name_embedding_encryption_token`
+- [x] (proven) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — PascalCase/camelCase embedded tokens without hyphen connectors (e.g. `FieldEncryptionModule`) may still false-positive phrase constraints — **hit 2026-09-08 hunt #1297:** `#1288` guarded hyphen/underscore compounds only; `FieldEncryptionModule` and `EmailOpenAiGateway` still matched `encryption`/`openai`; fixed by treating alphanumeric boundaries on both sides as compound-identifier embedding; regressions in `RequestConstraintCompoundIdentifierCamelCaseTests`
+
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — dot/slash-delimited product names (e.g. `field.encryption.module`, `email.openai.gateway`) may false-positive phrase and standalone token constraints — **hit 2026-09-08 seed hunt #1335:** `#1297` guarded hyphen/underscore and PascalCase compounds only; `.` and `/` delimiters were not treated as compound boundaries; fixed by extending delimiter detection to `.` and `/`; regressions in `RequestConstraintCompoundIdentifierDotNotationTests`
+
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — colon/backslash-delimited product names (e.g. `field:encryption:module`, `field\encryption\module`) may false-positive phrase and standalone token constraints — **hit 2026-09-08 seed hunt #1370:** `#1335` guarded `.` and `/` only; `:` and `\` delimiters were not treated as compound boundaries; fixed by extending `IsCompoundIdentifierDelimiter` to `:` and `\`; regressions in `RequestConstraintCompoundIdentifierColonBackslashTests`
+
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — pipe/plus-delimited product names (e.g. `field|encryption|module`, `field+encryption+module`) may false-positive phrase and standalone token constraints — **hit 2026-09-08 seed hunt #1372:** `#1370` guarded `:`, `\`, `.`, and `/` only; `|` and `+` delimiters were not treated as compound boundaries; fixed by extending `IsCompoundIdentifierDelimiter` to `|` and `+`; regressions in `RequestConstraintCompoundIdentifierPipePlusTests`
+
+2026-09-08 seed hunt #1372 (hit): reseeded core-requests-constraints; proved pipe/plus compound-identifier false positives for encryption/openai/search/sql tokens; 841 scoped RequestConstraint tests passed.
+2026-09-08 seed hunt #1370 (hit): reseeded core-requests-constraints; proved colon/backslash compound-identifier false positives for encryption/openai/search/sql tokens; 836 scoped RequestConstraint tests passed.
+2026-09-08 seed hunt #1335 (hit): reseeded core-requests-constraints; proved dot/slash compound-identifier false positives for encryption/openai/search/sql tokens; 831 scoped RequestConstraint tests passed.
+2026-09-08 thorough hunt #1297 (hit): proved PascalCase/camelCase compound-identifier phrase false positives; 827 scoped RequestConstraint tests passed.
+2026-09-07 seed hunt #1288 (hit): reseeded core-requests-constraints; proved phrase-level compound-identifier false positives for `openai` and `encryption`; seeded camelCase embedding candidate; 824 scoped RequestConstraint tests passed.
+
+2026-09-07 thorough hunt #1277 (hit): proved trailing-clause negation over-suppressed leading constraint mentions; 818 scoped RequestConstraint tests passed.
+
+2026-09-07 thorough hunt #1278 (hit): proved hyphenated compound product names false-positive `RequiresAiCapability`; cheap-disproof closed comma-negation prefix row; 821 scoped RequestConstraint tests passed.
+
+---
+## Zone: core-authority-runs
+
+- **id:** core-authority-runs
+- **split-from:** archlucid-core
+- **status:** open
+- **impact:** high
+- **aliases:** authority runs; run lifecycle; split from archlucid-core
+- **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
+- **test-filter:** FullyQualifiedName~RunAuthority
+- **hunts:** 6
+- **bugs-found:** 3
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+- [x] (proven) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` treated any non-empty `ContextSnapshotId` / `GoldenManifestId` as `InProgress` before checking terminal `LegacyRunStatus` — **hit 2026-09-07 (#1168):** `Failed`, `FailedPartial`, and `ExecutionCompletedQualityRejected` rows with progress markers surfaced as in-progress; fixed via `TryResolveTerminalFailurePhase` before progress-marker checks (`ResolveFromRunHeader_failed_with_context_snapshot_returns_failed_not_in_progress`, `ResolveFromRunHeader_failed_without_progress_markers_returns_failed_not_not_started`, `ResolveFromRunHeader_quality_rejected_with_context_snapshot_returns_failed_not_in_progress`)
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection` rejected `schemaVersion` > 1 and missed pipeline dead-letter classification on forward-compatible `LastFailureReason` JSON — **hit 2026-09-07 (#1202):** `TryReadSupportedSchemaVersion` required exact v1; v2+ payloads with `failureClass: PipelineDeadLetter` returned not dead-lettered; fixed via minimum schema version gate (`IsDeadLettered_returns_true_for_forward_compatible_schema_version_2_pipeline_dead_letter`, `ResolveFromRunHeader_dead_lettered_with_forward_compatible_schema_version_returns_failed`)
+- [x] (valid-no-repro) `ArchitectureRunStatusTransitionTable` agent-results derivation asymmetry — **disproved 2026-09-07 (#1202):** export/replay/compare surfaces use `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` (same as list); detail-only `AuthorityRunLifecyclePhaseResolver` is Application-layer stage-outcome logic outside zone paths; no divergence reproduced on export surfaces within `ArchLucid.Core/Runs/`
+- [x] (invalid) `IsCommittedWithGoldenManifest` bypasses `TryParseStatus` coercions — **disproved 2026-09-07 (#1203):** numeric-string `LegacyRunStatus` ordinals are blocked by SQL `CK_Runs_LegacyRunStatus` enum-name allowlist; no persisted reachability
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver` treats non-empty `GoldenManifestId` as InProgress when `RunRepositoryCore.IsCommittedRun` would be true — **disproved 2026-09-07 (#1203):** list Complete requires `Committed`+manifest by design; finalize writes both atomically (`ResolveFromRunHeader_golden_manifest_without_committed_status_returns_in_progress_not_complete`)
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection` rejects UTF-8 BOM-prefixed `LastFailureReason` JSON — **disproved 2026-09-07 (#1203):** `AgentExecutionFailureSummaryJson.Serialize` and pipeline dead-letter marker emit BOM-free JSON; no reachable writer (`IsDeadLettered_returns_false_for_utf8_bom_prefixed_json_without_leading_brace`)
+- [x] (valid-no-repro) `FailedPartial` / numeric-ordinal terminal statuses masked as InProgress when progress markers precede terminal resolution — **disproved 2026-09-07 (#1203):** #1168 ordering already resolves terminal failures before progress markers (`ResolveFromRunHeader_failed_partial_with_context_snapshot_returns_failed_not_in_progress`, `TryParseStatus_parses_numeric_ordinal_for_failed_partial`)
+- [x] (proven) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` with active `LegacyRunStatus` (`WaitingForResults`, `TasksGenerated`, `ReadyForCommit`, `Retrying`) but no progress markers returned `NotStarted` — **hit 2026-09-07 seed hunt #1271:** list/export/replay surfaces diverged from operation projector Running/Pending semantics; fixed via `TryResolveInProgressLegacyStatus` (`ResolveFromRunHeader_waiting_for_results_without_progress_markers_returns_in_progress_not_not_started`)
+- [x] (proven) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` with `PartiallyCompleted` legacy status but no progress markers returned `NotStarted` instead of `Failed` — **hit 2026-09-07 seed hunt #1271:** TB-937 partial-run terminal treated as not-started on authority list; fixed by extending `TryResolveTerminalFailurePhase` (`ResolveFromRunHeader_partially_completed_without_progress_markers_returns_failed_not_not_started`)
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` ignores JSON array payloads (`[...]`) even when elements carry `failureClass: PipelineDeadLetter` — **disproved 2026-09-07 (#1272):** `AgentExecutionFailureSummaryJson.Serialize` and pipeline dead-letter writers persist object-shaped summaries only; no array-root writer in repo (`IsDeadLettered_returns_false_for_json_array_root_even_when_element_has_pipeline_dead_letter`)
+- [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` coerces whitespace-only `LegacyRunStatus` to `Created` while `ResolveFromRunHeader` returns `NotStarted` — **disproved 2026-09-07 (#1272):** SQL `CK_Runs_LegacyRunStatus` enum-name allowlist blocks whitespace-only persisted values; list/export uses `ResolveFromRunHeader` only (`TryParseStatus_coerces_whitespace_only_legacy_status_to_created`, `ResolveFromRunHeader_whitespace_only_legacy_status_returns_not_started_for_in_memory_rows_only`)
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON object with array-valued `failureClass` token (`{"failureClass":["PipelineDeadLetter"]}`) returns not dead-lettered because `TryReadNonEmptyTextToken` rejects non-string tokens — **disproved 2026-09-08 (#1304):** `AgentExecutionFailureSummaryJson.Serialize`, `AuthorityPipelineDeadLetterRunMarker.BuildFailureReasonJson`, and pipeline writers emit string `failureClass` only; conservative reader behavior (`IsDeadLettered_returns_false_for_array_valued_failure_class_token`, `Serialize_emits_string_failure_class_not_array`)
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Retrying` legacy status with non-empty `ContextSnapshotId` returns `InProgress` from active-status branch before progress-marker checks — **disproved 2026-09-08 (#1304):** `FailedRunRetryAdmission` retains stale snapshots by design; both legacy-status and progress-marker branches yield `InProgress`, matching `RunOperationProjector` Running; detail uses stage-based `AuthorityRunLifecyclePhaseResolver` outside zone paths (#1202); no list/export wrong outcome (`ResolveFromRunHeader_retrying_with_stale_context_snapshot_returns_in_progress`)
+
+2026-09-08 thorough hunt #1304 (dry): cheap-disproof closed both reseeded candidates from #1272; 25 scoped unit tests passed; no new hunt-ready rows.
+
+2026-09-07 thorough hunt #1272 (dry): cheap-disproof closed both open candidates from #1271; 29 scoped unit tests passed; reseeded array-valued failureClass and Retrying+snapshot lifecycle candidates.
+
+2026-09-07 seed hunt #1271 (hit): reseeded zone; proved active/partial legacy statuses without progress markers misclassified on list/export lifecycle phase; seeded array-root dead-letter and blank-status divergence candidates.
+
+2026-09-07 seed hunt #1168 (hit): proved terminal failure runs masked as in-progress on authority list/summary lifecycle phase resolution.
+
+2026-09-07 thorough hunt #1202 (hit): proved forward-compatible dead-letter schema rejection; disproved export/list lifecycle asymmetry within zone paths.
+
+2026-09-07 seed hunt #1203 (seed-only): reseeded four post-#1202 lifecycle/dead-letter candidates; cheap-disproved numeric Committed Complete miss (SQL `CK_Runs_LegacyRunStatus` enum names only), GoldenManifestId-vs-`IsCommittedRun` divergence (intentional Committed+manifest Complete gate; finalize writes atomically), BOM dead-letter miss (no writer emits BOM; conservative `(invalid)`), and FailedPartial progress-marker masking (`ResolveFromRunHeader_failed_partial_with_context_snapshot_returns_failed_not_in_progress`, numeric ordinal `10` parity).
+
+---
+## Zone: core-tenancy-commercial
+
+- **id:** core-tenancy-commercial
+- **split-from:** archlucid-core
+- **status:** open
+- **impact:** high
+- **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
+- **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
+- **test-filter:** FullyQualifiedName~CommercialTenant
+- **hunts:** 10
+- **bugs-found:** 6
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — Enterprise one-seat subscription mapped to Architect LLM spend plan; exclude/excluding/except marketplace negation gaps
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — leading `enterprise-non-*` plan id false-positive Enterprise tier — **hit 2026-09-07 (#1169):** #880 guarded `non` only as previous token (`contoso-non-enterprise-*`); `enterprise-non-standard` still matched standalone leading `enterprise`; fixed by skipping enterprise when next delimiter token is `non` (`TierStorageCodeFromPlanId_does_not_false_positive_on_enterprise_non_prefix_plan`)
+- [x] (invalid) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — canceled subscription rows still label from purchased caps only — **disproved 2026-09-07 (#1204):** intentional since #523 (`ResolveCommercialTierLabel_uses_purchased_caps_when_subscription_is_not_active`); canceled rows retain purchased caps for tier disambiguation instead of usage inference that previously under-labeled Professional tenants
+- [x] (valid-no-repro) `AuthEmailDomainNormalizer.TryNormalize` — multi-`@` input truncates via `LastIndexOf('@')` — **disproved 2026-09-07 (#1204):** standard email-to-domain extraction for admin paste (`user@host.contoso.com` → `host.contoso.com`); multi-`@` suffix behavior documented (`TryNormalize_uses_suffix_after_last_at_for_multi_at_malformed_input`); no reachable DNS hijack without malformed operator input
+- [x] (valid-no-repro) `MarketplaceQuantityReader.TryReadQuantity` — string boolean/`on` quantity synonyms fall back while JSON boolean `true` coerces to one seat — **disproved 2026-09-07 (#1204):** intentional asymmetry locked by `ReadQuantity_uses_fallback_for_string_encoded_boolean_quantity` and `ReadQuantity_uses_fallback_for_on_synonym_quantity`; JSON boolean true path covered by `ReadQuantity_reads_boolean_quantity_instead_of_fallback`
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `not-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 (#1315):** #1169 guarded `non` only; `not-enterprise-standard` still matched delimiter-bounded `enterprise`; fixed by skipping enterprise when adjacent token is `not`; regression `TierStorageCodeFromPlanId_does_not_false_positive_on_not_enterprise_delimited_plan`
+- [x] (valid-no-repro) `CommercialPackagingTierResolver.ResolveCommercialTierLabel` — Professional 10-seat base bundle vs Team 10-seat cap collision — **cheap-disproof 2026-09-08 (#1319):** PRICING §3 intentionally overlaps Team max (10 seats + 1 workspace) with Professional base bundle; `BillingSubscriptionSnapshot.TierCode` stores tenant tier (`Standard`) not checkout SKU; seat-cap inference cannot disambiguate without breaking Team add-on max or persisting checkout plan metadata; regression documents boundary `ResolveCommercialTierLabel_returns_team_at_ten_seat_one_workspace_subscription_boundary`
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `anti-enterprise-*` / `without-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 hunt #1319:** #1315 guarded `non`/`not` only; `contoso-anti-enterprise-standard` and `without-enterprise-plan` still matched delimiter-bounded `enterprise`; fixed with shared `IsEnterpriseNegationToken`; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_anti_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_without_enterprise_delimited_plan`
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `no-enterprise-*` / `never-enterprise-*` / `sans-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 seed hunt #1320:** #1319 guarded `non`/`not`/`anti`/`without` only; `contoso-no-enterprise-standard`, `never-enterprise-plan`, and `sans-enterprise-plan` still matched delimiter-bounded `enterprise`; extended `IsEnterpriseNegationToken` with `no`, `never`, and `sans`; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_no_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_never_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_sans_enterprise_delimited_plan`
+- [x] (valid-no-repro) `AuthEmailDomainNormalizer.TryNormalize` — IPv4 literal domains (`127.0.0.1`, `8.8.8.8`) pass `IsValidDomain` and can be proposed into tenant sign-in domain registry despite lacking public DNS ownership semantics — **cheap-disproof 2026-09-08 (#1321):** `AuthSignInRoutingEvaluator` requires `VerificationStatus.Verified` and `IsEnforcementActive` before SSO enforcement; unverified proposed rows (including IPv4 literal shape) do not affect live sign-in routing (`EvaluateAsync_allows_email_code_for_unverified_ipv4_literal_domain_registry_row`, existing `EvaluateAsync_blocks_unverified_domain_enforcement`); DNS TXT verification gate prevents verified enforcement without zone control; normalizer acceptance documented (`TryNormalize_accepts_ipv4_literal_domain_shape`)
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` / `IsEnterpriseNegationToken` — `exclude-*` / `excluding-*` / `excluded-*` and extended negation adverbs (`minus`, `un`, `de`, `ex`, `pseudo`, `semi`, `sub`, `micro`, `less`, `lacking`, `omit`, `outside`, `except`, `pre`, `below`, `neither`, `bare`, `negate`, and related delimited plans) false-positive Enterprise tier — **hit 2026-09-09 seed hunts #1380/#1382/#1384/#1385:** #1320 guarded `non`/`not`/`no`/`never`/`anti`/`without`/`sans` only; negation-adverb prefixes still matched delimiter-bounded `enterprise`; fixed with `exclud`/`except` stem guards plus extended negation adverb tokens; regressions in `TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_extended_enterprise_negation_adverbs`, and `TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs`
+- [x] (valid-no-repro) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — `above-enterprise-*` delimited plan id treated as Enterprise tier — **cheap-disproof 2026-09-09 seed hunt #1384:** `above-enterprise` reads as an enterprise-tier variant label, not a negation adverb; no change
+- [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Enterprise commercial tier with 1-seat subscription false-maps to Architect LLM spend plan — **hit 2026-09-09 seed hunts #1379/#1381/#1383/#1385/#1390:** architect shortcut ran before Enterprise label guard; Enterprise tenants with minimal seat rows inherited Team SKU budget caps; fixed by returning null for Enterprise before Architect shortcut; regression `FromCommercialPackaging_returns_null_for_enterprise_one_seat_subscription`
+- [ ] (candidate) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `devoid-enterprise-*` / `bare-enterprise-*` / `free-enterprise-*` plan id may still false-positive Enterprise tier after minus/less/lacking sweep — **seeded 2026-09-09 seed hunts #1386/#1390**
+- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Professional commercial label paired with 1-seat subscription may inherit Architect shortcut before Professional branch when callers pass mismatched resolver inputs — **seeded 2026-09-09 seed hunts #1386/#1390**
+
+2026-09-09 seed hunt #1385 (hit): reseeded Identity/Billing/Budgeting after dry #1321; proved Enterprise LLM plan shortcut bleed and exclude/excluding/except marketplace negation gaps; seeded minus/less negation and Professional-label shortcut pairing candidates; 44 scoped CommercialTenant-related unit tests passed.
+
+2026-09-09 seed hunt #1386 (hit): reseeded Identity/Billing/Budgeting after dry #1321; reproved Enterprise LLM plan shortcut bleed via `TenantAiBudgetPolicyResolver` and marketplace negation-token gaps already fixed on trunk; seeded devoid/bare/free negation and Professional-label shortcut pairing candidates; 47 scoped CommercialTenant-related unit tests passed.
+
+2026-09-09 seed hunt #1382 (hit): reseeded Identity/Billing/Budgeting; reproved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate; 52 scoped MarketplaceWebhookPayloadParser/CommercialTenant tests passed.
+
+2026-09-09 seed hunt #1381 (hit): reseeded Identity/Billing/Budgeting; proved Enterprise one-seat Architect spend-plan mapping; 9 scoped LlmMonthlySpendPlanId/CommercialTenant tests passed.
+
+2026-09-09 seed hunt #1380 (hit): reseeded Identity/Billing/Budgeting after #1321 dry; proved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate.
+
+2026-09-09 seed hunt #1383 (hit): reseeded Identity/Billing/Budgeting; reproved Enterprise one-seat Architect spend-plan mapping; 9 scoped LlmMonthlySpendPlanId/CommercialTenant tests passed.
+
+2026-09-09 seed hunt #1384 (hit): reseeded Identity/Billing/Budgeting; proved extended negation-adverb enterprise tier false-positive sweep; cheap-disproved `above-enterprise` negation candidate; 58 scoped MarketplaceWebhookPayloadParser/CommercialTenant tests passed.
+
+2026-09-09 seed hunt #1390 (hit): reseeded Identity/Billing/Budgeting after dry #1321; reproved Enterprise LLM plan shortcut bleed and marketplace negation-token gaps; seeded devoid/bare/free negation and Professional-label shortcut pairing candidates; 47 scoped CommercialTenant-related unit tests passed.
+
+2026-09-09 seed hunt #1379 (hit): reseeded Identity/Billing/Budgeting; proved Enterprise one-seat subscription LLM spend-plan false Architect mapping; seeded extended enterprise negation token candidates.
+
+2026-09-08 thorough hunt #1321 (dry): cheap-disproved IPv4 literal domain candidate; added routing + normalizer regression tests; no open hypotheses remain — reseed on next seed hunt.
+
+2026-09-08 seed hunt #1320 (hit): reseeded Identity/Billing/Budgeting after negation-token sweep; proved `no`/`never`/`sans` enterprise negation gaps; seeded IPv4 domain literal candidate.
+
+2026-09-08 thorough hunt #1319 (hit): cheap-disproved Team/Professional 10-seat collision as intentional packaging boundary; proved `anti`/`without` enterprise negation gaps symmetric to #1315; scoped CommercialTenant unit tests passed.
+
+2026-09-08 seed hunt #1315 (hit): reseeded Identity/Billing/Budgeting; proved `not-enterprise-*` marketplace planId tier false-positive; seeded Team/Professional 10-seat collision candidate.
+2026-09-07 seed hunt #1169 (hit): reseeded Identity/Billing/Budgeting Core; proved `enterprise-non-*` marketplace planId tier false-positive beyond #880 non-enterprise guard; restored JSON boolean quantity coercion regression blocking scoped tests.
+
+2026-09-07 thorough hunt #1204 (dry): cheap-disproved all three open candidates; added pending-subscription purchased-cap regression (`ResolveCommercialTierLabel_uses_purchased_caps_for_pending_subscription_not_usage_inference`).
+
+---
+## Zone: core-safety-network
+
+- **id:** core-safety-network
+- **split-from:** archlucid-core
+- **status:** open
+- **impact:** high
+- **aliases:** private network guard; SSRF; split from archlucid-core
+- **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
+- **test-filter:** FullyQualifiedName~PrivateNetwork
+- **hunts:** 2
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — alert-routing webhook destinations skipped post-DNS private-network guard
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `archlucid-core` (ABQ-08).
+
+### Hypotheses
+
+- [x] (proven) `AlertRoutingWebhookDestinationPolicy` — sync-only literal guard omits `OutboundHttpsUrlDnsResolutionGuard` on subscription create — **hit 2026-09-07 (#1215):** `DigestSubscriptionFacade.Create` and `AlertRoutingSubscriptionsController.Create` accepted public hostnames without DNS re-validation; hostname rebinding could reach private networks at delivery; fixed with `TryGetRejectionReasonAfterDnsResolveAsync` parity to webhook probe policy (`TryGetRejectionReasonAfterDnsResolveAsync_WhenHostnameDoesNotResolve_RewritesUrlPrefixToWebhookUrl`)
+- [x] (valid-no-repro) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — non-dotted IPv4 encodings (octal/hex) may bypass literal guard when `IPAddress.TryParse` rejects host token — **2026-09-07 (#1216):** .NET `IPAddress.TryParse` accepts octal/hex/shorthand private forms (`0177.0.0.1`, `0x7f000001`, `127.1`, `192.168.001.001`); octal `010.*` correctly maps to public `8.0.0.1` and stays allowed (`PrivateNetworkAddressGuardEncodingTests`)
+- [x] (invalid) `IContentSafetyGuard` — Safety zone has interface-only surface; outbound URL SSRF guards live under `ArchLucid.Core/Security/` — **2026-09-07 (#1216):** not a defect row; document URL / webhook / export / alert-routing policies already expose `TryGetRejectionReasonAfterDnsResolveAsync` and orchestrators wire post-DNS checks (see `ArchitectureRunCreateOrchestrator`, `FluentArchitectureRequestImportValidator`)
+
+2026-09-07 seed hunt #1215 (hit): reseeded private-network/SSRF guard paths; proved alert-routing webhook destination policy lacked post-DNS resolution guard on create paths.
+2026-09-07 thorough hunt #1216 (dry): cheap-disproved octal/hex IPv4 bypass and Safety-interface DNS-parity meta hypothesis; added encoding regression tests.
+
+---
+## Zone: core-costing
+
+- **id:** core-costing
+- **split-from:** archlucid-core
+- **status:** open
+- **impact:** medium
+- **aliases:** costing; retail prices; split from archlucid-core
+- **paths:** ArchLucid.Core/Costing/
+- **test-filter:** FullyQualifiedName~Costing
+- **hunts:** 3
+- **bugs-found:** 4
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — standalone `Hour` / `hours` Azure retail UOM rejected while quantity-prefixed forms matched
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Costing/` hunts.
+
+### Hypotheses
+
+- [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — `nextPageToken` pagination ignored — **hit 2026-09-07 hunt #1186 (seed→hit):** single-page SKU list fetch returned null when the matching machine type lived on a later catalog page; live GCP probe fell back to illustrative pricing; fixed with `pageToken` loop until match or exhaustion; regression in `TryGetComputeEngineMonthlyUsdAsync_follows_next_page_token`
+- [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — region-blind first machine-type match may price europe-west1 nodes with us-central1 SKUs — **hit 2026-09-07 hunt #1260:** catalog probe ignored `InfrastructureCostQueryNode.ArmRegion` and returned the first matching machine-type SKU; fixed with `DescriptionMatchesRegion` filtering, full-page scan when region is required, and region-aware cache keys; regression `TryGetCatalogMonthlyUsdAsync_prefers_matching_region_over_first_catalog_sku`; wired through `GcpCloudBillingCatalogStructuredLookup`.
+- [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — preemptible SKU returned before on-demand when array order lists preemptible first — **hit 2026-09-07 hunt #1260:** on-demand sizing used the first hourly SKU including preemptible descriptions; fixed by rejecting preemptible descriptions in `GcpSkuPricingParser`; regression `TryGetComputeEngineMonthlyUsdAsync_skips_preemptible_sku_when_on_demand_is_later`.
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — standalone `Hour` / `hours` UOM may be rejected while quantity-prefixed forms pass — **hit 2026-09-09 hunt #1415:** bare `"Hour"` / `"hours"` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `"1 Hour"` and `"10 Hours"` already matched via bounded tokens; fixed with standalone `hour` / `hours` synonyms; regressions `TryMonthlyUsdFromRow_accepts_standalone_hour_unit_of_measure_synonyms` and `LooksLikeConsumptionUsd_accepts_standalone_hour_unit_of_measure_synonyms`.
+- [x] (valid-no-repro) `ManifestInfrastructureCostNodes.FromTerraformResourceRows` — null `SkuOrTier` blocks live AWS/GCP probe for terraform-sourced nodes — **2026-09-09 hunt #1415:** `TerraformInfrastructureCostResourceRow` carries only display name, terraform type, and region (no instance-type/sku source); mapper correctly leaves `SkuOrTier` null; live-probe guards are intentional until row schema carries SKU; regression documents contract in `FromTerraformResourceRows_maps_available_row_fields_only`.
+
+2026-09-09 thorough hunt #1415 (hit): proved standalone Azure retail `Hour`/`hours` UOM gap; cheap-disproved terraform null-SKU probe candidate as missing input schema rather than mapper defect; 119 scoped Costing unit tests passed.
+
+2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
+
+2026-09-07 thorough hunt #1260 (hit): proved region-blind and preemptible-first GCP catalog SKU selection; 114 scoped Costing unit tests passed.
+
+---
+## Zone: core-explanation-json
+
+- **id:** core-explanation-json
+- **split-from:** archlucid-core
+- **status:** open
+- **impact:** medium
+- **aliases:** run explanation; explanation json; split from archlucid-core
+- **paths:** ArchLucid.Core/Explanation/
+- **test-filter:** FullyQualifiedName~RunExplanation
+- **hunts:** 5
+- **bugs-found:** 6
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — object-shaped reasoning text dropped on structured normalize
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Explanation/` hunts.
+
+### Hypotheses
+
+- [x] (proven) `RunExplanationAggregateJsonReader.TryReadWholeNumber` — string count tokens throw on aggregate parse path — **hit 2026-09-07 hunt #1187 (seed→hit):** `TryGetInt32` on `JsonValueKind.String` threw before sibling readers coerced string whole numbers; `FromAggregateJson` crashed on string-encoded `decisionCount`/`unresolvedIssueCount`/`complianceGapCount`; fixed with `ValueKind` guards and `TryParseWholeNumberString`; regression in `FromAggregateJson_maps_string_encoded_decision_count_without_throwing`
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — omitted `citations` property skipped zero-citation WARN gate — **hit 2026-09-07 hunt #1187 (seed→hit):** missing key left `CitationCount` null so `ResolveDisposition` returned PASS while `FromSummary` with empty citations returned WARN; fixed by treating omitted property as empty array; regression in `FromAggregateJson_treats_omitted_citations_as_empty_for_disposition`
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — object-shaped `citations` ignored — **hit 2026-09-07 hunt #1187 (seed→hit):** single-object citation payloads fell through shape handling with null count; fixed by mapping object token to one citation; regression in `FromAggregateJson_maps_object_citation_as_single_citation_count`
+- [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — string-encoded numeric `confidence` / `schemaVersion` may bypass structured normalize path — **hit 2026-09-07 hunt #1261:** `JsonSerializer.Deserialize` to strongly typed DTO threw on string numerics, so `TryNormalizeStructuredJson` returned false and `Parse` wrapped the raw JSON as plain-text reasoning; fixed with `JsonDocument` field reads plus `RunExplanationAggregateJsonReader.TryReadFiniteDouble` and `StrictSchemaVersionReader`; regressions `TryNormalizeStructuredJson_coerces_string_encoded_confidence`, `TryNormalizeStructuredJson_coerces_string_encoded_schema_version`, `Parse_does_not_treat_json_with_string_encoded_confidence_as_plain_text`.
+- [x] (proven) `StructuredExplanationParser.TryReadStringList` — scalar string `evidenceRefs` / `alternativesConsidered` / `caveats` dropped when LLM emits a string instead of `string[]` — **hit 2026-09-07 seed hunt #1275:** `ValueKind != Array` returned null (or `?? []` for evidenceRefs), losing required alternatives and provenance refs on otherwise valid structured payloads; fixed by mapping a non-empty string token to a one-element list; regressions `TryNormalizeStructuredJson_maps_scalar_alternatives_considered_as_single_entry`, `TryNormalizeStructuredJson_maps_scalar_evidence_ref_as_single_entry`, `TryNormalizeStructuredJson_maps_scalar_caveats_as_single_entry`.
+- [x] (proven) `StructuredExplanationParser.TryReadStringList` — object-shaped entries in `evidenceRefs` arrays silently skipped (LLM `{ "id": "dec-1" }` objects dropped while sibling citation counter maps object tokens) — **hit 2026-09-07 hunt #1289:** array loop accepted only `JsonValueKind.String` while aggregate citation disposition already maps object tokens; fixed with shared `TryReadStringListEntry` extracting object `id`; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_entries`.
+- [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — non-string `reasoning` token rejects normalize so `DeterministicExplanationService.BuildRunExplanationFromLlmPayload` takes JSON-object fallback and drops structured list fields — **hit 2026-09-07 hunt #1289:** string-array reasoning failed `ValueKind.String` guard; fixed by coercing non-empty string arrays via `TryReadReasoningText`; regression `TryNormalizeStructuredJson_coerces_string_array_reasoning`.
+- [x] (proven) `StructuredExplanationParser.TryReadReasoningText` — object-shaped `reasoning` (`{"text":"..."}`) still rejects normalize and triggers JSON-object fallback in `BuildRunExplanationFromLlmPayload` — **hit 2026-09-08 hunt #1317:** object token failed `ValueKind.String`/`Array` guards; fixed by extracting case-insensitive `text` property mirroring `TryReadStringListEntry` object `id` extraction; regression `TryNormalizeStructuredJson_coerces_object_shaped_reasoning_text`.
+
+2026-09-08 thorough hunt #1317 (hit): proved object-shaped reasoning text coercion gap; scoped RunExplanation unit tests passed.
+
+2026-09-07 seed hunt #1187 (hit): seeded zone from split catalog; proved aggregate JSON count coercion throw and citation disposition parity gaps.
+
+2026-09-07 thorough hunt #1261 (hit): proved string-encoded `confidence`/`schemaVersion` bypassed structured normalize; 44 scoped RunExplanation unit tests passed.
+
+2026-09-07 seed hunt #1275 (hit): promoted scalar-string list coercion; 48 scoped RunExplanation unit tests passed.
+
+2026-09-07 thorough hunt #1289 (hit): proved object-shaped list refs and string-array reasoning coercion gaps; 32 scoped RunExplanation unit tests passed.
+
+---
 ## Zone: archlucid-contracts
 
 - **id:** archlucid-contracts
@@ -5872,13 +8055,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 13
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-09-04 — `KnowledgeGraphService` truncation dropped edges when endpoint `NodeId` casing differed from kept nodes
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — duplicate ContainedInManifest edges when manifest lists case-variant DecisionIds
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -5892,11 +8075,33 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Topology sensitivity misclassified when property keys use PascalCase on a case-sensitive bag — **hit 2026-08-23:** `TopologySensitivityClassifier` used case-sensitive `TryGetValue` for `topologySensitivity`, `category`, `publicNetworkAccess`, and `resourceType` instead of `GraphNodePropertyReader`
 - [x] (proven) Graph→finding provenance edge omitted when `RelatedNodeIds` casing differs from graph `NodeId` — **hit 2026-09-02:** `ProvenanceBuilder` used ordinal `graphNodeIds` and `nodeMap` keys, so `InfluencedByGraphNode` was skipped when findings referenced the same node with different casing; fixed with `StringComparer.OrdinalIgnoreCase` (`Build_links_graph_influence_when_related_node_id_differs_only_by_case`)
 - [x] (proven) `KnowledgeGraphService.BuildSnapshotAsync` truncation dropped valid edges when endpoint casing differed from kept node ids — **hit 2026-09-04 (#713):** `kept` used `StringComparer.Ordinal` while `GraphValidator` and inferrers treat node ids case-insensitively; edges with `FromNodeId`/`ToNodeId` casing variants were removed during `MaxNodes` truncation; fixed with `OrdinalIgnoreCase` on `kept`; regression `BuildSnapshotAsync_TruncationRetainsEdgesWhenEndpointCasingDiffersFromKeptNodeId`
-- [x] (valid-no-repro) `ContributingDecisionIds.Distinct(StringComparer.Ordinal)` vs manifest decision id casing — `nodeMap` is `OrdinalIgnoreCase` so `ContributedToArtifact` edges still resolve; casing-only duplicates may emit duplicate edges (low severity parity gap with `AppliedRuleIds` dedup)
+- [x] (proven) `ProvenanceBuilder` — duplicate `ContributedToArtifact` edges when `ContributingDecisionIds` casing variants reference the same decision — **hit 2026-09-08 seed hunt #1353:** `Distinct(StringComparer.Ordinal)` kept `dec-1` and `DEC-1` while `nodeMap` resolves both; fixed with `OrdinalIgnoreCase` dedup matching `AppliedRuleIds`; regression `Build_deduplicates_contributing_decision_ids_when_casing_differs_only`
+- [x] (proven) κ→Γ projector dropped RELATES edges when `RelatedElementIds` casing differed from canonical `ElementId` — **hit 2026-09-07 (#1180):** `ArchitectureKnowledgeModelGraphProjector` indexed node ids with `StringComparer.Ordinal` while `GraphValidator` and inferrers treat ids case-insensitively; `RelatedElementIds` with casing variants failed `nodeIds.Contains` and omitted edges; fixed with `OrdinalIgnoreCase` canonical id map; regression `Project_retains_relates_edge_when_related_element_id_differs_only_by_case`
+- [x] (valid-no-repro) `ArchitectureKnowledgeModelGraphDeltaExtractor` uses ordinal node-id sets — **2026-09-08 hunt #1289:** `ExtractGraphDelta` node sets use `StringComparer.Ordinal` while graph build treats ids case-insensitively; would emit spurious Added/Removed pairs on casing-only snapshot diffs; no production caller (`ExtractGraphDelta` unused repo-wide)
+- [x] (proven) `ExplicitParentChildContainmentEdgeInferenceRule` — `parentNodeId` property value casing emitted on `FromNodeId` instead of canonical parent `NodeId` — **hit 2026-09-08 hunt #1289:** `NodeById` lookup is `OrdinalIgnoreCase` but `CreateEdge` used raw property value; `PARENT-1` vs canonical `parent-1` broke ordinal edge→node joins; fixed by resolving `context.NodeById[parentId].NodeId`; regression `InferEdges_explicit_parent_child_rule_uses_canonical_parent_node_id_when_property_value_differs_only_by_case`
+- [x] (proven) `TopologyRelationshipEdgeInferenceRule` — `dependsOnNodeIds` / `connectedToNodeIds` target property values emitted non-canonical `ToNodeId` casing — **hit 2026-09-08 thorough hunt #1346:** `topologyById` lookup is `OrdinalIgnoreCase` but `CreateEdge` used raw property value; `DS-1` vs canonical `ds-1` broke ordinal edge→node joins; fixed by resolving `topologyById[targetId].NodeId` for depends-on/exposes/connects paths; regressions `InferEdges_topology_relationship_rule_uses_canonical_target_node_id_when_depends_on_property_differs_only_by_case` and `..._connected_to_property_differs_only_by_case`
+- [x] (proven) `DeclarationIdentityEdgeMaterializer` — `declarationSourceNodeId` property value emitted non-canonical `ToNodeId` casing — **hit 2026-09-08 seed hunt #1351:** materializer used raw `sourceNodeId.Trim()` without resolving against graph nodes; `OBJ-ingress-1` vs canonical `obj-ingress-1` broke ordinal edge→node joins in diagram/pagination paths; fixed by resolving `nodeById[sourceId].NodeId` with `OrdinalIgnoreCase` lookup; regression `MaterializeFromDeclarationActors_uses_canonical_source_node_id_when_declaration_source_property_differs_only_by_case`
+- [x] (proven) `ProvenanceBuilder` — duplicate `InfluencedByGraphNode` edges when `RelatedNodeIds` casing variants reference the same graph node — **hit 2026-09-08 seed hunt #1353:** loop emitted one edge per list entry without case-insensitive dedup though `graphNodeIds`/`nodeMap` resolve the same node; fixed with `RelatedNodeIds.Distinct(StringComparer.OrdinalIgnoreCase)`; regression `Build_deduplicates_related_node_ids_when_casing_differs_only`
+- [x] (proven) `ProvenanceBuilder` — duplicate `SupportedBy` edges when `SupportingFindingIds` casing variants reference the same finding — **hit 2026-09-08 seed hunt #1356:** `nodeMap` is case-insensitive but the decision→finding loop iterated every list entry; fixed with `SupportingFindingIds.Distinct(StringComparer.OrdinalIgnoreCase)` matching `ContributingDecisionIds`/`RelatedNodeIds`; regression `Build_deduplicates_supporting_finding_ids_when_casing_differs_only`
+- [x] (proven) `GraphSnapshotPagination.CreatePage` — paged graph slices dropped edges when endpoint casing differed from page node ids — **hit 2026-09-08 seed hunt #1356:** page node-id set used `StringComparer.Ordinal` while `GraphValidator` accepts case-insensitive endpoint matches (parity gap vs `KnowledgeGraphService` truncation fix #713); fixed with `OrdinalIgnoreCase` on page filter set; regression `CreatePage_retains_edges_when_endpoint_casing_differs_from_node_id`
+- [x] (invalid) `ArchitectureKnowledgeModelGraphProjector.Project` — second structural element silently dropped when `ElementId` differs only by case — **cheap-disproof 2026-09-09 thorough hunt #1426:** node materialization uses `canonicalNodeIdsByKey` with `StringComparer.OrdinalIgnoreCase`; case-variant `ElementId` values are duplicate ids under graph case-insensitive semantics, not a missing node parity gap; regression `Project_deduplicates_structural_elements_when_element_id_differs_only_by_case`
+- [x] (proven) `ProvenanceBuilder.Build` — duplicate `ContainedInManifest` edges when `manifest.Decisions` lists two entries whose `DecisionId` differs only by case (`nodeMap` collapses nodes; manifest edge loop iterated every list entry) — **hit 2026-09-09 thorough hunt #1426:** `DistinctDecisionKeys()` case-insensitive dedup on manifest decision edge loops; merged case-variant `SupportingFindingIds` in SupportedBy path; regression `Build_deduplicates_contained_in_manifest_when_manifest_lists_case_variant_decision_ids`
 
-2026-09-02 seed hunt #421 (hit): promoted graph→finding case-mismatch from `ProvenanceBuilder` vs `DefaultGraphEdgeInferer`/`GraphValidator` ordinal-ignore-case parity; proved with failing repro.
+2026-09-09 thorough hunt #1426 (hit): cheap-disproof closed κ→Γ projector duplicate-element candidate; proved manifest decision-id duplicate `ContainedInManifest`/`TriggeredByRule`/`SupportedBy` edges; 209 scoped KnowledgeGraph + 42 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
+
+2026-09-08 seed hunt #1356 (hit): reseeded knowledge-graph-provenance; proved `SupportingFindingIds` SupportedBy dedup gap and graph snapshot pagination edge filter casing parity; seeded projector element-id and manifest decision-id duplicate-edge candidates; 201 scoped KnowledgeGraph + 39 Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
 2026-09-04 seed hunt #713 (hit): proved truncation edge filter case mismatch; cheap-disproof on `ContributingDecisionIds` casing (duplicate edges only).
+
+2026-09-07 seed hunt #1180 (hit): promoted κ→Γ projector `RelatedElementIds` case mismatch from parity with `GraphValidator`/`KnowledgeGraphService`; proved with failing repro; seeded delta-extractor ordinal parity as `(candidate)` (no caller).
+
+2026-09-08 thorough hunt #1289 (hit): cheap-disproof on delta extractor (valid-no-repro, no caller); proved explicit parent-child `FromNodeId` casing parity; 27 scoped edge-inferer + 38 Provenance tests passed.
+
+2026-09-08 thorough hunt #1346 (hit): proved topology relationship `ToNodeId` casing parity for depends-on and connects-to; 199 scoped KnowledgeGraph/Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
+
+2026-09-08 seed hunt #1351 (hit): seeded declaration-identity actor→topology edge casing parity from `DeclarationIdentityEdgeMaterializer` vs inferrer canonical-id pattern; proved with failing repro; 200 scoped KnowledgeGraph/Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
+
+2026-09-08 seed hunt #1353 (hit): promoted `ContributingDecisionIds` ordinal dedup gap and seeded `RelatedNodeIds` duplicate-edge parity; fixed case-insensitive dedup on both paths; 240 scoped KnowledgeGraph/Provenance tests passed (2 pre-existing `GraphSnapshotCommittedReuseResolver` failures).
 
 ---
 
@@ -5984,11 +8189,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 8
-- **bugs-found:** 13
+- **hunts:** 11
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — Mermaid label escaping, DOCX table/bullet sanitization, unresolved-issue diagram parity
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — DOCX requirements coverage table bypassed free-text sanitizer and could crash export on control chars
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6014,7 +8219,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DocxExportService.Sections.AppendRunExplanation` / `AppendComparisonExplanation` — sponsor narrative bullet lists bypass `SanitizeArtifactText` — **hit 2026-09-05 (#890):** `KeyDrivers`/`RiskImplications`/etc. reached DOCX with control chars while prose blocks were sanitized; fixed with per-bullet sanitization (`ExportAsync_strips_control_chars_from_run_explanation_bullet_lists`).
 - [x] (proven) `MermaidDiagramArtifactGenerator.GenerateAsync` — omits `manifest.UnresolvedIssues` nodes present in sibling `DiagramAstGenerator` — **hit 2026-09-05 (#890):** `diagram-ast.json` included `issue-{i}` nodes but `architecture.mmd` was decision-only; fixed with issue nodes/flags edges (`GenerateAsync_includes_unresolved_issue_nodes_for_diagram_ast_parity`).
 
-2026-09-05 thorough hunt #890 (hit): proved Mermaid label bracket/newline escaping, DOCX posture-table and explanation-bullet sanitization gaps, and unresolved-issue Mermaid diagram parity.
+- [x] (proven) `DocxExportService.BuildDocumentAsync` — Decisions three-column table bypasses `SanitizeArtifactText` — **hit 2026-09-08 (#1328):** raw `Category`/`Title`/`SelectedOption` reached `AddThreeColumnTable`; fixed with per-cell `SanitizeArtifactText` (`ExportAsync_strips_control_chars_from_decisions_table_cells`).
+- [x] (proven) `DocxExportService.BuildDocumentAsync` — Unresolved Issues table bypasses `LlmArtifactFreeTextSanitizer` — **hit 2026-09-08 (#1328):** `AddIssuesTable` used newline-only `Sanitize()`; fixed with `SanitizeTableCellText` wrapping `LlmArtifactFreeTextSanitizer` (`ExportAsync_strips_control_chars_from_unresolved_issues_table_cells`).
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — omit `manifest.Cost.Notes` present in DOCX export and `cost-summary.json` — **hit 2026-09-07 (#1284):** Cost section emitted risks only; fixed with `- Note:` / `- Cost Note:` lines (`ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_cost_notes`, `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_committed_cost_notes`).
+- [x] (proven) `MermaidDiagramRenderer.EscapeLabel` — pipe `|` in edge labels breaks `-->|"label"|` Mermaid syntax — **hit 2026-09-08 (#1328):** bracket/newline escaping fixed in #890; pipe now `#124;` entity substitution (`MermaidDiagramRenderer_Render_escapes_pipes_in_edge_labels`).
+- [x] (proven) `MermaidDiagramArtifactExtractor.TryGetDiagramSource` — blind 48k-char truncation can corrupt mid-line Mermaid source embedded in DOCX fallback — **hit 2026-09-08 (#1328):** truncate at last newline before cap (`TryGetDiagramSource_truncates_at_line_boundary_before_max_chars`).
+- [x] (proven) `DocxExportService.AppendManifestComparison` — comparison summary/delta strings bypass `SanitizeArtifactText` — **hit 2026-09-08 (#1328):** highlights and delta lines sanitized per field (`ExportAsync_strips_control_chars_from_manifest_comparison_sections`).
+
+- [ ] (candidate) `FindingVerificationReportDocxRenderer.Render` — finding table cells bypass `LlmArtifactFreeTextSanitizer` — **seeded 2026-09-09 seed hunt #1412:** `AddFourColumnTable` uses newline-only `Sanitize()` on `Title`/`TraceText`/`Status`/`FindingId`; no DOCX renderer tests today
+- [ ] (candidate) `FindingVerificationReportDocxRenderer.Render` vs `FindingVerificationReportMarkdownRenderer.Render` — DOCX omits `Severity` column present in markdown export of the same model — **seeded 2026-09-09 seed hunt #1412**
+- [ ] (candidate) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — omit `RequirementCoverageItem.CoverageStatus` and `.IsMandatory` while DOCX coverage table and `inventory.json` expose them — **seeded 2026-09-09 seed hunt #1412**
+- [ ] (candidate) `MermaidDiagramRenderer.EscapeLabel` — control/bidi characters in node/edge labels bypass sanitizer (distinct from bracket/pipe/newline fixes in #890/#1328) — **seeded 2026-09-09 seed hunt #1412**
+- [x] (proven) `DocxExportService.BuildDocumentAsync` — Requirements coverage three-column table bypasses `SanitizeArtifactText` — **hit 2026-09-09 seed hunt #1412:** raw `RequirementName`/`CoverageStatus` reached `AddThreeColumnTable`; ASCII control chars could throw on OpenXML save; fixed with per-cell `SanitizeArtifactText`; regression `ExportAsync_strips_control_chars_from_requirements_coverage_table_cells`
+
+2026-09-08 thorough hunt #1328 (hit): proved five seed candidates — DOCX decisions/issues/comparison sanitization, Mermaid pipe escaping, and line-boundary diagram truncation.
+
+2026-09-09 seed hunt #1412 (hit): reseeded four follow-on candidates (finding verification DOCX sanitization/severity parity, markdown requirement metadata parity, Mermaid control-char escaping); proved requirements coverage table sanitization gap; 189 ArtifactSynthesis + 14 DocxExportService scoped tests passed.
+
+2026-09-07 seed hunt #1284 (hit): reseeded artifact-synthesis; proved Cost.Notes markdown parity gap vs DOCX/cost-summary; seeded DOCX decisions/issues sanitization, Mermaid pipe escaping, diagram truncation, and manifest-comparison sanitization candidates.
 
 2026-09-05 seed hunt #831 (seed-only): reseeded post-#732 DOCX/Mermaid parity gaps; four new candidates on Mermaid syntax sanitization, posture table sanitization, explanation bullet sanitization, and unresolved-issue diagram parity.
 
@@ -6032,11 +8254,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 10
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-08-26 — Combined durable omitted BackgroundJobQueueProcessorHostedService
+- **hunts:** 16
+- **bugs-found:** 13
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-08 — `AuditEventChangeFeedHostedService` registered on Api role when Cosmos audit enabled
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6068,6 +8290,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `trial-lifecycle` container offload drops `TrialLifecycleArchLucidJob` — same dual registration pattern; `ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Worker_offloads_trial_lifecycle_still_registers_job_not_scheduler_hosted_service` (2026-09-04).
 - [x] (valid-no-repro) `exec-digest-weekly` / `weekly-architecture-digest` container offload drops matching `IArchLucidJob` — jobs always registered; hosted services gated by offload (`ContainerJobsOffloadRegistrationTests` exec-digest and weekly-architecture-digest parity, 2026-09-04).
 - [x] (invalid) `ApiRequestUsageEventBatchFlushHostedService` registered on Worker without metering middleware — Worker flush is a harmless no-op on an empty buffer; Api role registers flush where middleware enqueues (`ContainerJobsOffloadRegistrationTests.AddArchLucidApplicationServices_Api_role_registers_ApiRequestUsageEventBatchFlushHostedService`, 2026-09-04).
+- [x] (proven) `OperationalErrorRetentionHostedService` registered on Worker+Combined without leader election — **hit 2026-09-07 hunt #1256 (seed→hit):** every replica ran retention purge every six hours; fixed with `HostLeaderElectionCoordinator` + `hosted:operational-error-retention-purge`; regressions in `OperationalErrorRetentionHostedService_purges_rows_under_leader_coordinator` and `OperationalErrorRetentionHostedService_constructor_requires_leader_election_coordinator`
+- [x] (valid-no-repro) `sponsor-digest-weekly` / `weekly-sponsor-report` / `compliance-drift-escalation` / `trial-email-scan` container offload drops matching `IArchLucidJob` — jobs always registered; hosted services gated by offload (`ContainerJobsOffloadRegistrationTests` parity tests added hunt #1256, 2026-09-07)
+- [x] (proven) `ScimTokenRotationReminderJob` runs on every Worker/Combined replica without leader election — **hit 2026-09-08 hunt #1302:** Application-layer job inserted duplicate `dbo.AdminNotifications` rows per replica; moved scan to `ScimTokenRotationReminderHostedService` with `HostLeaderElectionCoordinator` + `hosted:scim-token-rotation-reminder`; regressions in `ScimTokenRotationReminderHostedService_constructor_requires_leader_election_coordinator`, `AddArchLucidApplicationServices_Api_role_does_not_register_ScimTokenRotationReminderHostedService`, `ScimTokenRotationReminderIteration_queries_due_tokens`
+- [x] (proven) `AuditEventChangeFeedHostedService` registered on Api role when Cosmos audit enabled — **hit 2026-09-08 hunt #1366 (seed→hit):** `RegisterCosmosPolyglotPersistence` lacked `hostingRole` gate; split Api+Worker deployments started change feed processors on Api replicas; fixed with Worker+Combined gate; regression in `AddArchLucidApplicationServices_Api_role_with_cosmos_audit_does_not_register_AuditEventChangeFeedHostedService`
+- [x] (invalid) `RegisterDataConsistencyReconciliation` registers budget reconciliation on Api — **cheap-disproved hunt #1367:** reconciliation hosted services are Worker+Combined gated in `DataHealthJobsCompositionModule.Reconciliation.cs`; `QuickScanBudgetReconciliationHostedService` registers via storage registrar with `HostLeaderElectionCoordinator`; regression in `AddArchLucidApplicationServices_Api_role_does_not_register_DataConsistencyReconciliationHostedService` and `AddArchLucidApplicationServices_Api_role_registers_QuickScanBudgetReconciliationHostedService`
+- [x] (valid-no-repro) Orphan-probe / required-audit-trail hosted services register on Api — **cheap-disproved hunt #1367:** `SqlOperationalSingletonsRegistrar` registers without hostingRole gate but both executors use `HostLeaderElectionCoordinator`; container-offload parity preserved via `IArchLucidJob`; regression in `AddArchLucidApplicationServices_Api_role_registers_leader_elected_orphan_probe_hosted_services`
+- [x] (invalid) `RetrievalCompositionModule.Register` / `RegisterIndexing` — module lacks `ArchLucidHostingRole` parameter while sibling composition modules gate Worker+Combined hosted services — **cheap-disproof 2026-09-09 hunt #1430:** continuous retrieval pumpers (`RetrievalIndexingOutboxHostedService`, `AuthorityPipelineWorkHostedService`) are Worker+Combined gated in `OutboxProcessorsCompositionRegistrar.RetrievalIndexing.cs`; Api-role startup indexers use `ILeaderElectionWorkRunner` one-shot leases; no reachable wrong outcome without adding an ungated hosted service; regression `AddArchLucidApplicationServices_Api_role_registers_leader_elected_retrieval_corpus_startup_indexers`
+- [x] (valid-no-repro) `RetrievalCompositionModule.RegisterIndexing` — policy/platform/exemplar corpus startup indexers register on Api while `RetrievalIndexingOutboxHostedService` is Worker+Combined-only — **cheap-disproof 2026-09-09 seed hunt #1395:** startup indexers use `ILeaderElectionWorkRunner` one-shot leases (`hosted:policy-pack-corpus-startup-indexer`, etc.) cluster-wide; continuous outbox pumpers stay Worker+Combined; regression `AddArchLucidApplicationServices_Api_role_registers_leader_elected_retrieval_corpus_startup_indexers`
+
+2026-09-09 thorough hunt #1430 (dry): cheap-disproved RetrievalCompositionModule hostingRole plumbing candidate; systematic registration scan found no new hunt-ready gaps after #1366 audit change-feed fix; 336/338 scoped host-composition tests passed (2 pre-existing unrelated failures: `StorageProviderRegistrationParityTests`, `ExecDigestWeeklyArchLucidJobTests`).
+
+2026-09-08 thorough hunt #1367 (dry): cheap-disproved both seeded Api-role candidates; systematic scan found no new hunt-ready registration gaps after #1366 audit change-feed fix.
+
+2026-09-08 seed hunt #1366 (hit): promoted Cosmos audit change-feed Api-role candidate; failing registration test; Worker+Combined hostingRole gate on `AuditEventChangeFeedHostedService`; seeded budget-reconciliation and orphan-probe Api-role follow-ups.
+
+2026-09-07 seed hunt #1256 (hit): reseeded after 65 commits; proved operational-error retention missing leader election; cheap-disproved four container-offload parity gaps; seeded SCIM rotation multi-replica candidate.
 
 2026-09-02 thorough hunt #427: cheap-disproved all three hosting-role-gate candidates; fixed `TrialLifecycleCompositionModule_registers_trial_lifecycle_services` to use Worker role for preseed assertion.
 
@@ -6083,11 +8321,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 11
-- **bugs-found:** 14
+- **hunts:** 12
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-26
-- **last-bug:** 2026-08-26 — ARM nextLink followed into different subscription
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — GCP Asset search pagination had no page cap
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6109,9 +8347,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AwsResourceExplorerInventoryCollector.CollectAsync` follows repeating `NextToken` indefinitely — **hit 2026-08-25:** pagination loop had no visited-token guard or page cap; regression in `CollectAsync_throws_when_next_token_repeats`
 - [x] (proven) `HostedGcpExtractorClient.CollectZipAsync` validates service-account email project but not WIF provider path project; mismatched pool provider `projects/other-project/...` passes validation while Asset search scopes `projects/my-project` — **hit 2026-08-25:** added `GcpWorkloadIdentityPoolProvider.EnsureProjectMatches` dual-path guard vs `GcpServiceAccountEmail` (`GcpWorkloadIdentityPoolProviderTests`, `HostedGcpExtractorClientTests.CollectZipAsync_rejects_workload_identity_pool_provider_project_mismatch`).
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` follows ARM `nextLink` without validating subscription id — **hit 2026-08-26:** malicious or mis-issued `nextLink` to `/subscriptions/{other}/resources` pulled cross-subscription inventory; fixed with `HostedAzureArmNextLinkValidator.EnsureTargetsSubscription`; regression in `ListSubscriptionResourcesAsync_throws_when_next_link_targets_different_subscription`.
-- [ ] (candidate) `AwsResourceExplorerQueryString.ResolveForRegion` China partition (`cn-*`) untested — GovCloud branch proven; `arn:aws-cn:*` path has no regression test.
-- [ ] (candidate) `GetOnlyHostedAzureArmReadClient` ARM HTTP failures throw via `EnsureSuccessStatusCode` without warning log — 401/403/429 responses give no structured operator signal before throw.
-- [ ] (candidate) GCP `HostedGcpExtractorClient.SearchResourcesAsync` uses Google SDK async enumerator without explicit page cap — parity gap vs AWS/Azure `MaxPaginationRequests` guards.
+- [x] (valid-no-repro) `AwsResourceExplorerQueryString.ResolveForRegion` China partition (`cn-*`) — **2026-09-08:** `ResolveForRegion_returns_china_partition_for_cn_region` confirms existing `arn:aws-cn:*` branch; GovCloud parity already proven.
+- [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient` ARM HTTP failures throw via `EnsureSuccessStatusCode` without warning log — **2026-09-08:** 401/403/429 surface as HTTP exceptions to orchestration; no cross-tenant or inventory-corruption wrong outcome in extractor layer.
+- [x] (proven) GCP `HostedGcpExtractorClient.SearchResourcesAsync` used Google SDK async enumerator without explicit page cap — **hit 2026-09-08:** large projects could paginate unbounded vs AWS/Azure `MaxPaginationRequests = 64`; extracted `GcpAssetInventoryCollector` with raw-page guard; regression in `CollectFromRawPagesAsync_throws_after_max_pages`.
 
 ---
 
@@ -6123,11 +8361,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 15
-- **bugs-found:** 24
+- **hunts:** 18
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — export history whitespace runId 404 parity
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — trace forensics list route returned 400 for whitespace runId while sibling trace reads return 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6162,6 +8400,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-05 thorough hunt #798: proved export history whitespace runId 404 parity.
 
+- [x] (proven) `RunQueryController.ListRunFindings` / `RunFindingsListStage` — whitespace `runId` returned HTTP 400 (`runId is required`) while sibling export/history reads return 404 via `AuthorityRunIdentifier.TryParse` — **hit 2026-09-07 hunt #1236 (seed→hit):** removed whitespace pre-check; invalid ids map to NotFound; regressions in `ListRunFindingsAsync_returns_not_found_for_whitespace_run_id_without_querying_repository` and `ListRunFindings_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`.
+- [x] (proven) `RunQueryController.GetFindingInspectForRun` / `RunFindingsInspectStage` — whitespace route `runId` returned HTTP 400 while lifecycle-guarded siblings return 404 — **hit 2026-09-07 hunt #1236 (seed→hit):** rely on `RunFindingsLifecycleGuard` + `AuthorityRunIdentifier.TryParse`; regressions in `GetFindingInspectForRunAsync_returns_not_found_for_whitespace_run_id_without_querying_repository` and `GetFindingInspectForRun_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory`.
+- [x] (invalid) `ListRunFindings` invalid cursor tuple returns BadRequest while invalid `runId` returns NotFound — intentional REST split: partial cursor `ArgumentException` maps to HTTP 400 via `ApiProblemDetailsExceptionFilter`; invalid/missing run id maps to 404; not a parity defect (2026-09-08 hunt).
+- [x] (proven) `AnalysisReportsController.AnalyzeRun` (and sibling analysis/export routes using `LoadRunDetailOrNotFoundAsync`) — whitespace `runId` returned HTTP 400 via `RunDetailQueryService` `ThrowIfNullOrWhiteSpace` while sibling `GetRun` returned 404 — **hit 2026-09-08:** rely on `AuthorityRunIdentifier.TryParse` in `RunDetailQueryService` detail/rollup loaders; regressions in `GetRunDetailAsync_returns_null_for_whitespace_run_id_without_querying_repository` and `AnalyzeRun_returns_not_found_for_whitespace_run_id_like_GetRun`.
+
+- [ ] (candidate) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — per-answer max length enforced but `QuestionId` / question text fields not bounded — **seeded 2026-09-09 seed hunt #1413:** compare with sibling `RephraseClarificationAnswers` guards
+- [ ] (candidate) `PromptVariantsAdminController` — create/update body strings may omit `IsValidUnicodeText` surrogate guard present on `CustomRolesAdminController` — **seeded 2026-09-09 seed hunt #1413**
+- [x] (proven) `InternalArchitectureTraceForensicsController.GetRunTraceForensics` — whitespace `runId` returned HTTP 400 (`runId must be a GUID`) while sibling `GetRunTraces` returned 404 via `AuthorityRunIdentifier.TryParse` — **hit 2026-09-09 seed hunt #1413:** map invalid route ids to NotFound before pagination; regression `GetRunTraceForensics_returns_not_found_for_whitespace_run_id_like_GetRunTraces`
+
+2026-09-08 thorough hunt: cheap-disproved cursor BadRequest vs NotFound candidate; proved analysis-report whitespace runId 404 parity via `RunDetailQueryService`.
+
+2026-09-09 seed hunt #1413 (hit): reseeded clarification question-id and prompt-variant Unicode guard candidates; proved trace-forensics whitespace runId 404 parity; `ArchLucid.Api` compile verified (Api.Tests project has pre-existing signature drift on bugsmash).
+
+2026-09-07 seed hunt #1236 (hit): reseeded authority/admin controller zone; proved findings list + inspect whitespace runId 404 parity gaps; seeded cursor-validation candidate.
+
 2026-09-04 thorough hunt #745: closed three stale invalid hypotheses from #744; proved async execute/replay ladder 400 parity and submit-result whitespace 404 gap; seeded export-history candidate.
 
 2026-09-04 seed hunt #744: proved execute/commit/replay whitespace 404 parity gap; cheap-disproved finding-feedback, provenance-node, and Confluence publish body candidates.
@@ -6179,16 +8432,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **id:** api-governance-tenancy-controllers
 - **status:** open
 - **impact:** high
-- **aliases:** governance controllers; tenancy controllers
-- **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
+- **aliases:** governance controllers; tenancy controllers; retired mega-zone
+- **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 265
-- **bugs-found:** 504
+- **hunts:** 267
+- **bugs-found:** 506
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — golden manifest contract version case-insensitive lookup
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — pre-finalize checklist disposition lookback and evidence-linkage disposition parity
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -7506,6 +9759,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-03 thorough hunt #656: cheap-disproved OpenAPI 404 swagger drift candidate; proved revoke MarkExpired sweep parity gap.
 
+- [x] (valid-no-repro) `ManifestsController.CompareManifests` / `CompareManifestVersionsAsync` — lifecycle-incomplete authority runs return HTTP 409 on version compare while manifest GET returns HTTP 200 — **cheap-disproof 2026-09-07 hunt #1257:** both paths enforce `AuthorityLifecycleCompareExportGuard` via `TryResolveManifestVersionScopeAsync` and `IsManifestRunInScopeAsync` respectively (wave 38 #1858 compare lifecycle 409; GET already guarded).
+- [x] (valid-no-repro) `GovernanceStickinessController.RecordBulkDisposition` — `FindingDispositionConflictException` mapped to HTTP 404 when bulk CAS lost (#1947 DR wave) — **cheap-disproof 2026-09-07 hunt #1257:** catch order places `FindingDispositionConflictException` before `InvalidOperationException`; regression `RecordBulkDisposition_returns_conflict_when_disposition_cas_lost` (child zone api-governance-stickiness hunt #1231).
+- [x] (valid-no-repro) `PolicyPacksController.SetAssignmentEnabled` / `Assign` / `SetAssignmentOrganizationRequired` — org-required authz and disable 409 parity gaps landed in child zone `api-policy-packs` hunts #1205–#1225 after mega-zone last hunt — **cheap-disproof 2026-09-07 hunt #1257:** cross-zone regression coverage in `PolicyPacksControllerSetAssignmentEnabledScopeTests` and assignment authz tests; no unreproduced controller gap in merged `bugsmash` tree.
+- [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — false `purgeAfterUtc` for soft-deletes missing `DeletedUtc` — **cheap-disproof 2026-09-07 hunt #1257:** fixed in child zone `api-tenancy-workspaces` hunt #1172; `TrySoftDeleteAsync` always sets `DeletedUtc` on new deletes per `PROJECT_SOFT_DELETE_SEALED_EVIDENCE_MAP.md`.
+- [x] (proven) `PreFinalizeChecklistService.LoadLatestDispositionsAsync` — 730-day `FindingDispositionTrailWindow.BasisBreakdownLookback` missed older remediated dispositions while risk register CTE has no time cutoff — **hit 2026-09-08 hunt #1291:** checklist blocked finalize on stale critical counts when register showed closed; fixed by loading disposition trail without OccurredAtUtc cutoff (parity with `ArchitectureRiskRegisterReader`); regression `BuildAsync_marks_critical_findings_clear_when_remediated_disposition_is_older_than_basis_lookback`
+- [x] (proven) `PreFinalizeChecklistService.BuildEvidenceLinkageItem` — evidence-linkage advisory ignored stickiness dispositions unlike severity counts — **hit 2026-09-08 hunt #1291:** remediated critical findings without graph anchors still emitted advisory linkage gaps; fixed by evaluating linkage only on disposition-active high-severity findings; regression `BuildAsync_clears_evidence_linkage_advisory_when_critical_finding_is_remediated`
+
+2026-09-08 thorough hunt #1291 (hit): proved both migrated pre-finalize checklist candidates; 14 scoped PreFinalizeChecklistService tests passed.
+
+2026-09-07 seed hunt #1257 (seed-only): reopened mega-zone after 397-commit churn; cheap-disproof closed post-churn fixes already landed in ABQ-08 child zones (bulk disposition 409, org-required assign authz, recycle-bin purge schedule, manifest compare lifecycle parity); scoped filter 136 passed / 17 failed (SQL integration — missing `ARCHLUCID_SQL_TEST` in cloud VM); seeded two pre-finalize checklist candidates migrated from api-governance-stickiness.
+
 ---
 
 2026-09-01 thorough hunt #413 (dry): twelve stale hunt-ready rows closed as valid-no-repro on master after combined PR #1046 (`TenantWorkspaceScopePreflight`, catalog tenant preflight, empty `projectId` validation, checklist `isCompleted` guard, `required short Score` JSON rejection); eight regression tests passed; cheap-disproved workspace list and resolution optional-projectId candidates.
@@ -7515,6 +9779,131 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-01 thorough hunt #415 (dry): twelve stale hunt-ready rows closed as valid-no-repro on master after combined PR #1046; eight regression tests passed; cheap-disproved workspace list and resolution optional-projectId candidates.
 
 2026-09-01 thorough hunt #416 (dry): twelve stale hunt-ready rows closed as valid-no-repro on master after combined PR #1046; eight regression tests passed; cheap-disproved workspace list and resolution optional-projectId candidates; ledger pushed to master to clear picker backlog.
+## Zone: api-policy-packs
+
+- **id:** api-policy-packs
+- **split-from:** api-governance-tenancy-controllers
+- **status:** open
+- **impact:** high
+- **aliases:** policy packs controller; split from api-governance-tenancy-controllers
+- **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
+- **test-filter:** FullyQualifiedName~PolicyPacksController
+- **hunts:** 8
+- **bugs-found:** 10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — org-required toggle on inactive platform pack bypassed inactive gate for enabled assignments and returned HTTP 404
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+### Hypotheses
+
+- [x] (proven) `PolicyPacksController.DemoteCatalogEntry` / `PolicyPackWorkflowFacade.TryDemoteCatalogEntryAsync` — catalog demote lacked promote symmetry scope binding — **hit 2026-09-07 (#1170):** promote requires source pack in caller `(tenant, workspace, project)` scope; demote accepted any catalog entry id under tenant admin auth and demoted globally; fixed by resolving `SourcePolicyPackId` and applying `IsPackVisibleInScope` before mutation (`TryDemoteCatalogEntryAsync_returns_false_when_source_pack_is_out_of_scope`, `DemoteCatalogEntry_returns_not_found_when_catalog_entry_source_pack_is_out_of_scope`)
+- [x] (proven) `PolicyPacksController.Assign` / `SetAssignmentOrganizationRequired` — project admin could create or toggle org-required assignment locks without tenant/workspace admin role — **hit 2026-09-07 (#1205):** `PolicyPackMutationAuthority` allows SCIM `ProjectAdmin`; org-required locks are organization-governance tier (`AssignPolicyPackRequest` documents workspace-admin disable/archive lockout); fixed by requiring `AdminAuthority` on `SetAssignmentOrganizationRequired` and rejecting `Assign` with `isOrganizationRequired` when `ICallerRoleAccessor.IsTenantAdministrator()` is false (`TryAssignAsync_returns_forbidden_when_organization_required_without_tenant_administrator`, `Assign_returns_forbidden_when_organization_required_without_tenant_administrator`, `HandleRequirementAsync_project_admin_succeeds_policy_pack_mutation_without_tenant_admin_jwt`)
+- [x] (valid-no-repro) `PolicyPacksController.PromoteCatalogEntry` — foreign-tenant `sourcePolicyPackId` controller scope test gap — **disproved 2026-09-07 (#1205):** `PolicyPackCatalogAdminService.TryPromoteFromSourcePackAsync` binds pack `(tenant, workspace, project)` to caller scope before promotion; added controller parity test `PromoteCatalogEntry_returns_not_found_when_source_pack_is_out_of_scope`
+- [x] (valid-no-repro) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for out-of-scope assignment archive — **disproved 2026-09-07 (#1205):** workflow guard `TryArchiveAssignmentWithOutcomeAsync` already returns not-found via `PolicyPackAssignmentScope.IsVisibleInScope`; added controller parity test `ArchiveAssignment_returns_not_found_when_assignment_is_out_of_scope`
+
+- [x] (proven) `PolicyPacksController.SetAssignmentEnabled` / `PolicyPackHttpFacade.SetAssignmentEnabledAsync` / `PolicyPackWorkflowFacade.TrySetAssignmentEnabledWithOutcomeAsync` — disabling an organization-required assignment returned HTTP 404 instead of 409 Conflict symmetric with `ArchiveAssignment` — **hit 2026-09-07 (#1206):** workflow now returns `OrganizationRequiredLock` and http facade maps to `PolicyPackHttpOutcome.Conflict`; controller surfaces 409 (`TrySetAssignmentEnabledWithOutcomeAsync_returns_organization_required_lock_when_disabling_org_required_assignment`, `SetAssignmentEnabled_returns_conflict_when_disabling_organization_required_assignment`)
+- [x] (proven) `PolicyPackAssignmentScope.IsVisibleInScope` / assignment mutation workflow — tenant- and workspace-scoped assignments returned HTTP 404 from project caller scope because visibility required exact workspace/project row match — **hit 2026-09-07 (#1217):** align assignment visibility with `PolicyPackResolver.AppliesToScope` so tenant/workspace assignments are mutable from descendant scope; regression in `PolicyPackAssignmentScopeTests`, `TryArchiveAssignmentWithOutcomeAsync_returns_archived_for_tenant_scoped_assignment_from_project_caller`
+- [x] (valid-no-repro) `PolicyPacksController.SetAssignmentOrganizationRequired` — missing controller parity test for out-of-scope assignment toggle — **cheap-disproof 2026-09-07 (#1217):** workflow `TrySetAssignmentOrganizationRequiredAsync` + `PolicyPackAssignmentScope` guard returns not-found; endpoint requires `AdminAuthority`
+- [x] (valid-no-repro) `PolicyPacksController.ListVersions` / `ExplainPack` — missing controller parity tests for out-of-scope pack reads — **cheap-disproof 2026-09-07 (#1217):** `TryListVersionsAsync` / `TryExplainPackMarkdownAsync` already gate on `IsPackVisibleInScope`
+- [x] (valid-no-repro) `PolicyPacksController.ArchiveAssignment` — missing controller parity test for organization-required archive conflict — **cheap-disproof 2026-09-07 (#1217):** http facade maps `OrganizationRequiredLock` to 409; added `ArchiveAssignment_returns_conflict_when_assignment_is_organization_required`
+- [x] (proven) `PolicyPacksController.SetAssignmentOrganizationRequired` / `PolicyPackWorkspaceSelectionService.TrySetAssignmentOrganizationRequiredAsync` — setting organization-required on a disabled assignment force-enabled without `IPlatformBundledPolicyPackAvailability.IsGloballyActiveAsync` gate symmetric with `TrySetAssignmentEnabledAsync` — **hit 2026-09-07 (#1225):** demoted/inactive platform pack could show enabled assignment in workspace selection while resolver skips it; fixed by rejecting org-required toggle when pack is not globally active and assignment is currently disabled (`TrySetAssignmentOrganizationRequired_returns_false_when_enabling_inactive_pack`)
+- [x] (proven) `PolicyPacksController.PromoteCatalogEntry` — facade `ValidationFailed` outcome fell through to HTTP 200 — **hit 2026-09-08 hunt #1311 (seed→hit):** `PolicyPackHttpFacade.PromoteCatalogEntryAsync` maps catalog snapshot limit violations to `ValidationFailed`; controller handled only cross-tenant and not-found outcomes; fixed by returning HTTP 400 problem detail; regression `PromoteCatalogEntry_returns_bad_request_when_snapshot_exceeds_catalog_limits`
+- [x] (invalid) `PolicyPacksController.SetAssignmentEnabled` — enabling assignment on inactive platform pack may return HTTP 404 instead of 409 — **duplicate of #1312:** already proven and fixed 2026-09-08; regressions `TrySetAssignmentEnabledWithOutcomeAsync_returns_platform_pack_inactive_when_enabling_inactive_pack`, `SetAssignmentEnabled_returns_conflict_when_enabling_assignment_on_inactive_platform_pack`
+- [x] (proven) `PolicyPacksController.SetAssignmentOrganizationRequired` — setting org-required on inactive platform pack returned HTTP 404 and enabled assignments bypassed inactive gate — **hit 2026-09-09 hunt #1433:** #1225 gate only blocked disabled rows; workflow/http now map inactive org-required toggle to HTTP 409 (`PlatformPackInactive`); workspace service rejects all org-required toggles on inactive packs; regressions `TrySetAssignmentOrganizationRequired_returns_false_when_setting_org_required_on_enabled_inactive_platform_pack`, `TrySetAssignmentOrganizationRequiredWithOutcomeAsync_returns_platform_pack_inactive_when_setting_org_required_on_inactive_pack`, `SetAssignmentOrganizationRequired_returns_conflict_when_setting_org_required_on_inactive_platform_pack`
+- [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — `isOrganizationRequired: true` on inactive platform pack bypassed `IsGloballyActiveAsync` gate symmetric with #1225 toggle path — **hit 2026-09-08 hunt #1312:** assign-create path force-enabled org-required rows on catalog-inactive platform packs; fixed by rejecting before `TryAssignAsync`; regression `TryAssignAsync_returns_pack_not_found_when_organization_required_on_inactive_platform_pack`
+- [x] (proven) `PolicyPacksController.Assign` / `PolicyPackWorkflowFacade.TryAssignAsync` — project admin could assign Tenant/Workspace-scoped rows without tenant-admin JWT — **hit 2026-09-08 hunt #1312:** only org-required was gated in #1205; fixed by requiring tenant administrator for non-Project `scopeLevel`; regressions `TryAssignAsync_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`, `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`
+- [x] (proven) `PolicyPacksController.SetAssignmentEnabled` — enabling assignment on inactive platform pack returned HTTP 404 instead of 409 symmetric with org-required disable (#1206) — **hit 2026-09-08 hunt #1312:** workflow mapped inactive enable to `NotFound`; fixed with `PlatformPackInactive` → HTTP 409; regressions `TrySetAssignmentEnabledWithOutcomeAsync_returns_platform_pack_inactive_when_enabling_inactive_pack`, `SetAssignmentEnabled_returns_conflict_when_enabling_assignment_on_inactive_platform_pack`
+
+2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
+
+2026-09-08 thorough hunt #1312 (hit): proved all three seeded assign/enable parity candidates from #1311 seed hunt.
+
+2026-09-08 seed hunt #1311 (hit): reseeded PolicyPacksController partials after git churn; proved PromoteCatalogEntry ValidationFailed→200 mapping gap; seeded assign/inactive-pack and enable-status parity candidates.
+2026-09-07 thorough hunt #1217 (hit): proved tenant/workspace assignment mutations hidden as 404 from project scope; added org-required archive controller parity test.
+2026-09-07 seed hunt #1206 (hit): reseeded PolicyPacksController partials after #1205 authz fix; proved SetAssignmentEnabled org-required disable returned misleading 404.
+2026-09-07 hunt #1205 (hit): org-required assign/toggle required tenant admin; promote/archive scope parity tests added.
+
+---
+## Zone: api-governance-stickiness
+
+- **id:** api-governance-stickiness
+- **split-from:** api-governance-tenancy-controllers
+- **status:** open
+- **impact:** high
+- **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
+- **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
+- **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
+- **hunts:** 7
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — risk register and waiver guard attributed sibling-project dispositions to in-scope findings
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+### Hypotheses
+
+- [x] (proven) `PreFinalizeChecklistService.BuildAsync` — `provisional-synthesis` item built before `BlockedReviewCheckProjector` mutates knowledge model — **hit 2026-09-07 (#1171):** blocked pre-commit gate projected `UnresolvedQuestion` elements and set `IsProvisionalSynthesis=true` after checklist item materialized as Clear; fixed by evaluating gate + projecting blocked checks before `BuildProvisionalSynthesisItemAsync` (`BuildAsync_marks_provisional_synthesis_advisory_after_blocked_check_projection`)
+- [x] (proven) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — null `ArchitectureRequest` for non-empty `ArchitectureRequestId` fail-open skipped execute-baseline drift blocking items — **hit 2026-09-07 (#1207):** orphan run with persisted execute-baseline `GovernanceScopeJson` returned `ReadyToFinalize=true`; fixed by emitting blocking `architecture-request-missing` item when request lookup fails but execute snapshot exists (`BuildAsync_blocks_finalize_when_architecture_request_is_missing_with_execute_baseline`)
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetChecklistAsync` — read-only checklist GET persists knowledge model via blocked-check projection — **cheap-disproof 2026-09-07 (#1207):** first GET projects blocked checks once; second GET is response-idempotent and does not re-save (`BuildAsync_does_not_repersist_blocked_checks_on_second_read`); persistence on first read is intentional projection sync after #1171 ordering fix
+- [x] (invalid) `PreviewRecurrenceScheduleRuns` missing tenant preflight — intentional dry-run parity — **cheap-disproof 2026-09-07 (#1207):** ledger rows #133/#559/#752; static cron preview with no tenant-scoped persistence
+- [x] (invalid) `ListDispositions` empty list for out-of-scope finding — intentional hide pattern — **cheap-disproof 2026-09-07 (#1207):** ledger row #7865; `ListDispositionsAsync_returns_empty_when_finding_is_out_of_scope` documents scope-filtered empty response
+- [x] (proven) `PreFinalizeChecklistService.BuildAsync` / `PreFinalizeActiveFindingCounter` — severity checklist counts ignored stickiness dispositions (`Remediated`, `RejectedAsNotApplicable`) — **hit 2026-09-07 (#1220):** remediated critical snapshot finding still blocked `open-critical-findings`; fixed by loading latest disposition trail via `IFindingReviewTrailRepository.ListForFindingIdsSinceUtcAsync` and excluding risk-register closed dispositions (`BuildAsync_marks_critical_findings_clear_after_remediated_disposition`)
+- [x] (proven) `GovernanceStickinessFacade.RecordBulkDispositionAsync` / `FindingDispositionService.RecordBulkAsync` — sequential `_findingDispositionService.RecordAsync` persisted partial bulk when a later item conflicted — **hit 2026-09-07 (#1221):** bulk write now uses `IFindingDispositionConcurrencyRepository.RecordBulkAsync` single-transaction CAS + facade/service batch path (`RecordBulkAsync_does_not_persist_prior_rows_when_later_item_conflicts`)
+- [x] (valid-no-repro) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — global `ArchitectureRequestRepository.GetByIdAsync` without tenant predicate — **cheap-disproof 2026-09-07 (#1221):** scoped runs only carry request ids from their own execute path; orphan/missing request already blocks via `architecture-request-missing` (#1207); no reachable path loads a foreign-tenant request for an in-scope run without operator data corruption outside zone guards
+- [x] (proven) `GovernanceStickinessController.RecordBulkDisposition` — `FindingDispositionConflictException` caught as `InvalidOperationException` and mapped to HTTP 404 instead of 409 with `currentDisposition` — **hit 2026-09-07 hunt #1231 (seed→hit):** bulk CAS loss now returns conflict parity with single-finding path; regression in `RecordBulkDisposition_returns_conflict_when_disposition_cas_lost`
+- [x] (proven) `PreFinalizeChecklistService.LoadLatestDispositionsAsync` / `CrossReviewLatestDispositionMap` — tenant-only trail query ignored workspace/project so sibling-project `Remediated` cleared in-scope critical counts — **hit 2026-09-07 hunt #1231 (seed→hit):** filter events to request scope before map build; regression in `BuildAsync_does_not_clear_critical_findings_from_foreign_project_disposition`
+- [x] (proven) `PreFinalizeChecklistService.LoadLatestDispositionsAsync` — 730-day `FindingDispositionTrailWindow.BasisBreakdownLookback` can miss older remediated dispositions while risk register CTE has no time cutoff — **hit 2026-09-08 hunt #1291 (parent zone):** same fix as mega-zone row; regression `BuildAsync_marks_critical_findings_clear_when_remediated_disposition_is_older_than_basis_lookback`
+- [x] (proven) `PreFinalizeChecklistService.BuildEvidenceLinkageItem` — evidence-linkage advisory ignored stickiness dispositions (severity path is disposition-aware) — **hit 2026-09-08 hunt #1291 (parent zone):** same fix as mega-zone row; regression `BuildAsync_clears_evidence_linkage_advisory_when_critical_finding_is_remediated`
+- [x] (proven) `PreCommitGovernanceGate` / `PreCommitGateEvaluator` — pre-commit gate ignored stickiness dispositions while checklist `open-critical-findings` cleared after `Remediated` — **hit 2026-09-08 hunt #1310 (seed→hit):** gate filtered only muted/advisory findings; fixed by loading scoped disposition trail via shared `PreFinalizeLatestDispositionLoader` and `PreFinalizeActiveFindingCounter.IsBlockingForPreCommitGate`; regressions `Evaluate_ignores_remediated_findings_when_blocking_on_critical`, `EvaluateAsync_allows_when_critical_finding_is_remediated`, `BuildAsync_allows_finalize_when_critical_finding_is_remediated_and_pre_commit_gate_matches`
+- [x] (proven) `ArchitectureRiskRegisterReader` latestDisposition CTE — workspace-scoped trail query attributed sibling-project dispositions when listing register rows for one project — **hit 2026-09-09 hunt #1384:** CTE partitioned only by `FindingId`; fixed by partitioning and joining on `(FindingId, ProjectId)` in list and count queries; regression `ListAsync_does_not_apply_foreign_project_disposition_to_in_scope_register_row`
+- [x] (proven) `RiskExceptionDispositionGuard` — tenant-wide disposition trail lookup without workspace/project filter rejected waivers when a sibling project had `Remediated` on the same finding id — **hit 2026-09-09 hunt #1384:** filter trail events to request scope before `ResolveLatestDisposition`; regressions `EnsureWaiverAllowedForFindingAsync_rejects_remediated_latest_disposition`, `EnsureWaiverAllowedForFindingAsync_allows_waiver_when_remediated_disposition_is_foreign_project`
+- [x] (valid-no-repro) `GovernancePostureController` severity aggregates — posture counts may include remediated snapshot findings if disposition trail is not applied symmetrically with checklist — **cheap-disproof 2026-09-09 hunt #1384:** `SqlArchitecturePostureReader` scopes `latestDisposition` by `@ProjectId`; remediated findings remain in severity totals with separate `DispositionedCount` by design (`ReadAsync_aggregates_latest_snapshot_only_and_excludes_other_tenants`)
+
+2026-09-09 thorough hunt #1384 (hit): proved register reader and waiver guard sibling-project disposition bleed; cheap-disproved posture severity aggregate candidate; 78 scoped stickiness/posture/checklist unit tests passed.
+2026-09-08 seed hunt #1310 (hit): reseeded stickiness zone after hypothesis exhaustion; proved pre-commit gate disposition blind spot vs checklist parity; seeded three register/posture/guard stickiness candidates.
+2026-09-07 thorough hunt #1221 (hit): proved bulk stickiness disposition partial persist; cheap-disproved global architecture-request lookup cross-tenant reachability.
+2026-09-07 seed hunt #1220 (hit): reseeded stickiness/checklist zone after hypothesis exhaustion; proved disposition-blind pre-finalize severity counts; seeded bulk-disposition atomicity hunt-ready row.
+2026-09-07 thorough hunt #1207 (hit): proved orphan ArchitectureRequest fail-open on pre-finalize execute-baseline drift; cheap-disproved checklist GET idempotency and two cross-zone parity candidates.
+2026-09-07 seed hunt #1171 (hit): reseeded governance stickiness/posture/checklist paths; proved provisional-synthesis checklist false clear from blocked-check projection ordering.
+
+---
+## Zone: api-tenancy-workspaces
+
+- **id:** api-tenancy-workspaces
+- **split-from:** api-governance-tenancy-controllers
+- **status:** open
+- **impact:** high
+- **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
+- **paths:** ArchLucid.Api/Controllers/Tenancy/
+- **test-filter:** FullyQualifiedName~TenantWorkspaces
+- **hunts:** 2
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — recycle bin advertised purge schedule for soft-deletes missing DeletedUtc
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+Split from retired `api-governance-tenancy-controllers` (ABQ-08).
+
+### Hypotheses
+
+- [x] (proven) `TenantWorkspacesController.ListRecycleBinAsync` — `DeletedUtc ?? CreatedUtc` fallback advertised `purgeAfterUtc` while retention purge worker requires `DeletedUtc IS NOT NULL` — **hit 2026-09-07 (#1172):** orphan `IsDeleted=1` rows without `DeletedUtc` surfaced a purge deadline that would never execute; fixed by listing only rows with `DeletedUtc` before computing retention schedule (`ListRecycleBinAsync_omits_projects_without_deleted_utc_to_avoid_false_purge_schedule`)
+- [x] (invalid) `DapperArchitectureProjectRepository.TryRestoreAsync` — active name collision check omits `TenantId` — **cheap-disproof 2026-09-07 (#1208):** `TenantWorkspaces.Id` is globally unique (`FK_Projects_TenantWorkspaces2`); `UX_Projects_Workspace_Name_Active2` scopes by `WorkspaceId`; cross-tenant collision unreachable in SQL; InMemory false-positive without `TenantId` is test-double-only
+- [x] (invalid) `TenantWorkspacesController.RestoreProjectAsync` — recycle bin lists deleted workspace projects but restore requires `projectId == scope.ProjectId` — **cheap-disproof 2026-09-07 (#1208):** intentional project-scoped mutation guard (#281); ledger rows #419/#8124; `RestoreProjectAsync_returns_not_found_when_project_id_is_sibling_in_same_workspace`
+- [x] (invalid) Cross-workspace delete/restore via foreign route `workspaceId` — **cheap-disproof 2026-09-07 (#1208):** `workspaceId == scope.WorkspaceId` guard on delete/restore; regressions `DeleteProjectAsync_returns_not_found_when_workspace_id_is_out_of_scope` and `RestoreProjectAsync_returns_not_found_when_workspace_id_is_out_of_scope`
+
+2026-09-07 thorough hunt #1208 (dry): cheap-disproved three workspace restore/list parity candidates; no failing production repro.
+2026-09-07 seed hunt #1172 (hit): reseeded tenancy workspace controllers; proved recycle-bin purge schedule false promise for soft-deletes missing `DeletedUtc`.
+
+---
 ## Zone: application-agents
 
 - **id:** application-agents
@@ -7522,14 +9911,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **impact:** medium
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
-- **test-filter:** FullyQualifiedName~Application.Agents
-- **hunts:** 3
-- **bugs-found:** 3
+- **test-filter:** FullyQualifiedName~Application.Tests.Agents
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — run-detail completion counts omitted reasoning tokens; curated evidence proposer/validator mismatch; alias resolver audit flag conflation
 - **related-pd-tb:** none
-- **code-changed-since:** 12
+- **code-changed-since:** 0
 
 ### Hypotheses
 
@@ -7539,6 +9928,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Reasoning-only LLM cost slices report Unavailable basis when estimator returns null — `AgentExecutionTraceRunLlmCostAggregator.ComputeCore` early-return ignored reasoning token counts (fixed 2026-08-20)
 - [x] (proven) Trace-derived tool forensics emit enum agent-type labels that disagree with structured ledger rows — `RunToolInvocationForensicsBuilder.BuildFromTraces` used `AgentType.ToString()` instead of `InferAgentTypeLabel(FormatToolName(...))`; regression in `Build_trace_derived_rows_use_tool_slug_agent_type_labels`
 - [x] (proven) Engine provenance omits reasoning-only token totals — **hit 2026-08-23:** `ReviewRunEngineProvenanceAggregator.Aggregate` mapped only prompt/completion sums from the cost aggregator; o-series reasoning-only traces showed `EstimatedCostUsd` with null `TotalOutputTokens`; regression in `Aggregate_reasoning_only_traces_include_reasoning_tokens_in_output_total`
+- [x] (proven) Run-detail LLM completion counts omit reasoning tokens while engine provenance includes them — **hit 2026-09-07:** `RunDetailLlmCostEnrichmentSlice`, `RunDetailQueryService.DetailLoad`, and `RunAgentExecutionLlmCostEstimateAppender` mapped `Completion = summary.CompletionTokens` only; reasoning-only o-series runs showed `Completion=0` despite non-zero provenance output totals; fixed via `AgentExecutionTraceRunLlmCostSummary.CombinedOutputTokens`; regression in `Compute_ReasoningTokensOnlyTrace_ExposesCombinedOutputTokensForRunDetailParity`
+- [x] (proven) Curated evidence proposer accepts title-only payloads that fail promotion validation — **hit 2026-09-07:** `AgentCuratedEvidenceProposer.NormalizeResponse` required only `Title` + `Type` while `ProposedEvidencePayloadValidator` also requires non-empty `Description`, so proposals persisted but failed on promote; fixed by rejecting missing description at normalize time; regression in `NormalizeResponse_returns_null_when_description_is_missing`
+- [x] (proven) External-subprocessor alias resolver conflates missing ack with outside-allowed-set rejection — **hit 2026-09-07:** `ReviewModelAliasResolver.ResolveForRunCreateAsync` returned `RejectedOutsideAllowedSet: true` when the alias was allowed but workspace subprocessor acknowledgment was missing, mislabeling audit events; fixed to `(false, true)`; regression in `ResolveForRunCreateAsync_WhenExternalSubprocessorAckMissing_DoesNotRejectOutsideAllowedSet`
+
+2026-09-07 seed hunt #1194 (hit): reseeded application-agents zone; proved run-detail reasoning token display parity, curated evidence description validation, and alias resolver audit flag conflation.
 
 ---
 
@@ -7550,11 +9944,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 11
-- **bugs-found:** 12
+- **hunts:** 13
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — policy-pack governance dry-run skipped sealed manifest hash verification
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — pre-finalize checklist omitted supplemental findings gate evaluates
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -7578,6 +9972,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPackFindingMatcher.MatchesAssignment` returns false on rule-key miss without pack-token/`EngineType` fallback when `ComplianceRuleKeys` is populated — **hit 2026-09-04:** coverage proof marked pack-attributed findings unproven when `PolicyRuleId` did not match listed keys; fixed by falling through to pack-token/`EngineType` checks (`PolicyPackFindingMatcherTests`, `PolicyPackCoverageProofEvaluatorTests.Evaluate_treats_pack_engine_type_as_proven_when_compliance_rule_keys_miss`)
 - [x] (proven) `PolicyPackGovernanceDryRunService.EvaluateAsync` proceeds without sealed manifest hash verification — **hit 2026-09-05:** Wave-23 suggestion 223 guard existed but was not wired; dry-run evaluated policy packs against runs with missing or tampered `ManifestHash`; fixed via `PolicyPackSimulateSealedManifestGuard` (`PolicyPackGovernanceDryRunServiceTests.EvaluateAsync_throws_when_run_golden_manifest_is_unsealed`)
 
+- [x] (proven) `PolicyPackGovernanceDryRunService.EvaluateAsync` omits finding dispositions that `PreCommitGovernanceGate` honors on live evaluation — **hit 2026-09-08 seed hunt #1336:** dry-run called `PreCommitGateEvaluator.Evaluate` without `PreFinalizeLatestDispositionLoader`, so remediated Critical findings still blocked simulate while live gate allowed; fixed by loading latest dispositions before evaluation; regression in `EvaluateAsync_allows_when_remediated_critical_finding_matches_live_gate`
+- [x] (proven) `PreFinalizeChecklistService` severity counts use rollup-filtered snapshot findings while `PreCommitGovernanceGate` evaluates raw snapshot plus supplemental findings — **hit 2026-09-09 (#1418):** checklist `open-error-findings` stayed Clear on empty snapshot while global Error-threshold gate blocked on technology-consistency supplemental findings; fixed via shared `PreFinalizeGateParityFindingLoader` (`PreFinalizeChecklistServiceTests.BuildAsync_marks_error_findings_when_technology_consistency_supplemental_would_block_gate`)
+- [x] (proven) `GovernanceLineageService.GetApprovalRequestLineageAsync` reads golden manifest summary without `GovernanceInsightsSealedManifestHashGuard` — **hit 2026-09-09 (#1418):** lineage surfaced manifest summary and risk posture for tampered hash; fixed by verifying sealed hash before manifest exposure (`GovernanceLineageServiceTests.GetApprovalRequestLineageAsync_When_manifest_unsealed_omits_manifest_summary_and_risk_posture`)
+
+2026-09-09 thorough hunt #1418 (hit): proved checklist supplemental-finding parity gap and lineage sealed-manifest guard gap.
+2026-09-08 seed hunt #1336 (hit): reseeded application-governance-policy; proved dry-run disposition parity gap; seeded checklist supplemental parity and lineage sealed-manifest guard candidates.
 2026-09-05 seed hunt #806 (hit): proved policy-pack dry-run sealed-manifest guard gap.
 
 2026-09-04 thorough hunt #715 (hit): proved governance dry-run supplemental-finding parity gap and pack finding matcher fallback gap.
@@ -7596,11 +9996,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — trial lifecycle scheduler ignored non-canonical TrialStatus casing
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — `TenantTrialFacade` ignored non-canonical Converted casing for identity handoff pending flag
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7617,6 +10017,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `TenantTrialIdentityHandoffStage.LinkEntraAsync` binds Entra directory before local identity link without rollback when `TryLinkLocalIdentityToEntraAsync` fails — **cheap-disproof 2026-09-04 (#709):** documented idempotent retry in `docs/runbooks/TRIAL_TO_PAID_IDENTITY_MIGRATION.md` §Security; regression in `TenantTrialIdentityHandoffStageTests.LinkEntraAsync_when_local_identity_link_fails_leaves_entra_bound_for_idempotent_retry`.
 - [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` hard-purged offboarded trial tenants on `Deleted` transition without honoring erasure quarantine — **hit 2026-09-04 (#709):** scheduler advanced `ExportOnly` tenants with `OffboardedUtc` set to `Deleted` and called `ITenantHardPurgeService` despite active legal hold; fixed by skipping automation when `OffboardedUtc` is set (`TryAdvanceTenantAsync_when_tenant_is_offboarded_does_not_advance_or_purge`, `IsTrialLifecycleAutomationCandidate_excludes_offboarded_tenants`).
 - [x] (proven) `TrialLifecyclePolicy.TryGetNextAdvancement` used Ordinal `TrialStatus` compares so lowercase or padded lifecycle labels never advanced — **hit 2026-09-05 (#808):** tenants with `active` trial status stalled past expiry while email and packaging layers already used `TrialLifecycleStatus.EqualsStatus`; fixed in policy and `ComputeDaysRemainingForStatusDisplay` (`TrialLifecyclePolicyTests`, `TrialLifecycleTransitionEngineTests`).
+- [x] (proven) `TenantCatalogMigrationOrchestrator.StartAsync` left tenant suspended without active migration when `InsertAsync` failed after scope-freeze suspend — **hit 2026-09-07 (#1164):** suspend ran before insert with no compensating unsuspend; fixed by rolling back scope-freeze suspend when insert throws while preserving admin-pre-suspended tenants (`StartAsync_unsuspends_when_migration_insert_fails_after_scope_freeze_suspend`, `StartAsync_preserves_admin_suspend_when_migration_insert_fails`).
+- [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` ignored active `LegalHoldUntilUtc` when tenant is not offboarded — **hit 2026-09-07 (#1247):** platform admin `AdminTenantsController` sets legal hold with `requireErasureQuarantine: false`; scheduler still advanced `ExportOnly` → `Deleted` and invoked hard purge; fixed by skipping automation when `LegalHoldUntilUtc > utcNow`; regression `TryAdvanceTenantAsync_when_active_legal_hold_skips_export_only_to_deleted_purge`.
+- [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` fail-opens to allow delete when stored boolean is malformed — **cheap-disproof 2026-09-07 (#1247):** only `SetAllowCreatorDeleteOwnedWorkAsync` writes the key via `TenantSettingBooleanParser.Format`; malformed stored values require out-of-band DB tampering, not tenant-controlled input; default-allow on missing setting is documented product behavior.
+
+- [x] (proven) `TenantTrialConversionStage.ConvertTrialAsync` rejected lowercase `active` trial status — **hit 2026-09-07 (#1248):** Ordinal `TrialStatus` compare left post-#808 lifecycle tenants unable to convert; fixed with `TrialLifecycleStatus.EqualsStatus`; regression `ConvertTrialAsync_when_trial_status_is_lowercase_active_succeeds`.
+- [x] (proven) `TrialLimitGate` used Ordinal `TrialStatus` compares — **hit 2026-09-07 (#1249):** lowercase `active` returned before expiry/run/seat enforcement; lowercase `expired`/`readonly`/`exportonly` skipped post-active write freeze; fixed with `TrialLifecycleStatus.EqualsStatus` throughout; regressions `GuardWriteAsync_lowercase_active_expired_throws_Expired`, `GuardWriteAsync_lowercase_expired_throws_LifecycleWritesFrozen`.
+- [x] (proven) `TenantUsageStatusService` treated trial only when `TrialStatus` equals `Active` ordinally — **hit 2026-09-07 (#1249):** lowercase `active` omitted trial packaging snapshot; fixed with `TrialLifecycleStatus.EqualsStatus`; regression `BuildAsync_marks_lowercase_active_trial_and_null_commercial_tier`.
+- [x] (proven) `TenantTrialFacade.ComputeIdentityHandoffPending` — Ordinal `Converted` compare hid pending Entra handoff for legacy/import lowercase `converted` rows — **hit 2026-09-09 seed hunt #1423:** trial status API returned `IdentityHandoffPending=false` after #1248/#1249 lifecycle casing fixes elsewhere; fixed with `TrialLifecycleStatus.EqualsStatus`; regression in `GetTrialStatusAsync_sets_identity_handoff_pending_when_converted_status_differs_only_by_casing`
+- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — unrecognized non-empty `TrialStatus` values that are not Active/Converted/Deleted/Expired/ReadOnly/ExportOnly fall through without blocking mutating work (fail-open vs corrupted or future lifecycle labels)
+
+2026-09-09 seed hunt #1423 (hit): reseeded application-tenancy-lifecycle; proved facade identity-handoff pending ignored non-canonical Converted casing; seeded unrecognized TrialStatus fail-open candidate; 114 scoped tenancy tests passed.
+
+- [x] (invalid) `TenantTrialFacade` idempotent converted check uses Ordinal `Converted` compare — **cheap-disproof 2026-09-07 (#1249):** duplicate conversion retry is handled in `TenantTrialConversionStage.IsIdempotentConvertedRetry` via `EqualsStatus` (fixed #1248); facade Ordinal compare only affected `IdentityHandoffPending` status display until **hit 2026-09-09 #1423**.
+
+2026-09-07 thorough hunt #1249 (hit): proved trial limit gate and usage status ignored non-canonical `TrialStatus` casing; cheap-disproved facade duplicate-audit candidate (conversion idempotency already in `TenantTrialConversionStage`).
+
+2026-09-07 seed hunt #1248 (hit): reseeded trial conversion/limit paths; proved lowercase `active` blocked `ConvertTrialAsync`; seeded Ordinal-compare candidates in `TrialLimitGate`, `TenantUsageStatusService`, and `TenantTrialFacade`.
+
+2026-09-07 thorough hunt #1247 (hit): proved trial lifecycle purge bypassed active legal hold on non-offboarded tenants; cheap-disproved malformed creator-delete policy fail-open (no reachable writer path).
+
+2026-09-07 seed hunt #1164 (hit): proved orphan suspend when migration insert fails after scope-freeze suspend.
 
 2026-09-05 seed hunt #808 (hit): proved non-canonical trial status casing blocked lifecycle advancement.
 
@@ -7632,11 +10053,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 10
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — cosmos graph snapshot outbox retried missing SQL graph rows instead of skip-as-processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7648,10 +10069,36 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Coordination lease is not released and blocks all replicas — lease acquire/release is in SQL `DequeuePendingAsync`, not in `RecoverableOutboxProcessorBase` shell
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor.VerifyOptions` mutates the bound `IOptions` instance (`configured.LeaseDurationSeconds = 60`) instead of returning a normalized copy like sibling processors; first drain permanently changes the DI-bound lease for later readers — fixed 2026-08-23 (`CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_clamps_short_lease_without_mutating_bound_options`)
 - [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor` dispatches `IacStubGeneration` without ambient scope so `FindingIacStubGenerator` reads dev-default tenant — ambient is pushed in `ProcessEntryAsync` before `DispatchWorkTypeAsync`; no repro on current code
-- [ ] (candidate) `RetrievalIndexingOutboxProcessor` marks outbox processed when `GetRunDetailForRetrievalIndexingAsync` returns null or incomplete snapshots — permanent skip if worker drains before commit visibility on in-memory UoW (`AuthorityCommittedPipelineFinalizer` enqueues before `CommitAsync` when `SupportsExternalTransaction` is false); SQL transactional enqueue path likely safe; needs repro distinguishing race vs deleted run
-- [ ] (candidate) `PostCommitProjectionOutboxProcessor` marks processed when `ProvenanceSnapshotMaterialization` detail exists but `TryMaterializeSnapshotAsync` no-ops on incomplete manifest/graph/trace — silent skip without warning log (retrieval logs skip); needs repro on committed run missing provenance snapshot after drain
+- [x] (valid-no-repro) `RetrievalIndexingOutboxProcessor` marks outbox processed when `GetRunDetailForRetrievalIndexingAsync` returns null or incomplete snapshots — SQL path enqueues in same TX as commit (row invisible until commit); in-memory writes are immediate before no-op `CommitAsync`; incomplete-child skip is documented in `TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §5
+- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor` marks processed when `ProvenanceSnapshotMaterialization` detail exists but `TryMaterializeSnapshotAsync` no-ops on incomplete manifest/graph/trace — enqueue runs after finalization (`PostCommitProjectionEnqueuer.EnqueueAfterCommitAsync`); incomplete-child no-op matches contract skip-if-done semantics; no transient race repro
+- [x] (proven) Wave-33/34 sealed-manifest-hash guards on retrieval/post-commit/cosmos outbox processors broke composition tests that omitted `IManifestHashService` + `GetRunDetailForManifestCompareAsync` mocks — processors hit backoff/DLQ path instead of indexing/materialization/coverage under test (**hit 2026-09-07 hunt #1192**): shared `CoordinationOutboxSealedManifestHashGuardTestSupport`; restored 6 failing scoped tests including TB-993 replay idempotency
 - [x] (invalid) `RecoverableOutboxProcessorBase` parallel batch leaks `AmbientScopeContext` across entries — `BoundedBatchParallelism.ForEachAsync` isolates `AsyncLocal` per task; each `ProcessEntryAsync` pushes and disposes its own ambient scope (`RetrievalIndexingOutboxProcessorCorrelationTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_indexing`)
 - [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor.VerifyOptions` omits `OutboxProcessorOptionsVerifier` upper lease clamp — `DapperCosmosGraphSnapshotOutboxRepository.DequeuePendingAsync` clamps lease to 60–7200 seconds regardless of processor-passed value
+- [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` skips sealed-manifest hash guard when `RunId == Guid.Empty` — **cheap-disproof 2026-09-08 seed hunt #1373:** `AuthorityPipelineStagePersistence.SaveGraphAsync` enqueues with `snapshot.RunId` from the committed graph row; SQL `RunId NOT NULL`; empty GUID not reachable on production enqueue path
+- [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` omits `AmbientScopeContext.Push` while `AuditService.EnrichAuditEvent` and `RunExportBlobPushService` read `IScopeContextProvider.GetCurrentScope()` — worker dead-letter and push outcome audits inherit dev-default tenant triple instead of the outbox entry scope — **hit 2026-09-08 seed hunt #1373:** push ambient scope before guard/build/push/audit; regression `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_dead_letter_audit`
+- [x] (proven) `RecoverableOutboxProcessorBase` calls `OnDeadLetterAsync` after `ProcessEntryAsync` throws, so the entry's `AmbientScopeContext` is already disposed; `PostCommitProjectionOutboxProcessor.OnDeadLetterAsync` and `RunExportBlobPushOutboxProcessor.OnDeadLetterAsync` logged dead-letter audits without re-pushing scope — retry-exhaustion audits inherit dev-default tenant triple — **hit 2026-09-09 seed hunt #1407:** push entry scope in `OnDeadLetterAsync`; regressions `PostCommitProjectionOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_exhaustion_dead_letter_audit` and `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_exhaustion_dead_letter_audit`
+- [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` and `RetrievalIndexingOutboxProcessor` omit retry-exhaustion audit/instrumentation hooks present on post-commit and run-export processors — **cheap-disproof 2026-09-09 seed hunt #1424:** neither processor calls `IAuditService` on dead letter today; gap is observability-only, not tenant-scope mis-tagging like #1373/#1407
+- [x] (proven) `CosmosGraphSnapshotOutboxProcessor.VerifyOptions` copied `MaxAttemptsBeforeDeadLetter` without `OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry` 999 ceiling used by sibling outbox processors — configured values above 999 kept retrying past the shared dead-letter threshold (`AttemptCount` 998 + failure scheduled backoff instead of `RecordDeadLetterAsync`) — **hit 2026-09-09 seed hunt #1424:** route retry/lease options through shared verifier with `minLeaseDurationSeconds: 60`; regression `CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_dead_letters_at_shared_max_attempts_ceiling`
+- [x] (invalid) `RetrievalIndexingOutboxProcessor` null-ref when `GetRunDetailForRetrievalIndexingAsync` returns snapshots without `Run` — **cheap-disproof 2026-09-09 seed hunt #1425:** `DapperAuthorityQueryService.GetRunDetailForRetrievalIndexingAsync` returns `null` when `runRepository.GetByIdAsync` misses; non-null DTO always sets `Run = run` (lines 198–231)
+- [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` and `RetrievalIndexingOutboxProcessor` omit `OnRetryScheduledAsync` instrumentation counters that post-commit/run-export processors increment — **cheap-disproof 2026-09-09 seed hunt #1425:** no `IAuditService` or tenant-scope reader on retry scheduling path; observability-only gap
+- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor` increments `RecordPostCommitProjectionOutboxProcessedSuccess` when `ProvenanceSnapshotMaterialization` benign-skips missing run detail — **cheap-disproof 2026-09-09 seed hunt #1425:** metrics treat skip-as-processed by design; row is marked processed and does not retry
+- [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` throws `InvalidOperationException` for empty export ZIP outside the push `catch` that dead-letters other non-retryable packaging failures — worker retries until max attempts instead of immediate DLQ — **hit 2026-09-09 seed hunt #1434:** dead-letter empty ZIP immediately with audit/instrumentation; regression `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_dead_letters_immediately_when_export_zip_is_empty`
+- [x] (proven) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` throws when `sqlLoader.LoadAsync` returns null instead of marking processed — orphan outbox rows after `PurgeCascade_Core` graph deletion (migration **375**) retry until max attempts instead of skip-as-processed like retrieval indexing — **hit 2026-09-09 thorough hunt #1435:** mark processed with warning when SQL graph row is missing; regression `CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_marks_processed_when_sql_graph_snapshot_is_missing`
+- [x] (valid-no-repro) `RecoverableOutboxProcessorBase` sets lease only at dequeue with no heartbeat during long `ProcessEntryAsync` — **cheap-disproof 2026-09-09 thorough hunt #1435:** shared outbox drain is at-least-once by design (`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §3–§5); cosmos graph push upserts by stable id; lease expiry enabling a second worker is expected replay semantics, not a defect in this shell
+
+2026-09-09 thorough hunt #1435 (hit): cheap-disproof closed lease-expiry overlap as at-least-once replay semantics; proved cosmos graph snapshot outbox retried missing SQL graph rows; 40 scoped coordination processor tests passed.
+
+2026-09-09 seed hunt #1434 (hit): reseeded host-core-coordination; proved empty export ZIP bypassed immediate dead-letter path and retried until exhaustion; seeded cosmos null SQL snapshot and lease-expiry overlap candidates; 39 scoped coordination processor tests passed.
+
+2026-09-09 seed hunt #1425 (seed-only): re-read coordination processors after #1424; cheap-disproof closed retrieval null-`Run` NRE, retry instrumentation, and benign-skip metrics candidates; no new hunt-ready row; 29 scoped coordination processor tests passed.
+
+2026-09-09 seed hunt #1424 (hit): reseeded host-core-coordination; cheap-disproof closed missing dead-letter audit/instrumentation on cosmos/retrieval processors; proved cosmos VerifyOptions skipped shared max-attempts ceiling; 29 scoped coordination processor tests passed.
+
+2026-09-09 seed hunt #1407 (hit): proved retry-exhaustion dead-letter path drops ambient scope before audit enrichment on post-commit projection and run-export outbox processors; 18 scoped coordination processor tests passed.
+
+2026-09-08 seed hunt #1373 (hit): reseeded host-core-coordination; cheap-disproof closed cosmos empty-RunId hash bypass; proved run-export outbox ambient-scope gap for audit enrichment; 15 scoped coordination processor tests passed (Host.Composition + Host.Core retry calculator).
+
+2026-09-07 thorough hunt #1192 (hit): cheap-disproved enqueue-before-commit race on SQL (transactional outbox) and in-memory (immediate writes); proved wave-33/34 guard DI gap broke 6 coordination processor composition tests.
 
 ---
 
@@ -7663,11 +10110,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 11
-- **bugs-found:** 12
+- **hunts:** 13
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — compare deep-link auto-compare skipped when client-navigating to a new URL run pair; admin tenants shut-off confirm cleared before `router.replace` completed
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — compare pickers kept stale run ids when URL params were cleared
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7687,8 +10134,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ProductLearningPageView` / `PlanningExportReadinessNote` export anchors used raw `/api/proxy` hrefs without `mergeRegistrationScopeForProxy` while dashboard loads used scoped `apiGet` — **hit 2026-09-04 (#714):** markdown/JSON export and open-in-tab actions hit proxy dev-default tenant after scope switch; fixed with scoped fetch downloads via `downloadScopedProxyFileGet` (`product-learning-report-download.test.ts`, `learning-planning-report-download.test.ts`).
 - [x] (proven) `useCompareFormUrlSync` auto-compare effect used a one-shot ref — **hit 2026-09-05 (#811):** client navigation from one complete `priorRunId`/`laterRunId` pair to another skipped `runCompareForPair`; fixed by keying last auto-compared pair (`use-compare-form-url-sync.test.ts`).
 - [x] (proven) `useAdminTenantsState` URL-sync effect cleared `pendingTenantAction` whenever URL params were empty — **hit 2026-09-05 (#811):** shut-off/turn-on confirm dialog vanished before `router.replace` wrote `tenantAction`/`tenantId`; fixed by clearing only on set→cleared URL transitions (`AdminTenantsPageClient.test.tsx`).
-- [ ] (candidate) Operational-errors detail panel may survive a filter change that hides the selected row — needs locus + repro in `archlucid-ui/src/app/(operator)/`.
-- [ ] (candidate) Ask page stale `thread` search param may block resume after navigation — needs locus + repro in `archlucid-ui/src/app/(operator)/`.
+- [x] (proven) Operational-errors detail panel survived filter changes that hid the selected row — **hit 2026-09-08 (#1331):** `OperationalErrorsPageClient` kept `selectedRow` while `filteredRows` excluded it after category/status/tenant/correlation filter changes; clear selection and `errorId` URL when the row drops out of the filtered set; regression in `OperationalErrorsPageClient.test.tsx`.
+- [x] (proven) Ask page stale `thread` search param blocked continue-last auto-resume — **hit 2026-09-08 (#1331):** `useAskPageUrlSync` returned early on unknown `thread` without clearing the param, and `useAskPage` auto-resume treated any non-empty URL thread as authoritative; clear stale thread after thread-list hydration and only block auto-resume when the URL thread exists in the loaded list; regression in `use-ask-page-url-sync.test.ts`.
+- [x] (proven) `useCompareFormUrlSync` URL→state sync only applied non-empty `priorRunId`/`laterRunId` — **hit 2026-09-09 seed hunt #1416:** clearing compare query params left picker state on the previous pair while bare `/insights/compare-two-reviews` loaded; fixed by always syncing empty ids from URL; regression `clears_picker_run_ids_when_compare_URL_params_are_removed`.
+- [ ] (candidate) `useGraphPageUrlState` + `useGraphPageState` debounced URL writer — empty `runId` in URL does not clear local state and stale `runId` is re-injected into the query string within the debounce window.
+- [ ] (candidate) `SlackIntegrationPageClient` — non-empty `slackDisableId` URL param persists when the subscription id is missing from loaded rows (no stale-param cleanup unlike ask `thread`).
+- [ ] (candidate) `DiagramReconcileWorkbenchClient` — `selectedCorrespondenceId` and URL `correspondenceId` survive match-kind filter changes that hide the selected row from `filteredRows` (operational-errors filter/detail desync pattern).
+
+2026-09-09 seed hunt #1416 (hit): reseeded operator routes after 204 commits since last hunt; proved compare picker stale run ids on cleared URL params; seeded evidence-graph runId reinjection, Slack disable deep-link, and diagram reconcile filter/selection desync candidates.
+
+2026-09-08 thorough hunt #1331 (hit): proved operational-errors filter/detail desync and ask stale-thread resume block in operator routes.
 
 2026-09-05 seed hunt #811 (hit): proved compare URL auto-compare one-shot gap and admin tenants pending-action URL-sync race; seeded operational-errors filter/detail and ask thread-resume candidates.
 
@@ -7798,11 +10253,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 15
-- **bugs-found:** 25
+- **hunts:** 17
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
-- **last-bug:** 2026-09-05 — stable-cache alerts-only persistence; lifecycle invalidation omitted userAttentionSummary; corePilotCommitContext survived scope switch
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — home preview tab counts ignored deduped previewItems pool
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7842,6 +10297,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `writeOperatorShellStableCache` — `alertsInboxSummary` persisted without `isStable*` gate unlike trial/catalog/budget snapshots; hydrate may seed stale open-count badges before shell-status refetch — **hit 2026-09-05 (#800):** alerts-only payload written when trial lifecycle unstable; fixed by requiring `hasStableSnapshot` before any session write (`operator-shell-stable-cache.test.ts`).
 - [x] (proven) `invalidateOperatorHomeRunsCaches` — lifecycle invalidation omits `userAttentionSummary`; post-commit attention badges may stay stale until 30s `staleTime` expires — **hit 2026-09-05 (#800):** added `userAttentionSummary` invalidation alongside home runs caches (`operator-query-invalidation.test.ts`).
 - [x] (proven) `corePilotCommitContext` — scope-agnostic TanStack key cleared on lifecycle invalidation but not `notifyOperatorScopeChanged`; tenant switch may show prior tenant commit context until refetch — **hit 2026-09-05 (#800):** added to `OPERATOR_SHELL_STATUS_SCOPE_AGNOSTIC_QUERY_KEYS` (`operator-scope-storage.test.ts`).
+- [x] (proven) `deriveHomePreviewTabCounts` — archived runs inflated home preview tab counts while `deriveOperatorHomeWorkspaceMetrics` and `deriveAttentionSurfaceCounts` already skip `isArchived` — **hit 2026-09-08 seed hunt #1345 (seed→hit):** preview tab derivation counted archived approved/attention rows; fixed by filtering archived runs before `deriveRunsDashboardTabCounts`; regressions in `excludes archived runs from home preview tab counts` and `excludes archived runs from attention and approved tab counts`
+
+- [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — preview tab counts derived from `displayItems` instead of deduped `previewItems` — **hit 2026-09-09 seed hunt #1420:** buyer-polished Home passed rail-deduped `previewItems` but tab badges counted the full dashboard pool; fixed by counting `filterTenantOverviewRuns(input.previewItems)`; regression in `uses previewItems for tab counts when unfinished-work rail dedup shrinks the preview pool`
+
+- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` and KPI aggregates use loaded page length only; no workspace `totalCount` from paginated runs dashboard — seeded 2026-09-09; `OperatorHomeWorkspaceMetricsSummary` already uses `runsDashboard.totalCount` while tenant counting snapshot omits it
+
+2026-09-09 seed hunt #1420 (seed→hit): reseeded ui-operator-lib after HOM reconciliation commits; proved previewItems tab-count parity gap; seeded paginated totalCount metrics candidate; 5 tenant-counting tests passed.
+2026-09-08 seed hunt #1345 (seed→hit): reseeded home counting parity after HOM reconciliation commits; proved archived-run tab count inflation on Overview preview; 15 scoped home-counting tests passed.
 
 2026-09-05 thorough hunt #800: proved stable-cache alerts-only persistence, lifecycle userAttentionSummary invalidation gap, and corePilotCommitContext scope-cache leak.
 
@@ -7861,22 +10324,38 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **status:** open
 - **impact:** high
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
-- **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/QuickScanDistributedConcurrencyStore.cs
+- **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 8
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — abandon cleanup swallow; renewal interval clamp + immediate renew
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (hunt-ready) `QuickScanDistributedConcurrencyService` catches caller cancellation while waiting but abandons the queue entry with `CancellationToken.None`; if SQL abandon stalls during shutdown, the row remains Waiting until `QueueExpiresUtc` and consumes effective queue capacity.
-- [ ] (hunt-ready) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` releases its lease without an execution or shutdown token; a host drain during disposal can leave the lease active until expiry and reject otherwise admissible scans.
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` catches caller cancellation while waiting but abandons the queue entry with `CancellationToken.None` — `CancellationToken.None` is intentional cleanup (same pattern as `SqlTenantAuthorityPipelineConcurrencyGate`); cancel path abandons queue row (`QuickScanDistributedConcurrencyLeaseLifecycleTests.WaitForAdmissionAsync_abandons_queue_entry_when_caller_cancels_while_waiting`)
+- [x] (proven) `QuickScanExecutionOrchestrator` returned from budget-stage terminal paths without disposing `ConcurrencyAdmission`, leaking an active distributed lease when global budget reservation failed after `WaitForAdmissionAsync` permit — fixed 2026-09-07 (#1193): `QuickScanDistributedConcurrencyLeaseLifecycleTests.ExecuteAsync_releases_concurrency_lease_when_global_budget_rejects_after_admission`; `DisposeAsync` still uses default non-cancellable release for intentional cleanup
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — `catch (Exception)` on `TryPromoteAsync` swallowed `OperationCanceledException` and returned `StoreUnavailable` instead of abandoning via the cancel path and rethrowing; store-error abandon used caller token — **hit 2026-09-07 (#1209):** exclude `OperationCanceledException` from promote store-error handler; abandon promote failures and queue timeouts with `CancellationToken.None` (`WaitForAdmissionAsync_abandons_queue_entry_when_promote_is_cancelled`)
+- [x] (valid-no-repro) `QuickScanExecutionBudgetAndConcurrencyStage` — post-admission operational emergency re-check sets `TerminalResult` while admitted lease stays active until orchestrator `finally` dispose — brief slot pin only; `QuickScanDistributedConcurrencyLeaseLifecycleTests.ExecuteAsync_releases_concurrency_lease_when_operational_emergency_flips_after_admission` proves orchestrator `finally` releases lease on budget-stage emergency return (same pattern as #1193 budget rejection)
+- [x] (proven) `QuickScanDistributedConcurrencyLeaseRenewal` — `RenewLeaseAsync` failure faulted the renewal task so `DisposeAsync` rethrew and skipped `ReleaseLeaseAsync`, pinning the slot until lease TTL expiry — **hit 2026-09-09 (#1402):** stop the renewal loop on store renewal errors and swallow faulted renewal tasks during dispose so release always runs; regression `DisposeAsync_releases_lease_when_renewal_loop_faults`
+- [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` — `TryAdmitAsync` store exception returns `StoreUnavailable` without abandoning a queue row when admit partially queued — **cheap-disproof 2026-09-09 thorough hunt #1402:** SQL/in-memory admit is atomic before returning `Queued`; regression `WaitForAdmissionAsync_store_error_on_admit_does_not_pin_queue_capacity`
+- [x] (proven) `QuickScanDistributedConcurrencyLeaseRenewal` / `QuickScanExecutionOrchestrator` — renewal store failure stopped the renewal loop but did not cancel in-flight execute, so the distributed lease expired at TTL while the scan kept running and a peer could acquire a second direct slot (over-capacity window) — **hit 2026-09-09 seed hunt #1403:** cancel linked `ExecutionCancellationToken` on renewal failure and route scan invoke through it; regressions `ExecutionCancellationToken_is_cancelled_when_renewal_store_fails` and `ExecuteAsync_releases_concurrency_lease_when_renewal_store_fails_during_scan`
+- [x] (proven) `InMemoryQuickScanDistributedConcurrencyStore.RenewLeaseAsync` / `usp_QuickScanConcurrency_RenewLease` — renewal no-ops when `ExpiresUtc <= @UtcNow` without error so the renewal loop keeps running while the SQL lease row expires (same over-capacity shape as #1403 when `LeaseRenewalIntervalSeconds` ≥ `LeaseDurationSeconds` or renewal is delayed past TTL) — **hit 2026-09-09 thorough hunt #1405:** throw when the lease row is missing/expired instead of silently succeeding; SQL `@@ROWCOUNT` guard; regression `ExecutionCancellationToken_is_cancelled_when_renewal_noops_after_lease_expires`
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — promote store-error path calls `AbandonQueueEntryAsync` without swallowing abandon failures, so a transient abandon error could leave the queue row pinned until `QueueExpiresUtc` — **hit 2026-09-09 thorough hunt #1405:** retry abandon once on cleanup paths (promote error, cancel, queue timeout); regression `WaitForAdmissionAsync_abandons_queue_entry_when_promote_store_error_and_abandon_retries`
+- [x] (proven) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` — `_released` was set before `ReleaseLeaseAsync` and renewal CTS was disposed on the first attempt, so a transient release failure pinned the slot until lease TTL and a retry dispose faulted on the disposed CTS — **hit 2026-09-09 seed hunt #1404:** stop renewal once, release with `CancellationToken.None`, set `_released` only after store release succeeds; regression `DisposeAsync_can_retry_release_when_store_throws`
+- [x] (proven) `QuickScanDistributedConcurrencyService.AbandonQueueEntryForCleanupAsync` — when both abandon attempts failed, promote store-error cleanup threw instead of returning `StoreUnavailable` and cancel cleanup replaced `OperationCanceledException` with the abandon fault — **hit 2026-09-09 seed hunt #1406:** swallow abandon retry failures after logging; regressions `WaitForAdmissionAsync_returns_store_unavailable_when_promote_and_abandon_both_fail` and `WaitForAdmissionAsync_still_throws_operation_canceled_when_abandon_cleanup_fails`
+- [x] (proven) `QuickScanDistributedConcurrencyLeaseRenewal` — renewal loop waited for the first timer tick and used the raw configured interval, so when `LeaseRenewalIntervalSeconds` exceeded `LeaseDurationSeconds` the lease expired before the first renewal attempt (over-capacity window until #1405 throw/cancel) — **hit 2026-09-09 seed hunt #1406:** renew immediately then on interval with interval clamped to `min(configured, leaseDuration - 1)` (run-execute pattern); regression `ExecutionCancellationToken_stays_active_when_renewal_interval_is_clamped_before_lease_expires`
 
----
+2026-09-09 seed hunt #1406 (hit): reseeded abandon best-effort and renewal scheduling paths; proved cleanup failures must not replace caller outcomes and renewal must run before lease TTL; 16 scoped tests passed.
+2026-09-09 thorough hunt #1405 (hit): proved silent renewal no-op and promote-error abandon retry; 14 scoped tests passed.
+2026-09-09 seed hunt #1403 (hit): reseeded renewal-failure execute-cancel path; proved renewal loss must cancel in-flight scan before lease TTL frees peer admission; 11 scoped tests passed.
+2026-09-09 thorough hunt #1402 (hit): proved renewal failure skipped lease release on dispose; cheap-disproved admit partial-queue candidate; 9 scoped tests passed.
+2026-09-07 thorough hunt #1210 (dry): cheap-disproved post-admission emergency flip concurrency leak; added lease-release regression test; reseeded renewal-failure and admit-store-error candidates.
+2026-09-07 seed hunt #1209 (hit): reseeded distributed concurrency service/store paths; proved promote cancellation swallowed by promote store-error handler.
+2026-09-07 thorough hunt #1193 (hit): cheap-disproved cancel+abandon token hypothesis; proved orchestrator finally scope omitted budget-stage early returns and leaked anonymous concurrency slots.
 
 ## Zone: run-execute-ownership
 
@@ -7884,13 +10363,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **status:** open
 - **impact:** high
 - **aliases:** run execute lease; execute ownership; orchestration ownership
-- **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/Orchestration/RunExecuteOwnershipLeaseService.cs
+- **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 1
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-25
-- **last-bug:** never
+- **hunts:** 9
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — full execute acquired ownership before no-scheduled-tasks gate
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -7898,26 +10377,355 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator` releases an acquired ownership lease with `CancellationToken.None` after `ExecuteRunCoreAsync` is cancelled — intentional: passing the request token would skip release on client disconnect; host drain uses `ReleaseAllHeldByThisInstanceAsync` (TB-961); regression in `ArchitectureRunExecuteOrchestratorOwnershipTests.ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
 - [x] (invalid) A cancellation after ownership acquisition but before durable execution state transition can expose different retry behavior between the direct API execute path and the background-job execute path — no shipped background execute path; `ArchitectureRunCommandService.ExecuteRunAsync` delegates solely to `ArchitectureRunExecuteOrchestrator` (API-sync per `ASYNC_ORCHESTRATION_FIRST_FORCE.md`).
+- [x] (proven) `ArchitectureRunExecuteOrchestrator` / `RunExecuteOwnershipLeaseRenewalScope` — `await using` renewal scope disposed after `finally` release; in-flight `RenewAsync` could recreate SQL lease row after intentional release — **hit 2026-09-07 (#1211):** dispose renewal scope before release; await renewal task on scope dispose (`RunExecuteOwnershipLeaseReleaseOrderingTests`)
+- [x] (proven) `RunExecuteOwnershipLeaseService.RenewAsync` / `RunExecuteOwnershipLeaseRenewalScope` — renewal failure was warning-only so long execute continued after losing the SQL lease to a peer (dual-execute window per TB-943) — **hit 2026-09-08:** `RenewAsync` throws `ConflictException` when another holder owns the live lease; renewal scope cancels the orchestrator execute token; orchestrator routes agent batch through a linked execute `CancellationTokenSource`; regressions in `RenewAsync_throws_conflict_when_peer_holds_live_lease` and `BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease`.
+- [x] (invalid) `ArchitectureRunExecuteOrchestrator` — non-Guid `runId` skips ownership acquire/release (`TryParseRunGuid` guard) — **cheap-disproof 2026-09-08:** `ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync` also rejects non-Guid ids with `RunNotFoundException` before agent work; skipping ownership does not enable a successful execute on malformed route ids.
+- [x] (proven) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — unexpected `RenewAsync` failures (storage/transient) logged without cancelling the linked execute token when Warning logging was enabled; with Warning disabled the renewal task faulted on scope dispose while execute kept running — **hit 2026-09-08 (#1324):** cancel in-flight execute on any renewal failure; regression in `BeginRenewalScope_cancels_linked_execute_token_when_renewal_throws_unexpected_error`.
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — deleted forced-task results and demoted status before nested `ExecuteRunAsync` called `AcquireAsync`, leaving a prep window where another replica could run an overlapping batch or the caller could fail after destructive prep — **hit 2026-09-08 (#1325):** acquire ownership (with renewal scope) before selective prep and route execute through `ExecuteRunCoreAsync`; regression in `ExecuteSelectiveRunAsync_acquires_ownership_before_deleting_forced_task_results`.
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — selective prep used the validation-time `ArchitectureRun` snapshot; if the run committed after validation but before delete, forced-task results were deleted before `ExecuteRunCoreAsync` reloaded and threw — **hit 2026-09-08 (#1326):** reload run + re-check committed/authority-pipeline gates before destructive prep; regression in `ExecuteSelectiveRunAsync_does_not_delete_results_when_run_becomes_committed_before_prep`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — heartbeat renewal does not consult `IWorkerHostDrainGate.IsDraining` (unlike `AcquireAsync`) — **cheap-disproof 2026-09-08 (#1327):** in-flight execute may keep renewing until scope dispose; drain boundary is `ReleaseAllHeldByThisInstanceAsync` (TB-961), not blocking renew; regression in `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease`.
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — validation and task planning finished before `AcquireAsync`; if the run committed in that window selective still claimed the SQL lease and only failed on the prep reload — **hit 2026-09-08 (#1327):** reload committed/authority gates before acquire via `EnsureSelectiveExecuteStillEligibleAsync`; regression in `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_becomes_committed_before_acquire`.
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ExecuteRunCoreAsync` run reload; a vanished/deleted run id still held the SQL lease until `finally` release (no mutations, admission-before-validation ordering per TB-943) — **hit 2026-09-09 (#1391):** `AcquireAsync` ran before `TryGetArchitectureRunAsync`; not-found execute briefly blocked peer acquire; fixed with `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync`; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_not_found`.
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ThrowIfAuthorityPipelineCompleteAsync` while selective execute re-checked authority completion before acquire (#1327); authority-complete runs held SQL lease until refused execute released it — **hit 2026-09-09 (#1392):** extended pre-acquire eligibility guard to authority-pipeline completion; regression `ExecuteRunAsync_does_not_acquire_ownership_when_authority_pipeline_is_complete`.
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ThrowIfRunHasNoAgentWorkOrDeferredContext` while selective execute rejected zero-task runs before `AcquireAsync`; empty-task executes held SQL lease until `NoScheduledAgentTasksException` released it — **hit 2026-09-09 (#1393):** extended pre-acquire eligibility with shared `ThrowIfRunHasNoAgentWorkOrDeferredContext`; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_has_no_scheduled_tasks`.
 
----
+2026-09-09 thorough hunt #1393 (hit): proved full execute must reject no-task runs before ownership acquire; 42 scoped ownership/orchestrator tests passed.
+2026-09-09 thorough hunt #1392 (hit): proved full execute must validate run existence and authority-pipeline completion before ownership acquire; 41 scoped ownership/orchestrator tests passed.
+
+2026-09-09 thorough hunt #1391 (hit): proved full execute must validate run existence before ownership acquire; mirrors selective eligibility guard.
+2026-09-08 seed hunt #1326 (hit): reseeded selective stale-status paths; proved committed transition after validation must block prep mutations.
+2026-09-08 thorough hunt #1325 (hit): proved selective execute prep ran before ownership acquire; fixed lease ordering to match full execute.
+2026-09-08 seed hunt #1324 (hit): reseeded renewal-scope failure modes; proved unexpected renewal errors must cancel linked execute.
+2026-09-08 thorough hunt (hit): proved heartbeat renewal loss must cancel in-flight execute; cheap-disproved non-Guid ownership bypass candidate.
+
+2026-09-07 seed hunt #1211 (hit): reseeded execute ownership orchestrator/renewal paths; proved release-before-renewal-dispose ghost lease recreation.
+2026-08-25 thorough hunt #1 (dry): cheap-disproved cancel token and background-path hypotheses.
 
 ## Zone: chatops-delivery
 
 - **id:** chatops-delivery
-- **status:** open
+- **status:** cooling
 - **impact:** medium
 - **aliases:** chatops webhook; authority commit notification; slack teams delivery
 - **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
 - **test-filter:** FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 2
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — ChatOps hook swallowed all-target delivery failures so Service Bus completed without retry
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (hunt-ready) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` catches a Slack/Teams 500 or network exception per target and returns success; the integration event is acknowledged, so Service Bus never retries and operators permanently miss the completion message.
-- [ ] (hunt-ready) One target succeeding while a sibling target fails is not durably recorded; replay may duplicate the successful target or permanently suppress the failed target depending on handler acknowledgement semantics.
+- [x] (proven) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` catches a Slack/Teams 500 or network exception per target and returns success; the integration event is acknowledged, so Service Bus never retries and operators permanently miss the completion message — **hit 2026-09-08 hunt #1368:** hook only caller is `AuthorityRunCompletedChatOpsIntegrationEventHandler`; swallowing defeated `IntegrationEventServiceBusMessageDispatch` abandon semantics; fixed to throw when every enabled target fails; handler no longer catches; regressions in `NotifyAsync_throws_when_every_enabled_target_delivery_fails`, `NotifyAsync_throws_when_only_enabled_target_delivery_fails`, `HandleAsync_propagates_when_hook_reports_all_enabled_targets_failed`
+- [x] (valid-no-repro) One target succeeding while a sibling target fails is not durably recorded; replay may duplicate the successful target or permanently suppress the failed target — **cheap-disproved hunt #1368:** partial success intentionally completes the integration event (`NotifyAsync_suppresses_non_cancellation_errors_from_delivery_when_sibling_target_succeeds`); per-target dedup/outbox not in scope for informational ChatOps fan-out
+- [x] (valid-no-repro) Enabled ChatOps target with non-HTTPS or blank webhook URL completes integration event without delivery — **cheap-disproved hunt #1369:** `DeliverIfEnabledAsync` skips before attempt; misconfiguration guard; regressions in existing hook skip tests and `HandleAsync_completes_when_enabled_target_uses_non_https_webhook_url`
+- [x] (valid-no-repro) Integration handler rejects unsupported `schemaVersion` values — **cheap-disproved hunt #1369:** forward-compatible single producer; handler accepts future schema versions; regression in `HandleAsync_accepts_future_schemaVersion_without_rejecting_payload`
+- [x] (invalid) HTTP 4xx webhook responses trap Service Bus in an infinite abandon loop distinct from 5xx — **cheap-disproved hunt #1369:** `WebhookOutboundHttpRetryPolicy` excludes 4xx; all-target failure throws for one abandon cycle; subscription max-delivery dead-letters poison messages; regression in `NotifyAsync_throws_when_all_enabled_targets_return_http_400`
+
+2026-09-08 seed hunt #1369 (seed-only): reseeded after #1368 fix; cheap-disproved three post-fix candidates; zone set to cooling with all hypotheses closed.
+
+2026-09-08 thorough hunt #1368 (hit): proved all-target ChatOps delivery swallow blocked Service Bus retry; partial sibling success remains best-effort by design.
+
+## Zone: architecture-intelligence-orchestrator
+
+- **id:** architecture-intelligence-orchestrator
+- **status:** open
+- **impact:** high
+- **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
+- **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
+- **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
+- **hunts:** 8
+- **bugs-found:** 5
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-07 — review cache hit cleared PublishBlocked for blocked analysis reruns
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recommendation.
+
+### Hypotheses
+
+- [x] (proven) `ReviewCacheManifestBuilder.HashContent` — client-supplied `RunId` omitted from content hash while `modelfp`/`ledgerfp` identical for new runs — **hit 2026-09-07 (#1173):** concurrent distinct client `RunId`s with identical sources coalesced on one single-flight key; follower received its `RunId` but model persisted only for leader; fixed by hashing normalized `runid=` when request carries `RunId` (`Build_changes_content_hash_when_client_supplied_run_id_differs_with_same_sources`, `RunAsync_concurrent_distinct_client_run_ids_both_persist_models`)
+- [x] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy` — cache hit clears `ReviewCompleteBlocked` on incomplete-framing retry — intentional coalesced-follower isolation (`ApplyCacheHitPolicy_clears_review_complete_state`, `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`)
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — tombstone FIFO cap can skip invalidation while entry remains pinned under improve-loop pressure — retired: `MaxDistinctPinnedStorageKeys` (64) prevents a 65th pinned invalidation target; when cap blocks a new pin the entry is removed directly without needing a tombstone slot (`AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries`)
+- [x] (proven) `ClosedLoopArchitectureReasoningOrchestrator.Cache.RunContinueFromExistingReviewAsync` / `ClosedLoopPublishStage` — identical continue requests missed review cache — **hit 2026-09-07 (#1195):** publish stage gated cache `Set` on `persistModel`, which is false for continue runs when publish is blocked and a model already exists; storage manifest also used post-pipeline `context.Model` fingerprint while lookup uses persisted baseline, so keys diverged when framing mutations were not saved; fixed by storing analysis-only continue results using persisted baseline fingerprint; regression in `RunAsync_second_identical_continue_request_is_cache_hit`
+
+- [x] (proven) `ClosedLoopPublishStage` / full-run cache storage — blocked reruns with pre-existing run id stored analysis cache under post-pipeline `context.Model` fingerprint while lookup/`PinScope` use persisted baseline — **hit 2026-09-07 (#1197):** identical analysis reruns missed cache when publish blocked and model not persisted; fixed by aligning storage manifest baseline with persisted model when `persistModel` is false (`RunAsync_second_identical_rerun_with_existing_run_id_and_publish_blocked_is_cache_hit`)
+- [x] (proven) `ClosedLoopPublishStage` / orchestrator cache lookup — distinct storage-pin cap caused silent cache skip and lookup miss on identical analysis reruns — **hit 2026-09-07 (#1218):** `PinScope.IsPinned` gated `TryGet` and publish `Set`; at `MaxDistinctPinnedStorageKeys` (64) saturated, second identical request re-ran full pipeline; fixed by always storing and reading cache entries without requiring pin success (`RunAsync_second_identical_request_is_cache_hit_when_distinct_pin_cap_is_saturated`)
+- [x] (valid-no-repro) `ReviewResultCache.Set` — returns without inserting when cache is at `MaxEntries` and every entry is pinned — **cheap-disproof 2026-09-07 (#1218):** `MaxDistinctPinnedStorageKeys` (64) < `MaxEntries` (128) makes all-pinned-at-cap unreachable; unpinned eviction always available (`Set_inserts_when_cache_at_max_entries_because_all_pinned_state_is_unreachable`)
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.Build` — `ContinueFromExistingRun=1` content-hash prefix applies only to `Build()` while continue coalesce uses `BuildContinueFromExistingRunCoalesceManifest` — **cheap-disproof 2026-09-07 (#1218):** intentional partition; continue orchestration/publish storage use coalesce manifest exclusively (`BuildContinueFromExistingRunCoalesceManifest_partitions_from_continue_build`)
+- [x] (proven) `ClosedLoopCacheHitPublishGuard.SanitizeForStorage` / `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — review cache hit cleared `PublishBlocked` for trust-gated analysis reruns — **hit 2026-09-07 (#1226):** storage sanitizer dropped publish-block metadata and finalize called `ApplyAnalysisOnlyCoalescedIsolation` on every cache hit; identical blocked full/continue reruns returned `PublishBlocked=false`; fixed by preserving publish-block fields in `SanitizeForStorage` and limiting analysis-only isolation to coalesced publish leaders (`SanitizeForStorage_preserves_publish_block_metadata`, `RunAsync_second_identical_rerun_with_existing_run_id_and_publish_blocked_is_cache_hit`, `RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit`)
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` vs `Build` lookup/storage key parity when request carries hyphenated run id — **cheap-disproof 2026-09-07 (#1226):** content hashes match for same baseline (`BuildWithResolvedRunId_matches_build_content_hash_when_request_carries_same_run_id`)
+- [x] (valid-no-repro) `ClosedLoopPublishStage` / continue path — blocked continue rerun cache storage under persisted baseline — **cheap-disproof 2026-09-07 (#1226):** second identical continue with `AlwaysBlockedTrustPublishGate` is cache hit (`RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit`)
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `ReviewTier` omitted from content hash — **cheap-disproof 2026-09-08 (#1309):** `tier=` participates in `HashContent`; `Build_changes_content_hash_when_review_tier_changes`
+- [x] (valid-no-repro) `ClosedLoopPublishStage` — `PublishToProduct=true` with `persistModel=false` skips cache write while analysis path stores; subsequent analysis could inherit stale blocked analysis entry — **cheap-disproof 2026-09-08 (#1309):** blocked publish live rerun intentionally does not overwrite analysis cache; `RunAsync_publish_blocked_live_run_does_not_overwrite_analysis_cache_entry`
+- [x] (valid-no-repro) `FinalizeCoalescedReviewResult` / `ApplyCacheHitPolicy` — identical incomplete-framing rerun cache hit clears `ReviewCompleteBlocked` — **cheap-disproof 2026-09-08 (#1309):** intentional analysis-only cache-hit isolation; `RunAsync_second_identical_incomplete_framing_request_cache_hit_clears_review_complete_blocked`
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expired entry TTL refresh extends wall-clock retention without re-evaluating manifest inputs — **cheap-disproof 2026-09-08 (#1316):** intentional improve-loop pin semantics; same storage key implies unchanged manifest hash; `TryGet_returns_pinned_expired_entry_and_refreshes_ttl`; tombstoned runs still miss (`TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl`)
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` / `ClosedLoopContinueRunSingleFlight` — publish vs analysis in-flight partitions (`publish=1` vs `publish=0`) can double-run identical manifest under concurrent mixed intent — **cheap-disproof 2026-09-08 (#1316):** intentional flight partition via `ReviewCacheKeyBuilder.BuildInFlight`; publish requires live adversarial pass (`RunAsync_publish_request_bypasses_review_cache_hit`); regression `CoalesceAsync_does_not_share_flight_across_publish_intent`
+
+2026-09-08 thorough hunt #1316 (dry): cheap-disproof closed pin-TTL refresh and publish/analysis flight-partition candidates; 60 scoped orchestrator/cache tests passed.
+2026-09-08 seed hunt #1309 (seed-only): reseeded orchestrator/cache after git churn; cheap-disproof closed review-tier, publish-storage asymmetry, and incomplete-framing cache-hit candidates; kept pin-TTL refresh and publish/analysis flight-partition candidates; 60 scoped orchestrator/cache tests passed.
+
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` omits `TenantConfigurationHash` and cache version fields — **cheap-disproof 2026-09-09 seed hunt #1438:** continue in-flight dedupe intentionally keys tenant+runId+wrapped content hash + publish intent; workspace/project partition remains in `ReviewCacheKeyBuilder` storage keys; regressions `BuildCoalesceKey_matches_across_workspace_when_continue_content_matches`, `BuildCoalesceKey_differs_from_review_cache_storage_key_for_same_manifest`.
+- [x] (valid-no-repro) Workspace changes should bust review cache via content hash alone — **cheap-disproof 2026-09-09 seed hunt #1438:** workspace participates in `TenantConfigurationHash`, not `HashContent`; regression `Build_changes_tenant_configuration_hash_when_workspace_changes`.
+- [x] (invalid) `SanitizeForStorage` strips `PublishBlocked` and breaks blocked-rerun cache hits — **cheap-disproof 2026-09-09 seed hunt #1438:** publish-block metadata preserved for storage since hunt #1226; regression `SanitizeForStorage_preserves_publish_block_metadata`.
+- [x] (invalid) `ReviewResultCache.Set` silently drops inserts when cache is full with only pinned entries — **cheap-disproof 2026-09-09 seed hunt #1438:** `MaxDistinctPinnedStorageKeys` (64) < `MaxEntries` (128) keeps unpinned eviction available; regression `Set_inserts_when_cache_at_max_entries_because_all_pinned_state_is_unreachable`.
+
+2026-09-09 seed hunt #1438 (seed-only): reseeded architecture-intelligence-orchestrator after #1316 dry streak; cheap-disproof closed continue-flight key partition, workspace cache busting, sanitize publish-block strip, and all-pinned Set drop candidates; 64 scoped orchestrator/cache tests passed.
+
+2026-09-07 seed hunt #1226 (hit): reseeded orchestrator/cache manifest paths; proved review cache hits stripped publish-block truth for blocked analysis reruns.
+2026-09-07 thorough hunt #1218 (hit): proved pin-cap saturation skipped review cache read/write; disproved remaining cache-cap and continue-manifest partition candidates.
+2026-09-07 seed hunt #1197 (hit): reseeded publish-stage storage manifest paths; proved blocked full reruns with existing run id missed review cache due to baseline fingerprint mismatch.
+2026-09-07 thorough hunt #1195 (hit): proved continue-from-existing review-cache skip and manifest baseline mismatch.
+
+2026-09-07 seed hunt #1173 (hit): reseeded closed-loop orchestrator/cache manifest paths; proved client RunId missing from cache content hash caused concurrent coalesce to skip follower persistence.
+
+---
+
+## Zone: ui-review-detail-workspace
+
+- **id:** ui-review-detail-workspace
+- **status:** open
+- **impact:** high
+- **aliases:** review detail workspace; run detail page
+- **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
+- **test-filter:** FullyQualifiedName~RunDetail|reviewId
+- **hunts:** 4
+- **bugs-found:** 5
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — policy callout and review-package surfaces omitted detail snapshot finding counts when explanation deferred
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+ABQ-09 churn hotspot; review detail route tree.
+
+### Hypotheses
+
+- [x] (proven) `load-run-detail-page-model` / `resolveReviewPackageDoThisNext` / tab lifecycle — `showProgressTracker` stayed true for no-manifest runs even after `completedUtc` set — **hit 2026-09-07 (#1174):** Do this next showed view-assessment-progress instead of finalize-package; default tab/status stuck on Activity/Analysis in progress; fixed by gating progress tracker on incomplete runs and prioritizing `runCompleted` over stale tracker flag (`surfaces finalize guidance when run completed without manifest even if showProgressTracker is true`, `returns pre-commit-complete when run completed even if showProgressTracker is true`, `labels completed pre-finalize runs as review complete even when showProgressTracker is true`)
+- [x] (proven) `resolveRunDetailTabbedWorkspace.tabCounts.findings` — used `findingCountDisplay` from deferred explanation while findings list used detail snapshot on first paint — **hit 2026-09-07 (#1196):** tab badge stayed empty until explanation loaded even when triage-visible findings were already in run detail; fixed via `resolveRunDetailFindingsTabBadgeCount` fallback to detail triage counts (`falls back to detail snapshot triage counts when explanation count is deferred`)
+- [x] (proven) `useReviewDetailWorkspaceTabs` — legacy `archTab=` deep links ignored on initial hydration (popstate path only) — **hit 2026-09-07 (#1196):** initial tab resolution read only `reviewTab`; fixed via `resolveReviewWorkspaceTabFromSearchParams` and `resolveReviewDetailTabFromLocation` on first paint (`hydrates legacy archTab deep links on initial visit`, `maps legacy archTab params when reviewTab is absent`)
+- [x] (valid-no-repro) `deriveRunDetailWorkspaceStatus` Approved without operator decision when manifest gate Passed — intentional gate semantics per `run-detail-governance-cta-visibility.test.ts`; governance CTA hidden when manifest status is Committed
+- [x] (proven) `RunDetailPageViewCommitted` / `resolveRunDetailReviewPackageInspectSteps` — inspect checklist keyed on deferred `findingCountDisplay` only while tab badge already falls back to detail snapshot triage counts — **hit 2026-09-08 hunt #1301 (seed→hit):** create-home inspect checklist kept findings step incomplete when `explanationSummary` null but `quickDecisionFindings` already had triage-visible rows; fixed via `resolveRunDetailFindingsReviewed` shared with tab badge fallback; regressions in `run-detail-findings-tab-badge-count.test.ts` and `run-detail-review-package-inspect-checklist.test.ts`
+- [x] (proven) `RunDetailPageViewCommitted` / tabbed workspace deferred surfaces — `RunDetailPolicyPackImpactCalloutDeferred` and review-package summary props passed raw `findingCountDisplay` without detail snapshot fallback when explanation deferred — **hit 2026-09-09 hunts #1381/#1383/#1387/#1389:** tab badge and inspect checklist already used `resolveRunDetailFindingsTabBadgeCount` / `resolveRunDetailFindingsReviewed`; policy callout, review-package section, and sample summary still showed null/` — ` counts until explanation loaded; fixed via shared `resolveRunDetailDeferredSurfaceFindingCount` in `RunDetailPageViewCommitted`, `resolveRunDetailTabbedWorkspace`, and `RunDetailPageViewShell`; regression in `run-detail-findings-tab-badge-count.test.ts`
+
+2026-09-09 thorough hunt #1381 (hit): proved deferred-surface finding count parity gap vs tab badge; wired policy callout and review-package props through snapshot fallback helper; scoped RunDetail/reviewId unit tests passed.
+
+2026-09-09 thorough hunt #1383 (hit): proved deferred-surface finding count parity gap vs tab badge; wired policy callout and review-package props through snapshot fallback helper; scoped RunDetail/reviewId unit tests passed.
+
+2026-09-09 thorough hunt #1387 (hit): proved deferred-surface finding count parity gap; 20 scoped review-detail unit tests passed.
+
+2026-09-09 thorough hunt #1389 (hit): reproved deferred-surface finding count parity gap; 20 scoped review-detail unit tests passed.
+
+2026-09-08 seed hunt #1301 (hit): reseeded ui-review-detail-workspace; proved inspect checklist deferred-explanation findings gap; seeded policy callout/review-package summary count parity candidate.
+
+2026-09-07 seed hunt #1174 (hit): reseeded review detail workspace presentation/lifecycle paths; proved completed pre-finalize runs mislabeled in progress when no manifest.
+2026-09-07 thorough hunt #1196 (hit): proved legacy archTab initial hydration gap and deferred-explanation findings tab badge gap; classified deriveRunDetailWorkspaceStatus as valid-no-repro.
+
+---
+
+## Zone: ui-review-intake-wizards
+
+- **id:** ui-review-intake-wizards
+- **status:** open
+- **impact:** high
+- **aliases:** review intake; new review wizard
+- **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
+- **test-filter:** FullyQualifiedName~reviews/new
+- **hunts:** 6
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — quick-start session restore dropped scope gate/bullets; path switcher preserved orphan intakeStep on guided-intake entry
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+ABQ-09 churn hotspot; intake wizard route tree.
+
+### Hypotheses
+
+- [x] (proven) `useGuidedIntakeWizard` / `useGuidedIntakeDraftWorkflow` — `canSubmit` keyed on local `savedLocallyQuestionKeys` without requiring `reviewAnswers` API persistence — **hit 2026-09-07 (#1175):** `intakeStep=2` deep-link or stale URL could reach confirm with locally handled clarifications only; fixed with `areGuidedIntakeClarificationsPersistedForSubmit`, confirm-step clamp, and clearing `intakeStep`/`scopeGate` when leaving guided intake (`areGuidedIntakeClarificationsPersistedForSubmit`, `clears intakeStep when returning to quick-review`)
+- [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — stale `rerun`/`policyPackId` preserved across path switches (only `intakeStep`/`scopeGate` cleared today) — **2026-09-07 (#1212):** quick-review ignores `rerun=` (guided intake only via `use-guided-intake-prior-run-prefill`); `policyPackId` prefill in quick review is intentional deeplink via `use-new-run-wizard-query-prefill`
+- [x] (valid-no-repro) `use-guided-intake-brief-form` — `scopeGate=1` URL bypasses scope confirmation panel — **2026-09-07 (#1212):** intentional deep-link/Rerun prefill sets confirmed scope (`parseScopeGateOpenFromSearch`); advance blockers still require `scopeGateOpen` before draft admission
+- [x] (valid-no-repro) `use-guided-intake-draft-submit` — post-submit evidence upload failure leaves session uncleared after run spawned — **2026-09-07 (#1212):** `linkedSpawnedRunId` + `isSubmitBlocked` shows `GuidedIntakeAlreadySubmittedCallout` and blocks resubmit; uncleared session preserves operator context after spawn
+- [x] (proven) `use-new-run-wizard-pending-evidence` — inventory platform detection race skips ZIP upload — **hit 2026-09-07 (#1212):** auto-upload effect ran before `detectTier1InventoryPlatformFromFile` resolved; mixed document+inventory pending evidence uploaded documents first and set `evidenceUploadState` to `"success"`, skipping inventory upload; fixed by deferring auto-upload until platform detection completes (`waits for inventory platform detection before auto-uploading pending evidence`)
+- [x] (proven) `use-new-run-wizard-query-prefill` — accelerator/preset deep-link prefill re-fires when `goToStep` identity changes on step URL sync — **hit 2026-09-07 (#1213):** missing run-once guards vs zero-config/example/policy prefills; each `router.replace` for `step` recreated `goToStepWithUrl`, retriggered accelerator/preset effects, and `reset(applyWizardPreset(...))` wiped in-progress edits; fixed with `acceleratorPrefillAppliedRef` / `presetPrefillAppliedRef` (`applies accelerator prefill only once when goToStep identity changes`)
+- [x] (proven) `use-guided-intake-wizard` / `handleSessionRestore` — session restore at confirm without `refreshQuestions` leaves empty `pendingQuestions` and false `clarificationsPersistedForSubmit` — **hit 2026-09-07 (#1219):** empty `pendingQuestions` made `areGuidedIntakeClarificationsPersistedForSubmit` true before selection loaded; fixed with `clarificationSelectionHydrated`, confirm-restore clamp to clarifications + `hydrateClarificationsFromDraft`, and admission-time hydration (`blocks submit before clarification selection is hydrated`)
+- [x] (proven) `ReviewsNewPathSwitcher.selectPath` — stale `step`/`pilot`/`mode` query params survive path switches (only `intakeStep`/`scopeGate` cleared today) — **hit 2026-09-07 (#1219):** leaving `path=detailed` kept `step`/`mode`/`pilot`/`advancedConfig` on quick-review and guided-intake URLs; fixed symmetric param clearing when `path !== detailed` (`clears stale detailed wizard query params when returning to quick-review`)
+- [x] (valid-no-repro) `use-new-run-wizard-mode` — returning-tenant committed probe flips quick → full mid-session before explicit mode choice — **2026-09-07 (#1219):** embedded templates path calls `persistWizardMode("full")` on mount (`use-new-run-wizard-client.tsx`); standalone default to full after probe matches `resolveFirstRunWizardMode` for returning tenants without stored preference
+- [x] (proven) `use-new-run-wizard-pending-evidence` — non-inventory file in inventory slot with pending documents leaves auto-upload idle forever — **hit 2026-09-08 seed hunt #1305:** auto-upload effect treated `pendingInventoryPlatform === null` the same as detection-in-progress; invalid inventory ZIP blocked document upload after detection settled; fixed with `inventoryPlatformDetectionPending` gate (`auto-uploads pending documents when inventory file is not a tier-1 package`)
+- [x] (proven) `use-guided-intake-brief-form` — `template=` example prefill re-fires on guided-intake remount after path switch and resets operator edits — **hit 2026-09-08 seed hunt #1305:** component ref reset on unmount; `template=` survived switches to detailed/quick; fixed with session-scoped `guidedIntakeExampleTemplatePrefillAppliedIds` (`applies example template prefill only once across hook remounts`)
+- [x] (proven) `use-first-pilot-intake-wizard` / `handleSessionRestore` — quick-start session restore omitted `scopeGateOpen` and `scopeBullets`; resume with URL `scopeGate=1` allowed start/submit with empty scope merge — **hit 2026-09-09 thorough hunt #1394:** session snapshot excluded scope fields; restore left bullets empty while URL scope gate stayed open; fixed by persisting and restoring scope gate + bullets; regressions in `persists scope gate and bullets in the quick-start session snapshot` and `restores scope gate and bullets from session so submit keeps merged scope`
+- [x] (proven) `ReviewsNewPathSwitcher.selectPath` + `use-guided-intake-wizard` — orphan `intakeStep` preserved on entry to guided intake (`?intakeStep=2` + disclosure click) deep-linked past clarifications until confirm clamps hydrated — **hit 2026-09-09 thorough hunt #1394:** `selectPath("guided-intake")` did not clear stale `intakeStep`; fixed by deleting `intakeStep` when entering guided intake via path switcher; regression `clears orphan intakeStep when opening guided intake from the disclosure`
+
+2026-09-09 thorough hunt #1394 (hit): proved quick-start scope session restore gap and guided-intake orphan intakeStep on path-switch entry; 23 scoped reviews/new intake path + session restore unit tests passed.
+2026-09-08 seed hunt #1305 (hit): reseeded intake wizard URL/session paths; proved invalid-inventory mixed-evidence auto-upload stall and guided-intake template remount wipe; seeded quick-start scope restore and orphan intakeStep candidates.
+2026-09-07 thorough hunt #1212 (hit): proved pending-evidence auto-upload race skipped inventory ZIP when platform detection lagged; cheap-disproved path-switcher rerun/policyPack, scopeGate deeplink, and draft-submit session retention hypotheses.
+2026-09-07 seed hunt #1213 (hit): reseeded query-prefill and wizard lifecycle paths; proved accelerator/preset prefill re-fired on step URL sync; added session-restore, stale step param, and mode-probe candidates.
+2026-09-07 thorough hunt #1219 (hit): proved session-restore confirm could treat unloaded clarifications as persisted; proved stale detailed wizard URL params survived path switches; cheap-disproved mode-probe flip on embedded detailed path.
+
+---
+
+## Zone: ui-governance-findings-queue
+
+- **id:** ui-governance-findings-queue
+- **status:** open
+- **impact:** medium
+- **aliases:** governance findings queue
+- **paths:** archlucid-ui/src/app/(operator)/governance/findings/GovernanceFindingsQueueClient.tsx
+- **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
+- **hunts:** 8
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — pick-review and show-all-filtered URL sync gaps
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+ABQ-09 churn hotspot.
+
+### Hypotheses
+
+- [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — workspace saved view load does not clear stale `runId` scope — **hit 2026-09-07 hunt #1188 (seed→hit):** loading a saved view with `scopedRunId: null` while the URL still had `?runId=` left review scope active because only the scoped-run branch called navigation; fixed with `governanceFindingsWorkspaceSavedViewHref` and a final `router.replace` when the saved view is workspace-wide; regressions in `use-governance-findings-queue-saved-views.test.ts` and `governance-findings-saved-view-helpers.test.ts`
+- [x] (proven) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — run-scoped saved view load merged stale URL params instead of rebuilding from saved filters — **hit 2026-09-07 hunt #1279 (seed→hit):** run-scoped branch delegated to `onPickReviewForTriage`, which only set `runId` on the current query string so stale `filter` / `architectureId` survived after `setRegisterFilter`; fixed with `governanceFindingsRunScopedSavedViewHref`; regressions in `use-governance-findings-queue-saved-views.test.ts` and `governance-findings-saved-view-helpers.test.ts`
+- [x] (proven) `GovernanceFindingsQueueClient.clearAllFilters` — final navigation restored stale register/facet params after state clears — **hit 2026-09-07 hunt #1280:** `clearAllFilters` ended with `governanceFindingsSearchHrefFromSearch`, which only cleared `q` and rebuilt from the render-scoped query string so `filter` / `findingJobView` / NL facet params survived; review/architecture scope preservation is intentional (`Clear review scope` is separate); fixed with `governanceFindingsClearAllFiltersHref`; regressions in `governance-findings-clear-all-filters-url.test.ts` and `use-governance-findings-queue-saved-views.test.ts`
+
+- [x] (proven) `GovernanceFindingsQueueClient.onPickReviewForTriage` — picking a review merged stale `architectureId` so run scope intersected architecture run-set and could hide all triage rows — **hit 2026-09-07 seed hunt #1290 (seed→hit):** `URLSearchParams` merge only set `runId` while `governanceFindingsRunScopedSavedViewHref` already clears architecture scope; fixed with `governanceFindingsPickReviewForTriageHref`; regressions in `governance-findings-pick-review-url.test.ts`.
+- [x] (proven) `GovernanceFindingsQueueClient.onPickReviewForTriage` — picking a review while architecture-scoped with stale register/facet params may keep filters that were chosen under architecture scope but not intended for the picked run — **hit 2026-09-08 hunt #1298:** `#1290` cleared `architectureId` only; architecture-scoped register/facet params survived pick-review navigation so run triage inherited architecture filters; fixed by rebuilding run-only URL when `architectureId` was present; regressions in `governance-findings-pick-review-url.test.ts`
+
+- [x] (proven) `GovernanceFindingsQueueScopeSection` — Clear review scope link used bare `navHref` and dropped register/facet/search params — **hit 2026-09-08 seed hunt #1336:** `#1280` preserved scope on clear-all-filters but clear review scope reset the entire query string; fixed with `governanceFindingsClearReviewScopeHref` and client wiring; regressions in `governance-findings-clear-review-scope-url.test.ts` and `GovernanceFindingsQueueScopeSection.test.tsx`
+- [x] (proven) `GovernanceFindingsQueueClient.clearAllFilters` — final navigation preserved stale bulk selection and disposition-confirm params after register/facet clears — **hit 2026-09-08 seed hunt #1374:** `#1280` cleared register/facet/search/groupBy but `governanceFindingsClearAllFiltersHref` left `bulkFindings` / `bulkDispConfirm` on the URL so checkbox selection and confirm dialog state survived clear-all; fixed by deleting bulk params in the helper; regression in `governance-findings-clear-all-filters-url.test.ts`
+- [x] (proven) `GovernanceFindingsQueueClient.onPickReviewForTriage` — non-architecture pick-review merge preserved stale `bulkFindings` / `bulkDispConfirm` tied to the prior review-less selection — **hit 2026-09-08 seed hunt #1375:** `#1374` cleared bulk on clear-all/clear-review-scope but `governanceFindingsPickReviewForTriageHref` merge path kept bulk params when setting `runId`; fixed by deleting bulk params on pick-review navigation; regression in `governance-findings-pick-review-url.test.ts`
+- [x] (proven) `GovernanceFindingsQueueClient.showAllFilteredFindings` — `setHideGenericLowDensity(false)` then `clearAllFilters()` both rebuilt from render-scoped `searchParams`, so the second `router.replace` restored `hideGeneric=1` after filters cleared — **hit 2026-09-08 seed hunt #1375:** fixed with atomic `governanceFindingsShowAllFilteredFindingsHref`; regression in `governance-findings-clear-all-filters-url.test.ts`
+- [x] (valid-no-repro) `onLoadFindingsSavedView` workspace/run helpers carry stale bulk params — **cheap-disproof 2026-09-08 seed hunt #1375:** `governanceFindingsWorkspaceSavedViewHref` / `governanceFindingsRunScopedSavedViewHref` rebuild URL from saved-view filters only; never merge current query bulk state
+
+2026-09-08 seed hunt #1375 (hit): reseeded ui-governance-findings-queue; proved pick-review bulk URL carryover and show-all-filtered hideGeneric restore race; cheap-disproof closed saved-view bulk merge; 19 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
+
+2026-09-08 seed hunt #1374 (hit): reseeded ui-governance-findings-queue; proved clear-all-filters bulk-selection URL carryover; 17 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
+
+2026-09-08 seed hunt #1336 (hit): reseeded ui-governance-findings-queue; proved clear review scope dropped active filters; 16 scoped saved-view/clear-all/pick-review/clear-scope unit tests passed.
+2026-09-08 thorough hunt #1298 (hit): proved architecture-scoped pick-review stale filter carryover; 11 scoped saved-view/clear-all/pick-review unit tests passed.
+2026-09-07 seed hunt #1290 (seed→hit): reseeded `onPickReviewForTriage` architecture-scope merge hypothesis; 5 scoped pick-review / saved-view unit tests passed.
+
+---
+
+## Zone: ui-infra-resource-hub
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 8
+- **bugs-found:** 8
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — inventory diagrams and terraform workbench links dropped review runId while diagram reconcile and hub tab links preserved it
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+ABQ-09 churn hotspot.
+
+### Hypotheses
+
+- [x] (proven) `sanitizeResourceHubQueryForTab` / `ResourceHubClient.setActiveTab` — tab bar switch drops `runId` while hub cross-links preserve review scope — **hit 2026-09-07 hunt #1189 (seed→hit):** `sanitizeResourceHubQueryForTab` deleted `runId` for drift/findings/terraform/audit tabs before `resourceHubFilterHrefFromSearch`, so clicking the tab bar lost review scope that sibling quick links kept; fixed by only stripping item-scoped params (finding/diff/instance/correspondence); regressions in `infra-evidence-hub-tab-query.test.ts` and `ResourceHubClient.test.tsx`
+- [x] (proven) `ResourceHubClient.hasStaleAuditUrlParams` — partial audit URL triple may not surface stale banner when payload resolves a subset — **hit 2026-09-07 hunt #1281:** stale detection used `hasAnyAuditParam && workbenchLinkAuditContext == null`, but `workbenchLinkAuditContext` merges URL + hub payload via `resolveInfrastructureAskAuditContext`, so a partial URL triple (e.g. only `assessmentId`) with full hub lineage hid the stale banner while still rendering the audit scope bar; fixed by URL-only `hasStaleInfraEvidenceAuditUrlParams` + gating the scope bar on `parseInfraEvidenceWorkbenchAuditScopeFromSearch`; regressions in `infra-evidence-workbench-hub-scope.test.ts` and `ResourceHubClient.test.tsx`
+- [x] (invalid) `fetchCachedInfraEvidenceResourceHub` — cache key omits work-queue param so explorer queue context can serve stale hub payload — **invalid 2026-09-07 hunt #1281:** `workQueue` is navigation/UI context only; `fetchCloudResourceEvidenceHub` does not send it to the hub API, so omitting it from the cache key matches fetch semantics and is not a stale-payload defect
+- [x] (proven) `buildHubAuditLineageTabHref` — audit lineage hub tab links omit `runId` while `buildHubScopedTabHref` cross-links preserve review scope — **hit 2026-09-07 hunt #1285 (seed→hit):** `resourceHubFilterHrefFromSearch` rebuild dropped `runId` on all `*-open-audit-*` tab links; fixed by routing through `buildHubScopedTabHref`; regression in `preserves runId on audit lineage tab quick links`
+- [x] (proven) `buildHubAuditLineageAskHref` — Infrastructure Ask links from audit tab omit `runId` while diagram/finding ask helpers pass it when present — **hit 2026-09-07 hunt #1295:** audit-tab Ask helper never forwarded `runId` to `buildInfrastructureAskHref` while sibling ask helpers did; fixed by threading `runId` through `buildHubAuditLineageAskHref` and call sites; regression in `preserves runId on audit lineage Infrastructure Ask link`
+- [x] (proven) `buildHubDriftChangeAskHref` / `buildHubFindingAskHref` / `buildHubRemediationAskHref` — drift/findings/remediation Infrastructure Ask links omit `runId` while diagram/audit/overview ask helpers pass it when present — **hit 2026-09-08 hunt #1299 (seed→hit):** three tab-scoped Ask helpers spread audit context only and never forwarded hub `runId`; fixed by threading `runId` through helpers and call sites; regressions in `preserves runId on drift/findings/remediation Infrastructure Ask links`
+- [x] (proven) `buildRemediationWorkbenchHref` call sites / `buildResourceScopedWorkbenchHref` — overview/findings/remediation factory links omit `runId` while diagram correspondence remediation and Infrastructure Ask links preserve review scope — **hit 2026-09-08 seed hunt #1337:** factory href builders spread audit context but never forwarded hub `runId`; fixed by threading `runId` through scoped remediation helper and ResourceHubClient factory call sites; regressions in `preserves runId on overview/findings/remediation factory links`
+- [x] (proven) `buildDriftWorkbenchHref` / `buildResourceHubDriftWorkbenchHref` / `buildHubDriftChangeWorkbenchHref` — overview/drift-tab drift workbench and drift-change row links omit `runId` while remediation factory, diagram reconcile, and Ask links preserve review scope — **hit 2026-09-08 seed hunt #1376:** `buildDriftWorkbenchHref` ignored `runId` despite `InfraEvidenceWorkbenchContext`; fixed by threading `runId` through drift helpers and ResourceHubClient call sites; regressions in `preserves runId on overview/drift-tab drift workbench links` and `preserves runId on overview drift change workbench links`
+- [x] (proven) `buildResourceHubDiagramsWorkbenchHref` / `buildTerraformWorkbenchHref` — overview inventory diagrams and terraform-tab workbench links omit `runId` while diagram reconcile, drift workbench, and hub tab cross-links preserve review scope — **hit 2026-09-08 seed hunt #1378:** diagrams/terraform filter helpers ignored `runId`; fixed by threading `runId` through workbench href builders and ResourceHubClient call sites; regressions in `preserves runId on overview inventory diagrams link` and `preserves runId on terraform tab terraform workbench link`
+
+2026-09-08 seed hunt #1378 (hit): reseeded ui-infra-resource-hub; proved inventory diagrams and terraform workbench runId scope leak vs diagram-reconcile/hub-tab parity; 39 scoped ResourceHubClient and filter-url unit tests passed.
+
+2026-09-08 seed hunt #1376 (hit): reseeded ui-infra-resource-hub; proved drift workbench and drift-change runId scope leak vs remediation/Ask parity; 39 scoped ResourceHubClient and workbench-url unit tests passed.
+
+2026-09-08 seed hunt #1337 (seed→hit): reseeded ui-infra-resource-hub; proved remediation factory runId scope leak; aligned factory links with Ask/diagram-remediation parity; 28 scoped `ResourceHubClient` tests passed.
+
+2026-09-08 seed hunt #1299 (hit): reseeded ui-infra-resource-hub; proved drift/findings/remediation Ask runId scope leak; aligned remaining Ask helpers with audit/diagram parity.
+
+2026-09-07 thorough hunt #1295 (hit): proved audit-tab Infrastructure Ask runId scope leak; aligned ask helper with diagram/finding ask parity.
+2026-09-07 seed hunt #1285 (hit): reseeded ui-infra-resource-hub; proved audit lineage tab link runId scope leak; seeded audit-tab Ask runId candidate.
+
+2026-09-07 seed hunt #1189 (hit): seeded zone from ABQ-09 churn hotspot; proved tab-bar runId scope leak vs cross-link parity.
+
+2026-09-07 thorough hunt #1281 (hit): proved partial-audit URL stale-banner gap; disproved work-queue cache-key hypothesis; 25 scoped unit tests passed.
+
+---
+
+## Zone: host-infra-evidence-composition
+
+- **id:** host-infra-evidence-composition
+- **status:** open
+- **impact:** medium
+- **aliases:** infra evidence composition; host composition module
+- **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
+- **test-filter:** FullyQualifiedName~InfraEvidenceComposition
+- **hunts:** 2
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-07
+- **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+ABQ-09 churn hotspot.
+
+### Hypotheses
+
+- [x] (proven) `InMemoryStorageProviderRegistrar` / `InfraEvidenceCompositionModule` — `ICloudResourceEvidenceHubService` and `ICloudResourceExplorerQueryService` registered but InMemory `ICloudResourceIdentityDirectory` never persisted upserted identities — **hit 2026-09-07 hunt #1190 (seed→hit):** `NoOpCloudResourceIdentityDirectory` returned synthetic upsert rows with new Guids while `TryGetByCloudResourceIdAsync` always returned null, so OpenAPI/InMemory hosts could not resolve resource hub after inventory materialization; fixed with `InMemoryCloudResourceIdentityDirectory` and composition regression in `InfraEvidenceCompositionModuleTests`
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule` — `MermaidDiagramReadabilityThresholds` singleton may not flow into `InfraEvidenceSnapshotMermaidService` when optional ctor default bypasses DI — **disproved 2026-09-07 (#1273):** MS DI injects registered singleton into optional primary-constructor parameter; same instance used at render time (`InfraEvidenceCompositionModule_wires_mermaid_readability_thresholds_singleton_into_snapshot_mermaid_service`)
+- [x] (valid-no-repro) `InfraEvidenceCompositionModule` — `IAuditEvaluationFindingHandoffService` always wires real handoff; no InMemory no-op variant when operational finding ingest is disabled — **disproved 2026-09-07 (#1273):** InMemory uses `NoOpOperationalSecurityFindingRepository`; real handoff + ingest still returns success for local hosts (`InMemory_composition_audit_evaluation_finding_handoff_succeeds_with_noop_finding_repository`); legacy `NoOpAuditEvaluationFindingHandoffService` predates IE-09 wiring
+- [x] (valid-no-repro) orphan `ISecurityCrosswalkService` registration — no production controller caller yet; service resolves and unit tests cover behavior — **disproved 2026-09-07 (#1273):** intentional pre-API registration; InMemory composition resolves `SecurityCrosswalkService` with `NoOpSecurityCrosswalkRepository` (`InMemory_composition_resolves_security_crosswalk_service`, `SecurityCrosswalkServiceTests`)
+- [ ] (candidate) `InfraEvidenceCompositionModule` — `TenantBrandingResolvedProfileCache` singleton depends on `IMemoryCache` but the module does not register memory cache; standalone module import without ASP.NET host setup may fail service validation
+- [ ] (candidate) `InfraEvidenceCompositionModule` — repeated `Register` on the same `IServiceCollection` re-adds scoped audit selector implementations without `TryAdd`; duplicate selector registration may duplicate evidence collection passes
+
+2026-09-07 thorough hunt #1273 (dry): cheap-disproof closed hunt-ready crosswalk row and both composition wiring candidates; five scoped composition tests passed; reseeded memory-cache dependency and duplicate-selector registration candidates.
+
+2026-09-07 seed hunt #1190 (hit): seeded zone from ABQ-09 churn hotspot; proved InMemory cloud-resource identity directory broke hub services registered by composition module.
+
+## Zone: ui-claim-discipline-policy
+
+- **id:** ui-claim-discipline-policy
+- **status:** open
+- **impact:** medium
+- **aliases:** claim discipline policy; evidence orientation strip
+- **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
+- **test-filter:** claim-discipline-policy
+- **hunts:** 5
+- **bugs-found:** 7
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-08
+- **last-bug:** 2026-09-08 — notifications, workspace-settings, and jira-integration help TOC kept claim headings while bands are omitted
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+ABQ-09 churn hotspot.
+
+### Hypotheses
+
+- [x] (proven) `CLAIM_DISCIPLINE_BAND_OMIT_SLUGS` / `resolveGuideHeadingsForStrip` — `audit-trail-help` missing from omit set while buyer-polished header folds claim into `PageHeaderClaimDiscipline` — **hit 2026-09-07 hunt #1191 (seed→hit):** TOC kept `#help-audit-trail-claim-discipline-heading` with no matching anchor and operator shell duplicated claim via orientation strip; fixed by omitting `audit-trail-help` and making `AuditTrailHelpEvidenceOrientationStrip` sources-only
+- [x] (proven) `help-sponsor-dashboard` — guide TOC lists claim heading id but header claim strip rendered aside without matching anchor while orientation strip duplicated claim — **hit 2026-09-07 hunt #1282:** `SponsorDashboardHelpClaimDisciplineStrip` lacked `#help-sponsor-dashboard-claim-discipline-heading` while `SponsorDashboardHelpEvidenceOrientationStrip` repeated the negation band; fixed by anchoring the header strip, omitting `help-sponsor-dashboard`, and making the orientation strip sources-only; regressions in `SponsorDashboardHelpEvidenceOrientationStrip.test.tsx`, `HelpSponsorDashboardGuideView.test.tsx`, and `claim-discipline-policy.test.ts`
+- [x] (invalid) `digests-subscriptions` — sibling digest slugs omitted but subscriptions slug absent from omit set — **invalid 2026-09-07 hunt #1282:** strip is sources-only (no claim prop) and digests hub header does not fold claim discipline today; omit-set parity is defensive only
+- [x] (invalid) `policy-packs-help` registry slug vs `help-policy-packs` page slug — **invalid 2026-09-07 hunt #1282:** legacy `PolicyPacksHelpEvidenceOrientationStrip` is unused; live `/help/policy-packs` uses `help-policy-packs` slug (omitted) via `HelpPolicyPacksClaimOrientationStrip` and header claim fold
+- [x] (invalid) `help-data-handling` — strip passes claim while specialty guide may fold negation into header on buyer-polished shell — **invalid 2026-09-07 hunt #1282:** buyer shell renders claim once via orientation strip; operator shell uses `HelpDataHandlingTenantIsolationClaimDiscipline` without a conflicting markdown TOC claim heading
+- [x] (proven) `help-advisory-scans` / `ADVISORY_SCANS_HELP_GUIDE_HEADINGS` — claim TOC entry `#what-advisory-scans-are-not` survived while `help-advisory-scans` is omitted and claim renders in the header info strip or info aside without that anchor — **hit 2026-09-07 seed hunt #1291 (seed→hit):** sidebar and mobile TOC linked to a missing scroll target; fixed by passing `resolveGuideHeadingsForStrip("help-advisory-scans", …)` into `HelpAdvisoryScansGuideView`; regressions in `HelpAdvisoryScansGuideView.test.tsx` and `claim-discipline-policy.test.ts`
+- [x] (proven) `help-recurrence-schedules` / `HelpRecurrenceSchedulesGuideView` — claim TOC entry `#help-recurrence-schedules-claim-discipline-heading` survived while `help-recurrence-schedules` is omitted and claim renders only in orientation/header strips without that anchor — **hit 2026-09-08 seed hunt #1306 (seed→hit):** sidebar scroll-spy linked to a missing scroll target; fixed by passing filtered `guideHeadings` into `HelpTopicTableOfContents`; regressions in `HelpRecurrenceSchedulesGuideView.test.tsx` and `claim-discipline-policy.test.ts`
+- [x] (proven) `help-notifications` / `HelpNotificationsGuideView` — operator-shell TOC passed raw `NOTIFICATIONS_HELP_GUIDE_HEADINGS` while `help-notifications` is omitted and claim renders in header/aside strips without `#help-notifications-claim-discipline-heading` — **hit 2026-09-08 thorough hunt #1307:** sidebar linked to missing scroll target; fixed by passing filtered `guideHeadings` into `HelpTopicTableOfContents`; regression in `HelpNotificationsGuideView.test.tsx`
+- [x] (proven) `help-workspace-settings` / `HelpWorkspaceSettingsGuideView` — TOC passed raw `WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS` while slug is omitted and claim renders in strip without matching h2 anchor — **hit 2026-09-08 thorough hunt #1307:** duplicate TOC links to missing claim anchor; fixed by `resolveGuideHeadingsForStrip("help-workspace-settings", …)`; regression in `HelpWorkspaceSettingsGuideView.test.tsx`
+- [x] (proven) `help-jira-integration` / `HelpJiraIntegrationGuideView` — TOC passed raw `JIRA_INTEGRATION_HELP_GUIDE_HEADINGS` while slug is omitted — **hit 2026-09-08 thorough hunt #1307:** sidebar linked to missing scroll target; fixed by filtered `guideHeadings`; regression in `HelpJiraIntegrationGuideView.test.tsx`
+
+2026-09-08 thorough hunt #1307 (hit): proved notifications, workspace-settings, and jira-integration raw-TOC/omit mismatches; 14 scoped claim-discipline unit tests passed.
+
+2026-09-07 seed hunt #1191 (hit): seeded zone from ABQ-09 churn hotspot; proved audit-trail-help omit gap broke TOC scroll targets after header claim fold.
+
+2026-09-07 thorough hunt #1282 (hit): proved sponsor-dashboard help duplicate claim + missing header-strip TOC anchor; disproved three sibling slug hypotheses; 14 scoped unit tests passed.
+
+2026-09-07 seed hunt #1291 (seed→hit): reseeded advisory-scans TOC/omit mismatch; 17 scoped claim-discipline and advisory-scans unit tests passed.

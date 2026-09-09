@@ -4,7 +4,7 @@
  * Why two surfaces exist:
  * - Package Governance (`?archTab=governance` / review Policies tab) is
  *   pre-finalize readiness on one architecture package — policy alignment and
- *   governance checks before commit.
+ *   approval checks before commit.
  * - Approval queue (`/governance/approval-queue`) is the live approve / reject
  *   workflow across pending resolve outcome requests.
  *

@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Sample;
@@ -14,6 +15,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.UserPreferences;
 using ArchLucid.Decisioning.DecisionTraces;
 using ArchLucid.Decisioning.Decisions;
 using ArchLucid.Persistence.Data.Repositories;
@@ -46,6 +48,7 @@ public sealed class AuthorityCommitPersistenceStage(
     IArtifactBundleRepository artifactBundleRepository,
     IOptions<GenerateIacStubsOptions> generateIacStubsOptions,
     IOptions<RerankFindingsOptions> rerankFindingsOptions,
+    IUserWorkspaceModeReader userWorkspaceModeReader,
     ILogger<AuthorityCommitPersistenceStage> logger) : IAuthorityCommitPersistenceStage
 {
     private readonly IManifestFinalizationService _manifestFinalizationService =
@@ -92,6 +95,9 @@ public sealed class AuthorityCommitPersistenceStage(
 
     private readonly IOptions<RerankFindingsOptions> _rerankFindingsOptions =
         rerankFindingsOptions ?? throw new ArgumentNullException(nameof(rerankFindingsOptions));
+
+    private readonly IUserWorkspaceModeReader _userWorkspaceModeReader =
+        userWorkspaceModeReader ?? throw new ArgumentNullException(nameof(userWorkspaceModeReader));
 
     private readonly ILogger<AuthorityCommitPersistenceStage> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -179,6 +185,21 @@ public sealed class AuthorityCommitPersistenceStage(
             finalization.PersistedManifest ?? throw new InvalidOperationException("Manifest finalization returned no persisted model.");
         Cm.GoldenManifest contract = materialization.Contract;
         DecisionTrace trace = materialization.Trace;
+
+        if (await _userWorkspaceModeReader.IsWorkingDeskAsync(actor, cancellationToken))
+        {
+            await AuthorityCommittedChainDurableAudit.LogRequiredAsync(
+                _auditService,
+                _scopeContextProvider,
+                actor,
+                _logger,
+                runGuid,
+                contract.SystemName,
+                AuthorityCommittedChainDurableAudit.FromManifestDocument(persisted),
+                "authority-career-commit",
+                richFindingsAndGraph: true,
+                cancellationToken);
+        }
 
         await _baselineMutationAudit.RecordAsync(
             AuditEventTypes.Baseline.Architecture.RunCompleted,

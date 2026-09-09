@@ -17,6 +17,10 @@ import { useAlertsInboxController } from "@/components/alerts/use-alerts-inbox-c
 import type { AlertsInboxPageModel } from "@/app/(operator)/governance/alerts/_sections/alerts-inbox-page-model";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
 import {
+  ALERTS_INBOX_BUYER_START_HERE_HELPER,
+  ALERTS_INBOX_PAGE_LEAD,
+} from "@/lib/alerts-inbox-page-copy";
+import {
   resolveAlertsInboxTriageEmphasizedStepId,
   resolveAlertsInboxTriageSteps,
 } from "@/lib/alerts-inbox-triage-checklist";
@@ -33,6 +37,26 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
 
   return (
     <OperatorPageContainer variant="dashboard">
+      {controller.buyerPolishedShell ? (
+        <div
+          className="mb-4 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid="alerts-inbox-first-viewport"
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="alerts-inbox-intro"
+          >
+            {ALERTS_INBOX_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="alerts-inbox-buyer-start-here-helper"
+          >
+            {ALERTS_INBOX_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
+
       <AlertsInboxPageIntro
         canMutateAlertInbox={controller.canMutateAlertInbox}
         buyerPolishedShell={controller.buyerPolishedShell}

@@ -112,7 +112,9 @@ public sealed class RequestCostConstraintMaterializerTests
                 Properties = new Dictionary<string, string>(item.Properties, StringComparer.OrdinalIgnoreCase),
             });
 
-        DefaultGraphBuilder sut = new(nodeFactory.Object, edgeInferer.Object);
+        DefaultGraphBuilder sut = GraphMaterializationTestHelpers.CreateDefaultGraphBuilder(
+            nodeFactory.Object,
+            edgeInferer.Object);
         ContextSnapshot snapshot = new()
         {
             SnapshotId = Guid.NewGuid(),
@@ -167,7 +169,9 @@ public sealed class RequestCostConstraintMaterializerTests
             .Setup(e => e.InferEdges(It.IsAny<ContextSnapshot>(), It.IsAny<IReadOnlyList<GraphNode>>()))
             .Returns([]);
 
-        DefaultGraphBuilder sut = new(new Mock<IGraphNodeFactory>().Object, edgeInferer.Object);
+        DefaultGraphBuilder sut = GraphMaterializationTestHelpers.CreateDefaultGraphBuilder(
+            new Mock<IGraphNodeFactory>().Object,
+            edgeInferer.Object);
         ContextSnapshot snapshot = new()
         {
             SnapshotId = Guid.NewGuid(),

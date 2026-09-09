@@ -203,6 +203,22 @@ describe("HelpAdvisoryScansGuideView", () => {
     expect(auditLinks.length).toBeLessThanOrEqual(2);
   });
 
+  it("drops claim discipline from table of contents when help-advisory-scans band is omitted", () => {
+    if (entry === undefined) {
+      throw new Error("Expected advisory-scans documentation entry.");
+    }
+
+    render(<HelpAdvisoryScansGuideView entry={entry} />);
+
+    for (const tocTestId of ["help-topic-toc", "help-topic-toc-mobile"] as const) {
+      const toc = screen.getByTestId(tocTestId);
+
+      expect(
+        within(toc).queryByRole("link", { name: ADVISORY_SCANS_HELP_CLAIM_DISCIPLINE_HEADING }),
+      ).not.toBeInTheDocument();
+    }
+  });
+
   it("resolves TOC anchors with sticky scroll offsets and stacked sources", () => {
     if (entry === undefined) {
       throw new Error("Expected advisory-scans documentation entry.");

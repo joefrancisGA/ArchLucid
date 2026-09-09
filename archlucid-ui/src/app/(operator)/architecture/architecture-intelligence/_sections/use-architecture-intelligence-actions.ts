@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, type RefObject } from "react";
 
 import {
   buildRequest,
@@ -16,6 +16,14 @@ import type {
 import type { UseArchitectureIntelligenceProductContextResult } from "./use-architecture-intelligence-product-context";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { architectureIntelligenceRunMutationBlockedReason } from "@/lib/architecture/architecture-intelligence-run-mutation-blocked-reason";
+
+function isStaleActionGeneration(
+  actionGenerationRef: RefObject<number>,
+  generation: number,
+): boolean {
+  return actionGenerationRef.current !== generation;
+}
+
 
 export type UseArchitectureIntelligenceActionsResult = {
   isBusy: boolean;
@@ -43,12 +51,15 @@ export function useArchitectureIntelligenceActions(
     setError,
     setPublishToProduct,
     setRunState,
+    setInterviewAnswers,
     setActiveRunId,
     setHydratedSourceTexts,
     setArchitectureDescription,
     setPrioritiesRaw,
     markProductContextLoaded,
     loadingAction,
+    actionGenerationRef,
+    invalidateInFlightActions,
   } = ctx;
 
   const runReasoningWithOptions = useCallback(
@@ -61,6 +72,7 @@ export function useArchitectureIntelligenceActions(
 
       const shouldPublish = options?.publish ?? publishToProduct;
       const action = options?.action ?? "reasoning";
+      const generation = actionGenerationRef.current;
 
       setLoadingAction(action);
       setError(null);
@@ -80,19 +92,30 @@ export function useArchitectureIntelligenceActions(
           }),
         );
 
+        if (isStaleActionGeneration(actionGenerationRef, generation)) {
+          return;
+        }
+
         setActiveRunId(result.runId ?? null);
         setRunState({ kind: "reasoning", result });
       } catch (cause) {
+        if (isStaleActionGeneration(actionGenerationRef, generation)) {
+          return;
+        }
+
         const failure = toApiLoadFailure(cause);
         const blocked = architectureIntelligenceRunMutationBlockedReason(failure);
 
         setError(blocked ?? (cause instanceof Error ? cause.message : String(cause)));
       } finally {
-        setLoadingAction(null);
+        if (!isStaleActionGeneration(actionGenerationRef, generation)) {
+          setLoadingAction(null);
+        }
       }
     },
     [
       activeRunId,
+      actionGenerationRef,
       architectureDescription,
       hydratedSourceTexts,
       interviewAnswers,
@@ -130,6 +153,7 @@ export function useArchitectureIntelligenceActions(
 
     setLoadingAction("continue");
     setError(null);
+    const generation = actionGenerationRef.current;
 
     try {
       const result = await postJson<ClosedLoopReasoningResult>(
@@ -143,17 +167,28 @@ export function useArchitectureIntelligenceActions(
         }),
       );
 
+      if (isStaleActionGeneration(actionGenerationRef, generation)) {
+        return;
+      }
+
       setActiveRunId(result.runId ?? activeRunId);
       setRunState({ kind: "reasoning", result });
     } catch (cause) {
+      if (isStaleActionGeneration(actionGenerationRef, generation)) {
+        return;
+      }
+
       const failure = toApiLoadFailure(cause);
       const blocked = architectureIntelligenceRunMutationBlockedReason(failure);
 
       setError(blocked ?? (cause instanceof Error ? cause.message : String(cause)));
     } finally {
-      setLoadingAction(null);
+      if (!isStaleActionGeneration(actionGenerationRef, generation)) {
+        setLoadingAction(null);
+      }
     }
   }, [
+    actionGenerationRef,
     activeRunId,
     architectureDescription,
     hydratedSourceTexts,
@@ -176,6 +211,7 @@ export function useArchitectureIntelligenceActions(
 
     setLoadingAction("publish");
     setError(null);
+    const generation = actionGenerationRef.current;
 
     try {
       const result = await postJson<ClosedLoopReasoningResult>(
@@ -189,16 +225,27 @@ export function useArchitectureIntelligenceActions(
         }),
       );
 
+      if (isStaleActionGeneration(actionGenerationRef, generation)) {
+        return;
+      }
+
       setRunState({ kind: "reasoning", result });
     } catch (cause) {
+      if (isStaleActionGeneration(actionGenerationRef, generation)) {
+        return;
+      }
+
       const failure = toApiLoadFailure(cause);
       const blocked = architectureIntelligenceRunMutationBlockedReason(failure);
 
       setError(blocked ?? (cause instanceof Error ? cause.message : String(cause)));
     } finally {
-      setLoadingAction(null);
+      if (!isStaleActionGeneration(actionGenerationRef, generation)) {
+        setLoadingAction(null);
+      }
     }
   }, [
+    actionGenerationRef,
     activeRunId,
     architectureDescription,
     hydratedSourceTexts,
@@ -215,6 +262,7 @@ export function useArchitectureIntelligenceActions(
 
     setLoadingAction("golden");
     setError(null);
+    const generation = actionGenerationRef.current;
 
     try {
       const result = await postJson<GoldenArchitectureTestResult>(
@@ -227,13 +275,24 @@ export function useArchitectureIntelligenceActions(
         }),
       );
 
+      if (isStaleActionGeneration(actionGenerationRef, generation)) {
+        return;
+      }
+
       setRunState({ kind: "golden", result });
     } catch (cause) {
+      if (isStaleActionGeneration(actionGenerationRef, generation)) {
+        return;
+      }
+
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
-      setLoadingAction(null);
+      if (!isStaleActionGeneration(actionGenerationRef, generation)) {
+        setLoadingAction(null);
+      }
     }
   }, [
+    actionGenerationRef,
     activeRunId,
     architectureDescription,
     hydratedSourceTexts,
@@ -246,8 +305,10 @@ export function useArchitectureIntelligenceActions(
   ]);
 
   const loadGoldenFixture = useCallback(async () => {
+    invalidateInFlightActions();
     setLoadingAction("fixture");
     setError(null);
+    const generation = actionGenerationRef.current;
 
     try {
       const fixture = await getJson<{
@@ -256,22 +317,41 @@ export function useArchitectureIntelligenceActions(
       }>("/api/proxy/v1/architecture-intelligence/golden-fixture");
 
       const sources = fixture.sourceTexts ?? [];
+
+      if (isStaleActionGeneration(actionGenerationRef, generation)) {
+        return;
+      }
+
+      setRunState(null);
+      setInterviewAnswers({});
+      setPublishToProduct(false);
       setHydratedSourceTexts(sources);
       setArchitectureDescription(primaryDescriptionFromSources(sources));
       setPrioritiesRaw((fixture.declaredPriorities ?? []).join(", "));
       markProductContextLoaded(sources.length > 0);
     } catch (cause) {
+      if (isStaleActionGeneration(actionGenerationRef, generation)) {
+        return;
+      }
+
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
-      setLoadingAction(null);
+      if (!isStaleActionGeneration(actionGenerationRef, generation)) {
+        setLoadingAction(null);
+      }
     }
   }, [
+    actionGenerationRef,
+    invalidateInFlightActions,
     markProductContextLoaded,
     setArchitectureDescription,
     setError,
     setHydratedSourceTexts,
+    setInterviewAnswers,
     setLoadingAction,
     setPrioritiesRaw,
+    setPublishToProduct,
+    setRunState,
   ]);
 
   const isBusy = loadingAction !== null;

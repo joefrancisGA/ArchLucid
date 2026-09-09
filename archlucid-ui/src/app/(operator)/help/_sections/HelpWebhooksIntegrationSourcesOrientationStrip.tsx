@@ -1,23 +1,30 @@
+"use client";
+
+import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
 import {
-  EvidenceOrientationClaimAndSourcesStrip,
-} from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+  helpWebhooksIntegrationSourcesDisclosureHrefFromSearch,
+  parseHelpWebhooksIntegrationSourcesOpenFromSearch,
+} from "@/lib/help/help-webhooks-integration-sources-disclosure-url";
 import {
   WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
   WEBHOOKS_INTEGRATION_HELP_SOURCES,
   WEBHOOKS_INTEGRATION_HELP_SOURCES_INTRO,
 } from "@/lib/webhooks-integration-help-evidence-copy";
+import { WEBHOOKS_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/webhooks-integration-help-page-copy";
 
-/** Sources-only follow-ups for `/help/webhooks-integration` buyer-polished shell (HEW). */
+/** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open. */
 export function HelpWebhooksIntegrationSourcesOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="help-webhooks-integration"
+    <UrlSyncedSourcesCollapsibleStrip
+      surfaceId="help-webhooks-integration-sources"
+      searchParamKey="helpWebhooksIntegrationSourcesOpen"
+      parseOpenFromSearch={parseHelpWebhooksIntegrationSourcesOpenFromSearch}
+      disclosureHrefFromSearch={helpWebhooksIntegrationSourcesDisclosureHrefFromSearch}
+      sectionTestId={WEBHOOKS_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID}
+      title={WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
+      intro={WEBHOOKS_INTEGRATION_HELP_SOURCES_INTRO}
+      links={WEBHOOKS_INTEGRATION_HELP_SOURCES}
       sourcesTestId="help-webhooks-integration-sources"
-      sourcesTitle={WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={WEBHOOKS_INTEGRATION_HELP_SOURCES_INTRO}
-      sources={WEBHOOKS_INTEGRATION_HELP_SOURCES}
-      sourcesHeadingId="where-to-go-next"
-      hubSecondary
     />
   );
 }

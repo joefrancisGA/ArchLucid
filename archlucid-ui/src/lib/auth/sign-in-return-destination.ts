@@ -20,8 +20,10 @@ export function resolveReturnDestinationLabel(returnUrl: string | undefined): st
 }
 
 export function formatSessionExpiredReturnHint(destinationLabel: string): string {
-  return `Sign in to return to ${destinationLabel}.`;
+  return `Continue where you left off — sign in to return to ${destinationLabel}.`;
 }
+
+export const SESSION_EXPIRED_CONTINUE_DESK_LABEL = "Continue where you left off";
 
 export const SIGN_IN_RETURN_DESTINATION_HINT =
   "After you sign in, ArchLucid will return you to the page you were viewing.";

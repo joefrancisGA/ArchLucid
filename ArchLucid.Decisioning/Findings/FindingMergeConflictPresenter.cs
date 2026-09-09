@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 
 namespace ArchLucid.Decisioning.Findings;
 
@@ -10,6 +11,23 @@ internal static class FindingMergeConflictPresenter
 {
     internal const string FindingType = "FindingMergeConflict";
     internal const string PolicyRuleId = "finding-merge-conflict";
+
+    public static IReadOnlyList<Finding> PresentAsFindings(
+        IReadOnlyList<FindingSnapshotMergeConflict> conflicts,
+        TimeProvider clock)
+    {
+        ArgumentNullException.ThrowIfNull(conflicts);
+        ArgumentNullException.ThrowIfNull(clock);
+
+        List<Finding> rows = [];
+
+        foreach (FindingSnapshotMergeConflict conflict in conflicts)
+        {
+            rows.Add(MapConflict(conflict.Failure, clock, conflict.ConflictFindingId));
+        }
+
+        return rows;
+    }
 
     public static IReadOnlyList<Finding> PresentAsFindings(
         IReadOnlyList<FindingEngineFailure> conflicts,
@@ -36,7 +54,10 @@ internal static class FindingMergeConflictPresenter
         return rows;
     }
 
-    private static Finding MapConflict(FindingEngineFailure conflict, TimeProvider clock)
+    private static Finding MapConflict(
+        FindingEngineFailure conflict,
+        TimeProvider clock,
+        string? findingId = null)
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
@@ -46,9 +67,16 @@ internal static class FindingMergeConflictPresenter
             ["findingMerge.occurredUtc"] = conflict.OccurredUtc.ToString("O"),
         };
 
+        string conflictFindingId = string.IsNullOrWhiteSpace(findingId)
+            ? Guid.NewGuid().ToString("N")
+            : findingId;
+
+        List<string> evidenceRefs = [];
+        FindingEvidenceRefs.TryAppendPolicyRuleId(evidenceRefs, PolicyRuleId);
+
         return new Finding
         {
-            FindingId = Guid.NewGuid().ToString("N"),
+            FindingId = conflictFindingId,
             FindingType = FindingType,
             Category = conflict.Category ?? string.Empty,
             PolicyRuleId = PolicyRuleId,
@@ -59,6 +87,12 @@ internal static class FindingMergeConflictPresenter
             ConfidenceScore = 1.0,
             HumanReviewStatus = FindingHumanReviewStatus.Pending,
             Properties = properties,
+            RelatedNodeIds = [conflictFindingId],
+            EvidenceRefs = evidenceRefs,
+            Trace = new ExplainabilityTrace
+            {
+                RulesApplied = [PolicyRuleId],
+            },
         };
     }
 }

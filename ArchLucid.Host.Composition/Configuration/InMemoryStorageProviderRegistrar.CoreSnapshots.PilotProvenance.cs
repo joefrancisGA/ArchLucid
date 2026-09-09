@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Analytics;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Concurrency;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Pilots;
@@ -64,6 +65,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
                 sp.GetRequiredService<IDraftRequestRepository>(),
                 sp.GetRequiredService<IRunRepository>()));
         services.AddSingleton<IArchitectureVersionRepository, InMemoryArchitectureVersionRepository>();
+        services.AddSingleton<IArchitectureInventoryBindingRepository, InMemoryArchitectureInventoryBindingRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
         services.AddSingleton<IArchitectureProjectRepository, InMemoryArchitectureProjectRepository>();

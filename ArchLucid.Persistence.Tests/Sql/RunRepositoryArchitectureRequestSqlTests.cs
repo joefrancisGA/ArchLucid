@@ -92,6 +92,161 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public void Architecture_list_queries_read_persisted_package_origin_without_dashboard_coalesce()
+    {
+        const string listByArchitectureSql = """
+                                             SELECT RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description,
+                                                    PackageOrigin, ArchitectureId, ArchitectureVersionId, CreatedUtc, UpdatedUtc,
+                                                    ArchivedUtc, LegacyRunStatus, CurrentManifestVersion, GoldenManifestId
+                                             FROM dbo.Runs
+                                             """;
+
+        listByArchitectureSql.Should().Contain("PackageOrigin");
+        listByArchitectureSql.Should().NotContain("JSON_VALUE(");
+        listByArchitectureSql.Should().NotContain("COALESCE(");
+    }
+
+    [Fact]
+    public void ExistsRunForArchitectureRequestInScope_includes_archived_runs_by_design()
+    {
+        RunRepositorySql.ExistsRunForArchitectureRequestInScope.Should().NotContain("ArchivedUtc");
+    }
+
+    [Fact]
+    public void SelectLatestCommittedRunIdByManifestCreatedUtc_orders_by_manifest_created_utc()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should()
+            .Contain("ORDER BY gm.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public void SelectRepresentativeRunIdForArchitectureRequestInScope_orders_by_created_utc_then_run_id()
+    {
+        RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope.Should()
+            .Contain("ORDER BY CreatedUtc DESC, RunId DESC");
+    }
+
+    [Fact]
+    public async Task InMemory_representative_run_id_picks_highest_run_id_when_created_utc_ties()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime createdUtc = new(2026, 9, 9, 12, 0, 0, DateTimeKind.Utc);
+        Guid lowerRunId = Guid.Parse("11111111-0000-0000-0000-000000000001");
+        Guid higherRunId = Guid.Parse("22222222-0000-0000-0000-000000000002");
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = lowerRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-tie",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = higherRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-tie",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
+
+        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+            scope,
+            "req-tie",
+            CancellationToken.None);
+
+        representative.Should().Be(higherRunId,
+            "sealed-manifest guard must pick a deterministic representative when request runs share CreatedUtc.");
+    }
+
+    [Fact]
+    public void SelectRepresentativeRunIdForArchitectureRequestInScope_includes_archived_reruns_by_design()
+    {
+        RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope.Should()
+            .NotContain("ArchivedUtc IS NULL",
+                "representative lookup is historical like ExistsRunForArchitectureRequestInScope; active reads filter archived separately.");
+    }
+
+    [Fact]
+    public async Task InMemory_representative_run_id_includes_archived_rerun_when_newest()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime createdUtc = new(2026, 9, 9, 12, 0, 0, DateTimeKind.Utc);
+        Guid activeRunId = Guid.NewGuid();
+        Guid archivedRunId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = activeRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-archived",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = archivedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureRequestId = "req-archived",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = createdUtc.AddMinutes(1),
+                ArchivedUtc = createdUtc.AddMinutes(2),
+            },
+            CancellationToken.None);
+
+        Guid? representative = await runs.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+            scope,
+            "req-archived",
+            CancellationToken.None);
+
+        representative.Should().Be(archivedRunId,
+            "representative locator includes archived reruns; sealed-manifest guard falls through when detail read hides archived rows.");
+    }
+
+    [Fact]
+    public void CountActiveRunsForArchitectureRequest_excludes_committed_for_concurrency_not_name_collision()
+    {
+        RunRepositorySql.CountActiveRunsForArchitectureRequest.Should().Contain("@CommittedStatus");
+        RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace.Should()
+            .NotContain("@CommittedStatus",
+                "request concurrency guard excludes Committed; workspace system-name guard still treats Committed as occupying.");
+    }
+
+    [Fact]
     public async Task InMemory_count_active_runs_ignores_case_on_architecture_request_id()
     {
         ScopeContext scope = new()

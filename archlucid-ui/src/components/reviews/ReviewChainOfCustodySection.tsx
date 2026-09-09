@@ -1,5 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -9,6 +13,16 @@ import type { RunDetail } from "@/types/authority";
 import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import {
+  REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM,
+  parseReviewChainOfCustodySectionKeyFromSearch,
+  reviewChainOfCustodySectionDisclosureHrefFromSearch,
+} from "@/lib/reviews/review-chain-of-custody-section-disclosure-url";
+
+const REVIEW_CHAIN_OF_CUSTODY_SECTION_KEYS = {
+  whoAndWhen: "who-and-when",
+  whatRan: "what-ran",
+} as const;
 
 export type ReviewChainOfCustodySectionProps = {
   readonly run: RunDetail["run"];
@@ -53,6 +67,41 @@ export function ReviewChainOfCustodySection({
         ? `${ruleSetId} v${ruleSetVersion}`
         : ruleSetId
       : "Default policy pack";
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const reviewChainOfCustodySectionKeyParam = searchParams.get(REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM);
+  const [openSectionKey, setOpenSectionKeyState] = useState(() =>
+    parseReviewChainOfCustodySectionKeyFromSearch(reviewChainOfCustodySectionKeyParam),
+  );
+  const syncOpenSectionKeyToUrl = useCallback(
+    (sectionKey: string | null) => {
+      router.replace(
+        reviewChainOfCustodySectionDisclosureHrefFromSearch(searchParams.toString(), sectionKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenSectionKey = useCallback(
+    (sectionKey: string | null) => {
+      setOpenSectionKeyState(sectionKey ?? "");
+      syncOpenSectionKeyToUrl(sectionKey);
+    },
+    [syncOpenSectionKeyToUrl],
+  );
+
+  useEffect(() => {
+    setOpenSectionKeyState(parseReviewChainOfCustodySectionKeyFromSearch(reviewChainOfCustodySectionKeyParam));
+  }, [reviewChainOfCustodySectionKeyParam]);
+
+  const isSectionOpen = (sectionKey: string, defaultOpen: boolean): boolean => {
+    if (openSectionKey.length > 0) {
+      return openSectionKey === sectionKey;
+    }
+
+    return defaultOpen;
+  };
 
   return (
     <section id="chain-of-custody" className="scroll-mt-24">
@@ -61,7 +110,13 @@ export function ReviewChainOfCustodySection({
           <h3 className={runDetailSectionHeadingClass}>Chain of custody</h3>
         </CardHeader>
         <CardContent className="space-y-4">
-          <CollapsibleSection title="Who and when" defaultOpen>
+          <CollapsibleSection
+            title="Who and when"
+            open={isSectionOpen(REVIEW_CHAIN_OF_CUSTODY_SECTION_KEYS.whoAndWhen, true)}
+            onToggle={(open) =>
+              setOpenSectionKey(open ? REVIEW_CHAIN_OF_CUSTODY_SECTION_KEYS.whoAndWhen : null)
+            }
+          >
             <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
               <div>
                 <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Analysis triggered via</dt>
@@ -88,7 +143,11 @@ export function ReviewChainOfCustodySection({
             </dl>
           </CollapsibleSection>
 
-          <CollapsibleSection title="What ran" defaultOpen>
+          <CollapsibleSection
+            title="What ran"
+            open={isSectionOpen(REVIEW_CHAIN_OF_CUSTODY_SECTION_KEYS.whatRan, true)}
+            onToggle={(open) => setOpenSectionKey(open ? REVIEW_CHAIN_OF_CUSTODY_SECTION_KEYS.whatRan : null)}
+          >
             <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
               <div>
                 <dt className={cn("font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Policy pack applied</dt>

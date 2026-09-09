@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.KnowledgeGraph.Models;
@@ -97,6 +99,7 @@ public sealed class SecurityBaselineFindingEngineTests
         f.Trace.RulesApplied.Should().Contain("security-baseline-coverage");
         f.Trace.Notes.Should().Contain("PROTECTS edge count: 0");
         f.Trace.AlternativePathsConsidered.Should().NotBeEmpty();
+        f.EvidenceRefs.Should().BeEmpty();
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -167,5 +170,68 @@ public sealed class SecurityBaselineFindingEngineTests
         f.Rationale.Should().Contain("PROTECTS");
         f.Trace.DecisionsTaken.Should().NotBeEmpty();
         f.Trace.Notes.Should().Contain("PROTECTS edge count: 1");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_LabelOnlyNode_EvidenceRefsStayEmpty()
+    {
+        GraphNode node = SecurityNode("sec-5", "Audit Logging", controlId: "ctrl-05", status: "present");
+        GraphSnapshot snapshot = SnapshotWith([node], []);
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().BeEmpty();
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_NodeWithArmResourceId_PopulatesEvidenceRefs()
+    {
+        const string armResourceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-sec/providers/Microsoft.KeyVault/vaults/kv-audit";
+
+        GraphNode node = SecurityNode("sec-6", "Audit Logging", controlId: "ctrl-06", status: "missing");
+        node.Properties["armResourceId"] = armResourceId;
+
+        GraphSnapshot snapshot = SnapshotWith([node], []);
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().ContainSingle().Which.Should().Be(armResourceId);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeTrue();
+
+        InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
+        DeterministicInsightDensityGate gate = (DeterministicInsightDensityGate)DeterministicInsightDensityGate.CreateDefault();
+        InsightDensityGateResult result = gate.Score(candidate, [candidate]);
+
+        result.PenaltyReasons.Should().NotContain("no-concrete-evidence");
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_ProtectsTargetWithResourceId_CollectsTargetEvidence()
+    {
+        const string armResourceId =
+            "/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-net/providers/Microsoft.Network/virtualNetworks/vnet-prod";
+
+        GraphNode secNode = SecurityNode("sec-7", "Network Segmentation", controlId: "ctrl-07", status: "present");
+        GraphNode resNode = ResourceNode("res-2", "VNet");
+        resNode.Properties["resourceId"] = armResourceId;
+
+        GraphEdge edge = new()
+        {
+            EdgeId = Guid.NewGuid().ToString("D"),
+            FromNodeId = "sec-7",
+            ToNodeId = "res-2",
+            EdgeType = "PROTECTS"
+        };
+
+        GraphSnapshot snapshot = SnapshotWith([secNode, resNode], [edge]);
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().ContainSingle().Which.Should().Be(armResourceId);
     }
 }

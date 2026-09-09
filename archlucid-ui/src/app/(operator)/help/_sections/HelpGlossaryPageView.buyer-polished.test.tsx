@@ -39,8 +39,8 @@ import {
   GLOSSARY_HELP_SKIP_TARGET_ID,
 } from "@/lib/glossary-help-page-copy";
 import { GLOSSARY_HELP_PRIMARY_ACTIONS } from "@/lib/glossary-help-guide-content";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpGlossaryPageView buyer-polished shell (HGE)", () => {
   const entry = getProductDocumentationEntry("glossary");
@@ -80,10 +80,7 @@ describe("HelpGlossaryPageView buyer-polished shell (HGE)", () => {
       within(actionPanel).getByRole("link", { name: GLOSSARY_HELP_PRIMARY_ACTIONS.openReviews.label }),
     ).toHaveAttribute("href", GLOSSARY_HELP_PRIMARY_ACTIONS.openReviews.href);
 
-    for (const source of GLOSSARY_HELP_FOLLOW_UP_LINKS) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), GLOSSARY_HELP_FOLLOW_UP_LINKS, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
