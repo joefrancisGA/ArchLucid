@@ -33,13 +33,17 @@ import {
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { ALERT_RULES_CONDITIONS_WORKSPACE_TEST_ID } from "@/lib/alert-rules-conditions-evidence-copy";
 import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND } from "@/lib/operator/operator-live-preview-readiness-rail";
 
 export function AlertRulesContent() {
   const buyerPolishedShell = useProductionEvalChrome();
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
   const list = useAlertRulesContentList();
   const create = useAlertRulesContentCreate({
     canEdit: list.canEdit,
@@ -95,10 +99,7 @@ export function AlertRulesContent() {
           className="mb-4 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
           data-testid="alert-rules-conditions-first-viewport"
         >
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="alert-rules-conditions-intro"
-          >
+          <p className={readingBodyClass} data-testid="alert-rules-conditions-intro">
             {ALERT_RULES_CONDITIONS_PAGE_LEAD}
           </p>
           <p
@@ -111,14 +112,15 @@ export function AlertRulesContent() {
       ) : null}
 
       {buyerPolishedShell ? (
-        <p
-          className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="alert-rules-conditions-overview"
-        >
+        <p className={cn(readingBodyClass, "mb-4")} data-testid="alert-rules-conditions-overview">
           {ALERT_RULES_CONDITIONS_BUYER_OVERVIEW}
         </p>
       ) : null}
 
+      <section
+        className={buyerPolishedShell ? cn("min-w-0 space-y-4", OPERATOR_LAYOUT.sectionStack) : "min-w-0 space-y-4"}
+        data-testid={buyerPolishedShell ? ALERT_RULES_CONDITIONS_WORKSPACE_TEST_ID : undefined}
+      >
       <div
         id={list.statusRegionId}
         role="status"
@@ -252,6 +254,8 @@ export function AlertRulesContent() {
       {list.scopedRunFilterActive ? (
         <AlertRulesNextReviewFooterClient runId={list.scopedRunId} />
       ) : null}
+      </section>
+
       <AlertRulesBuyerChrome />
       <LivelihoodDocumentGuardDialog
         open={create.documentGuards.dialogOpen}
