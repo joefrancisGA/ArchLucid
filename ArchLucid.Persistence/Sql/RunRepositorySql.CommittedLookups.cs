@@ -2,7 +2,7 @@ namespace ArchLucid.Persistence.Sql;
 
 internal static partial class RunRepositorySql
 {
-    public const string SelectLatestCommittedRunIdByManifestCreatedUtc = """
+    public const string SelectLatestCommittedRunIdByManifestCreatedUtc = $"""
                                                                          SELECT TOP (1) r.RunId
                                                                          FROM dbo.Runs r WITH (NOLOCK)
                                                                          INNER JOIN dbo.GoldenManifests gm WITH (NOLOCK)
@@ -10,7 +10,7 @@ internal static partial class RunRepositorySql
                                                                          WHERE r.TenantId = @TenantId
                                                                            AND r.WorkspaceId = @WorkspaceId
                                                                            AND r.ScopeProjectId = @ScopeProjectId
-                                                                           AND UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedAuthorityProjectSlug
+                                                                           AND {CollapsedUpperRunsProjectId} = @NormalizedAuthorityProjectSlug
                                                                            AND r.ArchivedUtc IS NULL
                                                                            AND gm.ArchivedUtc IS NULL
                                                                            AND (
@@ -21,7 +21,7 @@ internal static partial class RunRepositorySql
                                                                          ORDER BY gm.CreatedUtc DESC, r.RunId DESC;
                                                                          """;
 
-    public const string SelectPriorCommittedRunIdBeforeCurrent = """
+    public const string SelectPriorCommittedRunIdBeforeCurrent = $"""
                                                                  SELECT TOP (1) r.RunId
                                                                  FROM dbo.Runs r WITH (NOLOCK)
                                                                  INNER JOIN dbo.GoldenManifests gm WITH (NOLOCK)
@@ -29,7 +29,7 @@ internal static partial class RunRepositorySql
                                                                  WHERE r.TenantId = @TenantId
                                                                    AND r.WorkspaceId = @WorkspaceId
                                                                    AND r.ScopeProjectId = @ScopeProjectId
-                                                                   AND UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedAuthorityProjectSlug
+                                                                   AND {CollapsedUpperRunsProjectId} = @NormalizedAuthorityProjectSlug
                                                                    AND r.ArchivedUtc IS NULL
                                                                    AND gm.ArchivedUtc IS NULL
                                                                    AND r.RunId <> @CurrentRunId
