@@ -319,6 +319,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new ComplianceFindingEngine(complianceProvider, complianceValidator, complianceEvaluator),
             new CostConstraintFindingEngine(),
             new DanglingDeclarationReferenceFindingEngine(),
+            new DiagramDeclarationOmissionFindingEngine(),
             new DeclarationSecurityBaselineFindingEngine(complianceProvider),
             new DeclarationPremiseConflictFindingEngine(complianceProvider),
             new RequirementSkuTierFindingEngine(),
