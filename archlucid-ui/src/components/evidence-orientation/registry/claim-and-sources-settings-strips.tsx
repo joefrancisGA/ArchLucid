@@ -368,7 +368,7 @@ export function IdentityProvidersSettingsEvidenceOrientationStrip(): React.JSX.E
 }
 
 export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
-  props: { readonly sources?: readonly EvidenceOrientationLink[] } = {},
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
 ): React.JSX.Element {
   const sources = props.sources ?? IDENTITY_PROVIDERS_OIDC_SOURCES;
 
@@ -380,6 +380,8 @@ export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
       sourcesIntro={IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
