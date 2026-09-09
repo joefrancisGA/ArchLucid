@@ -9,6 +9,7 @@ import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/Operato
 import { resolveRunDetailDeferredSurfaceFindingCount } from "@/lib/runs/run-detail-findings-tab-badge-count";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
+import { resolveRunDetailDeferredSurfaceFindingCount } from "@/lib/runs/run-detail-findings-tab-badge-count";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 
 import { RunDetailDeferredScopeNoticeClient } from "@/components/reviews/RunDetailDeferredScopeNoticeClient";

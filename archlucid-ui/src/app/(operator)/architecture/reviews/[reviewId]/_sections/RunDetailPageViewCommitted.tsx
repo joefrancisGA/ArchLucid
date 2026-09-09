@@ -8,8 +8,8 @@ import {
   resolveRunDetailReviewPackageInspectSteps,
 } from "@/lib/run-detail-review-package-inspect-checklist";
 import {
-  resolveRunDetailFindingsReviewed,
   resolveRunDetailDeferredSurfaceFindingCount,
+  resolveRunDetailFindingsReviewed,
 } from "@/lib/runs/run-detail-findings-tab-badge-count";
 
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
@@ -68,6 +68,10 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
     presentation.quickDecisionFindings,
   );
   const findingsReviewed = resolveRunDetailFindingsReviewed(
+    m.findingCountDisplay,
+    presentation.quickDecisionFindings,
+  );
+  const deferredSurfaceFindingCount = resolveRunDetailDeferredSurfaceFindingCount(
     m.findingCountDisplay,
     presentation.quickDecisionFindings,
   );

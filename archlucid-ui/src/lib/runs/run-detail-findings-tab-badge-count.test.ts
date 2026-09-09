@@ -47,6 +47,11 @@ describe("resolveRunDetailFindingsTabBadgeCount", () => {
 
 describe("resolveRunDetailDeferredSurfaceFindingCount", () => {
   it("falls back to detail snapshot triage counts for policy callout and review-package surfaces", () => {
-    expect(resolveRunDetailDeferredSurfaceFindingCount(null, [baseFinding()])).toBe(1);
+    const findings = [baseFinding(), baseFinding({ findingId: "finding-2", findingOrder: 1 })];
+
+    expect(resolveRunDetailDeferredSurfaceFindingCount(null, findings)).toBe(2);
+    expect(resolveRunDetailDeferredSurfaceFindingCount(null, findings)).toBe(
+      resolveRunDetailFindingsTabBadgeCount(null, findings),
+    );
   });
 });
