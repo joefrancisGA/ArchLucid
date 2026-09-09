@@ -60,6 +60,10 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/insights/ask-review-questions")?.title).toBe("Ask review questions");
     expect(routeViewExplanationForPathname("/architecture/reviews")?.title).toBe("Reviews");
     expect(routeViewExplanationForPathname("/architecture/reviews/run-1")).toBeNull();
+    expect(routeViewExplanationForPathname("/insights/search-review-evidence")?.title).toBe("Search review evidence");
+    expect(routeViewExplanationForPathname("/insights/patterns")?.title).toBe("Pattern library");
+    expect(routeViewExplanationForPathname("/help")?.title).toBe("Help");
+    expect(routeViewExplanationForPathname("/administration/security-trust")?.title).toBe("Security & trust");
   });
 
   it("routeViewExplanationForPathname covers alerts hubs (TB-2216)", () => {

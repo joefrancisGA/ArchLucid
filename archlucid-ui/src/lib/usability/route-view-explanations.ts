@@ -22,8 +22,17 @@ import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { DIGESTS_HUB_PATH, digestsHubTabFromLocation } from "@/lib/digests-route-paths";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
+import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import {
+  SETTINGS_SECURITY_TRUST_PATH,
+  SETTINGS_USERS_PATH,
+  SETTINGS_WORKSPACE_SETTINGS_PATH,
+} from "@/lib/settings-admin-route-paths";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 
 const IDENTITY_PROVIDERS_TAB_DISMISS_KEY =
   "archlucid.explain-view.dismissed./administration/identity-providers-tabs" as const;
@@ -79,6 +88,78 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
       summary:
         "Browse architecture review packages in this workspace — open one to triage findings, evidence, and approval status.",
       nextAction: "Open the review you need, or start a new review when you are ready to assess a draft architecture.",
+    },
+  },
+  {
+    prefix: SEARCH_REVIEW_EVIDENCE_PATH,
+    explanation: {
+      title: "Search review evidence",
+      summary:
+        "Find citations across findings, decisions, and finalized review records in this workspace — a retrieval launcher, not a full audit export.",
+      nextAction:
+        "Enter a phrase, optionally limit to one review, then open the hit or Evidence trail before briefing sponsors.",
+    },
+  },
+  {
+    prefix: PATTERN_LIBRARY_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Pattern library",
+      summary:
+        "Browse anonymized architecture patterns with adoption, risk, and approval signals — aggregated guidance, not your workspace inventory.",
+      nextAction: "Filter the catalog, open a pattern, then start a review when a pattern fits your next change.",
+    },
+  },
+  {
+    prefix: HELP_HUB_CANONICAL_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Help",
+      summary:
+        "Browse how-to guides, troubleshooting, and procurement orientation for architecture reviews in this workspace.",
+      nextAction:
+        "Search or pick a guide below — open First architecture review for onboarding, or Security & trust for diligence.",
+    },
+  },
+  {
+    prefix: SPONSOR_DASHBOARD_HREF,
+    matchExact: true,
+    explanation: {
+      title: "Portfolio overview",
+      summary:
+        "Track ROI, risk posture, and approval status across finalized reviews — sponsor-facing portfolio metrics for this workspace.",
+      nextAction:
+        "Confirm baseline and ROI settings, then scan KPI cards and exports for your reporting period.",
+    },
+  },
+  {
+    prefix: SETTINGS_SECURITY_TRUST_PATH,
+    explanation: {
+      title: "Security & trust",
+      summary:
+        "Procurement-ready security materials, trust-center links, and self-assessment status for this workspace.",
+      nextAction:
+        "Open the public trust center link or SOC 2 self-assessment row, then download only what your diligence packet requires.",
+    },
+  },
+  {
+    prefix: SETTINGS_WORKSPACE_SETTINGS_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Workspace settings",
+      summary:
+        "Configure trial status, review cost basis, request scope, and quality gates that shape how this tenant runs reviews.",
+      nextAction: "Confirm active workspace scope, then set ROI/cost inputs and routing scope before inviting reviewers.",
+    },
+  },
+  {
+    prefix: SETTINGS_USERS_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Users & roles",
+      summary:
+        "Manage workspace members, role assignments, and API keys that control who can read, execute, or administer reviews.",
+      nextAction: "Invite reviewers on the Users tab, confirm role mappings on Roles, then issue API keys only for automation.",
     },
   },
   {

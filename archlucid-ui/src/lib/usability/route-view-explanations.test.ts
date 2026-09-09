@@ -11,7 +11,16 @@ import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
+import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import {
+  SETTINGS_SECURITY_TRUST_PATH,
+  SETTINGS_USERS_PATH,
+  SETTINGS_WORKSPACE_SETTINGS_PATH,
+} from "@/lib/settings-admin-route-paths";
+import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { routeViewExplanationForPathname, explainViewDismissKey } from "@/lib/usability/route-view-explanations";
 
 describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
@@ -107,6 +116,26 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
   it("covers reviews hub inventory only — not open review detail routes", () => {
     expect(routeViewExplanationForPathname(REVIEWS_LIST_PATH)?.title).toBe("Reviews");
     expect(routeViewExplanationForPathname(`${REVIEWS_LIST_PATH}/run-abc`)).toBeNull();
+  });
+
+  it("covers instrument primer expansions for analysis, help, sponsor, and admin hubs", () => {
+    expect(routeViewExplanationForPathname(SEARCH_REVIEW_EVIDENCE_PATH)?.title).toBe("Search review evidence");
+    expect(routeViewExplanationForPathname(SEARCH_REVIEW_EVIDENCE_PATH)?.summary.toLowerCase()).toContain(
+      "finalized review",
+    );
+
+    expect(routeViewExplanationForPathname(PATTERN_LIBRARY_PATH)?.title).toBe("Pattern library");
+    expect(routeViewExplanationForPathname(`${PATTERN_LIBRARY_PATH}/serverless-api`)).toBeNull();
+
+    expect(routeViewExplanationForPathname(HELP_HUB_CANONICAL_PATH)?.title).toBe("Help");
+    expect(routeViewExplanationForPathname(`${HELP_HUB_CANONICAL_PATH}/review-guide`)).toBeNull();
+
+    expect(routeViewExplanationForPathname(SPONSOR_DASHBOARD_HREF)?.title).toBe("Portfolio overview");
+
+    expect(routeViewExplanationForPathname(SETTINGS_SECURITY_TRUST_PATH)?.title).toBe("Security & trust");
+    expect(routeViewExplanationForPathname(SETTINGS_WORKSPACE_SETTINGS_PATH)?.title).toBe("Workspace settings");
+    expect(routeViewExplanationForPathname(`${SETTINGS_WORKSPACE_SETTINGS_PATH}/recycle-bin`)).toBeNull();
+    expect(routeViewExplanationForPathname(SETTINGS_USERS_PATH)?.title).toBe("Users & roles");
   });
 
   it("keeps drafts-inventory orientation off the draft editor and the new-draft workspace", () => {
