@@ -279,10 +279,31 @@ public sealed partial class AuthorityReadsController(
 
     private async Task<IActionResult> GetReviewTrailProvenanceCoreAsync(Guid runId, CancellationToken ct)
     {
-        (DecisionProvenanceGraph? graph, RunDetailDto? detail, string? unprocessableDetail) =
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
+        (DecisionProvenanceGraph? graph, RunDetailDto? provenanceDetail, string? unprocessableDetail) =
             await readHandlers.TryGetProvenanceGraphAsync(runId, ct);
 
-        if (detail is null && graph is null && unprocessableDetail is null)
+        if (provenanceDetail is null && graph is null && unprocessableDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         if (unprocessableDetail is not null)

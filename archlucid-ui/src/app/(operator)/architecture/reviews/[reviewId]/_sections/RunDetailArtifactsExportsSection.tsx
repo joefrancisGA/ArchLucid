@@ -30,7 +30,9 @@ import { downloadRunExportZip } from "@/lib/api/downloads-blob-trigger-run-expor
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
+import { architectureRequestJsonMutationBlockedReason } from "@/lib/runs/architecture-request-json-mutation-blocked-reason";
 import { runExportZipMutationBlockedReason } from "@/lib/runs/run-export-zip-mutation-blocked-reason";
+import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import { SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api/downloads-blob-urls";
 import { showError } from "@/lib/toast";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -201,10 +203,10 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadRunPackageExport(runId, "docx")
       .catch((error: unknown) => {
-        showError(
-          "Architecture review report",
-          error instanceof Error ? error.message : "Could not download DOCX export.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = runPackageExportMutationBlockedReason(failure);
+
+        showError("Architecture review report", blocked ?? failure.message);
       })
       .finally(() => {
         setDocxExportBusy(false);
@@ -303,10 +305,10 @@ export function RunDetailArtifactsExportsSection(
 
                   void downloadArchitectureRequestJson(requestId)
                     .catch((error: unknown) => {
-                      showError(
-                        "Architecture request JSON",
-                        error instanceof Error ? error.message : "Download failed.",
-                      );
+                      const failure = toApiLoadFailure(error);
+                      const blocked = architectureRequestJsonMutationBlockedReason(failure);
+
+                      showError("Architecture request JSON", blocked ?? failure.message);
                     })
                     .finally(() => {
                       setRequestJsonBusy(false);

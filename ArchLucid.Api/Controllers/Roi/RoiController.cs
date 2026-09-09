@@ -13,7 +13,9 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Persistence.Queries;
@@ -41,7 +43,10 @@ public sealed partial class RoiController(
     IScopeContextProvider scopeProvider,
     IComplianceDriftTrendService complianceDriftTrendService,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    ITenantRepository tenantRepository,
+    IScimUserRepository scimUserRepository,
+    SponsorRoiRunCollector runCollector) : ControllerBase
 {
     private readonly ISponsorRoiSummaryService _sponsorRoiSummaryService =
         sponsorRoiSummaryService ?? throw new ArgumentNullException(nameof(sponsorRoiSummaryService));
@@ -63,6 +68,15 @@ public sealed partial class RoiController(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IScimUserRepository _scimUserRepository =
+        scimUserRepository ?? throw new ArgumentNullException(nameof(scimUserRepository));
+
+    private readonly SponsorRoiRunCollector _runCollector =
+        runCollector ?? throw new ArgumentNullException(nameof(runCollector));
 
     /// <summary>Sponsor dashboard bundle: ROI summary and 30-day compliance drift trend (daily buckets).</summary>
     [HttpGet("sponsor-dashboard-bundle")]
@@ -211,6 +225,12 @@ public sealed partial class RoiController(
                 statusCode: StatusCodes.Status403Forbidden,
                 type: "https://archlucid.net/errors/portfolio-key-not-configured");
         }
+
+        IActionResult? sealedGuardResult =
+            await EnsureCrossTenantPortfolioSealedManifestReadAllowedAsync(directoryKey, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
