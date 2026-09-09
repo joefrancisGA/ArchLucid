@@ -24,6 +24,7 @@ import {
   RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS,
   RECURRENCE_SCHEDULES_HELP_AUTOMATION_SECTION_TITLE,
   RECURRENCE_SCHEDULES_HELP_BREADCRUMB_TOPIC_TITLE,
+  RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
   RECURRENCE_SCHEDULES_HELP_EXAMPLES_SECTION_TITLE,
   RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION,
   RECURRENCE_SCHEDULES_HELP_FINALIZED_REVIEW_PRECONDITION_TAG,
@@ -48,6 +49,7 @@ import {
 } from "@/lib/recurrence-schedules-help-evidence-copy";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 
 type HelpRecurrenceSchedulesGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -163,7 +165,12 @@ export function HelpRecurrenceSchedulesGuideView(
 ): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const contentGridClass = resolveHelpPageContentGridClass(RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS.length);
+  const guideHeadings = resolveGuideHeadingsForStrip(
+    "help-recurrence-schedules",
+    RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS,
+    RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
+  );
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
 
   return (
     <article
@@ -275,7 +282,7 @@ export function HelpRecurrenceSchedulesGuideView(
           ) : null}
         </div>
 
-        <HelpTopicTableOfContents headings={RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS} enableScrollSpy />
+        <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
     </article>
   );

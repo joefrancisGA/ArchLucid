@@ -3,12 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const routing = vi.hoisted(() => ({
   pathname: "/",
+  replace: vi.fn(),
+  searchParams: new URLSearchParams(),
 }));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => routing.pathname,
-  useRouter: () => ({ replace: vi.fn() }),
-  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ replace: routing.replace }),
+  useSearchParams: () => routing.searchParams,
 }));
 
 vi.mock("next/link", () => ({
@@ -41,6 +43,8 @@ function openMenu(): void {
 describe("AccountSettingsMenu", () => {
   beforeEach(() => {
     routing.pathname = "/";
+    routing.searchParams = new URLSearchParams();
+    routing.replace.mockClear();
   });
 
   it("exposes user-scoped settings without consulting authority rank", () => {
@@ -99,6 +103,18 @@ describe("AccountSettingsMenu", () => {
     fireEvent.keyDown(document, { key: "Escape" });
 
     expect(screen.queryByTestId("account-settings-menu")).not.toBeInTheDocument();
+  });
+
+  it("syncs open state to the accountMenuOpen search param after user interaction", () => {
+    render(<AccountSettingsMenu />);
+
+    openMenu();
+
+    expect(routing.replace).toHaveBeenCalledWith("/?accountMenuOpen=1", { scroll: false });
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(routing.replace).toHaveBeenLastCalledWith("/", { scroll: false });
   });
 });
 

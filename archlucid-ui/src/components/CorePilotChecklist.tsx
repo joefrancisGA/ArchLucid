@@ -12,6 +12,8 @@ import { OperatorHomeGuidanceLink } from "@/components/operator-home/OperatorHom
 
 import { StatusTag } from "@/components/ui/status-tag";
 
+import { useOperatorHomeBooleanDisclosureUrlSync } from "@/hooks/use-operator-home-boolean-disclosure-url-sync";
+
 import {
 
   PILOT_CHECKLIST_PANEL_STORAGE_KEY,
@@ -37,6 +39,11 @@ import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-comm
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
+
+import {
+  corePilotChecklistDisclosureHrefFromSearch,
+  parseCorePilotChecklistOpenFromSearch,
+} from "@/lib/operator/core-pilot-checklist-disclosure-url";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -101,6 +108,14 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
   }, []);
 
+  const [checklistExpanded, setChecklistExpanded] = useOperatorHomeBooleanDisclosureUrlSync(
+    OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist,
+    "corePilotChecklistOpen",
+    parseCorePilotChecklistOpenFromSearch,
+    corePilotChecklistDisclosureHrefFromSearch,
+    false,
+  );
+
   if (!hydrated) {
 
     return null;
@@ -128,6 +143,10 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
         storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist}
 
         defaultExpanded={false}
+
+        expanded={checklistExpanded}
+
+        onExpandedChange={setChecklistExpanded}
 
         collapsedSummary={`${CORE_PILOT_STEPS.length} steps to your first architecture review.`}
 
@@ -168,6 +187,10 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.reviewWorkflowChecklist}
 
       defaultExpanded={defaultExpanded}
+
+      expanded={checklistExpanded}
+
+      onExpandedChange={setChecklistExpanded}
 
       collapsedSummary={`${CORE_PILOT_STEPS.length} steps from empty tenant to first architecture review.`}
     >

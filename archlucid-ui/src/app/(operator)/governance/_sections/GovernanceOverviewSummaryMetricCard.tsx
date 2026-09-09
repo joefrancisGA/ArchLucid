@@ -1,5 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
@@ -11,6 +15,10 @@ import {
   GOVERNANCE_OVERVIEW_BLOCKING_UNOWNED_LABEL,
   GOVERNANCE_OVERVIEW_METRIC_WINDOW_LABEL,
 } from "@/lib/governance/governance-overview-copy";
+import {
+  governanceOverviewBlockingBreakdownDisclosureHrefFromSearch,
+  parseGovernanceOverviewBlockingBreakdownOpenFromSearch,
+} from "@/lib/governance/governance-overview-blocking-breakdown-disclosure-url";
 import type { GovernanceOverviewBlockingFindingsBreakdown } from "./governance-overview-summary";
 
 function summaryMetricAccessibleName(label: string, value: number, destination: string): string {
@@ -30,6 +38,38 @@ export type GovernanceOverviewSummaryMetricCardProps = {
 export function GovernanceOverviewSummaryMetricCard(
   props: GovernanceOverviewSummaryMetricCardProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/governance";
+  const searchParams = useSearchParams();
+  const governanceOverviewBlockingBreakdownOpenParam = searchParams.get("governanceOverviewBlockingBreakdownOpen");
+  const [breakdownOpen, setBreakdownOpenState] = useState(() =>
+    parseGovernanceOverviewBlockingBreakdownOpenFromSearch(governanceOverviewBlockingBreakdownOpenParam),
+  );
+
+  const syncBreakdownOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceOverviewBlockingBreakdownDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setBreakdownOpen = useCallback(
+    (open: boolean) => {
+      setBreakdownOpenState(open);
+      syncBreakdownOpenToUrl(open);
+    },
+    [syncBreakdownOpenToUrl],
+  );
+
+  useEffect(() => {
+    setBreakdownOpenState(
+      parseGovernanceOverviewBlockingBreakdownOpenFromSearch(governanceOverviewBlockingBreakdownOpenParam),
+    );
+  }, [governanceOverviewBlockingBreakdownOpenParam]);
+
   const valueClassName = cn(
     "m-0 mt-1 font-semibold tabular-nums text-al-text-primary",
     OPERATOR_TYPOGRAPHY.dataValue,
@@ -44,7 +84,13 @@ export function GovernanceOverviewSummaryMetricCard(
         {GOVERNANCE_OVERVIEW_METRIC_WINDOW_LABEL} · {props.definition}
       </p>
       {props.breakdown !== undefined ? (
-        <details className="mt-2">
+        <details
+          className="mt-2"
+          open={breakdownOpen}
+          onToggle={(event) => {
+            setBreakdownOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
             {GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_BREAKDOWN_HEADING}
           </summary>

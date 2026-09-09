@@ -7,8 +7,9 @@ namespace ArchLucid.KnowledgeGraph.Materialization;
 
 /// <summary>
 ///     Canonical registrar for the ordered graph materialization pipeline (TB-2370).
-///     Stage order: canonical objects → request cost constraints → request actors → request assumptions →
-///     request quality attributes → request failure modes → cost projected-spend enrichment.
+///     Stage order: canonical objects → request cost constraints → request actors → declaration identity
+///     actors → declaration identity path edges → request assumptions → request quality attributes →
+///     request failure modes → cost projected-spend enrichment.
 /// </summary>
 public static class GraphMaterializationStages
 {
@@ -19,6 +20,7 @@ public static class GraphMaterializationStages
         "request-cost-constraints",
         "request-actors",
         "declaration-identity-actors",
+        "declaration-identity-path-edges",
         "request-assumptions",
         "request-quality-attributes",
         "request-failure-modes",
@@ -34,6 +36,7 @@ public static class GraphMaterializationStages
             new RequestCostConstraintMaterializationStage(),
             new RequestActorMaterializationStage(),
             new DeclarationIdentityActorMaterializationStage(),
+            new DeclarationIdentityPathEdgeMaterializationStage(),
             new RequestAssumptionMaterializationStage(),
             new RequestQualityAttributeMaterializationStage(),
             new RequestFailureModeMaterializationStage(),
@@ -158,26 +161,88 @@ public static class GraphMaterializationStages
                 return Task.CompletedTask;
             }
 
-            if (context.Nodes.Any(static node =>
-                    string.Equals(node.NodeType, GraphNodeTypes.Actor, StringComparison.OrdinalIgnoreCase)))
-            {
-                context.MarkStageSkipped();
-                return Task.CompletedTask;
-            }
+            IReadOnlyList<GraphNode> existingActors = context.Nodes
+                .Where(static node => string.Equals(node.NodeType, GraphNodeTypes.Actor, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-            IReadOnlyList<GraphNode> actors = DeclarationIdentityActorMaterializer.MaterializeFromNodes(
+            IReadOnlyList<GraphNode> materialized = DeclarationIdentityActorMaterializer.MaterializeFromNodes(
                 context.Nodes,
-                context.Snapshot.SnapshotId);
+                context.Snapshot.SnapshotId,
+                existingActors);
 
-            if (actors.Count == 0)
+            if (materialized.Count == 0)
             {
                 context.MarkStageSkipped();
                 return Task.CompletedTask;
             }
 
-            context.Nodes.AddRange(actors);
+            context.Nodes.AddRange(materialized);
+            context.Edges.AddRange(DeclarationIdentityEdgeMaterializer.MaterializeFromDeclarationActors(materialized, context.Nodes));
 
             return Task.CompletedTask;
+        }
+    }
+
+    private sealed class DeclarationIdentityPathEdgeMaterializationStage : IGraphMaterializationStage
+    {
+        public string Name => "declaration-identity-path-edges";
+
+        public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
+        {
+            bool hasDeclarationActors = context.Nodes.Any(static node =>
+                string.Equals(node.NodeType, GraphNodeTypes.Actor, StringComparison.OrdinalIgnoreCase)
+                && GraphNodePropertyReader.TryGetPropertyValue(
+                    node.Properties,
+                    "declarationSourceNodeId",
+                    out string? sourceNodeId)
+                && !string.IsNullOrWhiteSpace(sourceNodeId));
+            bool hasRoleAssignments = context.Nodes.Any(IsRoleAssignmentShapedNode);
+
+            if (!hasDeclarationActors && !hasRoleAssignments)
+            {
+                context.MarkStageSkipped();
+                return Task.CompletedTask;
+            }
+
+            IReadOnlyList<GraphEdge> pathEdges = DeclarationIdentityPathEdgeMaterializer.Materialize(context.Nodes);
+
+            if (pathEdges.Count == 0)
+            {
+                context.MarkStageSkipped();
+                return Task.CompletedTask;
+            }
+
+            context.Edges.AddRange(pathEdges);
+            return Task.CompletedTask;
+        }
+
+        private static bool IsRoleAssignmentShapedNode(GraphNode node)
+        {
+            if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(node.NodeType, GraphNodeTypes.PolicyControl, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "terraformType", out string? terraformType)
+                && terraformType is not null
+                && (terraformType.Contains("role_assignment", StringComparison.OrdinalIgnoreCase)
+                    || terraformType.Contains("iam_role_policy", StringComparison.OrdinalIgnoreCase)
+                    || terraformType.Contains("iam_policy", StringComparison.OrdinalIgnoreCase)
+                    || terraformType.Contains("project_iam", StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+
+            if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "resourceType", out string? resourceType)
+                && resourceType is not null
+                && (resourceType.Contains("roleAssignments", StringComparison.OrdinalIgnoreCase)
+                    || resourceType.Contains("iam", StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 

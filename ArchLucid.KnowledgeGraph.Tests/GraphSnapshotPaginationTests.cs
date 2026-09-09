@@ -48,4 +48,27 @@ public sealed class GraphSnapshotPaginationTests
         page.HasMore.Should().BeFalse();
         page.TotalNodes.Should().Be(1);
     }
+
+    [Fact]
+    public void CreatePage_retains_edges_when_endpoint_casing_differs_from_node_id()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "n0", NodeType = "t", Label = "0" },
+                new GraphNode { NodeId = "n1", NodeType = "t", Label = "1" },
+            ],
+            Edges =
+            [
+                new GraphEdge { EdgeId = "e", FromNodeId = "N0", ToNodeId = "n1", EdgeType = "calls" },
+            ],
+        };
+
+        GraphSnapshotNodesPage page = ArchLucid.Core.Persistence.Graph.GraphSnapshotPagination.CreatePage(snapshot, 1, 2);
+
+        page.Edges.Should().ContainSingle();
+        page.Edges[0].FromNodeId.Should().Be("N0");
+        page.Edges[0].ToNodeId.Should().Be("n1");
+    }
 }

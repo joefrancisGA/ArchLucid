@@ -1,19 +1,21 @@
 "use client";
 
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { ArchitecturesNewClaimOrientationStrip } from "./ArchitecturesNewClaimOrientationStrip";
 
-/** Guided eval chrome: mount claim discipline + Sources on create-bootstrap (CA-47). */
+/** Guided eval chrome: mount Sources orientation above create-bootstrap workspace (ANE). */
 export function ArchitecturesNewBuyerChrome(): React.JSX.Element | null {
   const evalChromeShell = useProductionEvalChrome();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
-  if (!evalChromeShell) {
+  if (!evalChromeShell && !buyerPolishedShell) {
     return null;
   }
 
   return (
-    <div className="mb-6 text-left" data-testid="architectures-new-orientation-top">
+    <div className="text-left" data-testid="architectures-new-orientation-top">
       <ArchitecturesNewClaimOrientationStrip />
     </div>
   );

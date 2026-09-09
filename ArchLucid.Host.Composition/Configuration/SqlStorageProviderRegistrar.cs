@@ -79,6 +79,8 @@ internal sealed partial class SqlStorageProviderRegistrar : IStorageProviderRegi
             enforceServerCertificateTrust);
         RegisterTenantRepositories(services, configuration);
 
+        RegisterAdvisoryDraftOperations(services);
+
         RegisterSqlOperationalSingletons(services, configuration, connectionString);
     }
 }

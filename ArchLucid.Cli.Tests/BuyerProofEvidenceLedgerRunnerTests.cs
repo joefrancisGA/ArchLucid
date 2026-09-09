@@ -87,6 +87,62 @@ public sealed class BuyerProofEvidenceLedgerRunnerTests
     }
 
     [Fact]
+    public void NormalizeSlots_WithProofPackageCompletenessSendable_MarksOptionalSlotComplete()
+    {
+        BuyerProofEvidenceLedgerRules rules = BuyerProofEvidenceLedgerRulesLoader.Load(null);
+        BuyerProofEvidenceLedgerContext context = new()
+        {
+            RunId = "cccccccc-3333-3333-3333-333333333333",
+            RoiBasisStatus = "buyer-provided",
+            RoiSponsorSafe = true,
+            SponsorPacketDisposition = "SEND",
+            ProcurementDisposition = "PASS",
+            DecisionLedgerPresent = true,
+            NoDecisionChangesConfirmed = true,
+            ProofPackageCompletenessPresent = true,
+            ProofSendability = "SendableWithCaveats",
+            EvidenceCompleteness = "Partial",
+        };
+
+        IReadOnlyList<BuyerProofEvidenceLedgerSlotStatus> slots =
+            BuyerProofEvidenceLedgerNormalizer.NormalizeSlots(context, rules);
+
+        slots.Should().Contain(slot =>
+            slot.SlotId == "proof-package-completeness"
+            && slot.Verdict == BuyerProofEvidenceLedgerVerdict.Pass
+            && slot.RequiredForSponsorSend == false);
+    }
+
+    [Fact]
+    public void NormalizeSlots_WithNonSendableProofPackage_FailsOptionalCompletenessSlot()
+    {
+        BuyerProofEvidenceLedgerRules rules = BuyerProofEvidenceLedgerRulesLoader.Load(null);
+        BuyerProofEvidenceLedgerContext context = new()
+        {
+            RunId = "dddddddd-4444-4444-4444-444444444444",
+            RoiBasisStatus = "buyer-provided",
+            RoiSponsorSafe = true,
+            SponsorPacketDisposition = "SEND",
+            ProcurementDisposition = "PASS",
+            DecisionLedgerPresent = true,
+            NoDecisionChangesConfirmed = true,
+            ProofPackageCompletenessPresent = true,
+            ProofSendability = "Blocked",
+            EvidenceCompleteness = "Incomplete",
+        };
+
+        IReadOnlyList<BuyerProofEvidenceLedgerSlotStatus> slots =
+            BuyerProofEvidenceLedgerNormalizer.NormalizeSlots(context, rules);
+
+        slots.Should().Contain(slot =>
+            slot.SlotId == "proof-package-completeness"
+            && slot.Verdict == BuyerProofEvidenceLedgerVerdict.Fail);
+        BuyerProofEvidenceLedgerNormalizer.DeriveOverallVerdict([], slots)
+            .Should()
+            .Be(BuyerProofEvidenceLedgerVerdict.Warn);
+    }
+
+    [Fact]
     public void Run_WithIncompleteProofPack_ReturnsFailVerdict()
     {
         string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();

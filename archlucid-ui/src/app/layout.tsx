@@ -6,7 +6,12 @@ import {
   readBuildIdentityHtmlMetaContent,
 } from "@/lib/build-identity-html-meta";
 import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
-import { PERSONA_SHELL_DEFAULT_DOCUMENT_TITLE } from "@/lib/vocabulary/persona-shell-vocabulary";
+import {
+  productLineDisplayName,
+  productLineDocumentTitle,
+  productLineTitleTemplate,
+} from "@/lib/product-line/product-line-display-name";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
 import { buildColorModeBootstrapInlineScript } from "@/lib/color-mode-bootstrap";
 import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
@@ -20,14 +25,16 @@ import "./globals.css";
 
 const siteUrl = getSiteMetadataBaseUrl();
 const authorityThemeEnvDefault = resolveAuthorityThemeFromEnv(process.env.NEXT_PUBLIC_UI_AUTHORITY_THEME);
+const buildTimeProductLine = resolveProductLineIdFromEnv();
+const buildTimeDisplayName = productLineDisplayName(buildTimeProductLine);
 
 export const viewport: Viewport = { themeColor: "#1E3A5F" };
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
   title: {
-    default: PERSONA_SHELL_DEFAULT_DOCUMENT_TITLE,
-    template: "%s · ArchLucid",
+    default: productLineDocumentTitle(buildTimeProductLine),
+    template: productLineTitleTemplate(buildTimeProductLine),
   },
   description: MARKETING_ROOT_OG_DESCRIPTION,
   manifest: "/manifest.webmanifest",
@@ -38,21 +45,21 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "ArchLucid",
-    title: "ArchLucid",
+    siteName: buildTimeDisplayName,
+    title: buildTimeDisplayName,
     description: MARKETING_ROOT_OG_DESCRIPTION,
     images: [
       {
         url: "/logo/og-default.png",
         width: 1200,
         height: 630,
-        alt: "ArchLucid",
+        alt: buildTimeDisplayName,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ArchLucid",
+    title: buildTimeDisplayName,
     description: MARKETING_ROOT_OG_DESCRIPTION,
     images: ["/logo/og-default.png"],
   },

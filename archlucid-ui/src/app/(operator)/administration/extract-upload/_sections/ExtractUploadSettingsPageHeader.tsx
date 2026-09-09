@@ -71,7 +71,9 @@ export function ExtractUploadSettingsPageHeader(
         ) : null
       }
       actions={
-        <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+        buyerPolishedShell ? null : (
+          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+        )
       }
       metadata={
         buyerPolishedShell || props.extractorScriptVersion === null ? null : (

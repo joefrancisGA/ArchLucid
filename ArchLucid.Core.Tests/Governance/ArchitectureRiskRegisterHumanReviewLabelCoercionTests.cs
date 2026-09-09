@@ -18,18 +18,18 @@ public sealed class ArchitectureRiskRegisterHumanReviewLabelCoercionTests
     }
 
     [Fact]
-    public void ParseOrDefault_string_encoded_boolean_maps_pending()
+    public void ParseOrDefault_string_encoded_boolean_maps_not_required()
     {
         ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault("True")
             .Should()
-            .Be(FindingHumanReviewStatus.Pending);
+            .Be(FindingHumanReviewStatus.NotRequired);
     }
 
     [Fact]
-    public void ParseOrDefault_on_synonym_maps_pending()
+    public void ParseOrDefault_on_synonym_maps_not_required()
     {
         ArchitectureRiskRegisterHumanReviewLabel.ParseOrDefault("on")
             .Should()
-            .Be(FindingHumanReviewStatus.Pending);
+            .Be(FindingHumanReviewStatus.NotRequired);
     }
 }

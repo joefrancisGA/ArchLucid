@@ -1,16 +1,15 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpCaiqSigResponseGuideMarkdown } from "@/app/(operator)/help/_sections/HelpCaiqSigResponseGuideMarkdown";
 import { HelpCaiqSigResponseHeaderActions } from "@/app/(operator)/help/_sections/HelpCaiqSigResponseHeaderActions";
 import { HelpCaiqSigResponseSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpCaiqSigResponseSourcesOrientationStrip";
 import { CaiqSigResponseHelpClaimDisciplineStrip } from "@/components/help/CaiqSigResponseHelpClaimDisciplineStrip";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { CaiqSigResponseHelpEvidenceOrientationStrip } from "@/components/help/CaiqSigResponseHelpEvidenceOrientationStrip";
 import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
@@ -22,8 +21,6 @@ import {
   CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE,
   CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS,
   CAIQ_SIG_RESPONSE_HELP_WORKFLOW_STEPS,
-  CAIQ_SIG_RESPONSE_SIG_DEFERRED_SUMMARY,
-  CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID,
   splitCaiqSigPreparedMarkdown,
 } from "@/lib/caiq-sig-response-help-guide-content";
 import {
@@ -233,37 +230,14 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
 
           <div className={contentGridClass}>
             <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-topic-content">
-              <MarketingAccessibilityMarkdownFragment
+              <HelpCaiqSigResponseGuideMarkdown
                 markdownBody={markdown}
-                tableCaption={`${entry.title} reference table`}
-                presentation="help"
-                sourceDocPath={sourceDocPath}
+                entryTitle={entry.title}
                 helpTopicSlug={entry.slug}
-                preparedMarkdownOverride={liteMarkdown}
+                sourceDocPath={sourceDocPath}
+                liteMarkdown={liteMarkdown}
+                sigMarkdown={sigMarkdown}
               />
-
-              {sigMarkdown.length > 0 ? (
-                <HelpLazyDetails
-                  className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"
-                  summaryClassName={cn(
-                    "cursor-pointer select-none font-medium text-al-text-primary",
-                    OPERATOR_TYPOGRAPHY.body,
-                  )}
-                  bodyClassName={HELP_PAGE_LAYOUT.detailsBody}
-                  summary={CAIQ_SIG_RESPONSE_SIG_DEFERRED_SUMMARY}
-                  data-testid={CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID}
-                  bodyTestId="help-caiq-sig-response-sig-deferred-body"
-                >
-                  <MarketingAccessibilityMarkdownFragment
-                    markdownBody={markdown}
-                    tableCaption={`${entry.title} SIG reference table`}
-                    presentation="help"
-                    sourceDocPath={sourceDocPath}
-                    helpTopicSlug={entry.slug}
-                    preparedMarkdownOverride={sigMarkdown}
-                  />
-                </HelpLazyDetails>
-              ) : null}
             </div>
 
             <HelpTopicTableOfContents headings={headings} groups={tocGroups} enableScrollSpy />
@@ -294,37 +268,14 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
 
           <div className={contentGridClass}>
             <div className={HELP_PAGE_LAYOUT.technicalReferenceColumn} data-testid="help-topic-content">
-              <MarketingAccessibilityMarkdownFragment
+              <HelpCaiqSigResponseGuideMarkdown
                 markdownBody={markdown}
-                tableCaption={`${entry.title} reference table`}
-                presentation="help"
-                sourceDocPath={sourceDocPath}
+                entryTitle={entry.title}
                 helpTopicSlug={entry.slug}
-                preparedMarkdownOverride={liteMarkdown}
+                sourceDocPath={sourceDocPath}
+                liteMarkdown={liteMarkdown}
+                sigMarkdown={sigMarkdown}
               />
-
-              {sigMarkdown.length > 0 ? (
-                <HelpLazyDetails
-                  className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"
-                  summaryClassName={cn(
-                    "cursor-pointer select-none font-medium text-al-text-primary",
-                    OPERATOR_TYPOGRAPHY.body,
-                  )}
-                  bodyClassName={HELP_PAGE_LAYOUT.detailsBody}
-                  summary={CAIQ_SIG_RESPONSE_SIG_DEFERRED_SUMMARY}
-                  data-testid={CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID}
-                  bodyTestId="help-caiq-sig-response-sig-deferred-body"
-                >
-                  <MarketingAccessibilityMarkdownFragment
-                    markdownBody={markdown}
-                    tableCaption={`${entry.title} SIG reference table`}
-                    presentation="help"
-                    sourceDocPath={sourceDocPath}
-                    helpTopicSlug={entry.slug}
-                    preparedMarkdownOverride={sigMarkdown}
-                  />
-                </HelpLazyDetails>
-              ) : null}
             </div>
 
             <HelpTopicTableOfContents headings={headings} groups={tocGroups} enableScrollSpy />

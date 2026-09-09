@@ -19,11 +19,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  ARCHITECTURE_INTELLIGENCE_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_INTELLIGENCE_PRIMARY_CONTENT_ID,
   ARCHITECTURE_INTELLIGENCE_PRODUCT_CONTEXT_RETRY_LABEL,
   ARCHITECTURE_INTELLIGENCE_PUBLISH_TOGGLE_LABEL,
+  ARCHITECTURE_INTELLIGENCE_SKIP_LINK_LABEL,
+  ARCHITECTURE_INTELLIGENCE_SKIP_TARGET_ID,
 } from "@/lib/architecture/architecture-intelligence-page-copy";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 import { ArchitectureIntelligencePickReviewBeforeAnalysisStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePickReviewBeforeAnalysisStrip";
@@ -85,24 +90,8 @@ export function ArchitectureIntelligencePageClient() {
   const analysisEmphasizedStepId =
     resolveArchitectureIntelligenceAnalysisEmphasizedStepId(analysisChecklistInput);
 
-  return (
-    <OperatorPageContainer
-      variant={buyerPolishedShell ? "workflow" : "reading"}
-      className={OPERATOR_LAYOUT.majorSectionGap}
-      data-testid="architecture-intelligence-page"
-    >
-      <ArchitectureIntelligencePageHeader subtitle={pageSubtitle} />
-
-      <ArchitectureIntelligenceBuyerChrome />
-
-      {!buyerPolishedShell ? (
-        <>
-          <PageCapabilityBoundaryStrip surfaceId="architectureIntelligence" />
-          <AskArchitectureIntelligenceVocabularyRail currentSurfaceId="architecture-intelligence" />
-          <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="architecture-intelligence" />
-        </>
-      ) : null}
-
+  const architectureIntelligenceMainBody = (
+    <>
       {inboundContextLine ? (
         <p
           className={cn(OPERATOR_TYPOGRAPHY.body, "text-muted-foreground")}
@@ -306,6 +295,57 @@ export function ArchitectureIntelligencePageClient() {
       {(activeRunId?.trim() ?? "").length > 0 ? (
         <ArchitectureIntelligenceNextReviewFooterClient runId={activeRunId?.trim() ?? ""} />
       ) : null}
+    </>
+  );
+
+  return (
+    <OperatorPageContainer
+      variant={buyerPolishedShell ? "workflow" : "reading"}
+      className={OPERATOR_LAYOUT.majorSectionGap}
+      data-testid="architecture-intelligence-page"
+    >
+      {buyerPolishedShell ? (
+        <a
+          href={`#${ARCHITECTURE_INTELLIGENCE_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ARCHITECTURE_INTELLIGENCE_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      {buyerPolishedShell ? (
+        <div
+          id={ARCHITECTURE_INTELLIGENCE_PRIMARY_CONTENT_ID}
+          data-testid="architecture-intelligence-primary-content"
+          className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+        >
+          <ArchitectureIntelligencePageHeader subtitle={pageSubtitle} buyerPolishedShell={buyerPolishedShell} />
+
+          <div
+            id={ARCHITECTURE_INTELLIGENCE_SKIP_TARGET_ID}
+            data-testid={ARCHITECTURE_INTELLIGENCE_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            <ArchitectureIntelligenceBuyerChrome />
+            {architectureIntelligenceMainBody}
+          </div>
+        </div>
+      ) : (
+        <>
+          <ArchitectureIntelligencePageHeader subtitle={pageSubtitle} buyerPolishedShell={buyerPolishedShell} />
+
+          <ArchitectureIntelligenceBuyerChrome />
+
+          <PageCapabilityBoundaryStrip surfaceId="architectureIntelligence" />
+          <AskArchitectureIntelligenceVocabularyRail currentSurfaceId="architecture-intelligence" />
+          <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="architecture-intelligence" />
+
+          {architectureIntelligenceMainBody}
+        </>
+      )}
     </OperatorPageContainer>
   );
 }

@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 
 import type { RunTrustEvidenceCard, TrustEvidenceFieldSnapshot } from "@/types/authority";
@@ -14,6 +15,19 @@ vi.mock("./run-detail-page-view-deferred-chunks", () => ({
 
 vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: vi.fn(() => false),
+}));
+
+vi.mock("@/hooks/use-run-stored-evidence-catalog-query", () => ({
+  useRunStoredEvidenceCatalogQuery: () => ({
+    catalog: [],
+    isLoading: false,
+    isError: false,
+  }),
+}));
+
+vi.mock("@/lib/runs/run-stored-evidence-file-api", () => ({
+  downloadRunStoredEvidenceFile: vi.fn(),
+  fetchRunStoredEvidenceFileBlob: vi.fn(),
 }));
 
 class IntersectionObserverMock {
@@ -76,8 +90,10 @@ function trustCard(): RunTrustEvidenceCard {
 
 describe("RunDetailEvidenceTabPanel", () => {
   it("renders section nav anchors and places trust evidence before deliverables", () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const { container } = render(
-      <RunDetailEvidenceTabPanel
+      <QueryClientProvider client={queryClient}>
+        <RunDetailEvidenceTabPanel
         packageName="Payments platform"
         reviewDateLabel="9 Aug 2026"
         evidenceItemCount={0}
@@ -96,7 +112,8 @@ describe("RunDetailEvidenceTabPanel", () => {
         blockingFindingId="finding-1"
         blockingFindingTitle="Encrypt PHI stores"
         approvalBlocked
-      />,
+      />
+      </QueryClientProvider>,
     );
 
     expect(screen.getByRole("link", { name: "Submitted evidence" })).toHaveAttribute("href", "#submitted-evidence-inventory");

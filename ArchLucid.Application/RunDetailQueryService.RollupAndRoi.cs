@@ -20,9 +20,7 @@ public sealed partial class RunDetailQueryService
     /// <inheritdoc/>
     public async Task<ArchitectureRunDetail?> GetRunDetailForRollupAsync(string runId, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-
-        if (!TryParseRunGuid(runId, out Guid runGuid))
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
         {
             if (logger.IsEnabled(LogLevel.Debug))
                 logger.LogDebug("RunDetailQueryService: run '{RunId}' is not a valid run identifier.", LogSanitizer.Sanitize(runId));

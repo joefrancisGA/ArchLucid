@@ -1,5 +1,8 @@
 /** Cloud connections page copy — cloud-neutral, no platform advocacy. */
 
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+
 export const CLOUD_CONNECTIONS_PAGE_TITLE = "Cloud connections";
 
 export const CLOUD_CONNECTIONS_PAGE_SUBTITLE =
@@ -24,6 +27,10 @@ export const CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL: Readonly<Record<"azure" | "a
 
 export const CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_INTRO =
   "Review these items with your cloud or security team before enabling collection. This checklist is guidance only — ArchLucid does not save it as proof or add it to the audit log.";
+
+export function cloudConnectionsSecurityPreflightIntro(productLineId: ProductLineId = "architecture"): string {
+  return localizeProductCopy(productLineId, CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_INTRO);
+}
 
 export const CLOUD_CONNECTIONS_RECENT_ACTIVITY_TITLE = "Recent connection activity";
 

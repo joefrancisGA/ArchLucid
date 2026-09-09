@@ -45,19 +45,25 @@ import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatGovernanceLineageCompletenessPercent } from "@/lib/governance/governance-lineage-metric-format";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import {
+  APPROVAL_LINEAGE_CLAIM_DISCIPLINE,
+} from "@/lib/approval-lineage-evidence-copy";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
+import { GovernanceApprovalLineageBreadcrumb } from "./GovernanceApprovalLineageBreadcrumb";
 import { GovernanceApprovalLineageSpine } from "./GovernanceApprovalLineageSpine";
 import { governanceLineageApprovalDisplayTitle } from "./governance-lineage-approval-display-title";
 
 type GovernanceApprovalLineageDetailContentProps = {
   data: GovernanceLineageResult;
   readonly findingsQueueRunId?: string | null;
+  readonly buyerPolishedShell?: boolean;
 };
 
 export function GovernanceApprovalLineageDetailContent({
   data,
   findingsQueueRunId = null,
+  buyerPolishedShell = false,
 }: GovernanceApprovalLineageDetailContentProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -111,6 +117,9 @@ export function GovernanceApprovalLineageDetailContent({
         title="Approval lineage"
         subtitle={displayApprovalTitle}
         titleTestId="approval-lineage-page-title"
+        claimDiscipline={buyerPolishedShell ? APPROVAL_LINEAGE_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId={buyerPolishedShell ? "approval-lineage-claim-discipline" : undefined}
+        breadcrumb={buyerPolishedShell ? <GovernanceApprovalLineageBreadcrumb /> : undefined}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
@@ -121,7 +130,9 @@ export function GovernanceApprovalLineageDetailContent({
         }
       />
 
-      <ApprovalLineageQueueVocabularyRail currentSurfaceId="approval-lineage" />
+      {buyerPolishedShell ? null : (
+        <ApprovalLineageQueueVocabularyRail currentSurfaceId="approval-lineage" />
+      )}
 
       <GovernanceApprovalLineageSpine data={data} />
 

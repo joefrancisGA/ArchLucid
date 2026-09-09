@@ -1,15 +1,38 @@
-import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
-import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { SIGNED_RECORDS_LIST_PAGE_TITLE } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { SIGNED_RECORD_ARTIFACT_CLAIM_DISCIPLINE } from "@/lib/signed-record-artifact-evidence-copy";
 import {
+  BUYER_SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE,
   SIGNED_RECORD_ARTIFACT_PAGE_TITLE,
+  SIGNED_RECORD_ARTIFACT_PRIMARY_CONTENT_ID,
+  SIGNED_RECORD_ARTIFACT_SKIP_LINK_LABEL,
 } from "@/lib/signed-record-artifact-page-copy";
-import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 import { SignedRecordArtifactPageSkeleton } from "./_sections/SignedRecordArtifactPageSkeleton";
 
 export default function SignedRecordArtifactLoading(): React.JSX.Element {
+  const buyerPolishedLayout = isBuyerPolishedOperatorShellEnv();
+
+  if (!buyerPolishedLayout) {
+    return (
+      <div
+        className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0"
+        data-testid="signed-record-artifact-loading-shell"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <OperatorPageHeader
+          title={SIGNED_RECORD_ARTIFACT_PAGE_TITLE}
+          headingLevel="h1"
+          subtitle="Loading artifact preview…"
+        />
+        <SignedRecordArtifactPageSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div
       className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0"
@@ -18,20 +41,18 @@ export default function SignedRecordArtifactLoading(): React.JSX.Element {
       aria-live="polite"
       aria-busy="true"
     >
+      <a
+        href={`#${SIGNED_RECORD_ARTIFACT_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {SIGNED_RECORD_ARTIFACT_SKIP_LINK_LABEL}
+      </a>
       <OperatorPageHeader
         title={SIGNED_RECORD_ARTIFACT_PAGE_TITLE}
         headingLevel="h1"
-        subtitle="Loading artifact preview…"
-        breadcrumb={
-          <OperatorPageBreadcrumb
-            data-testid="governance-sealed-record-artifact-breadcrumb"
-            items={[
-              { label: "Approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
-              { label: SIGNED_RECORDS_LIST_PAGE_TITLE, href: SIGNED_RECORDS_LIST_PATH },
-              { label: SIGNED_RECORD_ARTIFACT_PAGE_TITLE },
-            ]}
-          />
-        }
+        subtitle={BUYER_SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE}
+        claimDiscipline={SIGNED_RECORD_ARTIFACT_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="signed-record-artifact-claim-discipline"
       />
       <SignedRecordArtifactPageSkeleton />
     </div>

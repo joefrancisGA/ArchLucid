@@ -8,7 +8,13 @@
  * a Finalized review record that can populate this register.
  */
 
-import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import {
+  ARCHITECTURES_LIST_PATH,
+  ARCHITECTURES_NEW_PATH,
+  REVIEWS_LIST_PATH,
+  REVIEWS_NEW_PATH,
+  architectureIdentityPath,
+} from "@/lib/architecture/architecture-routes";
 import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
@@ -60,8 +66,44 @@ export const DECISION_REGISTER_EMPTY_TEACHING_OPEN_REVIEWS_ACTION: DecisionRegis
     href: REVIEWS_LIST_PATH,
   };
 
+export type BuildDecisionRegisterEmptyTeachingInput = {
+  readonly workingMode?: boolean;
+  readonly lastOpenArchitectureId?: string | null;
+};
+
 /** Full empty-teaching model (title, body, honesty, and next-step links). */
-export function buildDecisionRegisterEmptyTeaching(): DecisionRegisterEmptyTeachingModel {
+export function buildDecisionRegisterEmptyTeaching(
+  input?: BuildDecisionRegisterEmptyTeachingInput,
+): DecisionRegisterEmptyTeachingModel {
+  const workingMode = input?.workingMode === true;
+
+  if (workingMode) {
+    const lastOpenArchitectureId = input?.lastOpenArchitectureId?.trim() ?? "";
+    const startReviewHref =
+      lastOpenArchitectureId.length > 0
+        ? architectureIdentityPath(lastOpenArchitectureId)
+        : ARCHITECTURES_NEW_PATH;
+
+    return {
+      title: DECISION_REGISTER_EMPTY_TEACHING_TITLE,
+      body: DECISION_REGISTER_EMPTY_TEACHING_BODY,
+      honestyLine: DECISION_REGISTER_EMPTY_TEACHING_HONESTY,
+      actions: [
+        DECISION_REGISTER_EMPTY_TEACHING_FINDINGS_ACTION,
+        {
+          id: "start-review",
+          label: START_REVIEW_LABEL,
+          href: startReviewHref,
+        },
+        {
+          id: "open-reviews",
+          label: "Open architectures",
+          href: ARCHITECTURES_LIST_PATH,
+        },
+      ],
+    };
+  }
+
   return {
     title: DECISION_REGISTER_EMPTY_TEACHING_TITLE,
     body: DECISION_REGISTER_EMPTY_TEACHING_BODY,
