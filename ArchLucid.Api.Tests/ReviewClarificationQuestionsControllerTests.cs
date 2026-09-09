@@ -8,7 +8,6 @@ using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;

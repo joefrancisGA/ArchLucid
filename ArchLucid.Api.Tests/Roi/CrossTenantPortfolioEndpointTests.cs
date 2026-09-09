@@ -5,22 +5,17 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
-using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Roi;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -40,11 +35,11 @@ public sealed class CrossTenantPortfolioEndpointTests
             Mock.Of<IAuditService>(),
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             Mock.Of<ITenantRepository>(),
             Mock.Of<IScimUserRepository>(),
-            CreateRunCollector());
+            RoiControllerTestSupport.CreateRunCollector());
 
         DefaultHttpContext httpContext = new();
         httpContext.Request.Path = "/v1/roi/cross-tenant-portfolio";
@@ -67,16 +62,4 @@ public sealed class CrossTenantPortfolioEndpointTests
         problem.Detail.Should().Contain("portfolio directory object key");
         problem.Type.Should().Be("https://archlucid.net/errors/portfolio-key-not-configured");
     }
-
-    private static SponsorRoiRunCollector CreateRunCollector() =>
-        new(
-            Mock.Of<IRunDetailQueryService>(),
-            Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
-            Mock.Of<IScopeContextProvider>(),
-            Mock.Of<IFindingReviewTrailRepository>(),
-            Mock.Of<IRiskExceptionService>(),
-            Mock.Of<IFindingsSnapshotRepository>(),
-            Mock.Of<ITenantCostSettingsRepository>(),
-            Options.Create(new ValueReportComputationOptions()),
-            NullLogger<SponsorRoiRunCollector>.Instance);
 }
