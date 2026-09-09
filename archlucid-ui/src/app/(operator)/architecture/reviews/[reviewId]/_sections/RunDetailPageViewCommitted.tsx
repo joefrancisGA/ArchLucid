@@ -8,8 +8,8 @@ import {
   resolveRunDetailReviewPackageInspectSteps,
 } from "@/lib/run-detail-review-package-inspect-checklist";
 import {
-  resolveRunDetailFindingsReviewed,
   resolveRunDetailDeferredSurfaceFindingCount,
+  resolveRunDetailFindingsReviewed,
 } from "@/lib/runs/run-detail-findings-tab-badge-count";
 
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";

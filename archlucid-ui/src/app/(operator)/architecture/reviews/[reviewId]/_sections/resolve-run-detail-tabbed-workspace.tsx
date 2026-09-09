@@ -13,8 +13,8 @@ import { ReviewDefensibilityStrip } from "@/components/reviews/ReviewDefensibili
 import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import { buildReviewDefensibilityStripProps } from "@/lib/reviews/build-review-defensibility-strip-props";
 import {
-  resolveRunDetailFindingsTabBadgeCount,
   resolveRunDetailDeferredSurfaceFindingCount,
+  resolveRunDetailFindingsTabBadgeCount,
 } from "@/lib/runs/run-detail-findings-tab-badge-count";
 import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLead";
 import { composeRunDetailTabbedWorkspaceEvidenceShell } from "./RunDetailTabbedWorkspaceEvidenceShell";
