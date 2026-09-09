@@ -4,13 +4,14 @@ import {
   CLOUD_PROVIDER_CONNECTION_ORIENTATION_SOURCES_INTRO,
   cloudProviderConnectionSources,
 } from "@/lib/cloud-provider-connection-evidence-copy";
+import { GCP_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID } from "./gcp-cloud-connection-page-copy";
 
 /** Sources-only follow-ups for `/integrations/cloud-connections/gcp` buyer-polished shell (IGC). */
 export function GcpCloudConnectionSourcesOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="cloud-connections-gcp"
-      stripTestId="gcp-cloud-connection-orientation-bottom"
+      stripTestId={GCP_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID}
       sourcesTestId="cloud-connections-gcp-sources"
       sourcesTitle={CLOUD_PROVIDER_CONNECTION_FOLLOW_UPS_TITLE}
       sourcesIntro={CLOUD_PROVIDER_CONNECTION_ORIENTATION_SOURCES_INTRO}
