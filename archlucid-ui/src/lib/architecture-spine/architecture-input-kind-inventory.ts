@@ -230,7 +230,7 @@ export const ARCHITECTURE_INPUT_KIND_INVENTORY: readonly ArchitectureInputKindRo
     authorityContextIngestionToday: "structured-parse",
     esiCatalogToday: "not-applicable",
     droppedFromAuthority: false,
-    status: "shipped",
+    status: "asOwned",
     ownerPrompt: "AS-007",
     notes: "Mermaid source posts as text/vnd.mermaid; server parses to ArchitectureDiagramModelRecord.",
   },
