@@ -22,6 +22,8 @@ import {
   resolveContinueLastRecurrenceSchedule,
   writeRecurrenceScheduleLastViewedId,
 } from "@/lib/resolve-continue-last-recurrence-schedule";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { recurrenceScheduleMutationBlockedReason } from "@/lib/governance/recurrence-schedule-mutation-blocked-reason";
 import { resolveRecurrenceDisplayTimeZoneId } from "@/lib/recurrence-local-time";
 import type { RecurrenceScheduleExample } from "@/lib/recurrence-schedules-copy";
 import { recurrenceSchedulesLoadFailureMessage } from "@/components/governance/recurrence-schedules-presentation";
@@ -295,7 +297,11 @@ export function useRecurrenceSchedulesClient(): UseRecurrenceSchedulesClientResu
 
       await reload();
     } catch (error: unknown) {
-      setLoadError(error instanceof Error ? error.message : "Failed to update schedule.");
+      const failure = toApiLoadFailure(error);
+      setLoadError(
+        recurrenceScheduleMutationBlockedReason(failure)
+          ?? (error instanceof Error ? error.message : "Failed to update schedule."),
+      );
       throw error;
     } finally {
       setBusyId(null);
@@ -376,7 +382,11 @@ export function useRecurrenceSchedulesClient(): UseRecurrenceSchedulesClientResu
       cancelEdit();
       await reload();
     } catch (error: unknown) {
-      setLoadError(error instanceof Error ? error.message : "Failed to update schedule.");
+      const failure = toApiLoadFailure(error);
+      setLoadError(
+        recurrenceScheduleMutationBlockedReason(failure)
+          ?? (error instanceof Error ? error.message : "Failed to update schedule."),
+      );
     } finally {
       setBusyId(null);
     }

@@ -195,6 +195,8 @@ public sealed partial class GovernanceStickinessFacade
             return new RecurrenceScheduleUpdateResult(RecurrenceScheduleUpdateOutcome.NotFound, null);
         }
 
+        await EnsureRegistersSealedManifestOrThrowAsync(scope.ProjectId, ct).ConfigureAwait(false);
+
         bool originalIsEnabled = existing.IsEnabled;
         string originalCron = existing.CronExpression;
         string originalName = existing.Name;
@@ -282,6 +284,9 @@ public sealed partial class GovernanceStickinessFacade
         CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await EnsureRegistersSealedManifestOrThrowAsync(scope.ProjectId, ct).ConfigureAwait(false);
+
         await _attestationService.SaveAttestationAsync(scope.TenantId, scope.WorkspaceId, request, ct);
     }
 }
