@@ -16,11 +16,17 @@ public static class SupportedContextDocumentContentTypes
     /// </summary>
     public const string StructuredDiagramJson = "application/vnd.archlucid.diagram+json";
 
+    /// <summary>
+    ///     Mermaid flowchart / C4 source posted as raw text for server-side structured parse (AS-007).
+    /// </summary>
+    public const string Mermaid = "text/vnd.mermaid";
+
     public static readonly IReadOnlyList<string> All =
     [
         "text/plain",
         "text/markdown",
         StructuredDiagramJson,
+        Mermaid,
     ];
 
     public static bool IsSupported(string? contentType)
@@ -39,6 +45,12 @@ public static class SupportedContextDocumentContentTypes
     {
         return !string.IsNullOrWhiteSpace(contentType)
                && string.Equals(contentType.Trim(), "text/markdown", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsMermaidContentType(string? contentType)
+    {
+        return !string.IsNullOrWhiteSpace(contentType)
+               && string.Equals(contentType.Trim(), Mermaid, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
