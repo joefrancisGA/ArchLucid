@@ -12,8 +12,8 @@ public sealed partial class ArchitectureRiskRegisterReader
 
         return $"""
                 ;WITH latestDisposition AS (
-                    SELECT FindingId, Disposition, RevisitDueUtc, EvidenceRequestText, OccurredAtUtc, ReviewerUserId,
-                           ROW_NUMBER() OVER (PARTITION BY FindingId ORDER BY OccurredAtUtc DESC) AS rn
+                    SELECT FindingId, ProjectId, Disposition, RevisitDueUtc, EvidenceRequestText, OccurredAtUtc, ReviewerUserId,
+                           ROW_NUMBER() OVER (PARTITION BY FindingId, ProjectId ORDER BY OccurredAtUtc DESC) AS rn
                     FROM dbo.FindingReviewEvents
                     WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND Disposition IS NOT NULL
                 )
@@ -51,7 +51,7 @@ public sealed partial class ArchitectureRiskRegisterReader
                       AND fp.PropertyKey IN (N'resourceId', N'affectedResourceId', N'ResourceId', N'AffectedResourceId')
                     ORDER BY fp.PropertySortOrder
                 ) AS resourceProp
-                LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.rn = 1
+                LEFT JOIN latestDisposition AS ld ON ld.FindingId = fr.FindingId AND ld.ProjectId = fr.ProjectId AND ld.rn = 1
                 LEFT JOIN dbo.RiskExceptions AS re
                     ON re.TenantId = fr.TenantId
                    AND re.WorkspaceId = fr.WorkspaceId
