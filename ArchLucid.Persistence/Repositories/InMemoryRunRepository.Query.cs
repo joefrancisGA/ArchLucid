@@ -256,12 +256,16 @@ public sealed partial class InMemoryRunRepository
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
 
-        string normalizedName = RunRepositoryCore.RequireSystemName(systemName).ToUpperInvariant();
+        string normalizedName = RunRepositoryCore.NormalizeWorkspaceSystemName(
+            RunRepositoryCore.RequireSystemName(systemName));
 
         bool exists = _store.Values.Any(r =>
             RunRepositoryCore.MatchesWorkspace(r, scope) &&
             RunRepositoryCore.OccupiesWorkspaceSystemName(r, excludeRunId) &&
-            string.Equals(r.ProjectId.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase));
+            string.Equals(
+                RunRepositoryCore.NormalizeWorkspaceSystemName(r.ProjectId),
+                normalizedName,
+                StringComparison.Ordinal));
 
         return Task.FromResult(exists);
     }

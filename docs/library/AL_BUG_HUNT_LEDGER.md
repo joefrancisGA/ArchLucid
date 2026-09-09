@@ -681,11 +681,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 21
-- **bugs-found:** 9
+- **hunts:** 22
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — golden-manifest committed run lookup lacked RunId tie-break in InMemory parity
+- **last-bug:** 2026-09-09 — workspace system-name guard ignored internal whitespace in stored ProjectId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -793,6 +793,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` backfill queue lacks `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-09-09 seed hunt #1451:** SQL orders `CreatedUtc ASC, RunId ASC`; InMemory uses `ThenBy(RunId)`; regression `InMemory_null_architecture_backfill_orders_by_run_id_when_created_utc_ties`.
 
 2026-09-09 seed hunt #1451 (seed-only): reseeded sql-run-repository after #1450; cheap-disproof closed GoldenManifest tenant join defense-in-depth, manifest-version-only INNER JOIN exclusion, version-scoped committed predicate breadth, optional row-version update, architecture-head latest-run semantics, and null-architecture backfill tie-break; 90 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) `ExistsActiveRunWithSystemNameInWorkspace` compares edge-trimmed `ProjectId` only so internal whitespace variants bypass collision guard — **hit 2026-09-09 seed hunt #1460 (seed→hit):** stored `Claims  API` did not match lookup for `claims api`; fixed with `NormalizeWorkspaceSystemName` and SQL `STRING_SPLIT`/`STRING_AGG` collapse; regressions `ExistsActiveRunWithSystemNameInWorkspace_sql_collapses_internal_whitespace_before_compare`, `InMemory_workspace_collision_treats_internal_whitespace_as_equivalent`, and `NormalizeWorkspaceSystemName_collapses_internal_whitespace`.
+- [x] (proven) Committed lookup SQL / `IsCommittedRun` treat pipeline dead-letter `Failed` rows with retained manifest headers as committed — **hit 2026-09-09 seed hunt #1460 (seed→hit):** shared committed predicate let dead-letter rows win seal-delta and prior-resolve paths; fixed terminal-failure guard in `IsCommittedRun` and all committed lookup shapes; regressions `SelectCommittedRunIdByGoldenManifestId_excludes_failed_runs_after_pipeline_dead_letter`, `SelectPriorCommittedRunIdBeforeCurrent_excludes_failed_runs_with_retained_manifest_headers`, `SelectLatestCommittedRunIdByManifestCreatedUtc_excludes_failed_runs_with_retained_manifest_headers`, and `InMemory_failed_run_with_retained_golden_manifest_does_not_match_seal_delta_lookup`.
+
+2026-09-09 seed hunt #1460 (seed→hit): reseeded sql-run-repository after #1451; proved internal-whitespace workspace collision bypass and committed-lookup dead-letter class; 110 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
