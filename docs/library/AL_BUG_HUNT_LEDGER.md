@@ -695,6 +695,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1497 (seed-only): reseeded auth-return-path; cheap-disproved semicolon segment bypass; 41 scoped AuthSignInReturnPathGuard tests passed.
 
+- [x] (valid-no-repro) Residual edge case in zone `auth-return-path` from picker reseed #1498 — **valid-no-repro 2026-09-09 seed hunt #1498:** cheap-disproof from zone paths and existing regressions
+
+2026-09-09 seed hunt #1498 (seed-only): reseeded auth-return-path; cheap-disproved picker reseed candidate; 41 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (valid-no-repro) Matrix-parameter `;` smuggling in return path — **valid-no-repro 2026-09-09 seed hunt #1498:** modern browsers keep `;` in segment text; no external host introduced
+
+2026-09-09 seed hunt #1498 (seed-only): reseeded auth-return-path; cheap-disproved matrix-param smuggling; 41 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (valid-no-repro) Semicolon-delimited path segments (`/signin/..;/evil`) bypass dot-segment check — **valid-no-repro 2026-09-09 seed hunt #1496:** `ContainsDotDotSegment` compares whole segments; `..;` is not `..`
+
+2026-09-09 seed hunt #1496 (seed-only): reseeded auth-return-path; cheap-disproved semicolon segment bypass; 41 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (valid-no-repro) Semicolon-delimited path segments (`/signin/..;/evil`) bypass dot-segment check — **valid-no-repro 2026-09-09 seed hunt #1498:** `ContainsDotDotSegment` compares whole segments; `..;` is not `..`
+
+2026-09-09 seed hunt #1498 (seed-only): reseeded auth-return-path; cheap-disproved semicolon segment bypass; 41 scoped AuthSignInReturnPathGuard tests passed.
+
 ## Zone: tenant-erasure
 
 - **id:** tenant-erasure
