@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { AssuranceCoveragePreviewPanel } from "@/components/wizard/AssuranceCoveragePreviewPanel";
+import { ReviewAssuranceCoverageGuardCallout } from "@/components/wizard/ReviewAssuranceCoverageGuardCallout";
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import {
   setSessionCoveragePackOverrides,
@@ -40,6 +41,7 @@ export function ReviewAssuranceCoverageSection(props: ReviewAssuranceCoverageSec
 
   return (
     <div className={cn(OPERATOR_LAYOUT.sectionStack, props.className)} data-testid="review-assurance-coverage-section">
+      <ReviewAssuranceCoverageGuardCallout />
       <PilotModePolicyPackToggle
         presentation={props.togglePresentation ?? "choice"}
         enabled={props.focusedPilotModeEnabled}

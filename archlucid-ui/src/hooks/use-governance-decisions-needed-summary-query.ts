@@ -9,6 +9,7 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { decisionsNeededSummaryBlockedReason } from "@/lib/governance/governance-stickiness-register-blocked-reason";
+import { governanceStickinessSummaryBlockedReason } from "@/lib/governance/governance-stickiness-summary-blocked-reason";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -38,7 +39,8 @@ export function useGovernanceDecisionsNeededSummaryQuery(
   });
 
   const failure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
-  const blockedReason = decisionsNeededSummaryBlockedReason(failure);
+  const blockedReason =
+    governanceStickinessSummaryBlockedReason(failure) ?? decisionsNeededSummaryBlockedReason(failure);
 
   return {
     ...query,

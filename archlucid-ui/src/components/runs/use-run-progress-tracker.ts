@@ -399,6 +399,8 @@ export function useRunProgressTracker({
     streamPhase,
     sseConnected,
     streamBlockedReason,
+    stageTimelineBlockedReason: stageTimelineQuery.blockedReason,
+    stageTimelineFailure: stageTimelineQuery.failure,
     pollSession,
     pollMaxMs,
     pollCount,

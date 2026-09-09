@@ -21,12 +21,10 @@ import {
 } from "@/lib/architecture/architecture-seal-delta-copy";
 import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
-import { architectureSealDeltaBlockedReason } from "@/lib/architecture/architecture-seal-delta-blocked-reason";
 import {
   architectureSealDeltaDisclosureHrefFromSearch,
   parseArchitectureSealDeltaOpenFromSearch,
 } from "@/lib/architecture/architecture-seal-delta-disclosure-url";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { DiffItem } from "@/types/authority-manifest";
 import { cn } from "@/lib/utils";
@@ -106,8 +104,7 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
   }
 
   if (query.isError || delta === undefined) {
-    const loadFailure = query.error !== null && query.error !== undefined ? toApiLoadFailure(query.error) : null;
-    const blockedReason = architectureSealDeltaBlockedReason(loadFailure);
+    const blockedReason = query.blockedReason;
 
     return (
       <div className="space-y-2" data-testid="architecture-seal-delta-error">

@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { downloadTerraformAdvisoryExportZip } from "@/lib/api";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { showError } from "@/lib/toast";
-import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -125,7 +124,9 @@ export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButt
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Export advisory Terraform</AlertDialogTitle>
-            <AlertDialogDescription>{TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}</AlertDialogDescription>
+            <AlertDialogDescription>
+              Downloads a ZIP of advisory Terraform reconstructed from evidence for this run.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>

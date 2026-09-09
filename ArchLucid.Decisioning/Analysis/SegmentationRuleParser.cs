@@ -89,44 +89,47 @@ public static partial class SegmentationRuleParser
     private static bool HasInternetSource(string propertyText)
     {
         string normalized = propertyText.ToLowerInvariant();
+        // Terraform nested blocks keep quoted wildcards (`"*"`); strip quotes so `= *` still matches.
+        string dequoted = normalized.Replace("\"", string.Empty, StringComparison.Ordinal)
+            .Replace("'", string.Empty, StringComparison.Ordinal);
 
-        if (normalized.Contains("0.0.0.0/0", StringComparison.Ordinal))
+        if (dequoted.Contains("0.0.0.0/0", StringComparison.Ordinal))
         {
             return true;
         }
 
-        if (normalized.Contains("source_address_prefix", StringComparison.Ordinal)
-            && (normalized.Contains("=*", StringComparison.Ordinal)
-                || normalized.Contains("= *", StringComparison.Ordinal)
-                || normalized.Contains("internet", StringComparison.Ordinal)))
+        if (dequoted.Contains("source_address_prefix", StringComparison.Ordinal)
+            && (dequoted.Contains("=*", StringComparison.Ordinal)
+                || dequoted.Contains("= *", StringComparison.Ordinal)
+                || dequoted.Contains("internet", StringComparison.Ordinal)))
         {
             return true;
         }
 
-        if (normalized.Contains("cidr_blocks", StringComparison.Ordinal)
-            && normalized.Contains("0.0.0.0/0", StringComparison.Ordinal))
+        if (dequoted.Contains("cidr_blocks", StringComparison.Ordinal)
+            && dequoted.Contains("0.0.0.0/0", StringComparison.Ordinal))
         {
             return true;
         }
 
-        if (K8sWildcardSourceRegex().IsMatch(normalized))
+        if (K8sWildcardSourceRegex().IsMatch(dequoted))
         {
             return true;
         }
 
-        if (normalized.Contains(" from ", StringComparison.Ordinal)
-            && normalized.Contains('*', StringComparison.Ordinal))
+        if (dequoted.Contains(" from ", StringComparison.Ordinal)
+            && dequoted.Contains('*', StringComparison.Ordinal))
         {
             return true;
         }
 
-        if (ContainsPrivateSourceOnly(normalized))
+        if (ContainsPrivateSourceOnly(dequoted))
         {
             return false;
         }
 
-        return normalized.Contains(" internet", StringComparison.Ordinal)
-            || normalized.Contains("source=*", StringComparison.Ordinal);
+        return dequoted.Contains(" internet", StringComparison.Ordinal)
+            || dequoted.Contains("source=*", StringComparison.Ordinal);
     }
 
     private static bool ContainsPrivateSourceOnly(string normalized)
