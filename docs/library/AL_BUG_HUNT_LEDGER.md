@@ -9886,11 +9886,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 10
-- **bugs-found:** 11
+- **hunts:** 11
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — trial limit gate bypassed expiry and lifecycle freezes for non-canonical TrialStatus casing
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — `TenantTrialFacade` ignored non-canonical Converted casing for identity handoff pending flag
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9914,7 +9914,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantTrialConversionStage.ConvertTrialAsync` rejected lowercase `active` trial status — **hit 2026-09-07 (#1248):** Ordinal `TrialStatus` compare left post-#808 lifecycle tenants unable to convert; fixed with `TrialLifecycleStatus.EqualsStatus`; regression `ConvertTrialAsync_when_trial_status_is_lowercase_active_succeeds`.
 - [x] (proven) `TrialLimitGate` used Ordinal `TrialStatus` compares — **hit 2026-09-07 (#1249):** lowercase `active` returned before expiry/run/seat enforcement; lowercase `expired`/`readonly`/`exportonly` skipped post-active write freeze; fixed with `TrialLifecycleStatus.EqualsStatus` throughout; regressions `GuardWriteAsync_lowercase_active_expired_throws_Expired`, `GuardWriteAsync_lowercase_expired_throws_LifecycleWritesFrozen`.
 - [x] (proven) `TenantUsageStatusService` treated trial only when `TrialStatus` equals `Active` ordinally — **hit 2026-09-07 (#1249):** lowercase `active` omitted trial packaging snapshot; fixed with `TrialLifecycleStatus.EqualsStatus`; regression `BuildAsync_marks_lowercase_active_trial_and_null_commercial_tier`.
-- [x] (invalid) `TenantTrialFacade` idempotent converted check uses Ordinal `Converted` compare — **cheap-disproof 2026-09-07 (#1249):** duplicate conversion retry is handled in `TenantTrialConversionStage.IsIdempotentConvertedRetry` via `EqualsStatus` (fixed #1248); facade Ordinal compare only affects `IdentityHandoffPending` status display, not conversion audit idempotency.
+- [x] (proven) `TenantTrialFacade.ComputeIdentityHandoffPending` — Ordinal `Converted` compare hid pending Entra handoff for legacy/import lowercase `converted` rows — **hit 2026-09-09 seed hunt #1423:** trial status API returned `IdentityHandoffPending=false` after #1248/#1249 lifecycle casing fixes elsewhere; fixed with `TrialLifecycleStatus.EqualsStatus`; regression in `GetTrialStatusAsync_sets_identity_handoff_pending_when_converted_status_differs_only_by_casing`
+- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — unrecognized non-empty `TrialStatus` values that are not Active/Converted/Deleted/Expired/ReadOnly/ExportOnly fall through without blocking mutating work (fail-open vs corrupted or future lifecycle labels)
+
+2026-09-09 seed hunt #1423 (hit): reseeded application-tenancy-lifecycle; proved facade identity-handoff pending ignored non-canonical Converted casing; seeded unrecognized TrialStatus fail-open candidate; 114 scoped tenancy tests passed.
+
+- [x] (invalid) `TenantTrialFacade` idempotent converted check uses Ordinal `Converted` compare — **cheap-disproof 2026-09-07 (#1249):** duplicate conversion retry is handled in `TenantTrialConversionStage.IsIdempotentConvertedRetry` via `EqualsStatus` (fixed #1248); facade Ordinal compare only affected `IdentityHandoffPending` status display until **hit 2026-09-09 #1423**.
 
 2026-09-07 thorough hunt #1249 (hit): proved trial limit gate and usage status ignored non-canonical `TrialStatus` casing; cheap-disproved facade duplicate-audit candidate (conversion idempotency already in `TenantTrialConversionStage`).
 
