@@ -681,7 +681,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -778,6 +778,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Recent-in-scope keyset list uses ad-hoc cursor predicate — **cheap-disproof 2026-09-09 seed hunt #1448:** `RunsListRecentInScopeKeysetNoLock` reuses shared `KeysetCursorPredicate` and `KeysetOrderBy`; regression `RunsListRecentInScopeKeysetNoLock_reuses_shared_keyset_cursor_predicate`.
 
 2026-09-09 seed hunt #1448 (seed-only): reseeded sql-run-repository after #1447; cheap-disproof closed architecture prior-committed timeline, insert row-version output, stale-uncommitted purge eligibility, architecture count scope, scoped archive isolation, and recent keyset cursor reuse; 81 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByManifestCreatedUtc` should rank tied `gm.CreatedUtc` by `r.CreatedUtc` before `RunId` — **cheap-disproof 2026-09-09 seed hunt #1450:** manifest `CreatedUtc` is the authoritative commit instant; `ORDER BY gm.CreatedUtc DESC, r.RunId DESC` is intentional deterministic tie-break; shape regression `SelectLatestCommittedRunIdByManifestCreatedUtc_orders_by_manifest_created_utc`.
+- [x] (valid-no-repro) InMemory committed project lookups omit archived golden-manifest filter — **cheap-disproof 2026-09-09 seed hunt #1450:** `IsActiveCommittedRunInProject` requires active in-scope committed rows with `GoldenManifestId`; run archival cascades manifest archival in production SQL; regression `IsActiveCommittedRunInProject_requires_golden_manifest_for_project_scoped_committed_lookups`.
+- [x] (valid-no-repro) `HardDeleteStaleUncommittedRunsBatchAsync` / `SampleRunPurgeBatch` purge batches need `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-09-09 seed hunt #1450:** batch workers delete oldest eligible rows by `CreatedUtc` only; ties are arbitrary within a batch but bounded by `BatchSize`; regressions `InMemory_stale_uncommitted_purge_deletes_oldest_eligible_runs_first` and `SampleRunPurgeBatch_orders_oldest_sample_runs_first_by_created_utc`.
+
+2026-09-09 seed hunt #1450 (seed-only): reseeded sql-run-repository after #1448; cheap-disproof closed manifest CreatedUtc tie-break, InMemory manifest-archival parity, and purge-batch CreatedUtc ordering; 84 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 

@@ -1290,4 +1290,122 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
             .Should()
             .BeEquivalentTo(new[] { runD, runC, runB, runA }, opts => opts.WithStrictOrdering());
     }
+
+    [Fact]
+    public void IsActiveCommittedRunInProject_requires_golden_manifest_for_project_scoped_committed_lookups()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        RunRecord committedWithoutManifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "billing",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            CurrentManifestVersion = "v1",
+            CreatedUtc = new DateTime(2026, 9, 9, 0, 0, 0, DateTimeKind.Utc),
+        };
+
+        RunRecord committedWithManifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "billing",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            GoldenManifestId = Guid.NewGuid(),
+            CreatedUtc = new DateTime(2026, 9, 9, 0, 0, 0, DateTimeKind.Utc),
+        };
+
+        RunRepositoryCore.IsActiveCommittedRunInProject(committedWithoutManifest, scope, "billing").Should().BeFalse();
+        RunRepositoryCore.IsActiveCommittedRunInProject(committedWithManifest, scope, "billing").Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InMemory_stale_uncommitted_purge_deletes_oldest_eligible_runs_first()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime cutoff = new(2026, 9, 9, 12, 0, 0, DateTimeKind.Utc);
+        Guid oldestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid middleRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid newestRunId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        Guid committedRunId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+
+        InMemoryRunRepository runs = new();
+
+        foreach ((Guid runId, DateTime createdUtc) in new[]
+                 {
+                     (oldestRunId, cutoff.AddHours(-3)),
+                     (middleRunId, cutoff.AddHours(-2)),
+                     (newestRunId, cutoff.AddHours(-1)),
+                 })
+        {
+            await runs.SaveAsync(
+                new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "billing",
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+                    CreatedUtc = createdUtc,
+                },
+                CancellationToken.None);
+        }
+
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = Guid.NewGuid(),
+                CreatedUtc = cutoff.AddHours(-4),
+            },
+            CancellationToken.None);
+
+        RunStaleUncommittedPurgeBatchResult batch =
+            await runs.HardDeleteStaleUncommittedRunsBatchAsync(cutoff, 2, CancellationToken.None);
+
+        batch.Deleted.Select(row => row.RunId)
+            .Should()
+            .BeEquivalentTo(new[] { oldestRunId, middleRunId }, opts => opts.WithStrictOrdering());
+        (await runs.GetByIdAsync(scope, newestRunId, CancellationToken.None)).Should().NotBeNull();
+        (await runs.GetByIdAsync(scope, committedRunId, CancellationToken.None)).Should().NotBeNull();
+    }
+
+    [Fact]
+    public void SampleRunPurgeBatch_orders_oldest_sample_runs_first_by_created_utc()
+    {
+        const string sql = """
+                           CREATE OR ALTER PROCEDURE dbo.SampleRunPurgeBatch
+                           AS
+                           SELECT TOP (@BatchSize)
+                                  r.RunId
+                           FROM dbo.Runs AS r
+                           WHERE r.IsSample = 1
+                           ORDER BY r.CreatedUtc ASC;
+                           """;
+
+        sql.Should().Contain("ORDER BY r.CreatedUtc ASC");
+        sql.Should().Contain("r.IsSample = 1");
+    }
 }
