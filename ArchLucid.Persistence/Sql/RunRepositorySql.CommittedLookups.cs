@@ -2,6 +2,23 @@ namespace ArchLucid.Persistence.Sql;
 
 internal static partial class RunRepositorySql
 {
+    private const string CommittedRunLookupStatusFilter = """
+                                                           AND r.LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)
+                                                           AND (
+                                                                r.LegacyRunStatus = @CommittedStatus
+                                                                OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
+                                                                OR r.GoldenManifestId IS NOT NULL
+                                                           )
+                                                           """;
+
+    private const string CommittedRunLookupStatusFilterWithoutManifestSignal = """
+                                                                               AND r.LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)
+                                                                               AND (
+                                                                                    r.LegacyRunStatus = @CommittedStatus
+                                                                                    OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
+                                                                               )
+                                                                               """;
+
     public const string SelectLatestCommittedRunIdByManifestCreatedUtc = $"""
                                                                          SELECT TOP (1) r.RunId
                                                                          FROM dbo.Runs r WITH (NOLOCK)
@@ -13,11 +30,7 @@ internal static partial class RunRepositorySql
                                                                            AND {CollapsedUpperRunsProjectId} = @NormalizedAuthorityProjectSlug
                                                                            AND r.ArchivedUtc IS NULL
                                                                            AND gm.ArchivedUtc IS NULL
-                                                                           AND (
-                                                                                r.LegacyRunStatus = @CommittedStatus
-                                                                                OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
-                                                                                OR r.GoldenManifestId IS NOT NULL
-                                                                           )
+                                                                           {CommittedRunLookupStatusFilter}
                                                                          ORDER BY gm.CreatedUtc DESC, r.RunId DESC;
                                                                          """;
 
@@ -37,15 +50,11 @@ internal static partial class RunRepositorySql
                                                                         r.CreatedUtc < @CurrentCreatedUtc
                                                                         OR (r.CreatedUtc = @CurrentCreatedUtc AND r.RunId < @CurrentRunId)
                                                                    )
-                                                                   AND (
-                                                                        r.LegacyRunStatus = @CommittedStatus
-                                                                        OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
-                                                                        OR r.GoldenManifestId IS NOT NULL
-                                                                   )
+                                                                   {CommittedRunLookupStatusFilter}
                                                                  ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                                  """;
 
-    public const string SelectPriorCommittedRunIdForArchitectureBeforeCurrent = """
+    public const string SelectPriorCommittedRunIdForArchitectureBeforeCurrent = $"""
                                                                  SELECT TOP (1) r.RunId
                                                                  FROM dbo.Runs r WITH (NOLOCK)
                                                                  INNER JOIN dbo.GoldenManifests gm WITH (NOLOCK)
@@ -61,15 +70,11 @@ internal static partial class RunRepositorySql
                                                                         r.CreatedUtc < @CurrentCreatedUtc
                                                                         OR (r.CreatedUtc = @CurrentCreatedUtc AND r.RunId < @CurrentRunId)
                                                                    )
-                                                                   AND (
-                                                                        r.LegacyRunStatus = @CommittedStatus
-                                                                        OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
-                                                                        OR r.GoldenManifestId IS NOT NULL
-                                                                   )
+                                                                   {CommittedRunLookupStatusFilter}
                                                                  ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                                  """;
 
-    public const string SelectCommittedRunIdByGoldenManifestId = """
+    public const string SelectCommittedRunIdByGoldenManifestId = $"""
                                                                  SELECT TOP (1) r.RunId
                                                                  FROM dbo.Runs r WITH (NOLOCK)
                                                                  WHERE r.TenantId = @TenantId
@@ -79,11 +84,7 @@ internal static partial class RunRepositorySql
                                                                    AND r.GoldenManifestId = @GoldenManifestId
                                                                    AND r.ArchivedUtc IS NULL
                                                                    AND r.RunId <> @ExcludeRunId
-                                                                   AND (
-                                                                        r.LegacyRunStatus = @CommittedStatus
-                                                                        OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
-                                                                        OR r.GoldenManifestId IS NOT NULL
-                                                                   )
+                                                                   {CommittedRunLookupStatusFilterWithoutManifestSignal}
                                                                  ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                                  """;
 
@@ -103,13 +104,13 @@ internal static partial class RunRepositorySql
                                                              FROM dbo.Runs r WITH (NOLOCK)
                                                              WHERE r.TenantId = @TenantId
                                                                AND r.WorkspaceId = @WorkspaceId
-                                                               AND r.ScopeProjectId = @ScopeProjectId
+                                                               AND ScopeProjectId = @ScopeProjectId
                                                                AND r.ArchitectureId = @ArchitectureId
                                                                AND r.ArchivedUtc IS NULL
                                                              ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                              """;
 
-    public const string SelectLatestCommittedRunIdByArchitectureVersionId = """
+    public const string SelectLatestCommittedRunIdByArchitectureVersionId = $"""
                                                                             SELECT TOP (1) r.RunId
                                                                             FROM dbo.Runs r WITH (NOLOCK)
                                                                             WHERE r.TenantId = @TenantId
@@ -117,11 +118,7 @@ internal static partial class RunRepositorySql
                                                                               AND r.ScopeProjectId = @ScopeProjectId
                                                                               AND r.ArchitectureVersionId = @ArchitectureVersionId
                                                                               AND r.ArchivedUtc IS NULL
-                                                                              AND (
-                                                                                   r.LegacyRunStatus = @CommittedStatus
-                                                                                   OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
-                                                                                   OR r.GoldenManifestId IS NOT NULL
-                                                                              )
+                                                                              {CommittedRunLookupStatusFilter}
                                                                             ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                                             """;
 }

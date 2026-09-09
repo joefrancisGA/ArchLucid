@@ -127,7 +127,11 @@ internal static partial class RunRepositorySql
                                                                            WHERE TenantId = @TenantId
                                                                              AND WorkspaceId = @WorkspaceId
                                                                              AND ArchivedUtc IS NULL
-                                                                             AND UPPER(LTRIM(RTRIM(ProjectId))) = @NormalizedSystemName
+                                                                             AND UPPER(LTRIM(RTRIM((
+                                                                                 SELECT STRING_AGG(LTRIM(RTRIM(ss.value)), N' ')
+                                                                                 FROM STRING_SPLIT(LTRIM(RTRIM(ProjectId)), N' ') AS ss
+                                                                                 WHERE LTRIM(RTRIM(ss.value)) <> N''
+                                                                             )))) = @NormalizedSystemName
                                                                              AND (@ExcludeRunId IS NULL OR RunId <> @ExcludeRunId)
                                                                              AND (
                                                                                  LegacyRunStatus IS NULL
