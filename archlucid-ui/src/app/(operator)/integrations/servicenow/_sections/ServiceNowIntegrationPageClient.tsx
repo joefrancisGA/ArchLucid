@@ -397,7 +397,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
               </div>
             </div>
             <p
-              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              className={readingBodyClass}
               data-testid="servicenow-integration-overview"
             >
               {SERVICENOW_INTEGRATION_BUYER_OVERVIEW}

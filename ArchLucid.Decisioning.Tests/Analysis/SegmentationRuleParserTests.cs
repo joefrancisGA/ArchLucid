@@ -24,6 +24,21 @@ public sealed class SegmentationRuleParserTests
     }
 
     [Fact]
+    public void ParseRiskyRules_detects_quoted_terraform_wildcard_source()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.security_rule"] =
+                "access = allow direction = inbound source_address_prefix = \"*\" destination_port_range = \"22\"",
+        };
+
+        IReadOnlyList<SegmentationRiskyRule> rules = SegmentationRuleParser.ParseRiskyRules(properties);
+
+        rules.Should().ContainSingle();
+        rules[0].DestinationPort.Should().Be(22);
+    }
+
+    [Fact]
     public void ParseRiskyRules_ignores_private_cidr_only_22()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

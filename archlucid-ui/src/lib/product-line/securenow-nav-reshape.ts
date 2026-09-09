@@ -14,6 +14,9 @@ import type { ProductLineNavGroupRow } from "@/lib/product-line/filter-nav-group
 import { SECURENOW_COMPLIANCE_NAV_GROUP_LABEL } from "@/lib/product-line/securenow-compliance-home-copy";
 
 export const SECURENOW_COMPLIANCE_NAV_GROUP_ID = "operate-compliance" as const;
+export const SECURENOW_INTEGRATION_NAV_GROUP_ID = "operate-integration" as const;
+export const SECURENOW_INTEGRATION_NAV_GROUP_LABEL = "Integration" as const;
+export const SECURENOW_AZURE_CONNECTIONS_NAV_LABEL = "Azure connections" as const;
 export const SECURENOW_SECURITY_NAV_GROUP_ID = "operate-security" as const;
 
 /** SecureNow Security shell — pilot Home is filtered out before reshape, so inject it here. */
@@ -41,11 +44,15 @@ export const SECURENOW_COMPLIANCE_NAV_HREFS: readonly string[] = [
   AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
 ];
 
-/** SecureNow sidebar — operational security and integration destinations in display order. */
+/** SecureNow sidebar — operational security destinations in display order. */
 export const SECURENOW_SECURITY_NAV_HREFS: readonly string[] = [
   "/governance/findings/assigned-to-me",
   "/governance/remediation-factory",
   "/governance/remediation-patterns",
+];
+
+/** SecureNow sidebar — Azure inventory and outbound ticketing integrations in display order. */
+export const SECURENOW_INTEGRATION_NAV_HREFS: readonly string[] = [
   CLOUD_CONNECTIONS_PATH,
   INTEGRATIONS_JIRA_PATH,
   INTEGRATIONS_SERVICENOW_PATH,
@@ -81,8 +88,25 @@ function pickNavLinks(
   return links;
 }
 
+function applySecureNowIntegrationNavLinkLabels(links: readonly NavLinkItem[]): NavLinkItem[] {
+  return links.map((link) => {
+    if (link.href !== CLOUD_CONNECTIONS_PATH) {
+      return link;
+    }
+
+    return {
+      ...link,
+      label: SECURENOW_AZURE_CONNECTIONS_NAV_LABEL,
+      title: link.title.replaceAll(OPERATOR_NAV_LINK_LABELS.cloudConnections, SECURENOW_AZURE_CONNECTIONS_NAV_LABEL),
+    };
+  });
+}
+
 function buildSecureNowNavGroup(
-  id: typeof SECURENOW_COMPLIANCE_NAV_GROUP_ID | typeof SECURENOW_SECURITY_NAV_GROUP_ID,
+  id:
+    | typeof SECURENOW_COMPLIANCE_NAV_GROUP_ID
+    | typeof SECURENOW_INTEGRATION_NAV_GROUP_ID
+    | typeof SECURENOW_SECURITY_NAV_GROUP_ID,
   label: string,
   caption: string,
   links: readonly NavLinkItem[],
@@ -120,6 +144,9 @@ export function reshapeNavGroupsForSecureNow(
 
   const complianceLinks = pickNavLinks(linksByHref, SECURENOW_COMPLIANCE_NAV_HREFS);
   const securityLinks = [SECURENOW_SECURITY_HOME_LINK, ...pickNavLinks(linksByHref, SECURENOW_SECURITY_NAV_HREFS)];
+  const integrationLinks = applySecureNowIntegrationNavLinkLabels(
+    pickNavLinks(linksByHref, SECURENOW_INTEGRATION_NAV_HREFS),
+  );
 
   const reshaped: ProductLineNavGroupRow[] = [];
 
@@ -128,8 +155,20 @@ export function reshapeNavGroupsForSecureNow(
       buildSecureNowNavGroup(
         SECURENOW_SECURITY_NAV_GROUP_ID,
         OPERATOR_NAV_GROUP_LABELS.security,
-        "Remediate assigned findings, run factory workflows, and connect cloud inventory and ticketing integrations.",
+        "Remediate assigned findings, run factory workflows, and review remediation patterns.",
         securityLinks,
+        sourceGroup,
+      ),
+    );
+  }
+
+  if (integrationLinks.length > 0) {
+    reshaped.push(
+      buildSecureNowNavGroup(
+        SECURENOW_INTEGRATION_NAV_GROUP_ID,
+        SECURENOW_INTEGRATION_NAV_GROUP_LABEL,
+        "Connect Azure inventory and outbound ticketing integrations.",
+        integrationLinks,
         sourceGroup,
       ),
     );

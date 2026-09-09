@@ -1,6 +1,7 @@
 "use client";
 
 import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
+import { GovernanceAssignedToMeCountBlockedCallout } from "@/components/governance/findings/GovernanceAssignedToMeCountBlockedCallout";
 import { operatorAttentionKindLabel } from "@/lib/operator/operator-attention-taxonomy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -8,6 +9,11 @@ import { cn } from "@/lib/utils";
 /** Count badge beside Assigned to me governance nav (GOF P0-5). */
 export function GovernanceAssignedToMeFindingsNavBadge() {
   const countQuery = useAssignedToMeFindingsCountQuery();
+
+  if (countQuery.blockedReason !== null || countQuery.failure !== null) {
+    return <GovernanceAssignedToMeCountBlockedCallout failure={countQuery.failure} />;
+  }
+
   const count = countQuery.data ?? 0;
 
   if (count <= 0) {

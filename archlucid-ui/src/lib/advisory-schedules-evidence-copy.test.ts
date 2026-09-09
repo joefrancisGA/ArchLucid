@@ -1,16 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { ADVISORY_SCANS_SCHEDULES_HREF } from "@/lib/advisory-scans-route";
 import {
-  ADVISORY_SCHEDULES_ORIENTATION_SOURCES,
-  ADVISORY_SCHEDULES_SOURCES,
-} from "@/lib/advisory-schedules-evidence-copy";
+  ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER,
+  ADVISORY_SCHEDULES_BUYER_OVERVIEW,
+  ADVISORY_SCHEDULES_PAGE_LEAD,
+} from "@/lib/advisory-copy";
 
-describe("advisory-schedules-evidence-copy (AD)", () => {
-  it("keeps orientation Sources free of schedules-tab self-href", () => {
-    const orientationHrefs = ADVISORY_SCHEDULES_ORIENTATION_SOURCES.map((source) => source.href);
-
-    expect(orientationHrefs).not.toContain(ADVISORY_SCANS_SCHEDULES_HREF);
-    expect(ADVISORY_SCHEDULES_ORIENTATION_SOURCES.length).toBeGreaterThan(0);
+describe("advisory-schedules buyer copy", () => {
+  it("keeps buyer overview distinct from page lead and start-here helper", () => {
+    expect(ADVISORY_SCHEDULES_BUYER_OVERVIEW).not.toBe(ADVISORY_SCHEDULES_PAGE_LEAD);
+    expect(ADVISORY_SCHEDULES_BUYER_OVERVIEW).not.toBe(ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER);
   });
 });

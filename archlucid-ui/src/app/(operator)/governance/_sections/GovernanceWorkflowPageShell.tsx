@@ -6,8 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { GovernanceWorkflowRunListsBlockedCallout } from "@/components/governance/GovernanceWorkflowRunListsBlockedCallout";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
-import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
@@ -255,7 +255,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
           )}
         >
           <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
             data-testid="governance-approval-queue-intro"
           >
             {GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD}
@@ -374,11 +374,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
 
           {listFailure !== null ? (
             <div className="mb-6" role="alert">
-              <OperatorApiProblem
-                problem={listFailure.problem}
-                fallbackMessage={listFailure.message}
-                correlationId={listFailure.correlationId}
-              />
+              <GovernanceWorkflowRunListsBlockedCallout failure={listFailure} />
             </div>
           ) : null}
 

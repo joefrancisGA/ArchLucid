@@ -51,7 +51,7 @@ public sealed partial class RunCoverageController
     [ProducesResponseType(typeof(RunAcknowledgedCoverageDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PutAcknowledgedCoverage(
         Guid runId,
         [FromBody] PutRunCoverageAcknowledgementRequest? request,
@@ -63,6 +63,13 @@ public sealed partial class RunCoverageController
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             RunAcknowledgedCoverageDocument document = new()
             {
                 Entries = request.Entries?
@@ -100,7 +107,7 @@ public sealed partial class RunCoverageController
     [ProducesResponseType(typeof(RunCoverageAcknowledgementEntry), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PatchRunCoveragePack(
         Guid runId,
         Guid policyPackId,
@@ -113,6 +120,13 @@ public sealed partial class RunCoverageController
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             RunCoverageAcknowledgementEntry entry = await acknowledgementService.PatchPackExclusionAsync(
                 scope,
                 runId,

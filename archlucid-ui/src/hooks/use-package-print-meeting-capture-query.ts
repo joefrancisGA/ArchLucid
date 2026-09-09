@@ -1,6 +1,9 @@
 "use client";
 
 import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bundle-client";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { packagePrintMeetingCaptureBlockedReason } from "@/lib/reviews/package-print-meeting-capture-blocked-reason";
 import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { resolvePackagePrintTransparencyTrail } from "@/lib/reviews/resolve-package-print-transparency-trail";
@@ -24,7 +27,7 @@ export function usePackagePrintMeetingCaptureQuery(
 ) {
   const trimmed = runId.trim();
 
-  return createOperatorQueryHook({
+  const query = createOperatorQueryHook({
     queryKey: [...operatorQueryKeys.runSummary(trimmed), "package-print-meeting-capture"],
     queryFn: async (): Promise<PackagePrintMeetingCaptureResult> => {
       const response = await fetchRunDetailCriticalPageBundle(trimmed);
@@ -36,4 +39,13 @@ export function usePackagePrintMeetingCaptureQuery(
     },
     enabled: (options?.enabled ?? true) && trimmed.length > 0,
   });
+
+  const failure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
+  const blockedReason = packagePrintMeetingCaptureBlockedReason(failure);
+
+  return {
+    ...query,
+    failure,
+    blockedReason,
+  };
 }

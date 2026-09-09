@@ -220,11 +220,7 @@ export function AskPageContent(props: AskPageContentProps = {}) {
 
         {ask.runId.trim().length > 0 ? <AskNextReviewFooterClient runId={ask.runId.trim()} /> : null}
 
-        {buyerPolishedShell ? (
-          <div data-testid="ask-review-questions-orientation-bottom">
-            <AskSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <AskSourcesOrientationStrip /> : null}
       </div>
     </OperatorPageContainer>
   );

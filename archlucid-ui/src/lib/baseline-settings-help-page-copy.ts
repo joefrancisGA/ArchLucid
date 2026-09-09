@@ -12,6 +12,8 @@ export const BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 export const BASELINE_SETTINGS_HELP_ORIENTATION_BOTTOM_TEST_ID =
   "help-baseline-settings-orientation-bottom" as const;
 
+export const BASELINE_SETTINGS_HELP_WORKSPACE_TEST_ID = "help-baseline-settings-workspace" as const;
+
 export const BASELINE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER =
   "Learn how measurement anchors feed scorecard and sponsor-report estimates, then open baseline settings when your workspace admin is ready to configure inputs." as const;
 

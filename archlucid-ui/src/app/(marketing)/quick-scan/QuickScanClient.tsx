@@ -16,6 +16,7 @@ import { useQuickScanClient } from "@/app/(marketing)/quick-scan/use-quick-scan-
 import { QuickScanSourcesOrientationStrip } from "@/components/marketing/QuickScanSourcesOrientationStrip";
 import { TrustCenterRevisionHistory } from "@/components/marketing/trust-center/TrustCenterRevisionHistory";
 import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { QUICK_SCAN_REVISION_HISTORY } from "@/lib/quick-scan-marketing-revision-history";
 import { TRUST_CENTER_PUBLIC_EVIDENCE_VERSION } from "@/lib/trust-center-buyer-content";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
@@ -41,7 +42,7 @@ export function QuickScanClient(): ReactElement {
         </div>
 
         <p
-          className={cn("m-0 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}
+          className={cn("m-0 max-w-3xl text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
           data-testid="quick-scan-overview"
         >
           {QUICK_SCAN_BUYER_OVERVIEW}

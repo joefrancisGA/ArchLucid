@@ -36,6 +36,7 @@ import {
   type GovernanceFindingsBulkDisposition,
 } from "@/lib/governance/governance-findings-bulk-disposition-confirm-url";
 import { recordBulkFindingDisposition } from "@/lib/api/governance-stickiness-api";
+import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
 import { collectExpectedCurrentDispositionRowVersionByFindingId } from "@/lib/findings/finding-collect-expected-disposition-row-versions";
 import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
 import {
@@ -43,6 +44,7 @@ import {
   readFindingDispositionConflictFromError,
   type FindingDispositionConflictDetail,
 } from "@/lib/findings/finding-disposition-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 export type BulkDispositionSucceededPayload = {
   readonly message: string;
@@ -242,7 +244,11 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
         return;
       }
 
-      setInlineErrorMessage(err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
+      const failure = toApiLoadFailure(err);
+      const blockedReason = findingBulkDispositionBlockedReason(failure);
+      setInlineErrorMessage(
+        blockedReason ?? (err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE),
+      );
     } finally {
       setBusy(false);
     }

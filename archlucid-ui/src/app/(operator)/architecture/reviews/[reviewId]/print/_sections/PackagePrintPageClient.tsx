@@ -23,7 +23,6 @@ import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
   PACKAGE_PRINT_LOADING_LABEL,
-  buildPackagePrintBackHref,
   buildPackagePrintPresentation,
   PACKAGE_PRINT_BACK_LABEL,
 } from "@/lib/package-print-view";
@@ -54,6 +53,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   const meetingCaptureQuery = usePackagePrintMeetingCaptureQuery(runId, {
     enabled: summaryQuery.isSuccess,
   });
+  const meetingCaptureBlockedReason = meetingCaptureQuery.blockedReason;
 
   useOidcSessionKeepalive(true);
 
@@ -127,7 +127,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
         ? coverageHonestyLine
         : null,
-    meetingCaptureEntries: meetingCaptureQuery.data?.entries ?? null,
+    meetingCaptureEntries:
+      meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
     transparencyTrail:
       workingDesk && coverageHonestyQuery.data !== undefined
         ? coverageHonestyQuery.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null
@@ -167,6 +168,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       presentation={presentation}
       listScopedRunId={listScopedRunId}
       parentArchitectureId={parentArchitectureId}
+      meetingCaptureBlockedReason={meetingCaptureBlockedReason}
     />
   );
 }

@@ -14,6 +14,8 @@ export const ADVISORY_SCHEDULES_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITL
 
 export const ADVISORY_SCHEDULES_ORIENTATION_BOTTOM_TEST_ID = "advisory-schedules-orientation-bottom" as const;
 
+export const ADVISORY_SCHEDULES_WORKSPACE_TEST_ID = "advisory-schedules-workspace" as const;
+
 export const ADVISORY_SCHEDULES_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
   "schedules are set but scan results, recurrence reviews, or advisory methodology still need attention",
 );

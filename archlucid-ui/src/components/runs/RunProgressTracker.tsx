@@ -94,6 +94,16 @@ export function RunProgressTracker({
         </p>
       ) : null}
 
+      {tracker.stageTimelineBlockedReason !== null ? (
+        <p
+          role="alert"
+          className={cn("mt-3 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-progress-stage-timeline-blocked-reason"
+        >
+          {tracker.stageTimelineBlockedReason}
+        </p>
+      ) : null}
+
       {tracker.pollEnabled && !tracker.buyerAssessmentCopy && tracker.backgroundSafetyMessage ? (
         <p
           className={cn("mt-3 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}

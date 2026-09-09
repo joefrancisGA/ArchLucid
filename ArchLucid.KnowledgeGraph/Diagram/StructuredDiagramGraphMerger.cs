@@ -16,10 +16,10 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
     {
         ArgumentNullException.ThrowIfNull(contextSnapshot);
 
-        IReadOnlyList<ArchitectureDiagramModelRecord> models =
-            StructuredDiagramCanonicalModelReconstructor.ReconstructModels(contextSnapshot.CanonicalObjects);
+        IReadOnlyList<StructuredDiagramReconstructedDocument> documents =
+            StructuredDiagramCanonicalModelReconstructor.ReconstructDocuments(contextSnapshot.CanonicalObjects);
 
-        if (models.Count == 0)
+        if (documents.Count == 0)
         {
             return new StructuredDiagramGraphMergeResult();
         }
@@ -29,16 +29,17 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         List<string> warnings = [];
         Guid graphSnapshotId = Guid.NewGuid();
 
-        foreach (ArchitectureDiagramModelRecord model in models)
+        foreach (StructuredDiagramReconstructedDocument document in documents)
         {
             StructuredDiagramGraphCompileResult compileResult = this.compiler.Compile(
-                model,
+                document.Model,
                 new StructuredDiagramGraphCompileOptions
                 {
                     RunId = contextSnapshot.RunId,
                     ContextSnapshotId = contextSnapshot.SnapshotId,
                     GraphSnapshotId = graphSnapshotId,
                     CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                    LabelOnlyInferenceConfidence = document.LabelOnlyInferenceConfidence,
                 });
 
             if (compileResult.Warnings.Count > 0)

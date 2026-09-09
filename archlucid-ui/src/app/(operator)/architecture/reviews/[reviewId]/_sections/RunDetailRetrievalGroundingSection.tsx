@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 
 import { RunRetrievalGroundingPanel } from "@/components/runs/RunRetrievalGroundingPanel";
 import { useRunRetrievalGroundingQuery } from "@/hooks/use-run-retrieval-grounding-query";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { runRetrievalGroundingBlockedReason } from "@/lib/runs/run-retrieval-grounding-blocked-reason";
 
 type RunDetailRetrievalGroundingSectionProps = {
   readonly runId: string;
@@ -15,9 +12,7 @@ type RunDetailRetrievalGroundingSectionProps = {
 
 /** Collapsed retrieval-hit panel on run detail (TB-109). */
 export function RunDetailRetrievalGroundingSection(props: RunDetailRetrievalGroundingSectionProps) {
-  const { data: payload, isPending, isError, error } = useRunRetrievalGroundingQuery(props.runId);
-  const failure: ApiLoadFailureState | null = isError ? toApiLoadFailure(error) : null;
-  const blockedReason = runRetrievalGroundingBlockedReason(failure);
+  const { data: payload, isPending, failure, blockedReason } = useRunRetrievalGroundingQuery(props.runId);
 
   if (isPending) {
     return null;

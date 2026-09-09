@@ -9,8 +9,9 @@ namespace ArchLucid.KnowledgeGraph.Materialization;
 /// <summary>
 ///     Canonical registrar for the ordered graph materialization pipeline (TB-2370).
 ///     Stage order: canonical objects → request cost constraints → request actors → declaration identity
-///     actors → declaration identity path edges → request assumptions → request quality attributes →
-///     request failure modes → cost projected-spend enrichment.
+    ///     actors → declaration identity path edges → declaration segmentation path edges →
+    ///     request assumptions → request quality attributes → request failure modes →
+    ///     cost projected-spend enrichment.
 /// </summary>
 public static class GraphMaterializationStages
 {
@@ -23,6 +24,7 @@ public static class GraphMaterializationStages
         "request-actors",
         "declaration-identity-actors",
         "declaration-identity-path-edges",
+        "declaration-segmentation-path-edges",
         "request-assumptions",
         "request-quality-attributes",
         "request-failure-modes",
@@ -43,6 +45,7 @@ public static class GraphMaterializationStages
             new RequestActorMaterializationStage(),
             new DeclarationIdentityActorMaterializationStage(),
             new DeclarationIdentityPathEdgeMaterializationStage(),
+            new DeclarationSegmentationPathEdgeMaterializationStage(),
             new RequestAssumptionMaterializationStage(),
             new RequestQualityAttributeMaterializationStage(),
             new RequestFailureModeMaterializationStage(),
@@ -265,24 +268,57 @@ public static class GraphMaterializationStages
             }
 
             if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "terraformType", out string? terraformType)
-                && terraformType is not null
-                && (terraformType.Contains("role_assignment", StringComparison.OrdinalIgnoreCase)
-                    || terraformType.Contains("iam_role_policy", StringComparison.OrdinalIgnoreCase)
-                    || terraformType.Contains("iam_policy", StringComparison.OrdinalIgnoreCase)
-                    || terraformType.Contains("project_iam", StringComparison.OrdinalIgnoreCase)))
+                && DeclarationIamTerraformTypes.IsRoleAssignmentTerraformType(terraformType))
             {
                 return true;
             }
 
             if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "resourceType", out string? resourceType)
-                && resourceType is not null
-                && (resourceType.Contains("roleAssignments", StringComparison.OrdinalIgnoreCase)
-                    || resourceType.Contains("iam", StringComparison.OrdinalIgnoreCase)))
+                && DeclarationIamTerraformTypes.IsRoleAssignmentResourceType(resourceType))
             {
                 return true;
             }
 
             return false;
+        }
+    }
+
+    private sealed class DeclarationSegmentationPathEdgeMaterializationStage : IGraphMaterializationStage
+    {
+        public string Name => "declaration-segmentation-path-edges";
+
+        public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
+        {
+            bool hasSegmentationShape = context.Nodes.Any(IsSegmentationShapedNode);
+
+            if (!hasSegmentationShape)
+            {
+                context.MarkStageSkipped();
+                return Task.CompletedTask;
+            }
+
+            IReadOnlyList<GraphEdge> pathEdges = DeclarationSegmentationPathEdgeMaterializer.Materialize(context.Nodes);
+
+            if (pathEdges.Count == 0)
+            {
+                context.MarkStageSkipped();
+                return Task.CompletedTask;
+            }
+
+            context.Edges.AddRange(pathEdges);
+            return Task.CompletedTask;
+        }
+
+        private static bool IsSegmentationShapedNode(GraphNode node)
+        {
+            if (!GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "terraformType", out string? terraformType)
+                || terraformType is null)
+            {
+                return false;
+            }
+
+            return DeclarationSegmentationTerraformTypes.IsSegmentationControlTerraformType(terraformType)
+                || DeclarationSegmentationTerraformTypes.IsSegmentationAssociationTerraformType(terraformType);
         }
     }
 
