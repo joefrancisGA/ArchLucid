@@ -398,9 +398,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Semantic admission gate skips deterministic precheck failures — `CompositeRequestContentSafetyPrecheck` accumulates failures from every inner precheck (Default then Semantic).
 - [x] (valid-no-repro) Default precheck allows an executable injection pattern covered by AgentRuntime regression tests — `PromptInjectionExecutableRegressionTests.Precheck_blocks_expected_prompts` already exercises `expectedBlockedAt=precheck` fixtures.
 - [x] (proven) Default precheck omitted `Environment`, `Constraints`, and other list/snapshot fields from `PromptInjectionPatternSignals` scan, allowing injection to pass create-time admission and reach agent objectives (`TechnologyLedgerObjectiveComposer`).
-- [ ] (hunt-ready) `DefaultRequestContentSafetyPrecheck.EvaluateAsync` scans each document's `Name` and `Content` but not `SourceDocumentUrl`; a URL string containing a known injection instruction can pass admission even though sibling request fields use `PromptInjectionPatternSignals.AccumulateForField`.
+- [x] (proven) `DefaultRequestContentSafetyPrecheck.EvaluateAsync` scans each document's `Name` and `Content` but not `SourceDocumentUrl`; a URL string containing a known injection instruction can pass admission even though sibling request fields use `PromptInjectionPatternSignals.AccumulateForField` — **hit 2026-09-09 thorough hunt #1473:** added `SourceDocumentUrl` to document field scan; regression `EvaluateAsync_blocks_injection_in_document_source_document_url`.
 
 2026-08-23 dry hunt #46: no open hypotheses remain after hunt #45 fix; composite/semantic paths already retired or proven.
+
+2026-09-09 thorough hunt #1473 (hit): proved `SourceDocumentUrl` injection bypass; 12 scoped content-safety tests passed.
 
 ---
 
@@ -1479,7 +1481,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -1507,6 +1509,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-09 thorough hunt #1401 (hit): proved invalid category section id tokens; cheap-disproved pending-index active-search candidate; 9 scoped HelpDocsClient tests passed.
 
 2026-09-04 seed hunt #670: proved unknown-category doc-index omission; seeded category-name search and debounced URL sync candidates.
+
+- [x] (valid-no-repro) Help hub search haystack omits localized copy variants when `localize()` returns a different string than raw `title`/`summary` — **cheap-disproof 2026-09-09 seed hunt #1474:** filter haystack already includes both raw and `localize()` values (`${localizedTitle} ${localizedSummary}`).
+- [x] (invalid) `mergeDocIndex` URL dedupe drops fetched rows that share a title with a static row but use a different path — **cheap-disproof 2026-09-09 seed hunt #1474:** dedupe is keyed on full `category|title|url` plus `seenUrls`; distinct URLs with the same title both render.
+
+2026-09-09 seed hunt #1474 (seed-only): reseeded ui-help-docs after #1401 hit; cheap-disproof closed localized-haystack and title-collision candidates; 9 scoped `HelpDocsClient` tests passed.
 
 ## Zone: ui-webhooks-settings
 
