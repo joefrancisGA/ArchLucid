@@ -22,7 +22,7 @@ HTTP clients send **`ArchitectureRequest`** (see `ArchLucid.Contracts.Requests`)
 | `PolicyReferences` | `PolicyReferences` | Short strings → `PolicyControl` objects (`reference` + `status=referenced`). |
 | `TopologyHints` | `TopologyHints` | → `TopologyResource` objects. |
 | `SecurityBaselineHints` | `SecurityBaselineHints` | → `SecurityBaseline` objects. |
-| `InfrastructureDeclarations` | `InfrastructureDeclarations` | Structured IaC snippets (`json`, `simple-terraform`, `terraform-show-json`, `bicep`, `arm-json`, `kubernetes-json`, `kubernetes-yaml`) → **`InfrastructureDeclarationConnector`**. |
+| `InfrastructureDeclarations` | `InfrastructureDeclarations` | Structured IaC snippets (`json`, `simple-terraform`, `terraform-show-json`, `bicep`, `arm-json`, `helm`, `kustomize`, `pulumi-stack-json`, `cloudformation`, `cdk-synth`, `kubernetes-json`, `kubernetes-yaml`) → **`InfrastructureDeclarationConnector`**. |
 
 `RunId` is assigned by **`AuthorityRunOrchestrator`** immediately before **`IContextIngestionService.IngestAsync`**.
 
@@ -44,7 +44,7 @@ Connectors implement **`IContextConnector`**. **Code source of truth:** **`Conte
 4. **`PolicyReferenceConnector`**
 5. **`TopologyHintsConnector`**
 6. **`SecurityBaselineHintsConnector`**
-7. **`InfrastructureDeclarationConnector`** — **`InfrastructureDeclarationReference`** items parsed by **`IInfrastructureDeclarationParser`** implementations (`json`, `simple-terraform`, `terraform-show-json`, `bicep`, `arm-json`, `kubernetes-json`, `kubernetes-yaml`).
+7. **`InfrastructureDeclarationConnector`** — **`InfrastructureDeclarationReference`** items parsed by **`IInfrastructureDeclarationParser`** implementations (`json`, `simple-terraform`, `terraform-show-json`, `bicep`, `arm-json`, `helm`, `kustomize`, `pulumi-stack-json`, `cloudformation`, `cdk-synth`, `kubernetes-json`, `kubernetes-yaml`).
 
 Each connector’s **`DeltaAsync`** returns a short base summary; **`IContextDeltaSummaryBuilder`** (default: **`DefaultContextDeltaSummaryBuilder`**) enriches it with normalized object counts, a per-type breakdown (e.g. `Requirement×2`), and a one-time baseline clause against the **latest persisted `ContextSnapshot` for `ProjectId`** (if any). The enriched segments are joined into **`ContextSnapshot.DeltaSummary`**.
 
@@ -84,7 +84,9 @@ Prefix matching is case-insensitive. Lines without a recognized prefix are ignor
 
 ## Infrastructure declarations (IaC seam)
 
-DTO: **`InfrastructureDeclarationReference`** (`Name`, **`Format`**, `Content`). Supported v1 **`Format`** values: **`json`**, **`simple-terraform`**, **`terraform-show-json`** (output of `terraform show -json`), **`bicep`**, **`arm-json`**, **`kubernetes-json`**, **`kubernetes-yaml`**.
+DTO: **`InfrastructureDeclarationReference`** (`Name`, **`Format`**, `Content`). Supported v1 **`Format`** values: **`json`**, **`simple-terraform`**, **`terraform-show-json`** (output of `terraform show -json`), **`bicep`**, **`arm-json`**, **`helm`**, **`kustomize`**, **`pulumi-stack-json`**, **`cloudformation`**, **`cdk-synth`**, **`kubernetes-json`**, **`kubernetes-yaml`**.
+
+claimBoundary: **`helm`**, **`kustomize`**, **`pulumi-stack-json`**, **`cloudformation`**, and **`cdk-synth`** parse **in-batch synthesized artifacts only** — no live `pulumi` / `cdk synth` / CloudFormation apply and no remote template fetch.
 
 ### `json`
 
@@ -100,7 +102,7 @@ Line-based match for **`resource symbolicName 'Microsoft.Provider/types@api-vers
 
 ### `arm-json`
 
-Parses an ARM template JSON **`resources`** array. Skips **`Microsoft.Resources/deployments`** nested templates. Copies a bounded set of scalar **`properties`** fields onto **`tf.*`** keys and dual-writes ARM camelCase aliases for known security fields.
+Parses an ARM template JSON **`resources`** array. **`Microsoft.Resources/deployments`** are not emitted as canonical objects; nested resources are expanded from inline **`properties.template.resources`**, deployment wrapper **`resources[]`**, and in-batch **`properties.templateLink`** references (relative path / file name only — **no HTTP fetch**). Copies a bounded set of scalar **`properties`** fields onto **`tf.*`** keys and dual-writes ARM camelCase aliases for known security fields.
 
 ### `kubernetes-json` / `kubernetes-yaml`
 
@@ -109,6 +111,18 @@ Parses **`kubectl get -o json`** output or multi-document YAML manifests into **
 ### `terraform-show-json`
 
 Parses the **`values`** subtree of **`terraform show -json`** state JSON (including **`child_modules`**). Each managed resource becomes a **`TopologyResource`** or **`SecurityBaseline`** / **`PolicyControl`** using the same mapping heuristics as other Terraform-derived inputs; key attributes from the resource **`values`** object are copied under **`tf.*`** property keys (truncated for very large payloads).
+
+### `helm` / `kustomize`
+
+In-batch Helm chart **`templates/`** and Kustomize overlay resources (shipped DX-30). Go-template Helm documents containing **`{{`** are skipped (R5).
+
+### `pulumi-stack-json`
+
+Parses **`pulumi stack export`** JSON (**`deployment.resources[]`**). Skips **`pulumi:pulumi:Stack`** and **`pulumi:providers:*`**. Maps known Azure/AWS/GCP Pulumi type tokens to canonical objects using the same security/topology heuristics as ARM/Terraform parsers. Program source files are not stack exports and are skipped.
+
+### `cloudformation` / `cdk-synth`
+
+Parses CloudFormation JSON or YAML **`Resources`** ( **`AWSTemplateFormatVersion`** optional). Intrinsic **`Ref`** / **`Fn::*`** objects are not substituted into scalar properties (R5). **`cdk-synth`** accepts **`cdk.out/*.template.json`** artifacts via the same parser — CDK app source files are skipped.
 
 ### Enrichment
 
@@ -137,6 +151,10 @@ So policy objects that only set **`reference`** still dedupe correctly when the 
 ## Downstream: knowledge graph
 
 After **`ContextSnapshot`** is saved, **`ArchLucid.KnowledgeGraph`** builds a typed **`GraphSnapshot`** (nodes, inferred edges, validation). Canonical **`ObjectType`** values (e.g. `Requirement`, `TopologyResource`, `PolicyControl`, `SecurityBaseline`) become **`GraphNode.NodeType`**; enrichment such as **`category`** on topology objects feeds node **`Category`** and edge inference.
+
+**Declaration identity materialization (WK-08, DX-03):** When guided-intake actor JSON is absent, **`DeclarationIdentityActorMaterializer`** seeds **`Actor`** and optional **`TrustBoundary`** nodes from IaC declaration properties (K8s **`ServiceAccount`**, **`Ingress`**, LoadBalancer **`Service`**, Terraform/ARM identities, Function App managed identity, Front Door/APIM/LB edge resources). **`DeclarationIdentityEdgeMaterializer`** links each declaration actor to its source topology node. Actor security engines (**`external-exposure`**, **`trust-boundary`**, **`privileged-access`**) now fire on these declaration-seeded actors beyond the original WK-08 four-type allow-list.
+
+**Declaration identity path edges (DX-69):** **`InfrastructureDeclarationSpecialPropertyMapper`** promotes stable **`principalId`**, **`roleName`**, **`declarationTargetResourceId`**, and backend / **`connectedToNodeIds`** keys from declaration bodies when present (never guessed). **`DeclarationIdentityPathEdgeMaterializer`** emits **`RELATES_TO`** / **`APPLIES_TO`** IAM hops and external-actor **`CONNECTS_TO`** data-flow hops only when both ends already exist on the snapshot (principal, scope, backend, or depends-on target). Path engines **`identity-blast-radius`** and **`data-flow-trust-boundary`** consume this adjacency on IaC-only reviews without hand-authored golden overlays. **claimBoundary:** not a named-model beat, not SOC 2 Type II attestation, not a live customer-directory IAM graph.
 
 See **`docs/KNOWLEDGE_GRAPH.md`** for pipeline, **`EdgeType`** semantics, DI registration, persistence JSON aliases, and manifest integration.
 

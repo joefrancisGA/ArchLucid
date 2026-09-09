@@ -2,7 +2,7 @@
 
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 /**
  * Single source of the commit-state input to the pre-commit navigation gate
@@ -21,6 +21,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 export function useEffectiveNavCommittedArchitectureReview(): boolean {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const { isWorkingMode } = useWorkspaceMode();
+  const evalChromeShell = useProductionEvalChrome();
 
-  return hasCommittedArchitectureReview || isBuyerPolishedOperatorShellEnv() || isWorkingMode;
+  return hasCommittedArchitectureReview || evalChromeShell || isWorkingMode;
 }

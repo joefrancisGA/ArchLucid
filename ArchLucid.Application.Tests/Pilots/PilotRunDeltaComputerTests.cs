@@ -1147,6 +1147,10 @@ public sealed class PilotRunDeltaComputerTests
         deltas.GovernedFindingCoverage.GovernedCount.Should().Be(1);
         deltas.TopFindingId.Should().Be("snapshot-critical");
         deltas.TopFindingSeverity.Should().Be("Critical");
+        deltas.SponsorNarrativeFindings.Should().HaveCount(2);
+        deltas.SponsorNarrativeFindings.Select(static finding => finding.FindingId)
+            .Should()
+            .BeEquivalentTo(["snapshot-critical", "snapshot-warning"]);
         evidence.Verify(e => e.BuildAsync(run.RunId, "snapshot-critical", It.IsAny<CancellationToken>()), Times.Once);
         evidence.Verify(e => e.BuildAsync(run.RunId, "agent-advisory", It.IsAny<CancellationToken>()), Times.Never);
     }

@@ -4,7 +4,6 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
   ensureOidcBearerReady,
-  getBearerToken,
   isBrowser,
 } from "./http";
 import {
@@ -31,11 +30,6 @@ async function fetchScopedProxyFileGet(
   await ensureOidcBearerReady();
   const headers = new Headers();
   headers.set("Accept", options.accept);
-  const bearer = getBearerToken();
-
-  if (bearer) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
 
   const init = mergeRegistrationScopeForProxy({
     method: "GET",

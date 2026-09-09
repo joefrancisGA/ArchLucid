@@ -25,7 +25,7 @@
  * **`LayerHeader`**
  * Enterprise rank cue uses the **same numeric Execute boundary** for in-strip copy (**not** tier disclosure — that stays in
  * **`nav-shell-visibility.ts`**). Some routes also read **`useOperateCapability()`** for paragraphs that are not
- * the rank cue (e.g. governance resolution **Change related controls** supplement — same policies story, **second hook**;
+ * the rank cue (e.g. policy resolution **Change related controls** supplement — same policies story, **second hook**;
  * **`enterprise-authority-ui-shaping.test.tsx`**). Packaging enumeration: **docs/PRODUCT_PACKAGING.md** §3 *Two UI shaping surfaces*.
  * **`hasEnterpriseOperatorSurfaces`**
  * uses that **same Execute floor** as **`operateCapabilityFromRank(authorityRank)`** — do not diverge (guarded in
@@ -87,7 +87,7 @@ import {
   type RequiredAuthority,
 } from "@/lib/nav-authority";
 import { isJwtAuthMode } from "@/lib/oidc/config";
-import { ensureAccessTokenFresh, getAccessTokenForApi, isLikelySignedIn } from "@/lib/oidc/session";
+import { ensureAccessTokenFresh, isLikelySignedIn } from "@/lib/oidc/session";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 /** JSON body shape for `GET /api/auth/me` — mirrors `CallerIdentityResponse`. */
@@ -182,12 +182,6 @@ export async function buildAuthMeProxyRequestInit(): Promise<RequestInit> {
   await ensureAccessTokenFresh();
 
   const headers = new Headers({ Accept: "application/json" });
-  const bearer = getAccessTokenForApi();
-
-  if (bearer !== undefined && bearer !== null && bearer.trim().length > 0) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
-
   const devRoleOverride = readDevRoleOverrideFromDocument();
 
   if (devRoleOverride !== null) {

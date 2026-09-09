@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # One invite-wave smoke per branch — cancel superseded queued/in-flight runs when trunk advances.
+  # One invite-wave smoke per ref: cancel superseded trunk pushes so the queue drains to the latest SHA.
   group: private-beta-access-on-push-${{ github.ref }}
   cancel-in-progress: true
 
@@ -137,7 +137,8 @@ jobs:
           Persistence__SqlOpenResilience__BaseDelayMilliseconds: "500"
           ArchLucid__Persistence__DefaultSqlCommandTimeoutSeconds: "300"
           ArchLucid__CreateRun__DistributedIdempotencyLockTimeoutMilliseconds: "180000"
-          AuthorityPipeline__PipelineTimeout: "00:05:00"
+          AuthorityPipeline__PipelineTimeout: "00:08:00"
+          FeatureManagement__FeatureFlags__AsyncAuthorityPipeline: "false"
           HostLeaderElection__Enabled: "false"
           Observability__ConsoleExporter__Enabled: "false"
         run: |
@@ -156,6 +157,7 @@ jobs:
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
           LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           LIVE_E2E_PRIVATE_BETA_ACCESS: "1"
+          ARCHLUCID_BFF_SESSION_SIGNING_SECRET: "ci-live-e2e-bff-session-secret-min32chars!"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           set -e
@@ -178,7 +180,16 @@ jobs:
           bash "${GITHUB_WORKSPACE}/scripts/ci/warm_private_beta_live_api_paths.sh" "${TOKEN}"
           ARCHLUCID_API_READY_WAIT_ATTEMPTS=90 \
             bash "${GITHUB_WORKSPACE}/scripts/ci/wait-for-api-ready.sh" "${RUNNER_TEMP}/live-api-beta-access.log"
-          npx playwright test --workers=1 live-api-private-beta-access.spec.ts
+          bash "${GITHUB_WORKSPACE}/scripts/ci/refresh_private_beta_ci_jwt.sh"
+          TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/ci-jwt-token.txt")"
+          echo "::add-mask::${TOKEN}"
+          export LIVE_JWT_TOKEN="${TOKEN}"
+          export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
+          npx playwright test --workers=1 \
+            live-api-scim-invite-substitute-smoke.spec.ts \
+            live-api-invite-flow.spec.ts \
+            live-api-private-beta-wave-3.spec.ts \
+            live-api-private-beta-access.spec.ts
 
       - name: Upload live API log (private-beta access-path)
         if: always()
@@ -216,8 +227,13 @@ jobs:
         if: failure()
         run: |
           python3 scripts/ci/report_private_beta_playwright_failure_triage.py \
+            --lane trunk \
             --markdown-out dist/private-beta-playwright-failure-triage.md \
             --json-out dist/private-beta-playwright-failure-triage.json
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            echo "## Private-beta Playwright failure triage" >> "$GITHUB_STEP_SUMMARY"
+            cat dist/private-beta-playwright-failure-triage.md >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload private-beta Playwright failure triage rollup
         if: failure()

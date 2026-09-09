@@ -11,7 +11,7 @@ export function AuditPageBuyerChrome(): React.JSX.Element | null {
   }
 
   return (
-    <div className="mb-4 text-left" data-testid="audit-page-orientation-top">
+    <div className="mb-4 text-left" data-testid="audit-page-orientation-bottom">
       <AuditTrailClaimOrientationStrip />
     </div>
   );

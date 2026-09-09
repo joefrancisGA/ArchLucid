@@ -1,4 +1,5 @@
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiGet } from "./http";
 import {
   type ArchitectureDecisionRegisterFilters,
   type ArchitectureDecisionRegisterResponse,
@@ -49,7 +50,7 @@ export async function getGovernanceAssignedToMeFindingsCount(
   );
 }
 
-/** Risk and decision registers for the governance findings queue. */
+/** Risk and decision registers for the policy findings queue. */
 export async function fetchGovernanceFindingsRegistersBundle(options?: {
   projectId?: string;
   maxRows?: number;

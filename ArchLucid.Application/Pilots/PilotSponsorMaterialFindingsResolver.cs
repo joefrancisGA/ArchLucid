@@ -19,6 +19,12 @@ public static class PilotSponsorMaterialFindingsResolver
             .Where(static finding => !finding.IsMuted)
             .ToList();
 
+        if (deltas.SponsorNarrativeFindings.Count > 0
+            && (agentFindings.Count == 0 || agentFindings.Count < deltas.SponsorNarrativeFindings.Count))
+        {
+            return deltas.SponsorNarrativeFindings;
+        }
+
         if (agentFindings.Count > 0)
             return agentFindings;
 

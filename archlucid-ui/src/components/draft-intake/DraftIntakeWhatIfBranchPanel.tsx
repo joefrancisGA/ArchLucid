@@ -19,6 +19,7 @@ import { useDraftBranchQuotaQuery } from "@/hooks/use-draft-branch-quota-query";
 import { branchDraftRequest } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { formatDraftBranchQuotaSummary } from "@/lib/draft-branch-quota-display";
+import { BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL } from "@/lib/vocabulary/billing-meter-vocabulary";
 import {
   DRAFT_INTAKE_SELECT_UNSET_VALUE,
   resolveDraftIntakeSelectChange,
@@ -220,7 +221,8 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
         <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Explore a what-if branch</p>
         <p className={cn("mt-1 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Clone this admitted draft with one change, submit it as a separate architecture review, then use{" "}
-          <strong>Compare two reviews</strong> to see how the outcomes differ.
+          <strong>Compare two reviews</strong> to see how the outcomes differ. Each branch submit counts as one
+          billable {BILLING_ARCHITECTURE_PACKAGE_OVERAGE_UNIT_LABEL} (full pipeline run).
         </p>
       </div>
 

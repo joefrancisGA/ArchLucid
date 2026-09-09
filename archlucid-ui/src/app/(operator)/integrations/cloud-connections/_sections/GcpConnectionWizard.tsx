@@ -32,9 +32,10 @@ import {
   validateGcpConnectionFields,
   type GcpConnectionFieldKey,
 } from "./gcp-connection-field-validation";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import {
   GCP_CONNECTION_DETAIL_WIZARD_STEPS,
-  GCP_CONNECTION_WIZARD_IDS_STEP_LEAD,
+  gcpConnectionWizardIdsStepLead,
   GCP_CONNECTION_WIZARD_POOL_PROVIDER_PLACEHOLDER,
   GCP_CONNECTION_WIZARD_SAVE_STEP_LEAD,
 } from "./gcp-connection-wizard-content";
@@ -45,6 +46,7 @@ type Props = {
 };
 
 export function GcpConnectionWizard(props: Props): React.ReactElement {
+  const { productLine } = useLocalizedProductCopy();
   const { canMutate, refreshConnections, setFormError, setActionMessage } = useGcpConnectionData();
   const router = useRouter();
   const pathname = usePathname() ?? "/integrations/cloud-connections/gcp";
@@ -188,7 +190,7 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
             <h3 id="gcp-wizard-ids-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
               Enter connection identifiers
             </h3>
-            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{GCP_CONNECTION_WIZARD_IDS_STEP_LEAD}</p>
+            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{gcpConnectionWizardIdsStepLead(productLine)}</p>
           </div>
 
           <div className="grid max-w-xl gap-4">

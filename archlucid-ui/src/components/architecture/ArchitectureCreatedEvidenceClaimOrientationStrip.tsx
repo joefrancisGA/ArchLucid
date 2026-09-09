@@ -1,0 +1,1 @@
+export { ArchitectureCreatedEvidenceSourcesOrientationStrip as ArchitectureCreatedEvidenceClaimOrientationStrip } from "./ArchitectureCreatedEvidenceSourcesOrientationStrip";

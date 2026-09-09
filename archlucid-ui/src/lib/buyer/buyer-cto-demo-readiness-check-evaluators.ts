@@ -1,5 +1,4 @@
 import { getRunSummary } from "@/lib/api";
-import { getBearerToken } from "@/lib/api/http";
 import {
   BUYER_DEMO_READINESS_BUYER_API_UNAVAILABLE,
   BUYER_DEMO_READINESS_BUYER_AUTH_REQUIRED,
@@ -19,7 +18,8 @@ import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/dem
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
 import { fetchLlmMonthlyDollarBudgetStatusCached } from "@/lib/llm-monthly-budget-status";
 import { getDemoSampleAuditTrailEvents } from "@/lib/demo-audit-sample-events";
-import { DEMO_MINIMUM_SESSION_SECONDS, decodeJwtExpirySeconds } from "@/lib/jwt-expiry";
+import { DEMO_MINIMUM_SESSION_SECONDS } from "@/lib/jwt-expiry";
+import { getAccessTokenExpiresAtMs, isLikelySignedIn } from "@/lib/oidc/session";
 import {
   areSpineStaticDemoPayloadsAvailable,
   isStaticDemoPayloadFallbackEnabled,
@@ -247,14 +247,11 @@ export function evaluateBuyerCtoDemoAuthCheck(): BuyerCtoDemoReadinessCheck {
     };
   }
 
-  const bearer = typeof window !== "undefined" ? getBearerToken() : undefined;
+  if (typeof window !== "undefined" && isLikelySignedIn()) {
+    const expiresAtMs = getAccessTokenExpiresAtMs();
+    const remainingSeconds = Math.floor((expiresAtMs - Date.now()) / 1000);
 
-  if (bearer !== undefined && bearer.trim().length > 0) {
-    const expSeconds = decodeJwtExpirySeconds(bearer.trim());
-
-    if (expSeconds !== null) {
-      const remainingSeconds = expSeconds - Math.floor(Date.now() / 1000);
-
+    if (expiresAtMs > 0) {
       if (remainingSeconds < 0) {
         return {
           id: "demo-auth",

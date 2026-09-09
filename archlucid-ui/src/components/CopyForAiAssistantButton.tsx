@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import {
   buildGoldenManifestMarkdownFilename,
   formatGoldenManifestMarkdown,
@@ -10,7 +11,7 @@ import {
   triggerGoldenManifestMarkdownDownload,
 } from "@/lib/export-markdown";
 import { runCollateralSealedManifestCopyBlockedReason, manifestSummarySealedVersionForCopyGuard } from "@/lib/runs/run-collateral-sealed-manifest-guard";
-import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
+import type { ManifestSummary, RunSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 const DEFAULT_LABEL = "Copy for AI assistant";
 const COPIED_LABEL = "Copied";
@@ -22,6 +23,10 @@ export type CopyForAiAssistantButtonProps = {
   manifestSummary: ManifestSummary | null;
   trustEvidenceCard?: RunTrustEvidenceCard | null;
   runId: string;
+  enginesSucceeded?: number | null;
+  progressSummary?: RunSummary | null;
+  graphSnapshot?: unknown;
+  findingsSnapshot?: unknown;
 };
 
 /**
@@ -29,7 +34,17 @@ export type CopyForAiAssistantButtonProps = {
  * Falls back to a one-shot Markdown download when the clipboard API is unavailable.
  */
 export function CopyForAiAssistantButton(props: CopyForAiAssistantButtonProps) {
-  const { goldenManifestJson, manifestSummary, trustEvidenceCard, runId } = props;
+  const {
+    goldenManifestJson,
+    manifestSummary,
+    trustEvidenceCard,
+    runId,
+    enginesSucceeded = null,
+    progressSummary = null,
+    graphSnapshot = null,
+    findingsSnapshot = null,
+  } = props;
+  const workingDesk = useProductionDeskChrome();
   const [buttonLabel, setButtonLabel] = useState(DEFAULT_LABEL);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -70,6 +85,14 @@ export function CopyForAiAssistantButton(props: CopyForAiAssistantButtonProps) {
       runId,
       manifestSummaryFallback: manifestSummary,
       trustEvidenceCard: trustEvidenceCard ?? null,
+      enginesSucceeded,
+      careerExportHonesty: {
+        progressSummary,
+        graphSnapshot,
+        findingsSnapshot,
+        enginesSucceeded,
+        workingDesk,
+      },
     });
 
     try {

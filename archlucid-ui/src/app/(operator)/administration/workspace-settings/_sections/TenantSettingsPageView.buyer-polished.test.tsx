@@ -39,14 +39,19 @@ vi.mock("@/components/SupportBundleDownloadButton", () => ({
   SupportBundleDownloadButton: () => <button type="button">Download support bundle</button>,
 }));
 
-vi.mock("@/lib/active-tenant-context-display", () => ({
-  readActiveTenantContext: () => ({
-    displayName: "Acme Architecture",
-    tenantId: "tenant-1",
-    workspaceId: "workspace-1",
-    workspaceLabel: "Pilot",
-  }),
-}));
+vi.mock("@/lib/active-tenant-context-display", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/active-tenant-context-display")>();
+
+  return {
+    ...actual,
+    readActiveTenantContext: () => ({
+      displayName: "Acme Architecture",
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      workspaceLabel: "Pilot",
+    }),
+  };
+});
 
 import {
   TENANT_SETTINGS_CLAIM_DISCIPLINE,
@@ -59,7 +64,9 @@ import {
   TENANT_SETTINGS_SETTINGS_BUYER_START_HERE_HELPER,
   TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   TENANT_SETTINGS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  TENANT_SETTINGS_SETTINGS_ORIENTATION_BOTTOM_TEST_ID,
   TENANT_SETTINGS_SETTINGS_PAGE_LEAD,
+  TENANT_SETTINGS_SETTINGS_OVERVIEW,
   TENANT_SETTINGS_SETTINGS_PRIMARY_CONTENT_ID,
   TENANT_SETTINGS_SETTINGS_SKIP_LINK_LABEL,
   TENANT_SETTINGS_SETTINGS_SKIP_TARGET_ID,
@@ -101,6 +108,15 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
     expect(screen.getByText(TENANT_SETTINGS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(TENANT_SETTINGS_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("tenant-settings-intro")).toHaveTextContent(TENANT_SETTINGS_SETTINGS_PAGE_LEAD);
+    expect(screen.getByTestId("tenant-settings-overview")).toHaveTextContent(TENANT_SETTINGS_SETTINGS_OVERVIEW);
+    expect(screen.getByTestId(TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("tenant-settings-intro"),
+    );
+    expect(
+      screen.getByTestId(TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("tenant-settings-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByTestId("tenant-settings-buyer-start-here-helper")).toHaveTextContent(
       TENANT_SETTINGS_SETTINGS_BUYER_START_HERE_HELPER,
     );
@@ -111,6 +127,8 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
       TENANT_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.queryByRole("button", { name: "Page help" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-active-scope-summary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-caller-authority")).not.toBeInTheDocument();
     expect(screen.queryByTestId("workspace-scope-vocabulary-rail-stub")).not.toBeInTheDocument();
     expect(screen.queryByTestId("tenant-workspace-projects-card-stub")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Download support bundle" })).not.toBeInTheDocument();
@@ -120,7 +138,7 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
 
     const primaryContent = screen.getByTestId(TENANT_SETTINGS_SETTINGS_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID);
-    const orientationBottom = screen.getByTestId("tenant-settings-orientation-bottom");
+    const orientationBottom = screen.getByTestId(TENANT_SETTINGS_SETTINGS_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("tenant-settings-settings-sources");
     const organizationCard = screen.getByTestId("tenant-settings-organization-card");
 

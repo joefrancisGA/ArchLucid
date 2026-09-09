@@ -45,7 +45,7 @@ describe("operator home deferred imports (TB-2145)", () => {
     expect(homePageViewSource).toContain("OperatorHomeSponsorRoiStripDeferred");
     expect(homePageViewSource).toContain("OperatorHomeBelowFoldPanelsDeferred");
     expect(homePageViewSource).toContain("BuyerPolishedHomeHeroSectionDeferred");
-    expect(homePageViewSource).toContain("DevTestingQuickSwitchPanelDeferred");
+    expect(homePageViewSource).not.toContain("DevTestingQuickSwitchPanelDeferred");
     expect(homePageViewSource).toContain("OperatorHomeGateDeferred");
   });
 

@@ -7,6 +7,7 @@ import {
 } from "@/lib/bulk-evidence-upload-copy";
 import {
   buildBulkEvidenceUploadSummary,
+  parseEvidenceItemIdsFromSuccessBody,
   parsePartialUploadCountFromDetail,
   parseSuccessUploadedCount,
   type BulkEvidenceUploadSummary,
@@ -128,7 +129,10 @@ export function useBulkEvidenceUpload(
       setEtaLabel(null);
 
       if (result.status >= 200 && result.status < 300) {
-        const uploadedNonEmptyCount = parseSuccessUploadedCount(result.bodyText);
+        const evidenceItemIds = parseEvidenceItemIdsFromSuccessBody(result.bodyText);
+        const uploadedNonEmptyCount = evidenceItemIds.length > 0
+          ? evidenceItemIds.length
+          : parseSuccessUploadedCount(result.bodyText);
         const expectedNonEmpty = countNonEmptyFiles(batch);
         const summary = buildBulkEvidenceUploadSummary(
           batch,
@@ -137,6 +141,7 @@ export function useBulkEvidenceUpload(
           uploadedNonEmptyCount === expectedNonEmpty
             ? "Evidence successfully uploaded."
             : "Upload completed with warnings.",
+          evidenceItemIds,
         );
 
         setUploadSummary(summary);

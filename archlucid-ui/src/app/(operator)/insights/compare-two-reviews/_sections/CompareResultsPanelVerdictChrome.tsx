@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { CompareComparisonTrustBanner } from "@/components/compare/CompareComparisonTrustBanner";
 import { CompareVerdictSummary } from "@/components/compare/CompareVerdictSummary";
@@ -13,8 +17,13 @@ import {
 import { SponsorLensCompareSummaryPanel } from "@/components/compare/SponsorLensCompareSummaryPanel";
 import { compareRunPairBlockedReason } from "@/lib/compare/compare-run-pair-blocked-reason";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
+import {
+  compareStaleInputsTechnicalIdsDisclosureHrefFromSearch,
+  parseCompareStaleInputsTechnicalIdsOpenFromSearch,
+} from "@/lib/compare/compare-stale-inputs-technical-ids-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
+import { ComparePinToDeskActions } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePinToDeskActions";
 import { CompareQualityDeltaPanel } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareQualityDeltaPanel";
 import { CompareProvenanceDeltaBand } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareProvenanceDeltaBand";
 import { deriveCompareQualityDeltaFromGolden } from "@/lib/review-quality/compare-quality-delta";
@@ -25,6 +34,38 @@ export function CompareResultsPanelVerdictChrome({
 }: {
   readonly viewModel: CompareResultsPanelViewModel;
 }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const compareStaleInputsTechnicalIdsOpenParam = searchParams.get("compareStaleInputsTechnicalIdsOpen");
+  const [staleInputsTechnicalIdsOpen, setStaleInputsTechnicalIdsOpenState] = useState(() =>
+    parseCompareStaleInputsTechnicalIdsOpenFromSearch(compareStaleInputsTechnicalIdsOpenParam),
+  );
+
+  const syncStaleInputsTechnicalIdsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareStaleInputsTechnicalIdsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setStaleInputsTechnicalIdsOpen = useCallback(
+    (open: boolean) => {
+      setStaleInputsTechnicalIdsOpenState(open);
+      syncStaleInputsTechnicalIdsOpenToUrl(open);
+    },
+    [syncStaleInputsTechnicalIdsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setStaleInputsTechnicalIdsOpenState(
+      parseCompareStaleInputsTechnicalIdsOpenFromSearch(compareStaleInputsTechnicalIdsOpenParam),
+    );
+  }, [compareStaleInputsTechnicalIdsOpenParam]);
+
   const {
     showStaleInputsWarning,
     lastComparedPair,
@@ -106,6 +147,10 @@ export function CompareResultsPanelVerdictChrome({
         />
       ) : null}
 
+      {golden !== null ? (
+        <ComparePinToDeskActions baselineRunId={golden.baseRunId} updatedRunId={golden.targetRunId} />
+      ) : null}
+
       {showStaleInputsWarning && (
         <OperatorWarningCallout>
           <strong>Selections no longer match the comparison shown here.</strong>
@@ -121,7 +166,13 @@ export function CompareResultsPanelVerdictChrome({
             . Click <strong>Compare</strong> or <strong>{summarizeCue}</strong> again after fixing selections, or
             restore the previous values.
           </p>
-          <details className={cn("group mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <details
+            className={cn("group mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            open={staleInputsTechnicalIdsOpen}
+            onToggle={(event) => {
+              setStaleInputsTechnicalIdsOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
+          >
             <summary className={cn("flex cursor-pointer items-center gap-2 font-medium text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               <DisclosureTriangleIndicator />
               Technical review IDs

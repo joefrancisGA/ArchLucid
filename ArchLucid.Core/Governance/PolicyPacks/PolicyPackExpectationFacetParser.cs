@@ -2,6 +2,7 @@ using System.Globalization;
 
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Json;
 
 namespace ArchLucid.Core.Governance.PolicyPacks;
 
@@ -105,22 +106,9 @@ public static class PolicyPackExpectationFacetParser
 
     string normalized = raw.Trim();
 
-    if (normalized.Equals("true", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("1", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("yes", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("on", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("enabled", StringComparison.OrdinalIgnoreCase))
+    if (JsonBooleanStringReader.TryParseBooleanString(normalized, out bool boolean))
     {
-      return true;
-    }
-
-    if (normalized.Equals("false", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("0", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("no", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("off", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("disabled", StringComparison.OrdinalIgnoreCase))
-    {
-      return false;
+      return boolean;
     }
 
     if (TryParseWholeNumberString(normalized, out int wholeNumber))
@@ -153,65 +141,7 @@ public static class PolicyPackExpectationFacetParser
       return ((FindingSeverity)ordinal).ToString();
     }
 
-    if (TryParseBooleanOrdinalString(trimmed, out int booleanOrdinal)
-        && Enum.IsDefined(typeof(FindingSeverity), booleanOrdinal))
-    {
-      return ((FindingSeverity)booleanOrdinal).ToString();
-    }
-
     return null;
-  }
-
-  private static bool TryParseBooleanOrdinalString(string raw, out int ordinal)
-  {
-    if (TryParseBooleanString(raw, out bool boolean))
-    {
-      ordinal = boolean ? 1 : 0;
-
-      return true;
-    }
-
-    ordinal = default;
-
-    return false;
-  }
-
-  private static bool TryParseBooleanString(string? raw, out bool value)
-  {
-    if (string.IsNullOrWhiteSpace(raw))
-    {
-      value = default;
-
-      return false;
-    }
-
-    string normalized = raw.Trim();
-
-    if (normalized.Equals("true", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("1", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("yes", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("on", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("enabled", StringComparison.OrdinalIgnoreCase))
-    {
-      value = true;
-
-      return true;
-    }
-
-    if (normalized.Equals("false", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("0", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("no", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("off", StringComparison.OrdinalIgnoreCase)
-        || normalized.Equals("disabled", StringComparison.OrdinalIgnoreCase))
-    {
-      value = false;
-
-      return true;
-    }
-
-    value = default;
-
-    return false;
   }
 
   private static bool TryParseWholeNumberString(string raw, out int value)

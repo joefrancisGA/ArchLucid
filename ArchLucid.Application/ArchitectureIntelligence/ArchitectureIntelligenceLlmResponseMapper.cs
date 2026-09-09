@@ -124,8 +124,10 @@ internal static class ArchitectureIntelligenceLlmResponseMapper
             },
             Provenance = new ClaimProvenance
             {
-                Origin = ClaimOrigin.SystemProposed,
-                SupportStatus = SupportStatus.IndirectlySupported,
+                Origin = ClaimOrigin.ModelInferred,
+                SupportStatus = string.IsNullOrWhiteSpace(item.Evidence)
+                    ? SupportStatus.Unsupported
+                    : SupportStatus.IndirectlySupported,
                 Confidence = ClampConfidence(item.Confidence),
                 Notes = item.Notes?.Trim(),
             },

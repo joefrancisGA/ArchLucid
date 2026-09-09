@@ -22,8 +22,14 @@ public sealed class AdvisoryDraftOperationAcceptor(
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(scope);
 
-        AdvisoryDraftOperationRecord record = _store.CreatePending(scope);
-        string operationId = OperationIdCodec.ForDraft(record.OperationId);
+        AdvisoryDraftOperationCreateResult createResult = _store.CreatePending(scope);
+
+        if (!createResult.Created)
+        {
+            return OperationIdCodec.ForDraft(createResult.Record.OperationId);
+        }
+
+        string operationId = OperationIdCodec.ForDraft(createResult.Record.OperationId);
 
         await _queue.EnqueueAsync(
             new AdvisoryDraftOperationWorkItem

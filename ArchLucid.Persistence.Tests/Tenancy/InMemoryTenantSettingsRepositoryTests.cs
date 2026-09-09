@@ -1,3 +1,4 @@
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 using FluentAssertions;
@@ -54,5 +55,18 @@ public sealed class InMemoryTenantSettingsRepositoryTests
         Func<Task> act = () => repository.TryGetAsync(Guid.Empty, "key", CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task UpsertAsync_rejects_values_longer_than_migration_nvarchar_512_limit()
+    {
+        InMemoryTenantSettingsRepository repository = new();
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string tooLong = new('v', TenantSettingsSchemaLimits.SettingValueMaxLength + 1);
+
+        Func<Task> act = () => repository.UpsertAsync(tenantId, "feature.flag", tooLong, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage($"*at most {TenantSettingsSchemaLimits.SettingValueMaxLength}*");
     }
 }

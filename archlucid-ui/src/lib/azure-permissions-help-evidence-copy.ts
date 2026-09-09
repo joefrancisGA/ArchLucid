@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 
 export const AZURE_PERMISSIONS_HELP_CANONICAL_PATH = "/help/azure-permissions" as const;
 
@@ -18,6 +19,37 @@ export const AZURE_PERMISSIONS_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Connection status", href: "/administration/connection-status" },
   { label: "Assurance status", href: "/assurance-status" },
 ] as const;
+
+/** TB-1626 — first-viewport configure/verify entry point for `/help/azure-permissions`. */
+export const AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION = {
+  label: "Open Azure connection setup",
+  testId: "azure-permissions-setup-primary-action",
+  defaultHref: "/integrations/cloud-connections/azure",
+} as const;
+
+const AZURE_PERMISSIONS_HELP_EXCLUDED_ORIENTATION_HREFS = new Set<string>([
+  AZURE_PERMISSIONS_HELP_CANONICAL_PATH,
+  AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.defaultHref,
+]);
+
+export const AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "Azure permission questions need live connection settings, health checks, or assurance citations",
+);
+
+/** Help orientation Sources — excludes self-href and primary setup action (HE). */
+export const AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
+  AZURE_PERMISSIONS_HELP_SOURCES.filter(
+    (source) => !AZURE_PERMISSIONS_HELP_EXCLUDED_ORIENTATION_HREFS.has(source.href),
+  );
+
+export const AZURE_PERMISSIONS_HELP_PAGE_LEAD =
+  "Assign the minimum read-only Azure roles ArchLucid needs to collect architecture evidence from your subscription. Cost Management Reader is optional unless cost analysis is enabled for the connection.";
+
+export const AZURE_PERMISSIONS_HELP_START_HERE_HELPER =
+  "Use Open Azure connection setup below to assign roles and verify the connection, then expand the permission matrix when procurement needs full IAM detail.";
+
+export const AZURE_PERMISSIONS_HELP_ORIENTATION_BOTTOM_TEST_ID =
+  "help-azure-permissions-orientation-bottom" as const;
 
 export type AzurePermissionsHelpJobMatrixRow = {
   readonly label: string;
@@ -47,13 +79,6 @@ export const AZURE_PERMISSIONS_HELP_JOB_MATRIX: readonly AzurePermissionsHelpJob
     isCurrent: true,
   },
 ] as const;
-
-/** TB-1626 — first-viewport configure/verify entry point for `/help/azure-permissions`. */
-export const AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION = {
-  label: "Open Azure connection setup",
-  testId: "azure-permissions-setup-primary-action",
-  defaultHref: "/integrations/cloud-connections/azure",
-} as const;
 
 export const AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE =
   "This Azure permissions guide explains read-only roles for cloud connections — connector setup orientation, not a full audit export. Open Assurance status or Cloud connections before using permission tables in procurement.";

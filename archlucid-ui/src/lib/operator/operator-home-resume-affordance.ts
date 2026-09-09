@@ -42,7 +42,10 @@ export function resolveOperatorHomeResumeAffordancePlan(
 ): OperatorHomeResumeAffordancePlan {
   const architectureTarget =
     input.workingMode === true ? resolveContinueLastArchitectureIdentityTarget() : null;
-  const reviewTarget = resolveContinueLastReviewPackageTarget(input.runs);
+  const reviewTarget = resolveContinueLastReviewPackageTarget(input.runs, undefined, {
+    workingMode: input.workingMode === true,
+    draftRegistryEntries: input.drafts,
+  });
   const continueTarget = architectureTarget ?? reviewTarget;
   const continueLastKind =
     architectureTarget !== null ? "architecture" : reviewTarget !== null ? "review" : null;

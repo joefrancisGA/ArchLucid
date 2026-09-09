@@ -189,7 +189,7 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
           </div>
         ) : null}
 
-        <div className={contentGridClass}>
+        <div className={buyerPolishedShell ? "min-w-0 space-y-4" : contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? (
               <BaselineSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
@@ -261,7 +261,7 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={tocHeadings} />
+          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}
         </div>
 
         {buyerPolishedShell ? (
