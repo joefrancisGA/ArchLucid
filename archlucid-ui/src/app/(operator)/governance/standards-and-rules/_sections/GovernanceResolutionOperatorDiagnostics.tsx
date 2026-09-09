@@ -1,5 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { GovernanceConflictsTable } from "@/components/governance/GovernanceConflictsTable";
@@ -12,6 +15,18 @@ import {
   governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  governanceResolutionPackOrderingDisclosureHrefFromSearch,
+  parseGovernanceResolutionPackOrderingOpenFromSearch,
+} from "@/lib/governance/governance-resolution-pack-ordering-disclosure-url";
+import {
+  governanceResolutionCandidatesDisclosureHrefFromSearch,
+  parseGovernanceResolutionCandidatesItemKeyFromSearch,
+} from "@/lib/governance/governance-resolution-candidates-disclosure-url";
+import {
+  governanceResolutionRawOutputDisclosureHrefFromSearch,
+  parseGovernanceResolutionRawOutputOpenFromSearch,
+} from "@/lib/governance/governance-resolution-raw-output-disclosure-url";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
 import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
 import { resolveStandardsRulesPolicyPackProvenanceLabel } from "@/lib/standards-rules-rows";
@@ -29,6 +44,89 @@ export function GovernanceResolutionOperatorDiagnostics(
 ): React.JSX.Element {
   const m = props.model;
   const canMutateEnterprisePolicySurfaces = m.canMutateEnterprisePolicySurfaces;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const governanceResolutionPackOrderingOpenParam = searchParams.get("governanceResolutionPackOrderingOpen");
+  const governanceResolutionRawOutputOpenParam = searchParams.get("governanceResolutionRawOutputOpen");
+  const [packOrderingOpen, setPackOrderingOpenState] = useState(() =>
+    parseGovernanceResolutionPackOrderingOpenFromSearch(governanceResolutionPackOrderingOpenParam),
+  );
+  const [rawOutputOpen, setRawOutputOpenState] = useState(() =>
+    parseGovernanceResolutionRawOutputOpenFromSearch(governanceResolutionRawOutputOpenParam),
+  );
+
+  const syncPackOrderingOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceResolutionPackOrderingDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPackOrderingOpen = useCallback(
+    (open: boolean) => {
+      setPackOrderingOpenState(open);
+      syncPackOrderingOpenToUrl(open);
+    },
+    [syncPackOrderingOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPackOrderingOpenState(
+      parseGovernanceResolutionPackOrderingOpenFromSearch(governanceResolutionPackOrderingOpenParam),
+    );
+  }, [governanceResolutionPackOrderingOpenParam]);
+
+  const syncRawOutputOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceResolutionRawOutputDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setRawOutputOpen = useCallback(
+    (open: boolean) => {
+      setRawOutputOpenState(open);
+      syncRawOutputOpenToUrl(open);
+    },
+    [syncRawOutputOpenToUrl],
+  );
+
+  useEffect(() => {
+    setRawOutputOpenState(parseGovernanceResolutionRawOutputOpenFromSearch(governanceResolutionRawOutputOpenParam));
+  }, [governanceResolutionRawOutputOpenParam]);
+
+  const governanceResolutionCandidatesItemKeyParam = searchParams.get("governanceResolutionCandidatesItemKey");
+  const [openCandidatesItemKey, setOpenCandidatesItemKeyState] = useState(() =>
+    parseGovernanceResolutionCandidatesItemKeyFromSearch(governanceResolutionCandidatesItemKeyParam),
+  );
+  const syncOpenCandidatesItemKeyToUrl = useCallback(
+    (itemKey: string | null) => {
+      router.replace(
+        governanceResolutionCandidatesDisclosureHrefFromSearch(searchParams.toString(), itemKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenCandidatesItemKey = useCallback(
+    (itemKey: string | null) => {
+      setOpenCandidatesItemKeyState(itemKey ?? "");
+      syncOpenCandidatesItemKeyToUrl(itemKey);
+    },
+    [syncOpenCandidatesItemKeyToUrl],
+  );
+  useEffect(() => {
+    setOpenCandidatesItemKeyState(
+      parseGovernanceResolutionCandidatesItemKeyFromSearch(governanceResolutionCandidatesItemKeyParam),
+    );
+  }, [governanceResolutionCandidatesItemKeyParam]);
 
   return (
     <>
@@ -68,7 +166,12 @@ export function GovernanceResolutionOperatorDiagnostics(
           )}
         </ul>
 
-        <AdvancedOptionsAccordion className="mt-5" triggerLabel={governanceResolutionRawOutputAccordionLabel}>
+        <AdvancedOptionsAccordion
+          className="mt-5"
+          triggerLabel={governanceResolutionRawOutputAccordionLabel}
+          open={rawOutputOpen}
+          onOpenChange={setRawOutputOpen}
+        >
           <div className="grid gap-4">
             <h4 className={cn("mt-0 mb-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Effective content</h4>
             <pre
@@ -79,7 +182,13 @@ export function GovernanceResolutionOperatorDiagnostics(
             >
               {m.data ? JSON.stringify(m.data.effectiveContent, null, 2) : " — "}
             </pre>
-            <details className="max-w-3xl">
+            <details
+              className="max-w-3xl"
+              open={packOrderingOpen}
+              onToggle={(event) => {
+                setPackOrderingOpen((event.currentTarget as HTMLDetailsElement).open);
+              }}
+            >
               <summary className={cn("cursor-pointer font-semibold text-al-text-secondary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                 How packs are ordered (scope, pins, ties)
               </summary>
@@ -102,7 +211,10 @@ export function GovernanceResolutionOperatorDiagnostics(
           Resolution decisions ({m.data?.decisions.length ?? 0})
         </h4>
         <div className="grid gap-2.5">
-          {(m.data?.decisions ?? []).map((d, i) => (
+          {(m.data?.decisions ?? []).map((d, i) => {
+            const candidatesItemKey = `${d.itemType}:${d.itemKey}`;
+
+            return (
             <article
               key={`${d.itemType}-${d.itemKey}-${i}`}
               className="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 bg-neutral-50 dark:bg-neutral-950"
@@ -133,12 +245,20 @@ export function GovernanceResolutionOperatorDiagnostics(
                 </div>
               </div>
               <div className={cn("mt-1.5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{d.resolutionReason}</div>
-              <details className={cn("mt-2", OPERATOR_TYPOGRAPHY.micro)}>
+              <details
+                className={cn("mt-2", OPERATOR_TYPOGRAPHY.micro)}
+                open={openCandidatesItemKey === candidatesItemKey}
+                onToggle={(event) => {
+                  const nextOpen = event.currentTarget.open;
+                  setOpenCandidatesItemKey(nextOpen ? candidatesItemKey : null);
+                }}
+              >
                 <summary>All candidates</summary>
                 <pre className="overflow-auto max-h-[220px]">{JSON.stringify(d.candidates, null, 2)}</pre>
               </details>
             </article>
-          ))}
+            );
+          })}
         </div>
       </section>
 

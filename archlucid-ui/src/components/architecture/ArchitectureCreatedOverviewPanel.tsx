@@ -10,7 +10,7 @@ import { ArchitectureStructuredSectionView } from "@/components/architecture/Arc
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
 import { Button } from "@/components/ui/button";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import {
   ARCHITECTURE_CREATED_OVERVIEW_BUYER_EMPTY_CAUSE,
@@ -65,7 +65,7 @@ export type ArchitectureCreatedOverviewPanelProps = {
 export function ArchitectureCreatedOverviewPanel(
   props: ArchitectureCreatedOverviewPanelProps,
 ): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();

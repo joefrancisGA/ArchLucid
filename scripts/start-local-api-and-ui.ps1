@@ -1,5 +1,6 @@
-# Starts ArchLucid.Api locally, waits until healthy, starts archlucid-ui (npm run dev),
-# verifies browser -> Next.js -> /api/proxy -> API, then opens the default browser.
+# Starts ArchLucid.Api locally, waits until healthy, starts two archlucid-ui Next.js
+# shells against that one API (Architecture :3000, Security :3001), verifies
+# browser -> Next.js -> /api/proxy -> API on each UI, then opens both in the browser.
 #
 # The API window shuts down leftover MSBuild/Roslyn servers, compiles with -tl:off -m:1
 # (avoids silent MSB4166 dumps from the SDK terminal logger + parallel nodes), then
@@ -7,9 +8,10 @@
 # / -SkipExplicitBuild to opt out of those defaults.
 #
 # Port reference:
-#   Native dev (default): API 5128, UI 3000 — archlucid-ui/.env.local ARCHLUCID_API_BASE_URL=http://localhost:5128
-#   UI spawn sets NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV=true and NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator
-#   so the Internal sidebar is always visible for local engineer shells (independent of appsettings.Pilot.json).
+#   Native dev (default): API 5128, Architecture UI 3000, Security UI 3001 —
+#   archlucid-ui/.env.local ARCHLUCID_API_BASE_URL=http://localhost:5128
+#   UI spawn sets NEXT_PUBLIC_ARCHLUCID_PRODUCT, NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV=true
+#   and NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator so Internal nav is visible for local engineer shells.
 #   Docker demo stack:    API 5000, UI 3000 — use docker-compose.demo.yml / demo-start-local.ps1
 #
 # Prerequisites:
@@ -19,7 +21,8 @@
 # Usage:
 #   .\scripts\start-local-api-and-ui.ps1
 #   .\scripts\start-local-api-and-ui.ps1 -SkipPreflight -NoBrowser
-#   .\scripts\start-local-api-and-ui.ps1 -ApiPort 5128 -UiPort 3000
+#   .\scripts\start-local-api-and-ui.ps1 -ApiPort 5128 -UiPort 3000 -SecurityUiPort 3001
+#   .\scripts\start-local-api-and-ui.ps1 -SkipSecurityUi
 #   .\scripts\start-local-api-and-ui.ps1 -LaunchProfile http -MsBuildMaxCpuCount 1
 #   .\scripts\start-local-api-and-ui.ps1 -RunAnalyzers -UseTerminalLogger
 #   .\scripts\start-local-api-and-ui.ps1 -SkipExplicitBuild -SkipBuildServerShutdown
@@ -29,11 +32,13 @@ param(
     [string] $OpenPath = "/",
     [int] $ApiPort = 5128,
     [int] $UiPort = 3000,
+    [int] $SecurityUiPort = 3001,
     [int] $ApiReadyTimeoutSec = 900,
     [int] $UiReadyTimeoutSec = 360,
     [switch] $SkipPreflight,
     [switch] $EnsureSql,
     [switch] $NoBrowser,
+    [switch] $SkipSecurityUi,
     [ValidateNotNullOrEmpty()]
     [string] $LaunchProfile = "http",
     [ValidateRange(1, 64)]
@@ -49,7 +54,7 @@ $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "start-local-api-and-ui.helpers.ps1")
 
 $script:SkipApiSpawn = $false
-$script:SkipUiSpawn = $false
+$script:SkipUiSpawnByProductLine = @{}
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $ApiProject = Join-Path $RepoRoot "ArchLucid.Api\ArchLucid.Api.csproj"
@@ -57,6 +62,15 @@ $UiRoot = Join-Path $RepoRoot "archlucid-ui"
 $UiNodeModules = Join-Path $UiRoot "node_modules"
 $EnvLocalPath = Join-Path $UiRoot ".env.local"
 $EnvExamplePath = Join-Path $UiRoot ".env.example"
+
+$script:LocalUiSites = Get-LocalUiSiteSpecs `
+    -ArchitecturePort $UiPort `
+    -SecurityPort $SecurityUiPort `
+    -IncludeSecurity (-not $SkipSecurityUi.IsPresent)
+
+foreach ($site in $script:LocalUiSites) {
+    $script:SkipUiSpawnByProductLine[$site.ProductLine] = $false
+}
 
 function Write-StageError {
     param(
@@ -158,6 +172,44 @@ function Test-PortServingUiRoot {
     return Test-HttpStatus -Uri "http://127.0.0.1:$Port/"
 }
 
+function Write-UiProxyChainFailureAndExit {
+    param(
+        [Parameter(Mandatory = $true)][string] $SiteName,
+        [Parameter(Mandatory = $true)][int] $SitePort,
+        [Parameter(Mandatory = $true)][string] $ProxyLiveUrl,
+        [Parameter(Mandatory = $true)][string] $ApiLiveUrl
+    )
+
+    $directApiOk = Test-HttpStatus -Uri $ApiLiveUrl
+    $configuredBase = Get-EnvLocalApiBaseUrl
+
+    $directApiLabel = 'FAILED'
+
+    if ($directApiOk) {
+        $directApiLabel = 'OK'
+    }
+
+    $configuredBaseLabel = '(not set in .env.local)'
+
+    if ($configuredBase) {
+        $configuredBaseLabel = $configuredBase
+    }
+
+    Write-Host ""
+    Write-Host ("Proxy chain check failed (stage: proxy-chain, site: {0})." -f $SiteName) -ForegroundColor Red
+    Write-Host "  Direct API $ApiLiveUrl : $directApiLabel"
+    Write-Host "  UI proxy $ProxyLiveUrl : FAILED"
+    Write-Host "  ARCHLUCID_API_BASE_URL : $configuredBaseLabel"
+    Write-Host "  Next steps:"
+    Write-Host "    - Confirm ArchLucid.Api is running on port $ApiPort"
+    Write-Host "    - Match archlucid-ui/.env.local to http://localhost:$ApiPort"
+    Write-Host "    - See docs/runbooks/TROUBLESHOOTING.md and docs/library/customer-facing/OPERATOR_QUICKSTART.md"
+    Write-Host "    - Optional: dotnet run --project ArchLucid.Cli -- doctor"
+    Write-Host ("    - Confirm the {0} Next.js window is serving http://127.0.0.1:{1}/" -f $SiteName, $SitePort)
+    Write-Host ("    - Restart the {0} UI window if it started before the API was ready." -f $SiteName)
+    exit 1
+}
+
 if (-not (Test-Path $ApiProject)) {
     Write-StageError -Stage "preflight" -Message "API project not found: $ApiProject"
 }
@@ -196,18 +248,19 @@ if (-not $SkipPreflight) {
         $script:SkipApiSpawn = $true
     }
 
-    $uiAlreadyUp = Test-PortServingUiRoot -Port $UiPort
+    foreach ($site in $script:LocalUiSites) {
+        $uiAlreadyUp = Test-PortServingUiRoot -Port $site.Port
 
-    if ($uiAlreadyUp) {
-        Write-Host "UI already listening on port $UiPort - skipping UI spawn." -ForegroundColor Yellow
-        $script:SkipUiSpawn = $true
-    }
+        if ($uiAlreadyUp) {
+            Write-Host ("{0} UI already listening on port {1} - skipping spawn." -f $site.Name, $site.Port) -ForegroundColor Yellow
+            $script:SkipUiSpawnByProductLine[$site.ProductLine] = $true
+            continue
+        }
 
-    if (-not $uiAlreadyUp) {
-        $uiListeners = Get-NetTCPConnection -LocalPort $UiPort -State Listen -ErrorAction SilentlyContinue
+        $uiListeners = Get-NetTCPConnection -LocalPort $site.Port -State Listen -ErrorAction SilentlyContinue
 
         if ($null -ne $uiListeners -and $uiListeners.Count -gt 0) {
-            Write-StageError -Stage "preflight" -Message "Port $UiPort is in use but UI root did not return 200."
+            Write-StageError -Stage "preflight" -Message ("Port {0} is in use but {1} UI root did not return 200." -f $site.Port, $site.Name)
         }
     }
 }
@@ -229,8 +282,6 @@ if ($EnsureSql) {
 
 $apiLiveUrl = "http://127.0.0.1:$ApiPort/health/live"
 $apiReadyUrl = "http://127.0.0.1:$ApiPort/health/ready"
-$uiRootUrl = "http://127.0.0.1:$UiPort/"
-$proxyLiveUrl = "http://127.0.0.1:$UiPort/api/proxy/health/live"
 
 if (-not $script:SkipApiSpawn) {
     Write-Host "Starting API in a new window (build then dotnet run --no-build)..." -ForegroundColor Cyan
@@ -259,55 +310,43 @@ if (-not (Wait-HttpStatus -Uri $apiReadyUrl -TimeoutSec 120)) {
 
 Write-Host "API is ready." -ForegroundColor Green
 
-if (-not $script:SkipUiSpawn) {
-    Write-Host "Starting UI in a new window (npm run dev, Internal nav enabled)..." -ForegroundColor Cyan
-    $uiCmd = Get-LocalUiWindowCommand -UiRoot $UiRoot
+foreach ($site in $script:LocalUiSites) {
+    if ($script:SkipUiSpawnByProductLine[$site.ProductLine]) {
+        continue
+    }
+
+    Write-Host ("Starting {0} UI in a new window (port {1}, Internal nav enabled)..." -f $site.Name, $site.Port) -ForegroundColor Cyan
+    $uiCmd = Get-LocalUiWindowCommand -UiRoot $UiRoot -ProductLine $site.ProductLine -Port $site.Port
     Start-Process -FilePath "powershell.exe" -ArgumentList @("-NoExit", "-Command", $uiCmd) | Out-Null
 }
 
-Write-Host "Waiting for UI root: $uiRootUrl (timeout ${UiReadyTimeoutSec}s)..." -ForegroundColor Cyan
+foreach ($site in $script:LocalUiSites) {
+    Write-Host ("Waiting for {0} UI root: {1} (timeout ${UiReadyTimeoutSec}s)..." -f $site.Name, $site.RootUrl) -ForegroundColor Cyan
 
-if (-not (Wait-HttpStatus -Uri $uiRootUrl -TimeoutSec $UiReadyTimeoutSec)) {
-    Write-StageError -Stage "ui-root" -Message "UI did not respond. Check npm errors and port $UiPort."
+    if (-not (Wait-HttpStatus -Uri $site.RootUrl -TimeoutSec $UiReadyTimeoutSec)) {
+        Write-StageError -Stage "ui-root" -Message ("{0} UI did not respond. Check npm errors and port {1}." -f $site.Name, $site.Port)
+    }
 }
 
-Write-Host "Verifying proxy chain: $proxyLiveUrl ..." -ForegroundColor Cyan
+foreach ($site in $script:LocalUiSites) {
+    Write-Host ("Verifying {0} proxy chain: {1} ..." -f $site.Name, $site.ProxyHealthUrl) -ForegroundColor Cyan
 
-if (-not (Wait-HttpStatus -Uri $proxyLiveUrl -TimeoutSec 90)) {
-    $directApiOk = Test-HttpStatus -Uri $apiLiveUrl
-    $configuredBase = Get-EnvLocalApiBaseUrl
-
-    $directApiLabel = 'FAILED'
-
-    if ($directApiOk) {
-        $directApiLabel = 'OK'
+    if (-not (Wait-HttpStatus -Uri $site.ProxyHealthUrl -TimeoutSec 90)) {
+        Write-UiProxyChainFailureAndExit `
+            -SiteName $site.Name `
+            -SitePort $site.Port `
+            -ProxyLiveUrl $site.ProxyHealthUrl `
+            -ApiLiveUrl $apiLiveUrl
     }
 
-    $configuredBaseLabel = '(not set in .env.local)'
-
-    if ($configuredBase) {
-        $configuredBaseLabel = $configuredBase
-    }
-
-    Write-Host ""
-    Write-Host "Proxy chain check failed (stage: proxy-chain)." -ForegroundColor Red
-    Write-Host "  Direct API $apiLiveUrl : $directApiLabel"
-    Write-Host "  UI proxy $proxyLiveUrl : FAILED"
-    Write-Host "  ARCHLUCID_API_BASE_URL : $configuredBaseLabel"
-    Write-Host "  Next steps:"
-    Write-Host "    - Confirm ArchLucid.Api is running on port $ApiPort"
-    Write-Host "    - Match archlucid-ui/.env.local to http://localhost:$ApiPort"
-    Write-Host "    - See docs/runbooks/TROUBLESHOOTING.md and docs/library/customer-facing/OPERATOR_QUICKSTART.md"
-    Write-Host "    - Optional: dotnet run --project ArchLucid.Cli -- doctor"
-    exit 1
+    Write-Host ("{0} proxy chain OK." -f $site.Name) -ForegroundColor Green
 }
 
-Write-Host "Proxy chain OK." -ForegroundColor Green
+$architectureSite = $script:LocalUiSites | Where-Object { $_.ProductLine -eq 'architecture' } | Select-Object -First 1
+$securitySite = $script:LocalUiSites | Where-Object { $_.ProductLine -eq 'security' } | Select-Object -First 1
 
-if ($NoBrowser) {
-    Write-Host "Skipping browser. Open: http://localhost:$UiPort$OpenPath" -ForegroundColor Yellow
-
-    exit 0
+if ($null -eq $architectureSite) {
+    Write-StageError -Stage "ui-root" -Message "Architecture UI site spec is missing."
 }
 
 $open = $OpenPath.Trim()
@@ -316,11 +355,46 @@ if (-not $open.StartsWith("/")) {
     $open = "/$open"
 }
 
-$browserUrl = "http://localhost:$UiPort$open"
-Write-Host "Opening browser: $browserUrl" -ForegroundColor Green
+$architectureUrl = "http://localhost:$($architectureSite.Port)$open"
+$securityUrl = $null
+
+if ($null -ne $securitySite) {
+    $securityUrl = "http://localhost:$($securitySite.Port)/"
+}
+
+Write-Host ""
+Write-Host "Ready:"
+Write-Host "  API           $apiLiveUrl"
+Write-Host ("  Architecture  {0}" -f $architectureUrl)
+
+if ($null -ne $securityUrl) {
+    Write-Host ("  Security      {0}" -f $securityUrl)
+}
+
+if ($NoBrowser) {
+    Write-Host ("Skipping browser. Open Architecture: {0}" -f $architectureUrl) -ForegroundColor Yellow
+
+    if ($null -ne $securityUrl) {
+        Write-Host ("Skipping browser. Open Security: {0}" -f $securityUrl) -ForegroundColor Yellow
+    }
+
+    exit 0
+}
+
+Write-Host "Opening browser: $architectureUrl" -ForegroundColor Green
 
 try {
-    Start-Process $browserUrl
+    Start-Process $architectureUrl
 } catch {
-    Write-Warning "Could not start default browser. Open manually: $browserUrl"
+    Write-Warning "Could not start default browser. Open manually: $architectureUrl"
+}
+
+if ($null -ne $securityUrl) {
+    Write-Host "Opening browser: $securityUrl" -ForegroundColor Green
+
+    try {
+        Start-Process $securityUrl
+    } catch {
+        Write-Warning "Could not start default browser. Open manually: $securityUrl"
+    }
 }

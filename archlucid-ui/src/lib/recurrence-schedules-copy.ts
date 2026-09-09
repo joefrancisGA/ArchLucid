@@ -6,6 +6,13 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-rout
 export const RECURRENCE_SCHEDULES_PAGE_SUBTITLE =
   "Automate recurring review cadences scoped to architecture identities.";
 
+export const RECURRENCE_SCHEDULES_PAGE_SUBTITLE_BUYER =
+  "See active schedules, next run times, and enablement for this workspace.";
+
+export function recurrenceSchedulesPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? RECURRENCE_SCHEDULES_PAGE_SUBTITLE_BUYER : RECURRENCE_SCHEDULES_PAGE_SUBTITLE;
+}
+
 export const RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE = "How recurrence schedules work";
 
 /** Folded value + trust copy — shown only inside How-it-works disclosure (TB-1130). */
@@ -21,7 +28,7 @@ export const RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION =
 export const RECURRENCE_SCHEDULES_EMPTY_SUPPORTING =
   "Schedules help ensure that accepted risks, policy exceptions, and approved architecture decisions are reviewed on time instead of being forgotten after approval.";
 
-export const RECURRENCE_SCHEDULES_HELPER_TITLE = "Governance approval workflow";
+export const RECURRENCE_SCHEDULES_HELPER_TITLE = "Approval workflow";
 
 export const RECURRENCE_SCHEDULES_HELPER_BODY =
   "Use recurrence schedules to create follow-up architecture reviews when scheduled reviews need periodic re-review. Recipients and notifications are not configured on this page.";
@@ -66,7 +73,7 @@ export const RECURRENCE_SCHEDULE_EXAMPLES: readonly RecurrenceScheduleExample[] 
   },
 ] as const;
 
-/** Governed reviews index. */
+/** Formal reviews index. */
 export const RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF = "/architecture/reviews";
 
 /** Pending approvals live on the Approval queue page (no standalone list route yet). */

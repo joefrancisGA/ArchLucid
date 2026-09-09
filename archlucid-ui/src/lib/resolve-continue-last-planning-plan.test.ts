@@ -27,4 +27,9 @@ describe("resolveContinueLastPlanningPlan", () => {
 
     expect(plan?.planId).toBe("newer");
   });
+
+  it("returns null when plans is not an array", () => {
+    expect(resolveContinueLastPlanningPlan(null)).toBeNull();
+    expect(resolveContinueLastPlanningPlan({})).toBeNull();
+  });
 });

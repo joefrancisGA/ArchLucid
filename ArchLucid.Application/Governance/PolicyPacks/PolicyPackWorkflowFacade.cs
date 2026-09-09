@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Audit;
@@ -15,6 +16,7 @@ namespace ArchLucid.Application.Governance.PolicyPacks;
 /// </summary>
 public sealed partial class PolicyPackWorkflowFacade(
     IScopeContextProvider scopeProvider,
+    ICallerRoleAccessor callerRoleAccessor,
     IPolicyPackRepository packRepository,
     IPolicyPackAssignmentRepository assignmentRepository,
     IPolicyPackVersionRepository versionRepository,
@@ -33,6 +35,9 @@ public sealed partial class PolicyPackWorkflowFacade(
 {
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly ICallerRoleAccessor _callerRoleAccessor =
+        callerRoleAccessor ?? throw new ArgumentNullException(nameof(callerRoleAccessor));
 
     private readonly IPolicyPackRepository _packRepository =
         packRepository ?? throw new ArgumentNullException(nameof(packRepository));
@@ -126,10 +131,24 @@ public sealed partial class PolicyPackWorkflowFacade(
         bool isOrganizationRequired,
         CancellationToken ct)
     {
+        if (isOrganizationRequired && !_callerRoleAccessor.IsTenantAdministrator())
+            return new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.Forbidden, null);
+
+        string normalizedScope = GovernanceScopeLevel.TryNormalize(scopeLevel) ?? GovernanceScopeLevel.Project;
+
+        if (!string.Equals(normalizedScope, GovernanceScopeLevel.Project, StringComparison.Ordinal)
+            && !_callerRoleAccessor.IsTenantAdministrator())
+            return new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.Forbidden, null);
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        PolicyPack? pack = await _packRepository.GetByIdAsync(policyPackId, ct);
+        PolicyPack? pack = await _packRepository.GetByIdAsync(policyPackId, ct).ConfigureAwait(false);
 
         if (!IsPackVisibleInScope(pack, scope))
+            return new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.PackNotFound, null);
+
+        if (isOrganizationRequired
+            && pack is not null
+            && !await _platformAvailability.IsGloballyActiveAsync(pack, ct).ConfigureAwait(false))
             return new PolicyPackAssignWorkflowResult(PolicyPackAssignOutcome.PackNotFound, null);
 
         PolicyPackAssignment? assignment = await _policyPacksApp.TryAssignAsync(
@@ -212,16 +231,39 @@ public sealed partial class PolicyPackWorkflowFacade(
     }
 
     /// <inheritdoc />
-    public async Task<bool> TrySetAssignmentEnabledAsync(Guid assignmentId, bool isEnabled, CancellationToken ct)
+    public async Task<bool> TrySetAssignmentEnabledAsync(Guid assignmentId, bool isEnabled, CancellationToken ct) =>
+        await TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, isEnabled, ct) ==
+        PolicyPackSetAssignmentEnabledOutcome.Updated;
+
+    /// <inheritdoc />
+    public async Task<PolicyPackSetAssignmentEnabledOutcome> TrySetAssignmentEnabledWithOutcomeAsync(
+        Guid assignmentId,
+        bool isEnabled,
+        CancellationToken ct)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         PolicyPackAssignment? existing =
             await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
 
-        bool valueUnchanged = existing is not null
-            && PolicyPackAssignmentScope.IsVisibleInScope(existing, scope)
-            && existing.IsEnabled == isEnabled;
+        if (!PolicyPackAssignmentScope.IsVisibleInScope(existing, scope))
+            return PolicyPackSetAssignmentEnabledOutcome.NotFound;
+
+        if (!isEnabled && PolicyPackAssignmentOrganizationRequired.IsOrganizationRequired(existing))
+            return PolicyPackSetAssignmentEnabledOutcome.OrganizationRequiredLock;
+
+        if (isEnabled)
+        {
+            PolicyPack? pack = await _packRepository.GetByIdAsync(existing!.PolicyPackId, ct).ConfigureAwait(false);
+
+            if (pack is null || pack.TenantId != scope.TenantId)
+                return PolicyPackSetAssignmentEnabledOutcome.NotFound;
+
+            if (!await _platformAvailability.IsGloballyActiveAsync(pack, ct).ConfigureAwait(false))
+                return PolicyPackSetAssignmentEnabledOutcome.PlatformPackInactive;
+        }
+
+        bool valueUnchanged = existing!.IsEnabled == isEnabled;
 
         bool ok = await _workspaceSelectionService.TrySetAssignmentEnabledAsync(
             scope,
@@ -230,7 +272,7 @@ public sealed partial class PolicyPackWorkflowFacade(
             ct);
 
         if (!ok)
-            return false;
+            return PolicyPackSetAssignmentEnabledOutcome.NotFound;
 
         if (!valueUnchanged)
         {
@@ -243,7 +285,7 @@ public sealed partial class PolicyPackWorkflowFacade(
                 ct);
         }
 
-        return true;
+        return PolicyPackSetAssignmentEnabledOutcome.Updated;
     }
 
     /// <inheritdoc />

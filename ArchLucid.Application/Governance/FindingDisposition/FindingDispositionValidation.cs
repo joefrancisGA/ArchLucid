@@ -108,5 +108,48 @@ public static class FindingDispositionValidation
                     nameof(request));
             }
         }
+
+        if (!string.IsNullOrWhiteSpace(request.ArchitectRestatement)
+            && request.ArchitectRestatement.Trim().Length > MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Architect restatement must not exceed {MaximumRationaleLength} characters.",
+                nameof(request));
+        }
+    }
+
+    /// <summary>Working desk Remediated requires server-attested impact preview completion or an explicit override (LP-14).</summary>
+    public static void ValidateWorkingRemediatedImpactPreviewAttestation(
+        RecordFindingDispositionRequest request,
+        bool isWorkingDesk)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (!isWorkingDesk || request.Disposition != Disposition.Remediated)
+        {
+            return;
+        }
+
+        if (request.ImpactPreviewCompleted == true)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.PreviewOverrideReason)
+            && request.PreviewOverrideReason.Trim().Length >= MinimumRationaleLength)
+        {
+            if (request.PreviewOverrideReason.Trim().Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Preview override reason must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
+
+            return;
+        }
+
+        throw new ArgumentException(
+            "Impact preview attestation is required when marking a finding remediated on a Working desk.",
+            nameof(request));
     }
 }

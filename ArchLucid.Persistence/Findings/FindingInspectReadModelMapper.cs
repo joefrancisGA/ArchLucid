@@ -9,15 +9,21 @@ internal static class FindingInspectReadModelMapper
         if (string.IsNullOrWhiteSpace(raw))
             return FindingSeverity.Info;
 
-        return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingSeverity sev) ? sev : FindingSeverity.Info;
+        if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingSeverity sev))
+            return FindingSeverity.Info;
+
+        return Enum.IsDefined(sev) ? sev : FindingSeverity.Info;
     }
 
     public static FindingHumanReviewStatus ParseHumanReview(string? raw)
     {
-        if (!string.IsNullOrWhiteSpace(raw) && Enum.TryParse(raw.Trim(), true, out FindingHumanReviewStatus st))
-            return st;
+        if (string.IsNullOrWhiteSpace(raw))
+            return FindingHumanReviewStatus.NotRequired;
 
-        return FindingHumanReviewStatus.NotRequired;
+        if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingHumanReviewStatus status))
+            return FindingHumanReviewStatus.NotRequired;
+
+        return Enum.IsDefined(status) ? status : FindingHumanReviewStatus.NotRequired;
     }
 
     public static FindingConfidenceLevel? TryParseEvaluationConfidenceLevel(string? raw)
@@ -25,7 +31,10 @@ internal static class FindingInspectReadModelMapper
         if (string.IsNullOrWhiteSpace(raw))
             return null;
 
-        return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingConfidenceLevel lvl) ? lvl : null;
+        if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingConfidenceLevel lvl))
+            return null;
+
+        return Enum.IsDefined(lvl) ? lvl : null;
     }
 
     public static FindingDisposition? ParseDisposition(string? raw)
@@ -33,8 +42,9 @@ internal static class FindingInspectReadModelMapper
         if (string.IsNullOrWhiteSpace(raw))
             return null;
 
-        return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingDisposition disposition)
-            ? disposition
-            : null;
+        if (!Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingDisposition disposition))
+            return null;
+
+        return Enum.IsDefined(disposition) ? disposition : null;
     }
 }

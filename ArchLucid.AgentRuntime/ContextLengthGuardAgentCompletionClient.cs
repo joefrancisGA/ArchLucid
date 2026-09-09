@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.AgentRuntime.Tokens;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
@@ -107,10 +108,10 @@ public sealed class ContextLengthGuardAgentCompletionClient(
                     .ConfigureAwait(false);
             }
 
-            string truncatedUser = TokenAwareContextBudget.TruncateToTokenBudget(
+            string truncatedUser = TruncateUserPromptPreservingCustomerContentBounds(
                 effectiveUserPrompt,
-                out bool wasTruncated,
-                maxEstimatedTokens: remainingBudget);
+                remainingBudget,
+                out bool wasTruncated);
 
             if (wasTruncated)
                 ScheduleTruncationAudit(effectiveEstimated, threshold, opts.MaxContextTokens);
@@ -121,6 +122,36 @@ public sealed class ContextLengthGuardAgentCompletionClient(
         }
 
         throw new ContextLengthExceededException(estimated, opts.MaxContextTokens, threshold);
+    }
+
+    private static string TruncateUserPromptPreservingCustomerContentBounds(
+        string userPrompt,
+        int remainingTokenBudget,
+        out bool wasTruncated)
+    {
+        int estimated = TokenAwareContextBudget.EstimateTokenCount(userPrompt);
+
+        if (estimated <= remainingTokenBudget)
+        {
+            wasTruncated = false;
+
+            return userPrompt;
+        }
+
+        wasTruncated = true;
+
+        int maxChars = remainingTokenBudget * TokenAwareContextBudget.DefaultCharsPerTokenEstimate;
+        const string suffix =
+            "\n\n[Context truncated: payload exceeded the configured token budget for Ask. " +
+            "Rephrase with a narrower question or compare fewer runs.]";
+
+        if (maxChars <= suffix.Length)
+            return suffix.TrimStart();
+
+        int bodyMaxChars = Math.Max(1, maxChars - suffix.Length);
+        string body = CustomerContentPromptDelimiters.TruncatePreservingSectionBounds(userPrompt, bodyMaxChars);
+
+        return body + suffix;
     }
 
     [InformationalAudit]

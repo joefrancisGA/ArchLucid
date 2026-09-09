@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import {
-  buildBffSessionClearCookieHeader,
-  buildBffSessionSetCookieHeader,
+  buildBffSessionClearCookieHeaders,
+  buildBffSessionCookieHeaders,
   createBffSessionCookieValue,
   isBffSessionCookieEnabled,
 } from "@/lib/proxy/bff-session-cookie";
+import { isSameOriginBffRequest } from "@/lib/proxy/bff-session-request";
 
 type BffSessionPostBody = {
   readonly access_token?: string;
   readonly expires_in?: number;
+  readonly refresh_token?: string;
+  readonly id_token?: string;
+  readonly working_mode?: boolean;
 };
 
 function resolveExpiresAtMs(expiresIn: number | undefined): number {
@@ -32,6 +36,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
+  if (!isSameOriginBffRequest(request)) {
+    return NextResponse.json({ title: "Cross-site BFF session request blocked" }, { status: 403 });
+  }
+
   let body: BffSessionPostBody;
 
   try {
@@ -47,25 +55,38 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const expiresAtMs = resolveExpiresAtMs(body.expires_in);
-  const cookieValue = createBffSessionCookieValue({ accessToken, expiresAtMs });
+  const issueResult = createBffSessionCookieValue({
+    accessToken,
+    expiresAtMs,
+    refreshToken: body.refresh_token ?? null,
+    idToken: body.id_token ?? null,
+    workingMode: body.working_mode === true,
+  });
 
-  if (cookieValue === null) {
+  if (issueResult === null) {
     return NextResponse.json({ title: "Failed to issue BFF session cookie" }, { status: 500 });
   }
 
-  const maxAgeSeconds = Math.max(0, Math.trunc((expiresAtMs - Date.now()) / 1000));
   const response = NextResponse.json({ ok: true });
 
-  response.headers.append("Set-Cookie", buildBffSessionSetCookieHeader(cookieValue, maxAgeSeconds));
+  for (const cookieHeader of buildBffSessionCookieHeaders(issueResult, expiresAtMs)) {
+    response.headers.append("Set-Cookie", cookieHeader);
+  }
 
   return response;
 }
 
 /** Clears the HttpOnly BFF session cookie on sign-out. */
-export async function DELETE(): Promise<NextResponse> {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  if (!isSameOriginBffRequest(request)) {
+    return NextResponse.json({ title: "Cross-site BFF session request blocked" }, { status: 403 });
+  }
+
   const response = NextResponse.json({ ok: true });
 
-  response.headers.append("Set-Cookie", buildBffSessionClearCookieHeader());
+  for (const cookieHeader of buildBffSessionClearCookieHeaders()) {
+    response.headers.append("Set-Cookie", cookieHeader);
+  }
 
   return response;
 }

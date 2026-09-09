@@ -72,6 +72,14 @@ import {
   ARCHITECTURE_SCORECARD_HELP_SOURCES_INTRO,
 } from "@/lib/architecture-scorecard-help-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  CORE_PILOT_HELP_CLAIM_DISCIPLINE,
+  CORE_PILOT_HELP_CLAIM_DISCIPLINE_HEADING,
+  CORE_PILOT_HELP_CLAIM_HEADING_ID,
+  CORE_PILOT_HELP_FOLLOW_UPS_TITLE,
+  CORE_PILOT_HELP_SOURCES,
+  CORE_PILOT_HELP_SOURCES_INTRO,
+} from "@/lib/core-pilot-help-evidence-copy";
 
 export function ArchitectureScorecardHelpEvidenceOrientationStrip(): React.JSX.Element {
   return (
@@ -202,6 +210,24 @@ export function StructuredBriefHelpEvidenceOrientationStrip(
       sourcesTitle={STRUCTURED_BRIEF_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={STRUCTURED_BRIEF_HELP_SOURCES_INTRO}
       sources={STRUCTURED_BRIEF_HELP_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function CorePilotHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="core-pilot-help"
+      claim={CORE_PILOT_HELP_CLAIM_DISCIPLINE}
+      claimHeading={CORE_PILOT_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={CORE_PILOT_HELP_CLAIM_HEADING_ID}
+      sourcesTitle={CORE_PILOT_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={CORE_PILOT_HELP_SOURCES_INTRO}
+      sources={CORE_PILOT_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />

@@ -98,7 +98,8 @@ public sealed class FindingsMergeAndGateStageTests
 
         FindingsMergeAndGateStage stage = new(
             Options.Create(new HumanReviewFindingOptions()),
-            DeterministicInsightDensityGate.CreateDefault());
+            DeterministicInsightDensityGate.CreateDefault(),
+            new FindingProvenanceValidator());
 
         await stage.ExecuteAsync(context, CancellationToken.None);
 
@@ -126,7 +127,8 @@ public sealed class FindingsMergeAndGateStageTests
 
         FindingsMergeAndGateStage stage = new(
             Options.Create(new HumanReviewFindingOptions()),
-            DeterministicInsightDensityGate.CreateDefault());
+            DeterministicInsightDensityGate.CreateDefault(),
+            new FindingProvenanceValidator());
 
         await stage.ExecuteAsync(context, CancellationToken.None);
 

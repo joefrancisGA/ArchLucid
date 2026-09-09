@@ -1,13 +1,19 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
-import type { ReactElement, ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement, type ReactNode } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { BuildReportProblemContextInput } from "@/lib/report-problem-context";
+import {
+  ENTERPRISE_INLINE_ERROR_DIAGNOSTICS_OPEN_PARAM,
+  enterpriseInlineErrorDiagnosticsDisclosureHrefFromSearch,
+  parseEnterpriseInlineErrorDiagnosticsOpenFromSearch,
+} from "@/lib/usability/enterprise-inline-error-diagnostics-disclosure-url";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +38,34 @@ export type EnterpriseInlineErrorNotificationProps = {
 export function EnterpriseInlineErrorNotification(
   props: EnterpriseInlineErrorNotificationProps,
 ): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const enterpriseInlineErrorDiagnosticsParam = searchParams.get(ENTERPRISE_INLINE_ERROR_DIAGNOSTICS_OPEN_PARAM);
+  const [enterpriseInlineErrorDiagnosticsOpen, setEnterpriseInlineErrorDiagnosticsOpenState] = useState(() =>
+    parseEnterpriseInlineErrorDiagnosticsOpenFromSearch(enterpriseInlineErrorDiagnosticsParam),
+  );
+  const syncEnterpriseInlineErrorDiagnosticsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        enterpriseInlineErrorDiagnosticsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setEnterpriseInlineErrorDiagnosticsOpen = useCallback(
+    (open: boolean) => {
+      setEnterpriseInlineErrorDiagnosticsOpenState(open);
+      syncEnterpriseInlineErrorDiagnosticsOpenToUrl(open);
+    },
+    [syncEnterpriseInlineErrorDiagnosticsOpenToUrl],
+  );
+  useEffect(() => {
+    setEnterpriseInlineErrorDiagnosticsOpenState(
+      parseEnterpriseInlineErrorDiagnosticsOpenFromSearch(enterpriseInlineErrorDiagnosticsParam),
+    );
+  }, [enterpriseInlineErrorDiagnosticsParam]);
   const {
     title,
     description,
@@ -82,6 +116,8 @@ export function EnterpriseInlineErrorNotification(
             <details
               className="max-w-3xl rounded-md border border-neutral-200 bg-neutral-50/50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"
               data-testid="enterprise-inline-error-diagnostics"
+              open={enterpriseInlineErrorDiagnosticsOpen}
+              onToggle={(event) => setEnterpriseInlineErrorDiagnosticsOpen(event.currentTarget.open)}
             >
               <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                 Diagnostic details

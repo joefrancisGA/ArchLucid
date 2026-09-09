@@ -8,7 +8,7 @@ export function resolveProvenanceInspectSteps(input: {
   return [
     {
       id: "review",
-      label: "Pick an architecture package",
+      label: input.reviewPicked ? "Architecture package selected" : "Pick an architecture package",
       complete: input.reviewPicked,
     },
     {

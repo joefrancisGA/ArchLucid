@@ -36,9 +36,9 @@ export function SettingsMasterSearchField(props: SettingsMasterSearchFieldProps)
           }}
         />
       </div>
-      {props.value.trim().length > 0 ? (
+          {props.value.trim().length > 0 ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-          {props.resultCount} matching {props.resultCount === 1 ? "section" : "sections"}
+          {props.resultCount} matching {props.resultCount === 1 ? "setting" : "settings"}
         </p>
       ) : null}
     </div>

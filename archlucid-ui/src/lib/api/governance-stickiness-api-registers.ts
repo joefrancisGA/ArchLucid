@@ -49,7 +49,7 @@ export async function getGovernanceAssignedToMeFindingsCount(
   );
 }
 
-/** Risk and decision registers for the governance findings queue. */
+/** Risk and decision registers for the policy findings queue. */
 export async function fetchGovernanceFindingsRegistersBundle(options?: {
   projectId?: string;
   maxRows?: number;

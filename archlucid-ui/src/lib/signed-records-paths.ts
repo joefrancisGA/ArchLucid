@@ -1,4 +1,4 @@
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 
 /** Canonical buyer-facing list path for Finalized review records (TB-405 / IA-001). */
 export const SIGNED_RECORDS_LIST_PATH = "/governance/sealed-records";
@@ -61,8 +61,8 @@ export function signedRecordScopedHref(manifestId: string, runId?: string | null
 }
 
 /** Run-scoped sealed record CTA — opens the review package (manifest section when finalized). */
-export function reviewSignedRecordPath(runId: string): string {
-  return reviewDetailPath(runId);
+export function reviewSignedRecordPath(runId: string, architectureId?: string | null): string {
+  return resolveArchitectureReviewHref(runId, architectureId);
 }
 
 /** Artifact row within a Finalized review record. */
