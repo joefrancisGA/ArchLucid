@@ -287,6 +287,16 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     });
   }, [safeRuns, filterText, sortOrder, buyerPolished, buyerPackageScope]);
 
+  useEffect(() => {
+    if (selectedRun === null) {
+      return;
+    }
+
+    if (!filteredSorted.some((run) => run.runId === selectedRun.runId)) {
+      setSelectedRun(null);
+    }
+  }, [filteredSorted, selectedRun, setSelectedRun]);
+
   const workQueueSections = useMemo(
     () => partitionRunsIntoWorkQueueSections(filteredSorted),
     [filteredSorted],

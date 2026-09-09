@@ -1398,11 +1398,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09
+- **last-bug:** 2026-09-09 — list filter narrowed while inspector open left stale preview
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1417,10 +1417,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `runsListFilterOpen` URL-synced `<details>` branch — `buyerCollapseFilters` (`buyerPolished && totalCount <= 1`) matches the outer hide-filters gate, so the disclosure element is unreachable and deep links have no mount target in current UX.
 - [x] (invalid) Buyer featured card footer CTA Space/Enter bubbles to card-shell keyboard handler and opens the inspector — **cheap-disproof 2026-09-09 seed hunt #1427:** `shouldIgnoreRunsListRowActivation` already ignores `<a>` targets; Button `asChild` renders the explore Link as an anchor; regression `buyer-polished: Space on the featured card CTA does not open the inspector`.
 - [x] (proven) Space on the baseline menu `<summary>` bubbled to `activateRowKeyboard` and opened the inspector while toggling More — **hit 2026-09-09 seed hunt #1427:** extracted shared `shouldIgnoreRunsListRowActivation` (also ignores `button` and `summary`) for work-queue keyboard, buyer card shell, and `onRowActivate`; regression `does not open inspector when Space activates the baseline menu summary`.
+- [x] (proven) Text filter or buyer scope chip narrows `filteredSorted` but `selectedRun` stays on a hidden row so the docked inspector shows a review no longer in the list — **hit 2026-09-09 seed hunt #1468 (seed→hit):** `useRunsList` clears selection when the selected run drops out of `filteredSorted`; regression `narrows text filter closes inspector when selected run is filtered out`.
 
 2026-09-08 seed hunt #1355 (hit): reseeded ui-runs-list; proved buyer card inspector activation gap and filter Escape inspector-dismiss leak; cheap-disproved runsListFilterOpen disclosure reachability; 16 scoped `RunsListClient` tests passed.
 
 2026-09-09 seed hunt #1427 (hit): reseeded ui-runs-list; cheap-disproved buyer card CTA keyboard double-activation; proved baseline menu summary Space opens inspector; 18 scoped `RunsListClient` tests passed.
+
+2026-09-09 seed hunt #1468 (seed→hit): reseeded ui-runs-list; proved stale inspector after list narrowing; 19 scoped `RunsListClient` tests passed.
 
 ---
 
