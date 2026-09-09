@@ -30,13 +30,14 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/architecture/reviews");
     expect(hrefs).toContain("/governance/findings");
     expect(hrefs).toContain("/governance/policy-packs");
-    expect(hrefs).toContain("/governance/infrastructure");
+    expect(hrefs).not.toContain("/governance/infrastructure");
+    expect(hrefs).not.toContain("/governance/infrastructure/drift");
+    expect(hrefs).not.toContain("/governance/infrastructure/extract-upload");
     expect(hrefs).toContain("/administration/workspace-settings/recycle-bin");
     expect(hrefs).toContain("/integrations/azure-boards");
     expect(hrefs).toContain("/integrations/slack");
     expect(hrefs).toContain("/integrations/webhooks");
     expect(hrefs).toContain("/administration/extract-upload");
-    expect(hrefs).not.toContain("/governance/infrastructure/extract-upload");
   });
 
   it("shows infrastructure workbenches and hides architecture reviews in the Security shell", () => {
@@ -120,6 +121,15 @@ describe("product-line catalog", () => {
     expect(hrefs).not.toContain("/integrations/slack");
     expect(hrefs).not.toContain("/integrations/webhooks");
     expect(hrefs).not.toContain("/architecture/reviews");
+  });
+
+  it("keeps infrastructure routes off the Architecture product", () => {
+    expect(isPathAllowedForProductLine("/governance/infrastructure", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/governance/infrastructure/drift", "architecture")).toBe(false);
+    expect(
+      isPathAllowedForProductLine("/governance/infrastructure/resources/res-1", "architecture"),
+    ).toBe(false);
+    expect(isPathAllowedForProductLine("/governance/infrastructure/extract-upload", "architecture")).toBe(false);
   });
 
   it("allows nested infrastructure resource hubs in the Security product", () => {
