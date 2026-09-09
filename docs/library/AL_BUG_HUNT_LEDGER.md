@@ -7400,9 +7400,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` / `IsEnterpriseNegationToken` — `exclude-*` / `excluding-*` / `excluded-*` and extended negation adverbs (`minus`, `un`, `de`, `ex`, `pseudo`, `semi`, `sub`, `micro`, `less`, `lacking`, `omit`, `outside`, `except`) delimited plan ids false-positive Enterprise tier — **hit 2026-09-09 seed hunt #1380:** #1320 guarded `non`/`not`/`no`/`never`/`anti`/`without`/`sans` only; negation-adverb prefixes still matched delimiter-bounded `enterprise`; fixed with `exclud` stem guard plus extended negation adverb tokens; regressions in `TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan` and `TierStorageCodeFromPlanId_does_not_false_positive_on_extended_enterprise_negation_adverbs`
 - [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — one-seat subscription shortcut returns `architect` before Enterprise label null path — **hit 2026-09-09 seed hunt #1383:** Enterprise commercial label with 1-seat/1-workspace subscription mapped to Architect spend plan instead of null; reachable via `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync`; fixed by returning null for Enterprise label before Architect shortcut; regression `FromCommercialPackaging_returns_null_for_enterprise_with_one_seat_subscription`
 
-2026-09-09 seed hunt #1380 (hit): reseeded Identity/Billing/Budgeting after #1321 dry; proved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate; 56 scoped MarketplaceWebhookPayloadParser/CommercialTenant/LlmMonthlySpendPlanId tests passed.
+2026-09-09 seed hunt #1380 (hit): reseeded Identity/Billing/Budgeting after #1321 dry; proved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate.
 
 2026-09-09 seed hunt #1381 (hit): reseeded Identity/Billing/Budgeting; proved Enterprise one-seat Architect spend-plan mapping; 9 scoped LlmMonthlySpendPlanId/CommercialTenant tests passed.
+
+2026-09-09 seed hunt #1382 (hit): reseeded Identity/Billing/Budgeting; reproved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate; 52 scoped MarketplaceWebhookPayloadParser/CommercialTenant tests passed.
 
 2026-09-09 seed hunt #1383 (hit): reseeded Identity/Billing/Budgeting; reproved Enterprise one-seat Architect spend-plan mapping; 9 scoped LlmMonthlySpendPlanId/CommercialTenant tests passed.
 
