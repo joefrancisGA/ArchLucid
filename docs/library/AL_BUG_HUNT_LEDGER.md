@@ -1520,9 +1520,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-09 — context-only review switch left hydrated intake from prior deep-linked review
 - **related-pd-tb:** none
@@ -1581,6 +1581,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Multiple hydrated source texts omit attached-document count in inbound context — **cheap-disproof 2026-09-09 seed hunt #1455:** `inboundContextLine` appends `plus N attached document(s)` from `hydratedSourceTexts.length`; regression `mentions attached documents when multiple source texts hydrate`.
 
 2026-09-09 seed hunt #1455 (seed-only): reseeded ui-architecture-intelligence after #1454; cheap-disproof closed scope-switch golden stale race, publish-toggle carryover, interview-answer carryover, findings-queue context copy, and multi-source attachment count; 39 scoped `ArchitectureIntelligencePageClient` tests passed.
+
+- [x] (valid-no-repro) `runReasoning` with empty description silently no-ops — **cheap-disproof 2026-09-09 seed hunt #1457:** `runReasoningWithOptions` sets inline error `Architecture description is required`; regression `shows error when run reasoning is clicked with empty architecture description`.
+- [x] (valid-no-repro) Deep-linked product context omits `declaredPriorities` hydration — **cheap-disproof 2026-09-09 seed hunt #1457:** hydration effect assigns `hydratedPrioritiesFromQuery`; regression `hydrates declared priorities from deep-linked product source context`.
+- [x] (valid-no-repro) Deep-linked `runId` switch leaves stale inline error after reasoning failure — **cheap-disproof 2026-09-09 seed hunt #1457:** inbound-run reset calls `setError(null)`; regression `clears inline error when inbound runId switches after reasoning failure`.
+- [x] (valid-no-repro) In-flight `runGoldenTest` on deep-linked `runId` switch only clears synchronously — **cheap-disproof 2026-09-09 seed hunt #1457:** `actionGenerationRef` invalidation plus stale guards mirror proven reasoning fix #1342; regression `ignores stale golden test results when inbound runId switches before golden test completes`.
+- [x] (valid-no-repro) In-flight `loadGoldenFixture` applies stale intake after deep-linked `runId` switch — **cheap-disproof 2026-09-09 seed hunt #1457:** `invalidateInFlightActions` on fixture start and stale guards on completion; regression `ignores stale fixture intake when inbound runId switches before golden fixture load completes`.
+
+2026-09-09 seed hunt #1457 (seed-only): reseeded ui-architecture-intelligence after #1455; cheap-disproof closed empty-description guard, priorities hydration, error reset on run switch, and in-flight golden-test/fixture stale races; 44 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 2026-09-09 seed hunt #1397 (seed→hit): reseeded intake replacement paths after #1344; proved publish-toggle carryover on golden fixture load; cheap-disproof closed in-flight golden-test stale candidate; aligned fetch mocks with `apiGet` text parsing; 14 scoped `ArchitectureIntelligencePageClient` tests passed.
 
