@@ -30,6 +30,8 @@ import {
   ingestOperationalSecurityFindings,
   reconcileArchitectureDiagram,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
+import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
+import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
 import { diagramReconcileLoadModelBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-load-model-blocked-reason";
 import {
   buildDiagramReconcileOperationalFindingRequestItem,
@@ -487,7 +489,10 @@ export function DiagramReconcileWorkbenchClient() {
           : "Structured diagram model saved for this review.",
       );
     } catch (error: unknown) {
-      showError("Diagram ingest failed", formatInfraEvidenceDiagramReconcileApiError(error));
+      const failure = toApiLoadFailure(error);
+      const blocked = diagramIngestMutationBlockedReason(failure);
+
+      showError("Diagram ingest failed", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
     } finally {
       setIngestBusy(false);
     }
@@ -507,7 +512,10 @@ export function DiagramReconcileWorkbenchClient() {
       setReconciliation(result);
       showSuccess(`Reconciliation complete — ${result.rows.length} correspondence row(s) generated.`);
     } catch (error: unknown) {
-      showError("Reconciliation failed", formatInfraEvidenceDiagramReconcileApiError(error));
+      const failure = toApiLoadFailure(error);
+      const blocked = diagramReconcileMutationBlockedReason(failure);
+
+      showError("Reconciliation failed", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
     } finally {
       setReconcileBusy(false);
     }
