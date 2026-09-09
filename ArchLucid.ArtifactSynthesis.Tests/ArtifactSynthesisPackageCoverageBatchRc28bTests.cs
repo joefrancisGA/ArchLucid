@@ -33,7 +33,6 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28bTests
         DocxStyleIds.Title.Should().Be("Title");
         DocxStyleIds.Heading1.Should().Be("Heading1");
         DocxStyleIds.BodyText.Should().Be("BodyText");
-        TerraformAdvisoryExportCopy.DisclaimerLine.Should().Contain("advisory");
         TerraformAdvisoryExportCopy.AdvisoryMarkdownBody.Should().Contain("terraform plan");
     }
 

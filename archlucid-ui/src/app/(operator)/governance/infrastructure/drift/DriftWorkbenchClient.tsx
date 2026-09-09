@@ -128,7 +128,6 @@ import {
   formatInfraEvidenceScopeFreshnessLine,
   formatInfraEvidenceSnapshotLabel,
 } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
-import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { cn } from "@/lib/utils";
 import { showError } from "@/lib/toast";
 
@@ -932,10 +931,6 @@ export function DriftWorkbenchClient() {
               ) : null}
             </div>
           </div>
-
-          <p className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}
-          </p>
 
           {selectedSnapshotId.length > 0 ? (
             <DriftSnapshotIdentifiers

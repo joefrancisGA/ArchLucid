@@ -121,7 +121,6 @@ import type {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { cn } from "@/lib/utils";
 
 import { ResourceHubBreadcrumb } from "./ResourceHubBreadcrumb";
@@ -1346,7 +1345,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   <dd>{hub.terraformGenerationMethod ?? "—"}</dd>
                 </div>
               </dl>
-              <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.helper)}>{TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <HubOverviewTabLink
                   cloudResourceId={cloudResourceId}
