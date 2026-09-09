@@ -3,6 +3,7 @@ import {
   RESOURCE_HUB_ASSESSMENT_ID_PARAM,
   RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
   RESOURCE_HUB_CONTROL_ID_PARAM,
+  RESOURCE_HUB_RUN_ID_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 
 export const INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM = "snapshotId";
@@ -86,6 +87,7 @@ export type InfraDiagramsWorkbenchContext = {
   readonly mermaidMode?: string | null;
   readonly mermaidView?: string | null;
   readonly seedNodeId?: string | null;
+  readonly runId?: string | null;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
   readonly controlId?: string | null;
@@ -98,6 +100,7 @@ export function buildDiagramsWorkbenchHref(context: InfraDiagramsWorkbenchContex
     mermaidMode: context.mermaidMode ?? undefined,
     mermaidView: context.mermaidView ?? undefined,
     seedNodeId: context.seedNodeId ?? undefined,
+    runId: context.runId ?? undefined,
     assessmentId: context.assessmentId ?? undefined,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
     controlId: context.controlId ?? undefined,
@@ -112,6 +115,7 @@ export function infraDiagramsFilterHrefFromSearch(
     readonly mermaidMode?: string;
     readonly mermaidView?: string;
     readonly seedNodeId?: string;
+    readonly runId?: string;
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
     readonly controlId?: string;
@@ -167,6 +171,16 @@ export function infraDiagramsFilterHrefFromSearch(
       params.delete(INFRA_DIAGRAMS_SEED_NODE_ID_PARAM);
     } else {
       params.set(INFRA_DIAGRAMS_SEED_NODE_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.runId !== undefined) {
+    const trimmed = patch.runId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RESOURCE_HUB_RUN_ID_PARAM);
+    } else {
+      params.set(RESOURCE_HUB_RUN_ID_PARAM, trimmed);
     }
   }
 

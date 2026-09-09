@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type MouseEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
@@ -36,6 +36,8 @@ import {
   runsListFilterDisclosureHrefFromSearch,
 } from "@/lib/runs/runs-list-filter-disclosure-url";
 
+import type { RunSummary } from "@/types/authority";
+
 import type { RunsListClientProps } from "./runs-list-types";
 import { useRunsList } from "./use-runs-list";
 import { RunsListContinueLastViewedRow } from "./RunsListContinueLastViewedRow";
@@ -44,6 +46,34 @@ import { RunsListWorkQueueTable } from "./RunsListWorkQueueTable";
 import { inspectorTitle } from "./runs-list-row-presentation";
 
 export type { RunsListClientProps } from "./runs-list-types";
+
+function shouldIgnoreRunsListRowActivation(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  if (target.closest("a") !== null) {
+    return true;
+  }
+
+  if (target.closest('input[type="checkbox"]') !== null) {
+    return true;
+  }
+
+  return false;
+}
+
+function activateBuyerFeaturedCard(
+  run: RunSummary,
+  event: MouseEvent<HTMLDivElement>,
+  onRowActivate: (run: RunSummary, event: MouseEvent<HTMLTableRowElement>) => void,
+): void {
+  if (shouldIgnoreRunsListRowActivation(event.target)) {
+    return;
+  }
+
+  onRowActivate(run, event as unknown as MouseEvent<HTMLTableRowElement>);
+}
 
 /**
  * Client-side filter and sort for the current server page of runs; pagination remains server URLs.
@@ -183,6 +213,7 @@ export function RunsListClient(props: RunsListClientProps) {
         onKeyDown={(event) => {
           if (event.key === "Escape" && filterText.trim().length > 0) {
             event.preventDefault();
+            event.stopPropagation();
             clearFilterText();
           }
         }}
@@ -196,9 +227,7 @@ export function RunsListClient(props: RunsListClientProps) {
         aria-label={
           buyerPolished
             ? "Search reviews by title or description"
-            : buyerPolished
-              ? "Filter reviews by name or description"
-              : "Filter reviews by name or description"
+            : "Filter reviews by name or description"
         }
         aria-controls="runs-list-filter-status"
       />
@@ -327,7 +356,32 @@ export function RunsListClient(props: RunsListClientProps) {
                 ) : null}
                 <div className="grid gap-4">
                   {filteredSorted.map((run) => (
-                    <RunsListBuyerFeaturedCard key={run.runId} run={run} />
+                    <div
+                      key={run.runId}
+                      className="cursor-pointer rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
+                      tabIndex={0}
+                      onClick={(event) => {
+                        activateBuyerFeaturedCard(run, event, onRowActivate);
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key !== "Enter" && event.key !== " ") {
+                          return;
+                        }
+
+                        if (shouldIgnoreRunsListRowActivation(event.target)) {
+                          return;
+                        }
+
+                        event.preventDefault();
+                        activateBuyerFeaturedCard(
+                          run,
+                          event as unknown as MouseEvent<HTMLDivElement>,
+                          onRowActivate,
+                        );
+                      }}
+                    >
+                      <RunsListBuyerFeaturedCard run={run} />
+                    </div>
                   ))}
                 </div>
               </div>

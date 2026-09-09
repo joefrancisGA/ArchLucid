@@ -177,7 +177,7 @@ public static class GraphMaterializationStages
             }
 
             context.Nodes.AddRange(materialized);
-            context.Edges.AddRange(DeclarationIdentityEdgeMaterializer.MaterializeFromDeclarationActors(materialized));
+            context.Edges.AddRange(DeclarationIdentityEdgeMaterializer.MaterializeFromDeclarationActors(materialized, context.Nodes));
 
             return Task.CompletedTask;
         }

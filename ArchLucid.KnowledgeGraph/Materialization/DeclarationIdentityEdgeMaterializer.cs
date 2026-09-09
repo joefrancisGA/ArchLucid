@@ -9,13 +9,17 @@ namespace ArchLucid.KnowledgeGraph.Materialization;
 /// </summary>
 public static class DeclarationIdentityEdgeMaterializer
 {
-    public static IReadOnlyList<GraphEdge> MaterializeFromDeclarationActors(IReadOnlyList<GraphNode> nodes)
+    public static IReadOnlyList<GraphEdge> MaterializeFromDeclarationActors(
+        IReadOnlyList<GraphNode> actorNodes,
+        IReadOnlyList<GraphNode> allNodes)
     {
-        ArgumentNullException.ThrowIfNull(nodes);
+        ArgumentNullException.ThrowIfNull(actorNodes);
+        ArgumentNullException.ThrowIfNull(allNodes);
 
+        Dictionary<string, GraphNode> nodeById = allNodes.ToDictionary(n => n.NodeId, StringComparer.OrdinalIgnoreCase);
         List<GraphEdge> edges = [];
 
-        foreach (GraphNode node in nodes)
+        foreach (GraphNode node in actorNodes)
         {
             if (!string.Equals(node.NodeType, GraphNodeTypes.Actor, StringComparison.OrdinalIgnoreCase))
                 continue;
@@ -27,12 +31,17 @@ public static class DeclarationIdentityEdgeMaterializer
                 || string.IsNullOrWhiteSpace(sourceNodeId))
                 continue;
 
+            string trimmedSourceId = sourceNodeId.Trim();
+            string toNodeId = nodeById.TryGetValue(trimmedSourceId, out GraphNode? sourceNode)
+                ? sourceNode.NodeId
+                : trimmedSourceId;
+
             string label = string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
 
             edges.Add(
                 GraphEdgeInferenceHelpers.CreateEdge(
                     node.NodeId,
-                    sourceNodeId.Trim(),
+                    toNodeId,
                     GraphEdgeTypes.RelatesTo,
                     $"Actor linked to {label}",
                     1.0,
