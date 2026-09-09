@@ -1061,6 +1061,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 thorough hunt #1258 (dry): cheap-disproof closed both open candidates; eight scoped unit tests passed.
 2026-09-07 seed hunt #1165 (hit): proved findings snapshot anchor mismatch bypassed golden manifest binding.
 
+- [x] (valid-no-repro) `BuildContextAsync` synthesizes empty findings when `FindingsSnapshot` is null so alert simulation skips manifest-bound findings — **cheap-disproof 2026-09-09 seed hunt #1471:** `CreateEmptyFindings` copies manifest anchor ids; `FindingsSnapshotMatchesGoldenManifest` passes; intentional empty-findings simulation when snapshot row is absent.
+- [x] (valid-no-repro) `comparedToRunId` equal to primary `runId` builds a self-comparison context — **cheap-disproof 2026-09-09 seed hunt #1471:** `IComparisonService.Compare` on identical manifests is benign; no foreign data path.
+
+2026-09-09 seed hunt #1471 (seed-only): reseeded alert-simulation after #1258 dry; cheap-disproof closed null-findings synthesis and self-compare candidates; 8 scoped `AlertSimulationContextProviderTests` passed.
+
 ---
 
 ## Zone: weekly-digest-email
