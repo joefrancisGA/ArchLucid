@@ -763,6 +763,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1507 (seed-only): reseeded auth-return-path; cheap-disproved picker reseed candidate; 41 scoped AuthSignInReturnPathGuard tests passed.
 
+- [x] (valid-no-repro) Overlong percent-encoded return paths bypass decode cap silently — **valid-no-repro 2026-09-09 seed hunt #1508:** `ContainsTrailingPercentAfterDecodeCap` rejects residual `%` after eight passes
+
+2026-09-09 seed hunt #1508 (seed-only): reseeded auth-return-path; cheap-disproved overlong percent decode; 41 scoped AuthSignInReturnPathGuard tests passed.
+
 ## Zone: tenant-erasure
 
 - **id:** tenant-erasure
