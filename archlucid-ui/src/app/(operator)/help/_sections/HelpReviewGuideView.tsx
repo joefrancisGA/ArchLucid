@@ -108,7 +108,9 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
         title={REVIEW_GUIDE_HELP_PAGE_TITLE}
         titleTestId="help-review-guide-page-title"
         subtitle={reviewGuideHelpPageSubtitle(buyerPolishedShell)}
-        subtitleClassName="max-w-3xl"
+        subtitleClassName={
+          buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+        }
         navHref={REVIEW_GUIDE_HELP_PATH}
         headingLevel="h1"
         claimDiscipline={buyerPolishedShell ? REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE : undefined}
