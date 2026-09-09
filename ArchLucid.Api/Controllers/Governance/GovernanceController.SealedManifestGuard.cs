@@ -1,7 +1,9 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
@@ -36,5 +38,18 @@ public sealed partial class GovernanceController
         }
 
         return null;
+    }
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedForApprovalRequestAsync(
+        string approvalRequestId,
+        IGovernanceApprovalRequestRepository approvalRepository,
+        CancellationToken cancellationToken)
+    {
+        GovernanceApprovalRequest? approval = await approvalRepository.GetByIdAsync(approvalRequestId, cancellationToken);
+
+        if (approval is null || string.IsNullOrWhiteSpace(approval.RunId))
+            return null;
+
+        return await EnsureSealedManifestReadAllowedAsync(approval.RunId, cancellationToken);
     }
 }

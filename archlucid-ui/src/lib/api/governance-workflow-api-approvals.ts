@@ -10,7 +10,7 @@ import type {
 } from "@/types/governance-workflow";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiGet, apiPostJson, type ApiGetOptions } from "./http";
+import { apiPostJson, type ApiGetOptions } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
@@ -18,7 +18,7 @@ const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 export async function getApprovalRequestLineage(
   approvalRequestId: string,
 ): Promise<GovernanceLineageResult> {
-  return apiGet<GovernanceLineageResult>(
+  return apiGetSealedManifestAware<GovernanceLineageResult>(
     `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/lineage`,
   );
 }
@@ -27,7 +27,7 @@ export async function getApprovalRequestLineage(
 export async function getGovernanceApprovalRationale(
   approvalRequestId: string,
 ): Promise<GovernanceRationaleResult> {
-  return apiGet<GovernanceRationaleResult>(
+  return apiGetSealedManifestAware<GovernanceRationaleResult>(
     `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/rationale`,
   );
 }

@@ -23,6 +23,7 @@ public sealed partial class ComparisonsController
     [ProducesResponseType(typeof(ComparisonReplayCostEstimateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetComparisonReplayCostEstimate(
         [FromRoute] string comparisonRecordId,
         [FromQuery] string? format,
@@ -30,6 +31,12 @@ public sealed partial class ComparisonsController
         [FromQuery] bool persistReplay = false,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             ComparisonReplayCostEstimate? estimate = await _comparisons.TryEstimateReplayCostAsync(

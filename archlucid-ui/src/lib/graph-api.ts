@@ -192,3 +192,5 @@ export async function getNodeNeighborhood(
     `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/node/${encodeURIComponent(nodeId)}?depth=${depth}`,
   );
 }
+
+export { architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
