@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
-  TEAMS_NOTIFICATION_CATEGORIES,
-  TEAMS_RECOMMENDED_EVENT_TYPES,
-} from "@/lib/teams-integration-notification-catalog";
+  parseTeamsNotificationsCollapsedCategoriesFromSearch,
+  teamsNotificationsCollapsedCategoriesDisclosureHrefFromSearch,
+} from "@/lib/integrations/teams-notifications-collapsed-categories-disclosure-url";
+import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
+import { TEAMS_NOTIFICATION_CATEGORIES } from "@/lib/teams-integration-notification-catalog";
 import { TEAMS_INTEGRATION_TRIGGER_REQUIRED } from "@/lib/teams-integration-page-copy";
 import { cn } from "@/lib/utils";
 
@@ -24,16 +26,65 @@ type TeamsNotificationsSelectorProps = {
   readonly onClearAll: () => void;
 };
 
+function defaultCollapsedTeamsNotificationCategories(): ReadonlySet<string> {
+  return new Set(
+    TEAMS_NOTIFICATION_CATEGORIES.filter((category) => category.defaultCollapsed === true).map(
+      (category) => category.id,
+    ),
+  );
+}
+
 /** Grouped notification opt-in controls for Microsoft Teams. */
 export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProps): React.ReactElement {
-  const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<string>>(
-    () =>
-      new Set(
-        TEAMS_NOTIFICATION_CATEGORIES.filter((category) => category.defaultCollapsed === true).map(
-          (category) => category.id,
+  const router = useRouter();
+  const pathname = usePathname() ?? "/integrations/teams";
+  const searchParams = useSearchParams();
+  const teamsNotificationsCollapsedCategoriesParam = searchParams.get("teamsNotificationsCollapsedCategories");
+  const [collapsedGroups, setCollapsedGroupsState] = useState<ReadonlySet<string>>(() => {
+    const collapsedFromUrl = parseTeamsNotificationsCollapsedCategoriesFromSearch(
+      teamsNotificationsCollapsedCategoriesParam,
+    );
+
+    if (collapsedFromUrl.length > 0) {
+      return new Set(collapsedFromUrl);
+    }
+
+    return defaultCollapsedTeamsNotificationCategories();
+  });
+
+  const syncCollapsedCategoriesToUrl = useCallback(
+    (collapsedCategoryIds: readonly string[]) => {
+      router.replace(
+        teamsNotificationsCollapsedCategoriesDisclosureHrefFromSearch(
+          searchParams.toString(),
+          collapsedCategoryIds,
+          pathname,
         ),
-      ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
   );
+
+  const setCollapsedGroups = useCallback(
+    (next: ReadonlySet<string>) => {
+      setCollapsedGroupsState(next);
+      syncCollapsedCategoriesToUrl([...next]);
+    },
+    [syncCollapsedCategoriesToUrl],
+  );
+
+  useEffect(() => {
+    const collapsedFromUrl = parseTeamsNotificationsCollapsedCategoriesFromSearch(
+      teamsNotificationsCollapsedCategoriesParam,
+    );
+
+    if (collapsedFromUrl.length === 0) {
+      return;
+    }
+
+    setCollapsedGroupsState(new Set(collapsedFromUrl));
+  }, [teamsNotificationsCollapsedCategoriesParam]);
 
   const mutationDisabledHintId = "teams-notifications-selector-mutate-disabled-hint";
   const mutationDisabledReason = props.canMutate ? null : whyDisabledEnterpriseMutationControl();
@@ -102,17 +153,19 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
                     variant="outline"
                     aria-expanded={!collapsed}
                     onClick={() =>
-                      setCollapsedGroups((prev) => {
-                        const next = new Set(prev);
+                      setCollapsedGroups(
+                        (() => {
+                          const next = new Set(collapsedGroups);
 
-                        if (next.has(category.id)) {
-                          next.delete(category.id);
-                        } else {
-                          next.add(category.id);
-                        }
+                          if (next.has(category.id)) {
+                            next.delete(category.id);
+                          } else {
+                            next.add(category.id);
+                          }
 
-                        return next;
-                      })
+                          return next;
+                        })(),
+                      )
                     }
                   >
                     {collapsed ? "Show" : "Hide"}
@@ -169,12 +222,10 @@ export function TeamsNotificationsSelector(props: TeamsNotificationsSelectorProp
       </div>
 
       {props.showValidationError ? (
-        <p role="alert" className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.body)}>
+        <p role="alert" className={cn("m-0 text-red-700 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}>
           {TEAMS_INTEGRATION_TRIGGER_REQUIRED}
         </p>
       ) : null}
     </fieldset>
   );
 }
-
-export { TEAMS_RECOMMENDED_EVENT_TYPES };
