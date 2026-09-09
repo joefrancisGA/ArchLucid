@@ -28,6 +28,9 @@ import { downloadArchitectureRequestJson } from "@/lib/api/downloads-blob-trigge
 import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
 import { downloadRunExportZip } from "@/lib/api/downloads-blob-trigger-run-export";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
+import { runExportZipMutationBlockedReason } from "@/lib/runs/run-export-zip-mutation-blocked-reason";
 import { SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api/downloads-blob-urls";
 import { showError } from "@/lib/toast";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -160,10 +163,10 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
-        showError(
-          "Evidence bundle",
-          error instanceof Error ? error.message : "Could not download artifact bundle.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = artifactBundleMutationBlockedReason(failure);
+
+        showError("Evidence bundle", blocked ?? failure.message);
       })
       .finally(() => {
         setBundleBusy(false);
@@ -179,10 +182,10 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadRunExportZip(runId)
       .catch((error: unknown) => {
-        showError(
-          "Review export",
-          error instanceof Error ? error.message : "Could not download review export.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = runExportZipMutationBlockedReason(failure);
+
+        showError("Review export", blocked ?? failure.message);
       })
       .finally(() => {
         setReviewExportBusy(false);
@@ -217,10 +220,10 @@ export function RunDetailArtifactsExportsSection(
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
-        showError(
-          "Artifact bundle",
-          error instanceof Error ? error.message : "Could not download artifact bundle.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = artifactBundleMutationBlockedReason(failure);
+
+        showError("Artifact bundle", blocked ?? failure.message);
       })
       .finally(() => {
         setBundleBusy(false);

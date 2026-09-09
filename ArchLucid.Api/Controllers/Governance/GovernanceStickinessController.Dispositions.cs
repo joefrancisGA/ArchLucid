@@ -160,6 +160,13 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult = await EnsureBulkDispositionSealedManifestAllowedAsync(
+            request!.FindingIds,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RecordBulkFindingDispositionResponse response;
 
         try

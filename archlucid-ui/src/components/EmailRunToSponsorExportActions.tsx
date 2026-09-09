@@ -27,6 +27,8 @@ import { showError } from "@/lib/toast";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { pilotsCollateralMutationBlockedReason } from "@/lib/pilots/pilots-collateral-mutation-blocked-reason";
 import { architecturePackageDocxMutationBlockedReason } from "@/lib/runs/architecture-package-docx-mutation-blocked-reason";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
+import { runExportZipMutationBlockedReason } from "@/lib/runs/run-export-zip-mutation-blocked-reason";
 import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 
 export type EmailRunToSponsorExportActionsProps = {
@@ -88,7 +90,11 @@ export function EmailRunToSponsorExportActions({
               ? architecturePackageDocxMutationBlockedReason(failure)
               : key === "sponsor-docx"
                 ? runPackageExportMutationBlockedReason(failure)
-                : pilotsCollateralMutationBlockedReason(failure);
+                : key === "review-bundle"
+                  ? artifactBundleMutationBlockedReason(failure)
+                  : key === "run-export"
+                    ? runExportZipMutationBlockedReason(failure)
+                    : pilotsCollateralMutationBlockedReason(failure);
 
           showError(title, blocked ?? failure.message);
         })

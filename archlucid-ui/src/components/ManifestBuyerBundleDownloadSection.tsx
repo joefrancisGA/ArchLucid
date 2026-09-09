@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
 import {
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY,
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE,
@@ -77,10 +79,10 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
-        showError(
-          "Bundle download",
-          error instanceof Error ? error.message : "Could not download artifact bundle.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = artifactBundleMutationBlockedReason(failure);
+
+        showError("Bundle download", blocked ?? failure.message);
       })
       .finally(() => {
         setBusy(false);

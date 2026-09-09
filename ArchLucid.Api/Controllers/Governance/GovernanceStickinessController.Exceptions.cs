@@ -132,6 +132,13 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult = await EnsureRiskExceptionRunSealedManifestAllowedAsync(
+            riskExceptionId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             await _facade.RevokeRiskExceptionAsync(riskExceptionId, cancellationToken);
@@ -183,6 +190,13 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureRiskExceptionRunSealedManifestAllowedAsync(
+            riskExceptionId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

@@ -33,6 +33,11 @@ public sealed partial class ArtifactExportController
     public async Task<IActionResult> DownloadRunDecisionReceipt(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestHashOrConflictAsync(scope, runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         DecisionReceiptRunBuildResult buildResult =
             await decisionReceiptService.BuildForRunAsync(scope, runId, ct);
 
@@ -90,6 +95,11 @@ public sealed partial class ArtifactExportController
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestHashOrConflictAsync(scope, runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         byte[]? renderedPng = null;
 
         if (configuration.GetValue("ArchLucid:MermaidCli:Enabled", false))

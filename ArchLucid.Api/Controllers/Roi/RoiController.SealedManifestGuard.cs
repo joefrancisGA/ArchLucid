@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Controllers.Roi;
 
 public sealed partial class RoiController
 {
-    private async Task<IActionResult?> EnsureSponsorRoiBoardPackSealedManifestReadAllowedAsync(
+    private async Task<IActionResult?> EnsureSponsorRoiSealedManifestReadAllowedAsync(
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
