@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-63–DX-68)
 
-**Created:** 2026-09-08 · **Status:** **DX-63–DX-68 shipped / implemented — do not re-run.** Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md) (**DX-69–DX-72**).
+**Created:** 2026-09-08 · **Status:** **DX-63–DX-68 shipped / implemented — do not re-run.** **DX-69–DX-72 shipped.** Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md) (**DX-73–DX-76**).
 
 DX-01–DX-50 closed engine, ingest, and citation holes. DX-51–DX-56 added fusion, the held-check ledger, portfolio shared-topology, the idle frontier harness, prose extraction, and verification priors. **DX-57** (`#2242`) turned ranking priors and the insight generator effective-on in Real mode. **DX-58–DX-62** made dismiss measurable (threshold **65**), converted held-checks into a second pass, persisted the prose assumption register, and shrank the Premium judge cap from remaining tenant USD. Latest golden case is **`case-63`**. Harness registers **41** engines; catalog has **52**; **11** absent-with-reason.
 
@@ -473,6 +473,7 @@ Do not add a “Decision-grade for N consecutive runs” engine (DX-58 hold). Do
 - DX-51–DX-56: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md)
 - DX-58–DX-62: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md)
 - DX-69–DX-72: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md)
+- DX-73–DX-76: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md)
 - Cursor index: [`.cursor/prompts/insight-density-excellence-00-index.md`](../../.cursor/prompts/insight-density-excellence-00-index.md)
 - Hold exception: [`../quality/HOLD_NO_COVERAGE_ENGINES.md`](../quality/HOLD_NO_COVERAGE_ENGINES.md)
 - Miss clause: [`../quality/INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md)
