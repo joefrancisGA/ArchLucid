@@ -21,6 +21,7 @@ import {
 } from "@/lib/api";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   slackIntegrationDefaultValues,
@@ -68,6 +69,7 @@ const SAVE_FAILURE_MESSAGE = "We could not save this destination. Check the fiel
 /** Slack alert routing — incoming webhook destinations for approval alerts in this workspace scope. */
 export function SlackIntegrationPageClient(): React.ReactElement {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const showOperatorNotes = isShowSystemAdministrationNavEnabled();
   const router = useRouter();
   const pathname = usePathname() ?? INTEGRATIONS_SLACK_PATH;
   const searchParams = useSearchParams();
@@ -367,6 +369,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
             totalDestinationCount={slackRows.length}
             activeDestinationCount={activeDestinationCount}
             formTestSucceeded={formTestSucceeded}
+            showOperatorNotes={showOperatorNotes}
           />
         </div>
       </FormProvider>

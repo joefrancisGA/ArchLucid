@@ -1,8 +1,11 @@
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Builders;
+using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -23,6 +26,8 @@ internal static class GoldenCorpusIngestDeclarationGraphFactory
 
     internal const string Case60DeclarationId = "decl-cdk-golden-60";
 
+    internal const string Case65DeclarationId = "decl-tf-golden-65";
+
     internal static readonly Guid Case58RunId = Guid.Parse("20000000-0000-4000-8000-000000000058");
 
     internal static readonly Guid Case58ContextSnapshotId = Guid.Parse("10000000-0000-4000-8000-000000000058");
@@ -36,6 +41,12 @@ internal static class GoldenCorpusIngestDeclarationGraphFactory
     internal static readonly Guid Case60RunId = Guid.Parse("20000000-0000-4000-8000-000000000060");
 
     internal static readonly Guid Case60ContextSnapshotId = Guid.Parse("10000000-0000-4000-8000-000000000060");
+
+    internal static readonly Guid Case65RunId = Guid.Parse("20000000-0000-4000-8000-000000000065");
+
+    internal static readonly Guid Case65ContextSnapshotId = Guid.Parse("10000000-0000-4000-8000-000000000065");
+
+    private static readonly SimpleTerraformDeclarationParser TerraformParser = new();
 
     private static readonly CloudFormationInfrastructureDeclarationParser CloudFormationParser =
         new(NullLogger<CloudFormationInfrastructureDeclarationParser>.Instance);
@@ -248,6 +259,58 @@ internal static class GoldenCorpusIngestDeclarationGraphFactory
         ];
 
         return WrapCaseGraph(60, [actor, computeNode, datastore], edges);
+    }
+
+    internal static async Task<GraphSnapshot> CreateCase65TerraformIdentityPathGraphAsync()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "identity.tf",
+            Format = "simple-terraform",
+            DeclarationId = Case65DeclarationId,
+            Content = """
+                      resource "azurerm_user_assigned_identity" "checkout_mi" {
+                        principal_id = "11111111-2222-3333-4444-555555555555"
+                      }
+                      resource "azurerm_mssql_server" "pay_sql" {
+                        name = "pay-sql-prod"
+                      }
+                      resource "azurerm_role_assignment" "mi_sql_contributor" {
+                        principal_id = "11111111-2222-3333-4444-555555555555"
+                        role_definition_name = "Contributor"
+                        scope = "pay-sql-prod"
+                      }
+                      """,
+        };
+
+        List<CanonicalObject> objects = (await TerraformParser.ParseAsync(declaration, CancellationToken.None)
+            .ConfigureAwait(false)).ToList();
+
+        foreach (CanonicalObject obj in objects)
+        {
+            if (!string.Equals(obj.Name, "pay_sql", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            obj.Properties["category"] = GraphTopologyCategories.Data;
+            obj.Properties[CanonicalGraphPropertyKeys.TopologySensitivity] = TopologySensitivityLevels.DataBearing;
+        }
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Case65ContextSnapshotId,
+            RunId = Case65RunId,
+            ProjectId = "golden-case-65",
+            CanonicalObjects = objects,
+        };
+
+        DefaultGraphBuilder builder = new(NodeFactory, new DefaultGraphEdgeInferer());
+        GraphBuildResult build = await builder.BuildAsync(snapshot, CancellationToken.None).ConfigureAwait(false);
+
+        List<GraphNode> nodes = build.Nodes
+            .Where(static node => !string.Equals(node.NodeType, GraphNodeTypes.ContextSnapshot, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        return WrapCaseGraph(65, nodes, build.Edges);
     }
 
     private static async Task<IReadOnlyList<GraphNode>> ParseSingleTopologyNodeAsync(

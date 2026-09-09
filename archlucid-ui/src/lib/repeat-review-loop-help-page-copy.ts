@@ -18,3 +18,6 @@ export const REPEAT_REVIEW_LOOP_HELP_START_HERE_HELPER =
 
 export const REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD =
   "Compare packages, replay checks, and collect export-ready proof after your first finalized architecture review." as const;
+
+export const REPEAT_REVIEW_LOOP_HELP_BUYER_OVERVIEW =
+  "The loop diagram, workflow steps, and reference sections below walk through compare, replay, and proof collection after your first finalize." as const;

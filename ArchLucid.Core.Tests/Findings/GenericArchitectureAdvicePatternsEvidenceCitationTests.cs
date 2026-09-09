@@ -28,10 +28,29 @@ public sealed class GenericArchitectureAdvicePatternsEvidenceCitationTests
 
     [Theory]
     [InlineData("doc:manifest.json#L10", true)]
+    [InlineData("doc:architecture.md#L12", true)]
+    [InlineData("doc:architecture.md#L12-18", true)]
+    [InlineData("doc:architecture.md#l12", true)]
     [InlineData("policy-rule:cis-az-006", true)]
+    [InlineData("doc:architecture.md", false)]
+    [InlineData("doc:architecture.md#services", false)]
+    [InlineData("doc:architecture.md#overview", false)]
+    [InlineData("doc:manifest.json#services", false)]
+    [InlineData("finding:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", false)]
     public void HasConcreteEvidenceCitation_accepts_doc_and_policy_rule_refs(string evidenceRef, bool expected)
     {
         GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation([evidenceRef]).Should().Be(expected);
+    }
+
+    [Fact]
+    public void HasLineAnchoredDocRef_requires_hash_L_and_a_digit()
+    {
+        FindingEvidenceRefs.HasLineAnchoredDocRef("doc:architecture.md#L12").Should().BeTrue();
+        FindingEvidenceRefs.HasLineAnchoredDocRef("doc:architecture.md#L12-18").Should().BeTrue();
+        FindingEvidenceRefs.HasLineAnchoredDocRef("doc:architecture.md").Should().BeFalse();
+        FindingEvidenceRefs.HasLineAnchoredDocRef("doc:architecture.md#services").Should().BeFalse();
+        FindingEvidenceRefs.HasLineAnchoredDocRef("policy-rule:cis-az-006").Should().BeFalse();
+        FindingEvidenceRefs.HasLineAnchoredDocRef(null).Should().BeFalse();
     }
 
     [Fact]

@@ -58,6 +58,12 @@ public sealed class DecisionGradeFusionGoldenCorpusTests
         fusion.Title.Should().Contain("on nsg-pay");
         fusion.Title.Should().NotContain("therefore");
         fusion.Title.Should().NotContain("breach");
+        fusion.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+        context.Snapshot.Findings.Where(static finding => finding.FindingId is "seg-38" or "df-47")
+            .Should()
+            .OnlyContain(static finding =>
+                finding.Classification == FindingClassification.ChecklistCoverage
+                && finding.Treatment == FindingTreatment.DemoteToChecklist);
     }
 
     private static Finding CreateMember(string findingId, string engineType, string title, string nodeId)

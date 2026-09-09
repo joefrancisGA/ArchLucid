@@ -166,6 +166,7 @@ export const operatorQueryKeys = {
     ["operator", "compare", "end-to-end", baselineRunId, targetRunId] as const,
   compareGovernanceDiff: (baselineRunId: string, targetRunId: string) =>
     ["operator", "compare", "governance-diff", baselineRunId, targetRunId] as const,
+  runExportHistory: (runId: string) => ["operator", "runs", "export-history", runId] as const,
   architectureRequest: (requestId: string) => ["operator", "architecture", "request", requestId] as const,
   azureBoardsWorkItemTypes: (projectName: string) =>
     ["operator", "integrations", "azure-boards", "work-item-types", projectName] as const,
