@@ -1,4 +1,5 @@
-import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
 import {
   type ArchitectureReviewRecurrenceSchedule,
   type PreviewRecurrenceScheduleRunsResponse,
@@ -23,7 +24,9 @@ export async function listRiskExceptions(projectId?: string): Promise<RiskExcept
   const query = new URLSearchParams();
   if (projectId) query.set("projectId", projectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGet<RiskExceptionRecord[]>(`${governanceStickinessBase()}/risk-exceptions${suffix}`);
+  return apiGetSealedManifestAware<RiskExceptionRecord[]>(
+    `${governanceStickinessBase()}/risk-exceptions${suffix}`,
+  );
 }
 
 export async function revokeRiskException(riskExceptionId: string): Promise<void> {
@@ -61,7 +64,9 @@ export async function previewRecurrenceScheduleRuns(body: {
 }
 
 export async function listArchitectureReviewRecurrenceSchedules(): Promise<ArchitectureReviewRecurrenceSchedule[]> {
-  return apiGet<ArchitectureReviewRecurrenceSchedule[]>(`${governanceStickinessBase()}/recurrence-schedules`);
+  return apiGetSealedManifestAware<ArchitectureReviewRecurrenceSchedule[]>(
+    `${governanceStickinessBase()}/recurrence-schedules`,
+  );
 }
 
 export async function updateArchitectureReviewRecurrenceSchedule(

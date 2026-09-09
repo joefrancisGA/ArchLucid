@@ -224,6 +224,13 @@ public sealed partial class ComparisonsController
                 ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForComparisonRecordIdsAsync(
+            request.ComparisonRecordIds,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         Application.Analysis.ComparisonBatchReplay.ComparisonBatchReplayZipResult? zipResult;
 
         try

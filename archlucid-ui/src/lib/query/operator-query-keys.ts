@@ -172,6 +172,9 @@ export const operatorQueryKeys = {
     ["operator", "compare", "record", comparisonRecordId] as const,
   comparisonSummary: (comparisonRecordId: string) =>
     ["operator", "compare", "summary", comparisonRecordId] as const,
+  governanceRiskExceptions: (projectId: string) =>
+    ["operator", "governance", "risk-exceptions", projectId] as const,
+  governanceRecurrenceSchedules: () => ["operator", "governance", "recurrence-schedules"] as const,
   architectureRequest: (requestId: string) => ["operator", "architecture", "request", requestId] as const,
   azureBoardsWorkItemTypes: (projectName: string) =>
     ["operator", "integrations", "azure-boards", "work-item-types", projectName] as const,

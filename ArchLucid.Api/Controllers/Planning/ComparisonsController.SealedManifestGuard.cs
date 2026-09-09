@@ -114,6 +114,22 @@ public sealed partial class ComparisonsController
         return null;
     }
 
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedForComparisonRecordIdsAsync(
+        IReadOnlyList<string> comparisonRecordIds,
+        CancellationToken cancellationToken)
+    {
+        foreach (string comparisonRecordId in comparisonRecordIds)
+        {
+            IActionResult? guardResult =
+                await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
+
+            if (guardResult is not null)
+                return guardResult;
+        }
+
+        return null;
+    }
+
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedForComparisonRecordAsync(
         ComparisonRecord record,
         CancellationToken cancellationToken)

@@ -123,6 +123,8 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        await EnsureRegistersSealedManifestOrThrowAsync(scope.ProjectId, ct).ConfigureAwait(false);
+
         return await _recurrenceScheduleRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
