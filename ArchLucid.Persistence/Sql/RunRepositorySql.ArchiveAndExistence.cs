@@ -82,20 +82,20 @@ internal static partial class RunRepositorySql
                                            EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
                                            """;
 
-    public const string CountActiveRunsForArchitectureRequest = """
+    public const string CountActiveRunsForArchitectureRequest = $"""
                                                                 SELECT COUNT(1)
                                                                 FROM dbo.Runs
                                                                 WHERE TenantId = @TenantId
                                                                   AND WorkspaceId = @WorkspaceId
                                                                   AND ScopeProjectId = @ScopeProjectId
-                                                                  AND UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId
+                                                                  AND {CollapsedUpperArchitectureRequestId} = @NormalizedArchitectureRequestId
                                                                   AND ArchivedUtc IS NULL
                                                                   AND (
                                                                       LegacyRunStatus IS NULL
                                                                       OR LegacyRunStatus NOT IN (@CommittedStatus, @FailedStatus, @QualityRejectedStatus));
                                                                 """;
 
-    public const string ExistsRunForArchitectureRequestInScope = """
+    public const string ExistsRunForArchitectureRequestInScope = $"""
                                                                  SELECT CASE
                                                                      WHEN EXISTS (
                                                                          SELECT 1
@@ -103,19 +103,19 @@ internal static partial class RunRepositorySql
                                                                          WHERE TenantId = @TenantId
                                                                            AND WorkspaceId = @WorkspaceId
                                                                            AND ScopeProjectId = @ScopeProjectId
-                                                                           AND UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId
+                                                                           AND {CollapsedUpperArchitectureRequestId} = @NormalizedArchitectureRequestId
                                                                      ) THEN 1
                                                                      ELSE 0
                                                                  END;
                                                                  """;
 
-    public const string SelectRepresentativeRunIdForArchitectureRequestInScope = """
+    public const string SelectRepresentativeRunIdForArchitectureRequestInScope = $"""
                                                                                  SELECT TOP (1) RunId
                                                                                  FROM dbo.Runs
                                                                                  WHERE TenantId = @TenantId
                                                                                    AND WorkspaceId = @WorkspaceId
                                                                                    AND ScopeProjectId = @ScopeProjectId
-                                                                                   AND UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId
+                                                                                   AND {CollapsedUpperArchitectureRequestId} = @NormalizedArchitectureRequestId
                                                                                  ORDER BY CreatedUtc DESC, RunId DESC;
                                                                                  """;
 
