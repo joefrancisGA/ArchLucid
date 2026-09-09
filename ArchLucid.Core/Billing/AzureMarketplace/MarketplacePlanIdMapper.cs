@@ -54,8 +54,9 @@ public static class MarketplacePlanIdMapper
             return false;
 
         // Marketplace partners prefix enterprise tier tokens with negation adverbs
-        // (exclude/excluding/excluded share the same stem).
-        if (token.StartsWith("exclud", StringComparison.OrdinalIgnoreCase))
+        // (exclude/excluding/excluded and except share the same stem family).
+        if (token.StartsWith("exclud", StringComparison.OrdinalIgnoreCase)
+            || token.StartsWith("except", StringComparison.OrdinalIgnoreCase))
             return true;
 
         return token.Equals("non", StringComparison.OrdinalIgnoreCase)
@@ -77,7 +78,11 @@ public static class MarketplacePlanIdMapper
                || token.Equals("lacking", StringComparison.OrdinalIgnoreCase)
                || token.Equals("omit", StringComparison.OrdinalIgnoreCase)
                || token.Equals("outside", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("except", StringComparison.OrdinalIgnoreCase);
+               || token.Equals("pre", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("below", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("neither", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("bare", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("negate", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<string> ExtractPlanIdTokens(string planId)
