@@ -1128,10 +1128,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-08
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -1171,6 +1171,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `RunListClaimsMorePages` misses `hasMore` encoded as JSON string `"true"` — **cheap-disproof 2026-09-08 seed hunt #1371:** `AuthorityReadsController` returns `CursorPagedResponse` with `bool HasMore` via `ArchLucidApiJsonSerializerOptions`; no string-typed writer in zone paths.
 
 2026-09-08 seed hunt #1371 (seed-only): reseeded cli-tenant-isolation after #1246 dry; cheap-disproof closed primary-skip, HTTP 429 deny, malformed-json fallback, and string-hasMore candidates; 25 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (valid-no-repro) Run-list exclude probe maps HTTP 429 to SKIP via `ListUnavailable` — **cheap-disproof 2026-09-09 seed hunt #1437:** throttled `/v1/runs` cannot verify foreign runId exclusion; conservative SKIP like HTTP 401/403 list-unavailable handling; regression `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives429`.
+- [x] (invalid) `ScanRunListForForeignRunIdAsync` post-loop fallthrough returns `ForeignRunIdAbsent` — **cheap-disproof 2026-09-09 seed hunt #1437:** loop always returns on the final page index (`ScanIncomplete` or inner branch); line after the loop is unreachable dead code, not a false-pass path.
+- [x] (valid-no-repro) Deny matrix omits canonical `GET /v1/runs/{runId}` detail alias — **cheap-disproof 2026-09-09 seed hunt #1437:** `AuthorityReadsController.GetRunDetail` and `RunQueryController.GetRun` both require `ReadAuthority` with scope middleware; probe catalog targets architecture review/export surfaces without zone-file evidence of authz divergence between aliases.
+- [x] (invalid) Run-list exclude probe should scan `GET /v1/architecture/reviews` — **cheap-disproof 2026-09-09 seed hunt #1437:** product canonical list is `GET /v1/runs` (`AuthorityReadsController` remarks); architecture reviews list delegates through the same scoped query services — no alternate-tenant leak reachable on reviews-only in these files.
+
+2026-09-09 seed hunt #1437 (seed-only): reseeded cli-tenant-isolation after #1371 dry streak; cheap-disproof closed HTTP 429 list-throttle SKIP, dead pagination fallthrough, missing `/v1/runs/{runId}` deny alias, and architecture-reviews list scan candidates; 27 scoped TenantIsolationNegativeTestRunner tests passed.
 
 ---
 
