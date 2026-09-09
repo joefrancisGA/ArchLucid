@@ -25,6 +25,7 @@ public sealed partial class RunsController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateRunBatch(
         [FromBody] IReadOnlyList<ArchitectureRequest>? requests,
         CancellationToken cancellationToken)

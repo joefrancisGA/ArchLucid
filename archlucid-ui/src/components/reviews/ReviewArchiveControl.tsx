@@ -8,6 +8,8 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { archiveReview } from "@/lib/api/review-archive-api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { reviewArchiveMutationBlockedReason } from "@/lib/runs/review-archive-mutation-blocked-reason";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useWorkOwnershipDeletePolicyQuery } from "@/hooks/use-work-ownership-delete-policy-query";
@@ -126,13 +128,26 @@ export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JS
         return;
       }
 
-      if (result.status === 400) {
-        toast.error(REVIEW_ARCHIVE_SEALED_BLOCKED_MESSAGE, { description: result.message });
+      const failure = {
+        message: result.message,
+        httpStatus: result.status,
+        correlationId: null,
+        problem: null,
+        retryAfterSeconds: null,
+      } satisfies ApiLoadFailureState;
+      const blocked = reviewArchiveMutationBlockedReason(failure);
+
+      if (result.status === 400 || result.status === 409) {
+        toast.error(blocked ?? REVIEW_ARCHIVE_SEALED_BLOCKED_MESSAGE, {
+          description: blocked === null ? result.message : undefined,
+        });
 
         return;
       }
 
-      toast.error(REVIEW_ARCHIVE_FAILURE_MESSAGE, { description: result.message });
+      toast.error(blocked ?? REVIEW_ARCHIVE_FAILURE_MESSAGE, {
+        description: blocked === null ? result.message : undefined,
+      });
     } finally {
       setBusy(false);
     }
