@@ -21,7 +21,9 @@ import {
 import { CtoDemoLeaveBehindExportButton } from "@/components/cto-demo/CtoDemoLeaveBehindExportButton";
 import { CtoDemoShareSnapshotButton } from "@/components/cto-demo/CtoDemoShareSnapshotButton";
 import { downloadFirstValueReportPdf } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
+import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -82,9 +84,10 @@ export function CtoDemoRecapCard(props: CtoDemoRecapCardProps): React.JSX.Elemen
       await downloadFirstValueReportPdf(SHOWCASE_STATIC_DEMO_RUN_ID);
       showSuccess("Board packet download started.");
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const failure = toApiLoadFailure(error);
+      const blocked = firstValueReportMutationBlockedReason(failure);
 
-      showError("Board packet download failed", message);
+      showError("Board packet download failed", blocked ?? failure.message);
     } finally {
       setBoardPacketBusy(false);
     }

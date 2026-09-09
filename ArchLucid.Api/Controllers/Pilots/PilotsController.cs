@@ -1,9 +1,13 @@
 ﻿using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
+using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -23,10 +27,23 @@ namespace ArchLucid.Api.Controllers.Pilots;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed partial class PilotsController(IPilotsApplicationService pilots) : ControllerBase
+public sealed partial class PilotsController(
+    IPilotsApplicationService pilots,
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
     private readonly IPilotsApplicationService _pilots =
         pilots ?? throw new ArgumentNullException(nameof(pilots));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     [HttpGet("why-archlucid-snapshot")]
     [Produces("application/json")]

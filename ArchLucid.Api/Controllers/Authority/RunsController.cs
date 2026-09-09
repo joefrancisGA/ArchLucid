@@ -61,6 +61,7 @@ public sealed partial class RunsController(
     IFindingFeedbackRepository findingFeedbackRepository,
     FindingInstrumentationAuditSupport findingInstrumentationAudit,
     IRunRepository runRepository,
+    IRunDetailQueryService runDetailQueryService,
     IManifestHashService manifestHashService,
     ILogger<RunsController> logger)
     : ControllerBase
@@ -76,6 +77,9 @@ public sealed partial class RunsController(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));

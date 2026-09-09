@@ -117,6 +117,11 @@ public sealed partial class PilotsController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostFirstValueReportPdf(string runId, CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
 
         try
@@ -230,6 +235,11 @@ public sealed partial class PilotsController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostSponsorOnePager(string runId, CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
 
         try
