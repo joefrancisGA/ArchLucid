@@ -73,9 +73,10 @@ internal static class InsightDensityGateEffectiveOptionsMerger
             tenantOverrides.PreferHighVerificationEngines,
             isRealExecutionMode);
 
-        // Prose assumption extraction stays host/tenant opt-in even in Real mode: unlike the flags above it issues
-        // extra Premium completions per in-batch document, so its cost scales with document count (DX-55).
-        if (!isRealExecutionMode)
-            effective.EnableProseAssumptionExtraction = false;
+        // Owner decision 2026-09-09: effective-on in Real mode with tenant opt-out (same contract as DX-57).
+        // Cost still scales with in-batch document count — caps in MaxProseAssumption*PerSnapshot bound spend.
+        effective.EnableProseAssumptionExtraction = ResolveRealModeFlag(
+            tenantOverrides.ProseAssumptionExtraction,
+            isRealExecutionMode);
     }
 }

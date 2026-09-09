@@ -40,6 +40,12 @@ public sealed class InsightDensityTenantFlagOverrides
         init;
     } = InsightDensityTenantFlagOverride.Absent;
 
+    public InsightDensityTenantFlagOverride ProseAssumptionExtraction
+    {
+        get;
+        init;
+    } = InsightDensityTenantFlagOverride.Absent;
+
     /// <summary>No tenant scope, or a tenant that has stored nothing — every flag inherits the mode default.</summary>
     public static InsightDensityTenantFlagOverrides None { get; } = new();
 }

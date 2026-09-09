@@ -45,6 +45,10 @@ public static class TenantSettingKeys
     public const string FindingsInsightDensityPreferHighVerificationEnginesEnabled =
         "Findings.InsightDensityPreferHighVerificationEngines.Enabled";
 
+    /// <summary>Tenant override for <c>ArchLucid:Findings:InsightDensityGate:EnableProseAssumptionExtraction</c>.</summary>
+    public const string FindingsInsightDensityProseAssumptionExtractionEnabled =
+        "Findings.InsightDensityProseAssumptionExtraction.Enabled";
+
     /// <summary>Tenant override for <c>ArchLucid:Findings:PortfolioRecurrence:Enabled</c>.</summary>
     public const string FindingsPortfolioRecurrenceEnabled = "Findings.PortfolioRecurrence.Enabled";
 
