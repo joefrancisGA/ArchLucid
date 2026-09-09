@@ -22,11 +22,21 @@ import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/a
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
+import { BASELINE_SETTINGS_CANONICAL_PATH } from "@/lib/baseline-settings-evidence-copy";
 import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
 import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
 import { DIGESTS_HUB_PATH, digestsHubTabFromLocation } from "@/lib/digests-route-paths";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
-import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_ALERT_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  INTEGRATIONS_AZURE_BOARDS_PATH,
+  INTEGRATIONS_JIRA_PATH,
+  INTEGRATIONS_SERVICENOW_PATH,
+  INTEGRATIONS_SLACK_PATH,
+  INTEGRATIONS_TEAMS_PATH,
+  INTEGRATIONS_WEBHOOKS_PATH,
+} from "@/lib/integrations-nav-paths";
 import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
@@ -216,6 +226,89 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
     },
   },
   {
+    prefix: INTEGRATIONS_JIRA_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Jira integration",
+      summary:
+        "Outbound work-item settings, connection health, and tenant overrides for creating Jira issues from ArchLucid.",
+      nextAction:
+        "Test the connector, set project and severity mappings, then open Connection status when the path is not ready.",
+    },
+  },
+  {
+    prefix: INTEGRATIONS_SERVICENOW_PATH,
+    matchExact: true,
+    explanation: {
+      title: "ServiceNow integration",
+      summary:
+        "Outbound incident settings, connection health, and CMDB overrides for creating ServiceNow records from ArchLucid.",
+      nextAction:
+        "Test the connector, adjust CMDB auto-create if needed, then open Connection status when the path is not ready.",
+    },
+  },
+  {
+    prefix: INTEGRATIONS_AZURE_BOARDS_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Azure Boards integration",
+      summary:
+        "Outbound work-item settings, connection health, and defaults for creating Azure Boards work items from ArchLucid.",
+      nextAction:
+        "Test the connector, set organization project and work-item defaults, then open Connection status when the path is not ready.",
+    },
+  },
+  {
+    prefix: INTEGRATIONS_SLACK_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Slack integration",
+      summary: "Configure incoming webhook destinations that receive alerts for this workspace.",
+      nextAction:
+        "Add or test a Slack destination, then open Alert rules when you need to change which events fire notifications.",
+    },
+  },
+  {
+    prefix: INTEGRATIONS_TEAMS_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Microsoft Teams integration",
+      summary: "Configure a Teams channel destination that receives alerts for this workspace.",
+      nextAction:
+        "Save or test the Teams connector, then open Alert rules when you need to change which events fire notifications.",
+    },
+  },
+  {
+    prefix: INTEGRATIONS_WEBHOOKS_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Webhooks",
+      summary: "Configure HTTPS webhook subscriptions that receive alerts for this workspace.",
+      nextAction:
+        "Add or test a subscription, then open Alert rules when you need to change which events fire notifications.",
+    },
+  },
+  {
+    prefix: BASELINE_SETTINGS_CANONICAL_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Baseline settings",
+      summary:
+        "Capture ROI measurement anchors (review cycle hours, prep time, people per review) for this workspace.",
+      nextAction:
+        "Save or clear baseline anchors, then open Architecture scorecard or ROI summary when numbers need methodology.",
+    },
+  },
+  {
+    prefix: ADMINISTRATION_SYSTEM_HEALTH_PATH,
+    matchExact: true,
+    explanation: {
+      title: "System health",
+      summary: "Workspace service health, required dependencies, and deployment identity for this tenant.",
+      nextAction: "Refresh readiness, then open Connection status when a dependency needs follow-up.",
+    },
+  },
+  {
     prefix: FIRST_REVIEW_GUIDE_PATH,
     matchExact: true,
     explanation: {
@@ -283,6 +376,17 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
       summary:
         "Triage approval and architecture-risk signals raised from review findings that need acknowledgement or resolution.",
       nextAction: "Open an alert to acknowledge or resolve it, or configure alert rules when the inbox is empty.",
+    },
+  },
+  {
+    prefix: GOVERNANCE_ALERT_RULES_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Alert rules",
+      summary:
+        "Configure when completed reviews raise alerts, where notifications are delivered, composite rules, and simulation tests.",
+      nextAction:
+        "Set Conditions first, then open Notifications to add destinations, or use Test alerts to simulate behavior.",
     },
   },
   {
@@ -400,11 +504,19 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
 ];
 
 /**
- * Only the alerts inbox is opted in. Risk exceptions keep their own layer guidance and governance
- * approval banner, so a shell banner there repeats guidance the page already owns.
+ * Alerts inbox and alert-rules configuration are opted in. Risk exceptions keep their own layer
+ * guidance and governance approval banner, so a shell banner there repeats guidance the page already owns.
  */
 function isGovernanceExplainOptIn(path: string): boolean {
-  return path === GOVERNANCE_ALERTS_PATH || path.startsWith(`${GOVERNANCE_ALERTS_PATH}/`);
+  if (path === GOVERNANCE_ALERTS_PATH || path.startsWith(`${GOVERNANCE_ALERTS_PATH}/`)) {
+    return true;
+  }
+
+  if (path === GOVERNANCE_ALERT_RULES_PATH || path.startsWith(`${GOVERNANCE_ALERT_RULES_PATH}/`)) {
+    return true;
+  }
+
+  return false;
 }
 
 /** Returns compact orientation copy only when the route does not already own header guidance. */
@@ -426,7 +538,7 @@ export function routeViewExplanationForPathname(
     }
   }
 
-  // Most approval surfaces own orientation via page headers; only the alerts inbox is opted in.
+  // Most approval surfaces own orientation via page headers; alerts inbox and alert rules are opted in.
   if (path.startsWith("/governance")) {
     if (!isGovernanceExplainOptIn(path)) {
       return null;

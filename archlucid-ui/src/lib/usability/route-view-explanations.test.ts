@@ -15,7 +15,18 @@ import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-eviden
 import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
-import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_ALERT_RULES_PATH,
+  GOVERNANCE_ALERTS_PATH,
+  GOVERNANCE_EXCEPTIONS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import {
+  INTEGRATIONS_JIRA_PATH,
+  INTEGRATIONS_SLACK_PATH,
+  INTEGRATIONS_WEBHOOKS_PATH,
+} from "@/lib/integrations-nav-paths";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
+import { BASELINE_SETTINGS_CANONICAL_PATH } from "@/lib/baseline-settings-evidence-copy";
 import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import { NOTIFICATION_PREFERENCE_CENTER_PATH } from "@/lib/notification-preference-center";
@@ -120,6 +131,7 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname(GOVERNANCE_EXCEPTIONS_PATH)).toBeNull();
     expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/audit")).toBeNull();
+    expect(routeViewExplanationForPathname(GOVERNANCE_ALERT_RULES_PATH)?.title).toBe("Alert rules");
     expect(routeViewExplanationForPathname("/insights/evidence-graph")).toBeNull();
     expect(routeViewExplanationForPathname("/administration/identity-providers/diagnostics")).toBeNull();
   });
@@ -168,6 +180,15 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
 
     expect(routeViewExplanationForPathname(SPONSOR_REPORT_PATH)?.title).toBe("Sponsor report");
     expect(routeViewExplanationForPathname(SPONSOR_REPORT_ROI_SUMMARY_PATH)?.title).toBe("ROI summary");
+  });
+
+  it("covers instrument primer wave 7 — ITSM, notification channels, baseline, and system health", () => {
+    expect(routeViewExplanationForPathname(INTEGRATIONS_JIRA_PATH)?.title).toBe("Jira integration");
+    expect(routeViewExplanationForPathname(INTEGRATIONS_SLACK_PATH)?.title).toBe("Slack integration");
+    expect(routeViewExplanationForPathname(INTEGRATIONS_WEBHOOKS_PATH)?.title).toBe("Webhooks");
+
+    expect(routeViewExplanationForPathname(BASELINE_SETTINGS_CANONICAL_PATH)?.title).toBe("Baseline settings");
+    expect(routeViewExplanationForPathname(ADMINISTRATION_SYSTEM_HEALTH_PATH)?.title).toBe("System health");
   });
 
   it("keeps drafts-inventory orientation off the draft editor and the new-draft workspace", () => {

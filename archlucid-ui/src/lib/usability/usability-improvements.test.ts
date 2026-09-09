@@ -67,11 +67,14 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/integrations/cloud-connections")?.title).toBe("Cloud connections");
     expect(routeViewExplanationForPathname("/architecture/first-review-guide")?.title).toBe("First review guide");
     expect(routeViewExplanationForPathname("/insights/sponsor-report")?.title).toBe("Sponsor report");
+    expect(routeViewExplanationForPathname("/integrations/jira")?.title).toBe("Jira integration");
+    expect(routeViewExplanationForPathname("/administration/system-health")?.title).toBe("System health");
   });
 
   it("routeViewExplanationForPathname covers alerts hubs (TB-2216)", () => {
     expect(routeViewExplanationForPathname("/governance/alerts")?.title).toBe("Alerts");
     expect(routeViewExplanationForPathname("/alerts")?.title).toBe("Alerts");
+    expect(routeViewExplanationForPathname("/governance/alert-rules")?.title).toBe("Alert rules");
   });
 
   it("routeViewExplanationForPathname returns null for governance routes — page headers own orientation", () => {
