@@ -7,8 +7,11 @@ using ArchLucid.Application;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -28,12 +31,24 @@ namespace ArchLucid.Api.Controllers.Governance;
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
-public sealed class GovernancePreviewController(
+public sealed partial class GovernancePreviewController(
     IGovernancePreviewService previewService,
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService,
     ILogger<GovernancePreviewController> logger) : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
@@ -90,6 +105,13 @@ public sealed class GovernancePreviewController(
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult =
+            await EnsureGovernancePreviewRunSealedManifestReadAllowedAsync(body.RunId.Trim(), scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
@@ -165,6 +187,13 @@ public sealed class GovernancePreviewController(
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult =
+            await EnsureGovernancePreviewScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
 
         try

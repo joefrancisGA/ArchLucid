@@ -1,6 +1,9 @@
 "use client";
 
 import { getGovernanceDashboard } from "@/lib/api/policy-governance-api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governanceDashboardBlockedReason } from "@/lib/governance/governance-dashboard-blocked-reason";
 import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
@@ -18,11 +21,20 @@ export function useGovernanceDashboardQuery(options?: UseGovernanceDashboardQuer
   const maxDecisions = options?.maxDecisions ?? 20;
   const maxChanges = options?.maxChanges ?? 20;
 
-  return createOperatorQueryHook<GovernanceDashboardSummary>({
+  const query = createOperatorQueryHook<GovernanceDashboardSummary>({
     queryKey: operatorQueryKeys.governanceDashboard(maxPending, maxDecisions, maxChanges),
     queryFn: () => getGovernanceDashboard(maxPending, maxDecisions, maxChanges),
     enabled: options?.enabled ?? true,
     refetchInterval: options?.refetchIntervalMs ?? false,
     refetchIntervalInBackground: false,
   });
+
+  const failure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
+  const blockedReason = governanceDashboardBlockedReason(failure);
+
+  return {
+    ...query,
+    failure,
+    blockedReason,
+  };
 }

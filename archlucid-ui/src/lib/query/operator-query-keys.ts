@@ -180,6 +180,13 @@ export const operatorQueryKeys = {
   compareAgentResults: (leftRunId: string, rightRunId: string) =>
     ["operator", "compare", "agents", leftRunId, rightRunId] as const,
   exportLineageVerify: (runId: string) => ["operator", "runs", "export-lineage-verify", runId] as const,
+  exportRecordCompare: (leftExportRecordId: string, rightExportRecordId: string) =>
+    ["operator", "compare", "export-records", leftExportRecordId, rightExportRecordId] as const,
+  comparisonSearch: (query: Record<string, string | number | undefined>) =>
+    ["operator", "compare", "search", query] as const,
+  governanceRealizedValueAttestation: () => ["operator", "governance", "realized-value-attestation"] as const,
+  governanceApprovalRationale: (approvalRequestId: string) =>
+    ["operator", "governance", "approval-rationale", approvalRequestId] as const,
   architectureRequest: (requestId: string) => ["operator", "architecture", "request", requestId] as const,
   azureBoardsWorkItemTypes: (projectName: string) =>
     ["operator", "integrations", "azure-boards", "work-item-types", projectName] as const,

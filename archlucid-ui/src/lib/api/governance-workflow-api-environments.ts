@@ -6,7 +6,7 @@ import type {
 } from "@/types/governance-environment-catalog";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiGet, apiPostJson, apiPutJson } from "./http";
+import { apiPostJson, apiPutJson } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 

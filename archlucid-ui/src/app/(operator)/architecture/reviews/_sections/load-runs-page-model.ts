@@ -4,6 +4,7 @@ import { shouldListReviewsAcrossProjectSlugs } from "@/lib/api";
 import { fetchPagedReviewsInventory } from "@/lib/api/reviews-paged-inventory";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { runListBlockedReason } from "@/lib/runs/run-list-blocked-reason";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { resolveServerScopeHeadersForProject } from "@/lib/server-run-scope";
@@ -164,6 +165,7 @@ export async function loadRunsPageModel(resolved: RunsPageSearchParams): Promise
     runs,
     totalCount,
     loadFailure,
+    listBlockedReason: runListBlockedReason(loadFailure),
     malformedMessage,
     usedStaticRunsFallback,
     nextCursorForClient,

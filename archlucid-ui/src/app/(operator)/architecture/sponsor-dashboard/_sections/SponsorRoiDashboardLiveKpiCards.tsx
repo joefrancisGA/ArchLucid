@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { useSponsorRoiSummaryQuery } from "@/hooks/use-sponsor-roi-summary-query";
 import { useGovernanceDecisionsNeededSummaryQuery } from "@/hooks/use-governance-decisions-needed-summary-query";
+import { useRealizedValueAttestationQuery } from "@/hooks/use-realized-value-attestation-query";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { KpiTileDrillThroughLink } from "@/components/KpiTileDrillThroughLink";
@@ -70,16 +71,24 @@ export function SponsorRoiDashboardLiveKpiCards({
   const decisionsQuery = useGovernanceDecisionsNeededSummaryQuery({
     enabled: usesExternalSummary ? loadingProp !== true : true,
   });
+  const attestationQuery = useRealizedValueAttestationQuery({
+    enabled: usesExternalSummary ? loadingProp !== true : true,
+  });
 
   const resolvedSummary = usesExternalSummary ? (summaryProp ?? null) : (summaryQuery.data ?? null);
   const summaryFailure =
     !usesExternalSummary && summaryQuery.isError ? toApiLoadFailure(summaryQuery.error) : null;
   const failure: ApiLoadFailureState | null =
-    decisionsQuery.isError ? toApiLoadFailure(decisionsQuery.error) : null;
+    decisionsQuery.isError
+      ? toApiLoadFailure(decisionsQuery.error)
+      : attestationQuery.isError
+        ? toApiLoadFailure(attestationQuery.error)
+        : null;
+  const attestationBlockedReason = attestationQuery.blockedReason;
 
   const loading = usesExternalSummary
-    ? (loadingProp ?? false) || decisionsQuery.isPending
-    : summaryQuery.isPending || decisionsQuery.isPending;
+    ? (loadingProp ?? false) || decisionsQuery.isPending || attestationQuery.isPending
+    : summaryQuery.isPending || decisionsQuery.isPending || attestationQuery.isPending;
 
   const staleRiskCount =
     resolvedSummary?.staleArchitectureRiskCount ?? decisionsQuery.data?.staleRisks ?? 0;
@@ -100,6 +109,11 @@ export function SponsorRoiDashboardLiveKpiCards({
     return (
       <div className="sm:col-span-2 lg:col-span-3">
         <OperatorApiProblem failure={failure} />
+        {attestationBlockedReason ? (
+          <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="sponsor-attestation-blocked-reason">
+            {attestationBlockedReason}
+          </p>
+        ) : null}
       </div>
     );
   }
