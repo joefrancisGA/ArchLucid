@@ -61,6 +61,10 @@ GitHub cannot apply rulesets from files in the repo. As of 2026-08-31, the **int
 
 Owner apply: `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` after one green `ui-typecheck-on-push.yml` run that includes the beta-readiness job.
 
+### Full `ci.yml` matrix triage (QR-13)
+
+Last completed **`workflow_dispatch`** on `master` failed on 2026-08-28 (run `33193938737`). Push corset and typecheck paths have moved since then. See [`docs/quality/ci-yml-matrix-triage-2026-09-09.md`](../docs/quality/ci-yml-matrix-triage-2026-09-09.md) for per-job pass/fail, fixes, and known-red backlog. **Do not** add required checks beyond [`golden-cohort-gate-required-check.json`](rulesets/golden-cohort-gate-required-check.json) when triaging.
+
 ### Merge queue (owner apply — closes v8 §17 item 4)
 
 GitHub **merge queue** validates the **combined merge-result SHA** (`merge_group` workflow event) before landing on `master`/`main`. That closes the gap where two green PR branches still break when merged (path-skipped `.NET: fast core (corset)` on docs-only PRs is the exhibit).

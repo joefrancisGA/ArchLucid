@@ -29,10 +29,16 @@ public sealed partial class PilotsController
     [HttpGet("runs/recent-deltas")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(RecentPilotRunDeltasResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<RecentPilotRunDeltasResponse>> GetRecentDeltas(
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetRecentDeltas(
         [FromQuery(Name = "count")] int? count,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsurePilotRecentDeltasSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RecentPilotRunDeltasResponse response = await _pilots.GetRecentDeltasAsync(count, cancellationToken);
 
         return Ok(response);

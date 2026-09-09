@@ -19,11 +19,11 @@ Layered `IConfiguration` for the API host (`ArchLucid.Api/Program.cs`). Later so
 
 ## Pilot profile overlay (`appsettings.Pilot.json`)
 
-Use the optional **`appsettings.Pilot.json`** overlay (loaded in `ArchLucid.Api/Program.cs` after base JSON, before Advanced/SaaS) when standing up a single-replica pilot. It keeps the operator view minimal:
+Use the optional **`appsettings.Pilot.json`** overlay (loaded in `ArchLucid.Api/Program.cs` after base JSON when **`ASPNETCORE_ENVIRONMENT` is not Development**, before Advanced/SaaS) when standing up a single-replica pilot. It keeps the operator view minimal:
 
 | Key / area | Pilot value |
 | --- | --- |
-| `ConnectionStrings:ArchLucid` | Injected at deploy (empty in repo template) |
+| `ConnectionStrings:ArchLucid` | Injected at deploy via environment / Key Vault (omit from repo overlay — do not set an empty string) |
 | `ArchLucid:StorageProvider` | `Sql` |
 | `HotPathCache:Provider` | `Memory` |
 | `HotPathCache:ExpectedApiReplicaCount` | `1` |

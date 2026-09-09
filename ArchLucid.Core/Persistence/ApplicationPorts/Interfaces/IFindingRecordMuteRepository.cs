@@ -20,4 +20,11 @@ public interface IFindingRecordMuteRepository
         ScopeContext scope,
         CancellationToken ct,
         DateTimeOffset? expiresAtUtc = null);
+
+    /// <summary>Clears mute for the finding on the given run; returns false when no row was updated.</summary>
+    Task<bool> TryUnmuteAsync(
+        Guid runId,
+        string findingId,
+        ScopeContext scope,
+        CancellationToken ct);
 }

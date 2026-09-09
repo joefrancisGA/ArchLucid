@@ -12,6 +12,8 @@ import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorEr
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { downloadTraceabilityBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
 import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-contract-copy";
 import { exportVerifyBlockedRecovery } from "@/lib/exports/export-verify-recovery-copy";
 import {
@@ -76,10 +78,10 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
 
       await downloadTraceabilityBundleZip(runId);
     } catch (error: unknown) {
-      showError(
-        "Evidence bundle",
-        error instanceof Error ? error.message : "Could not download traceability bundle.",
-      );
+      const failure = toApiLoadFailure(error);
+      const blocked = artifactBundleMutationBlockedReason(failure);
+
+      showError("Evidence bundle", blocked ?? failure.message);
     } finally {
       setTraceabilityBusy(false);
     }
