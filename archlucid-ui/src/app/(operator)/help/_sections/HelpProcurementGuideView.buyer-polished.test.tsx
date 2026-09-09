@@ -42,6 +42,7 @@ import {
   PROCUREMENT_HELP_SKIP_LINK_LABEL,
   PROCUREMENT_HELP_SKIP_TARGET_ID,
   PROCUREMENT_HELP_START_HERE_HELPER,
+  PROCUREMENT_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/procurement-help-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -81,23 +82,26 @@ describe("HelpProcurementGuideView buyer-polished shell (PRO)", () => {
     const buyerFirstViewport = screen.getByTestId(PROCUREMENT_HELP_FIRST_VIEWPORT_TEST_ID);
     const diligenceCtas = screen.getByTestId("procurement-help-diligence-ctas");
     const overview = screen.getByTestId("help-procurement-overview");
+    const workspace = screen.getByTestId(PROCUREMENT_HELP_WORKSPACE_TEST_ID);
     const faqContent = screen.getByTestId("help-procurement-faq-content");
     const orientationBottom = screen.getByTestId(PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("procurement-help-sources");
 
     expect(primaryContent).toContainElement(buyerFirstViewport);
     expect(buyerFirstViewport).toContainElement(diligenceCtas);
+    expect(buyerFirstViewport).not.toContainElement(overview);
     expect(within(diligenceCtas).getByRole("link", { name: "Trust Center" })).toHaveAttribute("href", "/trust");
     expect(screen.getByTestId("help-procurement-start-here-helper")).toHaveTextContent(
       PROCUREMENT_HELP_START_HERE_HELPER,
     );
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(faqContent);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(faqContent);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(orientationBottom).toContainElement(sourcesSection);
     expect(buyerFirstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(faqContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(faqContent.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    const sourcesSection = screen.getByTestId("procurement-help-sources");
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const source of filterWhereToGoNextFollowUpLinks(PROCUREMENT_HELP_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
