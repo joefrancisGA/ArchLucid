@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { governanceFindingsClearAllFiltersHref } from "./governance-findings-clear-all-filters-url";
+import { GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM } from "./governance-findings-bulk-disposition-confirm-url";
+import { GOVERNANCE_FINDINGS_BULK_PARAM } from "./governance-findings-bulk-selection-url";
+import { governanceFindingsClearAllFiltersHref, governanceFindingsShowAllFilteredFindingsHref } from "./governance-findings-clear-all-filters-url";
 
 describe("governanceFindingsClearAllFiltersHref", () => {
   it("clears register, facet, and search params but preserves review and architecture scope", () => {
@@ -19,6 +21,29 @@ describe("governanceFindingsClearAllFiltersHref", () => {
     );
 
     expect(href).toBe("/governance/findings?runId=run-1");
+    expect(href).not.toContain("filter=");
+    expect(href).not.toContain("q=");
+  });
+
+  it("clears stale bulk selection and confirm params while preserving review scope", () => {
+    const href = governanceFindingsClearAllFiltersHref(
+      `runId=run-1&filter=open&${GOVERNANCE_FINDINGS_BULK_PARAM}=f1,f2&${GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM}=accepted`,
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings?runId=run-1");
+    expect(href).not.toContain(`${GOVERNANCE_FINDINGS_BULK_PARAM}=`);
+    expect(href).not.toContain(`${GOVERNANCE_FINDINGS_BULK_DISP_CONFIRM_PARAM}=`);
+  });
+
+  it("clears hideGeneric when showing all filtered findings", () => {
+    const href = governanceFindingsShowAllFilteredFindingsHref(
+      "hideGeneric=1&filter=open&q=phi",
+      "/governance/findings",
+    );
+
+    expect(href).toBe("/governance/findings");
+    expect(href).not.toContain("hideGeneric=");
     expect(href).not.toContain("filter=");
     expect(href).not.toContain("q=");
   });

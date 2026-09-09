@@ -22,10 +22,6 @@ public sealed class DurableBackgroundJobQueue(
         BackgroundJobsOptions snapshot = options.Value;
         int safeMaxRetries = Math.Clamp(maxRetries, 0, 10);
 
-        if (await repository.CountNonTerminalAsync(cancellationToken) >= snapshot.MaxPendingJobs)
-            throw new InvalidOperationException(
-                $"The background job queue is at capacity ({snapshot.MaxPendingJobs} non-terminal jobs). Try again later.");
-
         string jobId = Guid.NewGuid().ToString("N");
         DateTimeOffset now = TimeProvider.System.GetUtcNow();
 
@@ -47,8 +43,26 @@ public sealed class DurableBackgroundJobQueue(
             ResultBlobName = null
         };
 
-        await repository.InsertAsync(row, cancellationToken);
-        await notifySender.SendJobIdAsync(jobId, cancellationToken);
+        if (!await repository.TryInsertPendingJobIfUnderCapacityAsync(row, snapshot.MaxPendingJobs, cancellationToken))
+        {
+            throw new InvalidOperationException(
+                $"The background job queue is at capacity ({snapshot.MaxPendingJobs} non-terminal jobs). Try again later.");
+        }
+
+        try
+        {
+            await notifySender.SendJobIdAsync(jobId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            await repository.MarkFailedTerminalAsync(
+                jobId,
+                $"Queue notification failed: {ex.Message}",
+                retryCount: 0,
+                cancellationToken);
+
+            throw;
+        }
 
         return jobId;
     }

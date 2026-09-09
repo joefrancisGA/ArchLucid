@@ -17,6 +17,13 @@ public sealed partial class DifficultyBasedExtractionRouter
         "soc 2",
         "pci",
         "pci-dss",
+        "iso 27001",
+        "fedramp",
+        "nist",
+        "sox",
+        "glba",
+        "lgpd",
+        "data protection",
     ];
 
     public ExtractionDifficulty Classify(string sourceText)

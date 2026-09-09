@@ -1,5 +1,6 @@
 using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Application.Runs.Async;
+using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Metering;
@@ -251,6 +252,91 @@ public sealed class ContainerJobsOffloadRegistrationTests
             && d.ImplementationType == typeof(TenantHealthScoringHostedService));
 
         hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Api_role_with_cosmos_audit_does_not_register_AuditEventChangeFeedHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+        data["CosmosDb:AuditEventsEnabled"] = "true";
+        data["CosmosDb:ConnectionString"] = "AccountEndpoint=https://unit-test.documents.azure.com:443/;AccountKey=dGVzdA==";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AuditEventChangeFeedHostedService));
+
+        hasHosted.Should().BeFalse(
+            "split Api+Worker deployments must not start Cosmos audit change feed processors on Api replicas");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_DataConsistencyReconciliationHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(DataConsistencyReconciliationHostedService));
+
+        hasHosted.Should().BeFalse(
+            "data-consistency reconciliation loops are Worker+Combined only; RegisterDataConsistencyReconciliation gates hostingRole");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_leader_elected_orphan_probe_hosted_services()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasOrphanProbe = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(DataConsistencyOrphanProbeHostedService));
+
+        bool hasRequiredAuditTrailProbe = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(RequiredAuditTrailOrphanProbeHostedService));
+
+        hasOrphanProbe.Should().BeTrue(
+            "orphan probes register on all SQL-capable roles; execution is leader-elected cluster-wide");
+        hasRequiredAuditTrailProbe.Should().BeTrue(
+            "required-audit-trail orphan probes register on all SQL-capable roles; execution is leader-elected cluster-wide");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_QuickScanBudgetReconciliationHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(QuickScanBudgetReconciliationHostedService));
+
+        hasHosted.Should().BeTrue(
+            "Quick Scan budget reconciliation registers on Api; HostLeaderElectionCoordinator prevents duplicate work");
     }
 
     [Fact]
