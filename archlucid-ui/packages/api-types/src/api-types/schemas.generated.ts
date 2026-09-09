@@ -1077,6 +1077,9 @@ export interface components {
         ArchitectureDiagramEdgeRecord: {
             id?: string;
             label?: string;
+            properties?: {
+                [key: string]: string;
+            };
             provenance?: string;
             removed?: boolean;
             sourceId?: string;

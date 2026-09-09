@@ -18,7 +18,7 @@ The pipeline **agent output → typed findings → manifest decisions → audit*
 
 ## Corpus contract
 
-Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **69** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-69`** are **hand-authored** scenarios (see each folder’s `README.md`).
+Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **71** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-71`** are **hand-authored** scenarios (see each folder’s `README.md`).
 
 | File | Purpose |
 |------|---------|
@@ -32,7 +32,7 @@ On assertion failure, `GoldenCorpusRegressionTests` writes sibling files with an
 
 ---
 
-## Coverage map (`case-01` … `case-69`)
+## Coverage map (`case-01` … `case-71`)
 
 Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`index % 6`) with a stable suffix per block of six (`index / 6`).
 
@@ -77,6 +77,8 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 | **`case-67`** (hand-authored) | **DX-74** — simple Terraform GCP service account + `roles/secretmanager.admin` IAM member on a data-bearing secret, parsed through **`DefaultGraphBuilder`** with no Actor/path overlay. Exercises **`identity-blast-radius`**. See `tests/golden-corpus/decisioning/case-67/README.md`. |
 | **`case-68`** (hand-authored) | **DX-75** — simple Terraform ALB + Lambda + RDS, parsed through **`DefaultGraphBuilder`** with no Actor/`CONNECTS_TO` overlay. Exercises **`data-flow-trust-boundary`**. See `tests/golden-corpus/decisioning/case-68/README.md`. |
 | **`case-69`** (hand-authored) | **DX-76** — simple Terraform NSG SSH-from-internet + subnet association + SQL, parsed through **`DefaultGraphBuilder`** with no path overlay. Exercises **`segmentation-semantics`**. See `tests/golden-corpus/decisioning/case-69/README.md`. |
+| **`case-70`** (hand-authored) | **AS-034** — mermaid flowchart with **Corporate network** trust-boundary subgraph and two systems, parsed through **`DefaultGraphBuilder`** with no path overlay. Exercises diagram **`diagram-node:*`** topology with **`RelatedNodeIds`** on scope engines (no new coverage engine). See `tests/golden-corpus/decisioning/case-70/README.md`. |
+| **`case-71`** (hand-authored) | **AS-035** — Visio **vsdx** with two labeled shapes, a connect, and one **unlabeled** shape, parsed through **`DefaultGraphBuilder`** with no path overlay. Exercises diagram **`diagram-node:*`** topology with **`RelatedNodeIds`** on scope engines and confirms the unlabeled shape does not mint a topology resource (R5 / AS-019). See `tests/golden-corpus/decisioning/case-71/README.md`. |
 
 ### Archetypes (`case-01` … `case-30` only)
 
@@ -110,7 +112,7 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 
 ### Non-goal: production governance loader in the harness (WK-22)
 
-`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-69` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, expectation stamps, checklist-cluster synthesis, and three-way policy-declaration-inventory contradiction stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyDeclarationInventoryContradictionGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`, `ChecklistClusterSynthesisGoldenCorpusTests`).
+`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-71` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, expectation stamps, checklist-cluster synthesis, and three-way policy-declaration-inventory contradiction stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyDeclarationInventoryContradictionGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`, `ChecklistClusterSynthesisGoldenCorpusTests`).
 
 ---
 

@@ -10,6 +10,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { INTEGRATIONS_JIRA_PATH, INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import { JIRA_INTEGRATION_CLAIM_DISCIPLINE } from "@/lib/jira-integration-evidence-copy";
@@ -53,6 +54,9 @@ export function JiraIntegrationPageHeader(props: JiraIntegrationPageHeaderProps)
       navHref={INTEGRATIONS_JIRA_PATH}
       headingLevel="h1"
       subtitle={jiraIntegrationPageSubtitle(buyerPolishedShell, JIRA_PAGE_SUBTITLE)}
+      subtitleClassName={
+        buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : undefined
+      }
       claimDiscipline={buyerPolishedShell ? JIRA_INTEGRATION_CLAIM_DISCIPLINE : undefined}
       claimDisciplineTestId={buyerPolishedShell ? JIRA_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined}
       statusBadge={

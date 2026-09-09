@@ -45,6 +45,41 @@ public sealed class MermaidContextDocumentParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_SubgraphFixture_YieldsTrustBoundarySubgraphMembership()
+    {
+        const string mermaid = """
+            flowchart TB
+                subgraph corp["Corporate network"]
+                    api["Orders API"]
+                    db["SQL Database"]
+                end
+                user["Internet user"]
+                user --> api
+            """;
+
+        ContextDocumentReference document = new()
+        {
+            DocumentId = "doc-mermaid-subgraph",
+            Name = "topology.mmd",
+            ContentType = SupportedContextDocumentContentTypes.Mermaid,
+            Content = mermaid,
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await this.parser.ParseAsync(document, CancellationToken.None);
+
+        objects.Should().HaveCount(3);
+        objects.Should().Contain(obj =>
+            obj.Properties["diagramNodeId"] == "api"
+            && obj.Properties["diagramSubgraphId"] == "corp");
+        objects.Should().Contain(obj =>
+            obj.Properties["diagramNodeId"] == "db"
+            && obj.Properties["diagramSubgraphId"] == "corp");
+        objects.Should().Contain(obj =>
+            obj.Properties["diagramNodeId"] == "user"
+            && !obj.Properties.ContainsKey("diagramSubgraphId"));
+    }
+
+    [Fact]
     public async Task ParseAsync_GarbageMermaid_ReturnsEmptyWithoutThrowing()
     {
         ContextDocumentReference document = new()
