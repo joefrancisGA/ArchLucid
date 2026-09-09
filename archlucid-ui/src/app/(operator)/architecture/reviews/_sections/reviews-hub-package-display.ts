@@ -9,7 +9,20 @@ import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isSampleReviewRun } from "@/lib/reviews/is-sample-review-run";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
-import { reviewPackageArchitectureName, reviewPackageOwnerLabel, type ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
+import {
+  lookupArchitectureDraftParentArchitectureId,
+  reviewPackageArchitectureName,
+  reviewPackageOwnerLabel,
+  type ReviewPackageOwnerResolutionContext,
+} from "@/lib/review-package-validation-picker";
+import {
+  architectureIdentityPath,
+  resolveArchitectureReviewHref,
+} from "@/lib/architecture/architecture-routes";
+import {
+  WORKING_UNLINKED_REVIEW_INBOX_LABEL,
+  isUnlinkedArchitectureReviewJob,
+} from "@/lib/architecture/working-unlinked-review-honesty";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -39,11 +52,70 @@ export type ReviewsHubReviewRowDisplay = {
   readonly needsAttention: boolean;
   readonly primaryAction: PrimaryReviewExploreLink;
   readonly reviewHref: string;
+  readonly architectureId: string | null;
+  readonly architectureDeskHref: string | null;
   readonly isSampleReview: boolean;
 };
 
 /** @deprecated Use {@link ReviewsHubReviewRowDisplay}. */
 export type ReviewsHubPackageRowDisplay = ReviewsHubReviewRowDisplay;
+
+export type ReviewsHubRowDisplayOptions = {
+  readonly isWorkingMode?: boolean;
+};
+
+function resolveReviewsHubRowArchitectureId(
+  run: RunSummary,
+  ownerContext: ReviewPackageOwnerResolutionContext,
+): string | null {
+  const fromRegistry = lookupArchitectureDraftParentArchitectureId(
+    run.runId,
+    ownerContext.draftRegistryEntries,
+  );
+
+  if (fromRegistry !== null) {
+    return fromRegistry;
+  }
+
+  const requestId = run.requestId?.trim() ?? "";
+
+  if (requestId.length > 0) {
+    return requestId;
+  }
+
+  return null;
+}
+
+function resolveReviewsHubReviewHref(
+  run: RunSummary,
+  primaryAction: PrimaryReviewExploreLink,
+  options: ReviewsHubRowDisplayOptions,
+  ownerContext: ReviewPackageOwnerResolutionContext,
+): string {
+  if (options.isWorkingMode !== true) {
+    return primaryAction.href;
+  }
+
+  const architectureId = resolveReviewsHubRowArchitectureId(run, ownerContext);
+
+  if (architectureId === null) {
+    return primaryAction.href;
+  }
+
+  return resolveArchitectureReviewHref(run.runId, architectureId);
+}
+
+function resolveReviewsHubArchitectureDisplayName(
+  run: RunSummary,
+  architectureId: string | null,
+  isWorkingMode: boolean,
+): string {
+  if (isWorkingMode && isUnlinkedArchitectureReviewJob(architectureId)) {
+    return WORKING_UNLINKED_REVIEW_INBOX_LABEL;
+  }
+
+  return reviewPackageArchitectureName(run);
+}
 
 function finiteCount(value: number | null | undefined): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -188,22 +260,33 @@ export function toReviewsHubReviewRowDisplay(
   run: RunSummary,
   ownerContext: ReviewPackageOwnerResolutionContext = {},
   siblingRuns: readonly RunSummary[] = [],
+  options: ReviewsHubRowDisplayOptions = {},
 ): ReviewsHubReviewRowDisplay {
   const runId = canonicalizeDemoRunId(run.runId);
   const primaryAction = getBuyerSafeReviewsTableLinkForRun(run);
+  const architectureId = resolveReviewsHubRowArchitectureId(run, ownerContext);
+  const reviewHref = resolveReviewsHubReviewHref(run, primaryAction, options, ownerContext);
   const reviewTitle = buyerFacingReviewTitleFromSummary(run);
   const titleParts = splitReviewsHubReviewTitle(reviewTitle);
   const reviewTitlePrimary =
     siblingRuns.length > 1
       ? formatRunListTitleWithDisambiguator(run, siblingRuns)
       : titleParts.primary;
+  const workingPrimaryAction =
+    options.isWorkingMode === true && reviewHref !== primaryAction.href
+      ? { ...primaryAction, href: reviewHref }
+      : primaryAction;
 
   return {
     runId,
     reviewTitle,
     reviewTitlePrimary,
     reviewTitleKindLabel: titleParts.kindLabel,
-    architectureName: reviewPackageArchitectureName(run),
+    architectureName: resolveReviewsHubArchitectureDisplayName(
+      run,
+      architectureId,
+      options.isWorkingMode === true,
+    ),
     overallStatus: reviewsHubOverallStatus(run),
     lifecycleStage: reviewsHubLifecycleStage(run),
     ownerLabel: reviewPackageOwnerLabel(run, ownerContext),
@@ -214,8 +297,11 @@ export function toReviewsHubReviewRowDisplay(
     evidenceCount: reviewEvidenceCount(run),
     governanceState: reviewGovernanceState(run),
     needsAttention: reviewsHubNeedsAttention(run),
-    primaryAction,
-    reviewHref: primaryAction.href,
+    primaryAction: workingPrimaryAction,
+    reviewHref,
+    architectureId,
+    architectureDeskHref:
+      architectureId !== null ? architectureIdentityPath(architectureId) : null,
     isSampleReview: isSampleReviewRun(run),
   };
 }

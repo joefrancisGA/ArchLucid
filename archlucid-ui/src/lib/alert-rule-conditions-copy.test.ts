@@ -3,10 +3,14 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  ALERT_RULES_CONDITIONS_BUYER_OVERVIEW,
+  ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER,
+  ALERT_RULES_CONDITIONS_PAGE_LEAD,
   ALERT_RULES_LIST_EMPTY_BODY,
   ALERT_RULES_LIST_EMPTY_TITLE,
   ALERT_RULES_LIST_HEADING,
   ALERT_RULES_POSTURE_NOT_CONFIGURED_LABEL,
+  ALERT_RULES_RULE_TYPE_HELP,
   ALERT_RULES_SECTION_HEADING,
   ALERT_RULES_TAB_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
@@ -25,9 +29,19 @@ describe("alert-rule-conditions-copy", () => {
     expect(ALERT_RULES_LIST_EMPTY_BODY).not.toMatch(/Create a rule below/i);
   });
 
+  it("keeps buyer overview distinct from page lead and field help", () => {
+    expect(ALERT_RULES_CONDITIONS_BUYER_OVERVIEW).not.toBe(ALERT_RULES_CONDITIONS_PAGE_LEAD);
+    expect(ALERT_RULES_CONDITIONS_BUYER_OVERVIEW).not.toBe(ALERT_RULES_RULE_TYPE_HELP);
+    expect(ALERT_RULES_CONDITIONS_BUYER_OVERVIEW).not.toBe(ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER);
+  });
+
   it("keeps hub tab config and content module on canonical alert-rule labels", () => {
     const hubSource = readFileSync(
       join(process.cwd(), "src", "app", "(operator)", "governance", "alert-rules", "AlertRulesHubClient.tsx"),
+      "utf8",
+    );
+    const tableSource = readFileSync(
+      join(process.cwd(), "src", "components", "alerts", "AlertRulesTable.tsx"),
       "utf8",
     );
     const contentSource = readFileSync(
@@ -36,7 +50,7 @@ describe("alert-rule-conditions-copy", () => {
     );
 
     expect(hubSource).toContain("ALERT_RULES_TAB_LABEL");
-    expect(contentSource).toContain("ALERT_RULES_LIST_HEADING");
+    expect(tableSource).toContain("ALERT_RULES_LIST_HEADING");
     expect(contentSource).not.toMatch(/>\s*Alert conditions\s*</);
   });
 });

@@ -105,7 +105,7 @@ export function buildCommittedCoverageScopeLine(
   }
 
   if ((counts.additionalOptional ?? 0) > 0) {
-    parts.push(`${counts.additionalOptional} optional governance pack${counts.additionalOptional === 1 ? "" : "s"}`);
+    parts.push(`${counts.additionalOptional} optional policy pack${counts.additionalOptional === 1 ? "" : "s"}`);
   }
 
   if (parts.length === 0) {

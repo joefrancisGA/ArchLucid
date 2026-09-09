@@ -1,6 +1,10 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -13,6 +17,11 @@ import {
 import { resolveProvenanceMetadataAbsentReasons } from "@/lib/provenance-metadata-absent-reasons";
 import type { RunDetail } from "@/types/authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM,
+  parseRunDetailProvenanceIdentifiersOpenFromSearch,
+  runDetailProvenanceIdentifiersDisclosureHrefFromSearch,
+} from "@/lib/runs/run-detail-provenance-identifiers-disclosure-url";
 
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
@@ -32,6 +41,33 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
       : null;
   const metadataContext = deriveReviewRecordMetadataContext(manifestId);
   const absentReasons = resolveProvenanceMetadataAbsentReasons(metadataContext);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runDetailProvenanceIdentifiersOpenParam = searchParams.get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM);
+  const [identifiersOpen, setIdentifiersOpenState] = useState(() =>
+    parseRunDetailProvenanceIdentifiersOpenFromSearch(runDetailProvenanceIdentifiersOpenParam),
+  );
+  const syncIdentifiersOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runDetailProvenanceIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setIdentifiersOpen = useCallback(
+    (open: boolean) => {
+      setIdentifiersOpenState(open);
+      syncIdentifiersOpenToUrl(open);
+    },
+    [syncIdentifiersOpenToUrl],
+  );
+
+  useEffect(() => {
+    setIdentifiersOpenState(parseRunDetailProvenanceIdentifiersOpenFromSearch(runDetailProvenanceIdentifiersOpenParam));
+  }, [runDetailProvenanceIdentifiersOpenParam]);
 
   const definitionLabelClass = cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.body);
   const monoValueClass = cn("mt-1 flex items-center gap-2 font-mono", OPERATOR_TYPOGRAPHY.micro);
@@ -48,7 +84,11 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <CollapsibleSection title="Identifiers" defaultOpen>
+          <CollapsibleSection
+            title="Identifiers"
+            open={identifiersOpen}
+            onToggle={setIdentifiersOpen}
+          >
             <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
               <div>
                 <dt className={definitionLabelClass}>Context snapshot</dt>

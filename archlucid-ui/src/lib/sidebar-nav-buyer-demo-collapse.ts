@@ -8,8 +8,13 @@ export function applyBuyerDemoSecondaryNavCollapse(input: {
   readonly pathname: string;
   readonly buyerPolishedShell: boolean;
   readonly demoUi: boolean;
+  readonly architectWorkspaceChrome?: boolean;
   readonly setGroupExpanded: (groupId: SidebarCollapsibleNavGroupId, expanded: boolean) => void;
 }): void {
+  if (input.architectWorkspaceChrome === true) {
+    return;
+  }
+
   if (!input.buyerPolishedShell && !input.demoUi) {
     return;
   }

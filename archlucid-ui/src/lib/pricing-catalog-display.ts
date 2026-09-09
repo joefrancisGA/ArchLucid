@@ -178,5 +178,17 @@ export function buildOperatorBillingAddonLines(pricing: PricingDoc, pkg: Pricing
     });
   }
 
+  if (typeof pkg.llmHardCutoffUsdPerUtcMonth === "number" && pkg.llmHardCutoffUsdPerUtcMonth > 0) {
+    const included =
+      typeof pkg.llmIncludedUsdPerUtcMonth === "number" && pkg.llmIncludedUsdPerUtcMonth > 0
+        ? `${formatPricingMoney(pkg.llmIncludedUsdPerUtcMonth, pricing.currency)} included / `
+        : "";
+
+    lines.push({
+      label: "Hosted AI spend guard",
+      value: `${included}${formatPricingMoney(pkg.llmHardCutoffUsdPerUtcMonth, pricing.currency)} hard stop / UTC month`,
+    });
+  }
+
   return lines;
 }

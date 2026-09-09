@@ -19,6 +19,10 @@ import {
   parseRunPipelineStagesOpenFromSearch,
   runPipelineStagesDisclosureHrefFromSearch,
 } from "@/lib/runs/run-pipeline-stages-disclosure-url";
+import {
+  parseRunPipelineStagesTechnicalOpenFromSearch,
+  runPipelineStagesTechnicalDisclosureHrefFromSearch,
+} from "@/lib/runs/run-pipeline-stages-technical-disclosure-url";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -35,7 +39,11 @@ export function RunDetailPipelineStagesSection({
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const runPipelineStagesOpenParam = searchParams.get("runPipelineStagesOpen");
+  const runPipelineStagesTechnicalOpenParam = searchParams.get("runPipelineStagesTechnicalOpen");
   const [open, setOpenState] = useState(() => parseRunPipelineStagesOpenFromSearch(runPipelineStagesOpenParam));
+  const [technicalOpen, setTechnicalOpenState] = useState(() =>
+    parseRunPipelineStagesTechnicalOpenFromSearch(runPipelineStagesTechnicalOpenParam),
+  );
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
@@ -57,6 +65,28 @@ export function RunDetailPipelineStagesSection({
   useEffect(() => {
     setOpenState(parseRunPipelineStagesOpenFromSearch(runPipelineStagesOpenParam));
   }, [runPipelineStagesOpenParam]);
+
+  const syncTechnicalOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        runPipelineStagesTechnicalDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setTechnicalOpenState(detailsOpen);
+      syncTechnicalOpenToUrl(detailsOpen);
+    },
+    [syncTechnicalOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalOpenState(parseRunPipelineStagesTechnicalOpenFromSearch(runPipelineStagesTechnicalOpenParam));
+  }, [runPipelineStagesTechnicalOpenParam]);
 
   if (stageTimeline.length === 0) {
     return null;
@@ -98,11 +128,13 @@ export function RunDetailPipelineStagesSection({
             </li>
           ))}
         </ul>
-        <details className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800">
-          <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            Technical details
-          </summary>
-          <div className="mt-3 space-y-3">
+        <CollapsibleSection
+          title="Technical details"
+          open={technicalOpen}
+          onToggle={setTechnicalOpen}
+          sectionTestId="run-detail-pipeline-stages-technical-collapsible"
+        >
+          <div className="space-y-3">
             {otelTraceId ? (
               <div className={OPERATOR_TYPOGRAPHY.body}>
                 <RunTraceViewerLink traceId={otelTraceId} />
@@ -124,7 +156,7 @@ export function RunDetailPipelineStagesSection({
               ))}
             </ul>
           </div>
-        </details>
+        </CollapsibleSection>
       </CollapsibleSection>
     </section>
   );

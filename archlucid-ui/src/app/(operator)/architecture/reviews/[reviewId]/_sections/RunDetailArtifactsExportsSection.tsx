@@ -56,6 +56,7 @@ import { RunDetailExportRecordComparisonHistoryCallout } from "./RunDetailExport
 import { RunDetailAssuranceGuardCallouts } from "./RunDetailAssuranceGuardCallouts";
 import { RunDetailExportBlobPushPanel } from "@/components/runs/RunDetailExportBlobPushPanel";
 
+
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
   readonly runId: string;
@@ -77,6 +78,8 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly enginesSucceeded?: number | null;
   readonly progressSummary?: RunSummary | null;
   readonly graphSnapshot?: unknown;
+  readonly findingsSnapshot?: unknown;
+  readonly contextSnapshot?: unknown;
 };
 
 function resolveFeasibilityVerdict(
@@ -466,6 +469,9 @@ export function RunDetailArtifactsExportsSection(
                   enginesSucceeded={props.enginesSucceeded ?? null}
                   progressSummary={props.progressSummary ?? null}
                   graphSnapshot={props.graphSnapshot ?? null}
+                  findingsSnapshot={props.findingsSnapshot ?? null}
+                  contextSnapshot={props.contextSnapshot ?? null}
+                  usedStaticDemoRun={usedStaticDemoRun}
                 />
               </div>
             ) : (
@@ -479,6 +485,9 @@ export function RunDetailArtifactsExportsSection(
                   enginesSucceeded={props.enginesSucceeded ?? null}
                   progressSummary={props.progressSummary ?? null}
                   graphSnapshot={props.graphSnapshot ?? null}
+                  findingsSnapshot={props.findingsSnapshot ?? null}
+                  contextSnapshot={props.contextSnapshot ?? null}
+                  usedStaticDemoRun={usedStaticDemoRun}
                 />
                 <div className="flex max-w-[14rem] flex-col gap-1">
                   {collateralExportBlockedReason !== null ? (
@@ -571,6 +580,7 @@ export function RunDetailArtifactsExportsSection(
       />
       <RunDetailExportHistoryCallout runId={runId} />
       <RunDetailExportBlobPushPanel runId={runId} disabled={collateralExportBlockedReason !== null} />
+
       <RunDetailAssuranceGuardCallouts runId={runId} />
     </section>
   );

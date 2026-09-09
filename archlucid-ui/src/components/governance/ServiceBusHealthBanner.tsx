@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
@@ -12,6 +14,10 @@ import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
 import { SERVICE_BUS_HEALTH_LABELS } from "@/lib/operator/operator-health-labels";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { shouldPollServiceBusHealthDegradedBanner } from "@/lib/shell-banner-poll-policy";
+import {
+  parseServiceBusHealthTechnicalProbeOpenFromSearch,
+  serviceBusHealthTechnicalProbeDisclosureHrefFromSearch,
+} from "@/lib/governance/service-bus-health-technical-probe-disclosure-url";
 
 /**
  * Demo/static-demo shells may omit live health polling. Paying Working users must see real
@@ -25,6 +31,38 @@ function isServiceBusBannerSuppressed(): boolean {
  * Global warning when Azure Service Bus readiness is Unhealthy or Degraded (`azure_service_bus` on `GET /health/ready`).
  */
 export function ServiceBusHealthBanner() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const serviceBusHealthTechnicalProbeOpenParam = searchParams.get("serviceBusHealthTechnicalProbeOpen");
+  const [technicalProbeOpen, setTechnicalProbeOpenState] = useState(() =>
+    parseServiceBusHealthTechnicalProbeOpenFromSearch(serviceBusHealthTechnicalProbeOpenParam),
+  );
+
+  const syncTechnicalProbeOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        serviceBusHealthTechnicalProbeDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalProbeOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalProbeOpenState(open);
+      syncTechnicalProbeOpenToUrl(open);
+    },
+    [syncTechnicalProbeOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalProbeOpenState(
+      parseServiceBusHealthTechnicalProbeOpenFromSearch(serviceBusHealthTechnicalProbeOpenParam),
+    );
+  }, [serviceBusHealthTechnicalProbeOpenParam]);
+
   const documentHidden = useDocumentHidden();
   const queryEnabled = !isServiceBusBannerSuppressed();
 
@@ -68,7 +106,13 @@ export function ServiceBusHealthBanner() {
             </Link>
             .
           </p>
-          <details className="mt-2">
+          <details
+            className="mt-2"
+            open={technicalProbeOpen}
+            onToggle={(event) => {
+              setTechnicalProbeOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
+          >
             <summary className="cursor-pointer text-sm text-amber-950/90 dark:text-amber-100/90">
               {SERVICE_BUS_HEALTH_LABELS.technicalProbeDisclosure}
             </summary>
@@ -87,7 +131,13 @@ export function ServiceBusHealthBanner() {
           <p className="m-0 font-semibold text-amber-900 dark:text-amber-100">
             {SERVICE_BUS_HEALTH_LABELS.refreshFailedTitle}
           </p>
-          <details className="mt-1">
+          <details
+            className="mt-1"
+            open={technicalProbeOpen}
+            onToggle={(event) => {
+              setTechnicalProbeOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
+          >
             <summary className="cursor-pointer text-sm text-amber-950/90 dark:text-amber-100/90">
               {SERVICE_BUS_HEALTH_LABELS.technicalProbeDisclosure}
             </summary>

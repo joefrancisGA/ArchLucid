@@ -13,6 +13,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
+using ArchLucid.TestSupport.SealedManifest;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Api.Tests;
 
@@ -78,7 +82,10 @@ public sealed class GovernanceSetupControllerTests
             scopeProvider.Object,
             resolver.Object,
             subscriptions.Object,
-            tenants.Object);
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
 
         IActionResult action = await controller.GetSetupGuideBundle(CancellationToken.None);
 
@@ -138,7 +145,10 @@ public sealed class GovernanceSetupControllerTests
             scopeProvider.Object,
             resolver.Object,
             subscriptions.Object,
-            tenants.Object)
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -169,7 +179,10 @@ public sealed class GovernanceSetupControllerTests
             scopeProvider.Object,
             resolver.Object,
             subscriptions.Object,
-            tenants.Object)
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

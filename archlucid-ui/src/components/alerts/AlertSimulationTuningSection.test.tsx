@@ -51,6 +51,10 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => false,
+}));
+
 describe("AlertSimulationTuningSection TB-1593", () => {
   it("renders one shared tab lead, dry-run tag, and rank cue above simulate and tune sections", () => {
     render(<AlertSimulationTuningSection />);

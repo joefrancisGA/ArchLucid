@@ -117,6 +117,7 @@ internal static partial class RunRepositorySql
                                                                                    AND ScopeProjectId = @ScopeProjectId
                                                                                    AND UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId
                                                                                  ORDER BY CreatedUtc DESC;
+
                                                                                  """;
 
     public const string ExistsActiveRunWithSystemNameInWorkspace = """

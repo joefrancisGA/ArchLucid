@@ -7,8 +7,10 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -56,6 +58,7 @@ public sealed class ArchitectureSealDeltaServiceTests
             TenantId = Scope.TenantId,
             WorkspaceId = Scope.WorkspaceId,
             ProjectId = Scope.ProjectId,
+            ManifestHash = SealedManifestHashTestSupport.DefaultHash,
             Assumptions = [sharedAssumption],
             FeasibilityVerdict = new FeasibilityVerdict
             {
@@ -116,13 +119,16 @@ public sealed class ArchitectureSealDeltaServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(sealedReviewRunId);
 
+        IManifestHashService manifestHashService = SealedManifestHashTestSupport.CreateManifestHashService();
+
         ArchitectureSealDeltaService sut = new(
             identityRepository.Object,
             manifestRepository.Object,
             draftRepository.Object,
             projector,
             runRepository.Object,
-            Mock.Of<IManifestHashService>());
+            manifestHashService);
+
 
         ArchitectureSealDeltaResponse? result = await sut.GetSealDeltaAsync(Scope, architectureId);
 

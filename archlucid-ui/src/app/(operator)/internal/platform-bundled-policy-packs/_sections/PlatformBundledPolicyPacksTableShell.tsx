@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -41,6 +43,10 @@ import {
   PLATFORM_BUNDLED_POLICY_PACK_CATEGORY_OPTIONS,
   type PlatformBundledPolicyPackCategory,
 } from "@/lib/platform-bundled-policy-packs-display";
+import {
+  platformBundledPolicyPackFileDisclosureHrefFromSearch,
+  parsePlatformBundledPolicyPackFileKeyFromSearch,
+} from "@/lib/internal/platform-bundled-policy-pack-file-disclosure-url";
 import { cn } from "@/lib/utils";
 
 import type { PlatformBundledPolicyPacksState } from "./use-platform-bundled-policy-packs-state";
@@ -72,6 +78,28 @@ export function PlatformBundledPolicyPacksTableShell(props: PlatformBundledPolic
     hasActiveFilters,
     openActivationConfirm,
   } = props;
+
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const platformBundledPolicyPackFileKeyParam = searchParams.get("platformBundledPolicyPackFileKey");
+  const [openBundleFileKey, setOpenBundleFileKeyState] = useState(() =>
+    parsePlatformBundledPolicyPackFileKeyFromSearch(platformBundledPolicyPackFileKeyParam),
+  );
+
+  const syncOpenBundleFileToUrl = useCallback(
+    (bundleContentFile: string | null) => {
+      router.replace(
+        platformBundledPolicyPackFileDisclosureHrefFromSearch(searchParams.toString(), bundleContentFile, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setOpenBundleFileKeyState(parsePlatformBundledPolicyPackFileKeyFromSearch(platformBundledPolicyPackFileKeyParam));
+  }, [platformBundledPolicyPackFileKeyParam]);
 
   return (
     <Card>
@@ -182,6 +210,12 @@ export function PlatformBundledPolicyPacksTableShell(props: PlatformBundledPolic
                           data-testid={`platform-bundled-policy-pack-file-${row.bundleContentFile}`}
                           bodyTestId={`platform-bundled-policy-pack-file-body-${row.bundleContentFile}`}
                           summaryClassName={cn("cursor-pointer text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                          open={openBundleFileKey === row.bundleContentFile}
+                          onOpenChange={(detailsOpen) => {
+                            const nextBundleFile = detailsOpen ? row.bundleContentFile : null;
+                            setOpenBundleFileKeyState(nextBundleFile ?? "");
+                            syncOpenBundleFileToUrl(nextBundleFile);
+                          }}
                         >
                           <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
                             {row.bundleContentFile}

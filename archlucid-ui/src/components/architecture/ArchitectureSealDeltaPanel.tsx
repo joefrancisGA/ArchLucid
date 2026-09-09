@@ -19,7 +19,7 @@ import {
   architectureSealDeltaDiffKindLabel,
   architectureSealDeltaSectionLabel,
 } from "@/lib/architecture/architecture-seal-delta-copy";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import {
   architectureSealDeltaDisclosureHrefFromSearch,
@@ -129,7 +129,9 @@ export function ArchitectureSealDeltaPanel(props: ArchitectureSealDeltaPanelProp
       ? comparePageHrefAdaptive(sealedReviewRunId, compareTargetRunId)
       : null;
   const whatIfHref =
-    sealedReviewRunId.length > 0 ? `${reviewDetailPath(sealedReviewRunId)}#run-actions` : null;
+    sealedReviewRunId.length > 0
+      ? `${resolveArchitectureReviewHref(sealedReviewRunId, props.architectureId)}#run-actions`
+      : null;
   const groupedDiffs = groupDiffsBySection(delta.diffs);
 
   return (

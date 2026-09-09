@@ -10,6 +10,7 @@ import {
   findingInsightDensityDisclosureHrefFromSearch,
   parseFindingInsightDensityOpenFromSearch,
 } from "@/lib/findings/finding-insight-density-disclosure-url";
+import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 
 export type FindingInsightDensityDisclosureProps = {
   readonly insightDensityScore: number | null;
@@ -80,6 +81,15 @@ export function FindingInsightDensityDisclosure(props: FindingInsightDensityDisc
             <dd className="m-0 leading-relaxed text-al-text-secondary">{whyText}</dd>
           </div>
         ) : null}
+        <div>
+          <dt className="font-semibold text-al-text-primary">Typed-engine insight density</dt>
+          <dd
+            className="m-0 leading-relaxed text-al-text-secondary"
+            data-testid="finding-insight-density-typed-engine-honesty"
+          >
+            {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
+          </dd>
+        </div>
       </dl>
     </details>
   );

@@ -75,6 +75,8 @@ public static class ProblemErrorCodes
 
     public const string QualityGateRejected = "QUALITY_GATE_REJECTED";
 
+    public const string CareerArtifactBlocked = "CAREER_ARTIFACT_BLOCKED";
+
     public const string ProvenanceNodeExplanationNotSupported = "PROVENANCE_NODE_EXPLANATION_NOT_SUPPORTED";
 
     public const string QuickScanBusy = "QUICK_SCAN_BUSY";
@@ -148,6 +150,9 @@ public static class ProblemErrorCodes
 
         if (problemTypeUri == ProblemTypes.QualityGateRejected)
             return QualityGateRejected;
+
+        if (problemTypeUri == ProblemTypes.CareerArtifactBlocked)
+            return CareerArtifactBlocked;
 
         if (problemTypeUri == ProblemTypes.PolicyPackVersionNotFound)
             return PolicyPackVersionNotFound;

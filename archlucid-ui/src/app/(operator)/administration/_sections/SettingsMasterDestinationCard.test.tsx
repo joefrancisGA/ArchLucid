@@ -1,8 +1,12 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+import { extendNextNavigationVitestMock } from "@/testing/next-navigation-vitest-mock";
 
 import { SettingsMasterDestinationCard } from "./SettingsMasterDestinationCard";
 import type { SettingsMasterDestination } from "./settings-master-types";
+
+vi.mock("next/navigation", async (importOriginal) => extendNextNavigationVitestMock(importOriginal));
 
 function buildDestination(overrides: Partial<SettingsMasterDestination> = {}): SettingsMasterDestination {
   return {
@@ -49,5 +53,33 @@ describe("SettingsMasterDestinationCard (TB-1198 / TB-1203)", () => {
     expect(disclosure).not.toHaveAttribute("open");
     expect(screen.getByText("Scope and editability details")).toBeInTheDocument();
     expect(screen.getByTestId("settings-scope-meta")).toBeInTheDocument();
+  });
+
+  it("does not show audit-trail copy on read-only destinations", () => {
+    render(
+      <SettingsMasterDestinationCard
+        destination={buildDestination({
+          editability: "read-only",
+          highImpact: true,
+          saveBehavior: "Changes require confirmation on destination page",
+        })}
+      />,
+    );
+
+    expect(screen.queryByText(/recorded in the audit trail/i)).not.toBeInTheDocument();
+  });
+
+  it("shows audit-trail copy on editable destinations with high impact", () => {
+    render(
+      <SettingsMasterDestinationCard
+        destination={buildDestination({
+          editability: "admin-only",
+          highImpact: true,
+          saveBehavior: "Save on destination page",
+        })}
+      />,
+    );
+
+    expect(screen.getByText(/recorded in the audit trail/i)).toBeInTheDocument();
   });
 });

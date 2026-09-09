@@ -1,31 +1,38 @@
-import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { LayerHeader } from "@/components/LayerHeader";
 import { GovernanceStandardsRulesBreadcrumb } from "@/components/governance/GovernanceStandardsRulesBreadcrumb";
-import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import {
-  STANDARDS_RULES_LOADING_STATUS,
-  STANDARDS_RULES_PAGE_SUBTITLE,
-  STANDARDS_RULES_PAGE_TITLE,
-} from "@/lib/standards-rules-page";
+  GOVERNANCE_STANDARDS_RULES_PAGE_SUBTITLE_BUYER,
+  GOVERNANCE_STANDARDS_RULES_PRIMARY_CONTENT_ID,
+  GOVERNANCE_STANDARDS_RULES_SKIP_LINK_LABEL,
+} from "@/lib/governance-standards-rules-page-copy";
+import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { STANDARDS_RULES_CLAIM_DISCIPLINE } from "@/lib/standards-rules-evidence-copy";
+import { STANDARDS_RULES_PAGE_TITLE } from "@/lib/standards-rules-page";
+
+import { StandardsRulesLoadingSkeleton } from "./_sections/StandardsRulesLoadingSkeleton";
 
 /** Structured navigation shell while the standards-and-rules client chunk loads. */
-export default function GovernanceResolutionLoading() {
+export default function GovernanceResolutionLoading(): React.JSX.Element {
   return (
-    <OperatorPageContainer
-      variant="dashboard"
-      className="space-y-4"
-      data-testid="standards-rules-loading-shell"
-      role="status"
-      aria-live="polite"
-      aria-busy="true"
-    >
+    <div className="space-y-4 p-4" data-testid="standards-rules-route-loading">
+      <a
+        href={`#${GOVERNANCE_STANDARDS_RULES_PRIMARY_CONTENT_ID}`}
+        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+      >
+        {GOVERNANCE_STANDARDS_RULES_SKIP_LINK_LABEL}
+      </a>
+      <LayerHeader pageKey="governance-resolution" density="compact" />
       <OperatorPageHeader
         navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
         title={STANDARDS_RULES_PAGE_TITLE}
-        subtitle={STANDARDS_RULES_PAGE_SUBTITLE}
+        subtitle={GOVERNANCE_STANDARDS_RULES_PAGE_SUBTITLE_BUYER}
+        claimDiscipline={STANDARDS_RULES_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="standards-rules-claim-discipline"
         breadcrumb={<GovernanceStandardsRulesBreadcrumb />}
       />
-      <p className="m-0 text-al-text-secondary">{STANDARDS_RULES_LOADING_STATUS}</p>
-    </OperatorPageContainer>
+      <StandardsRulesLoadingSkeleton />
+    </div>
   );
 }

@@ -166,7 +166,7 @@ public sealed class ArtifactPackagingServiceTests
         using (StreamReader reader = new(readmeEntry!.Open(), Encoding.UTF8))
         {
             string text = reader.ReadToEnd();
-            text.Should().StartWith(TerraformAdvisoryExportCopy.DisclaimerLine);
+            text.Should().StartWith("ArchLucid Terraform advisory export (placeholder)");
             text.Should().Contain(runId.ToString("D"));
         }
 

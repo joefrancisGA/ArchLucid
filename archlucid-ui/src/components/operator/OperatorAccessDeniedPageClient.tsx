@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { AccessDeniedBreadcrumb } from "@/components/operator/AccessDeniedBreadcrumb";
 import { AccessDeniedClaimOrientationStrip } from "@/components/operator/AccessDeniedClaimOrientationStrip";
 import { OperatorJwtBearerRoleMappingCallout } from "@/components/operator/OperatorJwtBearerRoleMappingCallout";
@@ -14,21 +15,25 @@ import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPage
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  ACCESS_DENIED_BODY,
-  ACCESS_DENIED_HEADING,
   ACCESS_DENIED_REQUIRED_ROLES,
-  ACCESS_DENIED_SUPPLEMENT_COPY,
   formatAccessDeniedSupportTimestamp,
   formatAccessDeniedTenantLabel,
+  resolveAccessDeniedBody,
+  resolveAccessDeniedHeading,
+  resolveAccessDeniedSupplementCopy,
   resolveAccessDeniedSupplementMessage,
   resolveAdministratorContactHref,
 } from "@/lib/access-denied-context";
 import { ACCESS_DENIED_CLAIM_DISCIPLINE } from "@/lib/access-denied-evidence-copy";
 import {
+  ACCESS_DENIED_FIRST_VIEWPORT_TEST_ID,
+  ACCESS_DENIED_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   ACCESS_DENIED_PRIMARY_CONTENT_ID,
   ACCESS_DENIED_SKIP_LINK_LABEL,
+  ACCESS_DENIED_SKIP_TARGET_ID,
 } from "@/lib/access-denied-page-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { clearOidcSession, isLikelySignedIn, readSignedInDisplayName, signOutAndRedirectHome } from "@/lib/oidc/session";
@@ -46,6 +51,9 @@ export function OperatorAccessDeniedPageClient() {
   const router = useRouter();
   const pathname = usePathname() ?? "/access-denied";
   const searchParams = useSearchParams();
+  const { productLine } = useProductLine();
+  const accessDeniedHeading = resolveAccessDeniedHeading(productLine);
+  const accessDeniedBody = resolveAccessDeniedBody(productLine);
   const operatorAccessDeniedAdminDetailsOpenParam = searchParams.get("operatorAccessDeniedAdminDetailsOpen");
   const { currentPrincipal } = useOperatorNavAuthority();
   const [adminDetailsOpen, setAdminDetailsOpenState] = useState(() =>
@@ -91,8 +99,8 @@ export function OperatorAccessDeniedPageClient() {
     setSupportTimestamp(
       formatAccessDeniedSupportTimestamp(new Date(), Intl.DateTimeFormat().resolvedOptions().timeZone),
     );
-    setAdministratorContactHref(resolveAdministratorContactHref());
-  }, []);
+    setAdministratorContactHref(resolveAdministratorContactHref(productLine));
+  }, [productLine]);
 
   const handleReturnToSignIn = (): void => {
     clearOidcSession();
@@ -101,7 +109,7 @@ export function OperatorAccessDeniedPageClient() {
 
   return (
     <>
-      <a href={`#${ACCESS_DENIED_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
+      <a href={`#${ACCESS_DENIED_SKIP_TARGET_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
         {ACCESS_DENIED_SKIP_LINK_LABEL}
       </a>
       <Card
@@ -114,65 +122,82 @@ export function OperatorAccessDeniedPageClient() {
             data-testid="access-denied-primary-content"
             className="scroll-mt-24"
           >
-            <div className="mb-3 text-left">
-              <AccessDeniedBreadcrumb />
-            </div>
-            <h1
-              className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
-              data-testid="operator-access-denied-heading"
+            <div
+              id={ACCESS_DENIED_SKIP_TARGET_ID}
+              data-testid={ACCESS_DENIED_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
             >
-              {ACCESS_DENIED_HEADING}
-            </h1>
+              <div className="text-left">
+                <AccessDeniedBreadcrumb />
+              </div>
+              <h1
+                className={cn("font-semibold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}
+                data-testid="operator-access-denied-heading"
+              >
+                {accessDeniedHeading}
+              </h1>
 
-            <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{ACCESS_DENIED_BODY}</p>
+              <p className={cn("text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}>{accessDeniedBody}</p>
 
-            <PageHeaderClaimDiscipline
-              text={ACCESS_DENIED_CLAIM_DISCIPLINE}
-              testId="access-denied-claim-discipline"
-              className="mt-3 text-left"
-            />
+              <PageHeaderClaimDiscipline
+                text={ACCESS_DENIED_CLAIM_DISCIPLINE}
+                testId={ACCESS_DENIED_HEADER_CLAIM_DISCIPLINE_TEST_ID}
+                className="text-left"
+              />
 
-            {supplementMessage !== null ? (
-              <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-access-denied-supplement">
-                {ACCESS_DENIED_SUPPLEMENT_COPY[supplementMessage]}
-              </p>
-            ) : null}
+              {supplementMessage !== null ? (
+                <p
+                  className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="operator-access-denied-supplement"
+                >
+                  {resolveAccessDeniedSupplementCopy(productLine, supplementMessage)}
+                </p>
+              ) : null}
 
-            <div className="mt-6 text-left" data-testid="access-denied-orientation-top">
-              <AccessDeniedClaimOrientationStrip />
+              <div className="text-left" data-testid="access-denied-orientation-top">
+                <AccessDeniedClaimOrientationStrip />
+              </div>
+
+              <div
+                className={cn(
+                  "flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center",
+                  OPERATOR_LAYOUT.controlClusterGap,
+                )}
+              >
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  data-testid="operator-access-denied-use-different-account"
+                  onClick={() => {
+                    void signOutAndRedirectHome();
+                  }}
+                >
+                  Use a different account
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  data-testid="operator-access-denied-return-sign-in"
+                  onClick={handleReturnToSignIn}
+                >
+                  Return to sign-in
+                </Button>
+                {administratorContactHref !== null ? (
+                  <Link
+                    className={cn(OPERATOR_LINK.nav, "text-sm")}
+                    href={administratorContactHref}
+                    data-testid="operator-access-denied-contact-administrator"
+                  >
+                    Contact administrator
+                  </Link>
+                ) : null}
+              </div>
             </div>
-
-            <div className={cn("mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center", OPERATOR_LAYOUT.controlClusterGap)}>
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            data-testid="operator-access-denied-use-different-account"
-            onClick={() => {
-              void signOutAndRedirectHome();
-            }}
-          >
-            Use a different account
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            data-testid="operator-access-denied-return-sign-in"
-            onClick={handleReturnToSignIn}
-          >
-            Return to sign-in
-          </Button>
-          {administratorContactHref !== null ? (
-            <Link
-              className={cn(OPERATOR_LINK.nav, "text-sm")}
-              href={administratorContactHref}
-              data-testid="operator-access-denied-contact-administrator"
-            >
-              Contact administrator
-            </Link>
-          ) : null}
-        </div>
 
         <details
           className={cn("mt-8 text-left", OPERATOR_TYPOGRAPHY.helper)}
@@ -226,7 +251,7 @@ export function OperatorAccessDeniedPageClient() {
                 ? "auth-jwt-insufficient-scope"
                 : "operator-role-gate-session-break"
           }
-          errorTitle={ACCESS_DENIED_HEADING}
+          errorTitle={accessDeniedHeading}
           correlationId={correlationId}
           errorCode="access-denied"
         />

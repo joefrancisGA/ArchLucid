@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
@@ -19,6 +20,20 @@ namespace ArchLucid.Application.Tests.Governance;
 [Trait("Category", "Unit")]
 public sealed class GovernanceLineageServiceTests
 {
+    private static GovernanceLineageService CreateSut(
+        IGovernanceApprovalRequestRepository approvals,
+        IGovernancePromotionRecordRepository promotions,
+        IRunDetailQueryService runQuery,
+        IAuthorityQueryService authority,
+        IScopeContextProvider scope,
+        IManifestHashService? manifestHashService = null) =>
+        new(
+            approvals,
+            promotions,
+            runQuery,
+            authority,
+            manifestHashService ?? PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(),
+            scope);
     [SkippableFact]
     public async Task GetApprovalRequestLineageAsync_When_missing_Returns_null()
     {
@@ -27,7 +42,7 @@ public sealed class GovernanceLineageServiceTests
             .Setup(r => r.GetByIdAsync("nope", It.IsAny<CancellationToken>()))
             .ReturnsAsync((GovernanceApprovalRequest?)null);
 
-        GovernanceLineageService sut = new(
+        GovernanceLineageService sut = CreateSut(
             approvals.Object,
             Mock.Of<IGovernancePromotionRecordRepository>(),
             Mock.Of<IRunDetailQueryService>(),
@@ -61,7 +76,7 @@ public sealed class GovernanceLineageServiceTests
             .Setup(p => p.GetByRunIdAsync(approval.RunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        GovernanceLineageService sut = new(approvals.Object, promotions.Object, runQuery.Object, authority.Object, scope.Object);
+        GovernanceLineageService sut = CreateSut(approvals.Object, promotions.Object, runQuery.Object, authority.Object, scope.Object);
 
         GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync("req-1");
 
@@ -130,7 +145,7 @@ public sealed class GovernanceLineageServiceTests
             .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(authorityRow);
 
-        GovernanceLineageService sut = new(approvals.Object, promotions.Object, runQuery.Object, authority.Object, scope.Object);
+        GovernanceLineageService sut = CreateSut(approvals.Object, promotions.Object, runQuery.Object, authority.Object, scope.Object);
 
         GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync("req-2");
 
@@ -191,7 +206,7 @@ public sealed class GovernanceLineageServiceTests
             .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(authorityRow);
 
-        GovernanceLineageService sut = new(approvals.Object, promotions.Object, runQuery.Object, authority.Object, scope.Object);
+        GovernanceLineageService sut = CreateSut(approvals.Object, promotions.Object, runQuery.Object, authority.Object, scope.Object);
 
         GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync("req-null-trace");
 
@@ -199,5 +214,83 @@ public sealed class GovernanceLineageServiceTests
         result.TopFindings.Should().ContainSingle();
         result.TopFindings[0].Title.Should().Be("Traceless");
         result.TopFindings[0].SourceAgentExecutionTraceId.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetApprovalRequestLineageAsync_When_manifest_unsealed_omits_manifest_summary_and_risk_posture()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runN = runGuid.ToString("N");
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+
+        ManifestDocument unsealedManifest = PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateSealedGoldenManifest(
+            scope,
+            runGuid);
+        unsealedManifest.ManifestHash = "tampered-hash";
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        Mock<IGovernancePromotionRecordRepository> promotions = new();
+        Mock<IRunDetailQueryService> runQuery = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        GovernanceApprovalRequest approval = new() { RunId = runN };
+        approvals
+            .Setup(r => r.GetByIdAsync("req-unsealed", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approval);
+
+        runQuery
+            .Setup(r => r.GetRunDetailAsync(runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = runN, Status = ArchitectureRunStatus.Committed } });
+
+        promotions
+            .Setup(p => p.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IAuthorityQueryService authority = CreateAuthorityWithManifest(scope, runGuid, unsealedManifest);
+
+        GovernanceLineageService sut = CreateSut(
+            approvals.Object,
+            promotions.Object,
+            runQuery.Object,
+            authority,
+            scopeProvider.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(
+                PolicyPackGovernanceDryRunSealedManifestTestSupport.SealedManifestHash));
+
+        GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync("req-unsealed");
+
+        result.Should().NotBeNull();
+        result!.Manifest.Should().BeNull();
+        result.RiskPosture.Should().BeNull();
+        result.TopFindings.Should().BeEmpty();
+    }
+
+    private static IAuthorityQueryService CreateAuthorityWithManifest(
+        ScopeContext scope,
+        Guid runGuid,
+        ManifestDocument goldenManifest)
+    {
+        Mock<IAuthorityQueryService> authority = new();
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runGuid },
+            GoldenManifest = goldenManifest,
+            FindingsSnapshot = new FindingsSnapshot { Findings = [] },
+        };
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        authority
+            .Setup(a => a.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                runGuid,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        return authority.Object;
     }
 }

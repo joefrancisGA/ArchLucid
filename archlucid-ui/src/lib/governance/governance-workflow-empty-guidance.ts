@@ -2,9 +2,9 @@ import type { EmptyStateGettingStarted } from "@/components/EmptyState";
 
 /** `/governance` — no review selected yet in the workflow picker. */
 export const governanceWorkflowIdleGettingStartedOperator: EmptyStateGettingStarted = {
-  heading: "Governance approval workflow in three moves",
+  heading: "Approval workflow in three moves",
   steps: [
-    "Finalize a review on a review, then scroll to Submit for governance approval (source → target environments).",
+    "Finalize a review on a review, then scroll to Submit for approval (source → target environments).",
     "Load that review under Approval requests — approve or reject rows as a reviewer.",
     "Release approved requests to the target environment, then Activate when you are ready to go live.",
   ],
@@ -77,7 +77,7 @@ export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingSt
 export const governanceDashboardPlaceholderGettingStarted: EmptyStateGettingStarted = {
   heading: "What to use today",
   steps: [
-    "Open governance approval workflow to move a single review through submit → approve → release → activate.",
+    "Open approval workflow to move a single review through submit → approve → release → activate.",
     "Track findings and policy drift from Findings and Policy packs when approvals need evidence.",
     "Search Audit trail for immutable records of who changed approval state and when.",
   ],

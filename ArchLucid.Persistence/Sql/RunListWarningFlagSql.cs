@@ -27,7 +27,7 @@ internal static class RunListWarningFlagSql
                                            COALESCE(
                                                r.PackageOrigin,
                                                CASE
-                                                   WHEN JSON_VALUE(ar.RequestJson, '$.workflowIntent') = N'create-architecture'
+                                                   WHEN UPPER(LTRIM(RTRIM(JSON_VALUE(ar.RequestJson, '$.workflowIntent')))) = N'CREATE-ARCHITECTURE'
                                                        THEN N'Created'
                                                    ELSE N'Reviewed'
                                                END) AS PackageOrigin
@@ -79,7 +79,7 @@ internal static class RunListWarningFlagSql
     public const string KeysetOrderBy = "ORDER BY r.CreatedUtc DESC, r.RunId DESC";
 
     /// <summary>Default recent-first ordering for unpaged run lists.</summary>
-    public const string CreatedUtcDescOrderBy = "ORDER BY r.CreatedUtc DESC";
+    public const string CreatedUtcDescOrderBy = "ORDER BY r.CreatedUtc DESC, r.RunId DESC";
 
     /// <summary>
     ///     Pre-aggregated findings and open-alert presence keyed by <c>RunId</c> for dashboard list paths.
@@ -102,6 +102,6 @@ internal static class RunListWarningFlagSql
                                                  GROUP BY ar.RunId
                                              ) govWarn ON govWarn.RunId = r.RunId
                                              LEFT JOIN dbo.ArchitectureRequests ar WITH (NOLOCK)
-                                                 ON ar.RequestId = r.ArchitectureRequestId
+                                                 ON UPPER(LTRIM(RTRIM(ar.RequestId))) = UPPER(LTRIM(RTRIM(r.ArchitectureRequestId)))
                                              """;
 }

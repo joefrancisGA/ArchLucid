@@ -8,3 +8,5 @@ export const NOTIFICATIONS_HELP_SKIP_LINK_LABEL = "Skip to notifications guide" 
 
 export const NOTIFICATIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-notifications-header-claim-discipline" as const;
+
+export const NOTIFICATIONS_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-notifications-orientation-bottom" as const;

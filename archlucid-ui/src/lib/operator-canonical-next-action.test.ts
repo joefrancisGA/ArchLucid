@@ -4,6 +4,7 @@ import {
   mapTenantNextBestActionToCanonical,
   resolveOperatorCanonicalNextAction,
   toOperatorCanonicalNextActionFromEmptyHome,
+  toOperatorCanonicalNextActionFromLatestDraft,
   toOperatorCanonicalNextActionFromPilot,
 } from "@/lib/operator-canonical-next-action";
 
@@ -68,6 +69,21 @@ describe("operator-canonical-next-action (TB-2232)", () => {
       label: "Manage roles",
       href: "/administration/settings/users",
       bridgeCopy: "Assign an administrator before you start.",
+    });
+
+    expect(
+      toOperatorCanonicalNextActionFromLatestDraft(
+        {
+          href: "/architecture/architectures/draft-1",
+          ctaLabel: "Resume latest draft",
+          kind: "resume-draft",
+        },
+        "1 draft saved — refine the brief before you start a review.",
+      ),
+    ).toEqual({
+      label: "Resume latest draft",
+      href: "/architecture/architectures/draft-1",
+      bridgeCopy: "1 draft saved — refine the brief before you start a review.",
     });
   });
 });

@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SETTINGS_ROLES_USERS_TAB_PATH } from "@/lib/invite-reviewer-flow";
 
@@ -13,6 +13,12 @@ vi.mock("next/link", () => ({
 
 vi.mock("./SettingsRolesInvitePanel", () => ({
   SettingsRolesInvitePanel: () => <div data-testid="settings-roles-invite-panel-mock" />,
+}));
+
+const proxyJsonGetMock = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/proxy-json-client", () => ({
+  proxyJsonGet: proxyJsonGetMock,
 }));
 
 function buildModel(overrides: Partial<SettingsRolesPageViewModel> = {}): SettingsRolesPageViewModel {
@@ -30,7 +36,29 @@ function buildModel(overrides: Partial<SettingsRolesPageViewModel> = {}): Settin
 }
 
 describe("InviteReviewerPageView", () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("shows private-beta invite readiness callout when diagnostics report blockers", async () => {
+    proxyJsonGetMock.mockResolvedValueOnce({
+      operatorBaseUrlConfigured: false,
+      localTrialIdentityConfigured: true,
+    });
+
+    render(<InviteReviewerPageView model={buildModel()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-beta-readiness-invite-callout")).toBeInTheDocument();
+    });
+  });
+
   it("uses buyer-safe footer copy without API keys", () => {
+    proxyJsonGetMock.mockResolvedValueOnce({
+      operatorBaseUrlConfigured: true,
+      localTrialIdentityConfigured: true,
+    });
+
     render(<InviteReviewerPageView model={buildModel()} />);
 
     expect(screen.getByTestId("invite-reviewer-footer")).toHaveTextContent("Need to manage users or permissions?");
@@ -43,12 +71,22 @@ describe("InviteReviewerPageView", () => {
   });
 
   it("keeps the footer when the user directory is unavailable (invite does not need directory)", () => {
+    proxyJsonGetMock.mockResolvedValueOnce({
+      operatorBaseUrlConfigured: true,
+      localTrialIdentityConfigured: true,
+    });
+
     render(<InviteReviewerPageView model={buildModel({ usersNote: "api_unavailable" })} />);
 
     expect(screen.getByTestId("invite-reviewer-footer")).toBeInTheDocument();
   });
 
   it("shows Reader role capability summary below the page lead (TB-511)", () => {
+    proxyJsonGetMock.mockResolvedValueOnce({
+      operatorBaseUrlConfigured: true,
+      localTrialIdentityConfigured: true,
+    });
+
     render(<InviteReviewerPageView model={buildModel()} />);
 
     expect(screen.getByTestId("invite-reviewer-reader-capabilities")).toBeInTheDocument();

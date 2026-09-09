@@ -7,6 +7,8 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/procurement",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpProcurementGuideView } from "@/app/(operator)/help/_sections/HelpProcurementGuideView";

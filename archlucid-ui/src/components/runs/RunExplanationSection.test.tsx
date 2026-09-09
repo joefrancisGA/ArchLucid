@@ -10,7 +10,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
 );
 
-import { deterministicFallbackBadgeClass, riskPostureBadgeClass, riskPostureBadgeColors, RunExplanationSection } from "@/components/runs/RunExplanationSection";
+import { deterministicFallbackBadgeClass, modelConfidenceDescriptor, riskPostureBadgeClass, riskPostureBadgeColors, RunExplanationSection } from "@/components/runs/RunExplanationSection";
 import { enterpriseStatusTagClass } from "@/lib/design-tokens";
 import type { RunExplanationSummary } from "@/types/explanation";
 
@@ -81,6 +81,14 @@ describe("deterministicFallbackBadgeClass", () => {
   });
 });
 
+describe("modelConfidenceDescriptor", () => {
+  it("maps confidence to descriptive labels without percent authority", () => {
+    expect(modelConfidenceDescriptor(0.82)).toBe("High model confidence");
+    expect(modelConfidenceDescriptor(0.55)).toBe("Moderate model confidence");
+    expect(modelConfidenceDescriptor(0.2)).toBe("Low model confidence");
+  });
+});
+
 describe("RunExplanationSection", () => {
   beforeEach(() => {
     buyerPolishedShellVitestOverride.value = false;
@@ -124,12 +132,13 @@ describe("RunExplanationSection", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Boom");
   });
 
-  it("renders risk badge, confidence progress, and themes", () => {
+  it("renders risk badge, descriptive model confidence, and themes", () => {
     render(<RunExplanationSection summary={mockSummary()} loading={false} error={null} runId="r1" />);
 
     expect(screen.getByRole("status", { name: /risk posture medium/i })).toBeInTheDocument();
-    expect(screen.getByRole("progressbar")).toBeInTheDocument();
-    expect(screen.getByText("72%")).toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    expect(screen.getByText(/moderate model confidence/i)).toBeInTheDocument();
+    expect(screen.queryByText("72%")).not.toBeInTheDocument();
     expect(screen.getByText("Theme one")).toBeInTheDocument();
     expect(screen.getByText("Overall OK.")).toBeInTheDocument();
   });

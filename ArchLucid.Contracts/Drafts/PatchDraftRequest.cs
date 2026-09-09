@@ -52,6 +52,13 @@ public sealed class PatchDraftRequest
         set;
     }
 
+    [JsonPropertyName("openQuestions")]
+    public string? OpenQuestions
+    {
+        get;
+        set;
+    }
+
     /// <summary>Optimistic concurrency token from the last GET (LK-12).</summary>
     [JsonPropertyName("expectedUpdatedUtc")]
     public DateTime? ExpectedUpdatedUtc

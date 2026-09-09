@@ -98,7 +98,7 @@ describe("presentSidebarNavLinkForCluster", () => {
     expect(presented.title).toContain("changed");
   });
 
-  it("TB-606: rewrites reviews-list labels for governance mode in review-workflow clusters", () => {
+  it("TB-606: rewrites reviews-list labels for approval view mode in review-workflow clusters", () => {
     const presented = presentSidebarNavLinkForCluster(
       {
         href: "/architecture/reviews",

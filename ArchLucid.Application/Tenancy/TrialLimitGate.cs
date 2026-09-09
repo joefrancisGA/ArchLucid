@@ -19,28 +19,38 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
     public async Task GuardWriteAsync(ScopeContext scope, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
+
         if (scope.TenantId == Guid.Empty)
             return;
+
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
         if (tenant is null)
             return;
-        if (string.IsNullOrWhiteSpace(tenant.TrialStatus) || string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
+
+        if (string.IsNullOrWhiteSpace(tenant.TrialStatus)
+            || TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted))
             return;
+
         DateTimeOffset now = _timeProvider.GetUtcNow();
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
+
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
             throw new TrialLimitExceededException(TrialLimitReason.LifecycleWritesFrozen, 0);
+
         if (IsPostActiveLifecycleWriteFrozen(tenant.TrialStatus))
         {
             int daysRemaining = ComputeDaysRemaining(tenant.TrialExpiresUtc, now);
             throw new TrialLimitExceededException(TrialLimitReason.LifecycleWritesFrozen, daysRemaining);
         }
 
-        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+        if (!TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Active))
             return;
+
         int daysRemainingActive = ComputeDaysRemaining(tenant.TrialExpiresUtc, now);
 
         if (tenant.TrialExpiresUtc is { } exp && exp <= now)
             throw new TrialLimitExceededException(TrialLimitReason.Expired, 0);
+
         // Non-positive limits are treated like unset metering (parity with telemetry / email scanners); only positive caps enforce trials.
         if (tenant.TrialRunsLimit is { } runLimit and > 0 && tenant.TrialRunsUsed >= runLimit)
             throw new TrialLimitExceededException(TrialLimitReason.RunsExceeded, daysRemainingActive);
@@ -53,17 +63,24 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
     public async Task GuardDeleteAsync(ScopeContext scope, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
+
         if (scope.TenantId == Guid.Empty)
             return;
+
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
+
         if (tenant is null)
             return;
-        if (string.IsNullOrWhiteSpace(tenant.TrialStatus) || string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
+
+        if (string.IsNullOrWhiteSpace(tenant.TrialStatus)
+            || TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted))
             return;
+
         DateTimeOffset now = _timeProvider.GetUtcNow();
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal) ||
-            string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal) ||
-            string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
+
+        if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.ReadOnly)
+            || TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly)
+            || TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
         {
             int daysRemaining = ComputeDaysRemaining(tenant.TrialExpiresUtc, now);
             throw new TrialLimitExceededException(TrialLimitReason.LifecycleDeletesFrozen, daysRemaining);
@@ -72,17 +89,19 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
 
     private static bool IsPostActiveLifecycleWriteFrozen(string trialStatus)
     {
-        return string.Equals(trialStatus, TrialLifecycleStatus.Expired, StringComparison.Ordinal) ||
-               string.Equals(trialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal) ||
-               string.Equals(trialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal);
+        return TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.Expired)
+               || TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.ReadOnly)
+               || TrialLifecycleStatus.EqualsStatus(trialStatus, TrialLifecycleStatus.ExportOnly);
     }
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc, DateTimeOffset now)
     {
         if (trialExpiresUtc is null)
             return 0;
+
         double totalDays = (trialExpiresUtc.Value - now).TotalDays;
         int days = (int)Math.Floor(totalDays);
+
         return days < 0 ? 0 : days;
     }
 }

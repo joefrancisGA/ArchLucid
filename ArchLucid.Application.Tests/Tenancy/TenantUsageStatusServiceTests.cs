@@ -13,6 +13,37 @@ namespace ArchLucid.Application.Tests.Tenancy;
 public sealed class TenantUsageStatusServiceTests
 {
     [SkippableFact]
+    public async Task BuildAsync_marks_lowercase_active_trial_and_null_commercial_tier()
+    {
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        TenantRecord tenant = new()
+        {
+            Id = tenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Free,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = "active",
+            TrialSeatsUsed = 2,
+            TrialSeatsLimit = 5,
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        tenants.Setup(t => t.ListWorkspacesAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<TenantWorkspaceListItem>());
+        Mock<IBillingLedger> ledger = new();
+        ledger.Setup(l => l.TryGetSubscriptionAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((BillingSubscriptionSnapshot?)null);
+        TenantUsageStatusService sut = new(tenants.Object, ledger.Object);
+
+        TenantUsageStatusSnapshot? snapshot = await sut.BuildAsync(tenantId, CancellationToken.None);
+
+        snapshot.Should().NotBeNull();
+        snapshot!.IsTrial.Should().BeTrue();
+        snapshot.CommercialTier.Should().BeNull();
+    }
+
+    [SkippableFact]
     public async Task BuildAsync_marks_active_trial_and_null_commercial_tier()
     {
         Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
@@ -84,7 +115,7 @@ public sealed class TenantUsageStatusServiceTests
         snapshot!.IsTrial.Should().BeFalse();
         snapshot.CommercialTier.Should().Be(CommercialPackagingTierLabels.Team);
         snapshot.SeatsUsed.Should().Be(4);
-        snapshot.SeatsLimit.Should().Be(CommercialPackagingLimits.TeamSeatsIncluded);
+        snapshot.SeatsLimit.Should().Be(CommercialPackagingLimits.TeamSeatsMax);
         snapshot.WorkspacesUsed.Should().Be(1);
         snapshot.WorkspacesLimit.Should().Be(CommercialPackagingLimits.TeamWorkspacesIncluded);
     }

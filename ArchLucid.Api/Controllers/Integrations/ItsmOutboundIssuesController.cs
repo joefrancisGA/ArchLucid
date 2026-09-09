@@ -61,6 +61,7 @@ public sealed class ItsmOutboundIssuesController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> CreateAsync([FromBody] CreateItsmOutboundIssueRequest? body, CancellationToken ct)
     {
         if (!_nativeIntegrationGate.IsNativeCreateEnabled())
@@ -155,6 +156,10 @@ public sealed class ItsmOutboundIssuesController(
                 new CreateItsmOutboundIssueResponse(providerLabel, result.ExternalKey)),
             ItsmOutboundCreateTerminalKind.Skipped => this.BadRequestProblem(
                 result.UserMessage ?? "Request was skipped.",
+                ProblemTypes.ValidationFailed,
+                extensions: scopeExtensions),
+            ItsmOutboundCreateTerminalKind.NotDecisionGrade => this.UnprocessableEntityProblem(
+                result.UserMessage ?? "Finding is not eligible for ITSM export.",
                 ProblemTypes.ValidationFailed,
                 extensions: scopeExtensions),
             ItsmOutboundCreateTerminalKind.CorrelationPersistenceFailed => this.ServiceUnavailableProblem(
