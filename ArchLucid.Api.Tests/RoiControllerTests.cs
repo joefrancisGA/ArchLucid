@@ -53,7 +53,7 @@ public sealed class RoiControllerTests
     public async Task GetSponsorReportBoardPackAsync_returns_bad_request_for_invalid_format()
     {
         RoiController controller = CreateController(
-            Mock.Of<ISponsorRoiSummaryService>(),
+            RoiControllerTestSupport.CreateEmptySummaryService(),
             Mock.Of<ISponsorRoiBoardPackExporter>());
 
         IActionResult action = await controller.GetSponsorReportBoardPackAsync(

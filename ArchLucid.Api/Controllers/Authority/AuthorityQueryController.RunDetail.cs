@@ -37,19 +37,12 @@ public sealed partial class AuthorityQueryController
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
-        if (detail is not null && detail.GoldenManifest is not null)
+        if (detail is not null)
         {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
         }
 
         RunSummaryDto? result = await queryService.GetRunSummaryAsync(scope, runId, ct);
@@ -76,20 +69,10 @@ public sealed partial class AuthorityQueryController
         if (result is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        if (result.GoldenManifest is not null)
-        {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    result.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(result, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         return Ok(result);
     }
@@ -111,20 +94,10 @@ public sealed partial class AuthorityQueryController
         if (result is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        if (result.GoldenManifest is not null)
-        {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    result.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(result, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             result.Run.RealModeFellBackToSimulator,
@@ -228,20 +201,10 @@ public sealed partial class AuthorityQueryController
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
 
-        if (detail.GoldenManifest is not null)
-        {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         RunRetrievalGroundingResponse? result =
             await runRetrievalGroundingService.BuildAsync(runId.ToString("D"), ct);

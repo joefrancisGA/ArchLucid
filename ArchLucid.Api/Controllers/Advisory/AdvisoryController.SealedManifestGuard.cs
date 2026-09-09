@@ -1,5 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Advisory;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Core.Persistence.Ports;
@@ -38,6 +39,31 @@ public sealed partial class AdvisoryController
                 _authorityQueryService,
                 _manifestHashService,
                 cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
         }
         catch (ConflictException ex)
         {

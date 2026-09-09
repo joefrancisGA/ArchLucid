@@ -9,6 +9,7 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -32,8 +33,8 @@ public sealed class CrossTenantPortfolioEndpointTests
             Mock.Of<IAuditService>(),
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             Mock.Of<ITenantRepository>(),
             Mock.Of<IScimUserRepository>(),
             RoiControllerTestSupport.CreateRunCollector());
