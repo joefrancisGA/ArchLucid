@@ -30,6 +30,9 @@ import {
   ingestOperationalSecurityFindings,
   reconcileArchitectureDiagram,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
+import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
+import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
+import { diagramReconcileLoadModelBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-load-model-blocked-reason";
 import {
   buildDiagramReconcileOperationalFindingRequestItem,
   formatDiagramReconcileExplanation,
@@ -82,6 +85,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE,
@@ -445,7 +449,10 @@ export function DiagramReconcileWorkbenchClient() {
       showSuccess(`Loaded existing diagram model — ${activeNodes.length} active node(s) on this sealed run.`);
     } catch (error: unknown) {
       setModelNodeCount(null);
-      showError("Could not load diagram model", formatInfraEvidenceDiagramReconcileApiError(error));
+      const failure = toApiLoadFailure(error);
+      const blocked = diagramReconcileLoadModelBlockedReason(failure);
+
+      showError("Could not load diagram model", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
     }
   }, [runId]);
 
@@ -482,7 +489,10 @@ export function DiagramReconcileWorkbenchClient() {
           : "Structured diagram model saved for this review.",
       );
     } catch (error: unknown) {
-      showError("Diagram ingest failed", formatInfraEvidenceDiagramReconcileApiError(error));
+      const failure = toApiLoadFailure(error);
+      const blocked = diagramIngestMutationBlockedReason(failure);
+
+      showError("Diagram ingest failed", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
     } finally {
       setIngestBusy(false);
     }
@@ -502,7 +512,10 @@ export function DiagramReconcileWorkbenchClient() {
       setReconciliation(result);
       showSuccess(`Reconciliation complete — ${result.rows.length} correspondence row(s) generated.`);
     } catch (error: unknown) {
-      showError("Reconciliation failed", formatInfraEvidenceDiagramReconcileApiError(error));
+      const failure = toApiLoadFailure(error);
+      const blocked = diagramReconcileMutationBlockedReason(failure);
+
+      showError("Reconciliation failed", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
     } finally {
       setReconcileBusy(false);
     }

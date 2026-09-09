@@ -4,7 +4,6 @@ import { Download, FileText } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { CompareRawManifestDiffSection } from "@/components/compare/CompareRawManifestDiffSection";
 import { CompareResultsSectionNav } from "@/components/compare/CompareResultsSectionNav";
@@ -30,6 +29,8 @@ import { CompareGovernanceDiffSection } from "@/app/(operator)/insights/compare-
 import { ComparePairEvidenceCiteStrip } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePairEvidenceCiteStrip";
 import { CompareExecutionModeHonestyStrip } from "@/components/compare/CompareExecutionModeHonestyStrip";
 import { downloadManifestCompareExport } from "@/lib/api/downloads-blob-trigger-manifest-compare-export";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { manifestCompareExportMutationBlockedReason } from "@/lib/compare/manifest-compare-export-mutation-blocked-reason";
 import { showError } from "@/lib/toast";
 import { CompareAgentResultsBlockedCallout } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareAgentResultsBlockedCallout";
 import type { CompareResultsPanelViewModel } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-results-panel";
@@ -140,10 +141,10 @@ export function CompareResultsPanelDiffStack({
         rightManifestVersion: rightPickedSummary?.currentManifestVersion ?? rightPickedSummary?.goldenManifestId,
       });
     } catch (error: unknown) {
-      showError(
-        "Manifest compare export failed",
-        error instanceof Error ? error.message : "Download failed.",
-      );
+      const failure = toApiLoadFailure(error);
+      const blocked = manifestCompareExportMutationBlockedReason(failure);
+
+      showError("Manifest compare export failed", blocked ?? failure.message);
     } finally {
       setManifestExportBusy(false);
     }

@@ -77,4 +77,22 @@ public sealed partial class GovernanceController
 
         return null;
     }
+
+    private async Task<IActionResult?> EnsureDryRunRunIdsSealedManifestReadAllowedAsync(
+        IEnumerable<string> runIds,
+        CancellationToken cancellationToken)
+    {
+        foreach (string runId in runIds)
+        {
+            if (string.IsNullOrWhiteSpace(runId))
+                continue;
+
+            IActionResult? guardResult = await EnsureSealedManifestReadAllowedAsync(runId.Trim(), cancellationToken);
+
+            if (guardResult is not null)
+                return guardResult;
+        }
+
+        return null;
+    }
 }

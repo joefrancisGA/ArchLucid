@@ -93,6 +93,10 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
                 EdgeType = relationship.RelationshipType,
                 Label = relationship.RelationshipType,
                 Weight = 1.0,
+                Properties =
+                {
+                    [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = StructuredDiagramGraphProvenanceKinds.ObservedFact,
+                },
             });
         }
 

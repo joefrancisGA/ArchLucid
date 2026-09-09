@@ -307,6 +307,28 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByLabelText(/Search reviews by title or description/i)).toBeNull();
   });
 
+  it("narrows text filter closes inspector when selected run is filtered out", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    fireEvent.click(screen.getByTestId(`runs-row-${sampleRun.runId}`));
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Second" } });
+
+    expect(screen.queryByTestId(`runs-row-${sampleRun.runId}`)).toBeNull();
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+  });
+
   it("buyer-polished: finalized scope hides in-flight runs", () => {
     buyerPolishedShellVitestOverride.value = true;
     runsListWorkspaceModeHarness.mode = "guided";

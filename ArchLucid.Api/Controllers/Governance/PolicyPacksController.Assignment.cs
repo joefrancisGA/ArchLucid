@@ -44,6 +44,11 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         PolicyPackAssignHttpResult result;
 
         try
@@ -80,6 +85,11 @@ public sealed partial class PolicyPacksController
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackHttpResult<bool> result;
 
@@ -135,6 +145,11 @@ public sealed partial class PolicyPacksController
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackHttpResult<bool> result;
 
@@ -193,6 +208,11 @@ public sealed partial class PolicyPacksController
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackHttpResult<bool> result;
 

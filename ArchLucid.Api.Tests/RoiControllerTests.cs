@@ -6,9 +6,11 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -85,7 +87,7 @@ public sealed class RoiControllerTests
         Mock<IAuditService> audit = new();
 
         RoiController controller = CreateController(
-            Mock.Of<ISponsorRoiSummaryService>(),
+            RoiControllerTestSupport.CreateEmptySummaryService(),
             exporter.Object,
             audit.Object);
 
@@ -133,7 +135,7 @@ public sealed class RoiControllerTests
         Mock<IAuditService> audit = new();
 
         RoiController controller = CreateController(
-            Mock.Of<ISponsorRoiSummaryService>(),
+            RoiControllerTestSupport.CreateEmptySummaryService(),
             exporter.Object,
             audit.Object);
 
@@ -192,8 +194,11 @@ public sealed class RoiControllerTests
                 audit ?? Mock.Of<IAuditService>(),
                 scopeProvider.Object,
                 complianceDriftTrendService ?? Mock.Of<IComplianceDriftTrendService>(),
-                Mock.Of<IAuthorityQueryService>(),
-                Mock.Of<IManifestHashService>())
+                SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+                SealedManifestHashTestSupport.CreateManifestHashService(),
+                Mock.Of<ITenantRepository>(),
+                Mock.Of<IScimUserRepository>(),
+                RoiControllerTestSupport.CreateRunCollector(Scope))
             {
                 ControllerContext = new ControllerContext { HttpContext = httpContext }
             };

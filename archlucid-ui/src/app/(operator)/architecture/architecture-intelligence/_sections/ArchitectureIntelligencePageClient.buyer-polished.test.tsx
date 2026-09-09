@@ -16,6 +16,14 @@ import {
 
 import { ArchitectureIntelligencePageClient } from "./ArchitectureIntelligencePageClient";
 
+function okJsonFetchResponse(body: unknown): Response {
+  return new Response(JSON.stringify(body), { status: 200 });
+}
+
+function errorFetchResponse(status: number, body: string): Response {
+  return new Response(body, { status });
+}
+
 const searchParamsGet = vi.fn<(key: string) => string | null>(() => null);
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -88,11 +96,7 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell (AIN)", () => 
     searchParamsGet.mockImplementation(() => null);
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => ({
-        ok: true,
-        json: async () => ({}),
-        text: async () => "",
-      })),
+      vi.fn(async () => okJsonFetchResponse({})),
     );
   });
 
@@ -158,18 +162,10 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell (AIN)", () => 
       const url = String(input);
 
       if (url.includes("/product-runs/") && url.includes("/source-context")) {
-        return {
-          ok: false,
-          status: 503,
-          text: async () => "Unable to load product context",
-        };
+        return errorFetchResponse(503, "Unable to load product context");
       }
 
-      return {
-        ok: true,
-        json: async () => ({}),
-        text: async () => "",
-      };
+      return okJsonFetchResponse({});
     });
 
     vi.stubGlobal("fetch", fetchMock);
@@ -214,34 +210,22 @@ describe("ArchitectureIntelligencePageClient buyer-polished shell (AIN)", () => 
         sourceContextAttempt += 1;
 
         if (sourceContextAttempt === 1) {
-          return {
-            ok: false,
-            status: 503,
-            text: async () => "Unable to load product context",
-          };
+          return errorFetchResponse(503, "Unable to load product context");
         }
 
-        return {
-          ok: true,
-          json: async () => ({
-            runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
-            sourceTexts: [
-              {
-                fileName: "architecture-description.txt",
-                contentType: "text/plain",
-                content: "Hydrated after retry.",
-              },
-            ],
-          }),
-          text: async () => "",
-        };
+        return okJsonFetchResponse({
+          runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+          sourceTexts: [
+            {
+              fileName: "architecture-description.txt",
+              contentType: "text/plain",
+              content: "Hydrated after retry.",
+            },
+          ],
+        });
       }
 
-      return {
-        ok: true,
-        json: async () => ({}),
-        text: async () => "",
-      };
+      return okJsonFetchResponse({});
     });
 
     vi.stubGlobal("fetch", fetchMock);

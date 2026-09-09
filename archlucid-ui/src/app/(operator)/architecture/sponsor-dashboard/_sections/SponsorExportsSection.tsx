@@ -20,6 +20,7 @@ import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-conte
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { sponsorOnePagerMutationBlockedReason } from "@/lib/pilots/sponsor-one-pager-mutation-blocked-reason";
+import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
 
@@ -193,6 +194,11 @@ export function SponsorExportsSection({
 
                     try {
                       await downloadRunPackageExport(sponsorDocx.runId, "docx");
+                    } catch (error: unknown) {
+                      const failure = toApiLoadFailure(error);
+                      const blocked = runPackageExportMutationBlockedReason(failure);
+
+                      showError("Download architecture review report", blocked ?? failure.message);
                     } finally {
                       setDocxDownloadBusy(false);
                     }

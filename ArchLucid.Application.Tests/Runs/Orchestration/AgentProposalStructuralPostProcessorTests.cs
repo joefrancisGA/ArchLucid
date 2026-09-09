@@ -205,6 +205,21 @@ public sealed class AgentProposalStructuralPostProcessorTests
     }
 
     [Fact]
+    public void ApplyToProposal_leaves_cost_required_controls_undeduplicated_by_design()
+    {
+        AgentTopologyProposal proposal = new()
+        {
+            SourceAgent = AgentType.Topology,
+            RequiredControls = ["Key Vault", "Key Vault"],
+        };
+
+        AgentProposalStructuralPostProcessor.ApplyToProposal(AgentType.Cost, proposal);
+
+        // Cost/Critic-only dedupe applies to Compliance and Critic agents; cost proposals do not emit controls in production paths.
+        proposal.RequiredControls.Should().BeEquivalentTo(["Key Vault", "Key Vault"]);
+    }
+
+    [Fact]
     public void ApplyToProposal_preserves_rename_alias_services_with_shared_ids_within_single_proposal()
     {
         AgentTopologyProposal proposal = new()

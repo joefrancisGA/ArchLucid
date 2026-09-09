@@ -28,6 +28,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(typeof(PolicyPackGovernanceDryRunResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DryRunProposedPolicyPack(
         [FromBody] PolicyPackGovernanceDryRunRequest? request,
         CancellationToken cancellationToken)
@@ -66,6 +67,16 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        if (!string.IsNullOrWhiteSpace(request.TargetRunId))
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(
+                request.TargetRunId.Trim(),
+                cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+        }
+
         PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
             request.PolicyPackContentJson,
             string.IsNullOrWhiteSpace(request.TargetRunId) ? null : request.TargetRunId.Trim(),
@@ -98,6 +109,7 @@ public sealed partial class GovernanceController
     [Produces("application/json")]
     [ProducesResponseType(typeof(PolicyPackDryRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DryRunPolicyPack(
         [FromRoute] Guid id,
         [FromBody] PolicyPackDryRunRequest? request,
@@ -166,6 +178,13 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureDryRunRunIdsSealedManifestReadAllowedAsync(
+            evaluateAgainstRunIds,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackDryRunResponse result = await _policyPackDryRunService.EvaluateAsync(
             id,
