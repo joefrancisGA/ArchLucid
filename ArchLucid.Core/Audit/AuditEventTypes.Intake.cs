@@ -21,6 +21,12 @@ public static partial class AuditEventTypes
     /// <summary>Operator restored a soft-archived customer architecture identity (CA-49).</summary>
     public const string ArchitectureIdentityRestored = "ArchitectureIdentity.Restored";
 
+    /// <summary>Architecture identity bound to an existing Azure inventory snapshot (AS-048).</summary>
+    public const string ArchitectureInventorySnapshotBound = "ArchitectureIdentity.InventorySnapshotBound";
+
+    /// <summary>Architecture identity inventory snapshot binding removed (AS-048).</summary>
+    public const string ArchitectureInventorySnapshotDetached = "ArchitectureIdentity.InventorySnapshotDetached";
+
     /// <summary>Pre-run manifest-free reasoning turn on an intake draft (SAQ-013).</summary>
     public const string DraftIntakeReasoned = "DraftIntake.Reasoned";
 

@@ -4359,6 +4359,51 @@
         ],
         "type": "string"
       },
+      "ArchitectureInventoryBindingResponse": {
+        "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "boundBy": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "boundUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isBound": {
+            "type": "boolean"
+          },
+          "snapshotCapturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "snapshotSubscriptionName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureKnowledgeModel": {
         "properties": {
           "createdUtc": {
@@ -5899,6 +5944,15 @@
       "AsyncJobResponse": {
         "properties": {
           "jobId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AttachArchitectureInventoryBindingRequest": {
+        "properties": {
+          "snapshotId": {
+            "format": "uuid",
             "type": "string"
           }
         },
