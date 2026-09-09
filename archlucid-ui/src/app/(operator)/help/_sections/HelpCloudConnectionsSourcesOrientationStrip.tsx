@@ -1,11 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-
-import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
-import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
 import {
   CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE,
   CLOUD_CONNECTIONS_SOURCES,
@@ -17,54 +12,19 @@ import {
   parseHelpCloudConnectionsSourcesOpenFromSearch,
 } from "@/lib/help/help-cloud-connections-sources-disclosure-url";
 
-/** Sources-only follow-ups for `/help/cloud-connections` buyer-polished shell (HCE). */
+/** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open. */
 export function HelpCloudConnectionsSourcesOrientationStrip(): React.JSX.Element {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const sourcesOpenParam = searchParams.get("helpCloudConnectionsSourcesOpen");
-  const [sourcesOpen, setSourcesOpenState] = useState(() =>
-    parseHelpCloudConnectionsSourcesOpenFromSearch(sourcesOpenParam),
-  );
-
-  const syncSourcesOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(helpCloudConnectionsSourcesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setSourcesOpen = useCallback(
-    (open: boolean) => {
-      setSourcesOpenState(open);
-      syncSourcesOpenToUrl(open);
-    },
-    [syncSourcesOpenToUrl],
-  );
-
-  useEffect(() => {
-    setSourcesOpenState(parseHelpCloudConnectionsSourcesOpenFromSearch(sourcesOpenParam));
-  }, [sourcesOpenParam]);
-
   return (
-    <CollapsibleSection
-      title={CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE}
-      summaryLine={CLOUD_CONNECTIONS_SOURCES_INTRO}
+    <UrlSyncedSourcesCollapsibleStrip
+      surfaceId="help-cloud-connections-sources"
+      searchParamKey="helpCloudConnectionsSourcesOpen"
+      parseOpenFromSearch={parseHelpCloudConnectionsSourcesOpenFromSearch}
+      disclosureHrefFromSearch={helpCloudConnectionsSourcesDisclosureHrefFromSearch}
       sectionTestId={CLOUD_CONNECTIONS_HELP_ORIENTATION_BOTTOM_TEST_ID}
-      open={sourcesOpen}
-      onToggle={setSourcesOpen}
-    >
-      <EvidenceOrientationSourcesSection
-        testId="help-cloud-connections-sources"
-        headingId="where-to-go-next"
-        title={CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE}
-        intro={CLOUD_CONNECTIONS_SOURCES_INTRO}
-        links={CLOUD_CONNECTIONS_SOURCES}
-        style={EVIDENCE_SOURCES_STYLE.operatorRaised}
-        layout="columns"
-      />
-    </CollapsibleSection>
+      title={CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE}
+      intro={CLOUD_CONNECTIONS_SOURCES_INTRO}
+      links={CLOUD_CONNECTIONS_SOURCES}
+      sourcesTestId="help-cloud-connections-sources"
+    />
   );
 }

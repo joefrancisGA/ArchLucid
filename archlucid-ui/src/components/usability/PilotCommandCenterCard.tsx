@@ -8,6 +8,7 @@ import { useArchitectureDraftQuery } from "@/hooks/use-architecture-draft-query"
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import { reviewReadinessFromDraftDocument } from "@/lib/architecture/architecture-draft-readiness";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
+import { useOperatorHomeEmptyDoThisNextAction } from "@/hooks/use-operator-home-empty-do-this-next-action";
 
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
@@ -36,6 +37,7 @@ import {
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
 import {
+  toOperatorCanonicalNextActionFromEmptyHome,
   toOperatorCanonicalNextActionFromLatestDraft,
   toOperatorCanonicalNextActionFromPilot,
 } from "@/lib/operator-canonical-next-action";
@@ -140,6 +142,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     seedRunItems: runsDashboard?.items,
   });
   const setupReadiness = useFinishSetupReadinessContext();
+  const emptyHomeDoThisNext = useOperatorHomeEmptyDoThisNextAction();
 
   const phaseSignals = useMemo(
     () => ({
@@ -256,6 +259,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const showEvalWithDraftsResumeHeader = workspacePhase === "eval-with-drafts";
   const showEvalWithDraftsCanonicalNextAction =
     workspacePhase === "eval-with-drafts" && latestDraftPrimary !== null;
+  const showEvalEmptyCanonicalNextAction = workspacePhase === "eval-empty" && !isWorkingMode;
   const showContextualHelpOnlyHeader = workspacePhase === "eval-empty" && showContextualHelp;
 
   return (
@@ -360,6 +364,16 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
 
       {workspacePhase === "active-reviews" && !isWorkingMode ? (
         <OperatorHomeLifecycleAlternativesDisclosure emphasizedPath={emphasizedPath} />
+      ) : null}
+
+      {showEvalEmptyCanonicalNextAction ? (
+        <OperatorHomeCanonicalNextActionSlot
+          clientFallback={toOperatorCanonicalNextActionFromEmptyHome(emptyHomeDoThisNext.action)}
+          sampleLoading={emptyHomeDoThisNext.sampleLoading}
+          slotTestId="operator-home-eval-empty-canonical-next-action"
+          bridgeTestId="operator-home-do-this-next-bridge"
+          primaryTestId="operator-home-do-this-next-primary"
+        />
       ) : null}
 
       {showEvalWithDraftsCanonicalNextAction && latestDraftPrimary !== null ? (

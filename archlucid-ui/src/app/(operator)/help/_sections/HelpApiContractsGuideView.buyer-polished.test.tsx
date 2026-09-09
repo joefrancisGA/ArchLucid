@@ -42,6 +42,7 @@ import {
   API_CONTRACTS_HELP_SKIP_TARGET_ID,
   API_CONTRACTS_HELP_START_HERE_HELPER,
 } from "@/lib/api-contracts-help-page-copy";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -89,11 +90,7 @@ describe("HelpApiContractsGuideView buyer-polished shell (HG)", () => {
       screen.getByTestId("help-api-contracts-primary-cta"),
     ).toHaveAttribute("href", API_CONTRACTS_HELP_PRIMARY_ACTIONS.openOpenApi.href);
 
-    for (const source of API_CONTRACTS_HELP_SOURCES) {
-      expect(
-        within(sourcesSection).getByRole("link", { name: `Read ${source.label}` }),
-      ).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), API_CONTRACTS_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

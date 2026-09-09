@@ -400,7 +400,11 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           <CommandPaletteReviewActions runId={auditRunId} onNavigate={navigate} />
           <CommandPaletteArchitectureIdentitiesGroup enabled={workingMode} onNavigate={navigate} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
-          <CommandPaletteFindPageSearch visibleHrefs={visibleHrefs} onNavigate={navigate} />
+          <CommandPaletteFindPageSearch
+            visibleHrefs={visibleHrefs}
+            lockedDestinations={guidedLockedDestinations}
+            onNavigate={navigate}
+          />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
           <CommandPaletteCuratedTasks

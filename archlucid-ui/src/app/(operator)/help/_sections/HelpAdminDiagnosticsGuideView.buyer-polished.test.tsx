@@ -27,6 +27,7 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 }));
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: () => false,
   useOperatorNavAuthority: () => ({
     callerAuthorityRank: 100,
   }),
@@ -54,10 +55,9 @@ import {
   ADMIN_DIAGNOSTICS_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/admin-diagnostics-help-page-copy";
 import { ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE } from "@/lib/admin-diagnostics-help-evidence-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpAdminDiagnosticsGuideView buyer-polished shell (HAE)", () => {
   const entry = getProductDocumentationEntry("admin-diagnostics");
@@ -122,10 +122,7 @@ describe("HelpAdminDiagnosticsGuideView buyer-polished shell (HAE)", () => {
       within(actionPanel).getByRole("link", { name: ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTION.label }),
     ).toHaveAttribute("href", ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTION.href);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ADMIN_DIAGNOSTICS_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), ADMIN_DIAGNOSTICS_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

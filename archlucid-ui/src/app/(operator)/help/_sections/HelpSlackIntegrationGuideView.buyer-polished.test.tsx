@@ -44,7 +44,6 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { HelpSlackIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpSlackIntegrationGuideView";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import {
   SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
@@ -68,9 +67,9 @@ import {
   SLACK_INTEGRATION_HELP_SKIP_TARGET_ID,
   SLACK_INTEGRATION_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/slack-integration-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { formatHelpTopicApplicabilityMetadata } from "@/lib/help/help-topic-applicability-metadata";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
   const entry = getProductDocumentationEntry("slack-integration");
@@ -137,10 +136,7 @@ describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
       screen.getByRole("heading", { level: 2, name: SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(SLACK_INTEGRATION_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), SLACK_INTEGRATION_HELP_SOURCES, "/help/slack-integration");
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

@@ -55,9 +55,8 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_START_HERE_HELPER,
   AUTHENTICATION_SIGN_IN_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/authentication-sign-in-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpAuthenticationSignInGuideView buyer-polished shell (HEA)", () => {
   const loaded = tryLoadProductDocumentation("authentication-sign-in");
@@ -121,9 +120,6 @@ describe("HelpAuthenticationSignInGuideView buyer-polished shell (HEA)", () => {
 
     const sourcesSection = screen.getByTestId("authentication-sign-in-help-sources");
 
-    for (const source of filterWhereToGoNextFollowUpLinks(AUTHENTICATION_SIGN_IN_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), AUTHENTICATION_SIGN_IN_HELP_SOURCES, "/help/authentication-sign-in");
   });
 });

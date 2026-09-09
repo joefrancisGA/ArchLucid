@@ -30,9 +30,8 @@ import {
   CLOUD_CONNECTIONS_HELP_SKIP_LINK_LABEL,
   CLOUD_CONNECTIONS_HELP_SKIP_TARGET_ID,
 } from "@/lib/cloud-connections-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpCloudConnectionsGuideView buyer-polished shell (HCE)", () => {
   const entry = getProductDocumentationEntry("cloud-connections");
@@ -83,10 +82,7 @@ describe("HelpCloudConnectionsGuideView buyer-polished shell (HCE)", () => {
     );
     expect(screen.queryByTestId("help-cloud-connections-primary-cta")).not.toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(CLOUD_CONNECTIONS_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), CLOUD_CONNECTIONS_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

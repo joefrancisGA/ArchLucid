@@ -4,7 +4,9 @@ import {
   buildStaticFindPageSearchIndex,
   searchFindPageHelpEntries,
   searchFindPageIndex,
+  searchGuidedLockedFindPageEntries,
 } from "@/lib/find-page-search-index";
+import { resolveGuidedPaletteLockedDestinations } from "@/lib/usability/guided-palette-locked-destinations";
 
 const productLineState = vi.hoisted(() => ({
   current: "architecture" as "architecture" | "security",
@@ -67,5 +69,14 @@ describe("find-page-search-index (TB-2364)", () => {
 
     expect(teamsEntry?.label).toBe("Teams");
     expect(teamsEntry?.searchValue).toContain("Microsoft Teams");
+  });
+
+  it("surfaces Guided locked destinations with lock reasons when search matches (CD-08)", () => {
+    const locked = resolveGuidedPaletteLockedDestinations();
+    const matches = searchGuidedLockedFindPageEntries("sponsor report", locked);
+
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches[0]?.lockReason).toBeTruthy();
+    expect(matches[0]?.href).toBe("/insights/sponsor-report");
   });
 });

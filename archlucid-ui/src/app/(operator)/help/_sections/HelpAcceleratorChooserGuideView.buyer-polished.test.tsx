@@ -52,9 +52,8 @@ import {
   ACCELERATOR_CHOOSER_HELP_SKIP_TARGET_ID,
   ACCELERATOR_CHOOSER_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/accelerator-chooser-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpAcceleratorChooserGuideView buyer-polished chrome (HAX)", () => {
   beforeEach(() => {
@@ -129,12 +128,7 @@ describe("HelpAcceleratorChooserGuideView buyer-polished chrome (HAX)", () => {
 
     expect(screen.getByRole("heading", { level: 2, name: ACCELERATOR_CHOOSER_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    const visibleSources = filterWhereToGoNextFollowUpLinks(ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS);
-
-    for (const source of visibleSources) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS, "/help/accelerator-chooser");
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
