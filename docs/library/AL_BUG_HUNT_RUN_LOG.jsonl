@@ -1561,4 +1561,6 @@
 {"at":"2026-09-09T00:11:41.0150444Z","zoneId":"core-tenancy-commercial","outcome":"hit"}
 {"at":"2026-09-09T01:20:20.7552627Z","zoneId":"ui-review-detail-workspace","outcome":"hit"}
 {"at":"2026-09-09T01:29:50.8067047Z","zoneId":"ui-review-detail-workspace","outcome":"hit"}
+{"at":"2026-09-09T01:33:25.4275314Z","zoneId":"core-tenancy-commercial","outcome":"hit"}
+{"at":"2026-09-09T01:33:54.1913403Z","zoneId":"core-tenancy-commercial","outcome":"hit"}
 {"at":"2026-09-09T01:37:03.2944262Z","zoneId":"run-execute-ownership","outcome":"hit"}
