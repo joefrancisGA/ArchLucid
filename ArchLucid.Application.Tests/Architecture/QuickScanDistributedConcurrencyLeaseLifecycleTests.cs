@@ -456,6 +456,78 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task ExecutionCancellationToken_is_cancelled_when_renewal_noops_after_lease_expires()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore store = new();
+        Guid leaseId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await store.TryAdmitAsync(
+            BuildAdmitRequest(leaseId, Guid.NewGuid(), "held", maxConcurrent: 1, maxQueued: 0, leaseDurationSeconds: 2));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(new QuickScanSafetyOptions
+        {
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                LeaseDurationSeconds = 2,
+                LeaseRenewalIntervalSeconds = 3,
+            },
+        });
+
+        using CancellationTokenSource executionCancellation = new();
+        QuickScanDistributedConcurrencyAdmissionResult admission = QuickScanDistributedConcurrencyAdmissionResult.Permit(
+            leaseId,
+            store,
+            Mock.Of<IQuickScanTelemetry>(),
+            new QuickScanGuardContext
+            {
+                ClientIp = "203.0.113.10",
+                SessionId = "session",
+                PayloadFingerprint = "trace",
+                UseDistributedConcurrencyLimit = true,
+            },
+            safetyOptions.Object,
+            TimeProvider.System,
+            executionCancellation.Token);
+
+        await Task.Delay(TimeSpan.FromSeconds(3.5));
+
+        admission.ExecutionCancellationToken.IsCancellationRequested.Should().BeTrue(
+            "renewal must fail when the lease expired before the first renewal tick so execute is cancelled instead of silently continuing");
+
+        await admission.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task WaitForAdmissionAsync_abandons_queue_entry_when_promote_store_error_and_abandon_retries()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore inner = new();
+        Guid activeLeaseId = Guid.NewGuid();
+        Guid queueEntryId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await inner.TryAdmitAsync(
+            BuildAdmitRequest(activeLeaseId, Guid.NewGuid(), "active", maxConcurrent: 1, maxQueued: 2));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        FailOnceAbandonThrowingPromoteStore store = new(inner, queueEntryId);
+        QuickScanDistributedConcurrencyService service = CreateService(store);
+
+        QuickScanDistributedConcurrencyAdmissionResult result =
+            await service.WaitForAdmissionAsync("queued-after-promote-error", CancellationToken.None);
+
+        result.Allowed.Should().BeFalse();
+        result.RejectionReason.Should().Be(QuickScanConcurrencyRejectionReason.StoreUnavailable);
+
+        QuickScanConcurrencyAdmitResult followUpQueue = await inner.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), Guid.NewGuid(), "after-promote-error", maxConcurrent: 1, maxQueued: 1));
+
+        followUpQueue.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.Queued,
+            "promote store errors must still abandon the queue row when the first abandon attempt fails transiently");
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_store_error_on_admit_does_not_pin_queue_capacity()
     {
         InMemoryQuickScanDistributedConcurrencyStore inner = new();
@@ -660,6 +732,59 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
 
         public Task AbandonQueueEntryAsync(Guid queueEntryId, CancellationToken cancellationToken = default) =>
             inner.AbandonQueueEntryAsync(queueEntryId, cancellationToken);
+
+        public Task RenewLeaseAsync(
+            Guid leaseId,
+            DateTimeOffset utcNow,
+            TimeSpan leaseDuration,
+            CancellationToken cancellationToken = default) =>
+            inner.RenewLeaseAsync(leaseId, utcNow, leaseDuration, cancellationToken);
+    }
+
+    private sealed class FailOnceAbandonThrowingPromoteStore(InMemoryQuickScanDistributedConcurrencyStore inner, Guid queuedEntryId)
+        : IQuickScanDistributedConcurrencyStore
+    {
+        private int _abandonAttempts;
+
+        public Task<QuickScanConcurrencyAdmitResult> TryAdmitAsync(
+            QuickScanConcurrencyAdmitRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            QuickScanConcurrencyAdmitRequest rewritten = new()
+            {
+                LeaseId = request.LeaseId,
+                QueueEntryId = queuedEntryId,
+                RequestKey = request.RequestKey,
+                HolderInstanceId = request.HolderInstanceId,
+                UtcNow = request.UtcNow,
+                MaxConcurrentScans = request.MaxConcurrentScans,
+                MaxQueuedScans = request.MaxQueuedScans,
+                QueueWaitTimeout = request.QueueWaitTimeout,
+                LeaseDuration = request.LeaseDuration,
+            };
+
+            return inner.TryAdmitAsync(rewritten, cancellationToken);
+        }
+
+        public Task<QuickScanConcurrencyPromoteResult> TryPromoteAsync(
+            QuickScanConcurrencyPromoteRequest request,
+            CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException("Simulated promote store failure.");
+
+        public Task ReleaseLeaseAsync(Guid leaseId, CancellationToken cancellationToken = default) =>
+            inner.ReleaseLeaseAsync(leaseId, cancellationToken);
+
+        public Task AbandonQueueEntryAsync(Guid queueEntryId, CancellationToken cancellationToken = default)
+        {
+            if (_abandonAttempts == 0)
+            {
+                _abandonAttempts++;
+
+                throw new InvalidOperationException("Simulated abandon store failure.");
+            }
+
+            return inner.AbandonQueueEntryAsync(queueEntryId, cancellationToken);
+        }
 
         public Task RenewLeaseAsync(
             Guid leaseId,
