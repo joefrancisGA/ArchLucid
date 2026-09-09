@@ -56,7 +56,7 @@ Connectors or parsers may set comma-separated graph **`NodeId`** values on **`Ca
 
 ## Supported document content types (single source of truth)
 
-The canonical MIME list for inline documents is **`ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes.All`**. The API FluentValidation rule (**`ContextDocumentRequestValidator`**) and **`PlainTextContextDocumentParser.CanParse`** both use **`SupportedContextDocumentContentTypes.IsSupported`**. When adding a new parser for another type, extend **`All`**, implement **`IContextDocumentParser`**, register the concrete parser in DI, and append it to **`ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers`** in the desired order.
+The canonical MIME list for inline documents is **`ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes.All`**. The API FluentValidation rule (**`ContextDocumentRequestValidator`**) and **`PlainTextContextDocumentParser.CanParse`** both use **`SupportedContextDocumentContentTypes.IsSupported`**. Structured diagram JSON (`application/vnd.archlucid.diagram+json`) reopens the allowlist per **[`ARCHITECTURE_REVIEW_DIAGRAM_INPUT_CONTRACT.md`](ARCHITECTURE_REVIEW_DIAGRAM_INPUT_CONTRACT.md)** (ADR 0084 / AS-003); **`image/*`** types remain forbidden. When adding a new parser for another type, extend **`All`**, implement **`IContextDocumentParser`**, register the concrete parser in DI, and append it to **`ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers`** in the desired order.
 
 ---
 
