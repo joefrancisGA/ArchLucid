@@ -239,10 +239,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-08
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
@@ -284,6 +284,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `CachingTenantSettingsRepository.DeleteAsync` — rejected `Guid.Empty` tenant id after pre-write generation bump poisons cache slot for live tenant reads — **cheap-disproof 2026-09-08 thorough hunt #1359:** symmetric to upsert empty-tenant row; regression `TenantSettings_TryGetAsync_still_reads_committed_value_after_delete_rejects_empty_tenant_id`
 
 2026-09-08 thorough hunt #1359 (dry): cheap-disproof closed both open candidates; no hunt-ready row reproduces; 23 scoped tenant-settings tests passed.
+
+- [x] (invalid) `CachingTenantSettingsRepository` should invalidate all tenant keys when `HotPathCacheEviction` fires — **invalid 2026-09-09 seed hunt #1482:** generation-stamped keys already invalidate per-tenant on wrapper upsert/delete; #1359 cheap-disproof closed out-of-band SQL bypass as out of contract
+
+2026-09-09 seed hunt #1482 (seed-only): reseeded tenant-settings-sql; cheap-disproved HotPathCacheEviction global invalidation candidate; 23 scoped SqlTenantSettingsRepository tests passed.
 
 2026-09-08 seed hunt #1358 (seed-only): reseeded after #1347; cheap-disproof closed failed-delete generation-bump and empty-tenant-id cache-poison candidates; seeded out-of-band SQL cache staleness and multi-key partial-write candidates; no hunt-ready row reproduces.
 
@@ -337,11 +341,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 11
-- **bugs-found:** 8
-- **consecutive-dry-hunts:** 1
+- **hunts:** 12
+- **bugs-found:** 9
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-08 — TaskId whitespace/null variants skipped upsert supersession, leaving duplicate same-attempt rows that blocked commit via latest-per-task selector
+- **last-bug:** 2026-09-09 — SQL AttemptKey omitted TaskId trim normalization on delete-before-insert upsert
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
 
@@ -363,8 +367,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-Guid `runId` skips authority lifecycle Complete gate — **cheap-disproof 2026-09-08:** lifecycle guard is Guid-gated (lines 91–106) but `EnsureArchitectureVersionPinnedOrThrowAsync` throws `run id is invalid for architecture version pin verification` before quality-gate evaluation; authority commit paths use Guid run ids (`SqlRunIdMapping.ToSqlRunId` rejects non-Guid; `PreFinalizeChecklistServiceTests.BuildAsync_returns_not_ready_for_non_guid_run_id`); lifecycle skip cannot yield a successful seal.
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — `RecordedQualityGateOutcome.Warned` with `QualityWarning` does not block PilotStrict commit — **cheap-disproof 2026-09-08:** TB-2226 scopes fail-closed to recorded rejections (`QualityRejected` / `Rejected` only per class summary); `AgentExecutionTraceQueryPatchCore.TryApplyQualityGateRecordedSnapshotPatch` sets `QualityWarning` only for `Warned`; asymmetric dual-flag blocking is intentional for rejects (`GetBlockingReasons_when_quality_rejected_flag_set_with_non_rejected_recorded_outcome_still_blocks`).
 - [x] (valid-no-repro) same-attempt duplicate rows where `QualityPreferenceRank` prefers a clean Accepted trace over a sibling with `QualityRejected` or `Rejected` — **cheap-disproof 2026-09-08:** #1330 quality-preference tie-break intentionally resolves upsert-drift duplicates in favor of non-blocking outcomes (`GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert`); not a fail-open defect in these files.
-- [ ] (candidate) `AgentExecutionTraceInsertParameters.AttemptKey` / SQL `DeleteSameAttempt` — delete-before-insert uses raw `trace.TaskId` without `AgentExecutionTraceUpsertPolicy.NormalizeTaskId` while in-memory upsert normalizes trim + case (#1330); leading/trailing whitespace TaskId variants can leave duplicate same-attempt SQL rows that reach `RealCommitAgentOutputQualityGateEvaluator` (commit blocking mitigated when an accepted sibling exists via quality-preference tie-break)
+- [x] (proven) `AgentExecutionTraceInsertParameters.AttemptKey` / SQL `DeleteSameAttempt` — delete-before-insert used raw `trace.TaskId` without `AgentExecutionTraceUpsertPolicy.NormalizeTaskId` while in-memory upsert normalized trim (#1330) — **hit 2026-09-09 thorough hunt #1485:** whitespace TaskId variants could leave duplicate same-attempt SQL rows; fixed by normalizing TaskId in `AttemptKey` and `Create`; regressions in `AgentExecutionTraceInsertParametersTests`
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` — latest per-task trace with higher `AttemptIndex` but null `RecordedQualityGateOutcome` and `QualityRejected=false` does not block — **cheap-disproof 2026-09-09 seed hunt #1422:** TB-2226 fail-closed scope is recorded rejections on persisted traces, not missing evaluation on the winning attempt; normal execute→evaluate→commit flow records outcomes before seal
+
+2026-09-09 thorough hunt #1485 (hit): proved SQL AttemptKey TaskId whitespace normalization gap; 14 scoped commit-output-integrity + 2 InsertParameters tests passed.
 
 2026-09-09 seed hunt #1422 (seed-only): reseeded commit-output-integrity after #1330 whitespace hit; cheap-disproof on unevaluated-latest fail-open; seeded SQL AttemptKey normalization drift candidate; 20 scoped commit-output-integrity tests passed.
 
@@ -526,10 +532,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-07
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -545,6 +551,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `CommitRunTransientRetryPolicy.RetryDelay` linear `150ms * attempt` with `ManifestReconcilePollDelay` using the same multiplier — under manifest contention, eight reconcile polls plus twelve commit attempts can exceed the 20s `RetryBudget` mid-poll, returning exhausted while a concurrent commit is still within reconcile window — **cheap-disproof 2026-09-07 hunt #1259:** reconcile loop checks budget after polls via `IsExhausted`; client receives `ConflictException` for retry; inter-poll delay sum alone fits inside budget; regression `ManifestReconcilePollDelay_sum_for_inter_poll_waits_fits_inside_retry_budget`.
 
 2026-09-07 thorough hunt #1259 (dry): cheap-disproof closed three hunt-ready rows as intentional layered retry design; ten scoped unit tests passed.
+
+- [x] (invalid) `OrchestratorTransientDbRetry` should fail-fast on first permanent inner without retrying transient wrapper — **invalid 2026-09-09 seed hunt #1481:** mixed aggregate retry semantics documented in #1259; regression `ExecuteAsync_retries_deadlock_when_aggregate_exception_lists_it_after_non_transient_sql` covers intentional behavior
+
+2026-09-09 seed hunt #1481 (seed-only): reseeded orchestrator-transient-retry; cheap-disproved mixed-aggregate fail-fast candidate; 10 scoped transient-retry tests passed.
 
 ---
 
@@ -597,7 +607,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -624,6 +634,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Unicode dot leader homoglyphs bypass `ContainsDotHomoglyph` — **hit 2026-09-09 seed hunt #1399 (seed→hit):** ONE DOT LEADER (`․`, `%E2%80%A4`) and TWO DOT LEADER (`‥`, `%E2%80%A5`) evaded ASCII `..` and prior fullwidth/middle-dot homoglyph set; fixed by extending `IsDotHomoglyph`; regression in `TryNormalize_rejects_unicode_dot_homoglyph_path_traversal_segments`
 
 2026-09-09 seed hunt #1399 (seed→hit): reseeded after #1222; proved dot-leader homoglyph traversal bypass; 35 scoped `AuthSignInReturnPathGuardTests` passed.
+
+- [x] (invalid) `AuthSignInReturnPathGuard` omits rejection of tab/control characters after decode cap — **invalid 2026-09-09 seed hunt #1487:** `TryNormalize` rejects control chars each decode pass; regression `TryNormalize_rejects_open_redirect_shapes` covers `%09`/`%00` payloads
+
+2026-09-09 seed hunt #1487 (seed-only): reseeded auth-return-path; cheap-disproved post-decode control-char bypass candidate; 35 scoped AuthSignInReturnPathGuard tests passed.
 
 2026-09-07 seed hunt #1222 (hit): proved Unicode dot homoglyph traversal and residual percent after decode cap; reseeded from exhausted zone.
 
@@ -1304,9 +1318,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
 - **related-pd-tb:** none
@@ -1353,11 +1367,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Deny matrix omits canonical `GET /v1/runs/{runId}` detail alias — **cheap-disproof 2026-09-09 seed hunt #1437:** `AuthorityReadsController.GetRunDetail` and `RunQueryController.GetRun` both require `ReadAuthority` with scope middleware; probe catalog targets architecture review/export surfaces without zone-file evidence of authz divergence between aliases.
 - [x] (invalid) Run-list exclude probe should scan `GET /v1/architecture/reviews` — **cheap-disproof 2026-09-09 seed hunt #1437:** product canonical list is `GET /v1/runs` (`AuthorityReadsController` remarks); architecture reviews list delegates through the same scoped query services — no alternate-tenant leak reachable on reviews-only in these files.
 
+2026-09-09 seed hunt #1437 (seed-only): reseeded cli-tenant-isolation after #1371 dry streak; cheap-disproof closed HTTP 429 list-throttle SKIP, dead pagination fallthrough, missing `/v1/runs/{runId}` deny alias, and architecture-reviews list scan candidates; 27 scoped TenantIsolationNegativeTestRunner tests passed.
+
 - [x] (invalid) Cross-tenant probe should exercise `GET /v1/architecture/runs/{runId}` detail instead of list exclusion — **invalid 2026-09-09 seed hunt #1480:** deny matrix and exclude-run-id probes already target scoped read surfaces; detail route shares `ReadAuthority` gate with list paths per #1437 cheap-disproof
 
 2026-09-09 seed hunt #1480 (seed-only): reseeded cli-tenant-isolation; cheap-disproved architecture run detail probe candidate; 27 scoped TenantIsolationNegativeTestRunner tests passed.
-
-2026-09-09 seed hunt #1437 (seed-only): reseeded cli-tenant-isolation after #1371 dry streak; cheap-disproof closed HTTP 429 list-throttle SKIP, dead pagination fallthrough, missing `/v1/runs/{runId}` deny alias, and architecture-reviews list scan candidates; 27 scoped TenantIsolationNegativeTestRunner tests passed.
 
 ---
 
@@ -1547,10 +1561,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-05 — Wave 30 URL-sync effect closed enable/disable dialogs before router.replace updated search params
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -1567,6 +1581,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `executeToggle` duplicated toggle failures as page-level `failure` and dialog error — **hit 2026-09-05:** enable/disable confirm already sets dialog-specific errors; `executeToggle` also called `setFailure`, surfacing twin alerts; fixed by removing page-level failure from toggle catch (`page.test.tsx` `shows enable toggle failure only in the confirmation dialog, not the page alert`).
 
 2026-09-05 seed hunt #807 (hit): proved Wave 30 URL-sync dialog race and duplicate toggle failure surfaces.
+
+- [x] (invalid) `use-webhooks-settings` create form lacks scope-generation guard on save — **invalid 2026-09-09 seed hunt #1486:** `isSaving` and scope `useEffect` already reset busy state on scope switch per #807/#808 fixes; `page.test.tsx` scope-switch regressions cover save/test in-flight cancellation
+
+2026-09-09 seed hunt #1486 (seed-only): reseeded ui-webhooks-settings; cheap-disproved create-save scope-generation candidate; 12 scoped WebhooksSettings tests passed.
 
 ---
 
@@ -1593,6 +1611,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Split-site origin check allows the operator app origin as a public page Î“Ã‡Ã¶ fixed: `normalizeRequestHost` no longer strips ports; request Host must match `URL.host` from configured origins (localhost:3000 vs :3001)
 
 2026-08-23 dry hunt #48: no open hypotheses; `host-gate.test.ts` (10) passes on split-host redirect matrix.
+
+- [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` omits `/settings` operator bookmarks on marketing host — **invalid 2026-09-09 seed hunt #1483:** `host-gate.ts` classifies `/settings` under operator path prefixes via shared `OPERATOR_PATH_PREFIXES`; regression matrix in `host-gate.test.ts`
+
+2026-09-09 seed hunt #1483 (seed-only): reseeded ui-host-gate; cheap-disproved `/settings` legacy bookmark candidate; 10 scoped host-gate tests passed.
 
 ---
 
@@ -2537,7 +2559,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -2576,6 +2598,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RequirementSkuTierAnalyzer` / `DrRpoTopologyAnalyzer` — `"cluster"` topology heuristic treats AKS/app cluster nodes as datastores for SKU/RPO gap findings — **hit 2026-09-09 hunt #1414:** bare `cluster` now requires co-occurring datastore keywords; shared `TopologyDatastoreLabelHeuristic`; regressions `IsSkuRpoDatastoreTopologyNode_does_not_treat_aks_cluster_as_datastore` and `IsSkuRpoDatastoreTopologyNode_still_matches_sql_failover_cluster`.
 
 2026-09-09 thorough hunt #1414 (hit): proved four seeded substring-heuristic false positives in decisioning (tradeoff budget token, nosql/sql datastore label, non-contributor role token, bare cluster SKU/RPO heuristic); consolidated label matching in `TopologyDatastoreLabelHeuristic` + `DecisioningTextTokenMatcher`.
+
+- [x] (invalid) `DecisioningTextTokenMatcher` standalone-word guard misses hyphenated compound tokens — **invalid 2026-09-09 seed hunt #1484:** hyphen boundaries are word boundaries in the matcher; #1414 regressions cover budgetary/nosql false-positive class
+
+2026-09-09 seed hunt #1484 (seed-only): reseeded decisioning after #1414 hit; cheap-disproved hyphenated-token bypass candidate; 40 scoped Decisioning tests passed.
 
 2026-09-07 thorough hunt #1287 (hit): proved bare `"No …"` negation gap on private-network premise conflict matching.
 

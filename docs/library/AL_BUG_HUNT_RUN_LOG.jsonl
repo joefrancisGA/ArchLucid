@@ -1670,3 +1670,4 @@
 {"at":"2026-09-09T21:09:11.4377122Z","zoneId":"storage-vs-data-category","outcome":"seed-only"}
 {"at":"2026-09-09T21:11:20.0914618Z","zoneId":"weekly-digest-email","outcome":"seed-only"}
 {"at":"2026-09-09T21:14:13.2707819Z","zoneId":"cli-tenant-isolation","outcome":"seed-only"}
+{"at":"2026-09-09T21:14:28.2897226Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
