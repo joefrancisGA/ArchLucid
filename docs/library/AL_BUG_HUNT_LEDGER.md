@@ -1285,13 +1285,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — help hub search omitted documentation URL paths
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — category section headings used raw category text in invalid HTML id tokens
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1302,14 +1302,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `HelpDocsClient` renders only `CATEGORY_ORDER` sections — fetched doc-index rows with a category outside that list merge into `grouped` but never render — **hit 2026-09-04 (#670):** append unknown categories after the fixed order via `helpDocCategoriesForDisplay`; regression in `HelpDocsClient.test.tsx`.
 - [x] (proven) Help hub search filter matched only `title` and `summary`, not `category` — **hit 2026-09-08 thorough hunt #1348:** filtering `"security"` hid Security-section rows such as Policy packs whose title/summary omit the token; fixed by indexing `e.category` in filter haystack; regression `filters entries by category name when title and summary omit the token`
 - [x] (valid-no-repro) Debounced `router.replace` for `?q=` leaves search input and URL briefly out of sync when the operator clears the box and immediately navigates away — **cheap-disproof 2026-09-08 thorough hunt #1348:** `clearSearch` and Escape call immediate `router.replace`; pending debounce is cleared on unmount when navigating to a topic route, so a late timer cannot rewrite the destination URL
+- [x] (proven) Help hub search haystack omitted entry `url` — **hit 2026-09-08 seed hunt #1349 (seed→hit):** filtering `search-review-evidence` hid Indexed search at `/insights/search-review-evidence` when title/summary/category omitted the path token; fixed by indexing `e.url` in filter haystack; regression `filters entries by documentation url path when title summary and category omit the token`
+- [x] (proven) Category section headings use raw category text in `id` / `aria-labelledby` (`help-cat-${cat}`) — spaced category labels such as Getting Started produced invalid HTML id tokens and broke `getElementById` / strict `aria-labelledby` pairing — **hit 2026-09-09 (#1401):** slugify via `helpDocCategoryDomId` + `slugifyHelpHeading`; regression `uses valid html id tokens for category section headings`
+- [x] (valid-no-repro) Active search while `indexQuery.isPending` filters static quick links only — fetched doc-index matches appear only after refresh completes even when the operator already typed a matching query — **cheap-disproof 2026-09-09 thorough hunt #1401:** during initial pending only static rows are searchable; once fetch settles an active query re-filters merged entries and fetched-only matches render; regression `shows fetched index matches for an active search after the index load completes`
 
 2026-09-08 thorough hunt #1348 (hit): proved category-name search gap; cheap-disproof closed debounced URL sync on navigate-away candidate; 6 scoped HelpDocsClient tests passed.
 
-- [x] (proven) Help hub search haystack omitted entry `url` — **hit 2026-09-08 seed hunt #1349 (seed→hit):** filtering `search-review-evidence` hid Indexed search at `/insights/search-review-evidence` when title/summary/category omitted the path token; fixed by indexing `e.url` in filter haystack; regression `filters entries by documentation url path when title summary and category omit the token`
-- [ ] (candidate) Category section headings use raw category text in `id` / `aria-labelledby` (`help-cat-${cat}`) — category names with spaces produce invalid HTML id tokens; verify screen-reader pairing under strict parsers
-- [ ] (candidate) Active search while `indexQuery.isPending` filters static quick links only — fetched doc-index matches appear only after refresh completes even when the operator already typed a matching query
-
 2026-09-08 seed hunt #1349 (seed→hit): reseeded after #1348 category/url fixes; proved URL path search gap; seeded invalid category id and pending-index filter timing candidates.
+
+2026-09-09 thorough hunt #1401 (hit): proved invalid category section id tokens; cheap-disproved pending-index active-search candidate; 9 scoped HelpDocsClient tests passed.
 
 2026-09-04 seed hunt #670: proved unknown-category doc-index omission; seeded category-name search and debounced URL sync candidates.
 
