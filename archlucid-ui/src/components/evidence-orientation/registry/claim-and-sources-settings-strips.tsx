@@ -250,7 +250,9 @@ export function OperatorBillingSettingsEvidenceOrientationStrip(): React.JSX.Ele
   );
 }
 
-export function PreferencesSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function PreferencesSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="preferences-settings"
@@ -258,6 +260,8 @@ export function PreferencesSettingsEvidenceOrientationStrip(): React.JSX.Element
       sourcesIntro={PREFERENCES_SETTINGS_SOURCES_INTRO}
       sources={PREFERENCES_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
