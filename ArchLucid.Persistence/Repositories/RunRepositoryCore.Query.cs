@@ -44,9 +44,9 @@ internal static partial class RunRepositoryCore
             return false;
 
         return string.Equals(
-            storedArchitectureRequestId.Trim(),
-            architectureRequestId.Trim(),
-            StringComparison.OrdinalIgnoreCase);
+            NormalizeArchitectureRequestId(storedArchitectureRequestId),
+            NormalizeArchitectureRequestId(architectureRequestId),
+            StringComparison.Ordinal);
     }
 
     public static bool MatchesProjectListFilter(RunRecord run, string projectSlug)
