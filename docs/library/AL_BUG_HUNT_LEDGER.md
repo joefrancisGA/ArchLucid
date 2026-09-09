@@ -9964,11 +9964,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 9
-- **bugs-found:** 7
+- **hunts:** 10
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — run export blob push outbox retried empty ZIP packaging failures instead of immediate dead-letter
+- **last-bug:** 2026-09-09 — cosmos graph snapshot outbox retried missing SQL graph rows instead of skip-as-processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9994,8 +9994,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` and `RetrievalIndexingOutboxProcessor` omit `OnRetryScheduledAsync` instrumentation counters that post-commit/run-export processors increment — **cheap-disproof 2026-09-09 seed hunt #1425:** no `IAuditService` or tenant-scope reader on retry scheduling path; observability-only gap
 - [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor` increments `RecordPostCommitProjectionOutboxProcessedSuccess` when `ProvenanceSnapshotMaterialization` benign-skips missing run detail — **cheap-disproof 2026-09-09 seed hunt #1425:** metrics treat skip-as-processed by design; row is marked processed and does not retry
 - [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` throws `InvalidOperationException` for empty export ZIP outside the push `catch` that dead-letters other non-retryable packaging failures — worker retries until max attempts instead of immediate DLQ — **hit 2026-09-09 seed hunt #1434:** dead-letter empty ZIP immediately with audit/instrumentation; regression `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_dead_letters_immediately_when_export_zip_is_empty`
-- [ ] (candidate) `CosmosGraphSnapshotOutboxProcessor` throws when `sqlLoader.LoadAsync` returns null instead of marking processed or dead-lettering immediately — needs cheap-disproof on enqueue transactional guarantees
-- [ ] (candidate) `RecoverableOutboxProcessorBase` sets lease only at dequeue with no heartbeat during long `ProcessEntryAsync` — duplicate processing possible if work exceeds lease TTL
+- [x] (proven) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` throws when `sqlLoader.LoadAsync` returns null instead of marking processed — orphan outbox rows after `PurgeCascade_Core` graph deletion (migration **375**) retry until max attempts instead of skip-as-processed like retrieval indexing — **hit 2026-09-09 thorough hunt #1435:** mark processed with warning when SQL graph row is missing; regression `CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_marks_processed_when_sql_graph_snapshot_is_missing`
+- [x] (valid-no-repro) `RecoverableOutboxProcessorBase` sets lease only at dequeue with no heartbeat during long `ProcessEntryAsync` — **cheap-disproof 2026-09-09 thorough hunt #1435:** shared outbox drain is at-least-once by design (`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §3–§5); cosmos graph push upserts by stable id; lease expiry enabling a second worker is expected replay semantics, not a defect in this shell
+
+2026-09-09 thorough hunt #1435 (hit): cheap-disproof closed lease-expiry overlap as at-least-once replay semantics; proved cosmos graph snapshot outbox retried missing SQL graph rows; 40 scoped coordination processor tests passed.
 
 2026-09-09 seed hunt #1434 (hit): reseeded host-core-coordination; proved empty export ZIP bypassed immediate dead-letter path and retried until exhaustion; seeded cosmos null SQL snapshot and lease-expiry overlap candidates; 39 scoped coordination processor tests passed.
 

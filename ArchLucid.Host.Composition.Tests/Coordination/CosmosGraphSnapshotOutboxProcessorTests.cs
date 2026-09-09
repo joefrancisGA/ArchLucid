@@ -185,4 +185,65 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_marks_processed_when_sql_graph_snapshot_is_missing()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+
+        Mock<ICosmosGraphSnapshotOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new CosmosGraphSnapshotOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    GraphSnapshotId = graphSnapshotId,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<ICosmosGraphSnapshotOutboxSqlLoader> sqlLoader = new();
+        sqlLoader
+            .Setup(l => l.LoadAsync(It.IsAny<ScopeContext>(), graphSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GraphSnapshot?)null);
+
+        Mock<ICosmosGraphSnapshotOutboxCosmosWriter> cosmosWriter = new();
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => sqlLoader.Object);
+        services.AddScoped(_ => cosmosWriter.Object);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, runId);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        CosmosGraphSnapshotOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new CosmosGraphSnapshotOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<CosmosGraphSnapshotOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        outbox.Verify(
+            o => o.RecordDeadLetterAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        cosmosWriter.Verify(w => w.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 }
