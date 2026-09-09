@@ -37,6 +37,12 @@ export const APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID = "approval-lineage-ori
 export const APPROVAL_LINEAGE_OVERVIEW =
   "The lineage spine below links this approval request to its review package, findings, and finalized record version.";
 
+/** Buyer bridge between first-viewport lead and approval lineage workspace (GAI). */
+export const APPROVAL_LINEAGE_BUYER_OVERVIEW =
+  "The lineage spine, approval card, and findings panels below link this request to its review package and finalized record version.";
+
+export const APPROVAL_LINEAGE_WORKSPACE_TEST_ID = "approval-lineage-workspace" as const;
+
 /** Operator Sources — no self-href to the dynamic lineage route pattern. */
 export const APPROVAL_LINEAGE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
