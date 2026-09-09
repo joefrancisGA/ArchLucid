@@ -681,11 +681,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 29
-- **bugs-found:** 16
+- **hunts:** 30
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — authority project slug seeks ignored internal whitespace in stored ProjectId
+- **last-bug:** 2026-09-09 — pipeline-dead-letter runs matched committed-run lookups via retained manifest headers
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -799,6 +799,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1463 (seed→hit): reseeded sql-run-repository after #1451; proved stale-uncommitted purge deleted `IsSample` rows; cheap-disproof closed archived-uncommitted hard-delete as intentional retention overlap; 93 scoped Persistence tests passed (1 SQL integration skipped).
 
+- [x] (proven) `IsCommittedRun` / committed-run SQL shapes treat pipeline-dead-letter `Failed` and `ExecutionCompletedQualityRejected` rows with retained `GoldenManifestId` or `CurrentManifestVersion` as committed — **hit 2026-09-09 seed hunt #1464 (seed→hit):** terminal statuses now short-circuit `IsCommittedRun`; shared `CommittedRunLookupStatusFilter` excludes `@FailedStatus` / `@QualityRejectedStatus` across manifest, prior-committed, and seal-delta lookups; regressions in `IsCommittedRun_recognizes_manifest_and_status_signals`, `SelectCommittedRunIdByGoldenManifestId_excludes_failed_runs_after_pipeline_dead_letter`, and `InMemory_failed_run_with_retained_golden_manifest_does_not_match_seal_delta_lookup`.
+
+2026-09-09 seed hunt #1464 (seed→hit): reseeded sql-run-repository after #1451; proved dead-letter committed lookup gap including quality-rejected terminal status; 94 scoped Persistence tests passed (1 SQL integration skipped).
+
 - [x] (proven) `SelectCommittedRunIdByGoldenManifestId` / `IsCommittedRun` treat pipeline dead-letter `Failed` runs with retained manifest headers as committed — **hit 2026-09-09 seed hunt #1459 (seed→hit):** tautological `OR r.GoldenManifestId IS NOT NULL` and `IsCommittedRun` manifest signal let dead-letter rows win seal-delta lookup; fixed SQL `NOT IN (@FailedStatus, @QualityRejectedStatus)` and terminal-failure guard in `IsCommittedRun`; regressions `SelectCommittedRunIdByGoldenManifestId_excludes_failed_runs_after_pipeline_dead_letter`, `InMemory_failed_run_with_retained_golden_manifest_does_not_match_seal_delta_lookup`, and `InMemory_seal_delta_lookup_with_exclude_skips_failed_in_flight_manifest_holder`.
 - [x] (proven) `Archival_PurgeStaleUncommittedRunsBatch` / `IsEligibleForStaleUncommittedPurge` hard-delete `IsSample = 1` runs outside `SampleRunPurgeBatch` policy — **hit 2026-09-09 seed hunt #1459 (seed→hit):** eligibility omitted `IsSample`; fixed InMemory guard and proc `r.IsSample = 0`; regressions `IsEligibleForStaleUncommittedPurge_excludes_sample_runs` and `Archival_PurgeStaleUncommittedRunsBatch_omits_sample_runs`.
 - [x] (valid-no-repro) `Archival_PurgeStaleUncommittedRunsBatch` hard-deletes soft-archived uncommitted runs — **cheap-disproof 2026-09-09 seed hunt #1459:** stale-uncommitted purge intentionally targets aged uncommitted rows regardless of `ArchivedUtc`; regression `IsEligibleForStaleUncommittedPurge_includes_archived_uncommitted_runs_by_design`.
@@ -822,9 +826,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1465 (seed→hit): reseeded sql-run-repository after #1451; proved architecture request id internal whitespace bypass in scope seeks and dashboard list join; 126 scoped Persistence tests passed (1 SQL integration skipped).
 
+
 - [x] (proven) Authority project slug list/committed lookups compare edge-trimmed `ProjectId` only so internal whitespace variants miss dashboard lists and committed-run resolution — **hit 2026-09-09 seed hunt #1466 (seed→hit):** stored `Claims  API` omitted from list/committed seeks for `claims api`; fixed with `NormalizeAuthorityProjectSlug` and SQL `STRING_SPLIT`/`STRING_AGG` collapse across project list, graph-at-or-before, and committed lookup shapes; regressions `Project_list_queries_collapse_internal_whitespace_in_project_slug`, `InMemory_list_by_project_matches_internal_whitespace_in_stored_project_slug`, and `InMemory_matches_internal_whitespace_for_latest_committed_run_lookup`.
 
 2026-09-09 seed hunt #1466 (seed→hit): reseeded sql-run-repository after #1451; proved authority project slug internal-whitespace bypass in list and committed lookups; 126 scoped Persistence tests passed (1 SQL integration skipped).
+
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 

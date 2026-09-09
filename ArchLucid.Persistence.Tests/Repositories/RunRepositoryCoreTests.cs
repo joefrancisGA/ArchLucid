@@ -57,6 +57,18 @@ public sealed class RunRepositoryCoreTests
             CurrentManifestVersion = "v1",
             LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
         }).Should().BeFalse("pipeline dead-letter rows retain manifest headers but are not committed lookups.");
+
+        RunRepositoryCore.IsCommittedRun(new RunRecord
+        {
+            GoldenManifestId = Guid.NewGuid(),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        }).Should().BeFalse("quality-rejected rows with manifest headers are not committed lookups.");
+
+        RunRepositoryCore.IsCommittedRun(new RunRecord
+        {
+            CurrentManifestVersion = "v1",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        }).Should().BeFalse("quality-rejected rows with manifest headers are not committed lookups.");
     }
 
     [Fact]
