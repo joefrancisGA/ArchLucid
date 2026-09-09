@@ -2,6 +2,9 @@ import type { UseFormGetValues, UseFormTrigger } from "react-hook-form";
 
 import type { ReviewCreationProgressBeginInput } from "@/hooks/use-review-creation-progress";
 import { createArchitectureRun } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { architectureRequestCreateMutationBlockedReason } from "@/lib/runs/architecture-request-create-mutation-blocked-reason";
+import { runCoverageAcknowledgementMutationBlockedReason } from "@/lib/runs/run-coverage-acknowledgement-mutation-blocked-reason";
 import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { isApiRequestError } from "@/lib/api-request-error";
 import {
@@ -104,7 +107,10 @@ export async function executeWizardFormCreateRun(
     try {
       await persistSessionRunCoverageAcknowledgement(runId);
     } catch (error: unknown) {
-      return { ok: false, reason: "error", error };
+      const failure = toApiLoadFailure(error);
+      const blocked = runCoverageAcknowledgementMutationBlockedReason(failure);
+
+      return { ok: false, reason: "error", error: blocked !== null ? new Error(blocked) : error };
     }
 
     trackReviewPipelineInFlight(runId);
@@ -159,6 +165,13 @@ export type WizardCreateRunProgressBridge = {
 };
 
 export function resolveCreateRunFailureMessage(error: unknown): string {
+  const failure = toApiLoadFailure(error);
+  const blocked = architectureRequestCreateMutationBlockedReason(failure);
+
+  if (blocked !== null) {
+    return blocked;
+  }
+
   if (isApiRequestError(error) && error.message.trim().length > 0) {
     return error.message;
   }

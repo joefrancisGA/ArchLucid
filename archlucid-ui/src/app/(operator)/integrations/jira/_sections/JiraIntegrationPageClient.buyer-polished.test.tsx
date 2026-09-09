@@ -42,6 +42,16 @@ vi.mock("@/lib/jira-atlassian-oauth-connect", () => ({
   launchJiraAtlassianOAuthConnect: vi.fn(),
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/integrations/jira",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 import { JiraIntegrationPageClient } from "./JiraIntegrationPageClient";
 import {
   JIRA_INTEGRATION_BUYER_OVERVIEW,
@@ -61,6 +71,7 @@ import {
 } from "@/lib/jira-integration-evidence-copy";
 import { JIRA_INTEGRATION_PAGE_TITLE, JIRA_PAGE_SUBTITLE } from "@/lib/jira-integration-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 function baseHealth() {
@@ -134,7 +145,10 @@ describe("JiraIntegrationPageClient buyer-polished shell (IJX)", () => {
     expect(firstViewport).toContainElement(screen.getByTestId("jira-integration-intro"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_SOURCES)) {
+    for (const source of filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_SOURCES),
+      "/integrations/jira",
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

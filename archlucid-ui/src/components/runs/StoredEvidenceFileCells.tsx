@@ -11,9 +11,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { RunStoredEvidenceDiagramPreviewBody } from "@/components/runs/RunStoredEvidenceDiagramPreviewBody";
 import { showError } from "@/lib/toast";
 import { downloadRunStoredEvidenceFile, fetchRunStoredEvidenceFileBlob } from "@/lib/runs/run-stored-evidence-file-api";
+import {
+  parseRunStoredEvidencePreviewShapeFromSearch,
+  RUN_STORED_EVIDENCE_PREVIEW_SHAPE_PARAM,
+  runStoredEvidencePreviewShapeHrefFromSearch,
+} from "@/lib/runs/run-stored-evidence-preview-shape-url";
 import { StoredEvidenceFileContentSafety } from "@/lib/runs/run-stored-evidence-preview-policy";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export type RunStoredEvidencePreviewState = {
   readonly evidenceItemId: string;
@@ -22,6 +29,7 @@ export type RunStoredEvidencePreviewState = {
   readonly previewKind: "image" | "text" | "pdf";
   readonly objectUrl: string;
   readonly textContent?: string;
+  readonly highlightShapeId?: string | null;
 };
 
 export type RunStoredEvidencePreviewDialogProps = {
@@ -35,6 +43,7 @@ export async function openRunStoredEvidencePreview(
   evidenceItemId: string,
   fileName: string,
   contentType: string,
+  highlightShapeId: string | null = null,
 ): Promise<RunStoredEvidencePreviewState | "download-only" | null> {
   const previewKind = StoredEvidenceFileContentSafety.resolvePreviewKind(contentType, fileName);
 
@@ -56,6 +65,7 @@ export async function openRunStoredEvidencePreview(
         previewKind,
         objectUrl,
         textContent,
+        highlightShapeId,
       };
     }
 
@@ -65,6 +75,7 @@ export async function openRunStoredEvidencePreview(
       contentType,
       previewKind,
       objectUrl,
+      highlightShapeId,
     };
   } catch {
     return null;
@@ -121,9 +132,12 @@ export function RunStoredEvidencePreviewDialog(props: RunStoredEvidencePreviewDi
                 />
               ) : null}
               {props.preview.previewKind === "text" ? (
-                <pre className="whitespace-pre-wrap break-words rounded-md bg-neutral-50 p-3 font-mono text-sm text-al-text-primary">
-                  {props.preview.textContent ?? ""}
-                </pre>
+                <RunStoredEvidenceDiagramPreviewBody
+                  fileName={props.preview.fileName}
+                  contentType={props.preview.contentType}
+                  textContent={props.preview.textContent ?? ""}
+                  highlightShapeId={props.preview.highlightShapeId ?? null}
+                />
               ) : null}
             </div>
             <div className="mt-4 flex justify-end">
@@ -214,6 +228,13 @@ export function useStoredEvidenceFileActions(runId: string): {
   readonly handlers: StoredEvidenceFileActionHandlers;
   readonly openButtonRef: RefObject<HTMLElement | null>;
 } {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams.toString();
+  const highlightShapeId = parseRunStoredEvidencePreviewShapeFromSearch(
+    searchParams.get(RUN_STORED_EVIDENCE_PREVIEW_SHAPE_PARAM),
+  );
   const [preview, setPreview] = useState<RunStoredEvidencePreviewState | null>(null);
   const openButtonRef = useRef<HTMLElement | null>(null);
 
@@ -226,10 +247,14 @@ export function useStoredEvidenceFileActions(runId: string): {
       return null;
     });
 
+    router.replace(runStoredEvidencePreviewShapeHrefFromSearch(searchParamsString, null, pathname), {
+      scroll: false,
+    });
+
     queueMicrotask(() => {
       openButtonRef.current?.focus();
     });
-  }, []);
+  }, [pathname, router, searchParamsString]);
 
   const handlers: StoredEvidenceFileActionHandlers = {
     onOpen: (input) => {
@@ -239,6 +264,7 @@ export function useStoredEvidenceFileActions(runId: string): {
           input.evidenceItemId,
           input.fileName,
           input.contentType,
+          highlightShapeId,
         );
 
         if (result === null) {

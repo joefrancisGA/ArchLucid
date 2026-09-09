@@ -55,6 +55,21 @@ public static class FindingEvidenceRefs
         TryAppendDistinct(evidenceRefs, $"policy-rule:{policyRuleId.Trim()}");
     }
 
+    public static void TryAppendDiagramCitation(
+        List<string> evidenceRefs,
+        string? evidenceItemId,
+        string? shapeOrEdgeId)
+    {
+        ArgumentNullException.ThrowIfNull(evidenceRefs);
+
+        if (string.IsNullOrWhiteSpace(shapeOrEdgeId))
+        {
+            return;
+        }
+
+        TryAppendDistinct(evidenceRefs, DiagramEvidenceCitationRefs.Format(evidenceItemId, shapeOrEdgeId));
+    }
+
     public static void TryAppendInventoryResourceIds(List<string> evidenceRefs, IEnumerable<string>? resourceIds)
     {
         ArgumentNullException.ThrowIfNull(evidenceRefs);

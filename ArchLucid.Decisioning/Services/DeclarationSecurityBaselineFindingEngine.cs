@@ -3,6 +3,7 @@ using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -35,15 +36,16 @@ public sealed class DeclarationSecurityBaselineFindingEngine(IComplianceRulePack
         List<Finding> findings = [];
 
         foreach (GraphNode node in graphSnapshot.GetNodesByType("TopologyResource"))
-            AddFindingsForNode(node, activeRuleIds, findings);
+            AddFindingsForNode(graphSnapshot, node, activeRuleIds, findings);
 
         foreach (GraphNode node in graphSnapshot.GetNodesByType("SecurityBaseline"))
-            AddFindingsForNode(node, activeRuleIds, findings);
+            AddFindingsForNode(graphSnapshot, node, activeRuleIds, findings);
 
         return findings;
     }
 
     private static void AddFindingsForNode(
+        GraphSnapshot graphSnapshot,
         GraphNode node,
         IReadOnlySet<string> activeRuleIds,
         List<Finding> findings)
@@ -62,8 +64,9 @@ public sealed class DeclarationSecurityBaselineFindingEngine(IComplianceRulePack
                 ? ["declaration-security-baseline", signal.Theme]
                 : [policyRuleId, signal.Theme];
 
-            List<string> evidenceRefs = [];
-            FindingEvidenceRefs.TryCollectFromNodeProperties(evidenceRefs, node.Properties);
+            List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+                graphSnapshot,
+                [node.NodeId]);
             FindingEvidenceRefs.TryAppendPolicyRuleId(evidenceRefs, policyRuleId);
 
             findings.Add(new Finding

@@ -46,8 +46,8 @@ import {
   ARCHITECTURE_INTELLIGENCE_HELP_SKIP_LINK_LABEL,
   ARCHITECTURE_INTELLIGENCE_HELP_SKIP_TARGET_ID,
 } from "@/lib/architecture-intelligence-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpArchitectureIntelligenceGuideView buyer-polished shell (EAR)", () => {
   const entry = getProductDocumentationEntry("architecture-intelligence");
@@ -98,10 +98,7 @@ describe("HelpArchitectureIntelligenceGuideView buyer-polished shell (EAR)", () 
     );
     expect(screen.getAllByRole("link", { name: ARCHITECTURE_INTELLIGENCE_HELP_PRIMARY_ACTION.label })).toHaveLength(2);
 
-    for (const source of ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

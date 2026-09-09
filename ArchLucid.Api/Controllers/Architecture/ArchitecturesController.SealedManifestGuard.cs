@@ -1,10 +1,13 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -70,6 +73,29 @@ public sealed partial class ArchitecturesController
                 _architectureIdentityService,
                 _runRepository,
                 _goldenManifestRepository,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
+
+    private async Task<IActionResult?> EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                _runDetailQueryService,
+                _authorityQueryService,
                 _manifestHashService,
                 cancellationToken);
         }

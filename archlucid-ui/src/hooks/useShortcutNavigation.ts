@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { SHORTCUTS, resolveShortcutDescription } from "@/lib/shortcut-registry";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
-import { readReviewRunIdFromPathname } from "@/lib/compare-two-reviews-route";
+import { buildCompareTwoReviewsHref, readReviewRunIdFromPathname } from "@/lib/compare-two-reviews-route";
 import { readCachedDeskContinuity, readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { resolveOpenPackageRunId } from "@/lib/resolve-open-package-run-id";
 import { resolveWorkingAltRHref } from "@/lib/resolve-working-alt-r-href";
@@ -77,6 +77,12 @@ export function useShortcutNavigation(options: UseShortcutNavigationOptions = {}
               pathname,
               lastOpenReviewId: deskContinuity.lastOpenReviewId,
             });
+          }
+        } else if (entry.key === "alt+c") {
+          const reviewRunId = readReviewRunIdFromPathname(pathname ?? "");
+
+          if (reviewRunId !== null) {
+            route = buildCompareTwoReviewsHref({ baseRunId: reviewRunId });
           }
         }
 

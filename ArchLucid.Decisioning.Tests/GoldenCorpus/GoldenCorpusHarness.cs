@@ -175,7 +175,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             engines,
             new FindingPayloadValidator(),
             Options.Create(new HumanReviewFindingOptions()),
-            DeterministicInsightDensityGate.CreateDefault(),
+            Options.Create(new InsightDensityGateOptions()),
             _timeProvider,
             effectfulEngines,
             _scopeContextProvider);
@@ -319,6 +319,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new ComplianceFindingEngine(complianceProvider, complianceValidator, complianceEvaluator),
             new CostConstraintFindingEngine(),
             new DanglingDeclarationReferenceFindingEngine(),
+            new DiagramDeclarationOmissionFindingEngine(),
             new DeclarationSecurityBaselineFindingEngine(complianceProvider),
             new DeclarationPremiseConflictFindingEngine(complianceProvider),
             new RequirementSkuTierFindingEngine(),

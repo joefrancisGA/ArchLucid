@@ -1,7 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -73,6 +73,24 @@ public sealed partial class GovernanceController
         catch (ConflictException ex)
         {
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
+
+    private async Task<IActionResult?> EnsureDryRunRunIdsSealedManifestReadAllowedAsync(
+        IEnumerable<string> runIds,
+        CancellationToken cancellationToken)
+    {
+        foreach (string runId in runIds)
+        {
+            if (string.IsNullOrWhiteSpace(runId))
+                continue;
+
+            IActionResult? guardResult = await EnsureSealedManifestReadAllowedAsync(runId.Trim(), cancellationToken);
+
+            if (guardResult is not null)
+                return guardResult;
         }
 
         return null;

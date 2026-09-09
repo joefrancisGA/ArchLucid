@@ -68,6 +68,21 @@ Use TB-645 vocabulary: **NotVerifiable**, **structured diagram**, **stored for i
 
 ---
 
+## Diagram evidence citation grammar (AS-022)
+
+Package-resolvable citations for diagram shapes and connectors:
+
+```text
+diagram:{evidenceItemId}:{shapeOrEdgeId}
+```
+
+- `{evidenceItemId}` — optional ESI / stored-file id for the diagram source (may be empty: `diagram::api`).
+- `{shapeOrEdgeId}` — stable `ArchitectureDiagramNodeRecord.id` or `ArchitectureDiagramEdgeRecord.id` from structured parse.
+
+**Concrete evidence:** `GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation` treats a `diagram:` ref as concrete only when the shape or edge id exists on the review package (`DiagramPackageCitationIndex`). Dangling ids are **not** concrete evidence.
+
+**Honesty (TB-1228):** `diagram:` citations are structural package anchors — not semantic faithfulness or LLM-judge proof.
+
 ## Related
 
 - [`CONTEXT_INGESTION.md`](CONTEXT_INGESTION.md) — connector pipeline

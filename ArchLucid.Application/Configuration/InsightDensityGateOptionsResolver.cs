@@ -80,6 +80,10 @@ public sealed class InsightDensityGateOptionsResolver(
                 tenantId,
                 TenantSettingKeys.FindingsInsightDensityPreferHighVerificationEnginesEnabled,
                 cancellationToken),
+            ProseAssumptionExtraction = ReadTenantFlagOverride(
+                tenantId,
+                TenantSettingKeys.FindingsInsightDensityProseAssumptionExtractionEnabled,
+                cancellationToken),
         };
     }
 

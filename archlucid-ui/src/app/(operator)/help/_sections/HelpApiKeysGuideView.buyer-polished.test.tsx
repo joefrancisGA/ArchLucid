@@ -45,8 +45,8 @@ import {
   API_KEYS_HELP_SKIP_TARGET_ID,
   API_KEYS_HELP_START_HERE_HELPER,
 } from "@/lib/api-keys-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpApiKeysGuideView buyer-polished shell (HEP)", () => {
   const entry = getProductDocumentationEntry("api-keys");
@@ -91,10 +91,7 @@ describe("HelpApiKeysGuideView buyer-polished shell (HEP)", () => {
       within(actionPanel).getByRole("link", { name: API_KEYS_HELP_PRIMARY_ACTIONS.usersAndRoles.label }),
     ).toHaveAttribute("href", API_KEYS_HELP_PRIMARY_ACTIONS.usersAndRoles.href);
 
-    for (const source of API_KEYS_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), API_KEYS_HELP_SOURCES, "/");
 
     expect(screen.getByRole("heading", { level: 2, name: API_KEYS_HELP_ACTION_PANEL_TITLE })).toBeInTheDocument();
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

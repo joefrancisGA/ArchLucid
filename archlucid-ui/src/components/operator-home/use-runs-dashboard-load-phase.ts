@@ -17,6 +17,8 @@ import {
 } from "@/lib/operator/operator-home-lifecycle-notify";
 import { RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID } from "@/components/operator-home/runs-dashboard-panel-presentation";
 import { fetchPagedReviewsInventory, restoreArchitectureRequest } from "@/lib/api";
+import { architectureRequestLifecycleMutationBlockedReason } from "@/lib/runs/architecture-request-lifecycle-mutation-blocked-reason";
+import { showError } from "@/lib/toast";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
@@ -248,6 +250,11 @@ export function useRunsDashboardLoadPhase({
         await restoreArchitectureRequest(requestId);
         await load({ mode: "background" });
         onRestored?.();
+      } catch (error: unknown) {
+        const failure = toApiLoadFailure(error);
+        showError(
+          architectureRequestLifecycleMutationBlockedReason(failure) ?? failure.message,
+        );
       } finally {
         setRestoreBusyRequestId(null);
       }

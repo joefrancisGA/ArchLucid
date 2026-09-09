@@ -36,9 +36,8 @@ import {
   INTEGRATION_READINESS_HELP_SOURCES,
 } from "@/lib/integration-readiness-help-evidence-copy";
 import { INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_TEST_ID } from "@/lib/integration-readiness-help-guide-content";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpIntegrationReadinessGuideView buyer-polished shell (HEI)", () => {
   const loaded = tryLoadProductDocumentation("integration-readiness");
@@ -63,9 +62,6 @@ describe("HelpIntegrationReadinessGuideView buyer-polished shell (HEI)", () => {
 
     const sourcesSection = screen.getByTestId("integration-readiness-help-sources");
 
-    for (const source of filterWhereToGoNextFollowUpLinks(INTEGRATION_READINESS_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), INTEGRATION_READINESS_HELP_SOURCES, "/help/integration-readiness");
   });
 });

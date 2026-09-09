@@ -186,7 +186,7 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
           title={REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE}
           titleTestId="help-repeat-review-loop-page-title"
           subtitle={repeatReviewLoopHelpPageSubtitle(true)}
-          subtitleClassName="max-w-3xl"
+          subtitleClassName={cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
           navHref={REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH}
           headingLevel="h1"
           claimDiscipline={REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE}

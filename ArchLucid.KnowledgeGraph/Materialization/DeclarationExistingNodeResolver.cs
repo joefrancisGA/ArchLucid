@@ -67,6 +67,11 @@ public static class DeclarationExistingNodeResolver
                 return true;
         }
 
+        if (TerraformResourceAddressMatcher.NodeMatchesTerraformResourceAddress(node, needle))
+        {
+            return true;
+        }
+
         return false;
     }
 

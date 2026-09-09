@@ -279,7 +279,9 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           title={entry.title}
           titleTestId="help-core-pilot-page-title"
           subtitle={CORE_PILOT_HELP_PAGE_SUBTITLE_BUYER}
-          subtitleClassName="max-w-3xl"
+          subtitleClassName={
+            buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+          }
           navHref={CORE_PILOT_HELP_CANONICAL_PATH}
           headingLevel="h1"
           claimDiscipline={CORE_PILOT_HELP_CLAIM_DISCIPLINE}

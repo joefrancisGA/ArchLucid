@@ -44,16 +44,30 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackAssignHttpResult result = await _httpFacade.AssignAsync(
-            policyPackId,
-            new PolicyPackAssignBody
-            {
-                Version = request.Version,
-                ScopeLevel = request.ScopeLevel,
-                IsPinned = request.IsPinned,
-                IsOrganizationRequired = request.IsOrganizationRequired,
-            },
-            ct).ConfigureAwait(false);
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        PolicyPackAssignHttpResult result;
+
+        try
+        {
+            result = await _httpFacade.AssignAsync(
+                policyPackId,
+                new PolicyPackAssignBody
+                {
+                    Version = request.Version,
+                    ScopeLevel = request.ScopeLevel,
+                    IsPinned = request.IsPinned,
+                    IsOrganizationRequired = request.IsOrganizationRequired,
+                },
+                ct).ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         return this.MapAssign(result);
     }
@@ -72,8 +86,22 @@ public sealed partial class PolicyPacksController
         if (routeIdProblem is not null)
             return routeIdProblem;
 
-        PolicyPackHttpResult<bool> result = await _httpFacade.ArchiveAssignmentAsync(assignmentId, ct)
-            .ConfigureAwait(false);
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        PolicyPackHttpResult<bool> result;
+
+        try
+        {
+            result = await _httpFacade.ArchiveAssignmentAsync(assignmentId, ct)
+                .ConfigureAwait(false);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
 
@@ -117,6 +145,11 @@ public sealed partial class PolicyPacksController
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackHttpResult<bool> result;
 
@@ -175,6 +208,11 @@ public sealed partial class PolicyPacksController
 
         if (routeIdProblem is not null)
             return routeIdProblem;
+
+        IActionResult? sealedGuardResult = await EnsurePolicyPackMutationSealedManifestAllowedAsync(ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackHttpResult<bool> result;
 

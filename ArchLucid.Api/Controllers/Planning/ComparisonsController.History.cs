@@ -197,6 +197,7 @@ public sealed partial class ComparisonsController
     [ProducesResponseType(typeof(ComparisonRecordResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> UpdateComparisonRecord(
         [FromRoute] string comparisonRecordId,
         [FromBody] UpdateComparisonRecordRequest? request,
@@ -204,6 +205,12 @@ public sealed partial class ComparisonsController
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ArchLucid.Contracts.Metadata.ComparisonRecord? record = await _comparisons.TryUpdateLabelAndTagsAsync(
             comparisonRecordId,

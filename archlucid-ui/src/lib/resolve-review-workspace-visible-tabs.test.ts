@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   CREATE_HOME_REVIEW_WORKSPACE_TAB_IDS,
+  resolveActiveReviewDetailTabFromSearchParams,
   resolveReviewWorkspaceTabForVisit,
   resolveReviewWorkspaceTabFromSearchParams,
   resolveReviewWorkspaceVisibleTabs,
@@ -98,5 +99,18 @@ describe("resolveReviewWorkspaceVisibleTabs (TB-2367)", () => {
     const searchParams = new URLSearchParams();
 
     expect(resolveReviewWorkspaceTabFromSearchParams(searchParams, finalized, "finalized")).toBe("findings");
+
+    expect(
+      resolveActiveReviewDetailTabFromSearchParams({
+        searchParams,
+        tabLifecycle: {
+          manifestId: "manifest-1",
+          showProgressTracker: false,
+          runCompleted: true,
+        },
+        lifecycle: "finalized",
+        workingDesk: true,
+      }),
+    ).toBe("findings");
   });
 });

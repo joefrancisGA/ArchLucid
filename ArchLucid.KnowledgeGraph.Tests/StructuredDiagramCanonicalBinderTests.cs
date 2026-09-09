@@ -16,6 +16,44 @@ public sealed class StructuredDiagramCanonicalBinderTests
         "/subscriptions/11111111-2222-3333-4444-555555555555/resourceGroups/pay/providers/Microsoft.Sql/servers/pay-sql";
 
     [Fact]
+    public void BindToCanonicalNodes_terraform_address_in_label_reuses_existing_graph_node()
+    {
+        GraphNode declarationNode = CreateTopologyNode(
+            "obj-pay-sql",
+            "pay_sql",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_mssql_server",
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "sql",
+                        Label = "azurerm_mssql_server.pay_sql",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [declarationNode]);
+
+        bound.Snapshot.Nodes.Should().BeEmpty();
+        bound.CanonicalBindings.Should().ContainSingle()
+            .Which.CanonicalGraphNodeId.Should().Be("obj-pay-sql");
+    }
+
+    [Fact]
     public void BindToCanonicalNodes_arm_id_in_label_reuses_existing_graph_node()
     {
         GraphNode inventoryNode = CreateTopologyNode(
@@ -122,6 +160,51 @@ public sealed class StructuredDiagramCanonicalBinderTests
         inventoryNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
             .Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
         inventoryNode.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId].Should().Be("api");
+    }
+
+    [Fact]
+    public void BindToCanonicalNodes_copies_source_evidence_item_id_onto_bound_canonical_node()
+    {
+        const string EvidenceItemId = "doc-tf-bind-evidence";
+
+        GraphNode declarationNode = CreateTopologyNode(
+            "obj-pay-sql",
+            "pay_sql",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_mssql_server",
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "sql",
+                        Label = "azurerm_mssql_server.pay_sql",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+                SourceEvidenceItemId = EvidenceItemId,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [declarationNode]);
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+            [declarationNode],
+            bound.CanonicalBindings);
+
+        declarationNode.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId].Should().Be("sql");
+        declarationNode.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId]
+            .Should().Be(EvidenceItemId);
     }
 
     [Fact]

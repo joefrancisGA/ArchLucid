@@ -39,6 +39,16 @@ vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
   triggerAwsTier2HostedRun: vi.fn(),
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/integrations/cloud-connections/aws",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
@@ -62,6 +72,7 @@ import {
   cloudProviderConnectionSources,
 } from "@/lib/cloud-provider-connection-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 describe("AwsCloudConnectionDetailClient buyer-polished shell (INC)", () => {
@@ -106,7 +117,10 @@ describe("AwsCloudConnectionDetailClient buyer-polished shell (INC)", () => {
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.queryByRole("heading", { level: 2, name: "Overview" })).not.toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(cloudProviderConnectionSources("aws"))) {
+    for (const source of filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(cloudProviderConnectionSources("aws")),
+      "/integrations/cloud-connections/aws",
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

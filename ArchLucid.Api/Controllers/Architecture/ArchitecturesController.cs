@@ -13,7 +13,9 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -34,12 +36,21 @@ public sealed partial class ArchitecturesController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext,
     IArchitectureIdentityService architectureIdentityService,
+    IArchitectureInventoryBindingService architectureInventoryBindingService,
     IArchitectureSealDeltaService architectureSealDeltaService,
     IAuditService auditService,
     IRunRepository runRepository,
     IGoldenManifestRepository goldenManifestRepository,
-    IManifestHashService manifestHashService) : ControllerBase
+    IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService,
+    IAuthorityQueryService authorityQueryService) : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     private readonly IGoldenManifestRepository _goldenManifestRepository =
         goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
 
@@ -57,6 +68,9 @@ public sealed partial class ArchitecturesController(
 
     private readonly IArchitectureIdentityService _architectureIdentityService =
         architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
+
+    private readonly IArchitectureInventoryBindingService _architectureInventoryBindingService =
+        architectureInventoryBindingService ?? throw new ArgumentNullException(nameof(architectureInventoryBindingService));
 
     private readonly IArchitectureSealDeltaService _architectureSealDeltaService =
         architectureSealDeltaService ?? throw new ArgumentNullException(nameof(architectureSealDeltaService));
@@ -173,6 +187,7 @@ public sealed partial class ArchitecturesController(
     [ProducesResponseType(typeof(ArchitectureIdentityDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PatchArchitecture(
         Guid architectureId,
         [FromBody] PatchArchitectureIdentityRequest? body,
@@ -185,6 +200,12 @@ public sealed partial class ArchitecturesController(
             return this.BadRequestProblem("At least one patch field is required.", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
@@ -233,6 +254,10 @@ public sealed partial class ArchitecturesController(
                 cancellationToken);
 
             return Ok(detail);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (ArgumentException ex)
         {

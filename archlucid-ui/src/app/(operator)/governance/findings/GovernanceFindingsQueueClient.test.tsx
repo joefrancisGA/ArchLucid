@@ -286,8 +286,8 @@ describe("GovernanceFindingsQueueClient", () => {
     expect(ROUTE_TITLES["/governance/findings"]).toBe(OPERATOR_NAV_LINK_LABELS.findings);
   });
 
-  it("does not render a duplicate explain-this-view card for the risk register route", () => {
-    expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
+  it("opts the findings hub into explain-this-view alongside the governance page header", () => {
+    expect(routeViewExplanationForPathname("/governance/findings")?.title).toBe("Findings");
   });
 
   it("renders empty state guidance, actions, and summary metrics", async () => {

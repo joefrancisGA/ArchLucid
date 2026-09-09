@@ -1077,6 +1077,9 @@ export interface components {
         ArchitectureDiagramEdgeRecord: {
             id?: string;
             label?: string;
+            properties?: {
+                [key: string]: string;
+            };
             provenance?: string;
             removed?: boolean;
             sourceId?: string;
@@ -1297,6 +1300,19 @@ export interface components {
         };
         /** @enum {string} */
         ArchitectureIntelligenceReviewTier: "Trial" | "Standard" | "Deep";
+        ArchitectureInventoryBindingResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            boundBy?: null | string;
+            /** Format: date-time */
+            boundUtc?: null | string;
+            isBound?: boolean;
+            /** Format: date-time */
+            snapshotCapturedUtc?: null | string;
+            /** Format: uuid */
+            snapshotId?: null | string;
+            snapshotSubscriptionName?: null | string;
+        };
         ArchitectureKnowledgeModel: {
             /** Format: date-time */
             createdUtc?: string;
@@ -1721,6 +1737,10 @@ export interface components {
         };
         AsyncJobResponse: {
             jobId?: string;
+        };
+        AttachArchitectureInventoryBindingRequest: {
+            /** Format: uuid */
+            snapshotId?: string;
         };
         /** @enum {string} */
         AuditEvaluationOutcome: "InsufficientEvidence" | "TechnicallySupported" | "TechnicallyNotSupported";
@@ -2902,7 +2922,7 @@ export interface components {
              * @description Supported inline context document MIME type. See docs/library/ARCHITECTURE_REVIEW_DIAGRAM_INPUT_CONTRACT.md.
              * @enum {string}
              */
-            contentType: "text/plain" | "text/markdown" | "application/vnd.archlucid.diagram+json" | "text/vnd.mermaid" | "application/vnd.archlucid.diagram+svg" | "application/vnd.jgraph.mxfile";
+            contentType: "text/plain" | "text/markdown" | "application/vnd.archlucid.diagram+json" | "text/vnd.mermaid" | "application/vnd.archlucid.diagram+svg" | "application/vnd.jgraph.mxfile" | "application/vnd.ms-visio.drawing.main+xml";
             name: string;
             sourceDocumentUrl?: null | string;
         };
@@ -8018,9 +8038,9 @@ export interface components {
         RecordBulkFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
-            expectedCurrentDispositionRowVersionBase64ByFindingId?: (null | ({
+            expectedCurrentDispositionRowVersionBase64ByFindingId?: null | {
                 [key: string]: string;
-            } | null)) | null;
+            };
             findingIds: string[];
             rationale: string;
             /** Format: date-time */
@@ -8028,9 +8048,9 @@ export interface components {
             tradeOffAcknowledgment?: null | string;
         };
         RecordBulkFindingDispositionResponse: {
-            currentDispositionRowVersionBase64ByFindingId?: (null | ({
+            currentDispositionRowVersionBase64ByFindingId?: null | {
                 [key: string]: string;
-            } | null)) | null;
+            };
             /** Format: int32 */
             processedCount?: number;
             updatedFindingIds: string[];

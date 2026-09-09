@@ -8,6 +8,8 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { downloadBoardPackPdf, downloadValueReportDocx } from "@/lib/api";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { boardPackMutationBlockedReason } from "@/lib/pilots/board-pack-mutation-blocked-reason";
+import { sponsorValueReportDocxMutationBlockedReason } from "@/lib/pilots/sponsor-value-report-docx-mutation-blocked-reason";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
 import {
@@ -264,7 +266,14 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
 
       await downloadValueReportDocx(fromIso, toIso);
     } catch (e: unknown) {
-      setError(toPilotValueReportPilotPageError(e, "Could not generate sponsor report."));
+      const failure = toApiLoadFailure(e);
+      const blocked = sponsorValueReportDocxMutationBlockedReason(failure);
+
+      setError(
+        blocked !== null
+          ? { message: blocked, problem: failure.problem, correlationId: failure.correlationId }
+          : toPilotValueReportPilotPageError(e, "Could not generate sponsor report."),
+      );
     } finally {
       setDocxBusy(false);
     }
@@ -282,7 +291,14 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
 
       await downloadBoardPackPdf(now.getUTCFullYear(), quarter);
     } catch (e: unknown) {
-      setError(toPilotValueReportPilotPageError(e, "Could not generate board pack."));
+      const failure = toApiLoadFailure(e);
+      const blocked = boardPackMutationBlockedReason(failure);
+
+      setError(
+        blocked !== null
+          ? { message: blocked, problem: failure.problem, correlationId: failure.correlationId }
+          : toPilotValueReportPilotPageError(e, "Could not generate board pack."),
+      );
     } finally {
       setBoardBusy(false);
     }

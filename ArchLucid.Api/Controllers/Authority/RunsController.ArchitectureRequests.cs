@@ -64,9 +64,11 @@ public sealed partial class RunsController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ArchitectureRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CloneRequest(
         [FromRoute] string requestId,
         [FromServices] IArchitectureRequestRepository requestRepository,
+        [FromServices] IManifestHashService manifestHashService,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(requestId))
@@ -77,6 +79,14 @@ public sealed partial class RunsController
 
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        IActionResult? sealedGuardResult = await EnsureArchitectureRequestSealedManifestReadAllowedAsync(
+            requestId,
+            manifestHashService,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         // Strip the ID to make it a template for a new request
         request.RequestId = Guid.NewGuid().ToString("N");
@@ -92,9 +102,11 @@ public sealed partial class RunsController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ArchiveRequest(
         [FromRoute] string requestId,
         [FromServices] IArchitectureRequestRepository requestRepository,
+        [FromServices] IManifestHashService manifestHashService,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(requestId))
@@ -105,6 +117,14 @@ public sealed partial class RunsController
 
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        IActionResult? sealedGuardResult = await EnsureArchitectureRequestSealedManifestReadAllowedAsync(
+            requestId,
+            manifestHashService,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         await requestRepository.ArchiveAsync(requestId, cancellationToken);
 
@@ -122,9 +142,11 @@ public sealed partial class RunsController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeleteRequest(
         [FromRoute] string requestId,
         [FromServices] IArchitectureRequestRepository requestRepository,
+        [FromServices] IManifestHashService manifestHashService,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(requestId))
@@ -135,6 +157,14 @@ public sealed partial class RunsController
 
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        IActionResult? sealedGuardResult = await EnsureArchitectureRequestSealedManifestReadAllowedAsync(
+            requestId,
+            manifestHashService,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         if (request.IsArchived)
             return Ok();
@@ -156,9 +186,11 @@ public sealed partial class RunsController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> RestoreRequest(
         [FromRoute] string requestId,
         [FromServices] IArchitectureRequestRepository requestRepository,
+        [FromServices] IManifestHashService manifestHashService,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(requestId))
@@ -169,6 +201,14 @@ public sealed partial class RunsController
 
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        IActionResult? sealedGuardResult = await EnsureArchitectureRequestSealedManifestReadAllowedAsync(
+            requestId,
+            manifestHashService,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         if (!request.IsArchived)
             return Ok();

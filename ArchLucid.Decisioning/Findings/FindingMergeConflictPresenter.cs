@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 
 namespace ArchLucid.Decisioning.Findings;
 
@@ -66,9 +67,16 @@ internal static class FindingMergeConflictPresenter
             ["findingMerge.occurredUtc"] = conflict.OccurredUtc.ToString("O"),
         };
 
+        string conflictFindingId = string.IsNullOrWhiteSpace(findingId)
+            ? Guid.NewGuid().ToString("N")
+            : findingId;
+
+        List<string> evidenceRefs = [];
+        FindingEvidenceRefs.TryAppendPolicyRuleId(evidenceRefs, PolicyRuleId);
+
         return new Finding
         {
-            FindingId = string.IsNullOrWhiteSpace(findingId) ? Guid.NewGuid().ToString("N") : findingId,
+            FindingId = conflictFindingId,
             FindingType = FindingType,
             Category = conflict.Category ?? string.Empty,
             PolicyRuleId = PolicyRuleId,
@@ -79,6 +87,12 @@ internal static class FindingMergeConflictPresenter
             ConfidenceScore = 1.0,
             HumanReviewStatus = FindingHumanReviewStatus.Pending,
             Properties = properties,
+            RelatedNodeIds = [conflictFindingId],
+            EvidenceRefs = evidenceRefs,
+            Trace = new ExplainabilityTrace
+            {
+                RulesApplied = [PolicyRuleId],
+            },
         };
     }
 }

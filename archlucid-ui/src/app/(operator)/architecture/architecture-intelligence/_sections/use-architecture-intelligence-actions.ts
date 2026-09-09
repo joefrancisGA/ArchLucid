@@ -14,6 +14,8 @@ import type {
   GoldenArchitectureTestResult,
 } from "./architecture-intelligence-types";
 import type { UseArchitectureIntelligenceProductContextResult } from "./use-architecture-intelligence-product-context";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { architectureIntelligenceRunMutationBlockedReason } from "@/lib/architecture/architecture-intelligence-run-mutation-blocked-reason";
 
 function isStaleActionGeneration(
   actionGenerationRef: RefObject<number>,
@@ -100,7 +102,10 @@ export function useArchitectureIntelligenceActions(
           return;
         }
 
-        setError(cause instanceof Error ? cause.message : String(cause));
+        const failure = toApiLoadFailure(cause);
+        const blocked = architectureIntelligenceRunMutationBlockedReason(failure);
+
+        setError(blocked ?? (cause instanceof Error ? cause.message : String(cause)));
       } finally {
         if (!isStaleActionGeneration(actionGenerationRef, generation)) {
           setLoadingAction(null);
@@ -172,7 +177,10 @@ export function useArchitectureIntelligenceActions(
         return;
       }
 
-      setError(cause instanceof Error ? cause.message : String(cause));
+      const failure = toApiLoadFailure(cause);
+      const blocked = architectureIntelligenceRunMutationBlockedReason(failure);
+
+      setError(blocked ?? (cause instanceof Error ? cause.message : String(cause)));
     } finally {
       if (!isStaleActionGeneration(actionGenerationRef, generation)) {
         setLoadingAction(null);
@@ -226,7 +234,10 @@ export function useArchitectureIntelligenceActions(
         return;
       }
 
-      setError(cause instanceof Error ? cause.message : String(cause));
+      const failure = toApiLoadFailure(cause);
+      const blocked = architectureIntelligenceRunMutationBlockedReason(failure);
+
+      setError(blocked ?? (cause instanceof Error ? cause.message : String(cause)));
     } finally {
       if (!isStaleActionGeneration(actionGenerationRef, generation)) {
         setLoadingAction(null);

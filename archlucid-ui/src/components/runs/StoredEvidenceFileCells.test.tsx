@@ -13,6 +13,32 @@ vi.mock("@/lib/runs/run-stored-evidence-file-api", () => ({
   fetchRunStoredEvidenceFileBlob: vi.fn(),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/run-1",
+  useRouter: () => ({
+    replace: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams("shape=api"),
+}));
+
+const mermaidRenderMock = vi.hoisted(() =>
+  vi.fn().mockResolvedValue({
+    svg:
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80"><g class="node" id="flowchart-api-0"><title>api</title></g></svg>',
+  }),
+);
+
+vi.mock("mermaid", () => ({
+  default: {
+    initialize: vi.fn(),
+    render: mermaidRenderMock,
+  },
+}));
+
+vi.mock("@/lib/use-document-dark-mode", () => ({
+  useDocumentDarkMode: () => false,
+}));
+
 import { downloadRunStoredEvidenceFile, fetchRunStoredEvidenceFileBlob } from "@/lib/runs/run-stored-evidence-file-api";
 
 function PreviewHarness(props: { readonly runId: string; readonly evidenceItemId: string; readonly fileName: string; readonly contentType: string }) {
@@ -164,6 +190,30 @@ describe("StoredEvidenceFileCells", () => {
     await waitFor(() => {
       expect(screen.queryByTestId("run-stored-evidence-preview-dialog")).not.toBeInTheDocument();
       expect(document.activeElement).toBe(openButton);
+    });
+  });
+
+  it("renders mermaid preview with shape highlight when shape query param is present", async () => {
+    const blob = new Blob(["flowchart LR\n  api[API]"], { type: "text/vnd.mermaid" });
+    vi.mocked(fetchRunStoredEvidenceFileBlob).mockResolvedValue({
+      blob,
+      fileName: "topology.mmd",
+      contentType: "text/vnd.mermaid",
+    });
+
+    render(
+      <PreviewHarness
+        runId="run-1"
+        evidenceItemId="ev-mermaid"
+        fileName="topology.mmd"
+        contentType="text/vnd.mermaid"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "topology.mmd" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-stored-evidence-diagram-preview-svg")).toBeInTheDocument();
     });
   });
 

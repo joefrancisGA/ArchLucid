@@ -9,6 +9,7 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { patchArchitectureIdentity } from "@/lib/api/architecture-identity-api";
+import { architectureIdentityMutationBlockedReason } from "@/lib/architecture/architecture-identity-mutation-blocked-reason";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_IDENTITY_ARCHIVE_ACTION_LABEL,
@@ -25,6 +26,7 @@ import {
   architectureIdentityRestoreConfirmDescription,
 } from "@/lib/architecture/architecture-identity-desk-copy";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
@@ -71,9 +73,14 @@ export function ArchitectureIdentityArchiveControl(
       router.refresh();
     },
     onError: (error) => {
+      const failure = toApiLoadFailure(error);
       toast.error(
         ARCHITECTURE_IDENTITY_ARCHIVE_FAILURE_MESSAGE,
-        { description: formatVerboseApiFailureMessage(error, ARCHITECTURE_IDENTITY_ARCHIVE_FAILURE_MESSAGE) },
+        {
+          description:
+            architectureIdentityMutationBlockedReason(failure)
+            ?? formatVerboseApiFailureMessage(error, ARCHITECTURE_IDENTITY_ARCHIVE_FAILURE_MESSAGE),
+        },
       );
     },
   });

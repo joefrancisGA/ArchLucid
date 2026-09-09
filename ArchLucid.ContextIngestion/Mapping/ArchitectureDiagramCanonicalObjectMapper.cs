@@ -35,6 +35,11 @@ public static class ArchitectureDiagramCanonicalObjectMapper
                 continue;
             }
 
+            if (StructuredDiagramUnlabeledShapeDetector.IsUnlabeledResourceShape(node))
+            {
+                continue;
+            }
+
             string objectId = ContextIngestionStableLineNames.StableObjectId(
                 StructuredDiagramSourceType,
                 $"{documentId}:{node.Id.Trim()}");
@@ -75,7 +80,16 @@ public static class ArchitectureDiagramCanonicalObjectMapper
 
         if (!string.IsNullOrWhiteSpace(node.SubgraphId))
         {
-            properties["diagramSubgraphId"] = node.SubgraphId.Trim();
+            string subgraphId = node.SubgraphId.Trim();
+            properties["diagramSubgraphId"] = subgraphId;
+
+            ArchitectureDiagramSubgraphRecord? subgraph = model.Subgraphs
+                .FirstOrDefault(candidate => string.Equals(candidate.Id, subgraphId, StringComparison.Ordinal));
+
+            if (subgraph is not null && !string.IsNullOrWhiteSpace(subgraph.Label))
+            {
+                properties["diagramSubgraphLabel"] = subgraph.Label.Trim();
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(model.SourceEvidenceItemId))

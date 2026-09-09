@@ -44,9 +44,8 @@ import {
   PROCUREMENT_HELP_START_HERE_HELPER,
   PROCUREMENT_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/procurement-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpProcurementGuideView buyer-polished shell (PRO)", () => {
   const loaded = tryLoadProductDocumentation("procurement");
@@ -103,9 +102,6 @@ describe("HelpProcurementGuideView buyer-polished shell (PRO)", () => {
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(PROCUREMENT_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), PROCUREMENT_HELP_SOURCES, "/help/procurement");
   });
 });

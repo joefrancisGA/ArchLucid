@@ -1,25 +1,30 @@
-import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+"use client";
+
+import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
 import {
   SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE,
   SYSTEM_HEALTH_HELP_ORIENTATION_SOURCES_INTRO,
   SYSTEM_HEALTH_HELP_SOURCES,
 } from "@/lib/system-health-help-evidence-copy";
 import { SYSTEM_HEALTH_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/system-health-help-page-copy";
+import {
+  helpSystemHealthSourcesDisclosureHrefFromSearch,
+  parseHelpSystemHealthSourcesOpenFromSearch,
+} from "@/lib/help/help-system-health-sources-disclosure-url";
 
-/** Sources-only follow-ups for `/help/system-health` buyer-polished shell (HEY). */
+/** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open (HEY). */
 export function HelpSystemHealthSourcesOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="help-system-health"
-      stripTestId={SYSTEM_HEALTH_HELP_ORIENTATION_BOTTOM_TEST_ID}
+    <UrlSyncedSourcesCollapsibleStrip
+      surfaceId="help-system-health-sources"
+      searchParamKey="helpSystemHealthSourcesOpen"
+      parseOpenFromSearch={parseHelpSystemHealthSourcesOpenFromSearch}
+      disclosureHrefFromSearch={helpSystemHealthSourcesDisclosureHrefFromSearch}
+      sectionTestId={SYSTEM_HEALTH_HELP_ORIENTATION_BOTTOM_TEST_ID}
+      title={SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE}
+      intro={SYSTEM_HEALTH_HELP_ORIENTATION_SOURCES_INTRO}
+      links={SYSTEM_HEALTH_HELP_SOURCES}
       sourcesTestId="help-system-health-sources"
-      sourcesTitle={SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={SYSTEM_HEALTH_HELP_ORIENTATION_SOURCES_INTRO}
-      sources={SYSTEM_HEALTH_HELP_SOURCES}
-      sourcesHeadingId="where-to-go-next"
-      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
-      hubSecondary
     />
   );
 }

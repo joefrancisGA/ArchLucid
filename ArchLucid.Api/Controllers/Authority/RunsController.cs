@@ -61,6 +61,7 @@ public sealed partial class RunsController(
     IFindingFeedbackRepository findingFeedbackRepository,
     FindingInstrumentationAuditSupport findingInstrumentationAudit,
     IRunRepository runRepository,
+    IRunDetailQueryService runDetailQueryService,
     IManifestHashService manifestHashService,
     ILogger<RunsController> logger)
     : ControllerBase
@@ -76,6 +77,9 @@ public sealed partial class RunsController(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
@@ -99,6 +103,14 @@ public sealed partial class RunsController(
 
         if (invalidRun is not null)
             return invalidRun;
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runGuid, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         SubmitResultResult result =
             await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);

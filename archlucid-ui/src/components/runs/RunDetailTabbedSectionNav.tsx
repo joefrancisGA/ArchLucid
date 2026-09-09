@@ -1,20 +1,20 @@
 "use client";
 
 import { useMemo } from "react";
-import { useSearchParams } from "next/navigation";
 
+import { useResolvedReviewDetailActiveTab } from "@/hooks/use-resolved-review-detail-active-tab";
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/runs/RunDetailSectionNav";
+import type { ResolveReviewDetailVisibleTabsInput } from "@/lib/resolve-review-detail-visible-tabs";
+import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import { filterRunDetailInPageAnchorSectionsForTab } from "@/lib/runs/run-detail-section-tab-map";
-import {
-  REVIEW_DETAIL_TAB_PARAM,
-  resolveReviewDetailTab,
-  type ReviewDetailTabId,
-} from "@/lib/review-detail-workspace-tabs";
+import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 
 type RunDetailTabbedSectionNavProps = {
   readonly runId: string;
   readonly parentArchitectureId?: string | null;
   readonly sections: RunDetailSection[];
+  readonly tabLifecycle?: ResolveReviewDetailVisibleTabsInput;
+  readonly lifecycle?: ReviewWorkspaceLifecycle;
 };
 
 /**
@@ -22,8 +22,10 @@ type RunDetailTabbedSectionNavProps = {
  * without listing anchors that live on other tabs.
  */
 export function RunDetailTabbedSectionNav(props: RunDetailTabbedSectionNavProps): React.JSX.Element | null {
-  const searchParams = useSearchParams();
-  const activeTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
+  const activeTab = useResolvedReviewDetailActiveTab({
+    tabLifecycle: props.tabLifecycle,
+    lifecycle: props.lifecycle,
+  });
 
   const sectionsForTab = useMemo(
     () => filterRunDetailInPageAnchorSectionsForTab(props.sections, activeTab),
@@ -36,6 +38,7 @@ export function RunDetailTabbedSectionNav(props: RunDetailTabbedSectionNavProps)
       runId={props.runId}
       parentArchitectureId={props.parentArchitectureId}
       sections={sectionsForTab}
+      activeReviewTab={activeTab}
     />
   );
 }

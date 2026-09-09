@@ -33,10 +33,13 @@
 name: CI
 
 # PR (main/master): Tier 0–0.9 + trimmed `dotnet-fast-core` (no Tier 1.0 artifacts, no coverlet, no finding-engine template).
+# merge_group (main/master): same trimmed corset as PR, but path lanes never skip .NET (semantic conflict guard).
 # Full CI: `dotnet-fast-core-artifacts` after corset. Jobs after corset: **workflow_dispatch** only (except PR corset path).
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
 on:
   pull_request:
+    branches: [main, master]
+  merge_group:
     branches: [main, master]
   workflow_dispatch:
     inputs:
@@ -46,15 +49,17 @@ on:
         default: false
         type: boolean
 
-# One active CI run per PR (or per ref for workflow_dispatch). A newer push cancels the stale run
-# so overlapping OpenAPI/build/test minutes are not burned on commits that are already superseded.
+# One active CI run per PR (or per ref for workflow_dispatch / merge_group). A newer push cancels the
+# stale run so overlapping OpenAPI/build/test minutes are not burned on commits that are already superseded.
+# merge_group runs are never cancelled in-progress — they validate the combined merge-result SHA.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name != 'merge_group' }}
 
 # PR path lanes (ci-path-lanes): soft-skip OpenAPI / .NET corset / Terraform validate steps when the
 # diff does not touch those surfaces (docs/UI-only PRs). Jobs still report success so required checks
-# are not left Pending/Skipped. workflow_dispatch always runs full lanes.
+# are not left Pending/Skipped. workflow_dispatch and merge_group always run full lanes (semantic
+# conflict guard — a docs-only PR must not satisfy ".NET: fast core (corset)" on the merge result).
 # Corset test shards download packed bin/obj from the build job (artifact) instead of relying only on
 # actions/cache same-SHA restore.
 
@@ -2392,6 +2397,10 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: git fetch origin "${{ github.event.repository.default_branch }}" --no-tags
 
+      - name: Fetch default branch for diff guards (merge queue)
+        if: github.event_name == 'merge_group'
+        run: git fetch origin "${{ github.event.repository.default_branch }}" --no-tags
+
       - name: Set git diff range (PR)
         if: github.event_name == 'pull_request'
         run: echo "ARCHLUCID_GIT_DIFF_RANGE=${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" >> "$GITHUB_ENV"
@@ -2404,6 +2413,10 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: echo "ARCHLUCID_GIT_DIFF_RANGE=origin/${{ github.event.repository.default_branch }}...HEAD" >> "$GITHUB_ENV"
 
+      - name: Set git diff range (merge queue)
+        if: github.event_name == 'merge_group'
+        run: echo "ARCHLUCID_GIT_DIFF_RANGE=origin/${{ github.event.repository.default_branch }}...HEAD" >> "$GITHUB_ENV"
+
       - name: Run pre-corset guards
         env:
           ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
@@ -2414,6 +2427,7 @@ jobs:
     # Hard-gate fan-in only. Warn-only docs/IaC/demo jobs stay visible but off this critical path
     # (continue-on-error does not unblock needs — listing them here used to serialize ~docs+OpenAPI).
     # Soft-skip when PR path lanes exclude .NET (job still succeeds for required checks).
+    # merge_group never path-skips: ci-path-lanes forces run_dotnet=true for non-pull_request events.
     needs:
       - gitleaks
       - ci-path-lanes
@@ -2434,6 +2448,10 @@ jobs:
 
       - name: Fetch default branch for diff guards (manual CI)
         if: github.event_name == 'workflow_dispatch' && needs.ci-path-lanes.outputs.run_dotnet == 'true'
+        run: git fetch origin "${{ github.event.repository.default_branch }}" --no-tags
+
+      - name: Fetch default branch for diff guards (merge queue)
+        if: github.event_name == 'merge_group' && needs.ci-path-lanes.outputs.run_dotnet == 'true'
         run: git fetch origin "${{ github.event.repository.default_branch }}" --no-tags
 
       - name: Setup .NET

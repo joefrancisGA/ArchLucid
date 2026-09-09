@@ -34,6 +34,14 @@ public sealed partial class RunsController
         if (invalidRun is not null)
             return invalidRun;
 
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runGuid, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
         ScopeContext scope = scopeContextProvider.GetCurrentScope();

@@ -11,6 +11,7 @@ import { readJudgeCapReductionFromFindingsSnapshot, readJudgeSkippedByCapFromFin
 import { readProseAssumptionRegisterFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import { readProseAssumptionHeldCheckAsksFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
 import { readPixelDiagramNotVerifiableSourcesFromContextSnapshot } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
+import { hasAzureInventoryZipEvidence } from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
 import {
   RunDetailExplanationSkeleton,
   RunDetailTabbedSectionNavDeferred,
@@ -100,6 +101,8 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       pixelDiagramNotVerifiableSources={readPixelDiagramNotVerifiableSourcesFromContextSnapshot(model.resolvedDetail.contextSnapshot)}
       withheldFindingCount={withheldFindings.length}
       catalogAdvisoryEngineFailureCount={catalogAdvisoryEngineFailureCount}
+      architectureRequestId={model.resolvedDetail.run.architectureRequestId}
+      azureInventoryEvidencePresent={hasAzureInventoryZipEvidence(presentation.evidenceInventoryItems)}
     />
   );
 
@@ -114,6 +117,12 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
             runId={model.resolvedDetail.run.runId}
             parentArchitectureId={model.resolvedDetail.run.architectureId ?? null}
             sections={model.runDetailNavSections}
+            tabLifecycle={{
+              manifestId: model.manifestId,
+              showProgressTracker: model.showProgressTracker,
+              runCompleted: model.resolvedDetail.run.completedUtc != null,
+            }}
+            lifecycle={resolved.lifecycle}
           />
         }
         inPipelineBanner={resolved.inPipelineBannerEl}

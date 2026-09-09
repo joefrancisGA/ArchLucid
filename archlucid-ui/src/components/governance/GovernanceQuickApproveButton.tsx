@@ -14,6 +14,7 @@ import { useApprovalRequestLineageQuery } from "@/hooks/use-approval-request-lin
 import { useGovernanceRecordCorrectionUrlSync } from "@/hooks/use-governance-record-correction-url-sync";
 import { batchReviewGovernanceApprovalRequests } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governanceBatchReviewMutationBlockedReason } from "@/lib/governance/governance-batch-review-mutation-blocked-reason";
 import { approvalLineageBlocksQuickApprove } from "@/lib/governance/governance-quick-approve-lineage";
 import {
   GOVERNANCE_MUTATION_CORRECTION_SUCCESS_MESSAGE,
@@ -173,7 +174,10 @@ export function GovernanceQuickApproveButton({
         });
         await onApproved();
       } catch (e) {
-        setDialogErrorMessage(toApiLoadFailure(e).message);
+        const failure = toApiLoadFailure(e);
+        setDialogErrorMessage(
+          governanceBatchReviewMutationBlockedReason(failure) ?? failure.message,
+        );
       } finally {
         setBusy(false);
       }

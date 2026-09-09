@@ -9,7 +9,9 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Coordination.Replay;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -35,12 +37,32 @@ namespace ArchLucid.Api.Controllers.Authority;
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
-public sealed class AuthorityReplayController(
+public sealed partial class AuthorityReplayController(
     IAuthorityReplayService replayService,
     IAuditService auditService,
     IActorContext actorContext,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IAuthorityReplayService _replayService =
+        replayService ?? throw new ArgumentNullException(nameof(replayService));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     /// <summary>Runs replay for the run and mode in <paramref name="request" />.</summary>
     /// <param name="request">Run id and optional mode (defaults to <see cref="ReplayMode.ReconstructOnly" />).</param>
     /// <param name="ct">Cancellation token.</param>
@@ -71,11 +93,17 @@ public sealed class AuthorityReplayController(
                 $"Replay mode '{mode}' is not recognized.",
                 ProblemTypes.ValidationFailed);
 
+        IActionResult? sealedGuardResult =
+            await EnsureRunSealedManifestReadAllowedAsync(request.RunId.ToString("D"), ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ReplayResult? result;
 
         try
         {
-            result = await replayService.ReplayAsync(
+            result = await _replayService.ReplayAsync(
                 new ReplayRequest { RunId = request.RunId, Mode = mode },
                 ct);
         }
@@ -91,10 +119,10 @@ public sealed class AuthorityReplayController(
         if (result is null)
             return this.NotFoundProblem($"Run '{request.RunId}' was not found.", ProblemTypes.RunNotFound);
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        string actor = actorContext.GetActor();
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string actor = _actorContext.GetActor();
 
-        await auditService.LogAsync(
+        await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.ReplayExecuted,

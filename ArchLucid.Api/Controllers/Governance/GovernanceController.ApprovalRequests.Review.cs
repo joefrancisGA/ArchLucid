@@ -6,6 +6,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ public sealed partial class GovernanceController
     public async Task<IActionResult> Approve(
         [FromRoute] string approvalRequestId,
         [FromBody] ApproveGovernanceRequest? request,
+        [FromServices] IGovernanceApprovalRequestRepository approvalRepository,
         CancellationToken cancellationToken)
     {
         if (request is null)
@@ -47,6 +49,14 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
+            approvalRequestId,
+            approvalRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
@@ -95,6 +105,10 @@ public sealed partial class GovernanceController
                 approvalRequestId);
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(
@@ -114,6 +128,7 @@ public sealed partial class GovernanceController
     public async Task<IActionResult> Reject(
         [FromRoute] string approvalRequestId,
         [FromBody] RejectGovernanceRequest? request,
+        [FromServices] IGovernanceApprovalRequestRepository approvalRepository,
         CancellationToken cancellationToken)
     {
         if (request is null)
@@ -139,6 +154,14 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
+            approvalRequestId,
+            approvalRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         string reviewedBy = actorContext.GetActor();
         string reviewedByActorKey = actorContext.GetActorId();
@@ -185,6 +208,10 @@ public sealed partial class GovernanceController
                 ex,
                 "Reject conflict: approval request '{ApprovalRequestId}' already finalized by a concurrent request.",
                 approvalRequestId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+        catch (ConflictException ex)
+        {
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)

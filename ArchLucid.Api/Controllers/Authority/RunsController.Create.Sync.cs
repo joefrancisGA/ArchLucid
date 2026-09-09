@@ -38,6 +38,12 @@ public sealed partial class RunsController
         string correlationId = HttpContext.TraceIdentifier;
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureRunCreateSealedManifestAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         if (!TryReadIdempotencyKeyHeader(out string? idempotencyKey, out IActionResult? badIdempotencyHeader))
         {
             ArgumentNullException.ThrowIfNull(badIdempotencyHeader);

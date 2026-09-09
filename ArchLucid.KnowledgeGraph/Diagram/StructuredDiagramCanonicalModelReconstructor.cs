@@ -53,7 +53,9 @@ public static class StructuredDiagramCanonicalModelReconstructor
 
         Dictionary<string, string> diagramNodeIdByObjectId = new(StringComparer.Ordinal);
         List<ArchitectureDiagramNodeRecord> diagramNodes = [];
+        Dictionary<string, ArchitectureDiagramSubgraphRecord> subgraphs = new(StringComparer.Ordinal);
         string extractionMethod = DiagramExtractionMethods.StructuredParse;
+        int subgraphOrder = 0;
 
         foreach (CanonicalObject canonicalObject in nodes)
         {
@@ -70,12 +72,27 @@ public static class StructuredDiagramCanonicalModelReconstructor
                 extractionMethod = method.Trim();
             }
 
+            string? subgraphId = ReadDiagramSubgraphId(canonicalObject);
+            string? subgraphLabel = ReadDiagramSubgraphLabel(canonicalObject);
+
+            if (!string.IsNullOrWhiteSpace(subgraphId)
+                && !subgraphs.ContainsKey(subgraphId))
+            {
+                subgraphs[subgraphId] = new ArchitectureDiagramSubgraphRecord
+                {
+                    Id = subgraphId,
+                    Label = string.IsNullOrWhiteSpace(subgraphLabel) ? subgraphId : subgraphLabel,
+                    OrderKey = subgraphOrder++,
+                };
+            }
+
             diagramNodes.Add(new ArchitectureDiagramNodeRecord
             {
                 Id = diagramNodeId,
                 Label = ReadLabel(canonicalObject),
                 Kind = ReadDiagramNodeKind(canonicalObject),
                 Provenance = ReadProvenance(canonicalObject),
+                SubgraphId = subgraphId,
             });
         }
 
@@ -85,6 +102,7 @@ public static class StructuredDiagramCanonicalModelReconstructor
         }
 
         List<ArchitectureDiagramEdgeRecord> edges = ReconstructEdges(nodes, diagramNodeIdByObjectId);
+        string? sourceEvidenceItemId = ResolveSourceEvidenceItemId(nodes, group.Key);
 
         return new StructuredDiagramReconstructedDocument
         {
@@ -92,10 +110,26 @@ public static class StructuredDiagramCanonicalModelReconstructor
             {
                 Nodes = diagramNodes,
                 Edges = edges,
+                Subgraphs = subgraphs.Values.OrderBy(subgraph => subgraph.OrderKey).ToList(),
                 ExtractionMethod = extractionMethod,
+                SourceEvidenceItemId = sourceEvidenceItemId,
             },
             LabelOnlyInferenceConfidence = ResolveLabelOnlyInferenceConfidence(nodes),
         };
+    }
+
+    private static string? ResolveSourceEvidenceItemId(IReadOnlyList<CanonicalObject> nodes, string documentSourceId)
+    {
+        foreach (CanonicalObject canonicalObject in nodes)
+        {
+            if (canonicalObject.Properties.TryGetValue("sourceEvidenceItemId", out string? raw)
+                && !string.IsNullOrWhiteSpace(raw))
+            {
+                return raw.Trim();
+            }
+        }
+
+        return string.IsNullOrWhiteSpace(documentSourceId) ? null : documentSourceId.Trim();
     }
 
     public static double ResolveLabelOnlyInferenceConfidence(IReadOnlyList<CanonicalObject> nodes)
@@ -201,6 +235,28 @@ public static class StructuredDiagramCanonicalModelReconstructor
         }
 
         return canonicalObject.Name.Trim();
+    }
+
+    private static string? ReadDiagramSubgraphId(CanonicalObject canonicalObject)
+    {
+        if (!canonicalObject.Properties.TryGetValue("diagramSubgraphId", out string? raw)
+            || string.IsNullOrWhiteSpace(raw))
+        {
+            return null;
+        }
+
+        return raw.Trim();
+    }
+
+    private static string? ReadDiagramSubgraphLabel(CanonicalObject canonicalObject)
+    {
+        if (!canonicalObject.Properties.TryGetValue("diagramSubgraphLabel", out string? raw)
+            || string.IsNullOrWhiteSpace(raw))
+        {
+            return null;
+        }
+
+        return raw.Trim();
     }
 
     private static string ReadDiagramNodeKind(CanonicalObject canonicalObject)

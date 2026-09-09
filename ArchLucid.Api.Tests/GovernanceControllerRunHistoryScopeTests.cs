@@ -364,6 +364,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActionResult result = await sut.Approve(
             "   ",
             new ApproveGovernanceRequest { ReviewComment = "ok" },
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
@@ -388,6 +389,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActionResult result = await sut.Approve(
             overlongApprovalRequestId,
             new ApproveGovernanceRequest { ReviewComment = "ok" },
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
@@ -413,6 +415,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             {
                 ReviewComment = new string('c', GovernanceRequestValidationRules.ReviewCommentMaxLength + 1),
             },
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
@@ -438,6 +441,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             {
                 ReviewComment = "   ",
             },
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
@@ -463,6 +467,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
             {
                 ReviewComment = new string('c', GovernanceRequestValidationRules.ReviewCommentMaxLength + 1),
             },
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
@@ -485,6 +490,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActionResult result = await sut.Reject(
             "   ",
             new RejectGovernanceRequest { ReviewComment = "no" },
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
@@ -510,6 +516,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActionResult result = await sut.Approve(
             approvalRequestId,
             new ApproveGovernanceRequest { ReviewComment = "ok" },
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
@@ -535,6 +542,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActionResult result = await sut.Reject(
             approvalRequestId,
             new RejectGovernanceRequest { ReviewComment = "no" },
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
@@ -588,6 +596,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActionResult result = await sut.Approve(
             approvalRequestId,
             new ApproveGovernanceRequest(),
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
@@ -642,6 +651,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActionResult result = await sut.Reject(
             approvalRequestId,
             new RejectGovernanceRequest(),
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
@@ -697,6 +707,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActionResult result = await sut.Approve(
             paddedApprovalRequestId,
             new ApproveGovernanceRequest { ReviewComment = "ok" },
+            approvals.Object,
             CancellationToken.None);
 
         result.Should().BeOfType<OkObjectResult>();
@@ -736,6 +747,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActionResult result = await sut.Approve(
             approvalRequestId,
             new ApproveGovernanceRequest { ReviewComment = "ok" },
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
@@ -763,6 +775,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
         IActionResult result = await sut.Approve(
             approvalRequestId,
             new ApproveGovernanceRequest { ReviewComment = "ok" },
+            approvals.Object,
             CancellationToken.None);
 
         ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;

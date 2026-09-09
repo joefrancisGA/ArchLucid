@@ -1,11 +1,16 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -26,7 +31,13 @@ public sealed partial class GovernanceStickinessController(
     IGovernanceStickinessFacade facade,
     IScopeContextProvider scopeContextProvider,
     ITenantRepository tenantRepository,
-    IArchitectureReviewRecurrenceNextRunCalculator recurrenceNextRunCalculator) : ControllerBase
+    IArchitectureReviewRecurrenceNextRunCalculator recurrenceNextRunCalculator,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService,
+    IRiskExceptionService riskExceptionService,
+    IFindingInspectReadRepository findingInspectReadRepository,
+    IArchitectureReviewRecurrenceScheduleRepository recurrenceScheduleRepository) : ControllerBase
 {
     private readonly IGovernanceStickinessFacade _facade =
         facade ?? throw new ArgumentNullException(nameof(facade));
@@ -39,6 +50,24 @@ public sealed partial class GovernanceStickinessController(
 
     private readonly IArchitectureReviewRecurrenceNextRunCalculator _recurrenceNextRunCalculator =
         recurrenceNextRunCalculator ?? throw new ArgumentNullException(nameof(recurrenceNextRunCalculator));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IRiskExceptionService _riskExceptionService =
+        riskExceptionService ?? throw new ArgumentNullException(nameof(riskExceptionService));
+
+    private readonly IFindingInspectReadRepository _findingInspectReadRepository =
+        findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
+
+    private readonly IArchitectureReviewRecurrenceScheduleRepository _recurrenceScheduleRepository =
+        recurrenceScheduleRepository ?? throw new ArgumentNullException(nameof(recurrenceScheduleRepository));
 
     private async Task<IActionResult?> RequireTenantAndWorkspaceOrNotFoundAsync(CancellationToken cancellationToken)
     {

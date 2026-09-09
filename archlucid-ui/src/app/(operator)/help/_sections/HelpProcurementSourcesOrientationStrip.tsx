@@ -1,25 +1,30 @@
-import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+"use client";
+
+import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
 import {
   PROCUREMENT_HELP_FOLLOW_UPS_TITLE,
   PROCUREMENT_HELP_ORIENTATION_SOURCES_INTRO,
   PROCUREMENT_HELP_SOURCES,
 } from "@/lib/procurement-help-evidence-copy";
 import { PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/procurement-help-page-copy";
+import {
+  helpProcurementSourcesDisclosureHrefFromSearch,
+  parseHelpProcurementSourcesOpenFromSearch,
+} from "@/lib/help/help-procurement-sources-disclosure-url";
 
-/** Sources-only follow-ups for `/help/procurement` buyer-polished shell (PRO). */
+/** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open (PRO). */
 export function HelpProcurementSourcesOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="help-procurement"
-      stripTestId={PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID}
+    <UrlSyncedSourcesCollapsibleStrip
+      surfaceId="help-procurement-sources"
+      searchParamKey="helpProcurementSourcesOpen"
+      parseOpenFromSearch={parseHelpProcurementSourcesOpenFromSearch}
+      disclosureHrefFromSearch={helpProcurementSourcesDisclosureHrefFromSearch}
+      sectionTestId={PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID}
+      title={PROCUREMENT_HELP_FOLLOW_UPS_TITLE}
+      intro={PROCUREMENT_HELP_ORIENTATION_SOURCES_INTRO}
+      links={PROCUREMENT_HELP_SOURCES}
       sourcesTestId="procurement-help-sources"
-      sourcesTitle={PROCUREMENT_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={PROCUREMENT_HELP_ORIENTATION_SOURCES_INTRO}
-      sources={PROCUREMENT_HELP_SOURCES}
-      sourcesHeadingId="where-to-go-next"
-      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
-      hubSecondary
     />
   );
 }

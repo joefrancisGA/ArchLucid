@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { getDraftRequest, submitDraftRequest } from "@/lib/api/draft-intake-api";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
@@ -15,6 +17,7 @@ import type { BranchDraftResponse } from "@/types/draft-intake";
 
 export type UseReviewPackageWhatIfExecuteResult = {
   readonly busy: boolean;
+  readonly errorMessage: string | null;
   readonly executeBranch: (response: BranchDraftResponse) => Promise<void>;
 };
 
@@ -22,6 +25,7 @@ export type UseReviewPackageWhatIfExecuteResult = {
 export function useReviewPackageWhatIfExecute(baseRunId: string): UseReviewPackageWhatIfExecuteResult {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const executeBranch = useCallback(
     async (response: BranchDraftResponse) => {
@@ -30,6 +34,7 @@ export function useReviewPackageWhatIfExecute(baseRunId: string): UseReviewPacka
       }
 
       setBusy(true);
+      setErrorMessage(null);
 
       try {
         const branchDraftId = response.branch.draftId;
@@ -43,6 +48,12 @@ export function useReviewPackageWhatIfExecute(baseRunId: string): UseReviewPacka
         await invalidateOperatorHomeRunsCaches();
         trackReviewPipelineInFlight(result.runId);
         router.push(runDetailHrefWithParentRun(result.runId, baseRunId));
+      } catch (error: unknown) {
+        const failure = toApiLoadFailure(error);
+        setErrorMessage(
+          architectureDraftIntakeMutationBlockedReason(failure)
+            ?? (error instanceof Error ? error.message : "What-if branch submit failed."),
+        );
       } finally {
         setBusy(false);
       }
@@ -50,5 +61,5 @@ export function useReviewPackageWhatIfExecute(baseRunId: string): UseReviewPacka
     [baseRunId, busy, router],
   );
 
-  return { busy, executeBranch };
+  return { busy, errorMessage, executeBranch };
 }

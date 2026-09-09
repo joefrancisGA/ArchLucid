@@ -33,20 +33,30 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         };
 
         Dictionary<string, string> nodeIdMap = new(StringComparer.Ordinal);
+        Dictionary<string, SubgraphCompileContext> subgraphContexts = BuildSubgraphContexts(model.Subgraphs);
+        int unlabeledShapeCount = 0;
 
         foreach (ArchitectureDiagramSubgraphRecord subgraph in model.Subgraphs.OrderBy(subgraph => subgraph.OrderKey))
         {
-            string graphNodeId = BuildSubgraphNodeId(subgraph.Id);
-            nodeIdMap[subgraph.Id.Trim()] = graphNodeId;
+            string subgraphId = subgraph.Id.Trim();
+
+            if (!subgraphContexts.TryGetValue(subgraphId, out SubgraphCompileContext? context)
+                || !context.IsTrustBoundaryHint)
+            {
+                continue;
+            }
+
+            string graphNodeId = BuildSubgraphNodeId(subgraphId);
+            nodeIdMap[subgraphId] = graphNodeId;
 
             snapshot.Nodes.Add(new GraphNode
             {
                 NodeId = graphNodeId,
                 NodeType = GraphNodeTypes.TrustBoundary,
-                Label = string.IsNullOrWhiteSpace(subgraph.Label) ? subgraph.Id : subgraph.Label.Trim(),
+                Label = context.Label,
                 SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagramSubgraph,
-                SourceId = subgraph.Id.Trim(),
-                Properties = BuildSubgraphProperties(model, subgraph),
+                SourceId = subgraphId,
+                Properties = BuildTrustBoundarySubgraphProperties(model, subgraph, context.Label),
             });
         }
 
@@ -79,6 +89,12 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
                 continue;
             }
 
+            if (StructuredDiagramUnlabeledShapeDetector.IsUnlabeledResourceShape(node))
+            {
+                unlabeledShapeCount++;
+                continue;
+            }
+
             string graphNodeId = $"diagram-node:{node.Id.Trim()}";
             nodeIdMap[node.Id.Trim()] = graphNodeId;
             double confidence = ResolveNodeInferenceConfidence(node, options.LabelOnlyInferenceConfidence);
@@ -90,7 +106,7 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
                 Label = string.IsNullOrWhiteSpace(node.Label) ? node.Id.Trim() : node.Label.Trim(),
                 SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagram,
                 SourceId = node.Id.Trim(),
-                Properties = BuildNodeProperties(model, node, confidence),
+                Properties = BuildNodeProperties(model, node, confidence, subgraphContexts),
                 ReasoningTrace = BuildNodeReasoningTrace(node, confidence),
             });
         }
@@ -118,6 +134,8 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             }
         }
 
+        HashSet<string> compiledDirectedPairs = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (ArchitectureDiagramEdgeRecord edge in model.Edges)
         {
             if (edge.Removed)
@@ -127,6 +145,18 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
 
             if (!nodeIdMap.TryGetValue(edge.SourceId.Trim(), out string? fromNodeId)
                 || !nodeIdMap.TryGetValue(edge.TargetId.Trim(), out string? toNodeId))
+            {
+                continue;
+            }
+
+            if (string.Equals(fromNodeId, toNodeId, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string directedPairKey = $"{fromNodeId}|{toNodeId}";
+
+            if (!compiledDirectedPairs.Add(directedPairKey))
             {
                 continue;
             }
@@ -147,7 +177,19 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             });
         }
 
-        return new StructuredDiagramGraphCompileResult { Snapshot = snapshot };
+        StructuredDiagramGraphCompileResult result = new()
+        {
+            Snapshot = snapshot,
+            UnlabeledShapeCount = unlabeledShapeCount,
+        };
+
+        if (unlabeledShapeCount > 0)
+        {
+            result.Warnings.Add(
+                $"{unlabeledShapeCount} unlabeled diagram shape(s) were not compiled as topology resources (NotVerifiable).");
+        }
+
+        return result;
     }
 
     private static string BuildSubgraphNodeId(string subgraphId)
@@ -209,7 +251,8 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
     private static Dictionary<string, string> BuildNodeProperties(
         ArchitectureDiagramModelRecord model,
         ArchitectureDiagramNodeRecord node,
-        double confidence)
+        double confidence,
+        IReadOnlyDictionary<string, SubgraphCompileContext> subgraphContexts)
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
@@ -219,9 +262,16 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             [StructuredDiagramGraphPropertyKeys.DiagramNodeKind] = node.Kind,
         };
 
-        if (!string.IsNullOrWhiteSpace(node.SubgraphId))
+        if (!string.IsNullOrWhiteSpace(node.SubgraphId)
+            && subgraphContexts.TryGetValue(node.SubgraphId.Trim(), out SubgraphCompileContext? subgraphContext))
         {
-            properties[StructuredDiagramGraphPropertyKeys.DiagramSubgraphId] = node.SubgraphId.Trim();
+            properties[StructuredDiagramGraphPropertyKeys.DiagramSubgraphId] = subgraphContext.Id;
+            properties[StructuredDiagramGraphPropertyKeys.DiagramSubgraphLabel] = subgraphContext.Label;
+
+            if (subgraphContext.IsTrustBoundaryHint)
+            {
+                properties[StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel] = subgraphContext.Label;
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(model.SourceEvidenceItemId))
@@ -237,11 +287,67 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         ArchitectureDiagramEdgeRecord edge,
         double confidence)
     {
+        string diagramEdgeId = edge.Id.Trim();
+
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
             [StructuredDiagramGraphPropertyKeys.ExtractionMethod] = model.ExtractionMethod,
             [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = ResolveEdgeProvenanceKind(edge),
             [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = confidence.ToString("0.###"),
+            [StructuredDiagramGraphPropertyKeys.DiagramEdgeId] = diagramEdgeId,
+            [StructuredDiagramGraphPropertyKeys.DiagramOrigin] = "true",
+            [StructuredDiagramGraphPropertyKeys.DiagramCitationRef] =
+                StructuredDiagramCitationRefs.Format(model.SourceEvidenceItemId, diagramEdgeId),
+        };
+
+        if (!string.IsNullOrWhiteSpace(model.SourceEvidenceItemId))
+        {
+            properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = model.SourceEvidenceItemId.Trim();
+        }
+
+        AppendSemanticEdgeProperties(edge, properties);
+
+        return properties;
+    }
+
+    private static void AppendSemanticEdgeProperties(
+        ArchitectureDiagramEdgeRecord edge,
+        Dictionary<string, string> properties)
+    {
+        if (edge.Properties is null || edge.Properties.Count == 0)
+        {
+            return;
+        }
+
+        foreach (KeyValuePair<string, string> entry in edge.Properties)
+        {
+            if (StructuredDiagramEdgeStylePropertyFilter.IsStyleOnlyProperty(entry.Key))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(entry.Value))
+            {
+                continue;
+            }
+
+            properties[entry.Key.Trim()] = entry.Value.Trim();
+        }
+    }
+
+    private static Dictionary<string, string> BuildTrustBoundarySubgraphProperties(
+        ArchitectureDiagramModelRecord model,
+        ArchitectureDiagramSubgraphRecord subgraph,
+        string resolvedLabel)
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [StructuredDiagramGraphPropertyKeys.ExtractionMethod] = model.ExtractionMethod,
+            [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = StructuredDiagramGraphProvenanceKinds.DeterministicInference,
+            [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "1",
+            [StructuredDiagramGraphPropertyKeys.DiagramSubgraphId] = subgraph.Id.Trim(),
+            [StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel] = resolvedLabel,
+            ["trustOrigin"] = nameof(TrustOrigin.Internal),
         };
 
         if (!string.IsNullOrWhiteSpace(model.SourceEvidenceItemId))
@@ -252,24 +358,46 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         return properties;
     }
 
-    private static Dictionary<string, string> BuildSubgraphProperties(
-        ArchitectureDiagramModelRecord model,
-        ArchitectureDiagramSubgraphRecord subgraph)
+    private static Dictionary<string, SubgraphCompileContext> BuildSubgraphContexts(
+        IReadOnlyList<ArchitectureDiagramSubgraphRecord> subgraphs)
     {
-        Dictionary<string, string> properties = new(StringComparer.Ordinal)
-        {
-            [StructuredDiagramGraphPropertyKeys.ExtractionMethod] = model.ExtractionMethod,
-            [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = StructuredDiagramGraphProvenanceKinds.DeterministicInference,
-            [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "1",
-            [StructuredDiagramGraphPropertyKeys.DiagramSubgraphId] = subgraph.Id.Trim(),
-        };
+        Dictionary<string, SubgraphCompileContext> contexts = new(StringComparer.Ordinal);
 
-        if (!string.IsNullOrWhiteSpace(model.SourceEvidenceItemId))
+        foreach (ArchitectureDiagramSubgraphRecord subgraph in subgraphs)
         {
-            properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = model.SourceEvidenceItemId.Trim();
+            string subgraphId = subgraph.Id.Trim();
+            string label = StructuredDiagramTrustBoundaryClassifier.ResolveSubgraphLabel(subgraphId, subgraph.Label);
+
+            contexts[subgraphId] = new SubgraphCompileContext
+            {
+                Id = subgraphId,
+                Label = label,
+                IsTrustBoundaryHint = StructuredDiagramTrustBoundaryClassifier.IsTrustBoundaryHint(label),
+            };
         }
 
-        return properties;
+        return contexts;
+    }
+
+    private sealed class SubgraphCompileContext
+    {
+        public required string Id
+        {
+            get;
+            init;
+        }
+
+        public required string Label
+        {
+            get;
+            init;
+        }
+
+        public required bool IsTrustBoundaryHint
+        {
+            get;
+            init;
+        }
     }
 
     private static Dictionary<string, string> BuildTrustBoundaryProperties(ArchitectureDiagramModelRecord model)

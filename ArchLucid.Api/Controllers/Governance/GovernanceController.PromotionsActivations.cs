@@ -20,6 +20,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(typeof(GovernancePromotionRecord), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Promote(
         [FromBody] CreateGovernancePromotionRequest? request,
         [FromQuery] bool dryRun = false,
@@ -86,6 +87,11 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(request.RunId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         string promotedBy = actorContext.GetActor();
 
         try
@@ -141,6 +147,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(typeof(GovernanceEnvironmentActivation), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Activate(
         [FromBody] CreateGovernanceActivationRequest? request,
         CancellationToken cancellationToken)
@@ -184,6 +191,11 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(request.RunId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

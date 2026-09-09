@@ -40,6 +40,16 @@ vi.mock("@/lib/api/cloud-connections-api", () => ({
   validateTier2ConnectionHostedRun: vi.fn(),
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/integrations/cloud-connections/azure",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
@@ -63,6 +73,7 @@ import {
   cloudProviderConnectionSources,
 } from "@/lib/cloud-provider-connection-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 describe("AzureCloudConnectionDetailClient buyer-polished shell (IAZ)", () => {
@@ -107,7 +118,10 @@ describe("AzureCloudConnectionDetailClient buyer-polished shell (IAZ)", () => {
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.queryByRole("heading", { level: 2, name: "Overview" })).not.toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(cloudProviderConnectionSources("azure"))) {
+    for (const source of filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(cloudProviderConnectionSources("azure")),
+      "/integrations/cloud-connections/azure",
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

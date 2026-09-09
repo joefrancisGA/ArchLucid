@@ -488,7 +488,10 @@ internal static class GoldenCorpusIngestDeclarationGraphFactory
             CanonicalObjects = objects,
         };
 
-        DefaultGraphBuilder builder = new(NodeFactory, new DefaultGraphEdgeInferer());
+        DefaultGraphBuilder builder = new(
+            NodeFactory,
+            new DefaultGraphEdgeInferer(),
+            new StructuredDiagramGraphMerger(new ArchitectureDiagramToGraphCompiler()));
         GraphBuildResult build = await builder.BuildAsync(snapshot, CancellationToken.None);
 
         List<GraphNode> nodes = build.Nodes

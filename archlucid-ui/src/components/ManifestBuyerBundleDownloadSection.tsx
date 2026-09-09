@@ -1,14 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
 import {
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY,
   BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE,
@@ -29,6 +31,7 @@ export type ManifestBuyerBundleDownloadSectionProps = {
 };
 
 function bundleDownloadCopyAndAction(
+  manifestId: string,
   blockedHintId: string,
   downloadsDisabled: boolean,
   busy: boolean,
@@ -88,17 +91,15 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
 
     void downloadArtifactBundleZip(manifestId)
       .catch((error: unknown) => {
-        showError(
-          "Bundle download",
-          error instanceof Error ? error.message : "Could not download artifact bundle.",
-        );
+        const failure = toApiLoadFailure(error);
+        const blocked = artifactBundleMutationBlockedReason(failure);
+
+        showError("Bundle download", blocked ?? failure.message);
       })
       .finally(() => {
         setBusy(false);
       });
   }, [downloadsDisabled, manifestId]);
-
-  const action = bundleDownloadCopyAndAction(blockedHintId, downloadsDisabled, busy, onDownload);
 
   const syncBundleOpenToUrl = useCallback(
     (open: boolean) => {
@@ -121,6 +122,8 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
   useEffect(() => {
     setBundleOpenState(parseManifestBuyerBundleDownloadOpenFromSearch(manifestBuyerBundleDownloadOpenParam));
   }, [manifestBuyerBundleDownloadOpenParam]);
+
+  const action = bundleDownloadCopyAndAction(manifestId, blockedHintId, downloadsDisabled, busy, onDownload);
 
   if (expanded === true) {
     return (

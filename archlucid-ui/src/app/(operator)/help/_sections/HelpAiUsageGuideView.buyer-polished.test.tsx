@@ -46,9 +46,8 @@ import {
   AI_USAGE_HELP_START_HERE_HELPER,
   AI_USAGE_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/ai-usage-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpAiUsageGuideView buyer-polished shell (HAI)", () => {
   const entry = getProductDocumentationEntry("ai-usage");
@@ -103,9 +102,6 @@ describe("HelpAiUsageGuideView buyer-polished shell (HAI)", () => {
       within(actionPanel).getByRole("link", { name: AI_USAGE_HELP_PRIMARY_ACTION.label }),
     ).toHaveAttribute("href", AI_USAGE_HELP_PRIMARY_ACTION.href);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(AI_USAGE_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), AI_USAGE_HELP_SOURCES, "/");
   });
 });

@@ -402,7 +402,11 @@ public sealed class RunsControllerTests
 
         RunsController controller = CreateController(runRepository: runs.Object);
 
-        IActionResult action = await controller.ArchiveRequest("REQ-100", requests.Object, CancellationToken.None);
+        IActionResult action = await controller.ArchiveRequest(
+            "REQ-100",
+            requests.Object,
+            Mock.Of<IManifestHashService>(),
+            CancellationToken.None);
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
@@ -421,7 +425,11 @@ public sealed class RunsControllerTests
 
         RunsController controller = CreateController();
 
-        IActionResult action = await controller.CloneRequest("missing", requests.Object, CancellationToken.None);
+        IActionResult action = await controller.CloneRequest(
+            "missing",
+            requests.Object,
+            Mock.Of<IManifestHashService>(),
+            CancellationToken.None);
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
@@ -777,6 +785,7 @@ public sealed class RunsControllerTests
                 auditService ?? Mock.Of<IAuditService>(),
                 NullLogger<FindingInstrumentationAuditSupport>.Instance),
             runRepository ?? Mock.Of<IRunRepository>(),
+            Mock.Of<IRunDetailQueryService>(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<RunsController>.Instance)
         {

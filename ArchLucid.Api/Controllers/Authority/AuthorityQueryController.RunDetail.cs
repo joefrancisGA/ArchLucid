@@ -174,6 +174,11 @@ public sealed partial class AuthorityQueryController
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         bool hasCommitBlockingFailures = detail.FindingCoverageSummary?.HasCommitBlockingFailures == true;
 
         try

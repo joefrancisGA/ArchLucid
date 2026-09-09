@@ -140,6 +140,32 @@ public sealed class BundledPolicyPackDeclarationThemeTests
     }
 
     [Fact]
+    public async Task Hipaa_architecture_emits_declaration_themes_at_p1_clinical_boundary_floor()
+    {
+        IReadOnlySet<string> hipaa = await ResolveAtFloorAsync("hipaa-architecture.json", PolicyPackRulePriority.P1);
+
+        IReadOnlyList<string> themes = EnabledThemes(hipaa);
+
+        themes.Should().BeEquivalentTo(
+            [DataProtection, Encryption, NetworkIsolation, TransportSecurity, WorkloadIsolation],
+            "QR-12 clinical boundary slice backs every declaration theme at P1");
+
+        hipaa.Should().Contain("hipaa-011");
+        hipaa.Should().Contain("hipaa-024");
+        DeclarationSignalPolicyGate.ShouldEmitTheme(DataProtection, hipaa).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(TransportSecurity, hipaa).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Hipaa_architecture_stays_silent_at_shipped_p0_pilot_floor()
+    {
+        IReadOnlySet<string> hipaa = await ResolveShippedAsync("hipaa-architecture.json");
+
+        EnabledThemes(hipaa).Should().BeEmpty(
+            "HIPAA P0 keys are administrative; clinical boundary controls are P1 (QR-12)");
+    }
+
+    [Fact]
     public async Task Frameworks_whose_p0_tier_is_identity_only_stay_silent_at_the_pilot_floor()
     {
         // Honest silence, not a bug: these packs' P0 controls are identity/administrative (CIS Azure P0 is
@@ -149,7 +175,6 @@ public sealed class BundledPolicyPackDeclarationThemeTests
         foreach (string contentFile in new[]
                  {
                      "cis-azure-foundations.json",
-                     "hipaa-architecture.json",
                      "iso27001-architecture.json",
                      "zero-trust-architecture.json",
                  })

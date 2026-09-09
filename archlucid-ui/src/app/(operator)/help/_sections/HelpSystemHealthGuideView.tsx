@@ -128,7 +128,9 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
         title={SYSTEM_HEALTH_HELP_PAGE_TITLE}
         titleTestId="help-system-health-page-title"
         subtitle={systemHealthHelpPageSubtitle(buyerPolishedShell)}
-        subtitleClassName="max-w-3xl"
+        subtitleClassName={
+          buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+        }
         navHref={SYSTEM_HEALTH_HELP_CANONICAL_PATH}
         headingLevel="h1"
         breadcrumb={

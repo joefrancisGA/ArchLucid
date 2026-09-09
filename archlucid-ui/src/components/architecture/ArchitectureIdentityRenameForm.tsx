@@ -7,6 +7,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { patchArchitectureIdentity } from "@/lib/api/architecture-identity-api";
+import { architectureIdentityMutationBlockedReason } from "@/lib/architecture/architecture-identity-mutation-blocked-reason";
 import {
   ARCHITECTURE_IDENTITY_DESK_RENAME_EMPTY_ERROR,
   ARCHITECTURE_IDENTITY_DESK_RENAME_HELPER,
@@ -14,6 +15,7 @@ import {
   ARCHITECTURE_IDENTITY_DESK_RENAME_SAVE_LABEL,
 } from "@/lib/architecture/architecture-identity-desk-copy";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { cn } from "@/lib/utils";
@@ -54,7 +56,11 @@ export function ArchitectureIdentityRenameForm(
       });
     },
     onError: (error) => {
-      setInlineError(formatVerboseApiFailureMessage(error, "Could not rename this architecture."));
+      const failure = toApiLoadFailure(error);
+      setInlineError(
+        architectureIdentityMutationBlockedReason(failure)
+          ?? formatVerboseApiFailureMessage(error, "Could not rename this architecture."),
+      );
     },
   });
 

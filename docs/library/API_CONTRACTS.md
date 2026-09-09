@@ -76,6 +76,8 @@ UI alignment: **`docs/operator-shell.md`**.
 
 ## Changing the HTTP contract (PR checklist)
 
+**2026-09-09 (Wave 68 / QR-03):** OpenAPI snapshot refresh — additive **409** `ProblemDetails` content types on sealed-manifest-guard routes (draft submit, governance approve/reject, policy-pack assign, run replay, and related Wave 67–68 mutations); **`GET /v1/roi/cross-tenant-portfolio`** **403** documents **`ProblemDetails`** (portfolio-key-not-configured), not the success DTO. Non-breaking.
+
 When you add or change **`v1`** controllers, route templates, or JSON DTOs that surface on **`GET /openapi/v1.json`**:
 
 1. Regenerate **`GET /openapi/v1.json`** and update the CI snapshot baseline **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** only when the contract change is intentional (`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1` — see **`OPENAPI_CONTRACT_DRIFT.md`**).

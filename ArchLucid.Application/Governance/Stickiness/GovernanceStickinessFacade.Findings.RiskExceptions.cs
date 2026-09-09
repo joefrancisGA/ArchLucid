@@ -76,6 +76,18 @@ public sealed partial class GovernanceStickinessFacade
 
         await EnsureRiskExceptionInScopeAsync(scope, riskExceptionId, ct);
 
+        RiskExceptionRecord? existing = await _riskExceptionService.GetByIdAsync(scope.TenantId, riskExceptionId, ct);
+
+        if (existing?.RunId is { } revokeRunId && revokeRunId != Guid.Empty)
+        {
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                revokeRunId,
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                ct);
+        }
+
         await _riskExceptionService.RevokeAsync(
             scope.TenantId,
             riskExceptionId,

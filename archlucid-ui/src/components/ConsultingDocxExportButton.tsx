@@ -7,6 +7,8 @@ import { Loader2 } from "lucide-react";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
 import { downloadConsultingArchitectureReportDocx } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { consultingDocxMutationBlockedReason } from "@/lib/compare/consulting-docx-mutation-blocked-reason";
 import {
   CONSULTING_DOCX_EXPORT_PERMISSION,
   principalHasPermission,
@@ -51,8 +53,10 @@ export function ConsultingDocxExportButton(props: ConsultingDocxExportButtonProp
     try {
       await downloadConsultingArchitectureReportDocx(runId);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showError("Could not export consulting DOCX", msg);
+      const failure = toApiLoadFailure(e);
+      const blocked = consultingDocxMutationBlockedReason(failure);
+
+      showError("Could not export consulting DOCX", blocked ?? failure.message);
     } finally {
       setBusy(false);
     }

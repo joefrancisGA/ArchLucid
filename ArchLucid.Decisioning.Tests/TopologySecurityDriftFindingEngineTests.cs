@@ -55,6 +55,43 @@ public sealed class TopologySecurityDriftFindingEngineTests
             .Which.Kind.Should().Be(TopologySecurityDriftFindingPayloadKind.ReplicaOrFailoverRemoved);
     }
 
+    [Fact]
+    public async Task AnalyzeAsync_label_only_sql_node_evidence_refs_stay_empty()
+    {
+        GraphSnapshot prior = BuildSqlGraph(includeReplica: true);
+        GraphSnapshot current = BuildSqlGraph(includeReplica: false);
+        Guid priorGraphId = Guid.NewGuid();
+
+        TopologySecurityDriftFindingEngine engine = CreateEngine(prior);
+        FindingAnalysisContext context = BuildContext(priorGraphId);
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(current, context, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().BeEmpty();
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_sql_node_with_arm_resource_id_populates_evidence_refs()
+    {
+        const string armResourceId =
+            "/subscriptions/44444444-4444-4444-4444-444444444444/resourceGroups/rg-sql/providers/Microsoft.Sql/servers/prod/databases/pay";
+
+        GraphSnapshot prior = BuildSqlGraph(includeReplica: true, armResourceId: armResourceId);
+        GraphSnapshot current = BuildSqlGraph(includeReplica: false, armResourceId: armResourceId);
+        Guid priorGraphId = Guid.NewGuid();
+
+        TopologySecurityDriftFindingEngine engine = CreateEngine(prior);
+        FindingAnalysisContext context = BuildContext(priorGraphId);
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(current, context, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().ContainSingle().Which.Should().Be(armResourceId);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeTrue();
+    }
+
     private static FindingAnalysisContext BuildContext(Guid priorGraphId) =>
         new()
         {
@@ -85,7 +122,7 @@ public sealed class TopologySecurityDriftFindingEngineTests
         return new TopologySecurityDriftFindingEngine(graphSnapshots.Object, scopeProvider.Object);
     }
 
-    private static GraphSnapshot BuildSqlGraph(bool includeReplica)
+    private static GraphSnapshot BuildSqlGraph(bool includeReplica, string? armResourceId = null)
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -95,6 +132,11 @@ public sealed class TopologySecurityDriftFindingEngineTests
         if (includeReplica)
         {
             properties["geo_redundant"] = "enabled";
+        }
+
+        if (!string.IsNullOrWhiteSpace(armResourceId))
+        {
+            properties["armResourceId"] = armResourceId;
         }
 
         return new GraphSnapshot

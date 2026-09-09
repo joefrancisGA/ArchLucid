@@ -110,7 +110,9 @@ export function HelpAuthenticationSignInGuideView(
         title={entry.title}
         titleTestId="help-authentication-sign-in-page-title"
         subtitle={authenticationSignInHelpPageSubtitle(entry, buyerPolishedShell)}
-        subtitleClassName="max-w-3xl"
+        subtitleClassName={
+          buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+        }
         navHref={AUTHENTICATION_SIGN_IN_HELP_CANONICAL_PATH}
         headingLevel="h1"
         claimDiscipline={buyerPolishedShell ? AUTHENTICATION_SIGN_IN_HELP_CLAIM_DISCIPLINE : undefined}

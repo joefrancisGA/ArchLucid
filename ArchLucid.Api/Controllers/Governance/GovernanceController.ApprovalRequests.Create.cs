@@ -23,6 +23,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SubmitApprovalRequest(
         [FromBody] CreateGovernanceApprovalRequest? request,
         [FromQuery] bool dryRun = false,
@@ -81,6 +82,11 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(request.RunId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         string requestedBy = actorContext.GetActor();
         string requestedByActorKey = actorContext.GetActorId();

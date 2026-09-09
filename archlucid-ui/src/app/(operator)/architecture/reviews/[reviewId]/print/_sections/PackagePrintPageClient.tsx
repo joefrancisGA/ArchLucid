@@ -123,12 +123,12 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   }
 
   const presentation = buildPackagePrintPresentation(summaryQuery.data, {
+    meetingCaptureEntries:
+      meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
     coverageHonestyLine:
       workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
         ? coverageHonestyLine
         : null,
-    meetingCaptureEntries:
-      meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
     transparencyTrail:
       workingDesk && coverageHonestyQuery.data !== undefined
         ? coverageHonestyQuery.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null

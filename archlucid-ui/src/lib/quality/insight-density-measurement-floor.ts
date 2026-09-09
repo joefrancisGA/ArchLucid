@@ -33,7 +33,7 @@ export { formatPixelDiagramNotVerifiableLabels };
 
 /**
  * claimBoundary: advisory measurement floor — not G-REAL-06 procurement proof.
- * `typed-engine-protected` demotions stay advisory checklist rows; this floor only gates career export completeness.
+ * `typed-engine-scored` demotions stay advisory checklist rows; this floor only gates career export completeness.
  */
 export type InsightDensityMeasurementFloorCounts = {
   readonly catalogEngineCount: number;

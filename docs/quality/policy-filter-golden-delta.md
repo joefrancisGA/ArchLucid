@@ -15,6 +15,8 @@ Regression instrument for `ComplianceRulePackGovernanceFilter` — not evidence 
 
 ## Declaration-security sibling (`PolicyFilteredDeclarationGoldenCorpusTests`)
 
+**Measured artifact:** [`policy-pack-toggle-compare.md`](policy-pack-toggle-compare.md) (CI-guarded; regenerate with `ARCHLUCID_RECORD_POLICY_PACK_TOGGLE_COMPARE=1`).
+
 **Graph:** one `TopologyResource` with `tf.public_network_access=enabled` and `httpsOnly=false`.
 
 | Posture | Filtered rule id | Declaration finding |
@@ -66,8 +68,9 @@ Guard: `BundledPolicyPackDeclarationThemeTests` (`ArchLucid.Decisioning.Tests`, 
 | `pci-dss-architecture` | `data-protection`, `network-isolation` | unchanged | unchanged |
 | `soc2-tsc-architecture` | silent | silent | **`encryption`, `transport-security`** (`soc2-003`, `soc2-004`) |
 | `cis-azure-foundations` | silent | silent | **`data-protection`** (`cis-az-006`) |
+| `hipaa-architecture` | silent | silent | **`data-protection`, `encryption`, `network-isolation`, `transport-security`, `workload-isolation`** (`hipaa-011`..`hipaa-025` at **P1** — QR-12 clinical boundary slice) |
 | `cis-aws` / `cis-gcp-foundations` | silent | silent | `data-protection`, `encryption` |
-| `hipaa-architecture`, `iso27001-architecture`, `zero-trust-architecture` | silent | silent | still silent — see gap 2 |
+| `iso27001-architecture`, `zero-trust-architecture` | silent | silent | still silent — see gap 2 |
 
 **Closed by this change:** `security-architecture-baseline` emitted **no** declaration rows at its shipped floor because its only mapped id (`sec-base-028`) is `P2`. Mapping the `P0` control `sec-base-006` ("Data stores avoid public internet exposure") fixes that; `aks`/`eks`/`gke-002` and `-003` do the same for the Kubernetes baselines.
 

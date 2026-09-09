@@ -11,7 +11,9 @@ import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { usePilotRoiBaselineCompleteness } from "@/hooks/use-pilot-roi-baseline-completeness";
 import { downloadValueReportDocx } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { sponsorValueReportDocxMutationBlockedReason } from "@/lib/pilots/sponsor-value-report-docx-mutation-blocked-reason";
 /** One-click sponsor DOCX for the current scope (last 30 days UTC). */
 export function GenerateSponsorValueReportButton() {
   const canMutate = useOperateCapability();
@@ -40,16 +42,22 @@ export function GenerateSponsorValueReportButton() {
       await downloadValueReportDocx(fromIso, toIso);
     } catch (e: unknown) {
       if (isApiRequestError(e)) {
+        const failure = toApiLoadFailure(e);
+        const blocked = sponsorValueReportDocxMutationBlockedReason(failure);
+
         setError({
-          message: e.message,
+          message: blocked ?? e.message,
           problem: e.problem,
           correlationId: e.correlationId,
         });
       } else {
+        const failure = toApiLoadFailure(e);
+        const blocked = sponsorValueReportDocxMutationBlockedReason(failure);
+
         setError({
-          message: e instanceof Error ? e.message : "Could not generate value report.",
-          problem: null,
-          correlationId: null,
+          message: blocked ?? (e instanceof Error ? e.message : "Could not generate value report."),
+          problem: failure.problem,
+          correlationId: failure.correlationId,
         });
       }
     } finally {

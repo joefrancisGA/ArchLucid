@@ -21,12 +21,18 @@ public sealed partial class RunsController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: IArchitectureRunArchiveService logs ArchitectureReviewArchived via IAuditService.")]
     public async Task<IActionResult> ArchiveRun(
         [FromRoute] Guid runId,
         [FromServices] IArchitectureRunArchiveService archiveService,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ArchitectureRunArchiveOutcome outcome =
             await archiveService.TryArchiveAsync(runId, cancellationToken).ConfigureAwait(false);
 
@@ -36,9 +42,9 @@ public sealed partial class RunsController
             ArchitectureRunArchiveOutcome.NotFound => this.NotFoundProblem(
                 $"Review '{runId:D}' was not found.",
                 ProblemTypes.ResourceNotFound),
-            ArchitectureRunArchiveOutcome.SealedReviewBlocked => this.BadRequestProblem(
+            ArchitectureRunArchiveOutcome.SealedReviewBlocked => this.ConflictProblem(
                 "Sealed reviews cannot be archived. Committed architecture packages and audit history remain until tenant offboarding.",
-                ProblemTypes.ValidationFailed),
+                ProblemTypes.Conflict),
             ArchitectureRunArchiveOutcome.OwnershipDeleteForbidden => this.ForbiddenProblemWithErrorCode(
                 "Archive not permitted",
                 "Only the review creator or a workspace administrator may archive this in-flight review.",

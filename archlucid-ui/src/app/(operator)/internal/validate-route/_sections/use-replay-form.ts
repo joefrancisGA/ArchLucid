@@ -4,8 +4,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import { replayRun } from "@/lib/api";
+import { replayArchitectureRunAsync } from "@/lib/api/architecture-runs-lifecycle";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { reviewAsyncReplayMutationBlockedReason } from "@/lib/runs/review-async-replay-mutation-blocked-reason";
+import { reviewReplayMutationBlockedReason } from "@/lib/runs/review-replay-mutation-blocked-reason";
 import { INTERNAL_REPLAY_PATH, replayScopedHref } from "@/lib/internal-ops-route-paths";
 import {
   parseReplayValidationModeFromSearch,
@@ -179,8 +182,21 @@ export function useReplayForm(): ReplayFormViewModel {
     setMalformedMessage(null);
     setResult(null);
     const startedAt = performance.now();
+    const definition = replayValidationModeDefinition(mode);
 
     try {
+      if (definition.requiresModifyConfirmation) {
+        await replayArchitectureRunAsync(runIdTrimmed, {
+          executionMode: mode,
+          commitReplay: true,
+        });
+        setMalformedMessage(
+          "Replay accepted asynchronously. Track progress from the review in-flight banner or operations list.",
+        );
+
+        return;
+      }
+
       const response: unknown = await replayRun(runIdTrimmed, mode);
       const coerced = coerceReplayResponse(response);
 
@@ -202,7 +218,12 @@ export function useReplayForm(): ReplayFormViewModel {
         .then(setAuditHistory)
         .catch(() => undefined);
     } catch (err) {
-      setFailure(toApiLoadFailure(err));
+      const failure = toApiLoadFailure(err);
+      const blocked =
+        replayValidationModeDefinition(mode).requiresModifyConfirmation
+          ? reviewAsyncReplayMutationBlockedReason(failure)
+          : reviewReplayMutationBlockedReason(failure);
+      setFailure(blocked !== null ? { ...failure, message: blocked } : failure);
       setResult(null);
       const durationMs = Math.round(performance.now() - startedAt);
       const failedEntry = mapSessionReplayHistoryEntry({

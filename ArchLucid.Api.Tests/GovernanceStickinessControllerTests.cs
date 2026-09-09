@@ -232,7 +232,13 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IRunDetailQueryService>()),
                 scope.Object,
                 tenantRepository ?? TenantExistsRepository(),
-                nextRun.Object)
+                nextRun.Object,
+                CreateAuthorityQueryService(),
+                CreateManifestHashService(),
+                Mock.Of<IRunDetailQueryService>(),
+                riskExceptionService.Object,
+                findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
+                recurrenceRepository.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -268,7 +274,13 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IRunDetailQueryService>()),
                 scopeProvider,
                 tenantRepository ?? TenantExistsRepository(),
-                Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>())
+                Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
+                CreateAuthorityQueryService(),
+                CreateManifestHashService(),
+                Mock.Of<IRunDetailQueryService>(),
+                Mock.Of<IRiskExceptionService>(),
+                Mock.Of<IFindingInspectReadRepository>(),
+                Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -308,7 +320,13 @@ public sealed class GovernanceStickinessControllerTests
             facade.Object,
             scopeProvider.Object,
             tenants.Object,
-            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>())
+            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
+            CreateAuthorityQueryService(),
+            CreateManifestHashService(),
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IRiskExceptionService>(),
+            Mock.Of<IFindingInspectReadRepository>(),
+            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

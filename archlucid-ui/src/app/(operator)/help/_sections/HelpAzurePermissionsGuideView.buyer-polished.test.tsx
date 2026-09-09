@@ -49,9 +49,8 @@ import {
   AZURE_PERMISSIONS_HELP_SKIP_LINK_LABEL,
   AZURE_PERMISSIONS_HELP_SKIP_TARGET_ID,
 } from "@/lib/azure-permissions-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpAzurePermissionsGuideView buyer-polished shell (HE)", () => {
   const entry = getProductDocumentationEntry("azure-permissions");
@@ -100,12 +99,7 @@ describe("HelpAzurePermissionsGuideView buyer-polished shell (HE)", () => {
       AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.defaultHref,
     );
 
-    const visibleSources = filterWhereToGoNextFollowUpLinks(AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES);
-
-    for (const source of visibleSources) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

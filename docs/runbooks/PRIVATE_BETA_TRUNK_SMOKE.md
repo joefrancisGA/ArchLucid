@@ -1,4 +1,4 @@
-> **Scope:** Engineering triage for `private-beta-access-on-push.yml` — invite-wave JwtBearer Playwright on trunk. Human proof runs (Gate 1, G-REAL-06) are separate. Insight-density findings in beta reviews remain **advisory** under the `typed-engine-protected` claim boundary — do not treat them as procurement attestations.
+> **Scope:** Engineering triage for `private-beta-access-on-push.yml` — invite-wave JwtBearer Playwright on trunk. Human proof runs (Gate 1, G-REAL-06) are separate. Insight-density findings in beta reviews remain **advisory** under the ADR 0070 gate (`typed-engine-scored` telemetry) — do not treat them as procurement attestations.
 
 # Private-beta trunk smoke — triage runbook
 

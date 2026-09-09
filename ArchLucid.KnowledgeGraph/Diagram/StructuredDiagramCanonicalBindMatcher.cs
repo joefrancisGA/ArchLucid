@@ -28,6 +28,13 @@ public static class StructuredDiagramCanonicalBindMatcher
             }
         }
 
+        GraphNode? byDiagramLabel = TryMatchExactIdentity(diagramLabel, bindTargets);
+
+        if (byDiagramLabel is not null)
+        {
+            return byDiagramLabel;
+        }
+
         GraphNode? byDiagramNodeId = TryMatchExactIdentity(diagramNodeId, bindTargets);
 
         if (byDiagramNodeId is not null)

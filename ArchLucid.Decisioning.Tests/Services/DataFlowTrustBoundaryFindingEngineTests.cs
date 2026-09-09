@@ -1,8 +1,12 @@
 using ArchLucid.Contracts.Architecture;
-using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.Decisioning.Tests.GoldenCorpus;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
@@ -83,6 +87,28 @@ public sealed class DataFlowTrustBoundaryFindingEngineTests
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 
         findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_case70_diagram_graph_populates_diagram_evidence_refs()
+    {
+        GraphSnapshot graph = await GoldenCorpusMermaidTopologyGraphFactory
+            .CreateCase70MermaidTrustBoundaryTopologyGraphAsync();
+
+        DataFlowTrustBoundaryFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().NotBeEmpty();
+        finding.EvidenceRefs.Should().Contain(reference =>
+            reference.StartsWith(DiagramEvidenceCitationRefs.Prefix, StringComparison.OrdinalIgnoreCase));
+
+        DiagramPackageCitationIndex packageIndex = DiagramPackageCitationIndexBuilder.FromGraphSnapshot(graph);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs, packageIndex)
+            .Should().BeTrue();
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(["diagram:doc-golden-70-mermaid:dangling"])
+            .Should().BeFalse();
     }
 
     private static GraphSnapshot BuildIngressToSqlFixture(

@@ -18,6 +18,8 @@ import {
   fetchWizardIntakeDraft,
   upsertWizardIntakeDraft,
 } from "@/lib/api/wizard-intake-draft-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { wizardIntakeDraftMutationBlockedReason } from "@/lib/architecture/wizard-intake-draft-mutation-blocked-reason";
 import { getOrCreateWizardIdempotencyKey } from "@/lib/wizard-idempotency-key";
 import {
   parseWizardSessionRestoreConfirmOpenFromSearch,
@@ -257,8 +259,12 @@ export function useWizardSessionPersistence<TState>(
         stepIndex: args.stepIndex,
         stateJson: serialized,
         idempotencyKey: getOrCreateWizardIdempotencyKey(),
-      }).catch(() => {
-        // sessionStorage remains the local fallback when tenant draft sync fails
+      }).catch((error: unknown) => {
+        const failure = toApiLoadFailure(error);
+
+        if (wizardIntakeDraftMutationBlockedReason(failure) !== null) {
+          setSaveState("unsaved");
+        }
       });
     }, PERSIST_DEBOUNCE_MS);
 

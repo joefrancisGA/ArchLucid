@@ -21,8 +21,10 @@ import {
   BUYER_CTO_DEMO_RECAP_COPY_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
 import { downloadFirstValueReportPdf } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -53,9 +55,10 @@ export function CtoDemoAuditClosingBeat(): React.JSX.Element | null {
       await downloadFirstValueReportPdf(SHOWCASE_STATIC_DEMO_RUN_ID);
       showSuccess("Board packet download started.");
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const failure = toApiLoadFailure(error);
+      const blocked = firstValueReportMutationBlockedReason(failure);
 
-      showError("Board packet download failed", message);
+      showError("Board packet download failed", blocked ?? failure.message);
     } finally {
       setBoardPacketBusy(false);
     }

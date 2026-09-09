@@ -26,12 +26,16 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
 }));
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/help/baseline-settings",
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/help/baseline-settings",
+    useSearchParams: () => new URLSearchParams(),
+  });
+});
 
 import { HelpBaselineSettingsGuideView } from "@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import {
   BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE,
   BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE,
@@ -56,9 +60,9 @@ import {
   BASELINE_SETTINGS_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/baseline-settings-help-page-copy";
 import { BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER } from "@/lib/baseline-settings-present";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { formatHelpTopicApplicabilityMetadata } from "@/lib/help/help-topic-applicability-metadata";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
   const entry = getProductDocumentationEntry("baseline-settings");
@@ -127,10 +131,7 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
       screen.getByRole("heading", { level: 2, name: BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(BASELINE_SETTINGS_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), BASELINE_SETTINGS_HELP_SOURCES, "/help/baseline-settings");
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

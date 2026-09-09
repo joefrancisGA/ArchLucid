@@ -42,9 +42,8 @@ import {
   PATH_CHOOSER_HELP_FOLLOW_UPS_TITLE,
   PATH_CHOOSER_HELP_ORIENTATION_SOURCES,
 } from "@/lib/path-chooser-help-evidence-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpPathChooserGuideView buyer-polished shell (HPX)", () => {
   const loaded = tryLoadProductDocumentation("choose-your-next-step");
@@ -91,12 +90,7 @@ describe("HelpPathChooserGuideView buyer-polished shell (HPX)", () => {
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    const visibleSources = filterWhereToGoNextFollowUpLinks(PATH_CHOOSER_HELP_ORIENTATION_SOURCES);
-
-    for (const source of visibleSources) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), PATH_CHOOSER_HELP_ORIENTATION_SOURCES, "/help/choose-your-next-step");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

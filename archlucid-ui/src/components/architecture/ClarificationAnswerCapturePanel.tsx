@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { applyKnowledgeModelClarificationAnswers } from "@/lib/api/knowledge-model-clarification-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { clarificationAnswersMutationBlockedReason } from "@/lib/runs/clarification-answers-mutation-blocked-reason";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
@@ -49,7 +51,11 @@ export function ClarificationAnswerCapturePanel(
       await applyKnowledgeModelClarificationAnswers(props.runId, answers);
       window.location.reload();
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Submit failed.");
+      const failure = toApiLoadFailure(error);
+      setSubmitError(
+        clarificationAnswersMutationBlockedReason(failure)
+          ?? (error instanceof Error ? error.message : "Submit failed."),
+      );
     } finally {
       setBusy(false);
     }

@@ -64,6 +64,8 @@ public sealed partial class PolicyPackHttpFacade
         if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
             return new PolicyPackAssignHttpResult { Outcome = PolicyPackHttpOutcome.ScopeNotFound };
 
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
         string versionKey = request.Version.Trim();
         string scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
 
@@ -106,6 +108,8 @@ public sealed partial class PolicyPackHttpFacade
     {
         if (!await EnsureScopeAsync(ct).ConfigureAwait(false))
             return PolicyPackHttpResult<bool>.ScopeNotFound();
+
+        await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
 
         PolicyPackArchiveAssignmentOutcome outcome =
             await _workflow.TryArchiveAssignmentWithOutcomeAsync(assignmentId, ct).ConfigureAwait(false);
@@ -162,6 +166,8 @@ public sealed partial class PolicyPackHttpFacade
             return PolicyPackHttpResult<bool>.ScopeNotFound();
 
         await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
+
+        bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
 
         PolicyPackSetAssignmentEnabledOutcome outcome =
             await _workflow.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
