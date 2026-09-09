@@ -681,11 +681,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 21
-- **bugs-found:** 9
+- **hunts:** 25
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — golden-manifest committed run lookup lacked RunId tie-break in InMemory parity
+- **last-bug:** 2026-09-09 — authority project slug seeks ignored internal whitespace in stored ProjectId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -793,6 +793,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` backfill queue lacks `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-09-09 seed hunt #1451:** SQL orders `CreatedUtc ASC, RunId ASC`; InMemory uses `ThenBy(RunId)`; regression `InMemory_null_architecture_backfill_orders_by_run_id_when_created_utc_ties`.
 
 2026-09-09 seed hunt #1451 (seed-only): reseeded sql-run-repository after #1450; cheap-disproof closed GoldenManifest tenant join defense-in-depth, manifest-version-only INNER JOIN exclusion, version-scoped committed predicate breadth, optional row-version update, architecture-head latest-run semantics, and null-architecture backfill tie-break; 90 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) `CountActiveRunsForArchitectureRequest` / `ExistsRunForArchitectureRequestInScope` / `SelectRepresentativeRunIdForArchitectureRequestInScope` and `RunListWarningFlagSql.LeftJoinAggregates` compared `ArchitectureRequestId` with trim-only normalization while callers collapse internal whitespace — **hit 2026-09-09 seed hunt #1465 (seed→hit):** `NormalizeArchitectureRequestId` and `CollapsedUpperArchitectureRequestId` SQL collapse internal whitespace before uppercase compare; InMemory `ArchitectureRequestIdMatches` aligned; regressions in `Architecture_request_queries_collapse_internal_whitespace_before_compare`, `InMemory_count_active_runs_matches_internal_whitespace_in_stored_architecture_request_id`, `InMemory_exists_run_for_architecture_request_matches_internal_whitespace_in_stored_id`, and `LeftJoinAggregates_normalizes_architecture_request_id_before_package_origin_join`.
+- [x] (candidate) `ExistsActiveRunWithSystemNameInWorkspace` / project-list SQL compare stored `ProjectId` without collapsing internal whitespace — open on unmerged branches **#1460** / **#1462**; not reproved on this run.
+- [x] (candidate) `HardDeleteStaleUncommittedRunsBatchAsync` omits `IsSample` — open on unmerged branch **#1463**; not reproved on this run.
+- [x] (candidate) Pipeline-dead-letter runs match committed-run lookups via retained manifest headers — open on unmerged branch **#1464**; not reproved on this run.
+
+2026-09-09 seed hunt #1465 (seed→hit): reseeded sql-run-repository after #1451; proved architecture request id internal whitespace bypass in scope seeks and dashboard list join; seeded workspace-name, sample-purge, and dead-letter committed-lookup candidates on open PRs; 94 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) Authority project slug list/committed lookups compare edge-trimmed `ProjectId` only so internal whitespace variants miss dashboard lists and committed-run resolution — **hit 2026-09-09 seed hunt #1466 (seed→hit):** stored `Claims  API` omitted from list/committed seeks for `claims api`; fixed with `NormalizeAuthorityProjectSlug` and SQL `STRING_SPLIT`/`STRING_AGG` collapse across project list, graph-at-or-before, and committed lookup shapes; regressions `Project_list_queries_collapse_internal_whitespace_in_project_slug`, `InMemory_list_by_project_matches_internal_whitespace_in_stored_project_slug`, and `InMemory_matches_internal_whitespace_for_latest_committed_run_lookup`.
+
+2026-09-09 seed hunt #1466 (seed→hit): reseeded sql-run-repository after #1451; proved authority project slug internal-whitespace bypass in list and committed lookups; 126 scoped Persistence tests passed (1 SQL integration skipped).
+
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
@@ -1574,6 +1586,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Multiple hydrated source texts omit attached-document count in inbound context — **cheap-disproof 2026-09-09 seed hunt #1455:** `inboundContextLine` appends `plus N attached document(s)` from `hydratedSourceTexts.length`; regression `mentions attached documents when multiple source texts hydrate`.
 
 2026-09-09 seed hunt #1455 (seed-only): reseeded ui-architecture-intelligence after #1454; cheap-disproof closed scope-switch golden stale race, publish-toggle carryover, interview-answer carryover, findings-queue context copy, and multi-source attachment count; 39 scoped `ArchitectureIntelligencePageClient` tests passed.
+
+- [x] (valid-no-repro) `runReasoning` with empty description silently no-ops — **cheap-disproof 2026-09-09 seed hunt #1457:** `runReasoningWithOptions` sets inline error `Architecture description is required`; regression `shows error when run reasoning is clicked with empty architecture description`.
+- [x] (valid-no-repro) Deep-linked product context omits `declaredPriorities` hydration — **cheap-disproof 2026-09-09 seed hunt #1457:** hydration effect assigns `hydratedPrioritiesFromQuery`; regression `hydrates declared priorities from deep-linked product source context`.
+- [x] (valid-no-repro) Deep-linked `runId` switch leaves stale inline error after reasoning failure — **cheap-disproof 2026-09-09 seed hunt #1457:** inbound-run reset calls `setError(null)`; regression `clears inline error when inbound runId switches after reasoning failure`.
+- [x] (valid-no-repro) In-flight `runGoldenTest` on deep-linked `runId` switch only clears synchronously — **cheap-disproof 2026-09-09 seed hunt #1457:** `actionGenerationRef` invalidation plus stale guards mirror proven reasoning fix #1342; regression `ignores stale golden test results when inbound runId switches before golden test completes`.
+- [x] (valid-no-repro) In-flight `loadGoldenFixture` applies stale intake after deep-linked `runId` switch — **cheap-disproof 2026-09-09 seed hunt #1457:** `invalidateInFlightActions` on fixture start and stale guards on completion; regression `ignores stale fixture intake when inbound runId switches before golden fixture load completes`.
+
+2026-09-09 seed hunt #1457 (seed-only): reseeded ui-architecture-intelligence after #1455; cheap-disproof closed empty-description guard, priorities hydration, error reset on run switch, and in-flight golden-test/fixture stale races; 44 scoped `ArchitectureIntelligencePageClient` tests passed.
 
 
 2026-09-09 seed hunt #1397 (seed→hit): reseeded intake replacement paths after #1344; proved publish-toggle carryover on golden fixture load; cheap-disproof closed in-flight golden-test stale candidate; aligned fetch mocks with `apiGet` text parsing; 14 scoped `ArchitectureIntelligencePageClient` tests passed.

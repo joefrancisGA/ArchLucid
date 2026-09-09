@@ -2719,32 +2719,3 @@ describe("ArchitectureIntelligenceProductRoundTrip", () => {
   });
 
 });
-
-describe("ArchitectureIntelligenceProductRoundTrip", () => {
-  it("renders product deep links after publish", async () => {
-    const { ArchitectureIntelligenceProductRoundTrip } = await import(
-      "./ArchitectureIntelligenceProductRoundTrip"
-    );
-
-    render(
-      <ArchitectureIntelligenceProductRoundTrip
-        runId="run-abc"
-        publishedToProduct
-        publishedRecommendationCount={2}
-      />,
-    );
-
-    expect(screen.getByTestId("architecture-intelligence-open-findings")).toHaveAttribute(
-      "href",
-      "/governance/findings?runId=run-abc",
-    );
-    expect(screen.getByTestId("architecture-intelligence-open-review")).toHaveAttribute(
-      "href",
-      "/architecture/reviews/run-abc",
-    );
-    expect(screen.getByTestId("architecture-intelligence-open-advisory")).toHaveAttribute(
-      "href",
-      "/governance/advisory-scans?runId=run-abc",
-    );
-  });
-});
