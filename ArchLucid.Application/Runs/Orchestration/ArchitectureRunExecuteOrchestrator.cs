@@ -282,6 +282,22 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             throw new RunNotFoundException(runId);
 
         await _scopeResolveStage.ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken).ConfigureAwait(false);
+
+        ThrowIfRunHasNoAgentWorkOrDeferredContext(run, runId);
+    }
+
+    private static void ThrowIfRunHasNoAgentWorkOrDeferredContext(ArchitectureRun run, string runId)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if ((run.TaskIds?.Count ?? 0) == 0
+            && string.IsNullOrWhiteSpace(run.ContextSnapshotId)
+            && run.Status is not ArchitectureRunStatus.Committed
+            and not ArchitectureRunStatus.ReadyForCommit)
+        {
+            throw new NoScheduledAgentTasksException(runId);
+        }
     }
 
     internal static bool ArePersistedResultsCompleteForTasks(
@@ -360,13 +376,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (idempotent is not null)
             return idempotent;
 
-        if ((run.TaskIds?.Count ?? 0) == 0
-            && string.IsNullOrWhiteSpace(run.ContextSnapshotId)
-            && run.Status is not ArchitectureRunStatus.Committed
-            and not ArchitectureRunStatus.ReadyForCommit)
-        {
-            throw new NoScheduledAgentTasksException(runId);
-        }
+        ThrowIfRunHasNoAgentWorkOrDeferredContext(run, runId);
 
         await _tailHooksStage.EnsurePreAgentLoopExecuteAllowedAsync(runId, actor, cancellationToken);
 
