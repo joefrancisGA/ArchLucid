@@ -47,6 +47,24 @@ export const ARCHITECTURE_IDENTITY_DESK_START_REVIEW_LABEL = "Start review" as c
 
 export const ARCHITECTURE_IDENTITY_DESK_IN_FLIGHT_HEADING = "Review in progress" as const;
 
+export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_TITLE = "Diagram sources" as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_LATEST_REVIEW_LABEL = "Latest review" as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_EMPTY =
+  "No diagram sources on the latest review." as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_ANALYZED_STATUS = "Topology analyzed" as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_NOT_EXTRACTED_STATUS = "Topology not extracted" as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_LOADING_LABEL = "Loading diagram sources…" as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_ERROR_LABEL =
+  "Could not load diagram sources for the latest review." as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_RETRY_LABEL = "Retry" as const;
+
 export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_SECTION_TITLE = "Architecture versions" as const;
 
 export const ARCHITECTURE_IDENTITY_DESK_VERSIONS_HONESTY =

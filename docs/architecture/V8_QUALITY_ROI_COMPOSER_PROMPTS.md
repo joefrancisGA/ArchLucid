@@ -1,10 +1,11 @@
 > **Scope:** Copy-paste Composer/Cursor prompts that raise **v8 assessment** weighted qualities at the best credit ROI. Internal engineering only — not buyer-facing copy.
-> **Scores:** [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) (v8, 2026-09-09) §2 / §8 / §17 · **Index:** [`.cursor/prompts/v8-quality-roi-00-index.md`](../../.cursor/prompts/v8-quality-roi-00-index.md)
+> **Scores:** v8 archived at [`../archive/assessments/LATEST_GPT55-2026-09-09-v8-superseded.md`](../archive/assessments/LATEST_GPT55-2026-09-09-v8-superseded.md). Canonical scores: [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) (**v9**). **Successor pack:** [`V9_QUALITY_ROI_COMPOSER_PROMPTS.md`](V9_QUALITY_ROI_COMPOSER_PROMPTS.md) (QR-06–QR-15).
+> **Index:** [`.cursor/prompts/v8-quality-roi-00-index.md`](../../.cursor/prompts/v8-quality-roi-00-index.md)
 > **Do not re-run:** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md) (DX-73–DX-76 shipped `#2530`) · [`WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md`](WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md) (WK-01–WK-22 historical)
 
 # v8 quality-ROI Composer prompts (QR-01–QR-05)
 
-**Created:** 2026-09-09 · **Status:** ready to run (one prompt per chat). **DX-77 is not authorized.**
+**Created:** 2026-09-09 · **Status:** QR-01–QR-04 **shipped** on `master` (`#2619`, `#2638`). QR-05 still draft `#2641` — land via **QR-08**, do not re-author. Next pack: [`V9_QUALITY_ROI_COMPOSER_PROMPTS.md`](V9_QUALITY_ROI_COMPOSER_PROMPTS.md). **DX-77 is not authorized.**
 
 v8 scored **(A) 76.95%**. Insight density rose 66 → 70 after DX-01–DX-76 and is still the largest weighted deficiency — but the remaining lever is **proof** (G-REAL-06), not another engine pack. The cheapest score movement is **Correctness (72, deficiency 336)** plus the **Runtime (70)** that rides the same trunk fixes.
 

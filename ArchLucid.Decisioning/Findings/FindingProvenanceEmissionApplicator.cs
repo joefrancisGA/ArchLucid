@@ -53,13 +53,58 @@ public static class FindingProvenanceEmissionApplicator
             string? violation = validator.GetEmissionViolation(finding);
 
             if (violation is null)
+            {
+                // Density gate runs first and classifies uncited rows as checklist, which
+                // makes GetEmissionViolation skip. Still record Kind A holds so operators
+                // see provenance-hold: rather than only a density demote.
+                TryAppendHoldNoteAfterDensityDemotion(finding);
                 continue;
+            }
 
-            finding.Classification = FindingClassification.ChecklistCoverage;
-            finding.Treatment = FindingTreatment.DemoteToChecklist;
-            finding.Trace ??= new ExplainabilityTrace();
-            finding.Trace.Notes ??= [];
-            finding.Trace.Notes.Add($"provenance-hold: {violation}");
+            HoldAsChecklist(finding, violation);
         }
+    }
+
+    private static void TryAppendHoldNoteAfterDensityDemotion(Finding finding)
+    {
+        if (!IsDensityDemotedToChecklist(finding))
+            return;
+
+        if (InsightDensityFindingSourceClassifier.IsAgentArchitectureFinding(finding.FindingType))
+            return;
+
+        string? violation = DecisionGradeFindingProvenanceValidator.GetViolation(finding);
+
+        if (violation is null)
+            return;
+
+        AppendProvenanceHoldNote(finding, violation);
+    }
+
+    private static bool IsDensityDemotedToChecklist(Finding finding)
+    {
+        return finding.Classification == FindingClassification.ChecklistCoverage
+            || finding.Treatment == FindingTreatment.DemoteToChecklist;
+    }
+
+    private static void HoldAsChecklist(Finding finding, string violation)
+    {
+        finding.Classification = FindingClassification.ChecklistCoverage;
+        finding.Treatment = FindingTreatment.DemoteToChecklist;
+        AppendProvenanceHoldNote(finding, violation);
+    }
+
+    private static void AppendProvenanceHoldNote(Finding finding, string violation)
+    {
+        finding.Trace ??= new ExplainabilityTrace();
+        finding.Trace.Notes ??= [];
+
+        if (finding.Trace.Notes.Any(static note =>
+                note.StartsWith("provenance-hold:", StringComparison.Ordinal)))
+        {
+            return;
+        }
+
+        finding.Trace.Notes.Add($"provenance-hold: {violation}");
     }
 }
