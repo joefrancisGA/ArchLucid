@@ -88,7 +88,9 @@ internal static class ContextIngestionCompositionRegistrar
             return new GraphSnapshotProjectionMemoryCache(memoryCache, monitor);
         });
         services.AddSingleton<PlainTextContextDocumentParser>();
+        services.AddSingleton<MermaidContextDocumentParser>();
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<PlainTextContextDocumentParser>());
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<MermaidContextDocumentParser>());
         services.AddSingleton<IReadOnlyList<IContextDocumentParser>>(static sp =>
             ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers(sp));
 
