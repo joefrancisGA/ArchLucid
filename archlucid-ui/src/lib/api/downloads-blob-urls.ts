@@ -43,7 +43,21 @@ export function getDraftDecisionReceiptDownloadUrl(draftId: string): string {
 
 /** Returns the proxy URL for the traceability ZIP (run summary + audit slice + decision traces, size-capped on API). */
 export function getTraceabilityBundleDownloadUrl(runId: string): string {
-  return `/api/proxy/v1/architecture/review/${encodeURIComponent(runId)}/traceability-bundle.zip`;
+  return `/api/proxy/v1/runs/${encodeURIComponent(runId)}/review-trail/export`;
+}
+
+/** Returns the proxy URL for sponsor ROI findings export JSON (`GET /v1/roi/sponsor-report/export`). */
+export function getSponsorRoiCsvExportUrl(): string {
+  return `/api/proxy/v1/roi/sponsor-report/export`;
+}
+
+/** Returns the proxy URL for manifest compare markdown export file download. */
+export function getManifestCompareExportDownloadUrl(leftVersion: string, rightVersion: string): string {
+  const params = new URLSearchParams();
+  params.set("leftVersion", leftVersion.trim());
+  params.set("rightVersion", rightVersion.trim());
+
+  return `/api/proxy/v1/architecture/manifest/compare/export/file?${params.toString()}`;
 }
 
 /** Returns the proxy URL for the sponsor summary markdown export. */

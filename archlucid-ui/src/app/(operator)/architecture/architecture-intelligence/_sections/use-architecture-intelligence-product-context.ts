@@ -25,6 +25,7 @@ import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { primaryDescriptionFromSources } from "./architecture-intelligence-client-api";
 import { architectureIntelligenceErrorToLoadFailure } from "./architecture-intelligence-page-helpers";
+import { architectureIntelligenceSourceContextBlockedReason } from "@/lib/architecture/architecture-intelligence-source-context-blocked-reason";
 import type {
   ClosedLoopReasoningSourceText,
   FramingQuestion,
@@ -77,6 +78,7 @@ export type UseArchitectureIntelligenceProductContextResult = {
   loadingInboundContext: boolean;
   productContextLoadFailed: boolean;
   productContextLoadFailure: ApiLoadFailureState | null;
+  productContextBlockedReason: string | null;
   showProductContextSkeleton: boolean;
   showIntakeForm: boolean;
   showReasoningWorkspace: boolean;
@@ -279,21 +281,31 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
       setProductContextStatus("error");
       setLoadingAction(null);
       setError(
-        sourceContextQuery.error instanceof Error
-          ? sourceContextQuery.error.message
-          : "Could not load product run source context. Paste a description or load the golden fixture.",
+        sourceContextQuery.blockedReason ??
+          (sourceContextQuery.error instanceof Error
+            ? sourceContextQuery.error.message
+            : "Could not load product run source context. Paste a description or load the golden fixture."),
       );
     }
-  }, [inboundRunId, sourceContextQuery.error, sourceContextQuery.isError, sourceContextQuery.isPending]);
+  }, [
+    inboundRunId,
+    sourceContextQuery.blockedReason,
+    sourceContextQuery.error,
+    sourceContextQuery.isError,
+    sourceContextQuery.isPending,
+  ]);
 
   const loadingInboundContext = inboundRunId.length > 0 && productContextStatus === "loading";
   const productContextLoadFailed = inboundRunId.length > 0 && productContextStatus === "error";
   const showIntakeForm = !loadingInboundContext && !productContextLoadFailed;
 
   const productContextLoadFailure =
-    productContextLoadFailed && error !== null
-      ? architectureIntelligenceErrorToLoadFailure(error)
-      : null;
+    productContextLoadFailed && sourceContextQuery.failure !== null
+      ? sourceContextQuery.failure
+      : productContextLoadFailed && error !== null
+        ? architectureIntelligenceErrorToLoadFailure(error)
+        : null;
+  const productContextBlockedReason = architectureIntelligenceSourceContextBlockedReason(productContextLoadFailure);
 
   const showProductContextSkeleton = loadingInboundContext;
 
@@ -424,6 +436,7 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
     loadingInboundContext,
     productContextLoadFailed,
     productContextLoadFailure,
+    productContextBlockedReason,
     showProductContextSkeleton,
     showIntakeForm,
     showReasoningWorkspace,

@@ -1,11 +1,15 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -31,6 +35,8 @@ public sealed partial class ArchitectureIntelligenceController(
     IArchitectureIntelligenceProductPublishService productPublishService,
     IArchitectureIntelligenceProductRunSourceContextLoader productRunSourceContextLoader,
     IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IAuditService auditService) : ControllerBase
 {
     private readonly IClosedLoopArchitectureReasoningOrchestrator _reasoningOrchestrator =
@@ -49,6 +55,12 @@ public sealed partial class ArchitectureIntelligenceController(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
