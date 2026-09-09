@@ -26,6 +26,7 @@ public static class FindingGraphEvidenceRefs
                 continue;
 
             FindingEvidenceRefs.TryCollectFromNodeProperties(evidenceRefs, node.Properties);
+            FindingDiagramEvidenceRefs.TryAppendFromNode(evidenceRefs, node);
         }
 
         return evidenceRefs;

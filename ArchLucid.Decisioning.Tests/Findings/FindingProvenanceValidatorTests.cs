@@ -1,7 +1,13 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Services;
+using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Diagram;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
@@ -126,5 +132,67 @@ public sealed class FindingProvenanceEmissionApplicatorTests
 
         finding.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
         finding.Treatment.Should().Be(FindingTreatment.Promote);
+    }
+
+    [Fact]
+    public void EnrichDiagramEvidenceRefs_appends_diagram_ref_for_typed_engine_finding_on_mermaid_node()
+    {
+        const string evidenceItemId = "evidence-mermaid-1";
+        const string shapeId = "checkout-api";
+
+        GraphSnapshot graphSnapshot = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = $"diagram-node:{shapeId}",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = shapeId,
+                    SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagram,
+                    SourceId = shapeId,
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        [StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = evidenceItemId,
+                    },
+                },
+            ],
+        };
+
+        Finding finding = new()
+        {
+            FindingId = "engine-diagram-1",
+            FindingType = "TopologyGap",
+            Category = "Topology",
+            EngineType = "topology-gap",
+            RelatedNodeIds = [$"diagram-node:{shapeId}"],
+            EvidenceRefs = [],
+            Trace = new ExplainabilityTrace { RulesApplied = ["topology-gap-rule"] },
+        };
+
+        FindingProvenanceEmissionApplicator.EnrichDiagramEvidenceRefs([finding], graphSnapshot);
+
+        finding.EvidenceRefs.Should().ContainSingle()
+            .Which.Should().Be(DiagramEvidenceCitationRefs.Format(evidenceItemId, shapeId));
+        DiagramPackageCitationIndex packageIndex = DiagramPackageCitationIndex.FromModels(
+            [
+                new ArchitectureDiagramModelRecord
+                {
+                    SourceEvidenceItemId = evidenceItemId,
+                    ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+                    Nodes =
+                    [
+                        new ArchitectureDiagramNodeRecord
+                        {
+                            Id = shapeId,
+                            Label = shapeId,
+                        },
+                    ],
+                },
+            ]);
+
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs, packageIndex)
+            .Should().BeTrue();
     }
 }
