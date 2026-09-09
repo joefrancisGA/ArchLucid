@@ -38,6 +38,48 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void ExistsActiveRunWithSystemNameInWorkspace_treats_committed_runs_as_occupying()
+    {
+        RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace.Should()
+            .NotContain("@CommittedStatus",
+                "workspace name collision guard intentionally blocks reuse while a committed review occupies the name.");
+    }
+
+    [Fact]
+    public async Task InMemory_committed_run_occupies_workspace_system_name()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GoldenManifestId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        bool exists = await runs.ExistsActiveRunWithSystemNameInWorkspaceAsync(
+            scope,
+            "billing",
+            ct: CancellationToken.None);
+
+        exists.Should().BeTrue(
+            "Committed reviews occupy workspace system names; CountActiveRunsForArchitectureRequest excludes Committed for concurrency only.");
+    }
+
+    [Fact]
     public async Task InMemory_failed_run_does_not_occupy_workspace_system_name()
     {
         ScopeContext scope = new()
@@ -482,6 +524,37 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         RunRepositorySql.Update.Should().Contain("ArchivedUtc = @ArchivedUtc");
         RunRepositorySql.Update.Should().NotContain("ArchivedUtc IS NULL",
             "mutating update must be able to set ArchivedUtc during archive/unarchive batches.");
+    }
+
+    [Fact]
+    public void SelectPriorCommittedRunIdForArchitectureBeforeCurrent_excludes_archived_golden_manifests()
+    {
+        RunRepositorySql.SelectPriorCommittedRunIdForArchitectureBeforeCurrent.Should()
+            .Contain("gm.ArchivedUtc IS NULL");
+        RunRepositorySql.SelectPriorCommittedRunIdForArchitectureBeforeCurrent.Should()
+            .Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public void SelectLatestRunIdForArchitecture_orders_active_runs_by_created_utc_then_run_id()
+    {
+        RunRepositorySql.SelectLatestRunIdForArchitecture.Should().Contain("r.ArchivedUtc IS NULL");
+        RunRepositorySql.SelectLatestRunIdForArchitecture.Should()
+            .Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public void ClearGraphSnapshotForArchitecture_targets_active_runs_only()
+    {
+        RunRepositorySql.ClearGraphSnapshotForArchitecture.Should().Contain("ArchivedUtc IS NULL");
+        RunRepositorySql.ClearGraphSnapshotForArchitecture.Should().Contain("GraphSnapshotId IS NOT NULL");
+    }
+
+    [Fact]
+    public void SelectAnchorGuardByScopedId_omits_archived_filter_for_save_path_anchor_reads()
+    {
+        RunRepositorySql.SelectAnchorGuardByScopedId.Should().NotContain("ArchivedUtc IS NULL",
+            "SaveAsync anchor guard loads persisted headers for update batches including archival writes.");
     }
 
     [Fact]

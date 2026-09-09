@@ -238,6 +238,15 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public void CountActiveRunsForArchitectureRequest_excludes_committed_for_concurrency_not_name_collision()
+    {
+        RunRepositorySql.CountActiveRunsForArchitectureRequest.Should().Contain("@CommittedStatus");
+        RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace.Should()
+            .NotContain("@CommittedStatus",
+                "request concurrency guard excludes Committed; workspace system-name guard still treats Committed as occupying.");
+    }
+
+    [Fact]
     public async Task InMemory_count_active_runs_ignores_case_on_architecture_request_id()
     {
         ScopeContext scope = new()

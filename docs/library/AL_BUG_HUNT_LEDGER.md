@@ -681,7 +681,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -744,6 +744,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SelectRepresentativeRunIdForArchitectureRequestInScope` picks archived reruns and breaks sealed-manifest guard — **cheap-disproof 2026-09-09 seed hunt #1444:** representative lookup is historical like existence latch; active detail reads filter archived separately; regressions `SelectRepresentativeRunIdForArchitectureRequestInScope_includes_archived_reruns_by_design` and `InMemory_representative_run_id_includes_archived_rerun_when_newest`.
 
 2026-09-09 seed hunt #1444 (seed-only): reseeded sql-run-repository after #1443; cheap-disproof closed golden-manifest join parity, architecture-version committed lookup, update archival write path, and representative archived-rerun semantics; 53 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectPriorCommittedRunIdForArchitectureBeforeCurrent` omits archived golden-manifest filter — **cheap-disproof 2026-09-09 seed hunt #1445:** shape joins `GoldenManifests` with `gm.ArchivedUtc IS NULL` and RunId tie-break; regression `SelectPriorCommittedRunIdForArchitectureBeforeCurrent_excludes_archived_golden_manifests`.
+- [x] (valid-no-repro) `SelectLatestRunIdForArchitecture` lacks RunId tie-break or includes archived runs — **cheap-disproof 2026-09-09 seed hunt #1445:** filters `r.ArchivedUtc IS NULL` and orders `CreatedUtc DESC, RunId DESC`; regression `SelectLatestRunIdForArchitecture_orders_active_runs_by_created_utc_then_run_id`.
+- [x] (valid-no-repro) `ClearGraphSnapshotForArchitecture` clears graph pointers on archived runs — **cheap-disproof 2026-09-09 seed hunt #1445:** update requires `ArchivedUtc IS NULL` and existing `GraphSnapshotId`; regression `ClearGraphSnapshotForArchitecture_targets_active_runs_only`.
+- [x] (valid-no-repro) `SelectAnchorGuardByScopedId` omits archived filter and skips anchor guard on archived saves — **cheap-disproof 2026-09-09 seed hunt #1445:** SaveAsync anchor guard intentionally loads persisted headers without `ArchivedUtc IS NULL`; regression `SelectAnchorGuardByScopedId_omits_archived_filter_for_save_path_anchor_reads`.
+- [x] (valid-no-repro) `ExistsActiveRunWithSystemNameInWorkspace` treats Committed runs as available for reuse unlike `CountActiveRunsForArchitectureRequest` — **cheap-disproof 2026-09-09 seed hunt #1445:** workspace name collision guard blocks while committed reviews occupy the name; concurrency guard excludes Committed by design; regressions `ExistsActiveRunWithSystemNameInWorkspace_treats_committed_runs_as_occupying`, `InMemory_committed_run_occupies_workspace_system_name`, and `CountActiveRunsForArchitectureRequest_excludes_committed_for_concurrency_not_name_collision`.
+
+2026-09-09 seed hunt #1445 (seed-only): reseeded sql-run-repository after #1444; cheap-disproof closed architecture prior-committed manifest filter, latest architecture run ordering, graph snapshot clear scope, save anchor guard, and Committed-vs-concurrency occupancy split; 60 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
