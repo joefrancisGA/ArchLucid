@@ -1689,3 +1689,4 @@
 {"at":"2026-09-09T21:59:42.3095568Z","zoneId":"email-otp-auth","outcome":"seed-only"}
 {"at":"2026-09-09T21:59:42.6252946Z","zoneId":"email-otp-auth","outcome":"seed-only"}
 {"at":"2026-09-09T22:01:01.9944946Z","zoneId":"auth-return-path","outcome":"seed-only"}
+{"at":"2026-09-09T22:04:25.1536588Z","zoneId":"email-otp-auth","outcome":"hit"}
