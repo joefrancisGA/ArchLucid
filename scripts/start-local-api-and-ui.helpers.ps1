@@ -179,6 +179,47 @@ function Get-LocalUiSiteSpecs {
     return $sites
 }
 
+function Ensure-EnvLocalFromExample {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $EnvLocalPath,
+
+        [Parameter(Mandatory = $true)]
+        [string] $EnvExamplePath,
+
+        [ValidateRange(1, 65535)]
+        [int] $ApiPort = 5128
+    )
+
+    if (Test-Path -LiteralPath $EnvLocalPath) {
+        return $false
+    }
+
+    if (-not (Test-Path -LiteralPath $EnvExamplePath)) {
+        return $false
+    }
+
+    Copy-Item -LiteralPath $EnvExamplePath -Destination $EnvLocalPath
+
+    if ($ApiPort -ne 5128) {
+        [string[]] $lines = Get-Content -LiteralPath $EnvLocalPath
+        [System.Collections.Generic.List[string]] $updated = [System.Collections.Generic.List[string]]::new()
+
+        foreach ($line in $lines) {
+            if ($line -match '^\s*(ARCHLUCID_API_BASE_URL|NEXT_PUBLIC_ARCHLUCID_API_BASE_URL)\s*=') {
+                $updated.Add(($line -replace 'http://localhost:\d+', ('http://localhost:{0}' -f $ApiPort)))
+            }
+            else {
+                $updated.Add($line)
+            }
+        }
+
+        Set-Content -LiteralPath $EnvLocalPath -Value $updated -Encoding UTF8
+    }
+
+    return $true
+}
+
 function Get-LocalUiWindowCommand {
     param(
         [Parameter(Mandatory = $true)]
