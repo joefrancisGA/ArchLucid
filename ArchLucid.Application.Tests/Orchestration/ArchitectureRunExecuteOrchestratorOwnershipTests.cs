@@ -115,6 +115,31 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
     }
 
     [Fact]
+    public async Task ExecuteRunAsync_does_not_acquire_ownership_when_run_has_no_scheduled_tasks()
+    {
+        Guid runGuid = Guid.Parse("88888888-8888-8888-8888-888888888888");
+        string runId = runGuid.ToString("N");
+
+        Mock<IRunExecuteOwnershipLeaseService> ownership = CreateEnabledOwnershipMock(runGuid);
+
+        ArchitectureRunExecuteOrchestrator sut = CreateSut(
+            runId,
+            runGuid,
+            Mock.Of<IAgentExecutor>(),
+            ownership.Object,
+            scheduledTasks: []);
+
+        Func<Task> act = () => sut.ExecuteRunAsync(runId);
+
+        await act.Should().ThrowAsync<NoScheduledAgentTasksException>().WithMessage("*No tasks found*");
+
+        ownership.Verify(
+            s => s.AcquireAsync(runGuid, It.IsAny<CancellationToken>()),
+            Times.Never,
+            "execute ownership must not be acquired when the run has no agent tasks and no deferred context snapshot");
+    }
+
+    [Fact]
     public async Task ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token()
     {
         Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
@@ -236,7 +261,8 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
         IAgentExecutor executor,
         IRunExecuteOwnershipLeaseService ownershipLeaseService,
         RunRecord? headerOverride = null,
-        IReadOnlyList<StageTimelineSummary>? succeededAuthorityStages = null)
+        IReadOnlyList<StageTimelineSummary>? succeededAuthorityStages = null,
+        IReadOnlyList<AgentTask>? scheduledTasks = null)
     {
         RunRecord header = headerOverride ?? new RunRecord
         {
@@ -270,12 +296,14 @@ public sealed class ArchitectureRunExecuteOrchestratorOwnershipTests
             });
 
         Mock<IAgentTaskRepository> taskRepo = new();
-        taskRepo
-            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
+        IReadOnlyList<AgentTask> resolvedTasks = scheduledTasks
+            ??
             [
                 new AgentTask { RunId = runId, AgentType = AgentType.Topology, TaskId = "topology-task-ownership" },
-            ]);
+            ];
+        taskRepo
+            .Setup(t => t.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(resolvedTasks);
 
         Mock<IAgentResultRepository> resultRepo = new();
         resultRepo
