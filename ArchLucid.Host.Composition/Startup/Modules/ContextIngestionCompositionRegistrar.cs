@@ -176,6 +176,9 @@ internal static class ContextIngestionCompositionRegistrar
         services.AddScoped<ContextIngestionService, ArchLucid.ContextIngestion.Services.ContextIngestionService>();
         services.AddScoped<IGraphNodeFactory, GraphNodeFactory>();
         services.AddScoped<IGraphEdgeInferer, DefaultGraphEdgeInferer>();
+        services.AddSingleton<KnowledgeGraph.Diagram.IArchitectureDiagramToGraphCompiler,
+            KnowledgeGraph.Diagram.ArchitectureDiagramToGraphCompiler>();
+        services.AddScoped<KnowledgeGraph.Diagram.StructuredDiagramGraphMerger>();
         services.AddSingleton<IGraphValidator, GraphValidator>();
         services.AddSingleton<IWafTradeoffCatalog, WafTradeoffCatalog>();
         services.AddScoped<GraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();

@@ -22,7 +22,7 @@ public sealed class GraphMaterializationStageTests
     [Fact]
     public void DefaultStageOrder_matches_registrar_pipeline()
     {
-        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new Mock<IGraphNodeFactory>().Object);
+        GraphMaterializationPipeline pipeline = GraphMaterializationTestHelpers.CreateDefaultPipeline(new Mock<IGraphNodeFactory>().Object);
 
         pipeline.Stages.Select(stage => stage.Name).Should().Equal(GraphMaterializationStages.DefaultStageOrder);
     }
@@ -275,7 +275,7 @@ public sealed class GraphMaterializationStageTests
         ];
 
         GraphMaterializationContext context = CreateContext(snapshot);
-        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new GraphNodeFactory());
+        GraphMaterializationPipeline pipeline = GraphMaterializationTestHelpers.CreateDefaultPipeline(new GraphNodeFactory());
         GraphMaterializationPipelineOptions options = new()
         {
             StopAfterStageName = "cost-projected-spend-enrichment",
@@ -297,6 +297,7 @@ public sealed class GraphMaterializationStageTests
 
         result.StageOutcomes.Select(o => o.StageName).Should().Equal([
             "canonical-objects",
+            "structured-diagram-graph-compile",
             "request-cost-constraints",
             "request-actors",
         ]);
@@ -328,7 +329,7 @@ public sealed class GraphMaterializationStageTests
         ContextSnapshot snapshot = CreateSnapshot();
         snapshot.SourceHashes[ContextScopeMetadataKeys.Constraints] = "Monthly budget $5000";
 
-        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new GraphNodeFactory());
+        GraphMaterializationPipeline pipeline = GraphMaterializationTestHelpers.CreateDefaultPipeline(new GraphNodeFactory());
         GraphMaterializationContext context = CreateContext(snapshot);
 
         GraphMaterializationRunResult result = await pipeline.RunAsync(context, CancellationToken.None);
@@ -350,7 +351,7 @@ public sealed class GraphMaterializationStageTests
         GraphMaterializationContext context,
         string stopAfterStageName)
     {
-        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new GraphNodeFactory());
+        GraphMaterializationPipeline pipeline = GraphMaterializationTestHelpers.CreateDefaultPipeline(new GraphNodeFactory());
         GraphMaterializationPipelineOptions options = new()
         {
             StopAfterStageName = stopAfterStageName,
