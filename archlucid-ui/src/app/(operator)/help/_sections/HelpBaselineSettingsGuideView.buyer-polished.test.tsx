@@ -53,6 +53,7 @@ import {
   BASELINE_SETTINGS_HELP_PRIMARY_CONTENT_ID,
   BASELINE_SETTINGS_HELP_SKIP_LINK_LABEL,
   BASELINE_SETTINGS_HELP_SKIP_TARGET_ID,
+  BASELINE_SETTINGS_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/baseline-settings-help-page-copy";
 import { BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER } from "@/lib/baseline-settings-present";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -99,6 +100,7 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
     const firstViewport = screen.getByTestId(BASELINE_SETTINGS_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-baseline-settings-action-panel");
     const overview = screen.getByTestId("help-baseline-settings-overview");
+    const workspace = screen.getByTestId(BASELINE_SETTINGS_HELP_WORKSPACE_TEST_ID);
     const anchorItems = screen.getByTestId("help-baseline-settings-anchor-items");
     const orientationBottom = screen.getByTestId(BASELINE_SETTINGS_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-baseline-settings-sources");
@@ -106,8 +108,10 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(screen.getByTestId("help-baseline-settings-intro"));
     expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).not.toContainElement(overview);
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(anchorItems);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(anchorItems);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.getByTestId("help-baseline-settings-saved-baseline-warn")).toHaveTextContent(
@@ -129,7 +133,7 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
     }
 
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(anchorItems) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(anchorItems.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
