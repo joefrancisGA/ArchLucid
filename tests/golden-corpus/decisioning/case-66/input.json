@@ -17,7 +17,8 @@
         "sourceId": "decl-tf-golden-66",
         "properties": {
           "terraformType": "aws_iam_role",
-          "tf.name": "pay-runner"
+          "tf.name": "pay-runner",
+          "arn": "arn:aws:iam::123456789012:role/pay-runner"
         },
         "reasoningTrace": null
       },
@@ -32,7 +33,8 @@
           "terraformType": "aws_s3_bucket",
           "tf.bucket": "pay-bucket",
           "category": "storage",
-          "topologySensitivity": "data-bearing"
+          "topologySensitivity": "data-bearing",
+          "arn": "arn:aws:s3:::pay-bucket"
         },
         "reasoningTrace": null
       },
@@ -67,7 +69,8 @@
           "contract": "Sync",
           "origin": "Inferred",
           "confidence": "70",
-          "declarationSourceNodeId": "obj-e6bc50bc70ea2c4b509840ee0d8132eb"
+          "declarationSourceNodeId": "obj-e6bc50bc70ea2c4b509840ee0d8132eb",
+          "arn": "arn:aws:iam::123456789012:role/pay-runner"
         },
         "reasoningTrace": null
       }
@@ -82,7 +85,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "8cb76e9a0f8041eaae0cd80c1dfd8dc6",
@@ -93,7 +96,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "ebf505190c764cb9876422f5e8bcac89",
@@ -104,7 +107,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "1e552163dc424b3b8372aa5797e0368b",
@@ -115,7 +118,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "111974dbd3d4475eb5d2e3c48c8ca1b3",
@@ -137,7 +140,7 @@
         "weight": 1,
         "inferenceSource": "declaration-identity-iam-path",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment\u0027s declared scope when principalId and target resource both already exist on the snapshot."
+        "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment's declared scope when principalId and target resource both already exist on the snapshot."
       },
       {
         "edgeId": "1512c8e4794d40e2b65af01423cc52c2",
@@ -148,7 +151,7 @@
         "weight": 1,
         "inferenceSource": "declaration-identity-iam-path",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment\u0027s declared scope when principalId and target resource both already exist on the snapshot."
+        "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment's declared scope when principalId and target resource both already exist on the snapshot."
       }
     ],
     "warnings": []
