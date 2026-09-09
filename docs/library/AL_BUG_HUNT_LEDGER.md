@@ -10360,10 +10360,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-08
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-07 — review cache hit cleared PublishBlocked for blocked analysis reruns
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -10392,6 +10392,13 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 2026-09-08 thorough hunt #1316 (dry): cheap-disproof closed pin-TTL refresh and publish/analysis flight-partition candidates; 60 scoped orchestrator/cache tests passed.
 2026-09-08 seed hunt #1309 (seed-only): reseeded orchestrator/cache after git churn; cheap-disproof closed review-tier, publish-storage asymmetry, and incomplete-framing cache-hit candidates; kept pin-TTL refresh and publish/analysis flight-partition candidates; 60 scoped orchestrator/cache tests passed.
+
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` omits `TenantConfigurationHash` and cache version fields — **cheap-disproof 2026-09-09 seed hunt #1438:** continue in-flight dedupe intentionally keys tenant+runId+wrapped content hash + publish intent; workspace/project partition remains in `ReviewCacheKeyBuilder` storage keys; regressions `BuildCoalesceKey_matches_across_workspace_when_continue_content_matches`, `BuildCoalesceKey_differs_from_review_cache_storage_key_for_same_manifest`.
+- [x] (valid-no-repro) Workspace changes should bust review cache via content hash alone — **cheap-disproof 2026-09-09 seed hunt #1438:** workspace participates in `TenantConfigurationHash`, not `HashContent`; regression `Build_changes_tenant_configuration_hash_when_workspace_changes`.
+- [x] (invalid) `SanitizeForStorage` strips `PublishBlocked` and breaks blocked-rerun cache hits — **cheap-disproof 2026-09-09 seed hunt #1438:** publish-block metadata preserved for storage since hunt #1226; regression `SanitizeForStorage_preserves_publish_block_metadata`.
+- [x] (invalid) `ReviewResultCache.Set` silently drops inserts when cache is full with only pinned entries — **cheap-disproof 2026-09-09 seed hunt #1438:** `MaxDistinctPinnedStorageKeys` (64) < `MaxEntries` (128) keeps unpinned eviction available; regression `Set_inserts_when_cache_at_max_entries_because_all_pinned_state_is_unreachable`.
+
+2026-09-09 seed hunt #1438 (seed-only): reseeded architecture-intelligence-orchestrator after #1316 dry streak; cheap-disproof closed continue-flight key partition, workspace cache busting, sanitize publish-block strip, and all-pinned Set drop candidates; 64 scoped orchestrator/cache tests passed.
 
 2026-09-07 seed hunt #1226 (hit): reseeded orchestrator/cache manifest paths; proved review cache hits stripped publish-block truth for blocked analysis reruns.
 2026-09-07 thorough hunt #1218 (hit): proved pin-cap saturation skipped review cache read/write; disproved remaining cache-cap and continue-manifest partition candidates.
