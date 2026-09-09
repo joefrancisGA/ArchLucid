@@ -71,10 +71,6 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
     m.findingCountDisplay,
     presentation.quickDecisionFindings,
   );
-  const deferredSurfaceFindingCount = resolveRunDetailDeferredSurfaceFindingCount(
-    m.findingCountDisplay,
-    presentation.quickDecisionFindings,
-  );
   const reviewPackageInspectSteps = resolveRunDetailReviewPackageInspectSteps({
     reviewPicked: runId.length > 0,
     packageLoaded: Boolean(m.manifestId),
