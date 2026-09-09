@@ -84,7 +84,7 @@ internal static partial class RunRepositorySql
                                                             WHERE TenantId = @TenantId
                                                               AND WorkspaceId = @WorkspaceId
                                                               AND ScopeProjectId = @ScopeProjectId
-                                                              AND UPPER(LTRIM(RTRIM(ProjectId))) = @NormalizedAuthorityProjectSlug
+                                                              AND {CollapsedUpperProjectId} = @NormalizedAuthorityProjectSlug
                                                               AND ArchivedUtc IS NULL
                                                               AND GraphSnapshotId IS NOT NULL
                                                               AND CreatedUtc <= @AsOfUtc

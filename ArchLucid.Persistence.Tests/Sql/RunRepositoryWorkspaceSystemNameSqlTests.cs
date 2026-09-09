@@ -248,16 +248,17 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     [Fact]
     public void Authority_project_slug_queries_trim_project_id_before_upper_compare()
     {
-        RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("UPPER(LTRIM(RTRIM(ProjectId)))");
-        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId)))");
-        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId)))");
+        RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(ProjectId))");
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
     }
 
     [Fact]
     public void Project_list_queries_trim_project_id_before_upper_compare()
     {
-        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug");
-        HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug");
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
+        HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("STRING_AGG");
     }
 
     [Fact]
@@ -1542,6 +1543,90 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     public void NormalizeWorkspaceSystemName_collapses_internal_whitespace()
     {
         RunRepositoryCore.NormalizeWorkspaceSystemName("  claims   api  ").Should().Be("CLAIMS API");
+    }
+
+    [Fact]
+    public void Project_list_queries_collapse_internal_whitespace_in_project_slug()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should().Contain("STRING_SPLIT");
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should().Contain("STRING_SPLIT");
+        RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("STRING_SPLIT");
+    }
+
+    [Fact]
+    public async Task InMemory_list_by_project_matches_internal_whitespace_in_stored_project_slug()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid runId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "Claims  API",
+                Description = "internal whitespace slug",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByProjectAsync(
+            scope,
+            "claims api",
+            10,
+            CancellationToken.None);
+
+        listed.Should().ContainSingle(r => r.RunId == runId);
+    }
+
+    [Fact]
+    public async Task InMemory_matches_internal_whitespace_for_latest_committed_run_lookup()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid committedRunId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "Claims  Intake",
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                GoldenManifestId = Guid.NewGuid(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CurrentManifestVersion = "v1",
+            },
+            CancellationToken.None);
+
+        Guid? latest = await runs.GetLatestCommittedRunIdByManifestCreatedUtcAsync(
+            scope,
+            "claims intake",
+            CancellationToken.None);
+
+        latest.Should().Be(committedRunId);
+    }
+
+    [Fact]
+    public void NormalizeAuthorityProjectSlug_collapses_internal_whitespace()
+    {
+        RunRepositoryCore.NormalizeAuthorityProjectSlug("  claims   api  ").Should().Be("CLAIMS API");
     }
 
     [Fact]

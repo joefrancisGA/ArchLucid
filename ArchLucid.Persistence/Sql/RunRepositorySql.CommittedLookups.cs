@@ -27,7 +27,7 @@ internal static partial class RunRepositorySql
                                                                          WHERE r.TenantId = @TenantId
                                                                            AND r.WorkspaceId = @WorkspaceId
                                                                            AND r.ScopeProjectId = @ScopeProjectId
-                                                                           AND UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedAuthorityProjectSlug
+                                                                           AND {CollapsedUpperRunsProjectId} = @NormalizedAuthorityProjectSlug
                                                                            AND r.ArchivedUtc IS NULL
                                                                            AND gm.ArchivedUtc IS NULL
                                                                            {CommittedRunLookupStatusFilter}
@@ -42,7 +42,7 @@ internal static partial class RunRepositorySql
                                                                  WHERE r.TenantId = @TenantId
                                                                    AND r.WorkspaceId = @WorkspaceId
                                                                    AND r.ScopeProjectId = @ScopeProjectId
-                                                                   AND UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedAuthorityProjectSlug
+                                                                   AND {CollapsedUpperRunsProjectId} = @NormalizedAuthorityProjectSlug
                                                                    AND r.ArchivedUtc IS NULL
                                                                    AND gm.ArchivedUtc IS NULL
                                                                    AND r.RunId <> @CurrentRunId

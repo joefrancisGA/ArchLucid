@@ -681,11 +681,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 22
-- **bugs-found:** 11
+- **hunts:** 23
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — workspace system-name guard ignored internal whitespace in stored ProjectId
+- **last-bug:** 2026-09-09 — authority project slug seeks ignored internal whitespace in stored ProjectId
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -798,6 +798,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Committed lookup SQL / `IsCommittedRun` treat pipeline dead-letter `Failed` rows with retained manifest headers as committed — **hit 2026-09-09 seed hunt #1460 (seed→hit):** shared committed predicate let dead-letter rows win seal-delta and prior-resolve paths; fixed terminal-failure guard in `IsCommittedRun` and all committed lookup shapes; regressions `SelectCommittedRunIdByGoldenManifestId_excludes_failed_runs_after_pipeline_dead_letter`, `SelectPriorCommittedRunIdBeforeCurrent_excludes_failed_runs_with_retained_manifest_headers`, `SelectLatestCommittedRunIdByManifestCreatedUtc_excludes_failed_runs_with_retained_manifest_headers`, and `InMemory_failed_run_with_retained_golden_manifest_does_not_match_seal_delta_lookup`.
 
 2026-09-09 seed hunt #1460 (seed→hit): reseeded sql-run-repository after #1451; proved internal-whitespace workspace collision bypass and committed-lookup dead-letter class; 110 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) Authority project slug list/committed lookups compare edge-trimmed `ProjectId` only so internal whitespace variants miss dashboard lists and committed-run resolution — **hit 2026-09-09 seed hunt #1466 (seed→hit):** stored `Claims  API` omitted from list/committed seeks for `claims api`; fixed with `NormalizeAuthorityProjectSlug` and SQL `STRING_SPLIT`/`STRING_AGG` collapse across project list, graph-at-or-before, and committed lookup shapes; regressions `Project_list_queries_collapse_internal_whitespace_in_project_slug`, `InMemory_list_by_project_matches_internal_whitespace_in_stored_project_slug`, and `InMemory_matches_internal_whitespace_for_latest_committed_run_lookup`.
+
+2026-09-09 seed hunt #1466 (seed→hit): reseeded sql-run-repository after #1451; proved authority project slug internal-whitespace bypass in list and committed lookups; 126 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
