@@ -9,6 +9,7 @@ export type ArchitectureInputTodayLane =
   | "drop"
   | "extract-text"
   | "inline-text"
+  | "pixel-stub"
   | "store-only"
   | "analyze"
   | "separate-ingest";
@@ -142,29 +143,39 @@ export const ARCHITECTURE_INPUT_KIND_INVENTORY: readonly ArchitectureInputKindRo
     id: "png",
     extensions: [".png"],
     mimeTypes: ["image/png"],
-    sourceRoots: [INTAKE_CONTEXT_BUILDER_ROOT, WIZARD_ACCEPT_ROOT, ESI_INVENTORY_ROOT],
+    sourceRoots: [
+      INTAKE_CONTEXT_BUILDER_ROOT,
+      "archlucid-ui/src/lib/architecture-spine/intake-pixel-diagram-context-document.ts",
+      WIZARD_ACCEPT_ROOT,
+      ESI_INVENTORY_ROOT,
+    ],
     wizardAccepts: true,
-    intakeContextBuilderToday: "drop",
+    intakeContextBuilderToday: "pixel-stub",
     authorityContextIngestionToday: "drop",
     esiCatalogToday: "stored-file",
     droppedFromAuthority: true,
     status: "asOwned",
-    ownerPrompt: "AS-004",
-    notes: "Wizard accepts; intake builder returns null; ESI can open bytes engines never see.",
+    ownerPrompt: "AS-005",
+    notes: "Emits application/vnd.archlucid.diagram+json NotVerifiable stub (AS-004); topology extract is follow-on.",
   },
   {
     id: "jpeg",
     extensions: [".jpg", ".jpeg"],
     mimeTypes: ["image/jpeg"],
-    sourceRoots: [INTAKE_CONTEXT_BUILDER_ROOT, WIZARD_ACCEPT_ROOT, ESI_INVENTORY_ROOT],
+    sourceRoots: [
+      INTAKE_CONTEXT_BUILDER_ROOT,
+      "archlucid-ui/src/lib/architecture-spine/intake-pixel-diagram-context-document.ts",
+      WIZARD_ACCEPT_ROOT,
+      ESI_INVENTORY_ROOT,
+    ],
     wizardAccepts: true,
-    intakeContextBuilderToday: "drop",
+    intakeContextBuilderToday: "pixel-stub",
     authorityContextIngestionToday: "drop",
     esiCatalogToday: "stored-file",
     droppedFromAuthority: true,
     status: "asOwned",
-    ownerPrompt: "AS-004",
-    notes: "Same silent drop as PNG on the decide path today.",
+    ownerPrompt: "AS-005",
+    notes: "Same NotVerifiable structured stub as PNG (AS-004).",
   },
   {
     id: "svg",
