@@ -274,11 +274,7 @@ export function HelpArchitectureScorecardGuideView(
           <HelpTopicTableOfContents headings={guideHeadings} />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-architecture-scorecard-orientation-bottom">
-            <HelpArchitectureScorecardSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpArchitectureScorecardSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

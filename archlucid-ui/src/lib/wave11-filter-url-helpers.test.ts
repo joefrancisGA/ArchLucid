@@ -6778,6 +6778,92 @@ describe("wave86 filter url helpers", () => {
   });
 });
 
+describe("wave87 filter url helpers", () => {
+  it("help report a problem, roi summary, model governance, architecture scorecard, caiq sig response, accelerator chooser, approval queue, approval lineage, ask review questions, alert rules conditions sources params", async () => {
+    const {
+      helpReportAProblemSourcesDisclosureHrefFromSearch,
+      parseHelpReportAProblemSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-report-a-problem-sources-disclosure-url");
+    const {
+      helpRoiSummarySourcesDisclosureHrefFromSearch,
+      parseHelpRoiSummarySourcesOpenFromSearch,
+    } = await import("@/lib/help/help-roi-summary-sources-disclosure-url");
+    const {
+      helpModelGovernanceSourcesDisclosureHrefFromSearch,
+      parseHelpModelGovernanceSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-model-governance-sources-disclosure-url");
+    const {
+      helpArchitectureScorecardSourcesDisclosureHrefFromSearch,
+      parseHelpArchitectureScorecardSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-architecture-scorecard-sources-disclosure-url");
+    const {
+      helpCaiqSigResponseSourcesDisclosureHrefFromSearch,
+      parseHelpCaiqSigResponseSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-caiq-sig-response-sources-disclosure-url");
+    const {
+      helpAcceleratorChooserSourcesDisclosureHrefFromSearch,
+      parseHelpAcceleratorChooserSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-accelerator-chooser-sources-disclosure-url");
+    const {
+      approvalQueueSourcesDisclosureHrefFromSearch,
+      parseApprovalQueueSourcesOpenFromSearch,
+    } = await import("@/lib/governance/approval-queue-sources-disclosure-url");
+    const {
+      approvalLineageSourcesDisclosureHrefFromSearch,
+      parseApprovalLineageSourcesOpenFromSearch,
+    } = await import("@/lib/governance/approval-lineage-sources-disclosure-url");
+    const {
+      askReviewQuestionsSourcesDisclosureHrefFromSearch,
+      parseAskReviewQuestionsSourcesOpenFromSearch,
+    } = await import("@/lib/insights/ask-review-questions-sources-disclosure-url");
+    const {
+      alertRulesConditionsSourcesDisclosureHrefFromSearch,
+      parseAlertRulesConditionsSourcesOpenFromSearch,
+    } = await import("@/lib/alerts/alert-rules-conditions-sources-disclosure-url");
+
+    expect(parseHelpReportAProblemSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpReportAProblemSourcesDisclosureHrefFromSearch("", true, "/help/report-a-problem")).toBe(
+      "/help/report-a-problem?helpReportAProblemSourcesOpen=1",
+    );
+    expect(parseHelpRoiSummarySourcesOpenFromSearch("true")).toBe(true);
+    expect(helpRoiSummarySourcesDisclosureHrefFromSearch("", true, "/help/roi-summary")).toBe(
+      "/help/roi-summary?helpRoiSummarySourcesOpen=1",
+    );
+    expect(parseHelpModelGovernanceSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpModelGovernanceSourcesDisclosureHrefFromSearch("", true, "/help/model-governance")).toBe(
+      "/help/model-governance?helpModelGovernanceSourcesOpen=1",
+    );
+    expect(parseHelpArchitectureScorecardSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpArchitectureScorecardSourcesDisclosureHrefFromSearch("", true, "/help/architecture-scorecard")).toBe(
+      "/help/architecture-scorecard?helpArchitectureScorecardSourcesOpen=1",
+    );
+    expect(parseHelpCaiqSigResponseSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpCaiqSigResponseSourcesDisclosureHrefFromSearch("", true, "/help/caiq-sig-response")).toBe(
+      "/help/caiq-sig-response?helpCaiqSigResponseSourcesOpen=1",
+    );
+    expect(parseHelpAcceleratorChooserSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpAcceleratorChooserSourcesDisclosureHrefFromSearch("", true, "/help/accelerator-chooser")).toBe(
+      "/help/accelerator-chooser?helpAcceleratorChooserSourcesOpen=1",
+    );
+    expect(parseApprovalQueueSourcesOpenFromSearch("1")).toBe(true);
+    expect(approvalQueueSourcesDisclosureHrefFromSearch("", true, "/governance/approval-queue")).toBe(
+      "/governance/approval-queue?approvalQueueSourcesOpen=1",
+    );
+    expect(parseApprovalLineageSourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      approvalLineageSourcesDisclosureHrefFromSearch("", true, "/governance/approval-requests/a1/lineage"),
+    ).toBe("/governance/approval-requests/a1/lineage?approvalLineageSourcesOpen=1");
+    expect(parseAskReviewQuestionsSourcesOpenFromSearch("1")).toBe(true);
+    expect(askReviewQuestionsSourcesDisclosureHrefFromSearch("runId=demo", true, "/insights/ask-review-questions")).toBe(
+      "/insights/ask-review-questions?runId=demo&askReviewQuestionsSourcesOpen=1",
+    );
+    expect(parseAlertRulesConditionsSourcesOpenFromSearch("true")).toBe(true);
+    expect(alertRulesConditionsSourcesDisclosureHrefFromSearch("tab=rules", true, "/governance/alert-rules")).toBe(
+      "/governance/alert-rules?tab=rules&alertRulesConditionsSourcesOpen=1",
+    );
+  });
+});
+
 describe("wave79 filter url helpers", () => {
   it("dev testing quick switch, operator first-run workflow minimized, run detail workspace disclosures, role nav density, sidebar groups, collapsible json path, finding ask inline finding id, technical id disclosure key, usability feedback, draft intake reason default open params", async () => {
     const {
