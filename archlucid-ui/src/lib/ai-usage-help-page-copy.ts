@@ -20,3 +20,6 @@ export const AI_USAGE_HELP_START_HERE_HELPER =
 
 export const AI_USAGE_HELP_PAGE_LEAD =
   "AI usage shows estimated spend and budget signals for the workspace. Treat figures as directional operations telemetry." as const;
+
+export const AI_USAGE_HELP_BUYER_OVERVIEW =
+  "Tile summaries and read steps below explain estimated spend, budget caps, and workflow filters before you open AI usage." as const;

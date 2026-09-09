@@ -28,6 +28,7 @@ import {
   PROCUREMENT_HELP_PATH,
 } from "@/lib/procurement-help-guide-content";
 import {
+  PROCUREMENT_HELP_BUYER_OVERVIEW,
   PROCUREMENT_HELP_FIRST_VIEWPORT_TEST_ID,
   PROCUREMENT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   PROCUREMENT_HELP_PAGE_LEAD,
@@ -170,6 +171,15 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
       ) : (
         <ProcurementHelpJobMatrixSection />
       )}
+
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="help-procurement-overview"
+        >
+          {PROCUREMENT_HELP_BUYER_OVERVIEW}
+        </p>
+      ) : null}
 
       {buyerPolishedShell ? null : (
         <HelpTopicExportClaimDiscipline claimDiscipline={PROCUREMENT_HELP_CLAIM_DISCIPLINE} />

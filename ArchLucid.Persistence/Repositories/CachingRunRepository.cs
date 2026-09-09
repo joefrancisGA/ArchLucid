@@ -159,6 +159,17 @@ public sealed partial class CachingRunRepository(IRunRepository inner, IHotPathR
     }
 
     /// <inheritdoc />
+    public Task<Guid?> TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return _inner.TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(scope, architectureRequestId, ct);
+    }
+
+    /// <inheritdoc />
     public Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
         ScopeContext scope,
         string systemName,

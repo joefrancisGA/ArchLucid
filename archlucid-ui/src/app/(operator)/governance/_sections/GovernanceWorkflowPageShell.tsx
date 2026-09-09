@@ -31,6 +31,7 @@ import {
   APPROVAL_QUEUE_CLAIM_DISCIPLINE,
   GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER,
   GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID,
+  GOVERNANCE_APPROVAL_QUEUE_OVERVIEW,
   GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
   GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID,
   GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL,
@@ -274,6 +275,12 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
               {GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER}
             </p>
           </section>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="governance-approval-queue-overview"
+          >
+            {GOVERNANCE_APPROVAL_QUEUE_OVERVIEW}
+          </p>
         </div>
       ) : null}
 

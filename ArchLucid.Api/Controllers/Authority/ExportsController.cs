@@ -7,7 +7,11 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -26,10 +30,23 @@ namespace ArchLucid.Api.Controllers.Authority;
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade) : ControllerBase
+public sealed partial class ExportsController(
+    IRunExportQueryFacade runExportQueryFacade,
+    IAuthorityQueryService authorityQueryService,
+    IScopeContextProvider scopeContextProvider,
+    IManifestHashService manifestHashService) : ControllerBase
 {
     private readonly IRunExportQueryFacade _runExportQueryFacade =
         runExportQueryFacade ?? throw new ArgumentNullException(nameof(runExportQueryFacade));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     [HttpGet("review/{runId}/exports")]
     [ProducesResponseType(typeof(RunExportHistoryResponse), StatusCodes.Status200OK)]
@@ -37,6 +54,11 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunExportHistory([FromRoute] string runId, CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunExportHistoryQueryResult result = await _runExportQueryFacade.GetRunExportHistoryAsync(runId, cancellationToken);
         return result.Outcome switch
         {
@@ -53,8 +75,19 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
     [ProducesResponseType(typeof(RunExportRecordResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> GetExportRecord([FromRoute] string exportRecordId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetExportRecord(
+        [FromRoute] string exportRecordId,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            exportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ScopedExportRecordLoadResult result = await _runExportQueryFacade.GetExportRecordAsync(exportRecordId, cancellationToken);
         return result.Outcome switch
         {
@@ -74,8 +107,28 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
     public async Task<IActionResult> CompareExportRecords(
         [FromQuery] string leftExportRecordId,
         [FromQuery] string rightExportRecordId,
-        CancellationToken cancellationToken) =>
-        MapExportRecordDiffResult(await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
+    {
+        IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            leftExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (leftGuardResult is not null)
+            return leftGuardResult;
+
+        IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            rightExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (rightGuardResult is not null)
+            return rightGuardResult;
+
+        return MapExportRecordDiffResult(
+            await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
+    }
 
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("review/exports/compare/summary")]
@@ -88,8 +141,25 @@ public sealed class ExportsController(IRunExportQueryFacade runExportQueryFacade
         [FromQuery] string leftExportRecordId,
         [FromQuery] string rightExportRecordId,
         [FromBody] PersistComparisonRequest? request,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
+        IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            leftExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (leftGuardResult is not null)
+            return leftGuardResult;
+
+        IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            rightExportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (rightGuardResult is not null)
+            return rightGuardResult;
+
         request ??= new PersistComparisonRequest();
         ExportRecordDiffSummaryQueryResult result = await _runExportQueryFacade.CompareExportRecordsSummaryAsync(
             leftExportRecordId, rightExportRecordId, request.Persist, cancellationToken);

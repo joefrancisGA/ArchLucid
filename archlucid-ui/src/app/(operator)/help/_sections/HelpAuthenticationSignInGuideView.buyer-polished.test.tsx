@@ -43,6 +43,7 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_SECONDARY_ACTIONS,
 } from "@/lib/authentication-sign-in-help-guide-content";
 import {
+  AUTHENTICATION_SIGN_IN_HELP_BUYER_OVERVIEW,
   AUTHENTICATION_SIGN_IN_HELP_FIRST_VIEWPORT_TEST_ID,
   AUTHENTICATION_SIGN_IN_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID,
@@ -84,11 +85,15 @@ describe("HelpAuthenticationSignInGuideView buyer-polished shell (HEA)", () => {
     expect(screen.getByTestId("help-authentication-sign-in-intro")).toHaveTextContent(
       AUTHENTICATION_SIGN_IN_HELP_PAGE_LEAD,
     );
+    expect(screen.getByTestId("help-authentication-sign-in-overview")).toHaveTextContent(
+      AUTHENTICATION_SIGN_IN_HELP_BUYER_OVERVIEW,
+    );
     expect(screen.getByRole("heading", { level: 2, name: AUTHENTICATION_SIGN_IN_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(AUTHENTICATION_SIGN_IN_HELP_PRIMARY_CONTENT_ID);
     const buyerFirstViewport = screen.getByTestId(AUTHENTICATION_SIGN_IN_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-authentication-sign-in-action-panel");
+    const overview = screen.getByTestId("help-authentication-sign-in-overview");
     const markdownFirstViewport = screen.getByTestId("help-authentication-sign-in-first-viewport");
     const orientationBottom = screen.getByTestId(AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
@@ -103,9 +108,11 @@ describe("HelpAuthenticationSignInGuideView buyer-polished shell (HEA)", () => {
     expect(screen.getByTestId("help-authentication-sign-in-start-here-helper")).toHaveTextContent(
       AUTHENTICATION_SIGN_IN_HELP_START_HERE_HELPER,
     );
+    expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(markdownFirstViewport);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(buyerFirstViewport.compareDocumentPosition(markdownFirstViewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(buyerFirstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(markdownFirstViewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(markdownFirstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sourcesSection = screen.getByTestId("authentication-sign-in-help-sources");

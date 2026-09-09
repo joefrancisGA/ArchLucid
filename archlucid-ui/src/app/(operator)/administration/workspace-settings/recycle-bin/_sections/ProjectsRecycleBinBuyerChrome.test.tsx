@@ -14,6 +14,8 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+import { PROJECTS_RECYCLE_BIN_SETTINGS_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/projects-recycle-bin-settings-page-copy";
+
 import { ProjectsRecycleBinBuyerChrome } from "./ProjectsRecycleBinBuyerChrome";
 
 describe("ProjectsRecycleBinBuyerChrome", () => {
@@ -24,7 +26,7 @@ describe("ProjectsRecycleBinBuyerChrome", () => {
   it("renders bottom orientation strip in buyer shell", () => {
     render(<ProjectsRecycleBinBuyerChrome />);
 
-    expect(screen.getByTestId("projects-recycle-bin-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId(PROJECTS_RECYCLE_BIN_SETTINGS_ORIENTATION_BOTTOM_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("projects-recycle-bin-settings-sources")).toBeInTheDocument();
   });
 

@@ -47,8 +47,10 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 import { GcpCloudConnectionDetailClient } from "./GcpCloudConnectionDetailClient";
 import {
+  GCP_CLOUD_CONNECTION_BUYER_OVERVIEW,
   GCP_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID,
   GCP_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  GCP_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID,
   GCP_CLOUD_CONNECTION_PAGE_LEAD,
   GCP_CLOUD_CONNECTION_PAGE_SUBTITLE_BUYER,
   GCP_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
@@ -87,20 +89,28 @@ describe("GcpCloudConnectionDetailClient buyer-polished shell (IGC)", () => {
     const primaryContent = screen.getByTestId(GCP_CLOUD_CONNECTION_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(GCP_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("gcp-cloud-connection-action-panel");
-    const orientationBottom = screen.getByTestId("gcp-cloud-connection-orientation-bottom");
+    const overview = screen.getByTestId("gcp-cloud-connection-overview");
+    const workspace = screen.getByTestId("cloud-provider-detail-gcp");
+    const orientationBottom = screen.getByTestId(GCP_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("cloud-connections-gcp-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(screen.getByTestId("gcp-cloud-connection-intro")).toHaveTextContent(GCP_CLOUD_CONNECTION_PAGE_LEAD);
+    expect(screen.getByTestId("gcp-cloud-connection-overview")).toHaveTextContent(GCP_CLOUD_CONNECTION_BUYER_OVERVIEW);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(workspace);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(firstViewport).toContainElement(actionPanel);
     expect(orientationBottom).toContainElement(sourcesSection);
+    expect(screen.queryByRole("heading", { level: 2, name: "Overview" })).not.toBeInTheDocument();
 
     for (const source of filterWhereToGoNextFollowUpLinks(cloudProviderConnectionSources("gcp"))) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

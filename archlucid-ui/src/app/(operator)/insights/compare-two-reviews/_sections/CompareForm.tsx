@@ -32,6 +32,7 @@ import { COMPARE_CLAIM_DISCIPLINE } from "@/lib/compare-evidence-copy";
 import {
   COMPARE_PAGE_SUBTITLE_BUYER,
   COMPARE_PAGE_LEAD,
+  COMPARE_BUYER_OVERVIEW,
   COMPARE_START_HERE_HELPER,
   COMPARE_TWO_REVIEWS_FIRST_VIEWPORT_TEST_ID,
   COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
@@ -79,6 +80,8 @@ export function CompareForm(props: CompareFormProps = {}) {
     lastComparedPair,
     leftPickedSummary,
     rightPickedSummary,
+    leftSummaryBlockedReason,
+    rightSummaryBlockedReason,
     continueLastPair,
     syncSelectionToUrl,
     handleLeftRunIdChange,
@@ -192,6 +195,14 @@ export function CompareForm(props: CompareFormProps = {}) {
           </p>
         </div>
       ) : null}
+      {buyerPolished ? (
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="compare-two-reviews-overview"
+        >
+          {COMPARE_BUYER_OVERVIEW}
+        </p>
+      ) : null}
       <div className={cn("flex flex-col", OPERATOR_LAYOUT.unrelatedClusterGap)} data-testid="compare-workspace">
 
         <IntegrationConnectChecklist
@@ -243,6 +254,8 @@ export function CompareForm(props: CompareFormProps = {}) {
           onSummarizeForSponsor={loadAiExplanation}
           onLeftRunPicked={setLeftPickedSummary}
           onRightRunPicked={setRightPickedSummary}
+          leftSummaryBlockedReason={leftSummaryBlockedReason}
+          rightSummaryBlockedReason={rightSummaryBlockedReason}
           useBuyerFacingRunLabels={buyerPolished}
           summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
           compareButtonLabel={buyerPolished ? buyerComparePrimaryActionLabel : "Compare two reviews"}

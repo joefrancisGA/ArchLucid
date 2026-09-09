@@ -28,6 +28,7 @@ import { AwsConnectionValidatePanel } from "./AwsConnectionValidatePanel";
 import { AwsTrustPolicyStarterPanel } from "./AwsTrustPolicyStarterPanel";
 import {
   AWS_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID,
+  AWS_CLOUD_CONNECTION_BUYER_OVERVIEW,
   AWS_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   AWS_CLOUD_CONNECTION_PAGE_LEAD,
   AWS_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
@@ -116,11 +117,13 @@ function AwsCloudConnectionDetailBody(): React.ReactElement {
     <CloudProviderDetailLayout
       providerLabel="AWS"
       overview={
-        <p className={OPERATOR_TYPOGRAPHY.body}>
-          {localize(
-            "Connect an AWS account for scheduled read-only inventory collection. ArchLucid stores connection metadata only — no long-lived access keys.",
-          )}
-        </p>
+        buyerPolishedShell ? undefined : (
+          <p className={OPERATOR_TYPOGRAPHY.body}>
+            {localize(
+              "Connect an AWS account for scheduled read-only inventory collection. ArchLucid stores connection metadata only — no long-lived access keys.",
+            )}
+          </p>
+        )
       }
       securityPreflight={
         <CloudSecurityPreflightPanel topics={cloudSecurityPreflightTopics("aws", productLine)} providerLabel="AWS" />
@@ -194,25 +197,32 @@ export function AwsCloudConnectionDetailClient() {
           <AwsCloudConnectionPageHeader />
 
           {buyerPolishedShell ? (
-            <div
-              id={AWS_CLOUD_CONNECTION_SKIP_TARGET_ID}
-              data-testid={AWS_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID}
-              className={cn(
-                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-                OPERATOR_LAYOUT.sectionStack,
-              )}
-            >
-              <div className="space-y-4" data-testid="aws-cloud-connection-buyer-intro">
-                <p className={readingBodyClass} data-testid="aws-cloud-connection-intro">
-                  {AWS_CLOUD_CONNECTION_PAGE_LEAD}
-                </p>
+            <>
+              <div
+                id={AWS_CLOUD_CONNECTION_SKIP_TARGET_ID}
+                data-testid={AWS_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID}
+                className={cn(
+                  "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                  OPERATOR_LAYOUT.sectionStack,
+                )}
+              >
+                <div className="space-y-4" data-testid="aws-cloud-connection-buyer-intro">
+                  <p className={readingBodyClass} data-testid="aws-cloud-connection-intro">
+                    {AWS_CLOUD_CONNECTION_PAGE_LEAD}
+                  </p>
+                </div>
+                <AwsCloudConnectionStartHerePanel />
               </div>
-              <AwsCloudConnectionStartHerePanel />
-              <AwsCloudConnectionDetailBody />
-            </div>
-          ) : (
-            <AwsCloudConnectionDetailBody />
-          )}
+              <p
+                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="aws-cloud-connection-overview"
+              >
+                {AWS_CLOUD_CONNECTION_BUYER_OVERVIEW}
+              </p>
+            </>
+          ) : null}
+
+          <AwsCloudConnectionDetailBody />
 
           {buyerPolishedShell ? <AwsCloudConnectionSourcesOrientationStrip /> : null}
         </div>

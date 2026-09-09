@@ -66,6 +66,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   ARCHITECTURE_CREATED_EVIDENCE_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_EVIDENCE_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW,
   ARCHITECTURE_CREATED_EVIDENCE_PAGE_LEAD,
   ARCHITECTURE_CREATED_EVIDENCE_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_EVIDENCE_SKIP_LINK_LABEL,
@@ -75,6 +76,7 @@ import {
 import {
   ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_FINDINGS_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_CREATED_FINDINGS_OVERVIEW,
   ARCHITECTURE_CREATED_FINDINGS_PAGE_LEAD,
   ARCHITECTURE_CREATED_FINDINGS_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_FINDINGS_SKIP_LINK_LABEL,
@@ -84,6 +86,7 @@ import {
 import {
   ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_GOVERNANCE_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW,
   ARCHITECTURE_CREATED_GOVERNANCE_PAGE_LEAD,
   ARCHITECTURE_CREATED_GOVERNANCE_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_GOVERNANCE_SKIP_LINK_LABEL,
@@ -487,6 +490,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                     {ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER}
                   </p>
                 </section>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="architecture-created-findings-overview"
+                >
+                  {ARCHITECTURE_CREATED_FINDINGS_OVERVIEW}
+                </p>
               </div>
             ) : null}
             {buyerPolishedShell ? null : (
@@ -550,6 +559,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                     {ARCHITECTURE_CREATED_EVIDENCE_BUYER_START_HERE_HELPER}
                   </p>
                 </section>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="architecture-created-evidence-overview"
+                >
+                  {ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW}
+                </p>
               </div>
             ) : null}
             {buyerPolishedShell ? null : (
@@ -602,6 +617,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                     {ARCHITECTURE_CREATED_GOVERNANCE_BUYER_START_HERE_HELPER}
                   </p>
                 </section>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="architecture-created-governance-overview"
+                >
+                  {ARCHITECTURE_CREATED_GOVERNANCE_OVERVIEW}
+                </p>
               </div>
             ) : null}
             {buyerPolishedShell ? null : (

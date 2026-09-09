@@ -66,6 +66,8 @@ export function useCompareForm(options: UseCompareFormOptions = {}) {
     lastComparedPair: diff.lastComparedPair,
     leftPickedSummary: diff.leftPickedSummary,
     rightPickedSummary: diff.rightPickedSummary,
+    leftSummaryBlockedReason: diff.leftSummaryBlockedReason,
+    rightSummaryBlockedReason: diff.rightSummaryBlockedReason,
     continueLastPair: diff.continueLastPair,
     syncSelectionToUrl: urlSync.syncSelectionToUrl,
     handleLeftRunIdChange: selection.handleLeftRunIdChange,

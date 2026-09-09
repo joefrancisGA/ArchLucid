@@ -9,6 +9,9 @@ import {
   findingInspectTypedPayloadDisclosureHrefFromSearch,
   parseFindingInspectTypedPayloadOpenFromSearch,
 } from "@/lib/findings/finding-inspect-typed-payload-disclosure-url";
+import {
+  parseCollapsibleJsonExpandPathFromSearch,
+} from "@/lib/collapsible-json-expand-path-disclosure-url";
 import { cn } from "@/lib/utils";
 
 /**
@@ -19,6 +22,8 @@ export function FindingInspectJsonPayload({ value }: { value: unknown }) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const findingInspectTypedPayloadOpenParam = searchParams.get("findingInspectTypedPayloadOpen");
+  const collapsibleJsonExpandPathParam = searchParams.get("collapsibleJsonExpandPath");
+  const expandPath = parseCollapsibleJsonExpandPathFromSearch(collapsibleJsonExpandPathParam);
   const [open, setOpenState] = useState(() =>
     parseFindingInspectTypedPayloadOpenFromSearch(findingInspectTypedPayloadOpenParam),
   );
@@ -57,7 +62,7 @@ export function FindingInspectJsonPayload({ value }: { value: unknown }) {
         Typed finding payload JSON
       </summary>
       <div className="border-t border-neutral-200 px-3 py-2 dark:border-neutral-700">
-        <CollapsibleJsonTree value={value} aria-label="Typed finding payload" />
+        <CollapsibleJsonTree value={value} expandPath={expandPath} aria-label="Typed finding payload" />
       </div>
     </details>
   );

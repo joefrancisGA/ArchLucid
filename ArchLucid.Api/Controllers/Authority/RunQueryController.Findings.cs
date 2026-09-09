@@ -22,6 +22,7 @@ public sealed partial class RunQueryController
     [ProducesResponseType(typeof(RunFindingsListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListRunFindings(
         [FromRoute] string runId,
         [FromQuery] string? orderBy,
@@ -31,6 +32,11 @@ public sealed partial class RunQueryController
         [FromQuery] Guid? cursorFindingRecordId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunFindingsListQueryResult result = await runFindingsQueryService.ListRunFindingsAsync(
             runId,
             orderBy,
@@ -65,6 +71,11 @@ public sealed partial class RunQueryController
         [FromServices] IAuditService auditService,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunFindingsCsvExportQueryResult result =
             await runFindingsQueryService.ExportRunFindingsCsvAsync(runId, cancellationToken);
 
@@ -89,6 +100,11 @@ public sealed partial class RunQueryController
         [FromRoute] string findingId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         FindingEvidenceChainQueryResult result =
             await runFindingsQueryService.GetFindingEvidenceChainAsync(runId, findingId, cancellationToken);
 
@@ -114,6 +130,11 @@ public sealed partial class RunQueryController
         [FromQuery] bool includeTypedPayload = true,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         FindingInspectQueryResult result = await runFindingsQueryService.GetFindingInspectForRunAsync(
             runId,
             findingId,
@@ -158,6 +179,11 @@ public sealed partial class RunQueryController
         string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             TraceabilityBundleExportResult result = await traceabilityBundleExport.TryBuildZipAsync(

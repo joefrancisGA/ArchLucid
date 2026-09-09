@@ -10,6 +10,10 @@ import {
   formatProseAssumptionRegisterLabels,
 } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import {
+  formatPixelDiagramNotVerifiableLabels,
+  type PixelDiagramNotVerifiableSource,
+} from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
+import {
   formatHeldCheckInputCodeLabel,
   formatHeldCheckUnblockClause,
   formatProseAssumptionHeldCheckAskClause,
@@ -23,7 +27,9 @@ import {
 export type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary };
 export type { ProseAssumptionHeldCheckAsk };
 export type { ProseAssumptionRegisterEntry };
+export type { PixelDiagramNotVerifiableSource };
 export { formatProseAssumptionRegisterLabels };
+export { formatPixelDiagramNotVerifiableLabels };
 
 /**
  * claimBoundary: advisory measurement floor — not G-REAL-06 procurement proof.
@@ -45,6 +51,7 @@ export type InsightDensityMeasurementFloorOptions = {
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
   readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
+  readonly pixelDiagramNotVerifiableSources?: readonly PixelDiagramNotVerifiableSource[];
 };
 
 export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasurementFloorCounts & {
@@ -58,6 +65,8 @@ export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasureme
   readonly heldCheckSecondPassClause: string | null;
   readonly proseAssumptionRegisterEntries: readonly ProseAssumptionRegisterEntry[];
   readonly proseAssumptionRegisterLabels: readonly string[];
+  readonly pixelDiagramNotVerifiableSources: readonly PixelDiagramNotVerifiableSource[];
+  readonly pixelDiagramNotVerifiableLabels: readonly string[];
   readonly proseAssumptionHeldCheckAsks: readonly ProseAssumptionHeldCheckAsk[];
   readonly proseAssumptionHeldCheckClause: string | null;
 };
@@ -274,6 +283,8 @@ export function formatInsightDensityMeasurementFloorPresentation(
   const heldCheckSecondPassClause = formatHeldCheckSecondPassClause(options.heldCheckSecondPass);
   const proseAssumptionRegisterEntries = options.proseAssumptionRegisterEntries ?? [];
   const proseAssumptionRegisterLabels = formatProseAssumptionRegisterLabels(proseAssumptionRegisterEntries);
+  const pixelDiagramNotVerifiableSources = options.pixelDiagramNotVerifiableSources ?? [];
+  const pixelDiagramNotVerifiableLabels = formatPixelDiagramNotVerifiableLabels(pixelDiagramNotVerifiableSources);
   const proseAssumptionHeldCheckAsks = options.proseAssumptionHeldCheckAsks ?? [];
   const proseAssumptionHeldCheckClause = resolveProseAssumptionHeldCheckClause(proseAssumptionHeldCheckAsks);
 
@@ -297,6 +308,8 @@ export function formatInsightDensityMeasurementFloorPresentation(
     heldCheckSecondPassClause,
     proseAssumptionRegisterEntries,
     proseAssumptionRegisterLabels,
+    pixelDiagramNotVerifiableSources,
+    pixelDiagramNotVerifiableLabels,
     proseAssumptionHeldCheckAsks,
     proseAssumptionHeldCheckClause,
   };

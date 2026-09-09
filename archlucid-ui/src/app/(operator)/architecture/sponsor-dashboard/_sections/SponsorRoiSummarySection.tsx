@@ -13,6 +13,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
 import { triggerBrowserBlobDownload } from "@/lib/api/downloads-blob-trigger-browser";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
@@ -45,7 +46,6 @@ import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   resolveSponsorHeadlineScopeLabel,
   resolveSponsorSystemRowScopeLabel,

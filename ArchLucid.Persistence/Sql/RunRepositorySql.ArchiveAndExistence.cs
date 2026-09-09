@@ -109,6 +109,16 @@ internal static partial class RunRepositorySql
                                                                  END;
                                                                  """;
 
+    public const string SelectRepresentativeRunIdForArchitectureRequestInScope = """
+                                                                                 SELECT TOP (1) RunId
+                                                                                 FROM dbo.Runs
+                                                                                 WHERE TenantId = @TenantId
+                                                                                   AND WorkspaceId = @WorkspaceId
+                                                                                   AND ScopeProjectId = @ScopeProjectId
+                                                                                   AND UPPER(LTRIM(RTRIM(ArchitectureRequestId))) = @NormalizedArchitectureRequestId
+                                                                                 ORDER BY CreatedUtc DESC;
+                                                                                 """;
+
     public const string ExistsActiveRunWithSystemNameInWorkspace = """
                                                                    SELECT CASE
                                                                        WHEN EXISTS (

@@ -47,6 +47,7 @@ export function composeRunDetailEvidenceTab(
         progressSummary={m.resolvedDetail.run}
         graphSnapshot={m.resolvedDetail.graphSnapshot}
         findingsSnapshot={m.resolvedDetail.findingsSnapshot}
+        contextSnapshot={m.resolvedDetail.contextSnapshot}
         pagePrimaryOwnedElsewhere
       />
     ) : null;

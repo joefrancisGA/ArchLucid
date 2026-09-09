@@ -45,6 +45,7 @@ import {
   CORE_PILOT_HELP_SOURCES,
 } from "@/lib/core-pilot-help-evidence-copy";
 import {
+  CORE_PILOT_HELP_BUYER_OVERVIEW,
   CORE_PILOT_HELP_FIRST_VIEWPORT_TEST_ID,
   CORE_PILOT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   CORE_PILOT_HELP_ORIENTATION_BOTTOM_TEST_ID,
@@ -100,11 +101,13 @@ describe("HelpCorePilotGuideView buyer-polished shell (COR)", () => {
     expect(screen.queryByTestId("core-pilot-related-guides")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-core-pilot-intro")).toHaveTextContent(CORE_PILOT_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-core-pilot-overview")).toHaveTextContent(CORE_PILOT_HELP_BUYER_OVERVIEW);
     expect(screen.getByRole("heading", { level: 2, name: CORE_PILOT_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(CORE_PILOT_HELP_PRIMARY_CONTENT_ID);
     const buyerFirstViewport = screen.getByTestId(CORE_PILOT_HELP_FIRST_VIEWPORT_TEST_ID);
     const summaryCard = screen.getByTestId("core-pilot-summary-card");
+    const overview = screen.getByTestId("help-core-pilot-overview");
     const stepper = screen.getByTestId("core-pilot-workflow-stepper");
     const orientationBottom = screen.getByTestId(CORE_PILOT_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
@@ -117,9 +120,11 @@ describe("HelpCorePilotGuideView buyer-polished shell (COR)", () => {
     expect(screen.getByTestId("help-core-pilot-start-here-helper")).toHaveTextContent(
       CORE_PILOT_HELP_START_HERE_HELPER,
     );
+    expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(stepper);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(buyerFirstViewport.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(buyerFirstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(stepper.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sourcesSection = screen.getByTestId("core-pilot-help-sources");

@@ -6240,91 +6240,6 @@ describe("wave77 filter url helpers", () => {
   });
 });
 
-describe("wave80 filter url helpers", () => {
-  it("dev testing quick switch, architecture sponsor sharing, notification preference center relations, identity providers technical details, sso protocol help, settings roles matrix collapsed groups, teams notifications collapsed categories, slack/teams platform notes params", async () => {
-    const {
-      devTestingQuickSwitchDisclosureHrefFromSearch,
-      parseDevTestingQuickSwitchOpenFromSearch,
-    } = await import("@/lib/dev-testing/dev-testing-quick-switch-disclosure-url");
-    const {
-      architectureSponsorSharingDisclosureHrefFromSearch,
-      parseArchitectureSponsorSharingOpenFromSearch,
-    } = await import("@/lib/architecture/architecture-sponsor-sharing-disclosure-url");
-    const {
-      notificationPreferenceCenterRelationsDisclosureHrefFromSearch,
-      parseNotificationPreferenceCenterRelationsOpenFromSearch,
-    } = await import("@/lib/administration/notification-preference-center-relations-disclosure-url");
-    const {
-      identityProvidersTechnicalDetailsDisclosureHrefFromSearch,
-      parseIdentityProvidersTechnicalDetailsOpenFromSearch,
-    } = await import("@/lib/administration/identity-providers-technical-details-disclosure-url");
-    const {
-      parseSsoProtocolHelpOpenFromSearch,
-      ssoProtocolHelpDisclosureHrefFromSearch,
-    } = await import("@/lib/administration/sso-protocol-help-disclosure-url");
-    const {
-      parseSettingsRolesMatrixCollapsedGroupsFromSearch,
-      settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch,
-    } = await import("@/lib/administration/settings-roles-matrix-collapsed-groups-disclosure-url");
-    const {
-      parseTeamsNotificationsCollapsedCategoriesFromSearch,
-      teamsNotificationsCollapsedCategoriesDisclosureHrefFromSearch,
-    } = await import("@/lib/integrations/teams-notifications-collapsed-categories-disclosure-url");
-    const {
-      parseSlackPlatformNotesOpenFromSearch,
-      slackPlatformNotesDisclosureHrefFromSearch,
-    } = await import("@/lib/integrations/slack-platform-notes-disclosure-url");
-    const {
-      parseTeamsPlatformNotesOpenFromSearch,
-      teamsPlatformNotesDisclosureHrefFromSearch,
-    } = await import("@/lib/integrations/teams-platform-notes-disclosure-url");
-
-    expect(parseDevTestingQuickSwitchOpenFromSearch("true")).toBe(true);
-    expect(devTestingQuickSwitchDisclosureHrefFromSearch("tab=dev", true, "/operator-home")).toBe(
-      "/operator-home?tab=dev&devTestingQuickSwitchOpen=1",
-    );
-    expect(parseArchitectureSponsorSharingOpenFromSearch("1")).toBe(true);
-    expect(architectureSponsorSharingDisclosureHrefFromSearch("runId=r1", true, "/architecture/reviews/r1")).toBe(
-      "/architecture/reviews/r1?runId=r1&architectureSponsorSharingOpen=1",
-    );
-    expect(parseNotificationPreferenceCenterRelationsOpenFromSearch("1")).toBe(true);
-    expect(notificationPreferenceCenterRelationsDisclosureHrefFromSearch("", true, "/administration/notifications")).toBe(
-      "/administration/notifications?notificationPreferenceCenterRelationsOpen=1",
-    );
-    expect(parseIdentityProvidersTechnicalDetailsOpenFromSearch("true")).toBe(true);
-    expect(
-      identityProvidersTechnicalDetailsDisclosureHrefFromSearch("", true, "/administration/identity-providers/diagnostics"),
-    ).toBe("/administration/identity-providers/diagnostics?identityProvidersTechnicalDetailsOpen=1");
-    expect(parseSsoProtocolHelpOpenFromSearch("1")).toBe(true);
-    expect(ssoProtocolHelpDisclosureHrefFromSearch("step=protocol", true, "/administration/identity/sso-wizard")).toBe(
-      "/administration/identity/sso-wizard?step=protocol&ssoProtocolHelpOpen=1",
-    );
-    expect(parseSettingsRolesMatrixCollapsedGroupsFromSearch("admin,viewer")).toEqual(["admin", "viewer"]);
-    expect(settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch("tab=roles", ["admin"], "/administration/users")).toBe(
-      "/administration/users?tab=roles&settingsRolesMatrixCollapsedGroups=admin",
-    );
-    expect(parseTeamsNotificationsCollapsedCategoriesFromSearch("architecture-and-review,governance-and-risk")).toEqual([
-      "architecture-and-review",
-      "governance-and-risk",
-    ]);
-    expect(
-      teamsNotificationsCollapsedCategoriesDisclosureHrefFromSearch(
-        "",
-        ["architecture-and-review"],
-        "/integrations/teams",
-      ),
-    ).toBe("/integrations/teams?teamsNotificationsCollapsedCategories=architecture-and-review");
-    expect(parseSlackPlatformNotesOpenFromSearch("1")).toBe(true);
-    expect(slackPlatformNotesDisclosureHrefFromSearch("", true, "/integrations/slack")).toBe(
-      "/integrations/slack?slackPlatformNotesOpen=1",
-    );
-    expect(parseTeamsPlatformNotesOpenFromSearch("true")).toBe(true);
-    expect(teamsPlatformNotesDisclosureHrefFromSearch("view=connect", true, "/integrations/teams")).toBe(
-      "/integrations/teams?view=connect&teamsPlatformNotesOpen=1",
-    );
-  });
-});
-
 describe("wave78 filter url helpers", () => {
   it("demo explain technical, wizard advanced steps, workspace AI probe debug metadata, recurrence post-commit, after core pilot what's next, architecture created governance/evidence sources params", async () => {
     const {
@@ -6412,6 +6327,278 @@ describe("wave78 filter url helpers", () => {
     expect(
       architectureCreatedEvidenceSourcesDisclosureHrefFromSearch("view=table", true, "/architecture/reviews/r1/evidence"),
     ).toBe("/architecture/reviews/r1/evidence?view=table&architectureCreatedEvidenceSourcesOpen=1");
+  });
+});
+
+describe("wave79 filter url helpers", () => {
+  it("dev testing quick switch, operator first-run workflow minimized, run detail workspace disclosures, role nav density, sidebar groups, collapsible json path, finding ask inline finding id, technical id disclosure key, usability feedback, draft intake reason default open params", async () => {
+    const {
+      devTestingQuickSwitchDisclosureHrefFromSearch,
+      parseDevTestingQuickSwitchOpenFromSearch,
+    } = await import("@/lib/dev-testing/dev-testing-quick-switch-disclosure-url");
+    const {
+      operatorFirstRunWorkflowMinimizedDisclosureHrefFromSearch,
+      parseOperatorFirstRunWorkflowMinimizedOpenFromSearch,
+    } = await import("@/lib/operator/operator-first-run-workflow-minimized-disclosure-url");
+    const {
+      parseRunDetailWorkspaceDisclosuresExpandedFromSearch,
+      runDetailWorkspaceDisclosuresExpandedHrefFromSearch,
+    } = await import("@/lib/runs/run-detail-workspace-disclosures-expanded-disclosure-url");
+    const {
+      parseRoleNavDensityShowFullNavOpenFromSearch,
+      roleNavDensityShowFullNavDisclosureHrefFromSearch,
+    } = await import("@/lib/sidebar-nav/role-nav-density-show-full-nav-disclosure-url");
+    const {
+      parseSidebarNavExpandedGroupsFromSearch,
+      sidebarNavExpandedGroupsDisclosureHrefFromSearch,
+    } = await import("@/lib/sidebar-nav/sidebar-nav-expanded-groups-disclosure-url");
+    const {
+      collapsibleJsonExpandPathDisclosureHrefFromSearch,
+      parseCollapsibleJsonExpandPathFromSearch,
+    } = await import("@/lib/collapsible-json-expand-path-disclosure-url");
+    const {
+      findingAskInlineFindingIdDisclosureHrefFromSearch,
+      parseFindingAskInlineFindingIdFromSearch,
+    } = await import("@/lib/findings/finding-ask-inline-disclosure-url");
+    const {
+      parseTechnicalIdDisclosureKeyFromSearch,
+      technicalIdDisclosureKeyDisclosureHrefFromSearch,
+    } = await import("@/lib/usability/technical-id-disclosure-key-disclosure-url");
+    const {
+      parseUsabilityFeedbackOpenFromSearch,
+      usabilityFeedbackDisclosureHrefFromSearch,
+    } = await import("@/lib/usability/usability-feedback-disclosure-url");
+    const {
+      draftIntakeReasonDefaultOpenDisclosureHrefFromSearch,
+      parseDraftIntakeReasonDefaultOpenFromSearch,
+    } = await import("@/lib/draft-intake/draft-intake-reason-default-open-disclosure-url");
+
+    expect(parseDevTestingQuickSwitchOpenFromSearch("1")).toBe(true);
+    expect(devTestingQuickSwitchDisclosureHrefFromSearch("", true, "/dev-testing")).toBe(
+      "/dev-testing?devTestingQuickSwitchOpen=1",
+    );
+    expect(parseOperatorFirstRunWorkflowMinimizedOpenFromSearch("true")).toBe(true);
+    expect(operatorFirstRunWorkflowMinimizedDisclosureHrefFromSearch("tab=home", true, "/operator-home")).toBe(
+      "/operator-home?tab=home&operatorFirstRunWorkflowMinimizedOpen=1",
+    );
+    expect(parseRunDetailWorkspaceDisclosuresExpandedFromSearch("all")).toBe(true);
+    expect(parseRunDetailWorkspaceDisclosuresExpandedFromSearch("none")).toBe(false);
+    expect(runDetailWorkspaceDisclosuresExpandedHrefFromSearch("view=summary", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?view=summary&runDetailWorkspaceDisclosuresExpanded=1",
+    );
+    expect(runDetailWorkspaceDisclosuresExpandedHrefFromSearch("view=summary", false, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?view=summary&runDetailWorkspaceDisclosuresExpanded=0",
+    );
+    expect(parseRoleNavDensityShowFullNavOpenFromSearch("1")).toBe(true);
+    expect(roleNavDensityShowFullNavDisclosureHrefFromSearch("", true, "/operator-home")).toBe(
+      "/operator-home?roleNavDensityShowFullNavOpen=1",
+    );
+    expect(parseSidebarNavExpandedGroupsFromSearch("pilot,operate-analysis")).toEqual(["pilot", "operate-analysis"]);
+    expect(
+      sidebarNavExpandedGroupsDisclosureHrefFromSearch(
+        "density=compact",
+        ["pilot", "operate-governance"],
+        "/operator-home",
+      ),
+    ).toBe("/operator-home?density=compact&sidebarNavExpandedGroups=pilot%2Coperate-governance");
+    expect(parseCollapsibleJsonExpandPathFromSearch("payload.rule.id")).toBe("payload.rule.id");
+    expect(collapsibleJsonExpandPathDisclosureHrefFromSearch("tab=inspect", "payload.rule", "/findings/f1")).toBe(
+      "/findings/f1?tab=inspect&collapsibleJsonExpandPath=payload.rule",
+    );
+    expect(parseFindingAskInlineFindingIdFromSearch("finding-42")).toBe("finding-42");
+    expect(findingAskInlineFindingIdDisclosureHrefFromSearch("", "finding-42", "/architecture/reviews/r1/findings")).toBe(
+      "/architecture/reviews/r1/findings?findingAskInlineFindingId=finding-42",
+    );
+    expect(parseTechnicalIdDisclosureKeyFromSearch("architecture-draft-list")).toBe("architecture-draft-list");
+    expect(technicalIdDisclosureKeyDisclosureHrefFromSearch("view=table", "draft-row-1", "/architecture/drafts")).toBe(
+      "/architecture/drafts?view=table&technicalIdDisclosureKey=draft-row-1",
+    );
+    expect(parseUsabilityFeedbackOpenFromSearch("true")).toBe(true);
+    expect(usabilityFeedbackDisclosureHrefFromSearch("", true, "/operator-home")).toBe(
+      "/operator-home?usabilityFeedbackOpen=1",
+    );
+    expect(parseDraftIntakeReasonDefaultOpenFromSearch("1")).toBe(true);
+    expect(draftIntakeReasonDefaultOpenDisclosureHrefFromSearch("step=reason", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?step=reason&draftIntakeReasonDefaultOpen=1",
+    );
+  });
+});
+
+describe("wave80 filter url helpers", () => {
+  it("dev testing quick switch, architecture sponsor sharing, notification preference center relations, identity providers technical details, sso protocol help, settings roles matrix collapsed groups, teams notifications collapsed categories, slack/teams platform notes params", async () => {
+    const {
+      devTestingQuickSwitchDisclosureHrefFromSearch,
+      parseDevTestingQuickSwitchOpenFromSearch,
+    } = await import("@/lib/dev-testing/dev-testing-quick-switch-disclosure-url");
+    const {
+      architectureSponsorSharingDisclosureHrefFromSearch,
+      parseArchitectureSponsorSharingOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-sponsor-sharing-disclosure-url");
+    const {
+      notificationPreferenceCenterRelationsDisclosureHrefFromSearch,
+      parseNotificationPreferenceCenterRelationsOpenFromSearch,
+    } = await import("@/lib/administration/notification-preference-center-relations-disclosure-url");
+    const {
+      identityProvidersTechnicalDetailsDisclosureHrefFromSearch,
+      parseIdentityProvidersTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-technical-details-disclosure-url");
+    const {
+      parseSsoProtocolHelpOpenFromSearch,
+      ssoProtocolHelpDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/sso-protocol-help-disclosure-url");
+    const {
+      parseSettingsRolesMatrixCollapsedGroupsFromSearch,
+      settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/settings-roles-matrix-collapsed-groups-disclosure-url");
+    const {
+      parseTeamsNotificationsCollapsedCategoriesFromSearch,
+      teamsNotificationsCollapsedCategoriesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/teams-notifications-collapsed-categories-disclosure-url");
+    const {
+      parseSlackPlatformNotesOpenFromSearch,
+      slackPlatformNotesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/slack-platform-notes-disclosure-url");
+    const {
+      parseTeamsPlatformNotesOpenFromSearch,
+      teamsPlatformNotesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/teams-platform-notes-disclosure-url");
+
+    expect(parseDevTestingQuickSwitchOpenFromSearch("true")).toBe(true);
+    expect(devTestingQuickSwitchDisclosureHrefFromSearch("tab=dev", true, "/operator-home")).toBe(
+      "/operator-home?tab=dev&devTestingQuickSwitchOpen=1",
+    );
+    expect(parseArchitectureSponsorSharingOpenFromSearch("1")).toBe(true);
+    expect(architectureSponsorSharingDisclosureHrefFromSearch("runId=r1", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runId=r1&architectureSponsorSharingOpen=1",
+    );
+    expect(parseNotificationPreferenceCenterRelationsOpenFromSearch("1")).toBe(true);
+    expect(notificationPreferenceCenterRelationsDisclosureHrefFromSearch("", true, "/administration/notifications")).toBe(
+      "/administration/notifications?notificationPreferenceCenterRelationsOpen=1",
+    );
+    expect(parseIdentityProvidersTechnicalDetailsOpenFromSearch("true")).toBe(true);
+    expect(
+      identityProvidersTechnicalDetailsDisclosureHrefFromSearch("", true, "/administration/identity-providers/diagnostics"),
+    ).toBe("/administration/identity-providers/diagnostics?identityProvidersTechnicalDetailsOpen=1");
+    expect(parseSsoProtocolHelpOpenFromSearch("1")).toBe(true);
+    expect(ssoProtocolHelpDisclosureHrefFromSearch("step=protocol", true, "/administration/identity/sso-wizard")).toBe(
+      "/administration/identity/sso-wizard?step=protocol&ssoProtocolHelpOpen=1",
+    );
+    expect(parseSettingsRolesMatrixCollapsedGroupsFromSearch("admin,viewer")).toEqual(["admin", "viewer"]);
+    expect(settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch("tab=roles", ["admin"], "/administration/users")).toBe(
+      "/administration/users?tab=roles&settingsRolesMatrixCollapsedGroups=admin",
+    );
+    expect(parseTeamsNotificationsCollapsedCategoriesFromSearch("architecture-and-review,governance-and-risk")).toEqual([
+      "architecture-and-review",
+      "governance-and-risk",
+    ]);
+    expect(
+      teamsNotificationsCollapsedCategoriesDisclosureHrefFromSearch(
+        "",
+        ["architecture-and-review"],
+        "/integrations/teams",
+      ),
+    ).toBe("/integrations/teams?teamsNotificationsCollapsedCategories=architecture-and-review");
+    expect(parseSlackPlatformNotesOpenFromSearch("1")).toBe(true);
+    expect(slackPlatformNotesDisclosureHrefFromSearch("", true, "/integrations/slack")).toBe(
+      "/integrations/slack?slackPlatformNotesOpen=1",
+    );
+    expect(parseTeamsPlatformNotesOpenFromSearch("true")).toBe(true);
+    expect(teamsPlatformNotesDisclosureHrefFromSearch("view=connect", true, "/integrations/teams")).toBe(
+      "/integrations/teams?view=connect&teamsPlatformNotesOpen=1",
+    );
+  });
+});
+
+describe("wave81 filter url helpers", () => {
+  it("architecture sponsor sharing, notification preference center relations, identity providers technical details, sso protocol help, architecture created governance/evidence sources, settings roles matrix collapsed groups, teams notifications collapsed categories, slack/teams platform notes params", async () => {
+    const {
+      architectureSponsorSharingDisclosureHrefFromSearch,
+      parseArchitectureSponsorSharingOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-sponsor-sharing-disclosure-url");
+    const {
+      notificationPreferenceCenterRelationsDisclosureHrefFromSearch,
+      parseNotificationPreferenceCenterRelationsOpenFromSearch,
+    } = await import("@/lib/administration/notification-preference-center-relations-disclosure-url");
+    const {
+      identityProvidersTechnicalDetailsDisclosureHrefFromSearch,
+      parseIdentityProvidersTechnicalDetailsOpenFromSearch,
+    } = await import("@/lib/administration/identity-providers-technical-details-disclosure-url");
+    const {
+      parseSsoProtocolHelpOpenFromSearch,
+      ssoProtocolHelpDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/sso-protocol-help-disclosure-url");
+    const {
+      architectureCreatedGovernanceSourcesDisclosureHrefFromSearch,
+      parseArchitectureCreatedGovernanceSourcesOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-created-governance-sources-disclosure-url");
+    const {
+      architectureCreatedEvidenceSourcesDisclosureHrefFromSearch,
+      parseArchitectureCreatedEvidenceSourcesOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-created-evidence-sources-disclosure-url");
+    const {
+      parseSettingsRolesMatrixCollapsedGroupsFromSearch,
+      settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/settings-roles-matrix-collapsed-groups-disclosure-url");
+    const {
+      parseTeamsNotificationsCollapsedCategoriesFromSearch,
+      teamsNotificationsCollapsedCategoriesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/teams-notifications-collapsed-categories-disclosure-url");
+    const {
+      parseSlackPlatformNotesOpenFromSearch,
+      slackPlatformNotesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/slack-platform-notes-disclosure-url");
+    const {
+      parseTeamsPlatformNotesOpenFromSearch,
+      teamsPlatformNotesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/teams-platform-notes-disclosure-url");
+
+    expect(parseArchitectureSponsorSharingOpenFromSearch("1")).toBe(true);
+    expect(architectureSponsorSharingDisclosureHrefFromSearch("runId=r1", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?runId=r1&architectureSponsorSharingOpen=1",
+    );
+    expect(parseNotificationPreferenceCenterRelationsOpenFromSearch("true")).toBe(true);
+    expect(notificationPreferenceCenterRelationsDisclosureHrefFromSearch("", true, "/administration/notifications")).toBe(
+      "/administration/notifications?notificationPreferenceCenterRelationsOpen=1",
+    );
+    expect(parseIdentityProvidersTechnicalDetailsOpenFromSearch("1")).toBe(true);
+    expect(
+      identityProvidersTechnicalDetailsDisclosureHrefFromSearch("", true, "/administration/identity-providers/diagnostics"),
+    ).toBe("/administration/identity-providers/diagnostics?identityProvidersTechnicalDetailsOpen=1");
+    expect(parseSsoProtocolHelpOpenFromSearch("true")).toBe(true);
+    expect(ssoProtocolHelpDisclosureHrefFromSearch("step=protocol", true, "/administration/identity/sso-wizard")).toBe(
+      "/administration/identity/sso-wizard?step=protocol&ssoProtocolHelpOpen=1",
+    );
+    expect(parseArchitectureCreatedGovernanceSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureCreatedGovernanceSourcesDisclosureHrefFromSearch("", true, "/architecture/reviews/r1/governance"),
+    ).toBe("/architecture/reviews/r1/governance?architectureCreatedGovernanceSourcesOpen=1");
+    expect(parseArchitectureCreatedEvidenceSourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureCreatedEvidenceSourcesDisclosureHrefFromSearch("view=table", true, "/architecture/reviews/r1/evidence"),
+    ).toBe("/architecture/reviews/r1/evidence?view=table&architectureCreatedEvidenceSourcesOpen=1");
+    expect(parseSettingsRolesMatrixCollapsedGroupsFromSearch("admin,viewer")).toEqual(["admin", "viewer"]);
+    expect(settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch("tab=roles", ["admin"], "/administration/users")).toBe(
+      "/administration/users?tab=roles&settingsRolesMatrixCollapsedGroups=admin",
+    );
+    expect(parseTeamsNotificationsCollapsedCategoriesFromSearch("architecture-and-review,governance-and-risk")).toEqual([
+      "architecture-and-review",
+      "governance-and-risk",
+    ]);
+    expect(
+      teamsNotificationsCollapsedCategoriesDisclosureHrefFromSearch(
+        "",
+        ["architecture-and-review"],
+        "/integrations/teams",
+      ),
+    ).toBe("/integrations/teams?teamsNotificationsCollapsedCategories=architecture-and-review");
+    expect(parseSlackPlatformNotesOpenFromSearch("1")).toBe(true);
+    expect(slackPlatformNotesDisclosureHrefFromSearch("", true, "/integrations/slack")).toBe(
+      "/integrations/slack?slackPlatformNotesOpen=1",
+    );
+    expect(parseTeamsPlatformNotesOpenFromSearch("true")).toBe(true);
+    expect(teamsPlatformNotesDisclosureHrefFromSearch("view=connect", true, "/integrations/teams")).toBe(
+      "/integrations/teams?view=connect&teamsPlatformNotesOpen=1",
+    );
   });
 });
 

@@ -34,6 +34,7 @@ import { GcpConnectionValidatePanel } from "./GcpConnectionValidatePanel";
 import { GcpWifStarterPanel } from "./GcpWifStarterPanel";
 import {
   GCP_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID,
+  GCP_CLOUD_CONNECTION_BUYER_OVERVIEW,
   GCP_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   GCP_CLOUD_CONNECTION_PAGE_LEAD,
   GCP_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
@@ -114,11 +115,13 @@ function GcpCloudConnectionDetailBody(): React.ReactElement {
     <CloudProviderDetailLayout
       providerLabel="GCP"
       overview={
-        <p className={OPERATOR_TYPOGRAPHY.body}>
-          {localize(
-            "Connect a GCP project for scheduled read-only inventory collection. ArchLucid stores connection metadata only — no downloadable service-account JSON keys.",
-          )}
-        </p>
+        buyerPolishedShell ? undefined : (
+          <p className={OPERATOR_TYPOGRAPHY.body}>
+            {localize(
+              "Connect a GCP project for scheduled read-only inventory collection. ArchLucid stores connection metadata only — no downloadable service-account JSON keys.",
+            )}
+          </p>
+        )
       }
       securityPreflight={
         <CloudSecurityPreflightPanel
@@ -196,25 +199,32 @@ export function GcpCloudConnectionDetailClient() {
           <GcpCloudConnectionPageHeader />
 
           {buyerPolishedShell ? (
-            <div
-              id={GCP_CLOUD_CONNECTION_SKIP_TARGET_ID}
-              data-testid={GCP_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID}
-              className={cn(
-                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-                OPERATOR_LAYOUT.sectionStack,
-              )}
-            >
-              <div className="space-y-4" data-testid="gcp-cloud-connection-buyer-intro">
-                <p className={readingBodyClass} data-testid="gcp-cloud-connection-intro">
-                  {GCP_CLOUD_CONNECTION_PAGE_LEAD}
-                </p>
+            <>
+              <div
+                id={GCP_CLOUD_CONNECTION_SKIP_TARGET_ID}
+                data-testid={GCP_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID}
+                className={cn(
+                  "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                  OPERATOR_LAYOUT.sectionStack,
+                )}
+              >
+                <div className="space-y-4" data-testid="gcp-cloud-connection-buyer-intro">
+                  <p className={readingBodyClass} data-testid="gcp-cloud-connection-intro">
+                    {GCP_CLOUD_CONNECTION_PAGE_LEAD}
+                  </p>
+                </div>
+                <GcpCloudConnectionStartHerePanel />
               </div>
-              <GcpCloudConnectionStartHerePanel />
-              <GcpCloudConnectionDetailBody />
-            </div>
-          ) : (
-            <GcpCloudConnectionDetailBody />
-          )}
+              <p
+                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="gcp-cloud-connection-overview"
+              >
+                {GCP_CLOUD_CONNECTION_BUYER_OVERVIEW}
+              </p>
+            </>
+          ) : null}
+
+          <GcpCloudConnectionDetailBody />
 
           {buyerPolishedShell ? <GcpCloudConnectionSourcesOrientationStrip /> : null}
         </div>

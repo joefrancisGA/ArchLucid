@@ -6,6 +6,9 @@ import {
   getGovernanceDecisionsNeededSummary,
   type GovernanceDecisionsNeededSummary,
 } from "@/lib/api/governance-stickiness-api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governanceStickinessSummaryBlockedReason } from "@/lib/governance/governance-stickiness-summary-blocked-reason";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -23,7 +26,7 @@ export function useGovernanceDecisionsNeededSummaryQuery(
 ) {
   const projectId = options?.projectId;
 
-  return useQuery<GovernanceDecisionsNeededSummary>({
+  const query = useQuery<GovernanceDecisionsNeededSummary>({
     queryKey: operatorQueryKeys.governanceDecisionsNeededSummary(projectId),
     queryFn: () => getGovernanceDecisionsNeededSummary(projectId),
     enabled: options?.enabled ?? true,
@@ -33,4 +36,13 @@ export function useGovernanceDecisionsNeededSummaryQuery(
     gcTime: OPERATOR_QUERY_GC_MS,
     retry: false,
   });
+
+  const failure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
+  const blockedReason = governanceStickinessSummaryBlockedReason(failure);
+
+  return {
+    ...query,
+    failure,
+    blockedReason,
+  };
 }

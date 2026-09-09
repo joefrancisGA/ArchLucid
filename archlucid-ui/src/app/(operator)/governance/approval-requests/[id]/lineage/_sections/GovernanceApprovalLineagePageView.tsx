@@ -15,6 +15,7 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-rout
 import {
   APPROVAL_LINEAGE_BUYER_START_HERE_HELPER,
   APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID,
+  APPROVAL_LINEAGE_OVERVIEW,
   APPROVAL_LINEAGE_PAGE_LEAD,
   APPROVAL_LINEAGE_PRIMARY_CONTENT_ID,
   APPROVAL_LINEAGE_SKIP_LINK_LABEL,
@@ -97,6 +98,15 @@ export function GovernanceApprovalLineagePageView({
             <Link href="/governance/findings">Findings</Link>
           </Button>
         </div>
+        {model.blockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="governance-approval-lineage-blocked-reason"
+          >
+            {model.blockedReason}
+          </p>
+        ) : null}
         <OperatorApiProblem
           problem={failure.problem}
           fallbackMessage={failure.message}
@@ -161,6 +171,12 @@ export function GovernanceApprovalLineagePageView({
                 {APPROVAL_LINEAGE_BUYER_START_HERE_HELPER}
               </p>
             </section>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="approval-lineage-overview"
+            >
+              {APPROVAL_LINEAGE_OVERVIEW}
+            </p>
           </div>
         ) : null}
         {scopedRunId.length > 0 ? (

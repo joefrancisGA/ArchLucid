@@ -6,6 +6,7 @@ using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -132,8 +133,10 @@ public sealed partial class GovernanceController
     [HttpGet("approval-requests/{approvalRequestId}/lineage")]
     [ProducesResponseType(typeof(GovernanceLineageResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetApprovalRequestLineage(
         [FromRoute] string approvalRequestId,
+        [FromServices] IGovernanceApprovalRequestRepository approvalRepository,
         CancellationToken cancellationToken)
     {
         approvalRequestId = GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(approvalRequestId);
@@ -149,6 +152,14 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
+            approvalRequestId,
+            approvalRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
@@ -182,8 +193,10 @@ public sealed partial class GovernanceController
     [HttpGet("approval-requests/{approvalRequestId}/rationale")]
     [ProducesResponseType(typeof(GovernanceRationaleResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetApprovalRequestRationale(
         [FromRoute] string approvalRequestId,
+        [FromServices] IGovernanceApprovalRequestRepository approvalRepository,
         CancellationToken cancellationToken)
     {
         approvalRequestId = GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(approvalRequestId);
@@ -199,6 +212,14 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
+            approvalRequestId,
+            approvalRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

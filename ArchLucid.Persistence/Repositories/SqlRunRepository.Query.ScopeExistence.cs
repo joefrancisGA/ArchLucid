@@ -56,6 +56,26 @@ public sealed partial class SqlRunRepository
     }
 
     /// <inheritdoc />
+    public async Task<Guid?> TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        RunRepositoryCore.RequireArchitectureRequestId(architectureRequestId);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await connection.QueryFirstOrDefaultAsync<Guid?>(
+            new CommandDefinition(
+                RunRepositorySql.SelectRepresentativeRunIdForArchitectureRequestInScope,
+                RunListQueryParameters.ForArchitectureRequestScopeExists(scope, architectureRequestId),
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
     public async Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
         ScopeContext scope,
         string systemName,

@@ -123,7 +123,6 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const currentSearch = searchParams.toString();
   const devTestingQuickSwitchOpenParam = searchParams.get("devTestingQuickSwitchOpen");
   const { recentRunIds: liveRecentRunIds } = useOperatorHomeWorkspaceActivity();
   const runIds = liveRecentRunIds.length > 0 ? liveRecentRunIds : (props.runIds ?? []);
@@ -134,14 +133,20 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
   const [agentExecutionOverride, setAgentExecutionOverride] = useState<DevAgentExecutionModeOverride | null>(null);
   const { snapshot: quickJumpSnapshot, loading: quickJumpLoading } = useDevTestingQuickJumpSnapshot(runIds);
 
-  const syncQuickSwitchOpenToUrl = useCallback(
+  const syncPanelOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(devTestingQuickSwitchDisclosureHrefFromSearch(currentSearch, open, pathname), { scroll: false });
+      router.replace(devTestingQuickSwitchDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
     },
-    [currentSearch, pathname, router],
+    [pathname, router, searchParams],
   );
 
   useEffect(() => {
+    if (!isDevTestingOverridesEnabled()) {
+      return;
+    }
+
     if (parseDevTestingQuickSwitchOpenFromSearch(devTestingQuickSwitchOpenParam)) {
       setDevQuickSwitchPanelVisibility(false);
     }
@@ -182,7 +187,7 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
       open={!panelHidden}
       onOpenChange={(open) => {
         setDevQuickSwitchPanelVisibility(!open);
-        syncQuickSwitchOpenToUrl(open);
+        syncPanelOpenToUrl(open);
       }}
     >
       <DialogContent
