@@ -62,6 +62,7 @@ public sealed class LlmMonthlySpendPlanIdTests
             CommercialPackagingTierLabels.Enterprise,
             subscription);
 
-        planId.Should().BeNull();
+        planId.Should().BeNull(
+            "Enterprise packaging has no Stripe LLM SKU; the Architect shortcut must not apply");
     }
 }
