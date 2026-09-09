@@ -2,6 +2,7 @@ using ArchLucid.Application.Audit;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Admin;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Identity;
 using ArchLucid.Persistence.Admin;
@@ -463,6 +464,64 @@ public sealed class EmailOtpAuthServiceTests
             await memberships.ListByUserIdAsync(verified.PlatformUserId!.Value, CancellationToken.None);
 
         Assert.Single(rows);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_returns_invitation_app_role_when_invitation_is_accepted()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out InMemoryWorkspaceMembershipRepository memberships,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        const string rawToken = "invite-token-workspace-admin";
+        byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash(rawToken);
+
+        await invitations.InsertAsync(
+            tenantId,
+            workspaceId,
+            "admin-invited@example.com",
+            ArchLucidRoles.WorkspaceAdmin,
+            "admin",
+            null,
+            tokenHash,
+            DateTimeOffset.UtcNow.AddDays(7),
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest
+            {
+                Email = "admin-invited@example.com",
+                InvitationToken = rawToken
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = challenge.Id,
+                Code = RecoverCodeForTests(challenge),
+                InvitationToken = rawToken
+            },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(ArchLucidRoles.WorkspaceAdmin, verified.Role);
+
+        IReadOnlyList<WorkspaceMembershipRecord> rows =
+            await memberships.ListByUserIdAsync(verified.PlatformUserId!.Value, CancellationToken.None);
+
+        Assert.Equal(ArchLucidRoles.WorkspaceAdmin, rows[0].Role);
     }
 
     [Fact]

@@ -203,6 +203,14 @@ public sealed partial class PolicyPacksController
                 $"Assignment '{assignmentId}' was not found or cannot be updated in the current scope.");
         }
 
+        if (result.Outcome == PolicyPackHttpOutcome.Conflict)
+        {
+            return this.ConflictProblem(
+                result.Message
+                    ?? "Organization-required policy pack assignments cannot be set while the platform pack is inactive.",
+                ProblemTypes.Conflict);
+        }
+
         return NoContent();
     }
 }

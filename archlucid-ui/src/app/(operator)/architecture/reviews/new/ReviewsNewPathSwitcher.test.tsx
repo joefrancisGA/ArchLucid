@@ -93,6 +93,28 @@ describe("ReviewsNewPathSwitcher (first-run tenant)", () => {
     expect(screen.queryByTestId("reviews-new-back-to-quick-start")).toBeNull();
   });
 
+  it("clears orphan intakeStep when opening guided intake from the disclosure", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("intakeStep=2"));
+
+    render(<ReviewsNewPathSwitcher />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-more-path-guided-intake")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("reviews-new-more-path-guided-intake"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-intake-wizard-stub")).toBeTruthy();
+    });
+
+    expect(replace).toHaveBeenCalledWith(
+      "/architecture/reviews/new?path=guided-intake",
+      expect.objectContaining({ scroll: false }),
+    );
+    expect(replace.mock.calls.some(([href]) => String(href).includes("intakeStep="))).toBe(false);
+  });
+
   it("opens guided intake from the disclosure without showing peer tabs", async () => {
     render(<ReviewsNewPathSwitcher />);
 

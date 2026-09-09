@@ -238,6 +238,50 @@ public sealed class PolicyPackWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task TrySetAssignmentOrganizationRequiredWithOutcomeAsync_returns_platform_pack_inactive_when_setting_org_required_on_inactive_pack()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new(MockBehavior.Strict);
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPackAssignment
+                {
+                    AssignmentId = assignmentId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    PolicyPackId = packId,
+                    PolicyPackVersion = "1.0.0",
+                    IsEnabled = true,
+                    IsOrganizationRequired = false,
+                });
+
+        Mock<IPolicyPackRepository> packs = new(MockBehavior.Strict);
+        packs
+            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateInScopePack(packId));
+
+        Mock<IPlatformBundledPolicyPackAvailability> platformAvailability = new(MockBehavior.Strict);
+        platformAvailability
+            .Setup(p => p.IsGloballyActiveAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<bool>(false));
+
+        PolicyPackWorkflowFacade sut = CreateAssignmentToggleSut(
+            packs.Object,
+            assignments.Object,
+            platformAvailability.Object,
+            Mock.Of<IAuditService>(MockBehavior.Strict));
+
+        PolicyPackSetAssignmentOrganizationRequiredOutcome outcome =
+            await sut.TrySetAssignmentOrganizationRequiredWithOutcomeAsync(assignmentId, true, CancellationToken.None);
+
+        outcome.Should().Be(PolicyPackSetAssignmentOrganizationRequiredOutcome.PlatformPackInactive);
+    }
+
+    [Fact]
     public async Task TryDuplicatePackAsync_returns_null_when_pack_is_out_of_scope()
     {
         Guid foreignPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

@@ -34,6 +34,14 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void EvaluateDenyStatus_Treats503AsSkip()
+    {
+        TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(503)
+            .Should()
+            .Be(TenantIsolationNegativeTestVerdict.Skip, "server errors skip deny-status probes instead of false-passing isolation");
+    }
+
+    [Fact]
     public void TryFindRunIdInRunList_FallsBackToSubstringSearchWhenJsonMalformed()
     {
         string json = $$"""not-json-prefix "runId": "{{RunId}}" garbage suffix""";
@@ -580,6 +588,55 @@ public sealed class TenantIsolationNegativeTestRunnerTests
 
         report.Probes.Should().Contain(probe =>
             probe.Name == "cross-tenant-run-list" && probe.Verdict == TenantIsolationNegativeTestVerdict.Skip);
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+    }
+
+    [Fact]
+    public async Task RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives429()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+                string? tenant = req.Headers.TryGetValues("X-Tenant-Id", out IEnumerable<string>? values)
+                    ? values.FirstOrDefault()
+                    : null;
+
+                if (string.Equals(tenant, "44444444-4444-4444-4444-444444444444", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (path.StartsWith("/v1/runs", StringComparison.Ordinal))
+                        return Task.FromResult(JsonResponse((HttpStatusCode)429, new { title = "Too many requests" }));
+
+                    return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Not found" }));
+                }
+
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = RunId });
+
+        report.Probes.Should().Contain(probe =>
+            probe.Name == "cross-tenant-run-list"
+            && probe.Verdict == TenantIsolationNegativeTestVerdict.Skip
+            && probe.ObservedOutcome.Contains("run list unavailable", StringComparison.OrdinalIgnoreCase));
         report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
     }
 

@@ -33,10 +33,11 @@ export function deriveOperatorHomeTenantCountingSnapshot(
   input: DeriveOperatorHomeTenantCountingSnapshotInput,
 ): OperatorHomeTenantCountingSnapshot {
   const tenantItems = filterTenantOverviewRuns(input.displayItems);
+  const previewTenantItems = filterTenantOverviewRuns(input.previewItems);
   const awaitingApprovalCount = input.awaitingApprovalCount ?? 0;
   const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length, awaitingApprovalCount);
   const previewTabCounts = deriveHomePreviewTabCounts({
-    previewItems: tenantItems,
+    previewItems: previewTenantItems,
     excludeShowcaseRunId: input.excludeShowcaseRunId,
     awaitingApprovalRunIds: input.awaitingApprovalRunIds,
     awaitingApprovalCount,

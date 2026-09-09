@@ -29,10 +29,20 @@ public sealed class LlmTenantWalletConsumeStage(
         if (command.MonthlyCapUsd.HasValue && !IsValidMonthlyCap(command.MonthlyCapUsd.Value))
             return null;
 
-        if (command.AutoReplenishEnabled == true
-            && command.MonthlyCapUsd.GetValueOrDefault() <= 0m)
+        if (command.AutoReplenishEnabled == true)
         {
-            return null;
+            if (command.MonthlyCapUsd is <= 0m)
+                return null;
+
+            if (!command.MonthlyCapUsd.HasValue)
+            {
+                LlmTenantWalletStateReadModel current = await _repository
+                    .GetOrCreateAsync(tenantId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (current.MonthlyCapUsd <= 0m)
+                    return null;
+            }
         }
 
         LlmTenantWalletStateReadModel? updated = await _repository

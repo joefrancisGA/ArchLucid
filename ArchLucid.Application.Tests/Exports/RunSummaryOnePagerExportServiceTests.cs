@@ -79,12 +79,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<AgentExecutionTrace>());
 
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                [$"{PreCommitGovernanceGateOptions.SectionPath}:{nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled)}"] = "false",
-            })
-            .Build();
+        IConfiguration configuration = CreateSuccessfulExportHonestyConfiguration();
 
         RunSummaryOnePagerExportService sut = new(
             runDetails.Object,
@@ -96,7 +91,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             manifestHashService,
             Mock.Of<IGraphSnapshotRepository>(),
             agentTraces.Object,
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository>(),
+            CreateEmptyFindingReviewTrailRepository(),
             configuration);
 
         RunSummaryOnePagerExportResult result = await sut.GenerateMarkdownAsync(runId, CancellationToken.None);
@@ -138,6 +133,15 @@ public sealed class RunSummaryOnePagerExportServiceTests
             .ReturnsAsync(Array.Empty<AgentExecutionTrace>());
 
         IConfiguration configuration = SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration();
+        configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{PreCommitGovernanceGateOptions.SectionPath}:{nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled)}"] = "true",
+                [$"{AgentOutputQualityGateOptions.SectionPath}:{nameof(AgentOutputQualityGateOptions.Mode)}"] =
+                    AgentOutputQualityGateMode.WarnOnly.ToString(),
+                ["AgentExecution:Mode"] = "Simulator",
+            })
+            .Build();
 
         RunSummaryOnePagerExportService sut = new(
             runDetails.Object,
@@ -149,7 +153,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             manifestHashService,
             Mock.Of<IGraphSnapshotRepository>(),
             agentTraces.Object,
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository>(),
+            CreateEmptyFindingReviewTrailRepository(),
             configuration);
 
         Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
@@ -161,6 +165,48 @@ public sealed class RunSummaryOnePagerExportServiceTests
         completion.Verify(
             x => x.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task GenerateMarkdownAsync_throws_conflict_when_sealed_manifest_hash_mismatches()
+    {
+        const string runId = "dddddddddddddddddddddddddddddddd";
+        Guid runGuid = Guid.Parse(runId);
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        Mock<IOptionsMonitor<GenerateRunSummaryOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new GenerateRunSummaryOptions { Enabled = true });
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        ManifestDocument goldenManifest =
+            SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        goldenManifest.ManifestHash = "DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF";
+
+        IConfiguration configuration = SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration();
+
+        RunSummaryOnePagerExportService sut = new(
+            runDetails.Object,
+            Mock.Of<IAgentCompletionClient>(),
+            options.Object,
+            scope.Object,
+            Mock.Of<ITenantRepository>(),
+            authority.Object,
+            manifestHashService,
+            Mock.Of<IGraphSnapshotRepository>(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
+            CreateEmptyFindingReviewTrailRepository(),
+            configuration);
+
+        Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>().WithMessage("*sealed manifest hash does not match*");
     }
 
     [Fact]
@@ -229,5 +275,32 @@ public sealed class RunSummaryOnePagerExportServiceTests
             HasBrokenManifestReference = false,
             AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete
         };
+    }
+
+    private static IConfiguration CreateSuccessfulExportHonestyConfiguration()
+    {
+        return new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{PreCommitGovernanceGateOptions.SectionPath}:{nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled)}"] = "true",
+                [$"{AgentOutputQualityGateOptions.SectionPath}:{nameof(AgentOutputQualityGateOptions.Mode)}"] =
+                    AgentOutputQualityGateMode.WarnOnly.ToString(),
+                ["AgentExecution:Mode"] = "Simulator",
+            })
+            .Build();
+    }
+
+    private static ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository CreateEmptyFindingReviewTrailRepository()
+    {
+        Mock<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository> trails = new();
+        trails
+            .Setup(r => r.ListForFindingIdsSinceUtcAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ArchLucid.Contracts.Findings.FindingReviewEventRecord>());
+
+        return trails.Object;
     }
 }

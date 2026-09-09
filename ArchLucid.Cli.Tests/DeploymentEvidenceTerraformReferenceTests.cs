@@ -96,6 +96,17 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
     }
 
     [Fact]
+    public void DefaultApplyOrderRoots_default_pilot_profile_matches_apply_saas_ps1_pilotProfileOnly()
+    {
+        string repoRoot = RequireRepositoryRoot();
+        IReadOnlyList<string> applySaasPilot = ReadApplySaasStringArray(repoRoot, "$pilotProfileOnly");
+        IReadOnlyList<string> evidencePilot = ExtractDefaultPilotProfilePaths(
+            DeploymentEvidenceTerraformReference.DefaultApplyOrderRoots());
+
+        evidencePilot.Should().Equal(applySaasPilot);
+    }
+
+    [Fact]
     public void DocumentationRelativePath_points_to_existing_reference_doc()
     {
         string repoRoot = RequireRepositoryRoot();
@@ -170,6 +181,14 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
     {
         return roots
             .Where(line => line.Contains("metadata composition root", StringComparison.Ordinal))
+            .Select(line => line.Split(" —", 2, StringSplitOptions.None)[0].Trim())
+            .ToList();
+    }
+
+    private static List<string> ExtractDefaultPilotProfilePaths(IReadOnlyList<string> roots)
+    {
+        return roots
+            .Where(line => line.Contains("canonical default profile", StringComparison.Ordinal))
             .Select(line => line.Split(" —", 2, StringSplitOptions.None)[0].Trim())
             .ToList();
     }

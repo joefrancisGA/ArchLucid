@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 
 using ArchLucid.Contracts.Risk;
+using ArchLucid.Decisioning.Analysis;
 
 namespace ArchLucid.Decisioning.Risk;
 
@@ -75,7 +76,7 @@ internal static class TradeoffRequirementConflictDetector
 
             foreach (string pattern in patterns)
             {
-                if (!normalizedRequirement.Contains(pattern, StringComparison.Ordinal))
+                if (!DecisioningTextTokenMatcher.ContainsPattern(normalizedRequirement, pattern))
                     continue;
 
                 if (sacrificedPillar == WafPillar.Reliability && IsStrictReliabilityRequirement(normalizedRequirement))
@@ -91,20 +92,20 @@ internal static class TradeoffRequirementConflictDetector
 
     private static bool IsStrictReliabilityRequirement(string normalizedRequirement)
     {
-        if (normalizedRequirement.Contains("rto", StringComparison.Ordinal))
+        if (DecisioningTextTokenMatcher.ContainsPattern(normalizedRequirement, "rto"))
             return true;
 
-        if (normalizedRequirement.Contains("recovery time", StringComparison.Ordinal))
+        if (DecisioningTextTokenMatcher.ContainsPattern(normalizedRequirement, "recovery time"))
             return true;
 
-        if (normalizedRequirement.Contains("uptime", StringComparison.Ordinal)
-            || normalizedRequirement.Contains("availability", StringComparison.Ordinal))
+        if (DecisioningTextTokenMatcher.ContainsPattern(normalizedRequirement, "uptime")
+            || DecisioningTextTokenMatcher.ContainsPattern(normalizedRequirement, "availability"))
             return ContainsHighAvailabilityTarget(normalizedRequirement);
 
-        return normalizedRequirement.Contains("failover", StringComparison.Ordinal)
-            || normalizedRequirement.Contains("disaster recovery", StringComparison.Ordinal)
-            || normalizedRequirement.Contains("geo-redundant", StringComparison.Ordinal)
-            || normalizedRequirement.Contains("multi-region", StringComparison.Ordinal);
+        return DecisioningTextTokenMatcher.ContainsPattern(normalizedRequirement, "failover")
+            || DecisioningTextTokenMatcher.ContainsPattern(normalizedRequirement, "disaster recovery")
+            || DecisioningTextTokenMatcher.ContainsPattern(normalizedRequirement, "geo-redundant")
+            || DecisioningTextTokenMatcher.ContainsPattern(normalizedRequirement, "multi-region");
     }
 
     private static bool ContainsHighAvailabilityTarget(string normalizedRequirement)

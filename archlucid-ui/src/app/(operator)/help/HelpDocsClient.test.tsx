@@ -221,4 +221,61 @@ describe("HelpDocsClient", () => {
 
     vi.unstubAllGlobals();
   });
+
+  it("uses valid html id tokens for category section headings", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    const { container } = renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("heading", { name: "Getting Started" });
+
+    for (const heading of container.querySelectorAll("section[aria-labelledby] h2[id]")) {
+      const id = heading.id;
+
+      expect(id.length).toBeGreaterThan(0);
+      expect(id).not.toMatch(/\s/);
+      expect(document.getElementById(id)).toBe(heading);
+    }
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows fetched index matches for an active search after the index load completes", async () => {
+    let resolveFetch: ((value: Response) => void) | undefined;
+    const fetchPromise = new Promise<Response>((resolve) => {
+      resolveFetch = resolve;
+    });
+
+    vi.stubGlobal("fetch", vi.fn(async () => fetchPromise));
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "unicorn compliance" } });
+
+    expect(screen.getByText("No results")).toBeInTheDocument();
+
+    resolveFetch?.({
+      ok: true,
+      json: async () => [
+        {
+          title: "Unicorn compliance topic",
+          summary: "Fetched-only help row.",
+          category: "Compliance",
+          url: "/help/unicorn-compliance",
+        },
+      ],
+    } as Response);
+
+    expect(await screen.findByRole("link", { name: "Unicorn compliance topic" })).toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
 });

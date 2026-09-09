@@ -139,28 +139,7 @@ public static class DrRpoTopologyAnalyzer
 
     private static bool IsDatastoreTopologyNode(GraphNode node)
     {
-        if (!string.Equals(node.NodeType, GraphNodeTypes.TopologyResource, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        if (TryGetProperty(node.Properties, "category", out string? category)
-            && (string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase)))
-        {
-            return true;
-        }
-
-        string combined = $"{node.Label} {node.SourceId}".ToLowerInvariant();
-
-        return combined.Contains("sql", StringComparison.Ordinal)
-            || combined.Contains("storage", StringComparison.Ordinal)
-            || combined.Contains("database", StringComparison.Ordinal)
-            || combined.Contains("cosmos", StringComparison.Ordinal)
-            || combined.Contains("redis", StringComparison.Ordinal)
-            || combined.Contains("postgres", StringComparison.Ordinal)
-            || combined.Contains("mysql", StringComparison.Ordinal)
-            || combined.Contains("cluster", StringComparison.Ordinal);
+        return TopologyDatastoreLabelHeuristic.IsSkuRpoDatastoreTopologyNode(node);
     }
 
     private static Dictionary<string, List<string>> BuildAdjacency(

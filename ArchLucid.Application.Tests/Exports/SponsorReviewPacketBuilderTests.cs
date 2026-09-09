@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Roi;
@@ -267,11 +268,56 @@ public sealed class SponsorReviewPacketBuilderTests
         markdown.Should().NotContain("Run B decision");
     }
 
+    [Fact]
+    public async Task BuildMarkdownAsync_throws_conflict_when_sealed_manifest_hash_mismatches()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        ArchitectureRunDetail detail = new()
+        {
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
+            Run = new ArchitectureRun
+            {
+                RunId = RunId,
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = RunId,
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+            },
+        };
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(x => x.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        ManifestDocument goldenManifest =
+            SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        goldenManifest.ManifestHash = "DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF";
+
+        SponsorReviewPacketBuilder sut = CreateSut(runDetails.Object, authorityQuery: authority.Object, manifestHashService: manifestHashService);
+
+        Func<Task> act = async () => await sut.BuildMarkdownAsync(RunId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>().WithMessage("*sealed manifest hash does not match*");
+    }
+
     private static SponsorReviewPacketBuilder CreateSut(
         IRunDetailQueryService runDetails,
         IScopeContextProvider? scopeContextProvider = null,
         ITenantRepository? tenantRepository = null,
-        IArchitectureDecisionRegisterService? decisions = null)
+        IArchitectureDecisionRegisterService? decisions = null,
+        IAuthorityQueryService? authorityQuery = null,
+        IManifestHashService? manifestHashService = null)
     {
         Mock<ISponsorRoiSummaryService> roi = new();
         roi.Setup(x => x.BuildAsync(It.IsAny<CancellationToken>()))
@@ -292,18 +338,14 @@ public sealed class SponsorReviewPacketBuilderTests
         scopeMock.Setup(x => x.GetCurrentScope()).Returns(new ScopeContext());
         IScopeContextProvider scopeProvider = scopeContextProvider ?? scopeMock.Object;
 
-        Mock<IAuthorityQueryService> authorityQuery = new();
-        authorityQuery
-            .Setup(q => q.GetRunDetailForManifestCompareAsync(
-                It.IsAny<ScopeContext>(),
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RunDetailDto?)null);
+        ArchLucid.Decisioning.Services.ManifestHashService defaultManifestHashService = new();
+        Mock<IAuthorityQueryService> authorityMock = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(
+            authorityMock,
+            Guid.Parse(RunId),
+            defaultManifestHashService);
 
-        Mock<IManifestHashService> manifestHash = new();
-        manifestHash
-            .Setup(h => h.ComputeHash(It.IsAny<ManifestDocument>()))
-            .Returns("SEALED-HASH");
+        IManifestHashService manifestHash = manifestHashService ?? defaultManifestHashService;
 
         return new SponsorReviewPacketBuilder(
             runDetails,
@@ -311,11 +353,25 @@ public sealed class SponsorReviewPacketBuilderTests
             decisions ?? decisionsMock.Object,
             scopeProvider,
             tenantRepository ?? Mock.Of<ITenantRepository>(),
-            authorityQuery.Object,
-            manifestHash.Object,
+            authorityQuery ?? authorityMock.Object,
+            manifestHash,
             Mock.Of<IGraphSnapshotRepository>(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
-            Mock.Of<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository>(),
-            Mock.Of<IConfiguration>());
+            SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
+            CreateEmptyFindingReviewTrailRepository(),
+            SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration());
+    }
+
+    private static ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository CreateEmptyFindingReviewTrailRepository()
+    {
+        Mock<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository> trails = new();
+        trails
+            .Setup(r => r.ListForFindingIdsSinceUtcAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<FindingReviewEventRecord>());
+
+        return trails.Object;
     }
 }

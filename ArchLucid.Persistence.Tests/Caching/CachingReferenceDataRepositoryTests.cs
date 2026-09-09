@@ -823,7 +823,6 @@ internal sealed class ThrowingUpsertTenantSettingsRepository : ITenantSettingsRe
     public Task DeleteAsync(Guid tenantId, string settingKey, CancellationToken cancellationToken) =>
         _inner.DeleteAsync(tenantId, settingKey, cancellationToken);
 }
-}
 
 internal sealed class ThrowingDeleteTenantSettingsRepository : ITenantSettingsRepository
 {
@@ -857,4 +856,3 @@ internal sealed class ThrowingDeleteTenantSettingsRepository : ITenantSettingsRe
         return _inner.DeleteAsync(tenantId, settingKey, cancellationToken);
     }
 }
-
