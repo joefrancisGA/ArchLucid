@@ -4,8 +4,10 @@ import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import {
   ARCHITECTURES_LIST_PATH,
   ARCHITECTURES_NEW_PATH,
+  REVIEWS_LIST_PATH,
   architectureDraftPath,
 } from "@/lib/architecture/architecture-routes";
+import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
@@ -15,6 +17,9 @@ import { routeViewExplanationForPathname, explainViewDismissKey } from "@/lib/us
 describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
   it("covers compare, alerts, and SSO hubs; home owns orientation via command center", () => {
     expect(routeViewExplanationForPathname("/")).toBeNull();
+    expect(routeViewExplanationForPathname(ASK_REVIEW_QUESTIONS_PATH)?.title).toBe("Ask review questions");
+    expect(routeViewExplanationForPathname(REVIEWS_LIST_PATH)?.title).toBe("Reviews");
+    expect(routeViewExplanationForPathname(`${REVIEWS_LIST_PATH}/run-abc`)).toBeNull();
     expect(routeViewExplanationForPathname("/insights/compare-two-reviews")?.title).toBe("Compare two reviews");
     expect(routeViewExplanationForPathname(GOVERNANCE_ALERTS_PATH)?.title).toBe("Alerts");
     expect(routeViewExplanationForPathname("/alerts")?.title).toBe("Alerts");
@@ -99,8 +104,9 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname("/administration/identity-providers/diagnostics")).toBeNull();
   });
 
-  it("does not treat nested paths as home", () => {
-    expect(routeViewExplanationForPathname("/architecture/reviews")).toBeNull();
+  it("covers reviews hub inventory only — not open review detail routes", () => {
+    expect(routeViewExplanationForPathname(REVIEWS_LIST_PATH)?.title).toBe("Reviews");
+    expect(routeViewExplanationForPathname(`${REVIEWS_LIST_PATH}/run-abc`)).toBeNull();
   });
 
   it("keeps drafts-inventory orientation off the draft editor and the new-draft workspace", () => {

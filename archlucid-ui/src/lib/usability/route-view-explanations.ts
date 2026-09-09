@@ -17,7 +17,8 @@ export type RouteViewExplanation = {
 };
 
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
-import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
 import { DIGESTS_HUB_PATH, digestsHubTabFromLocation } from "@/lib/digests-route-paths";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
@@ -61,6 +62,25 @@ function routeMatchesExplanationRow(path: string, row: RouteViewExplanationRow):
 }
 
 const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
+  {
+    prefix: ASK_REVIEW_QUESTIONS_PATH,
+    explanation: {
+      title: "Ask review questions",
+      summary:
+        "Ask natural-language questions about evidence, findings, and architecture decisions in a committed review package.",
+      nextAction: "Select a review (or open one from review detail), then ask a focused question about findings or evidence.",
+    },
+  },
+  {
+    prefix: REVIEWS_LIST_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Reviews",
+      summary:
+        "Browse architecture review packages in this workspace — open one to triage findings, evidence, and approval status.",
+      nextAction: "Open the review you need, or start a new review when you are ready to assess a draft architecture.",
+    },
+  },
   {
     prefix: "/insights/compare-two-reviews",
     explanation: {
