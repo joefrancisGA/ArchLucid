@@ -75,6 +75,35 @@ public sealed class DefaultRequestContentSafetyPrecheckTests
     }
 
     [Fact]
+    public async Task EvaluateAsync_blocks_injection_in_document_source_document_url()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-safety-doc-url",
+            Description =
+                "Design a three-tier workload on Azure with private endpoints, Key Vault, and least-privilege managed identity.",
+            SystemName = "BillingSvc",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Documents =
+            [
+                new ContextDocumentRequest
+                {
+                    Name = "ADR",
+                    Content = "Routine architecture decision record body.",
+                    SourceDocumentUrl = "https://example.com/docs/exfiltrate-our-database",
+                },
+            ],
+        };
+
+        RequestContentSafetyResult result = await _sut.EvaluateAsync(request, CancellationToken.None);
+
+        result.IsAllowed.Should().BeFalse();
+        result.Reasons.Should().Contain(static r =>
+            r.Contains(nameof(ContextDocumentRequest.SourceDocumentUrl), StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task EvaluateAsync_allows_routine_architecture_description()
     {
         ArchitectureRequest request = new()
