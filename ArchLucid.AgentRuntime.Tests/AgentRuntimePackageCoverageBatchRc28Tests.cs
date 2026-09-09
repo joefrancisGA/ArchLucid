@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.AgentRuntime.Evaluation;
+using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 
@@ -49,6 +50,25 @@ public sealed class AgentRuntimePackageCoverageBatchRc28Tests
         summary.Should().Contain("prod");
         summary.Should().Contain("Checkout topology");
         summary.Should().NotBe("(empty evidence package)");
+    }
+
+    [Fact]
+    public void InsightDensityJudgeEvidenceSummary_Build_preserves_customer_content_end_marker_when_truncated()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-1",
+            SystemName = "payments-api",
+            Environment = "prod",
+            Description = new string('D', 13_000),
+        };
+        AgentEvidencePackage evidence = new();
+
+        string summary = InsightDensityJudgeEvidenceSummary.Build(evidence, request);
+
+        summary.Should().Contain(CustomerContentPromptDelimiters.BeginMarker);
+        summary.Should().Contain(CustomerContentPromptDelimiters.EndMarker);
+        summary.Length.Should().BeLessThanOrEqualTo(12_000);
     }
 
     [Fact]

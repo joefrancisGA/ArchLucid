@@ -1,3 +1,5 @@
+import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import { apiPostJson } from "@/lib/api/http";
 
 export type GovernanceMutationCorrectionTarget = {
@@ -19,12 +21,36 @@ export type GovernanceMutationCorrectionRecorded = {
 /** Records an append-only governance mutation correction on the audit trail (LI-05). */
 export async function recordGovernanceMutationCorrection(
   body: GovernanceMutationCorrectionTarget & { rationale: string },
+  options?: { readonly idempotencyKey?: string },
 ): Promise<GovernanceMutationCorrectionRecorded> {
-  return apiPostJson<GovernanceMutationCorrectionRecorded>("/v1/governance/mutation-corrections", {
-    mutationKind: body.mutationKind,
-    subjectId: body.subjectId,
-    runId: body.runId,
-    rationale: body.rationale,
+  const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
+  const headers = { "Idempotency-Key": idempotencyKey };
+
+  return apiPostJson<GovernanceMutationCorrectionRecorded>(
+    "/v1/governance/mutation-corrections",
+    {
+      mutationKind: body.mutationKind,
+      subjectId: body.subjectId,
+      runId: body.runId,
+      rationale: body.rationale,
+    },
+    { extraHeaders: headers },
+  );
+}
+
+/** Record-correction POST with 401 session-recovery redirect and single idempotent replay (LP-19). */
+export async function recordGovernanceMutationCorrectionWith401Resume(
+  body: GovernanceMutationCorrectionTarget & { rationale: string },
+  options: { readonly idempotencyKey: string; readonly returnPath: string },
+): Promise<GovernanceMutationCorrectionRecorded> {
+  const idempotencyKey = options.idempotencyKey.trim();
+
+  return executeIdempotentLivelihoodMutation({
+    kind: "governance_mutation_correction",
+    returnPath: options.returnPath,
+    idempotencyKey,
+    payload: { body },
+    execute: () => recordGovernanceMutationCorrection(body, { idempotencyKey }),
   });
 }
 

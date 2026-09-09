@@ -15,7 +15,7 @@ export const AUDIT_TRAIL_VIEW_SWITCHER_GROUP_LABEL = "Audit trail view" as const
 
 /** Story mode: package narrative in buyer nouns (architecture package, decisions, evidence trail). */
 export const AUDIT_TRAIL_VIEW_STORY_INTRO =
-  "What happened to this architecture package — milestones in sponsor language for decisions, governance approval, and the evidence trail." as const;
+  "What happened to this architecture package — milestones in sponsor language for decisions, approval, and the evidence trail." as const;
 
 /** Table mode: compact event dump (operator or sponsor preferring a list). */
 export const AUDIT_TRAIL_VIEW_TABLE_INTRO =

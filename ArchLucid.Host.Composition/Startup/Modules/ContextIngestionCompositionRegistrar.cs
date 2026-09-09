@@ -20,6 +20,7 @@ using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Services;
+using ArchLucid.KnowledgeGraph.WafTradeoff;
 using ArchLucid.Persistence.Coordination.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -87,7 +88,13 @@ internal static class ContextIngestionCompositionRegistrar
             return new GraphSnapshotProjectionMemoryCache(memoryCache, monitor);
         });
         services.AddSingleton<PlainTextContextDocumentParser>();
+        services.AddSingleton<MermaidContextDocumentParser>();
+        services.AddSingleton<SvgContextDocumentParser>();
+        services.AddSingleton<DrawIoContextDocumentParser>();
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<PlainTextContextDocumentParser>());
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<MermaidContextDocumentParser>());
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<SvgContextDocumentParser>());
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<DrawIoContextDocumentParser>());
         services.AddSingleton<IReadOnlyList<IContextDocumentParser>>(static sp =>
             ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers(sp));
 
@@ -98,6 +105,11 @@ internal static class ContextIngestionCompositionRegistrar
         services.AddSingleton<IInfrastructureDeclarationParser, ArmJsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, KubernetesJsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, KubernetesYamlInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, HelmChartInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, KustomizeOverlayInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, PulumiStackJsonInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, CloudFormationInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, CdkSynthInfrastructureDeclarationParser>();
 
         services.AddSingleton<IDiagramSourceParser, MermaidDiagramSourceParser>();
         services.AddSingleton<IDiagramSourceParser, ArchLucidDiagramJsonParser>();
@@ -163,6 +175,7 @@ internal static class ContextIngestionCompositionRegistrar
         services.AddScoped<IGraphNodeFactory, GraphNodeFactory>();
         services.AddScoped<IGraphEdgeInferer, DefaultGraphEdgeInferer>();
         services.AddSingleton<IGraphValidator, GraphValidator>();
+        services.AddSingleton<IWafTradeoffCatalog, WafTradeoffCatalog>();
         services.AddScoped<GraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();
         services.AddScoped<KnowledgeGraphService, ArchLucid.KnowledgeGraph.Services.KnowledgeGraphService>();
         services.AddScoped<ArchLucid.KnowledgeGraph.Interfaces.IArchitectureKnowledgeModelGraphProjector,

@@ -8,7 +8,8 @@ vi.mock("next/navigation", async (importOriginal) => {
   return {
     ...actual,
     useSearchParams: () => searchParamsMock.value,
-    usePathname: () => "/",
+    usePathname: () => "/auth/callback",
+    useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
   };
 });
 
@@ -93,6 +94,7 @@ describe("CallbackClient", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: AUTH_CALLBACK_ACCESS_HEADING })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Try again" })).toHaveAttribute("href", "/auth/signin");
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Back to sign in" })).toBeNull();
   });
 });

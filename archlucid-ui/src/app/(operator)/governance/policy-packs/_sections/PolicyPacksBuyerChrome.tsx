@@ -10,5 +10,9 @@ export function PolicyPacksBuyerChrome(): React.JSX.Element | null {
     return null;
   }
 
-  return <PolicyPacksClaimOrientationStrip />;
+  return (
+    <div className="mb-4 text-left" data-testid="policy-packs-orientation-bottom">
+      <PolicyPacksClaimOrientationStrip />
+    </div>
+  );
 }

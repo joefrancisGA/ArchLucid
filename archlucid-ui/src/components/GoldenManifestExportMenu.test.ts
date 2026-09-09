@@ -37,3 +37,13 @@ describe("GoldenManifestExportMenu (TB-2202)", () => {
     expect(EXPORT_FORMAT_MARKDOWN.recommendedFor).toBe("email");
   });
 });
+
+describe("GoldenManifestExportMenu (FC-73/75)", () => {
+  const source = readFileSync(join(import.meta.dirname, "GoldenManifestExportMenu.tsx"), "utf8");
+
+  it("wires demo/static banner and legacy sealed re-export honesty", () => {
+    expect(source).toContain("DemoVsLiveChromeBanner");
+    expect(source).toContain("resolveLegacySealedReExportHonesty");
+    expect(source).toContain("golden-manifest-export-legacy-sealed-warning");
+  });
+});

@@ -1,10 +1,11 @@
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
-import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
+import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
   buildUnfinishedWorkRailItems,
   type UnfinishedWorkRailItem,
   type UnfinishedWorkRailItemKind,
 } from "@/lib/unfinished-work-rail";
+import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import type { RunSummary } from "@/types/authority";
 
 const CONTINUE_REVIEW_KINDS: ReadonlySet<UnfinishedWorkRailItemKind> = new Set([
@@ -21,7 +22,15 @@ export type ReviewsHubContinueReviewCandidate = {
   readonly elapsedMinutes: number;
 };
 
-function toContinueReviewCandidate(item: UnfinishedWorkRailItem, runs: readonly RunSummary[]): ReviewsHubContinueReviewCandidate | null {
+export type ReviewsHubContinueReviewOptions = {
+  readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
+};
+
+function toContinueReviewCandidate(
+  item: UnfinishedWorkRailItem,
+  runs: readonly RunSummary[],
+  options: ReviewsHubContinueReviewOptions = {},
+): ReviewsHubContinueReviewCandidate | null {
   const runId = item.id.split(":")[1]?.trim() ?? "";
 
   if (runId.length === 0) {
@@ -35,11 +44,19 @@ function toContinueReviewCandidate(item: UnfinishedWorkRailItem, runs: readonly 
     Date.now(),
     run?.isDeadLettered === true,
   );
+  const reviewHref =
+    item.href.length > 0
+      ? item.href
+      : resolveWorkingRunReviewLocator({
+          runId,
+          requestId: run?.requestId,
+          draftRegistryEntries: options.draftRegistryEntries,
+        }).href;
 
   return {
     runId,
     title: item.title,
-    href: item.href || reviewDetailPath(runId),
+    href: reviewHref,
     kind: item.kind,
     isStalled: stallSignal.isStalled,
     elapsedMinutes: stallSignal.elapsedMinutes,
@@ -49,14 +66,18 @@ function toContinueReviewCandidate(item: UnfinishedWorkRailItem, runs: readonly 
 /** Highest-priority in-flight or awaiting-disposition review for the reviews hub continue strip. */
 export function resolveReviewsHubContinueReviewCandidate(
   runs: readonly RunSummary[],
+  options: ReviewsHubContinueReviewOptions = {},
 ): ReviewsHubContinueReviewCandidate | null {
-  const railItem = buildUnfinishedWorkRailItems({ runs, drafts: [], incompleteWizards: [], maxItems: 6 }).find((item) =>
-    CONTINUE_REVIEW_KINDS.has(item.kind),
-  );
+  const railItem = buildUnfinishedWorkRailItems({
+    runs,
+    drafts: options.draftRegistryEntries ?? [],
+    incompleteWizards: [],
+    maxItems: 6,
+  }).find((item) => CONTINUE_REVIEW_KINDS.has(item.kind));
 
   if (railItem === undefined) {
     return null;
   }
 
-  return toContinueReviewCandidate(railItem, runs);
+  return toContinueReviewCandidate(railItem, runs, options);
 }

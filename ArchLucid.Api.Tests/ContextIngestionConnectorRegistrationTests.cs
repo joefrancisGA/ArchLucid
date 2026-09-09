@@ -91,6 +91,10 @@ public sealed class ContextIngestionConnectorRegistrationTests(ArchLucidApiFacto
         IReadOnlyList<IContextDocumentParser> parsers = scope.ServiceProvider
             .GetRequiredService<IReadOnlyList<IContextDocumentParser>>();
 
-        parsers.Select(p => p.GetType()).Should().Equal(typeof(PlainTextContextDocumentParser));
+        parsers.Select(p => p.GetType()).Should().Equal(
+            typeof(MermaidContextDocumentParser),
+            typeof(SvgContextDocumentParser),
+            typeof(DrawIoContextDocumentParser),
+            typeof(PlainTextContextDocumentParser));
     }
 }

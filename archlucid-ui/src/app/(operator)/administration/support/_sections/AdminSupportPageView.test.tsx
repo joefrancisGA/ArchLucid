@@ -51,4 +51,11 @@ describe("AdminSupportPageView", () => {
     expect(screen.getByTestId("admin-support-bundle-permission")).toBeInTheDocument();
     expect(screen.getByTestId("admin-support-download-bundle")).toBeDisabled();
   });
+
+  it("exposes Report Problem when bundle download fails", () => {
+    render(<AdminSupportPageView model={model({ error: "Bundle export timed out." })} />);
+
+    expect(screen.getByTestId("admin-support-download-error")).toHaveTextContent("Bundle export timed out.");
+    expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+  });
 });

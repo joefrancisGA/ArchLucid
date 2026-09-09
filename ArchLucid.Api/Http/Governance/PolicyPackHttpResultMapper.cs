@@ -51,6 +51,10 @@ internal static class PolicyPackHttpResultMapper
             PolicyPackHttpOutcome.VersionNotFound => controller.ToVersionNotFoundProblem(
                 result.PolicyPackId!.Value,
                 result.VersionKey!),
+            PolicyPackHttpOutcome.Forbidden => controller.ForbiddenProblemWithErrorCode(
+                "Forbidden",
+                "Organization-required policy pack assignments require tenant or workspace administrator authority.",
+                "policy_pack.organization_required_requires_tenant_admin"),
             _ => throw new InvalidOperationException($"Unexpected assign outcome: {result.Outcome}."),
         };
     }

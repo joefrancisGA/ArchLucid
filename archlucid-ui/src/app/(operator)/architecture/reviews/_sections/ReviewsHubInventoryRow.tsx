@@ -28,11 +28,14 @@ export type ReviewsHubInventoryRowProps = {
   readonly run: RunSummary;
   readonly ownerContext: ReviewPackageOwnerResolutionContext;
   readonly siblingRuns: readonly RunSummary[];
+  readonly isWorkingMode?: boolean;
   readonly style?: CSSProperties;
 };
 
 export function ReviewsHubInventoryRow(props: ReviewsHubInventoryRowProps): React.JSX.Element {
-  const row = toReviewsHubReviewRowDisplay(props.run, props.ownerContext, props.siblingRuns);
+  const row = toReviewsHubReviewRowDisplay(props.run, props.ownerContext, props.siblingRuns, {
+    isWorkingMode: props.isWorkingMode === true,
+  });
 
   return (
     <EnterpriseTableRow
@@ -65,7 +68,18 @@ export function ReviewsHubInventoryRow(props: ReviewsHubInventoryRowProps): Reac
         </div>
       </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <span className="font-medium text-al-text-primary">{row.architectureName}</span>
+        {row.architectureDeskHref !== null ? (
+          <Link
+            href={row.architectureDeskHref}
+            className={cn(OPERATOR_LINK.nav, "font-medium text-al-text-primary")}
+            aria-label={`Open architecture desk for ${row.architectureName}`}
+            data-testid={`reviews-hub-architecture-desk-${row.runId}`}
+          >
+            {row.architectureName}
+          </Link>
+        ) : (
+          <span className="font-medium text-al-text-primary">{row.architectureName}</span>
+        )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={STATUS_COLUMN_CLASS}>
         <StatusTag

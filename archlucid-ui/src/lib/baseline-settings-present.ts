@@ -26,7 +26,7 @@ export type TenantBaselineSnapshot = {
   readonly baselineReviewCycleCapturedUtc: string | null;
 };
 
-export const BASELINE_SETTINGS_PAGE_TITLE = "Baseline settings — ROI measurement" as const;
+export const BASELINE_SETTINGS_PAGE_TITLE = "ROI Measurement Settings" as const;
 
 export const BASELINE_SETTINGS_USED_IN_SURFACES: readonly BaselineUsedInSurface[] = [
   { label: "Value report", href: SPONSOR_REPORT_PATH },

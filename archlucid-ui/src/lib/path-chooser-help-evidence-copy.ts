@@ -1,4 +1,5 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { PATH_CHOOSER_HELP_RELATED_GUIDES } from "@/lib/path-chooser-help-related-guides";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -32,6 +33,14 @@ const PATH_CHOOSER_HELP_EXCLUDED_SOURCE_HREFS = new Set<string>([
 export const PATH_CHOOSER_HELP_SOURCES: readonly EvidenceSourceLink[] = PATH_CHOOSER_HELP_RELATED_GUIDES.filter(
   (source) => !PATH_CHOOSER_HELP_EXCLUDED_SOURCE_HREFS.has(source.href),
 );
+
+export const PATH_CHOOSER_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "goal branches turn into live intake, procurement cites, or accelerator packs",
+);
+
+/** Help orientation Sources — excludes self-href to `/help/choose-your-next-step` (HPX). */
+export const PATH_CHOOSER_HELP_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
+  PATH_CHOOSER_HELP_SOURCES.filter((source) => source.href !== PATH_CHOOSER_HELP_CANONICAL_PATH);
 
 /** Related next steps — no self-href to `/help/choose-your-next-step`. */
 export const PATH_CHOOSER_HELP_RELATED_NEXT_STEPS: readonly EvidenceSourceLink[] =

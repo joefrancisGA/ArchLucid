@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Authority;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Architecture;
@@ -8,12 +9,17 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Services;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
@@ -21,6 +27,7 @@ using ArchLucid.Persistence.Queries;
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
@@ -37,28 +44,46 @@ public sealed class DocxExportControllerAuditTests
         Guid manifestId = Guid.NewGuid();
         Guid? compareWith = Guid.NewGuid();
 
-        ArchLucid.Core.Manifest.ManifestDocument manifest = new()
-        {
-            ManifestId = manifestId,
-            RuleSetId = "rs",
-            RuleSetVersion = "1",
-            RuleSetHash = "h",
-            ManifestHash = "mh"
-        };
-
-        RunDetailDto runDetail = new() { Run = new RunRecord { RunId = runId }, GoldenManifest = manifest };
+        ManifestHashService manifestHashService = new();
+        FeasibilityVerdict verdict = DocxExportControllerTestSupport.CreateFeasibilityVerdictWithTrail();
+        ManifestDocument sealedManifest = DocxExportControllerTestSupport.CreateSealedExportManifest(
+            runId,
+            manifestId,
+            verdict,
+            manifestHashService);
 
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
 
         Mock<IAuthorityQueryService> authority = new();
-        authority
-            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(runDetail);
+        DocxExportControllerTestSupport.SetupAuthorityForDocxExport(
+            authority,
+            runId,
+            sealedManifest,
+            GoldenCorpusHarnessEngineRegistration.RegisteredEngineCount);
         authority
             .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), compareWith.Value, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new RunDetailDto { Run = new RunRecord { RunId = compareWith.Value }, GoldenManifest = manifest });
+            .ReturnsAsync(new RunDetailDto { Run = new RunRecord { RunId = compareWith.Value }, GoldenManifest = sealedManifest });
+        authority
+            .Setup(a => a.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                compareWith.Value,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto { Run = new RunRecord { RunId = compareWith.Value }, GoldenManifest = sealedManifest });
+        authority
+            .Setup(a => a.GetRunDetailForExportAsync(
+                It.IsAny<ScopeContext>(),
+                compareWith.Value,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = compareWith.Value },
+                GoldenManifest = sealedManifest,
+                FindingCoverageSummary = new RunFindingCoverageSummary
+                {
+                    EnginesSucceeded = GoldenCorpusHarnessEngineRegistration.RegisteredEngineCount,
+                },
+            });
 
         Mock<IArtifactQueryService> artifacts = new();
         artifacts
@@ -75,7 +100,7 @@ public sealed class DocxExportControllerAuditTests
         byte[] payload = [1, 2, 3, 4];
         Mock<IDocxExportService> docx = new();
         docx
-            .Setup(d => d.ExportAsync(It.IsAny<DocxExportRequest>(), manifest,
+            .Setup(d => d.ExportAsync(It.IsAny<DocxExportRequest>(), sealedManifest,
                 It.IsAny<IReadOnlyList<SynthesizedArtifact>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new DocxExportResult
@@ -92,9 +117,22 @@ public sealed class DocxExportControllerAuditTests
             .Setup(r => r.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRunDetail
             {
-                Run = new ArchitectureRun { RunId = runId.ToString("N") },
+                Run = new ArchitectureRun
+                {
+                    RunId = runId.ToString("N"),
+                    ContextSnapshotId = "ctx",
+                    GraphSnapshotId = Guid.NewGuid(),
+                    FindingsSnapshotId = Guid.NewGuid(),
+                },
                 AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
             });
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["PreCommitGovernance:PreCommitGateEnabled"] = "true",
+            })
+            .Build();
 
         DocxExportController sut = new(
             authority.Object,
@@ -105,7 +143,10 @@ public sealed class DocxExportControllerAuditTests
             Mock.Of<IExplanationService>(),
             Mock.Of<IProvenanceSnapshotRepository>(),
             scope.Object,
-            Mock.Of<IManifestHashService>(),
+            manifestHashService,
+            Mock.Of<IGraphSnapshotRepository>(),
+            DocxExportControllerTestSupport.CreateAgentExecutionTraceRepository(),
+            configuration,
             audit.Object,
             NullLogger<DocxExportController>.Instance) { ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext() };
 

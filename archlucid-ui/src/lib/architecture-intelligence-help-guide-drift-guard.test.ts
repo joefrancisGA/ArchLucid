@@ -64,6 +64,6 @@ describe("architecture-intelligence help negation drift guard", () => {
     expect(ARCHITECTURE_INTELLIGENCE_HELP_SOURCES.every((source) => source.when !== undefined)).toBe(true);
     expect(ARCHITECTURE_INTELLIGENCE_SOURCES.every((source) => source.when !== undefined)).toBe(true);
     expect(ARCHITECTURE_INTELLIGENCE_HELP_SOURCES.some((source) => source.label === "AI usage help")).toBe(true);
-    expect(ARCHITECTURE_INTELLIGENCE_HELP_SOURCES.some((source) => source.label === "Model governance help")).toBe(true);
+    expect(ARCHITECTURE_INTELLIGENCE_HELP_SOURCES.some((source) => source.label === "Model policy help")).toBe(true);
   });
 });

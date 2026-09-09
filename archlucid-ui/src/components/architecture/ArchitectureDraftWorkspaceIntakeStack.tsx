@@ -1,7 +1,6 @@
 "use client";
 
 import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
-import { ArchitectureDraftDetailBuyerChrome } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBuyerChrome";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
 import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/ArchitectureDraftIntakeModeBanner";
@@ -13,7 +12,7 @@ import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architectu
 import {
   ARCHITECTURE_DRAFT_START_REVIEW_CHECKLIST_TITLE,
 } from "@/lib/architecture-draft-start-review-checklist";
-import { startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
+import { startReviewFromDraftContextHref } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftWorkspaceBodyProps } from "./ArchitectureDraftWorkspaceBody";
 
 type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
@@ -26,6 +25,7 @@ type ArchitectureDraftWorkspaceIntakeStackProps = Pick<
   | "intakeModeActive"
   | "draft"
   | "effectiveDraftId"
+  | "parentArchitectureId"
   | "canUnlockBrief"
   | "unlockBusy"
   | "onUnlockBrief"
@@ -49,6 +49,7 @@ export function ArchitectureDraftWorkspaceIntakeStack(
     intakeModeActive,
     draft,
     effectiveDraftId,
+    parentArchitectureId,
     canUnlockBrief,
     unlockBusy,
     onUnlockBrief,
@@ -60,6 +61,11 @@ export function ArchitectureDraftWorkspaceIntakeStack(
     draftStartReviewEmphasizedStepId,
   } = props;
   const { isWorkingMode } = useWorkspaceMode();
+  const startReviewHref = startReviewFromDraftContextHref({
+    parentArchitectureId,
+    draftArchitectureId: draft?.architectureId,
+    legacyDraftId: effectiveDraftId,
+  });
 
   return (
     <>
@@ -67,20 +73,19 @@ export function ArchitectureDraftWorkspaceIntakeStack(
 
       {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
 
-      {isDetailDraft && buyerPolishedShell ? <ArchitectureDraftDetailBuyerChrome /> : null}
-
       {linkedReviewId !== null ? (
         <ArchitectureDraftHandoffBanner
           draftId={effectiveDraftId}
           linkedReviewId={linkedReviewId}
           linkedReviewTitle={linkedReviewTitle}
+          parentArchitectureId={parentArchitectureId}
         />
       ) : null}
 
       {intakeModeActive && linkedReviewId === null ? (
         <ArchitectureDraftIntakeModeBanner
           status={draft?.status}
-          continueHref={startReviewFromArchitectureHref(effectiveDraftId)}
+          continueHref={startReviewHref}
           canUnlock={canUnlockBrief}
           unlockBusy={unlockBusy}
           onUnlock={onUnlockBrief}
@@ -88,7 +93,11 @@ export function ArchitectureDraftWorkspaceIntakeStack(
       ) : null}
 
       {draft?.status === "Submitted" && linkedReviewId === null ? (
-        <GuidedIntakeAlreadySubmittedCallout linkedSpawnedRunId={null} />
+        <GuidedIntakeAlreadySubmittedCallout
+          linkedSpawnedRunId={null}
+          architectureId={parentArchitectureId}
+          workingMode={isWorkingMode}
+        />
       ) : null}
 
       {conflictMessage !== null ? (

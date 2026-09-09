@@ -44,6 +44,40 @@ public sealed class DraftDocumentMutatorTests
     }
 
     [Fact]
+    public void ApplyPatch_UpdatesOpenQuestions_WithoutTransparencyTrail()
+    {
+        DraftRequestDocument document = new()
+        {
+            FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
+        };
+
+        DraftDocumentMutator.ApplyPatch(
+            document,
+            new PatchDraftRequest { OpenQuestions = "  Who owns data retention policy?  " });
+
+        document.OpenQuestions.Should().Be("Who owns data retention policy?");
+        document.TransparencyTrail.Asserted.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void SyncTransparencyFromDocument_DoesNotAssertOpenQuestions()
+    {
+        DraftRequestDocument document = new()
+        {
+            FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
+            OpenQuestions = "Who owns quarterly access reviews?",
+            BusinessOutcome = "Reduce manual triage time",
+        };
+
+        DraftDocumentMutator.SyncTransparencyFromDocument(document);
+
+        document.TransparencyTrail.Asserted.Should().Contain(entry =>
+            entry.Key == "businessOutcome" && entry.Value == "Reduce manual triage time");
+        document.TransparencyTrail.Asserted.Should().NotContain(entry =>
+            entry.Key.Contains("open", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void RecordAssertedAnswer_RecordsAssertedTrailEntry()
     {
         DraftRequestDocument document = new()

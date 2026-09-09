@@ -11,7 +11,7 @@ export type RunsDashboardGovernanceWarningsActiveFilterProps = {
   readonly onClear: () => void;
 };
 
-/** Visible active-filter affordance when home Recent reviews is scoped to governance warnings. */
+/** Visible active-filter affordance when home Recent reviews is scoped to approval warnings. */
 export function RunsDashboardGovernanceWarningsActiveFilter(
   props: RunsDashboardGovernanceWarningsActiveFilterProps,
 ): React.JSX.Element | null {

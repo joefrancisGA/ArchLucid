@@ -13,7 +13,7 @@ import {
 } from "@/lib/governance/governance-route-paths";
 
 describe("governance-route-paths", () => {
-  it("exposes canonical governance alert paths", () => {
+  it("exposes canonical approval alert paths", () => {
     expect(GOVERNANCE_ALERTS_PATH).toBe("/governance/alerts");
     expect(GOVERNANCE_ALERT_RULES_PATH).toBe("/governance/alert-rules");
     expect(GOVERNANCE_DECISION_REGISTER_PATH).toBe("/governance/decision-register");

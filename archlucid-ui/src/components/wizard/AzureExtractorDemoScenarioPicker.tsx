@@ -23,7 +23,7 @@ export type AzureExtractorDemoScenarioPickerProps = Omit<
 
 /** @deprecated Prefer {@link InventoryDemoScenarioPicker} with an explicit `platform`. */
 export function AzureExtractorDemoScenarioPicker(props: AzureExtractorDemoScenarioPickerProps) {
-  const { selectedScenarioId, onSelectScenario, testIdPrefix } = props;
+  const { selectedScenarioId, onSelectScenario, layout, testIdPrefix } = props;
 
   return (
     <InventoryDemoScenarioPicker
@@ -32,6 +32,7 @@ export function AzureExtractorDemoScenarioPicker(props: AzureExtractorDemoScenar
       onSelectScenario={(scenarioId) => {
         onSelectScenario(scenarioId as DemoReviewScenarioId);
       }}
+      layout={layout}
       testIdPrefix={testIdPrefix}
     />
   );

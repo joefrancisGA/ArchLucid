@@ -41,7 +41,6 @@ import {
   AZURE_PERMISSIONS_MATRIX_DISCLOSURE_SUMMARY,
   AZURE_PERMISSIONS_MATRIX_HEADING,
   AZURE_PERMISSIONS_OTHER_PROVIDERS_HEADING,
-  AZURE_PERMISSIONS_PAGE_SUBTITLE,
   AZURE_PERMISSIONS_PAGE_TITLE,
   AZURE_PERMISSIONS_READ_ONLY_HEADING,
   AZURE_PERMISSIONS_READ_ONLY_INTRO,
@@ -50,6 +49,7 @@ import {
   AZURE_PERMISSIONS_TRUST_NO_MODIFY,
   AZURE_PERMISSIONS_TRUST_NO_ROLE_ASSIGN,
   AZURE_PERMISSIONS_TROUBLESHOOT_HEADING,
+  azurePermissionsHelpPageSubtitle,
 } from "@/lib/azure-cloud-connection-permissions-copy";
 import {
   DESIGN_TOKENS,
@@ -70,11 +70,15 @@ import {
   AZURE_PERMISSIONS_HELP_JOB_MATRIX_HEADING,
   AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID,
   AZURE_PERMISSIONS_HELP_HEADER_TEST_ID,
+  AZURE_PERMISSIONS_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  AZURE_PERMISSIONS_HELP_PAGE_LEAD,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_SUMMARY,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TEST_ID,
   AZURE_PERMISSIONS_HELP_REQUIREMENTS_REVIEWED_DISCLOSURE_TITLE,
+  AZURE_PERMISSIONS_HELP_START_HERE_HELPER,
   formatAzurePermissionsHelpRequirementsReviewedLine,
 } from "@/lib/azure-permissions-help-evidence-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   AZURE_PERMISSIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   AZURE_PERMISSIONS_HELP_PRIMARY_CONTENT_ID,
@@ -162,6 +166,7 @@ function CustomRoleActionsTable(): React.ReactElement {
 /** Manifest-driven Azure permissions guide for `/help/azure-permissions`. */
 export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const returnHref = props.returnHref ?? CLOUD_CONNECTIONS_HUB_HREF;
   const otherProviders = AZURE_CLOUD_CONNECTION_RELATED_HELP.filter((link) => link.provider !== "azure");
   // A bare hub href carries no per-connection context, so the verify CTA targets the Azure setup page it names.
@@ -187,36 +192,55 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
           <HelpTopicGuidePageHeader
             title={AZURE_PERMISSIONS_PAGE_TITLE}
             titleTestId="help-azure-permissions-page-title"
-            subtitle={AZURE_PERMISSIONS_PAGE_SUBTITLE}
+            subtitle={azurePermissionsHelpPageSubtitle(buyerPolishedShell)}
             navHref={AZURE_PERMISSIONS_HELP_CANONICAL_PATH}
             headingLevel="h1"
             claimDiscipline={AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE}
             claimDisciplineTestId={AZURE_PERMISSIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
             metadata={
-              <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
-                <Link href={returnHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                  ← {AZURE_PERMISSIONS_BACK_TO_CONNECTIONS}
-                </Link>
-                <span aria-hidden="true"> · </span>
-                <a href="#troubleshoot" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                  Fix a failed permission check
-                </a>
-              </p>
+              buyerPolishedShell ? undefined : (
+                <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>
+                  <Link href={returnHref} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                    ← {AZURE_PERMISSIONS_BACK_TO_CONNECTIONS}
+                  </Link>
+                  <span aria-hidden="true"> · </span>
+                  <a href="#troubleshoot" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                    Fix a failed permission check
+                  </a>
+                </p>
+              )
             }
             actions={<HelpAzurePermissionsHeaderActions entry={entry} setupHref={verifySetupHref} />}
           />
         </div>
 
-        <div className={HELP_PAGE_LAYOUT.contentGrid}>
+        <div className={buyerPolishedShell ? "min-w-0 space-y-8" : HELP_PAGE_LAYOUT.contentGrid}>
           <div className="min-w-0 space-y-8" data-testid="help-azure-permissions-primary">
             <div
               id={AZURE_PERMISSIONS_HELP_SKIP_TARGET_ID}
               className={cn(
-                "space-y-6 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                "scroll-mt-24 space-y-6 border-b border-neutral-200 pb-6 dark:border-neutral-800",
                 OPERATOR_LAYOUT.sectionStack,
               )}
               data-testid={AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID}
             >
+              {buyerPolishedShell ? (
+                <div className="space-y-4" data-testid="help-azure-permissions-buyer-intro">
+                  <p
+                    className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
+                    data-testid="help-azure-permissions-intro"
+                  >
+                    {AZURE_PERMISSIONS_HELP_PAGE_LEAD}
+                  </p>
+                  <p
+                    className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="help-azure-permissions-start-here-helper"
+                  >
+                    {AZURE_PERMISSIONS_HELP_START_HERE_HELPER}
+                  </p>
+                </div>
+              ) : null}
+
               <section
                 aria-labelledby="help-azure-permissions-job-matrix-heading"
                 data-testid={AZURE_PERMISSIONS_HELP_JOB_MATRIX_TEST_ID}
@@ -423,10 +447,10 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={AZURE_PERMISSIONS_TOC_HEADINGS} />
+          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={AZURE_PERMISSIONS_TOC_HEADINGS} />}
         </div>
 
-        <div data-testid="help-azure-permissions-orientation-bottom">
+        <div data-testid={AZURE_PERMISSIONS_HELP_ORIENTATION_BOTTOM_TEST_ID}>
           <HelpAzurePermissionsClaimOrientationStrip />
         </div>
       </div>

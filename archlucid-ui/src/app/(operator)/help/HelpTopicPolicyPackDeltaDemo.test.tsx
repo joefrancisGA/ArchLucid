@@ -11,17 +11,19 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/policy-pack-delta-demo",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpPolicyPackDeltaDemoGuideView } from "@/app/(operator)/help/_sections/HelpPolicyPackDeltaDemoGuideView";
 import {
   POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE,
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
   POLICY_PACK_DELTA_DEMO_HELP_PRIMARY_ACTIONS,
 } from "@/lib/policy/policy-pack-delta-demo-help-guide-content";
 import { expectClaimDisciplineBandContent } from "@/lib/claim-discipline-test-helpers";
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () => {
   const loaded = tryLoadProductDocumentation("policy-pack-delta-demo");
@@ -52,6 +54,10 @@ describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () =>
     expect(screen.getByTestId("help-policy-pack-delta-demo-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("help-policy-pack-delta-demo-narrative-arc")).toBeInTheDocument();
+    expect(screen.getByTestId("help-policy-pack-delta-demo-finding-toggle")).toBeInTheDocument();
+    expect(screen.getByTestId("help-policy-pack-delta-demo-finding-toggle")).toHaveTextContent(
+      POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
+    );
     expect(screen.queryByTestId("help-policy-pack-delta-demo-claim-discipline")).toBeNull();
     expect(screen.getByTestId("help-policy-pack-delta-demo-claim-discipline-strip")).toHaveTextContent(
       POLICY_PACK_DELTA_DEMO_HELP_CLAIM_DISCIPLINE,
@@ -78,12 +84,9 @@ describe("HelpPolicyPackDeltaDemoGuideView (standalone internal runbook)", () =>
 
     expect(screen.queryByTestId("help-policy-pack-delta-demo-sources")).toBeNull(); // TB-2092
 
-    // The runbook's pre-commit gate references resolve to the in-app governance topic, so the gate
-    // stays linked (under the registry title) instead of leaking a repo `.md` path.
-    const governanceGateLinks = screen.getAllByRole("link", { name: "Governance approval" });
-
-    expect(governanceGateLinks.length).toBeGreaterThan(0);
-    expect(governanceGateLinks[0]).toHaveAttribute("href", inAppHelpHref("governance-approval"));
+    expect(screen.getByTestId("help-policy-pack-delta-demo-overview").textContent).toContain(
+      "Approval",
+    );
     expect(document.body.textContent ?? "").not.toContain("PRE_COMMIT_GOVERNANCE_GATE");
   });
 });

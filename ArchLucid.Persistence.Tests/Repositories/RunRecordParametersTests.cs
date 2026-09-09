@@ -45,6 +45,29 @@ public sealed class RunRecordParametersTests
         Read<Guid>(parameters, "ScopeProjectId").Should().Be(ProjectId);
     }
 
+    [Fact]
+    public void Insert_carries_the_pinned_architecture_version_id()
+    {
+        RunRecord run = Run();
+        run.ArchitectureVersionId = Guid.Parse("cccccccc-0000-0000-0000-000000000001");
+
+        Read<Guid?>(RunRecordParameters.Insert(run), "ArchitectureVersionId")
+            .Should()
+            .Be(run.ArchitectureVersionId);
+    }
+
+    [Fact]
+    public void Update_carries_the_pinned_architecture_version_id()
+    {
+        RunRecord run = Run();
+        run.ArchitectureVersionId = Guid.Parse("cccccccc-0000-0000-0000-000000000002");
+        run.RowVersion = [1, 2, 3, 4, 5, 6, 7, 8];
+
+        Read<Guid?>(RunRecordParameters.Update(run), "ArchitectureVersionId")
+            .Should()
+            .Be(run.ArchitectureVersionId);
+    }
+
     /// <summary>The row version drives the optimistic-concurrency predicate, so the update must carry it.</summary>
     [Fact]
     public void Update_carries_the_row_version()

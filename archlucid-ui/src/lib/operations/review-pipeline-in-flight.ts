@@ -2,6 +2,7 @@ import {
   removeInFlightOperation,
   trackInFlightOperation,
 } from "@/lib/operations/in-flight-operations-store";
+import { resolveArchitectureReviewTabHref } from "@/lib/architecture/working-architecture-review-routes";
 import { resolveOperationDetailHref } from "@/lib/operations/operation-location";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo/eligibility";
 
@@ -16,7 +17,16 @@ export function reviewPipelineOperationId(runId: string): string {
   return `run:${runId.trim()}`;
 }
 
-export function reviewPipelineDetailHref(runId: string): string {
+export function reviewPipelineDetailHref(
+  runId: string,
+  options?: { readonly architectureId?: string | null },
+): string {
+  const architectureId = options?.architectureId?.trim() ?? "";
+
+  if (architectureId.length > 0) {
+    return resolveArchitectureReviewTabHref(runId, "activity", architectureId);
+  }
+
   return resolveOperationDetailHref("/architecture/reviews", runId);
 }
 
@@ -49,7 +59,7 @@ export function trackReviewPipelineInFlight(
   trackInFlightOperation({
     operationId,
     title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
-    href: reviewPipelineDetailHref(trimmed),
+    href: reviewPipelineDetailHref(trimmed, { architectureId }),
     runId: trimmed,
     architectureId: architectureId !== null && architectureId.length > 0 ? architectureId : null,
     stepLabel: "Queued",
@@ -85,7 +95,7 @@ export function restartReviewPipelineInFlight(
   trackInFlightOperation({
     operationId,
     title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
-    href: reviewPipelineDetailHref(trimmed),
+    href: reviewPipelineDetailHref(trimmed, { architectureId }),
     runId: trimmed,
     architectureId: architectureId !== null && architectureId.length > 0 ? architectureId : null,
     stepLabel: "Queued",

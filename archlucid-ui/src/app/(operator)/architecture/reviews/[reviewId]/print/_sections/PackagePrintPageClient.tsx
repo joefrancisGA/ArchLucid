@@ -1,23 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-honesty-query";
 import { usePackagePrintMeetingCaptureQuery } from "@/hooks/use-package-print-meeting-capture-query";
+import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { formatCareerExportHonestyPlainText } from "@/lib/career-export-coverage-honesty";
+import { resolveCareerExportCoverageHonesty } from "@/lib/career-export-coverage-honesty";
+import { evaluateCareerArtifactHonesty } from "@/lib/career-artifact/career-artifact-honesty";
+import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
+import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
   PACKAGE_PRINT_LOADING_LABEL,
   buildPackagePrintBackHref,
   buildPackagePrintPresentation,
+  PACKAGE_PRINT_BACK_LABEL,
 } from "@/lib/package-print-view";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { cn } from "@/lib/utils";
@@ -32,8 +40,17 @@ type PackagePrintPageClientProps = {
 /** Client loader for the lightweight print view — run summary only (TB-2205). */
 export function PackagePrintPageClient(props: PackagePrintPageClientProps): React.JSX.Element {
   const { runId, listScopedRunId = null } = props;
+  const pathname = usePathname() ?? "";
+  const parentArchitectureId = resolveReviewWorkspaceArchitectureId(null, pathname);
   const workingDesk = useProductionDeskChrome();
+  const { reviewJobHref: printBackHref } = useWorkingBackLocator({
+    reviewId: runId,
+    reviewTab: "review-package",
+  });
   const summaryQuery = useRunSummaryQuery(runId);
+  const coverageHonestyQuery = useAskRunCoverageHonestyQuery(runId, {
+    enabled: workingDesk && summaryQuery.isSuccess,
+  });
   const meetingCaptureQuery = usePackagePrintMeetingCaptureQuery(runId, {
     enabled: summaryQuery.isSuccess,
   });
@@ -44,6 +61,39 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     () => (summaryQuery.isError ? toApiLoadFailure(summaryQuery.error) : null),
     [summaryQuery.error, summaryQuery.isError],
   );
+
+  const coverageHonestyLine = useMemo(() => {
+    if (!workingDesk || summaryQuery.data === undefined) {
+      return null;
+    }
+
+    const bundle = coverageHonestyQuery.data;
+
+    if (bundle === undefined) {
+      return null;
+    }
+
+    resolveCareerExportCoverageHonesty({
+      runId: summaryQuery.data.runId,
+      progressSummary: bundle.progressSummary ?? summaryQuery.data,
+      manifestSummary: bundle.manifestSummary ?? null,
+      graphSnapshot: bundle.buyerSummary.graphSnapshot ?? null,
+      enginesSucceeded: bundle.buyerSummary.findingCoverageSummary?.enginesSucceeded ?? null,
+      workingDesk: true,
+    });
+
+    return evaluateCareerArtifactHonesty({
+      artifactKind: "export",
+      runId: summaryQuery.data.runId,
+      progressSummary: bundle.progressSummary ?? summaryQuery.data,
+      manifestSummary: bundle.manifestSummary ?? null,
+      graphSnapshot: bundle.buyerSummary.graphSnapshot ?? null,
+      findingsSnapshot: bundle.buyerSummary.findingsSnapshot ?? null,
+      enginesSucceeded: bundle.buyerSummary.findingCoverageSummary?.enginesSucceeded ?? null,
+      workingDesk: true,
+      transparencyTrail: bundle.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
+    }).headerLines.join("\n");
+  }, [coverageHonestyQuery.data, summaryQuery.data, workingDesk]);
 
   if (summaryQuery.isPending) {
     return (
@@ -73,17 +123,20 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   }
 
   const presentation = buildPackagePrintPresentation(summaryQuery.data, {
-    coverageHonestyLine: workingDesk
-      ? formatCareerExportHonestyPlainText({
-          runId: summaryQuery.data.runId,
-          progressSummary: summaryQuery.data,
-          manifestSummary: null,
-          graphSnapshot: null,
-          enginesSucceeded: null,
-          workingDesk: true,
-        })
-      : null,
+    coverageHonestyLine:
+      workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
+        ? coverageHonestyLine
+        : null,
     meetingCaptureEntries: meetingCaptureQuery.data?.entries ?? null,
+    transparencyTrail:
+      workingDesk && coverageHonestyQuery.data !== undefined
+        ? coverageHonestyQuery.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null
+        : undefined,
+    showQuietEnginesHint:
+      workingDesk
+      && coverageHonestyQuery.data !== undefined
+      && analysisStagesCompleteOnSummary(summaryQuery.data)
+      && countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null) === 0,
   });
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
@@ -101,8 +154,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
           {sealedManifestBlockedReason}
         </p>
         <Button type="button" variant="secondary" asChild>
-          <Link href={buildPackagePrintBackHref(runId)} data-testid="package-print-blocked-back">
-            Back to review package
+          <Link href={printBackHref} data-testid="package-print-blocked-back">
+            {PACKAGE_PRINT_BACK_LABEL}
           </Link>
         </Button>
       </div>
@@ -113,6 +166,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     <PackagePrintPageView
       presentation={presentation}
       listScopedRunId={listScopedRunId}
+      parentArchitectureId={parentArchitectureId}
     />
   );
 }

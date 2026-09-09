@@ -68,6 +68,7 @@ public static class PilotProofPackageCompletenessMapper
                 && !deltas.AgentOutputPilotStrictViolatesSponsorEvidence,
             SponsorProofReadiness = sponsorReadiness.ToString(),
             RoiBaselineInputs = roiBaselineInputs,
+            DeferredBuyerRequirementsPresent = SponsorDeferredBuyerRequirementsResolver.V1DeferredScopeAlwaysPresent,
         };
     }
 
