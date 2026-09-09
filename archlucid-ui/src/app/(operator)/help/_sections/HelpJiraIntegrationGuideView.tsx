@@ -41,9 +41,9 @@ import {
   JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/jira-integration-help-evidence-copy";
 import {
+  JIRA_INTEGRATION_HELP_BUYER_OVERVIEW,
   JIRA_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID,
   JIRA_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  JIRA_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID,
   JIRA_INTEGRATION_HELP_PAGE_LEAD,
   JIRA_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER,
   JIRA_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
@@ -177,6 +177,12 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
           </div>
         ) : null}
 
+        {buyerPolishedShell ? (
+          <p className={readingBodyClass} data-testid="help-jira-integration-overview">
+            {JIRA_INTEGRATION_HELP_BUYER_OVERVIEW}
+          </p>
+        ) : null}
+
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? (
@@ -246,11 +252,7 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
           {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid={JIRA_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-            <HelpJiraIntegrationSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpJiraIntegrationSourcesOrientationStrip /> : null}
       </div>
     </article>
   );
