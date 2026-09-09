@@ -46,6 +46,7 @@ import {
   TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   TENANT_SETTINGS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   TENANT_SETTINGS_SETTINGS_PAGE_LEAD,
+  TENANT_SETTINGS_SETTINGS_OVERVIEW,
   TENANT_SETTINGS_SETTINGS_PRIMARY_CONTENT_ID,
   TENANT_SETTINGS_SETTINGS_SKIP_LINK_LABEL,
   TENANT_SETTINGS_SETTINGS_SKIP_TARGET_ID,
@@ -291,6 +292,15 @@ export function TenantSettingsPageView(props: Props) {
                   </p>
                 </section>
               </div>
+            ) : null}
+
+            {buyerPolishedShell ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="tenant-settings-overview"
+              >
+                {TENANT_SETTINGS_SETTINGS_OVERVIEW}
+              </p>
             ) : null}
 
             {!buyerPolishedShell ? (
