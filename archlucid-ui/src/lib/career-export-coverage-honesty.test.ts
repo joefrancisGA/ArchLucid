@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_LINE } from "@/lib/architecture/architecture-inventory-estate-gap-copy";
 import {
   formatCareerExportClassificationBandLine,
   formatCareerExportHonestyMarkdown,
@@ -97,6 +98,21 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     });
 
     expect(honesty.blockedForWorkingCareerExport).toBe(false);
+  });
+
+  it("includes inventory estate gap markdown when architecture inventory is unbound (AS-051)", () => {
+    const markdown = formatCareerExportHonestyMarkdown({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      architectureInventoryBound: false,
+    });
+
+    expect(markdown).toContain(ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_LINE);
+    expect(markdown).toMatch(/Inventory estate/i);
   });
 
   it("formats shared markdown with measurement floor and classification bands", () => {

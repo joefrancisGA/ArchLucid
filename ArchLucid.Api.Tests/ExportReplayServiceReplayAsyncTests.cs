@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Interfaces;
@@ -378,7 +379,9 @@ public sealed class ExportReplayServiceReplayAsyncTests
             runDetails.Object,
             Mock.Of<ArchLucid.Core.Persistence.Ports.IGraphSnapshotRepository>(),
             ArchLucid.Application.Tests.Exports.SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
-            configuration);
+            configuration,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
     }
 
     private static ExportReplayService CreateSut(
@@ -425,7 +428,9 @@ public sealed class ExportReplayServiceReplayAsyncTests
             runDetails.Object,
             Mock.Of<ArchLucid.Core.Persistence.Ports.IGraphSnapshotRepository>(),
             ArchLucid.Application.Tests.Exports.SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
-            configuration);
+            configuration,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
     }
 
     private static RunExportRecord BaseRecord(string exportType)

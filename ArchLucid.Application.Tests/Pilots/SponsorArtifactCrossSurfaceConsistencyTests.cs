@@ -182,6 +182,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             Mock.Of<IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
             site.Object);
         byte[]? pdf = await pdfBuilder.BuildPdfAsync("r1", "http://localhost:5000");
@@ -462,6 +463,7 @@ public sealed class SponsorArtifactCrossSurfaceConsistencyTests
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             Mock.Of<IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }

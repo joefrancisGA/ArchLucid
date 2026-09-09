@@ -1,3 +1,4 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
@@ -178,6 +179,20 @@ public sealed class CareerExportCoverageHonestyComposerTests
     }
 
     [Fact]
+    public void FormatMarkdown_includes_inventory_estate_gap_when_architecture_inventory_is_unbound()
+    {
+        CareerExportCoverageHonestyInput input = CreateInput(
+            enginesSucceeded: 16,
+            workingDesk: true,
+            architectureInventoryBound: false);
+
+        string markdown = CareerExportCoverageHonestyComposer.FormatMarkdown(input);
+
+        markdown.Should().Contain(ArchitectureInventoryEstateGapCopy.UnboundEstateGapLine);
+        markdown.Should().Contain(ArchitectureInventoryEstateGapCopy.CareerExportHeading);
+    }
+
+    [Fact]
     public void FormatPlainText_strips_markdown_headings()
     {
         CareerExportCoverageHonestyInput input = CreateInput(
@@ -222,7 +237,8 @@ public sealed class CareerExportCoverageHonestyComposerTests
         AgentOutputQualityGateMode hostQualityGateMode = AgentOutputQualityGateMode.WarnOnly,
         AgentOutputQualityGateOutcome? aggregateQualityGateOutcome = null,
         int actorNodeCount = 1,
-        int? judgeSkippedByCap = null)
+        int? judgeSkippedByCap = null,
+        bool? architectureInventoryBound = null)
     {
         SponsorReviewCoverageHonestyContext coverageContext = new(
             RunId: "run-1",
@@ -243,6 +259,8 @@ public sealed class CareerExportCoverageHonestyComposerTests
             hostQualityGateMode,
             null,
             aggregateQualityGateOutcome,
-            judgeSkippedByCap);
+            judgeSkippedByCap,
+            null,
+            architectureInventoryBound);
     }
 }
