@@ -45,14 +45,47 @@ describe("resolveProductionDeskChrome", () => {
     expect(resolveProductionEvalChromeForServer("guided")).toBe(true);
   });
 
-  it("resolveProductionEvalChrome is the inverse of desk chrome", () => {
+  it("resolveProductionEvalChrome is the inverse of desk chrome when buyer polish is not forbidden", () => {
     const input = {
-      workspaceMode: "working" as const,
+      workspaceMode: "guided" as const,
       staticDemoFallback: false,
       demoMarketingChrome: false,
       frictionlessTrial: false,
     };
 
     expect(resolveProductionEvalChrome(input)).toBe(!resolveProductionDeskChrome(input));
+  });
+
+  it("resolveProductionEvalChrome is false for production Working even when env is unset (WS-05)", () => {
+    expect(
+      resolveProductionEvalChrome({
+        workspaceMode: "working",
+        staticDemoFallback: false,
+        demoMarketingChrome: false,
+        frictionlessTrial: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("resolveProductionEvalChrome is true for Guided production seats", () => {
+    expect(
+      resolveProductionEvalChrome({
+        workspaceMode: "guided",
+        staticDemoFallback: false,
+        demoMarketingChrome: false,
+        frictionlessTrial: false,
+      }),
+    ).toBe(true);
+  });
+
+  it("resolveProductionEvalChrome is true for Working demo builds", () => {
+    expect(
+      resolveProductionEvalChrome({
+        workspaceMode: "working",
+        staticDemoFallback: false,
+        demoMarketingChrome: true,
+        frictionlessTrial: false,
+      }),
+    ).toBe(true);
   });
 });

@@ -1,5 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 let searchParams = new URLSearchParams();
 
@@ -35,9 +38,21 @@ vi.mock("@/lib/api", () => ({
 
 import { DigestsHubClient } from "@/components/digests/DigestsHubClient";
 import { fetchWeeklyDigestHealth, getExecDigestPreferences, listArchitectureDigests, listDigestSubscriptions } from "@/lib/api";
-import { DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER, DIGESTS_PAGE_SUBTITLE_BUYER } from "@/lib/digests-browse-copy";
+import {
+  DIGESTS_BROWSE_ORIENTATION_SOURCES,
+} from "@/lib/digests-browse-evidence-copy";
+import {
+  DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER,
+  DIGESTS_HUB_FIRST_VIEWPORT_TEST_ID,
+  DIGESTS_HUB_PRIMARY_CONTENT_ID,
+  DIGESTS_HUB_SKIP_LINK_LABEL,
+  DIGESTS_HUB_SKIP_TARGET_ID,
+} from "@/lib/digests-browse-copy";
+import {
+  DIGESTS_SUBSCRIPTIONS_ORIENTATION_SOURCES,
+} from "@/lib/digests-subscriptions-evidence-copy";
 
-describe("DigestsHubClient buyer-polished shell", () => {
+describe("DigestsHubClient buyer-polished shell (ARD)", () => {
   beforeEach(() => {
     searchParams = new URLSearchParams();
     vi.mocked(fetchWeeklyDigestHealth).mockReset();
@@ -74,8 +89,17 @@ describe("DigestsHubClient buyer-polished shell", () => {
     });
   });
 
-  it("uses buyer subtitle and collapses the privacy note", async () => {
+  it("uses buyer subtitle, skip link, first-viewport band, and collapses the privacy note", async () => {
     render(<DigestsHubClient />);
+
+    expect(screen.getByRole("link", { name: DIGESTS_HUB_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${DIGESTS_HUB_SKIP_TARGET_ID}`,
+    );
+    expect(screen.getByTestId("digests-hub-primary-content")).toHaveAttribute(
+      "id",
+      DIGESTS_HUB_PRIMARY_CONTENT_ID,
+    );
 
     expect(await screen.findByText(DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(
@@ -83,17 +107,23 @@ describe("DigestsHubClient buyer-polished shell", () => {
         "Send scheduled summaries of review activity, approval signals, findings, and advisory scans.",
       ),
     ).not.toBeInTheDocument();
-    // Setup-incomplete browse collapses the privacy note behind the get-started checklist.
     expect(screen.queryByTestId("digests-privacy-note")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-related-surfaces")).not.toBeInTheDocument();
+
+    const primaryContent = screen.getByTestId("digests-hub-primary-content");
+    const firstViewport = screen.getByTestId(DIGESTS_HUB_FIRST_VIEWPORT_TEST_ID);
+    const tabList = screen.getByTestId("digests-hub-tablist");
+
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(tabList);
 
     await waitFor(() => {
       expect(screen.getByTestId("digests-header-actions")).toBeInTheDocument();
     });
   });
 
-  it("renders get-started tab buyer chrome with orientation below browse workspace", async () => {
+  it("renders get-started tab buyer chrome with orientation above browse workspace", async () => {
     searchParams = new URLSearchParams("tab=get-started");
 
     render(<DigestsHubClient />);
@@ -103,34 +133,20 @@ describe("DigestsHubClient buyer-polished shell", () => {
     expect(screen.getByTestId("digests-browse-settings-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("digests-related-surfaces")).not.toBeInTheDocument();
 
-    const orderedLandmarks = ["digests-browse-content", "digests-browse-orientation-top"]
-      .map((testId) => document.querySelector(`[data-testid="${testId}"]`))
-      .filter((node): node is HTMLElement => node !== null)
-      .map((node) => node.getAttribute("data-testid"));
+    const orientationTop = screen.getByTestId("digests-browse-orientation-top");
+    const browseContent = screen.getByTestId("digests-browse-content");
+    const sourcesSection = screen.getByTestId("digests-browse-settings-sources");
 
-    expect(orderedLandmarks).toEqual(["digests-browse-content", "digests-browse-orientation-top"]);
+    expect(orientationTop).toContainElement(sourcesSection);
+    expect(orientationTop.compareDocumentPosition(browseContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(DIGESTS_BROWSE_ORIENTATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 
-  it("renders schedule-tab buyer chrome with orientation and hidden vocabulary rail", async () => {
-    searchParams = new URLSearchParams("tab=schedule");
-
-    render(<DigestsHubClient />);
-
-    expect(await screen.findByText(DIGESTS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("digests-schedule-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("digests-schedule-sources")).toBeInTheDocument();
-    expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("digests-last-updated")).not.toBeInTheDocument();
-
-    const orderedLandmarks = ["exec-digest-schedule-content", "digests-schedule-orientation-top"]
-      .map((testId) => document.querySelector(`[data-testid="${testId}"]`))
-      .filter((node): node is HTMLElement => node !== null)
-      .map((node) => node.getAttribute("data-testid"));
-
-    expect(orderedLandmarks).toEqual(["exec-digest-schedule-content", "digests-schedule-orientation-top"]);
-  });
-
-  it("renders subscriptions-tab buyer chrome with orientation below subscriptions workspace", async () => {
+  it("renders subscriptions-tab buyer chrome with orientation above subscriptions workspace", async () => {
     searchParams = new URLSearchParams("tab=subscriptions");
     vi.mocked(listDigestSubscriptions).mockResolvedValue([]);
 
@@ -141,11 +157,16 @@ describe("DigestsHubClient buyer-polished shell", () => {
     expect(screen.getByTestId("digests-subscriptions-settings-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
 
-    const orderedLandmarks = ["digest-subscriptions-content", "digests-subscriptions-orientation-top"]
-      .map((testId) => document.querySelector(`[data-testid="${testId}"]`))
-      .filter((node): node is HTMLElement => node !== null)
-      .map((node) => node.getAttribute("data-testid"));
+    const orientationTop = screen.getByTestId("digests-subscriptions-orientation-top");
+    const subscriptionsContent = screen.getByTestId("digest-subscriptions-content");
+    const sourcesSection = screen.getByTestId("digests-subscriptions-settings-sources");
 
-    expect(orderedLandmarks).toEqual(["digest-subscriptions-content", "digests-subscriptions-orientation-top"]);
+    expect(orientationTop).toContainElement(sourcesSection);
+    expect(orientationTop.compareDocumentPosition(subscriptionsContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(DIGESTS_SUBSCRIPTIONS_ORIENTATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

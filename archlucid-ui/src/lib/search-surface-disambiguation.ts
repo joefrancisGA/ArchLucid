@@ -5,6 +5,8 @@
  * Same verb "Search" meant two jobs; keep labels distinct so operators pick the right surface.
  */
 
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 /** Header GlobalSearchBar / command-palette-style find-a-page surface. */
 export const GLOBAL_FIND_PAGE_SEARCH = {
   /** Placeholder — navigation lookup; use Ctrl+K for workspace-wide command palette search. */
@@ -33,3 +35,40 @@ export const EVIDENCE_TRAIL_SEARCH = {
   /** Visible label above the evidence query input. */
   queryFieldLabel: "Evidence query",
 } as const;
+
+/** Global search quick-action label for the evidence-trail search destination. */
+export function evidenceTrailSearchQuickActionLabel(productLineId: ProductLineId): string {
+  if (productLineId === "security") {
+    return EVIDENCE_TRAIL_SEARCH.shortNavLabel;
+  }
+
+  return EVIDENCE_TRAIL_SEARCH.title;
+}
+
+/** Global search quick-action label for Ask review questions. */
+export const ASK_REVIEW_QUESTIONS_QUICK_ACTION = {
+  title: "Ask review questions",
+  shortLabel: "Ask questions",
+} as const;
+
+export function askReviewQuestionsQuickActionLabel(productLineId: ProductLineId): string {
+  if (productLineId === "security") {
+    return ASK_REVIEW_QUESTIONS_QUICK_ACTION.shortLabel;
+  }
+
+  return ASK_REVIEW_QUESTIONS_QUICK_ACTION.title;
+}
+
+/** Global search quick-action helper under Ask review questions. */
+export const ASK_REVIEW_QUESTIONS_QUICK_ACTION_DETAIL = {
+  title: "Scoped Q&A over review evidence",
+  shortLabel: "Scoped Q&A",
+} as const;
+
+export function askReviewQuestionsQuickActionDetail(productLineId: ProductLineId): string {
+  if (productLineId === "security") {
+    return ASK_REVIEW_QUESTIONS_QUICK_ACTION_DETAIL.shortLabel;
+  }
+
+  return ASK_REVIEW_QUESTIONS_QUICK_ACTION_DETAIL.title;
+}

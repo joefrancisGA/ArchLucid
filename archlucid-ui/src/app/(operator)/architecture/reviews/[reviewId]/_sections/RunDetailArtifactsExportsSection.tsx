@@ -70,6 +70,7 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly enginesSucceeded?: number | null;
   readonly progressSummary?: RunSummary | null;
   readonly graphSnapshot?: unknown;
+  readonly findingsSnapshot?: unknown;
 };
 
 function resolveFeasibilityVerdict(
@@ -459,6 +460,8 @@ export function RunDetailArtifactsExportsSection(
                   enginesSucceeded={props.enginesSucceeded ?? null}
                   progressSummary={props.progressSummary ?? null}
                   graphSnapshot={props.graphSnapshot ?? null}
+                  findingsSnapshot={props.findingsSnapshot ?? null}
+                  usedStaticDemoRun={usedStaticDemoRun}
                 />
               </div>
             ) : (
@@ -472,6 +475,8 @@ export function RunDetailArtifactsExportsSection(
                   enginesSucceeded={props.enginesSucceeded ?? null}
                   progressSummary={props.progressSummary ?? null}
                   graphSnapshot={props.graphSnapshot ?? null}
+                  findingsSnapshot={props.findingsSnapshot ?? null}
+                  usedStaticDemoRun={usedStaticDemoRun}
                 />
                 <div className="flex max-w-[14rem] flex-col gap-1">
                   {collateralExportBlockedReason !== null ? (

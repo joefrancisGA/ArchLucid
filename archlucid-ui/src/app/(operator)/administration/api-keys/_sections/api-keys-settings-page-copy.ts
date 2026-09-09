@@ -3,6 +3,12 @@ import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 export const API_KEYS_SETTINGS_PRIMARY_CONTENT_ID = "api-keys-settings-primary-content" as const;
 
+export const API_KEYS_SETTINGS_FIRST_VIEWPORT_ID = "api-keys-settings-first-viewport" as const;
+
+export const API_KEYS_SETTINGS_FIRST_VIEWPORT_TEST_ID = API_KEYS_SETTINGS_FIRST_VIEWPORT_ID;
+
+export const API_KEYS_SETTINGS_SKIP_TARGET_ID = API_KEYS_SETTINGS_FIRST_VIEWPORT_ID;
+
 export const API_KEYS_SETTINGS_SKIP_LINK_LABEL = "Skip to API keys workspace" as const;
 
 export const API_KEYS_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL = "Administration" as const;

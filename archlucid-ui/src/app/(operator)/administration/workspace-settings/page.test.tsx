@@ -37,6 +37,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
     callerAuthorityRank: navAuth.callerAuthorityRank,
     isAuthorityLoading: false,
   }),
+  useNavCallerAuthorityRank: () => navAuth.callerAuthorityRank,
 }));
 
 vi.mock("./_sections/load-tenant-settings-page-data", () => ({
@@ -134,12 +135,13 @@ describe("TenantSettingsPage", () => {
 
     expect(await screen.findByTestId("tenant-settings-page")).toBeInTheDocument();
     expect(await screen.findByTestId("tenant-settings-page-title")).toHaveTextContent("Workspace settings");
-    expect(screen.queryByTestId("tenant-settings-orientation")).toBeNull(); // TB-2092
+    expect(screen.getByTestId("tenant-settings-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId("tenant-settings-sources")).toBeInTheDocument();
     expect(await screen.findByTestId("tenant-settings-active-scope-summary")).toHaveTextContent(
       "Active scope: Workspace: Pilot — Pilot",
     );
     expect(await screen.findByTestId("tenant-settings-tenant-display-name")).toBeInTheDocument();
-    expect(await screen.findByRole("button", { name: "Help" })).toBeInTheDocument();
+    expect(await screen.findByTestId("tenant-settings-page-help-link")).toBeInTheDocument();
     expect(await screen.findByText("Active workspace and projects")).toBeInTheDocument();
     expect(await screen.findByText(/selected from the workspace switcher\./i)).toBeInTheDocument();
     // The only "Workspace scope" label on this page is the vocabulary-rail peer link to the top-bar switcher.

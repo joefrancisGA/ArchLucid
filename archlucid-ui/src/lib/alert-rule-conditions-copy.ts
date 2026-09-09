@@ -11,6 +11,8 @@ export const ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER =
 export const ALERT_RULES_RULE_TYPE_HELP =
   "Evaluates findings from completed reviews. Saving a condition does not configure external notification delivery.";
 
+export const ALERT_RULES_CONDITIONS_OVERVIEW = ALERT_RULES_RULE_TYPE_HELP;
+
 /** Canonical rules-tab label — keep aligned with {@link ALERT_RULES_SECTION_HEADING} and empty titles. */
 export const ALERT_RULES_TAB_LABEL = "Conditions";
 

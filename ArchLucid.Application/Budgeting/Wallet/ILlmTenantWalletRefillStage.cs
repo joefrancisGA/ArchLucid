@@ -12,4 +12,9 @@ public interface ILlmTenantWalletRefillStage
         Guid correlationId,
         string paymentIntentId,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Auto-refill count for the current UTC month; prior-month rows display as zero until the next refill writes.
+    /// </summary>
+    int VisibleAutoRefillsThisUtcMonth(LlmTenantWalletStateReadModel state);
 }

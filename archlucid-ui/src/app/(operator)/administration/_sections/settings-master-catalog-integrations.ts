@@ -4,7 +4,6 @@ import {
   EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE,
   EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
 } from "@/lib/extract-upload-settings-page-copy";
-import { ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION } from "@/lib/vocabulary/finding-correlation-vocabulary";
 
 import type { SettingsMasterSection } from "./settings-master-types";
 
@@ -31,7 +30,6 @@ export const SETTINGS_MASTER_SECTIONS_INTEGRATIONS: readonly SettingsMasterSecti
         source: "overridden",
         editability: "admin-only",
         saveBehavior: "Save on destination page",
-        highImpact: true,
       },
       {
         id: "extract-upload",
@@ -46,12 +44,12 @@ export const SETTINGS_MASTER_SECTIONS_INTEGRATIONS: readonly SettingsMasterSecti
         source: "overridden",
         editability: "admin-only",
         saveBehavior: "Save on destination page",
-        highImpact: true,
       },
       {
         id: "itsm-jira",
         title: "Jira",
-        description: ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION,
+        description:
+          "Configure Atlassian Jira project mappings, outbound ticket creation, and finding linkage for this tenant.",
         href: "/integrations/jira",
         cta: "Open Jira settings",
         keywords: ["jira", "itsm", "ticket"],
@@ -66,7 +64,8 @@ export const SETTINGS_MASTER_SECTIONS_INTEGRATIONS: readonly SettingsMasterSecti
       {
         id: "itsm-servicenow",
         title: "ServiceNow",
-        description: ITSM_ADMIN_TICKET_LINKAGE_DESCRIPTION,
+        description:
+          "Configure ServiceNow table routing, incident templates, and registered ticket linkages for findings.",
         href: "/integrations/servicenow",
         cta: "Open ServiceNow settings",
         keywords: ["servicenow", "itsm", "ticket"],

@@ -3,7 +3,8 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
-import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
+import Link from "next/link";
+
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ReRunReviewOutcomeNotice } from "@/components/runs/ReRunReviewOutcomeNotice";
 import {
@@ -16,7 +17,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useReRunReviewInFlightProgress } from "@/hooks/use-re-run-review-in-flight-progress";
+import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { executeArchitectureRunAsync } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -32,13 +35,14 @@ import {
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { restartReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import {
+  buildReRunReviewConfirmDescription,
   formatReRunReviewTerminalHeadline,
   RE_RUN_REVIEW_MIN_BUSY_MS,
   resolveReRunReviewAttemptNumber,
   reRunReviewOutcomePhaseFromOperationState,
   type ReRunReviewOutcomePhase,
 } from "@/lib/re-run-review-outcome-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   parseReRunReviewConfirmOpenFromSearch,
   parseReRunReviewConfirmSourceFromSearch,
@@ -84,6 +88,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const { status: llmBudgetStatus, blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
   const reRunConfirmOpenParam = searchParams.get("reRunConfirmOpen");
   const reRunConfirmSourceParam = searchParams.get("reRunConfirmSource");
   const urlConfirmOpen = parseReRunReviewConfirmOpenFromSearch(reRunConfirmOpenParam);
@@ -316,6 +321,11 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
                   : "Canceled",
             stepLabel: outcome.stepLabel,
           });
+  const confirmDescription = buildReRunReviewConfirmDescription(pendingAttemptNumber, {
+    monthlyBudgetMonitoringActive: llmBudgetStatus?.monthlyBudgetMonitoringActive === true,
+    blocksLlmExecution,
+    remainingBudgetUsd: llmBudgetStatus?.remainingBudgetUsd ?? null,
+  });
 
   return (
     <div className={cn("flex min-w-0 w-full max-w-full flex-col items-start gap-2", className)}>
@@ -338,13 +348,21 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
             <AlertDialogHeader>
               <AlertDialogTitle>Re-run this review?</AlertDialogTitle>
               <AlertDialogDescription asChild>
-                <div className={cn("space-y-3", OPERATOR_TYPOGRAPHY.body)}>
-                  <p className="m-0">
-                    Attempt <strong>{pendingAttemptNumber}</strong> will re-invoke architecture analysis on this review.
-                    Metered AI budget will be consumed.
-                  </p>
-                  <AiBudgetSpendNotice action="Architecture review analysis" testId="re-run-review-budget-notice" />
-                </div>
+                <p
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}
+                  role={confirmDescription.kind === "blocked" ? "alert" : undefined}
+                  data-testid="re-run-review-confirm-description"
+                >
+                  {confirmDescription.text}
+                  {confirmDescription.kind === "blocked" ? (
+                    <>
+                      {" "}
+                      <Link href={AI_USAGE_SETTINGS_PATH} className={OPERATOR_LINK.inline}>
+                        Review AI usage
+                      </Link>
+                    </>
+                  ) : null}
+                </p>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -353,7 +371,7 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
                 type="button"
                 variant="primary"
                 size="sm"
-                disabled={busy || running}
+                disabled={busy || running || blocksLlmExecution}
                 onClick={() => {
                   void onReRunReview();
                 }}

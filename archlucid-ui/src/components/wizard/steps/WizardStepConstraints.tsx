@@ -2,7 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFormContext } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
@@ -16,6 +17,10 @@ import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL } from "@/lib/guided-intake-copy";
 import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import {
+  parseWizardStepConstraintsAdvancedOpenFromSearch,
+  wizardStepConstraintsAdvancedDisclosureHrefFromSearch,
+} from "@/lib/wizard/wizard-step-constraints-advanced-disclosure-url";
 
 type ChipFieldName = "constraints" | "requiredCapabilities" | "assumptions";
 
@@ -118,6 +123,36 @@ function ChipListBlock(props: {
  * Step 4: constraints, required capabilities, assumptions as chip lists.
  */
 export function WizardStepConstraints() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const wizardStepConstraintsAdvancedOpenParam = searchParams.get("wizardStepConstraintsAdvancedOpen");
+  const [constraintsAdvancedOpen, setConstraintsAdvancedOpenState] = useState(() =>
+    parseWizardStepConstraintsAdvancedOpenFromSearch(wizardStepConstraintsAdvancedOpenParam),
+  );
+  const syncConstraintsAdvancedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        wizardStepConstraintsAdvancedDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setConstraintsAdvancedOpen = useCallback(
+    (open: boolean) => {
+      setConstraintsAdvancedOpenState(open);
+      syncConstraintsAdvancedOpenToUrl(open);
+    },
+    [syncConstraintsAdvancedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setConstraintsAdvancedOpenState(
+      parseWizardStepConstraintsAdvancedOpenFromSearch(wizardStepConstraintsAdvancedOpenParam),
+    );
+  }, [wizardStepConstraintsAdvancedOpenParam]);
+
   return (
     <WizardStepPanel
       title="Constraints, capabilities & assumptions"
@@ -130,7 +165,11 @@ export function WizardStepConstraints() {
           hint="Hard limits the proposed architecture must not violate (budget, regions, compliance, etc.)."
           inputId="wizard-constraints-draft"
         />
-        <AdvancedOptionsAccordion className="mt-2">
+        <AdvancedOptionsAccordion
+          className="mt-2"
+          open={constraintsAdvancedOpen}
+          onOpenChange={setConstraintsAdvancedOpen}
+        >
           <ChipListBlock
             fieldName="requiredCapabilities"
             label={GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL}

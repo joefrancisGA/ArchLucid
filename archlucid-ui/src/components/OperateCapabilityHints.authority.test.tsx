@@ -121,7 +121,7 @@ describe("OperateCapabilityHints authority shaping", () => {
     });
   });
 
-  /** Governance resolution page: inspect vs configure copy must flip at the same rank as nav + mutation hook. */
+  /** Policy resolution page: inspect vs configure copy must flip at the same rank as nav + mutation hook. */
   describe("GovernanceResolutionRankCue", () => {
     it("selects reader vs operator lines at the Execute boundary", () => {
       navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
@@ -170,7 +170,7 @@ describe("OperateCapabilityHints authority shaping", () => {
   });
 
   /**
-   * Governance dashboard: reader-only queue cue is rank-gated so Execute+ operators are not told their queue is read-only.
+   * Approval dashboard: reader-only queue cue is rank-gated so Execute+ operators are not told their queue is read-only.
    */
   describe("GovernanceDashboardReaderActionCue", () => {
     it("shows the reader queue line below Execute rank", () => {

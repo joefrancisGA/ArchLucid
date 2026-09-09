@@ -103,6 +103,40 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("Private endpoints");
   });
 
+  it("includes feasibility verdict section with soft envelope on manifest exports", () => {
+    const doc = {
+      manifestId: "m1",
+      runId: "r1",
+      ruleSetId: "rules",
+      ruleSetVersion: "1.0",
+      manifestHash: "h1",
+      feasibilityVerdict: {
+        kind: "SoftInfeasible",
+        summary: "Not feasible as specified.",
+        softEnvelope: {
+          confidenceLow: 40,
+          confidenceHigh: 70,
+          envelopeDescription: "Holds below 1k RPS.",
+          softAssumption: "Traffic stays within pilot envelope.",
+          costOfBeingWrong: "Over-provisioning spend.",
+        },
+        transparencyTrail: {
+          asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+          inferred: [],
+          skipped: [{ questionKey: "l0.pillar.security", tier: "Must" }],
+        },
+      },
+    };
+
+    const md = formatGoldenManifestMarkdown(doc);
+
+    expect(md).toContain("## Feasibility verdict");
+    expect(md).toContain("bounded decision record, not a failed review");
+    expect(md).toContain("Holds below 1k RPS.");
+    expect(md).toContain("## Transparency trail");
+    expect(md).toContain("l0.pillar.security");
+  });
+
   it("includes a transparency trail section when the manifest carries one", () => {
     const doc = {
       manifestId: "m1",
@@ -115,7 +149,7 @@ describe("formatGoldenManifestMarkdown", () => {
         summary: "Not feasible as specified.",
         transparencyTrail: {
           asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
-          inferred: [],
+          inferred: [{ key: "throughput", value: "high", confidence: 0.6 }],
           skipped: [{ questionKey: "l0.pillar.security", tier: "Must" }],
         },
       },
@@ -123,6 +157,7 @@ describe("formatGoldenManifestMarkdown", () => {
 
     const md = formatGoldenManifestMarkdown(doc);
 
+    expect(md).toContain("## Feasibility verdict");
     expect(md).toContain("## Transparency trail");
     expect(md).toContain("l0.pillar.security");
   });
@@ -192,6 +227,43 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("**Decisions:** 4");
     expect(md).toContain("One-line operator summary.");
     expect(md).toContain("Measurement floor");
+  });
+
+  it("fallback measurement floor names skipped actor engines when graph context is provided", () => {
+    const summary: ManifestSummary = {
+      manifestId: "m9",
+      createdUtc: "2026-01-01T00:00:00Z",
+      manifestHash: "hash",
+      ruleSetId: "p1",
+      ruleSetVersion: "2.0",
+      status: "Committed",
+      decisionCount: 4,
+      warningCount: 1,
+      unresolvedIssueCount: 0,
+      operatorSummary: "One-line operator summary.",
+    };
+
+    const md = formatGoldenManifestMarkdown(null, {
+      runId: "r9",
+      manifestSummaryFallback: summary,
+      enginesSucceeded: 12,
+      careerExportHonesty: {
+        enginesSucceeded: 12,
+        workingDesk: true,
+        graphSnapshot: { nodes: [] },
+        progressSummary: {
+          runId: "r9",
+          projectId: "p1",
+          createdUtc: "2026-01-01T00:00:00Z",
+          hasFindingsSnapshot: true,
+          hasGraphSnapshot: true,
+          hasContextSnapshot: true,
+        },
+      },
+    });
+
+    expect(md).toContain("external-exposure");
+    expect(md).toContain("no Actor nodes");
   });
 
   it("appends shared career export honesty to full manifest JSON exports (PC-13)", () => {

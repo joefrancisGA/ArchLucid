@@ -85,7 +85,7 @@ describe("RunInspectorPreview", () => {
 
     expect(Array.from(emphasizedLabels).map((node) => node.textContent)).toEqual(
       expect.arrayContaining([
-        "Governance approval:",
+        "Approval:",
         "Remaining monitored risk:",
         "Evidence graph:",
         "Audit trail:",
@@ -103,7 +103,7 @@ describe("RunInspectorPreview", () => {
       "href",
       "/insights/evidence-graph?runId=customer-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "View governance approval" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "View approval" })).toHaveAttribute(
       "href",
       "/governance/approval-queue?runId=customer-intake-modernization",
     );

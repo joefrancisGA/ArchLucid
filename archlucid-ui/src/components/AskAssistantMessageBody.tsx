@@ -3,11 +3,17 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { Fragment, type ReactNode } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Fragment, useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT, BUYER_ASK_UNSTRUCTURED_SPONSOR_FALLBACK_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { splitBuyerAskSponsorLead } from "@/lib/ask-sponsor-lead";
 import { parseAskAssistantStructuredSections } from "@/lib/ask-assistant-section-parser";
+import {
+  ASK_ASSISTANT_MORE_SOURCES_OPEN_PARAM,
+  askAssistantMoreSourcesDisclosureHrefFromSearch,
+  parseAskAssistantMoreSourcesOpenFromSearch,
+} from "@/lib/insights/ask-assistant-more-sources-disclosure-url";
 
 export type AskAssistantGroundingLink = {
   readonly label: string;
@@ -69,6 +75,32 @@ function GroundingLinksFooter(props: {
   readonly links: readonly AskAssistantGroundingLink[];
   readonly buyerPolishedLinks?: boolean;
 }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const askAssistantMoreSourcesParam = searchParams.get(ASK_ASSISTANT_MORE_SOURCES_OPEN_PARAM);
+  const [askAssistantMoreSourcesOpen, setAskAssistantMoreSourcesOpenState] = useState(() =>
+    parseAskAssistantMoreSourcesOpenFromSearch(askAssistantMoreSourcesParam),
+  );
+  const syncAskAssistantMoreSourcesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        askAssistantMoreSourcesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setAskAssistantMoreSourcesOpen = useCallback(
+    (open: boolean) => {
+      setAskAssistantMoreSourcesOpenState(open);
+      syncAskAssistantMoreSourcesOpenToUrl(open);
+    },
+    [syncAskAssistantMoreSourcesOpenToUrl],
+  );
+  useEffect(() => {
+    setAskAssistantMoreSourcesOpenState(parseAskAssistantMoreSourcesOpenFromSearch(askAssistantMoreSourcesParam));
+  }, [askAssistantMoreSourcesParam]);
   const primaryLimit =
     props.buyerPolishedLinks === true ? BUYER_ASK_GROUNDING_PRIMARY_SOURCE_LIMIT : props.links.length;
   const primaryLinks = props.links.slice(0, primaryLimit);
@@ -92,7 +124,11 @@ function GroundingLinksFooter(props: {
         ))}
       </ul>
       {overflowLinks.length > 0 ? (
-        <details className="mt-2">
+        <details
+          className="mt-2"
+          open={askAssistantMoreSourcesOpen}
+          onToggle={(event) => setAskAssistantMoreSourcesOpen(event.currentTarget.open)}
+        >
           <summary className={cn("cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             More sources ({overflowLinks.length})
           </summary>

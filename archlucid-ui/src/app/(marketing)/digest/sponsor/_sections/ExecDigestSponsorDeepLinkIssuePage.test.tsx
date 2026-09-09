@@ -10,7 +10,9 @@ describe("ExecDigestSponsorMissingTokenPage", () => {
     render(<ExecDigestSponsorMissingTokenPage />);
 
     expect(screen.getByTestId("digest-sponsor-issue-page")).toBeInTheDocument();
+    expect(screen.getByTestId("digest-sponsor-issue-hero")).toBeInTheDocument();
     expect(screen.getByTestId("digest-sponsor-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("digest-sponsor-first-viewport")).toBeInTheDocument();
     expect(screen.getByText(DIGEST_SPONSOR_MISSING_TOKEN_BODY)).toBeInTheDocument();
   });
 

@@ -14,6 +14,8 @@ public static class IntegrationEventTypes
 
     public const string FindingsHighSeverityCapturedV1 = "com.archlucid.findings.high-severity.captured.v1";
 
+    public const string FindingVerificationCompletedV1 = "com.archlucid.findings.verification.completed.v1";
+
     public const string DataConsistencyCheckCompletedV1 = "com.archlucid.system.data-consistency-check.completed.v1";
 
     /// <summary>Review-trail / webhook payload when a golden manifest row is finalized for a run.</summary>
@@ -111,6 +113,7 @@ public static class IntegrationEventTypes
             AuthorityRunFailedV1,
             AuthorityRunQualityGateRejectedV1,
             FindingsHighSeverityCapturedV1,
+            FindingVerificationCompletedV1,
             DataConsistencyCheckCompletedV1,
             ManifestFinalizedV1,
             GovernanceApprovalSubmittedV1,
@@ -151,6 +154,7 @@ public static class IntegrationEventTypes
             AuthorityRunFailedV1,
             AuthorityRunQualityGateRejectedV1,
             FindingsHighSeverityCapturedV1,
+            FindingVerificationCompletedV1,
             DataConsistencyCheckCompletedV1,
             ManifestFinalizedV1,
             GovernanceApprovalSubmittedV1,

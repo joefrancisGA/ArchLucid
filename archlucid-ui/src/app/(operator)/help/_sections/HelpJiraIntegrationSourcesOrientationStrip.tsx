@@ -1,0 +1,23 @@
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
+  JIRA_INTEGRATION_HELP_ORIENTATION_SOURCES_INTRO,
+  JIRA_INTEGRATION_HELP_SOURCES,
+} from "@/lib/jira-integration-help-evidence-copy";
+
+/** Sources-only follow-ups for `/help/jira-integration` buyer-polished shell (HEJ). */
+export function HelpJiraIntegrationSourcesOrientationStrip(): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-jira-integration"
+      sourcesTestId="help-jira-integration-sources"
+      sourcesTitle={JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={JIRA_INTEGRATION_HELP_ORIENTATION_SOURCES_INTRO}
+      sources={JIRA_INTEGRATION_HELP_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
+      hubSecondary
+    />
+  );
+}

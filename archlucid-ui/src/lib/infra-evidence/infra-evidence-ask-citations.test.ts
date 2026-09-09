@@ -24,6 +24,17 @@ describe("infra-evidence-ask-citations", () => {
     });
   });
 
+  it("links CloudResourceId citations to findings hub tab when finding context is present", () => {
+    const link = resolveInfraEvidenceAskCitationLink(
+      { kind: "CloudResourceId", id: resourceId, label: "gateway-pip" },
+      { cloudResourceId: resourceId, findingId },
+    );
+
+    expect(link?.href).toBe(
+      `/governance/infrastructure/resources/${resourceId}?tab=findings`,
+    );
+  });
+
   it("links ChangeId citations with ask session drift context", () => {
     const link = resolveInfraEvidenceAskCitationLink(
       { kind: "ChangeId", id: changeId, label: "sku change" },
@@ -43,6 +54,17 @@ describe("infra-evidence-ask-citations", () => {
 
     expect(link?.href).toBe(
       `/governance/infrastructure/resources/${resourceId}?snapshotId=${snapshotId}`,
+    );
+  });
+
+  it("links CloudResourceId citations to the inferred hub tab when drift context is present", () => {
+    const link = resolveInfraEvidenceAskCitationLink(
+      { kind: "CloudResourceId", id: resourceId, label: "gateway-pip" },
+      { snapshotId, diffId },
+    );
+
+    expect(link?.href).toBe(
+      `/governance/infrastructure/resources/${resourceId}?tab=drift&snapshotId=${snapshotId}`,
     );
   });
 
@@ -89,5 +111,23 @@ describe("infra-evidence-ask-citations", () => {
     expect(buildResourceHubDiagramsWorkbenchHref(snapshotId, resourceId, armId)).toBe(
       `/governance/infrastructure/diagrams?snapshotId=${snapshotId}&cloudResourceId=${resourceId}&mermaidMode=dependencyNeighborhood&seedNodeId=${encodeURIComponent(armId)}`,
     );
+  });
+
+  it("forwards audit scope on ChangeId citations when Ask session includes audit lineage", () => {
+    const link = resolveInfraEvidenceAskCitationLink(
+      { kind: "ChangeId", id: changeId, label: "sku change" },
+      {
+        cloudResourceId: resourceId,
+        snapshotId,
+        diffId,
+        assessmentId,
+        auditEvidenceSnapshotId: auditSnapshotId,
+        controlId,
+      },
+    );
+
+    expect(link?.href).toContain("assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    expect(link?.href).toContain("auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    expect(link?.href).toContain("controlId=cccccccc-cccc-cccc-cccc-cccccccccccc");
   });
 });

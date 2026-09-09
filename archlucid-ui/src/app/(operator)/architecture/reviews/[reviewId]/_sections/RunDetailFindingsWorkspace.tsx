@@ -1,16 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
 import { ActorDependentFindingsQuietEnginesHint } from "@/components/findings/ActorDependentFindingsQuietEnginesHint";
+import { EngineInsightNoveltyRatesFootnote } from "@/components/findings/EngineInsightNoveltyRatesFootnote";
 import { FindingsHiddenFilterHonestyBand } from "@/components/findings/FindingsHiddenFilterHonestyBand";
 import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
+import type { WithheldFindingRow } from "@/lib/findings/findings-withheld-band";
+import { FindingsWithheldBand } from "@/components/findings/FindingsWithheldBand";
 import { FindingMergeConflictListCue } from "@/components/findings/FindingMergeConflictListCue";
+import { RunDetailFindingsCardViewLazy } from "@/components/findings/RunDetailFindingsCardViewLazy";
+import { RunDetailFindingsDenseTable } from "@/components/findings/RunDetailFindingsDenseTable";
+import { RunDetailFindingsListViewToggle } from "@/components/findings/RunDetailFindingsListViewToggle";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
-import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
 import { ReviewAssumptionConfirmationStrip } from "@/components/findings/ReviewAssumptionConfirmationStrip";
 import { RootCauseClusterDispositionStrip } from "@/components/findings/RootCauseClusterDispositionStrip";
 import {
@@ -28,10 +33,15 @@ import {
 } from "@/lib/metric-count-presentation";
 import { ReviewPackageGovernanceFindingsVocabularyRail } from "@/components/ReviewPackageGovernanceFindingsVocabularyRail";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
-import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
+import { SimulatorRunRehearsalCaption } from "@/components/usability/SimulatorRunRehearsalCaption";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
+import {
+  useReviewFindingsLastVisitPersist,
+  useReviewFindingsLastVisitRestore,
+} from "@/hooks/use-review-findings-last-visit";
 import { useReviewFindingsVisibilityState } from "@/hooks/use-review-findings-visibility-state";
 import { isFindingMergeConflictReviewFinding } from "@/lib/review-quality/finding-quality-signals";
 import { deriveFindingsHiddenFilterHonesty } from "@/lib/findings/findings-hidden-filter-honesty";
@@ -52,11 +62,24 @@ import {
   formatFindingsExcludedSummaryLine,
 } from "@/lib/runs/run-detail-findings-triage-counts";
 import {
+  defaultReviewFindingsListView,
+  parseReviewFindingsListViewFromSearch,
+} from "@/lib/findings/review-findings-list-view";
+import {
+  parseReviewFindingsClassificationBandFromSearch,
+  reviewFindingsClassificationBandHrefFromSearch,
+  REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM,
+} from "@/lib/findings/review-findings-last-visit-url";
+import {
   resolveFindingJobViewFromSearchParam,
   REVIEW_FINDINGS_JOB_VIEW_PARAM,
 } from "@/lib/findings/review-findings-job-view-url";
 import { buildWorkspaceCardRenderedFindings } from "@/lib/quick-decision-finding-merge-and-sort";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE,
+  formatFindingStreamDualCountLine,
+} from "@/lib/finding-stream-product-of-record-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -81,12 +104,17 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly triageVisibleCount?: number;
   readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
+  readonly withheldFindings?: readonly WithheldFindingRow[];
+  readonly buyerSummaryOmitsAgentFindings?: boolean;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly onNavigateActivity?: () => void;
   readonly onNavigateClarifications?: () => void;
 };
 
 /** Findings list with workspace toolbar filters for the review detail page. */
 export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const initialJobView = resolveFindingJobViewFromSearchParam(
     searchParams?.get(REVIEW_FINDINGS_JOB_VIEW_PARAM),
@@ -100,6 +128,12 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     setShowAdvisory,
     setHideGenericLowDensity,
   } = useReviewFindingsVisibilityState();
+  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+
+  useReviewFindingsLastVisitRestore({
+    runId: props.runId,
+    enabled: architectWorkspaceChrome,
+  });
 
   function applyNaturalLanguageFacets(facets: FindingsNaturalLanguageFacets): void {
 
@@ -113,8 +147,52 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
     toolbar.setSearchQuery(facets.titleKeywords.join(" "));
   }
-  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
-  const [classificationBand, setClassificationBand] = useState<ReviewFindingsClassificationBandId>("decision-grade");
+
+  const [classificationBand, setClassificationBandState] = useState<ReviewFindingsClassificationBandId>(() =>
+    parseReviewFindingsClassificationBandFromSearch(searchParams?.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM)),
+  );
+
+  const setClassificationBand = useCallback(
+    (next: ReviewFindingsClassificationBandId): void => {
+      setClassificationBandState(next);
+
+      if (pathname.length === 0) {
+        return;
+      }
+
+      router.replace(
+        reviewFindingsClassificationBandHrefFromSearch(searchParams.toString(), pathname, next),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setClassificationBandState(
+      parseReviewFindingsClassificationBandFromSearch(searchParams?.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM)),
+    );
+  }, [searchParams]);
+
+  const listView =
+    parseReviewFindingsListViewFromSearch(searchParams?.get("findingsListView")) ??
+    defaultReviewFindingsListView(architectWorkspaceChrome);
+  const useDenseTable = listView === "table" && architectWorkspaceChrome;
+
+  useReviewFindingsLastVisitPersist({
+    runId: props.runId,
+    enabled: architectWorkspaceChrome,
+    filter: toolbar.filter,
+    jobView: toolbar.jobView,
+    searchQuery: toolbar.searchQuery,
+    ownerFilter: toolbar.ownerFilter,
+    domainFilter: toolbar.domainFilter,
+    originFilter: toolbar.originFilter,
+    groundingFilter: toolbar.groundingFilter,
+    sort: toolbar.sort,
+    classificationBand,
+    hideGenericLowDensity,
+  });
 
   useEffect(() => {
     const onChecklistBand = () => {
@@ -228,42 +306,55 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       />
     </div>
   );
-  const findingsSummaryEl = (
-    <QuickDecisionSummary
+  const sealedStreamCount = props.findings.filter((finding) => finding.streamBand !== "agent").length;
+  const agentStreamCount = props.findings.filter((finding) => finding.streamBand === "agent").length;
+  const showFindingStreamDualCount = architectWorkspaceChrome && (sealedStreamCount > 0 || agentStreamCount > 0);
+  const findingsListProps = {
+    runId: props.runId,
+    findings: listFindings,
+    sourceFindingsCount: props.findings.length,
+    buyerPolishedShell: props.buyerPolishedShell,
+    headlineFindingCount: props.headlineFindingCount,
+    headlineWarningCount: props.headlineWarningCount,
+    usingExplanationFallback: props.usingExplanationFallback,
+    buyerSummaryOmitsAgentFindings: props.buyerSummaryOmitsAgentFindings,
+    manifestRuleSetId: props.manifestRuleSetId,
+    manifestRuleSetVersion: props.manifestRuleSetVersion,
+    defaultExpandLowSeverity: false,
+    providerNeutralWorkItems: props.providerNeutralWorkItems,
+    architectureWorkItemContext: props.architectureWorkItemContext,
+    packageCommitted: props.packageCommitted,
+    analysisStagesComplete: props.analysisStagesComplete,
+    onNavigateActivity: props.onNavigateActivity,
+    onNavigateClarifications: props.onNavigateClarifications,
+    confidenceVisibility: {
+      showLowConfidence,
+      onShowLowConfidenceChange: setShowLowConfidence,
+      hiddenByConfidenceCount,
+      managedExternally: true as const,
+    },
+    advisoryVisibility: {
+      showAdvisory,
+      onShowAdvisoryChange: setShowAdvisory,
+      managedExternally: true as const,
+    },
+  };
+  const findingsListEl = useDenseTable ? (
+    <RunDetailFindingsDenseTable
       runId={props.runId}
       findings={listFindings}
-      sourceFindingsCount={props.findings.length}
-      buyerPolishedShell={props.buyerPolishedShell}
-      headlineFindingCount={props.headlineFindingCount}
-      headlineWarningCount={props.headlineWarningCount}
-      usingExplanationFallback={props.usingExplanationFallback}
-      manifestRuleSetId={props.manifestRuleSetId}
-      manifestRuleSetVersion={props.manifestRuleSetVersion}
-      workspaceCardMode
-      defaultExpandLowSeverity={false}
-      providerNeutralWorkItems={props.providerNeutralWorkItems}
-      architectureWorkItemContext={props.architectureWorkItemContext}
-      packageCommitted={props.packageCommitted}
-      analysisStagesComplete={props.analysisStagesComplete}
-      onNavigateActivity={props.onNavigateActivity}
-      onNavigateClarifications={props.onNavigateClarifications}
-      confidenceVisibility={{
-        showLowConfidence,
-        onShowLowConfidenceChange: setShowLowConfidence,
-        hiddenByConfidenceCount,
-        managedExternally: true,
-      }}
-      advisoryVisibility={{
-        showAdvisory,
-        onShowAdvisoryChange: setShowAdvisory,
-        managedExternally: true,
-      }}
+      showDensityScore={architectWorkspaceChrome}
     />
+  ) : (
+    <RunDetailFindingsCardViewLazy {...findingsListProps} />
   );
   const toolbarEl = (
     <div className="space-y-3" data-testid="run-detail-findings-toolbar-hero">
       {architectWorkspaceChrome && showActorEnginesQuietHint ? (
         <ActorDependentFindingsQuietEnginesHint show={true} runId={props.runId} />
+      ) : null}
+      {architectWorkspaceChrome ? (
+        <RunDetailFindingsListViewToggle workingMode={architectWorkspaceChrome} />
       ) : null}
       <RunDetailFindingsToolbar
       findings={confidenceGatedForCounts}
@@ -320,9 +411,15 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       }}
     >
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
-      <SimulatorModeAiOperationNotice testId="run-detail-findings-simulator-notice" />
+      <SimulatorRunRehearsalCaption
+        structuralExecutionMode={props.structuralExecutionMode}
+        testId="run-detail-findings-simulator-rehearsal-caption"
+      />
+      <FindingsWithheldBand runId={props.runId} withheld={props.withheldFindings ?? []} />
       <FindingMergeConflictListCue runId={props.runId} findings={props.findings} />
-      {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
+      {createHomeSurface && props.buyerPolishedShell !== true ? (
+        <ArchitectureCreatedFindingsEvidenceOrientationStrip />
+      ) : null}
       {findingsSecondaryViewPresentation !== null ? (
         <CanonicalObjectSecondaryViewStrip
           presentation={findingsSecondaryViewPresentation}
@@ -337,6 +434,23 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         />
       ) : null}
       {metricCountEl}
+      {showFindingStreamDualCount ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-findings-stream-dual-count"
+        >
+          {formatFindingStreamDualCountLine(sealedStreamCount, agentStreamCount)}
+        </p>
+      ) : null}
+      {props.buyerSummaryOmitsAgentFindings === true ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-detail-buyer-summary-agent-findings-omission"
+          role="status"
+        >
+          {BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE}
+        </p>
+      ) : null}
       {hiddenFilterHonesty.hasHidden ? (
         <FindingsHiddenFilterHonestyBand honesty={hiddenFilterHonesty} onShowAll={showAllFilteredFindings} />
       ) : null}
@@ -351,6 +465,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
           </p>
+          <EngineInsightNoveltyRatesFootnote />
           <div
             className="flex flex-wrap items-center gap-2"
             role="tablist"
@@ -393,13 +508,13 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       ) : null}
       {createHomeSurface ? (
         <>
-          {findingsSummaryEl}
+          {findingsListEl}
           {toolbarEl}
         </>
       ) : (
         <>
           {toolbarEl}
-          {findingsSummaryEl}
+          {findingsListEl}
         </>
       )}
     </div>

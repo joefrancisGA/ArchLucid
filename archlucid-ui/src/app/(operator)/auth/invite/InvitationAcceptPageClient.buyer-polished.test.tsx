@@ -1,19 +1,25 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  AUTH_INVITE_CLAIM_DISCIPLINE_HEADING,
+  AUTH_INVITE_CLAIM_DISCIPLINE,
   AUTH_INVITE_FOLLOW_UPS_TITLE,
+  AUTH_INVITE_SOURCES,
 } from "@/lib/auth-invite-evidence-copy";
 import {
+  AUTH_INVITE_FIRST_VIEWPORT_ID,
   AUTH_INVITE_PRIMARY_CONTENT_ID,
   AUTH_INVITE_SKIP_LINK_LABEL,
+  AUTH_INVITE_SKIP_TARGET_ID,
 } from "@/lib/auth/auth-invite-page-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 const validateInvitationToken = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: vi.fn(),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }));
 
 vi.mock("@/lib/auth/invitation-validation-api", () => ({
@@ -44,7 +50,7 @@ describe("InvitationAcceptPageClient buyer-polished shell", () => {
     });
   });
 
-  it("renders skip link, breadcrumb, body, then orientation below the panel", async () => {
+  it("renders skip link, orientation above invite body, and Sources below the panel", async () => {
     render(<InvitationAcceptPageClient />);
 
     await waitFor(() => {
@@ -53,15 +59,38 @@ describe("InvitationAcceptPageClient buyer-polished shell", () => {
 
     expect(screen.getByRole("link", { name: AUTH_INVITE_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${AUTH_INVITE_PRIMARY_CONTENT_ID}`,
+      `#${AUTH_INVITE_SKIP_TARGET_ID}`,
     );
-    expect(screen.getByTestId("auth-invite-claim-discipline")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: AUTH_INVITE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("auth-invite-primary-content")).toHaveAttribute(
+      "id",
+      AUTH_INVITE_PRIMARY_CONTENT_ID,
+    );
+    expect(screen.queryByTestId("auth-invite-breadcrumb")).not.toBeInTheDocument();
     expect(screen.queryByTestId("cold-invite-users-invite-vocabulary")).toBeNull();
 
-    const orientation = screen.getByTestId("auth-invite-orientation-bottom");
+    const primaryContent = screen.getByTestId("auth-invite-primary-content");
+    const firstViewport = screen.getByTestId(AUTH_INVITE_FIRST_VIEWPORT_ID);
+    const orientationTop = screen.getByTestId("auth-invite-orientation-top");
     const acceptPage = screen.getByTestId("invitation-accept-page");
+    const orientationBottom = screen.getByTestId("auth-invite-orientation-bottom");
+    const sourcesSection = screen.getByTestId("auth-invite-sources");
 
-    expect(orientation.compareDocumentPosition(acceptPage) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(orientationTop);
+    expect(firstViewport).toContainElement(acceptPage);
+    expect(orientationTop.compareDocumentPosition(acceptPage) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(
+      orientationBottom.compareDocumentPosition(acceptPage) & Node.DOCUMENT_POSITION_PRECEDING,
+    ).toBeTruthy();
+
+    expect(within(orientationTop).getByTestId("auth-invite-claim-discipline").textContent).toContain(
+      AUTH_INVITE_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.getByRole("heading", { level: 2, name: AUTH_INVITE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(AUTH_INVITE_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

@@ -7,6 +7,9 @@ export const SLACK_INTEGRATION_CANONICAL_PATH = "/integrations/slack" as const;
 
 export const SLACK_INTEGRATION_HELP_TOPIC_LABEL = "How Slack notifications work";
 
+export const SLACK_INTEGRATION_CLAIM_DISCIPLINE =
+  "Slack destinations configure outbound alert delivery to your Slack channels — not Slack app installation or workspace admin, delivery retry forensics, or a signed audit record. Use Integration readiness or Alert rules when operations needs routing or readiness context.";
+
 export const SLACK_INTEGRATION_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SLACK_INTEGRATION_SOURCES_INTRO =
