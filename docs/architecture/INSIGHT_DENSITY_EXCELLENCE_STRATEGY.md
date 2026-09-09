@@ -108,7 +108,7 @@ Do **not** add a 40th engine that only re-reads `GraphSnapshot` ([`../quality/HO
 
 ### Workstream 1 — New information sources (density win)
 
-These are the only changes that can move the pillar from ~66 toward 90+.
+These are the only changes that can move the pillar from **70** (v8 assessment, 2026-09-09) toward 90+.
 
 #### A. Always-on live estate (not optional inventory)
 
@@ -278,5 +278,5 @@ Items 1–2 do not raise the numerator; they stop overstating it. Items 3–6 ar
 | [`adrs/0070-insight-density-controls-typed-engines.md`](adrs/0070-insight-density-controls-typed-engines.md) | Production gate |
 | [`adrs/0062-finding-verification-loop.md`](adrs/0062-finding-verification-loop.md) | Proof-of-prediction (V1.1) |
 | [`adrs/0057-graph-rag-community-summarization-scope-decision.md`](adrs/0057-graph-rag-community-summarization-scope-decision.md) | Community summarization options |
-| [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) | §7.1 pillar score (~66); assessment may lag ADR 0070 |
+| [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) | §7.1 pillar score **70** (v8, 2026-09-09; post-DX-76, ADR 0070 reflected); still the largest weighted deficiency — validation, not mechanism, is the remaining lever |
 | [`../library/FINDING_ENGINE_OUTPUT_REFERENCE.md`](../library/FINDING_ENGINE_OUTPUT_REFERENCE.md) | Engine catalog |
