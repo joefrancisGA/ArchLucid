@@ -249,25 +249,53 @@ public sealed class MarketplaceWebhookPayloadParserTests
             .Should().Be(nameof(TenantTier.Standard));
     }
 
-    [Fact]
-    public void TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan()
+    [Theory]
+    [InlineData("excluding-enterprise-plan")]
+    [InlineData("exclude-enterprise-plan")]
+    [InlineData("excluded-enterprise-plan")]
+    [InlineData("contoso-excluding-enterprise-standard")]
+    [InlineData("contoso-exclude-enterprise-standard")]
+    [InlineData("excluding-enterprise-standard")]
+    [InlineData("except-enterprise-plan")]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan(string planId)
     {
-        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("contoso-exclude-enterprise-standard")
-            .Should().Be(nameof(TenantTier.Standard));
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+            .Should()
+            .Be(nameof(TenantTier.Standard));
     }
 
-    [Fact]
-    public void TierStorageCodeFromPlanId_does_not_false_positive_on_excluding_enterprise_delimited_plan()
+    [Theory]
+    [InlineData("minus-enterprise-plan")]
+    [InlineData("un-enterprise-plan")]
+    [InlineData("de-enterprise-plan")]
+    [InlineData("ex-enterprise-plan")]
+    [InlineData("pseudo-enterprise-plan")]
+    [InlineData("semi-enterprise-plan")]
+    [InlineData("sub-enterprise-plan")]
+    [InlineData("micro-enterprise-plan")]
+    [InlineData("less-enterprise-plan")]
+    [InlineData("lacking-enterprise-plan")]
+    [InlineData("omit-enterprise-plan")]
+    [InlineData("outside-enterprise-plan")]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_extended_enterprise_negation_adverbs(string planId)
     {
-        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("excluding-enterprise-plan")
-            .Should().Be(nameof(TenantTier.Standard));
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+            .Should()
+            .Be(nameof(TenantTier.Standard));
     }
 
-    [Fact]
-    public void TierStorageCodeFromPlanId_does_not_false_positive_on_except_enterprise_delimited_plan()
+    [Theory]
+    [InlineData("except-enterprise-plan")]
+    [InlineData("pre-enterprise-plan")]
+    [InlineData("below-enterprise-plan")]
+    [InlineData("neither-enterprise-plan")]
+    [InlineData("bare-enterprise-plan")]
+    [InlineData("negate-enterprise-plan")]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_additional_enterprise_negation_adverbs(string planId)
     {
-        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("except-enterprise-plan")
-            .Should().Be(nameof(TenantTier.Standard));
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
+            .Should()
+            .Be(nameof(TenantTier.Standard));
     }
 
     [Theory]

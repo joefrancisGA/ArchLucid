@@ -98,6 +98,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             if (ArchitectureRunExecuteRunIdHelper.TryParseRunGuid(runId, out Guid runGuid) && _runExecuteOwnershipLeaseService.IsEnabled)
             {
+                await EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync(runId, cancellationToken).ConfigureAwait(false);
+
                 await _runExecuteOwnershipLeaseService.AcquireAsync(runGuid, cancellationToken).ConfigureAwait(false);
 
                 using CancellationTokenSource executeCancellation =
@@ -266,6 +268,38 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         return currentRun;
     }
 
+    private async Task EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync(string runId, CancellationToken cancellationToken)
+    {
+        ArchitectureRun? run =
+            await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
+                runRepository,
+                scopeContextProvider,
+                taskRepository,
+                runId,
+                cancellationToken).ConfigureAwait(false);
+
+        if (run is null)
+            throw new RunNotFoundException(runId);
+
+        await _scopeResolveStage.ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken).ConfigureAwait(false);
+
+        ThrowIfRunHasNoAgentWorkOrDeferredContext(run, runId);
+    }
+
+    private static void ThrowIfRunHasNoAgentWorkOrDeferredContext(ArchitectureRun run, string runId)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if ((run.TaskIds?.Count ?? 0) == 0
+            && string.IsNullOrWhiteSpace(run.ContextSnapshotId)
+            && run.Status is not ArchitectureRunStatus.Committed
+            and not ArchitectureRunStatus.ReadyForCommit)
+        {
+            throw new NoScheduledAgentTasksException(runId);
+        }
+    }
+
     internal static bool ArePersistedResultsCompleteForTasks(
         IReadOnlyList<AgentTask> tasks,
         IReadOnlyList<AgentResult> existingResults) =>
@@ -342,13 +376,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (idempotent is not null)
             return idempotent;
 
-        if ((run.TaskIds?.Count ?? 0) == 0
-            && string.IsNullOrWhiteSpace(run.ContextSnapshotId)
-            && run.Status is not ArchitectureRunStatus.Committed
-            and not ArchitectureRunStatus.ReadyForCommit)
-        {
-            throw new NoScheduledAgentTasksException(runId);
-        }
+        ThrowIfRunHasNoAgentWorkOrDeferredContext(run, runId);
 
         await _tailHooksStage.EnsurePreAgentLoopExecuteAllowedAsync(runId, actor, cancellationToken);
 

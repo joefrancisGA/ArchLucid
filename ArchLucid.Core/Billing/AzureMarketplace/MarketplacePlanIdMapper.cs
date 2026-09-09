@@ -53,6 +53,12 @@ public static class MarketplacePlanIdMapper
         if (string.IsNullOrWhiteSpace(token))
             return false;
 
+        // Marketplace partners prefix enterprise tier tokens with negation adverbs
+        // (exclude/excluding/excluded and except share the same stem family).
+        if (token.StartsWith("exclud", StringComparison.OrdinalIgnoreCase)
+            || token.StartsWith("except", StringComparison.OrdinalIgnoreCase))
+            return true;
+
         return token.Equals("non", StringComparison.OrdinalIgnoreCase)
                || token.Equals("not", StringComparison.OrdinalIgnoreCase)
                || token.Equals("no", StringComparison.OrdinalIgnoreCase)
@@ -60,9 +66,23 @@ public static class MarketplacePlanIdMapper
                || token.Equals("anti", StringComparison.OrdinalIgnoreCase)
                || token.Equals("without", StringComparison.OrdinalIgnoreCase)
                || token.Equals("sans", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("exclude", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("excluding", StringComparison.OrdinalIgnoreCase)
-               || token.Equals("except", StringComparison.OrdinalIgnoreCase);
+               || token.Equals("minus", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("un", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("de", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("ex", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("pseudo", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("semi", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("sub", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("micro", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("less", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("lacking", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("omit", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("outside", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("pre", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("below", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("neither", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("bare", StringComparison.OrdinalIgnoreCase)
+               || token.Equals("negate", StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<string> ExtractPlanIdTokens(string planId)
