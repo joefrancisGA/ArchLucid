@@ -119,7 +119,9 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
         title={PROCUREMENT_HELP_PAGE_TITLE}
         titleTestId="help-procurement-page-title"
         subtitle={procurementHelpPageSubtitle(buyerPolishedShell)}
-        subtitleClassName="max-w-3xl"
+        subtitleClassName={
+          buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+        }
         navHref={PROCUREMENT_HELP_PATH}
         headingLevel="h1"
         claimDiscipline={buyerPolishedShell ? PROCUREMENT_HELP_CLAIM_DISCIPLINE : undefined}
