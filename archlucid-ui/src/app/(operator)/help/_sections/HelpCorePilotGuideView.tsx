@@ -43,6 +43,7 @@ import {
   CORE_PILOT_HELP_SKIP_LINK_LABEL,
   CORE_PILOT_HELP_SKIP_TARGET_ID,
   CORE_PILOT_HELP_START_HERE_HELPER,
+  CORE_PILOT_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/core-pilot-help-page-copy";
 import {
   HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE,
@@ -376,45 +377,47 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
           )}
 
           {buyerPolishedShell ? (
-            <p
-              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="help-core-pilot-overview"
-            >
+            <p className={readingBodyClass} data-testid="help-core-pilot-overview">
               {CORE_PILOT_HELP_BUYER_OVERVIEW}
             </p>
           ) : null}
 
-          <section aria-labelledby="run-the-first-review" className="space-y-3">
-            <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Follow these five steps in order.</p>
-            <HelpCorePilotWorkflowStepper />
+          <section
+            className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+            data-testid={buyerPolishedShell ? CORE_PILOT_HELP_WORKSPACE_TEST_ID : undefined}
+          >
+            <section aria-labelledby="run-the-first-review" className="space-y-3">
+              <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>Follow these five steps in order.</p>
+              <HelpCorePilotWorkflowStepper />
+            </section>
+
+            <HelpDisclosure
+              title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title}
+              open={whatGuideCoversOpen}
+              onOpenChange={setWhatGuideCoversOpen}
+            >
+              {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
+            </HelpDisclosure>
+
+            <HelpDisclosure
+              title={CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.title}
+              testId="core-pilot-actor-intake-disclosure"
+              open={actorIntakeOpen}
+              onOpenChange={setActorIntakeOpen}
+            >
+              {CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.body}
+            </HelpDisclosure>
+
+            <HelpDisclosure
+              title={CORE_PILOT_HELP_DISCLOSURE.universalIntakeMustEngineCoverage.title}
+              testId="core-pilot-must-engine-coverage-disclosure"
+            >
+              {CORE_PILOT_HELP_DISCLOSURE.universalIntakeMustEngineCoverage.body}
+            </HelpDisclosure>
+
+            <CorePilotHelpPostStepperPanel />
           </section>
-
-          <HelpDisclosure
-            title={CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.title}
-            open={whatGuideCoversOpen}
-            onOpenChange={setWhatGuideCoversOpen}
-          >
-            {CORE_PILOT_HELP_DISCLOSURE.whatThisGuideCovers.body}
-          </HelpDisclosure>
-
-          <HelpDisclosure
-            title={CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.title}
-            testId="core-pilot-actor-intake-disclosure"
-            open={actorIntakeOpen}
-            onOpenChange={setActorIntakeOpen}
-          >
-            {CORE_PILOT_HELP_DISCLOSURE.actorIntakeForFindingEngines.body}
-          </HelpDisclosure>
-
-          <HelpDisclosure
-            title={CORE_PILOT_HELP_DISCLOSURE.universalIntakeMustEngineCoverage.title}
-            testId="core-pilot-must-engine-coverage-disclosure"
-          >
-            {CORE_PILOT_HELP_DISCLOSURE.universalIntakeMustEngineCoverage.body}
-          </HelpDisclosure>
-
-          <CorePilotHelpPostStepperPanel />
 
           {buyerPolishedShell ? null : <CorePilotHelpClosingPanel />}
         </div>

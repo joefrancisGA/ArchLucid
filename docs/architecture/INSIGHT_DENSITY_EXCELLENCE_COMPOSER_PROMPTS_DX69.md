@@ -4,9 +4,9 @@
 
 # Insight density — excellence Composer prompt set (DX-69–DX-72)
 
-**Created:** 2026-09-08 · **Status:** Ready to run. **DX-01–DX-68 shipped / implemented — do not re-run.**
+**Created:** 2026-09-08 · **Status:** **DX-69–DX-72 shipped / implemented (`#2447`) — do not re-run.** Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md) (**DX-73–DX-76**).
 
-DX-01–DX-50 closed engine, ingest, and citation holes. DX-51–DX-62 added fusion, held-checks, Real-mode ranking, threshold **65**, and judge budget. **DX-63–DX-68** added corroboration scoring, `topology-security-drift`, hop-count impact witness, `NotVerifiable` held-check asks, gate-vs-human calibration, and IE-12 exceptions into `open-commitment`. Latest golden case is **`case-64`** (`GoldenCorpusHarnessEngineRegistration.LatestGoldenCorpusCaseNumber`). Harness registers **42** engines including `topology-security-drift`.
+DX-01–DX-50 closed engine, ingest, and citation holes. DX-51–DX-62 added fusion, held-checks, Real-mode ranking, threshold **65**, and judge budget. **DX-63–DX-68** added corroboration scoring, `topology-security-drift`, hop-count impact witness, `NotVerifiable` held-check asks, gate-vs-human calibration, and IE-12 exceptions into `open-commitment`. Latest golden case after this set is **`case-65`**. Harness registers **42** engines including `topology-security-drift`.
 
 The remaining Cursor-implementable density work is **not** another subtractive flag. The distribution table is a 5-rung ladder (60 / 65 / 75 / 80 / 85) dominated by absence-shaped engines (`topology-coverage` 63 findings, 61 demote). The engines that score 80–85 (`identity-blast-radius`, `data-flow-trust-boundary`, `segmentation-semantics`, inventory contradiction) almost never fire on IaC-only reviews because DX-03 created `Actor` nodes but **not** declaration-derived IAM / data-flow path edges. Meanwhile `HasConcreteEvidenceCitation` still treats `doc:` without a line and `finding:{id}` as enough to **veto all demotion**, and DX-51 fusion **appends** a synthesis row while leaving both constituents Decision-grade.
 
@@ -323,4 +323,4 @@ Still owner-gated (not Cursor-default):
 | Graph-RAG live ablation **TB-883** | ADR 0057 buyer-claim gate |
 | `PreferHighHumanAcceptResidual` default-on | DX-67 flag; needs calibration table volume |
 
-Do **not** follow this set with another coverage engine or another fusion `EngineType`.
+Do **not** follow this set with another coverage engine or another fusion `EngineType`. Remaining Cursor-implementable path-feed work is **DX-73–DX-76** ([`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md)).

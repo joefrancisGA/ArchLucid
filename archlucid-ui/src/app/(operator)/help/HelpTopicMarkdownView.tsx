@@ -55,15 +55,16 @@ import {
   HELP_TOPIC_CATCHALL_FOLLOW_UPS_TITLE,
 } from "@/lib/help/help-topic-catchall-evidence-copy";
 import {
+  HELP_TOPIC_CATCHALL_BUYER_OVERVIEW,
   HELP_TOPIC_CATCHALL_BUYER_START_HERE_HELPER,
   HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID,
   HELP_TOPIC_CATCHALL_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  HELP_TOPIC_CATCHALL_OVERVIEW,
   HELP_TOPIC_CATCHALL_PAGE_LEAD,
   HELP_TOPIC_CATCHALL_PRIMARY_CONTENT_ID,
   HELP_TOPIC_CATCHALL_SKIP_LINK_LABEL,
   HELP_TOPIC_CATCHALL_SKIP_TARGET_ID,
   HELP_TOPIC_CATCHALL_START_HERE_CARD_TITLE,
+  HELP_TOPIC_CATCHALL_WORKSPACE_TEST_ID,
 } from "@/lib/help/help-topic-catchall-page-copy";
 
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -379,18 +380,25 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
                 {HELP_TOPIC_CATCHALL_BUYER_START_HERE_HELPER}
               </p>
             </section>
-            <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-              data-testid="help-topic-catchall-overview"
-            >
-              {HELP_TOPIC_CATCHALL_OVERVIEW}
-            </p>
           </div>
+
+          <p
+            className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+            data-testid="help-topic-catchall-overview"
+          >
+            {HELP_TOPIC_CATCHALL_BUYER_OVERVIEW}
+          </p>
+
+          <section
+            className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)}
+            data-testid={HELP_TOPIC_CATCHALL_WORKSPACE_TEST_ID}
+          >
           {developerRunbookLine}
           {caiqSigPostureCounts !== null ? (
             <CaiqSigResponseHelpPostureSummary counts={caiqSigPostureCounts} tableRowTotal={postureTableRowTotal} />
           ) : null}
           {contentGrid}
+          </section>
           <HelpTopicCatchallSourcesOrientationStrip />
         </div>
       ) : (

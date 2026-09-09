@@ -93,6 +93,8 @@ public sealed class ContextIngestionConnectorRegistrationTests(ArchLucidApiFacto
 
         parsers.Select(p => p.GetType()).Should().Equal(
             typeof(MermaidContextDocumentParser),
+            typeof(SvgContextDocumentParser),
+            typeof(DrawIoContextDocumentParser),
             typeof(PlainTextContextDocumentParser));
     }
 }

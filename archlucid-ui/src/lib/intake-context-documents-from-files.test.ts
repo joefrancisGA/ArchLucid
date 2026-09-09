@@ -102,6 +102,40 @@ describe("buildIntakeContextDocumentsFromEvidenceFiles", () => {
     expect(documents[0]?.name).toBe("diagram.txt");
   });
 
+  it("includes svg attachments as application/vnd.archlucid.diagram+svg", async () => {
+    const file = new File(
+      [
+        '<svg xmlns="http://www.w3.org/2000/svg"><g id="api"><rect x="0" y="0" width="10" height="10"/><text>API</text></g></svg>',
+      ],
+      "topology.svg",
+      { type: "image/svg+xml" },
+    );
+    const documents = await buildIntakeContextDocumentsFromEvidenceFiles([file]);
+
+    expect(documents).toEqual([
+      {
+        name: "topology.svg",
+        contentType: "application/vnd.archlucid.diagram+svg",
+        content:
+          '<svg xmlns="http://www.w3.org/2000/svg"><g id="api"><rect x="0" y="0" width="10" height="10"/><text>API</text></g></svg>',
+      },
+    ]);
+  });
+
+  it("includes draw.io attachments as application/vnd.jgraph.mxfile", async () => {
+    const drawIo = `<mxfile host="app.diagrams.net"><diagram id="page-1" name="Page-1"><mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="2" value="API Gateway" vertex="1" parent="1"/></root></mxGraphModel></diagram></mxfile>`;
+    const file = new File([drawIo], "topology.drawio", { type: "application/xml" });
+    const documents = await buildIntakeContextDocumentsFromEvidenceFiles([file]);
+
+    expect(documents).toEqual([
+      {
+        name: "topology.drawio",
+        contentType: "application/vnd.jgraph.mxfile",
+        content: drawIo,
+      },
+    ]);
+  });
+
   it("emits a NotVerifiable diagram stub for PNG and skips failed docx extract", async () => {
     mockedExtract.mockResolvedValue({
       ok: false,

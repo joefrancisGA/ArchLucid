@@ -26,14 +26,15 @@ import {
   HELP_TOPIC_CATCHALL_SOURCES,
 } from "@/lib/help/help-topic-catchall-evidence-copy";
 import {
+  HELP_TOPIC_CATCHALL_BUYER_OVERVIEW,
   HELP_TOPIC_CATCHALL_BUYER_START_HERE_HELPER,
   HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID,
   HELP_TOPIC_CATCHALL_ORIENTATION_BOTTOM_TEST_ID,
-  HELP_TOPIC_CATCHALL_OVERVIEW,
   HELP_TOPIC_CATCHALL_PAGE_LEAD,
   HELP_TOPIC_CATCHALL_PRIMARY_CONTENT_ID,
   HELP_TOPIC_CATCHALL_SKIP_LINK_LABEL,
   HELP_TOPIC_CATCHALL_START_HERE_CARD_TITLE,
+  HELP_TOPIC_CATCHALL_WORKSPACE_TEST_ID,
 } from "@/lib/help/help-topic-catchall-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -70,10 +71,13 @@ describe("HelpTopicCatchallResidualView buyer-polished chrome (HE.)", () => {
       HELP_TOPIC_CATCHALL_CLAIM_DISCIPLINE,
     );
     expect(screen.getByTestId("help-topic-catchall-intro")).toHaveTextContent(HELP_TOPIC_CATCHALL_PAGE_LEAD);
-    expect(screen.getByTestId("help-topic-catchall-overview")).toHaveTextContent(HELP_TOPIC_CATCHALL_OVERVIEW);
+    expect(screen.getByTestId("help-topic-catchall-overview")).toHaveTextContent(HELP_TOPIC_CATCHALL_BUYER_OVERVIEW);
     expect(screen.getByTestId(HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID)).toContainElement(
       screen.getByTestId("help-topic-catchall-intro"),
     );
+    expect(
+      screen.getByTestId(HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID),
+    ).not.toContainElement(screen.getByTestId("help-topic-catchall-overview"));
     expect(
       screen.getByTestId(HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
         screen.getByTestId("help-topic-catchall-overview"),
@@ -88,21 +92,30 @@ describe("HelpTopicCatchallResidualView buyer-polished chrome (HE.)", () => {
     expect(screen.getByTestId("help-topic-catchall-residual")).toBeInTheDocument();
 
     const primary = screen.getByTestId(HELP_TOPIC_CATCHALL_PRIMARY_CONTENT_ID);
+    const firstViewport = screen.getByTestId(HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("help-topic-catchall-overview");
+    const workspace = screen.getByTestId(HELP_TOPIC_CATCHALL_WORKSPACE_TEST_ID);
     const content = screen.getByTestId("help-topic-content");
     const orientation = screen.getByTestId(HELP_TOPIC_CATCHALL_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("help-topic-catchall-sources");
 
-    expect(primary).toContainElement(content);
+    expect(primary).toContainElement(firstViewport);
+    expect(primary).toContainElement(overview);
+    expect(primary).toContainElement(workspace);
     expect(primary).toContainElement(orientation);
-    expect(content.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace).toContainElement(content);
+    expect(orientation).toContainElement(sourcesSection);
 
     expect(screen.getByRole("heading", { level: 2, name: "Overview" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: HELP_TOPIC_CATCHALL_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-
-    const sourcesSection = screen.getByTestId("help-topic-catchall-sources");
 
     for (const source of filterWhereToGoNextFollowUpLinks(HELP_TOPIC_CATCHALL_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
+
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
