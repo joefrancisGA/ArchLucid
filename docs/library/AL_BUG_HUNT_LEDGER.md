@@ -8238,11 +8238,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 17
-- **bugs-found:** 26
+- **hunts:** 18
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — analysis-report routes whitespace runId returned 400 via RunDetailQueryService ThrowIfNullOrWhiteSpace while GetRun returned 404
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — trace forensics list route returned 400 for whitespace runId while sibling trace reads return 404
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8282,7 +8282,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `ListRunFindings` invalid cursor tuple returns BadRequest while invalid `runId` returns NotFound — intentional REST split: partial cursor `ArgumentException` maps to HTTP 400 via `ApiProblemDetailsExceptionFilter`; invalid/missing run id maps to 404; not a parity defect (2026-09-08 hunt).
 - [x] (proven) `AnalysisReportsController.AnalyzeRun` (and sibling analysis/export routes using `LoadRunDetailOrNotFoundAsync`) — whitespace `runId` returned HTTP 400 via `RunDetailQueryService` `ThrowIfNullOrWhiteSpace` while sibling `GetRun` returned 404 — **hit 2026-09-08:** rely on `AuthorityRunIdentifier.TryParse` in `RunDetailQueryService` detail/rollup loaders; regressions in `GetRunDetailAsync_returns_null_for_whitespace_run_id_without_querying_repository` and `AnalyzeRun_returns_not_found_for_whitespace_run_id_like_GetRun`.
 
+- [ ] (candidate) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` — per-answer max length enforced but `QuestionId` / question text fields not bounded — **seeded 2026-09-09 seed hunt #1413:** compare with sibling `RephraseClarificationAnswers` guards
+- [ ] (candidate) `PromptVariantsAdminController` — create/update body strings may omit `IsValidUnicodeText` surrogate guard present on `CustomRolesAdminController` — **seeded 2026-09-09 seed hunt #1413**
+- [x] (proven) `InternalArchitectureTraceForensicsController.GetRunTraceForensics` — whitespace `runId` returned HTTP 400 (`runId must be a GUID`) while sibling `GetRunTraces` returned 404 via `AuthorityRunIdentifier.TryParse` — **hit 2026-09-09 seed hunt #1413:** map invalid route ids to NotFound before pagination; regression `GetRunTraceForensics_returns_not_found_for_whitespace_run_id_like_GetRunTraces`
+
 2026-09-08 thorough hunt: cheap-disproved cursor BadRequest vs NotFound candidate; proved analysis-report whitespace runId 404 parity via `RunDetailQueryService`.
+
+2026-09-09 seed hunt #1413 (hit): reseeded clarification question-id and prompt-variant Unicode guard candidates; proved trace-forensics whitespace runId 404 parity; `ArchLucid.Api` compile verified (Api.Tests project has pre-existing signature drift on bugsmash).
 
 2026-09-07 seed hunt #1236 (hit): reseeded authority/admin controller zone; proved findings list + inspect whitespace runId 404 parity gaps; seeded cursor-validation candidate.
 
