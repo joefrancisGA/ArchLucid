@@ -1960,11 +1960,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 14
-- **bugs-found:** 11
+- **hunts:** 15
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — scalar newline preserved in sanitizer enabled prompt field spoofing inside quarantine
+- **last-bug:** 2026-09-09 — Unicode line separators bypassed #1410 newline collapse and enabled prompt field spoofing inside quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2007,8 +2007,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AgentEvidencePackage.CloudProvider` string omitted from `AgentEvidenceUntrustedInputSanitizer` — **cheap-disproof 2026-09-09 thorough hunt #1410 / reconfirmed #1341:** package `CloudProvider` is grounding-index only; `AgentUserPromptBuilder` renders request enum, never evidence string
 - [x] (invalid) `EvidenceSummarizationService.CapEvidenceText` blind `[..cap]` truncation can split TB-949 markers — **cheap-disproof 2026-09-09 thorough hunt #1410:** locus outside zone paths; in-zone context-length truncation already uses `TruncatePreservingSectionBounds` (#1308)
 - [x] (proven) `AzureResourceTagPromptSanitizer.StripControlChars` preserved `\n`/`\r`/`\t` in sanitized scalars — embedded newline in `SystemName` broke line-oriented TB-949 architecture layout and injected a spoof `Description:` field line inside quarantine — **hit 2026-09-09 thorough hunt #1410:** collapse newline/tab runs to spaces in `StripControlChars`; regressions `SanitizeScalar_collapses_newlines_to_prevent_field_spoofing` and `SanitizeAsync_system_name_newline_does_not_spoof_description_field_in_topology_prompt`
+- [x] (proven) `AzureResourceTagPromptSanitizer.StripControlChars` preserved Unicode `\u2028`/`\u2029` line separators after #1410 — `char.IsControl` is false for LINE/PARAGRAPH SEPARATOR, so embedded `\u2028` in `SystemName` still broke line-oriented TB-949 layout and injected a spoof `Description:` field line inside quarantine — **hit 2026-09-09 seed hunt #1411:** extend line-break collapse to `\u2028`/`\u2029`; regressions `SanitizeScalar_collapses_unicode_line_separators_to_prevent_field_spoofing` and `SanitizeAsync_system_name_unicode_line_separator_does_not_spoof_description_field_in_topology_prompt`
 
 2026-09-09 thorough hunt #1410 (hit): cheap-disproof closed CloudProvider and CapEvidenceText candidates; proved scalar newline field-spoofing inside customer quarantine; 130 scoped agent-runtime-safety unit tests passed.
+
+2026-09-09 seed hunt #1411 (hit): proved Unicode line-separator bypass of #1410 newline collapse; 132 scoped agent-runtime-safety unit tests passed.
 
 ---
 
