@@ -681,7 +681,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -752,6 +752,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ExistsActiveRunWithSystemNameInWorkspace` treats Committed runs as available for reuse unlike `CountActiveRunsForArchitectureRequest` — **cheap-disproof 2026-09-09 seed hunt #1445:** workspace name collision guard blocks while committed reviews occupy the name; concurrency guard excludes Committed by design; regressions `ExistsActiveRunWithSystemNameInWorkspace_treats_committed_runs_as_occupying`, `InMemory_committed_run_occupies_workspace_system_name`, and `CountActiveRunsForArchitectureRequest_excludes_committed_for_concurrency_not_name_collision`.
 
 2026-09-09 seed hunt #1445 (seed-only): reseeded sql-run-repository after #1444; cheap-disproof closed architecture prior-committed manifest filter, latest architecture run ordering, graph snapshot clear scope, save anchor guard, and Committed-vs-concurrency occupancy split; 60 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `ArchiveRunsCreatedBeforeInScope` omits tenant/workspace/project predicates and archives cross-scope runs — **cheap-disproof 2026-09-09 seed hunt #1446:** scoped bulk archive binds `TenantId`, `WorkspaceId`, `ScopeProjectId`, and `ArchivedUtc IS NULL`; regression `ArchiveRunsCreatedBeforeInScope_scopes_bulk_archive_to_active_scope`.
+- [x] (valid-no-repro) `SelectPriorCommittedRunIdBeforeCurrent` omits archived golden-manifest filter on project-slug path — **cheap-disproof 2026-09-09 seed hunt #1446:** shape joins `GoldenManifests` with `gm.ArchivedUtc IS NULL` and RunId tie-break; regression `SelectPriorCommittedRunIdBeforeCurrent_excludes_archived_golden_manifests`.
+- [x] (valid-no-repro) `UpdateOperatorGovernanceDisposition` mutates soft-archived runs — **cheap-disproof 2026-09-09 seed hunt #1446:** SQL requires `ArchivedUtc IS NULL`; InMemory uses `IsActiveInScope`; regressions `UpdateOperatorGovernanceDisposition_requires_active_run` and `InMemory_operator_governance_disposition_skips_archived_run`.
+- [x] (valid-no-repro) `SelectByScopedIdIncludingArchived` / `GetByIdIncludingArchivedAsync` leak archived runs without tenant scope — **cheap-disproof 2026-09-09 seed hunt #1446:** replay read keeps tenant/workspace/project predicates and intentionally omits `ArchivedUtc IS NULL`; regression `SelectByScopedIdIncludingArchived_omits_archived_filter_for_replay_reads` plus `InMemory_get_by_id_including_archived_returns_soft_archived_run`.
+- [x] (valid-no-repro) Dashboard list shapes include archived runs because `ScopeWhereTail` omits archival filter — **cheap-disproof 2026-09-09 seed hunt #1446:** `RunListWarningFlagSql.ScopeWhereTail` requires `r.ArchivedUtc IS NULL`; regression `ScopeWhereTail_excludes_archived_runs_from_dashboard_lists`.
+- [x] (valid-no-repro) `ListByArchitectureIdAsync` returns archived architecture child runs — **cheap-disproof 2026-09-09 seed hunt #1446:** SQL and InMemory filter active in-scope runs and order by `CreatedUtc DESC, RunId DESC`; regression `InMemory_architecture_list_excludes_archived_runs`.
+
+2026-09-09 seed hunt #1446 (seed-only): reseeded sql-run-repository after #1445; cheap-disproof closed scoped bulk archive, prior-committed manifest filter, operator governance active-run guard, archived replay read split, list archival filter, and architecture child list scope; 68 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 

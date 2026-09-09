@@ -97,6 +97,13 @@ public sealed class RunListWarningFlagSqlTests
     }
 
     [Fact]
+    public void ScopeWhereTail_excludes_archived_runs_from_dashboard_lists()
+    {
+        RunListWarningFlagSql.ScopeWhereTail.Should().Contain("r.ArchivedUtc IS NULL");
+        RunListWarningFlagSql.ScopeWhereTail.Should().Contain("r.TenantId = @TenantId");
+    }
+
+    [Fact]
     public void Hot_path_list_shapes_pair_select_run_columns_with_left_join_aggregates()
     {
         HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should()

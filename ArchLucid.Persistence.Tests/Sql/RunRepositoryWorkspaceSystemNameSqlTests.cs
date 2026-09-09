@@ -558,6 +558,156 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void ArchiveRunsCreatedBeforeInScope_scopes_bulk_archive_to_active_scope()
+    {
+        RunRepositorySql.ArchiveRunsCreatedBeforeInScope.Should().Contain("TenantId = @TenantId");
+        RunRepositorySql.ArchiveRunsCreatedBeforeInScope.Should().Contain("WorkspaceId = @WorkspaceId");
+        RunRepositorySql.ArchiveRunsCreatedBeforeInScope.Should().Contain("ScopeProjectId = @ScopeProjectId");
+        RunRepositorySql.ArchiveRunsCreatedBeforeInScope.Should().Contain("ArchivedUtc IS NULL");
+    }
+
+    [Fact]
+    public void SelectPriorCommittedRunIdBeforeCurrent_excludes_archived_golden_manifests()
+    {
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should().Contain("gm.ArchivedUtc IS NULL");
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should()
+            .Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public void UpdateOperatorGovernanceDisposition_requires_active_run()
+    {
+        RunRepositorySql.UpdateOperatorGovernanceDisposition.Should().Contain("ArchivedUtc IS NULL");
+    }
+
+    [Fact]
+    public void SelectByScopedIdIncludingArchived_omits_archived_filter_for_replay_reads()
+    {
+        RunRepositorySql.SelectByScopedIdIncludingArchived.Should().Contain("TenantId = @TenantId");
+        RunRepositorySql.SelectByScopedIdIncludingArchived.TrimEnd().Should()
+            .EndWith("ScopeProjectId = @ScopeProjectId;",
+                "replay read keeps tenant scope but does not append the active-run ArchivedUtc filter used by SelectByScopedId.");
+        RunRepositorySql.SelectByScopedId.Should().Contain("AND ArchivedUtc IS NULL");
+    }
+
+    [Fact]
+    public async Task InMemory_operator_governance_disposition_skips_archived_run()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        RunRecord archived = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "billing",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            ArchivedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(archived, CancellationToken.None);
+
+        bool updated = await runs.TrySetOperatorGovernanceDispositionAsync(
+            scope,
+            archived.RunId,
+            "Approved",
+            "ok",
+            "operator",
+            TimeProvider.System.UtcNowDateTime(),
+            CancellationToken.None);
+
+        updated.Should().BeFalse("operator governance writes require active in-scope runs.");
+    }
+
+    [Fact]
+    public async Task InMemory_get_by_id_including_archived_returns_soft_archived_run()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        RunRecord archived = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "billing",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            ArchivedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(archived, CancellationToken.None);
+
+        RunRecord? activeRead = await runs.GetByIdAsync(scope, archived.RunId, CancellationToken.None);
+        RunRecord? archivedRead = await runs.GetByIdIncludingArchivedAsync(scope, archived.RunId, CancellationToken.None);
+
+        activeRead.Should().BeNull();
+        archivedRead.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task InMemory_architecture_list_excludes_archived_runs()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid architectureId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                ArchivedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+        RunRecord active = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "billing",
+            ArchitectureId = architectureId,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+        await runs.SaveAsync(active, CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByArchitectureIdAsync(
+            scope,
+            architectureId,
+            CancellationToken.None);
+
+        listed.Should().ContainSingle(r => r.RunId == active.RunId);
+    }
+
+    [Fact]
     public async Task InMemory_committed_run_by_golden_manifest_picks_newest_when_manifest_is_shared()
     {
         ScopeContext scope = new()
