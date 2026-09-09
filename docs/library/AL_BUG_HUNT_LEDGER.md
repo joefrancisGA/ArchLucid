@@ -9822,11 +9822,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 12
-- **bugs-found:** 13
+- **hunts:** 13
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — policy-pack dry-run ignored remediated finding dispositions
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — pre-finalize checklist omitted supplemental findings gate evaluates
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -9851,9 +9851,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PolicyPackGovernanceDryRunService.EvaluateAsync` proceeds without sealed manifest hash verification — **hit 2026-09-05:** Wave-23 suggestion 223 guard existed but was not wired; dry-run evaluated policy packs against runs with missing or tampered `ManifestHash`; fixed via `PolicyPackSimulateSealedManifestGuard` (`PolicyPackGovernanceDryRunServiceTests.EvaluateAsync_throws_when_run_golden_manifest_is_unsealed`)
 
 - [x] (proven) `PolicyPackGovernanceDryRunService.EvaluateAsync` omits finding dispositions that `PreCommitGovernanceGate` honors on live evaluation — **hit 2026-09-08 seed hunt #1336:** dry-run called `PreCommitGateEvaluator.Evaluate` without `PreFinalizeLatestDispositionLoader`, so remediated Critical findings still blocked simulate while live gate allowed; fixed by loading latest dispositions before evaluation; regression in `EvaluateAsync_allows_when_remediated_critical_finding_matches_live_gate`
-- [ ] (candidate) `PreFinalizeChecklistService` severity counts use rollup-filtered snapshot findings while `PreCommitGovernanceGate` evaluates raw snapshot plus supplemental findings — checklist `open-critical-findings` can show Clear while gate is Blocking on same response
-- [ ] (candidate) `GovernanceLineageService.GetApprovalRequestLineageAsync` reads golden manifest summary without `GovernanceInsightsSealedManifestHashGuard` — lineage/rationale can surface manifest posture for unsealed or tampered runs
+- [x] (proven) `PreFinalizeChecklistService` severity counts use rollup-filtered snapshot findings while `PreCommitGovernanceGate` evaluates raw snapshot plus supplemental findings — **hit 2026-09-09 (#1418):** checklist `open-error-findings` stayed Clear on empty snapshot while global Error-threshold gate blocked on technology-consistency supplemental findings; fixed via shared `PreFinalizeGateParityFindingLoader` (`PreFinalizeChecklistServiceTests.BuildAsync_marks_error_findings_when_technology_consistency_supplemental_would_block_gate`)
+- [x] (proven) `GovernanceLineageService.GetApprovalRequestLineageAsync` reads golden manifest summary without `GovernanceInsightsSealedManifestHashGuard` — **hit 2026-09-09 (#1418):** lineage surfaced manifest summary and risk posture for tampered hash; fixed by verifying sealed hash before manifest exposure (`GovernanceLineageServiceTests.GetApprovalRequestLineageAsync_When_manifest_unsealed_omits_manifest_summary_and_risk_posture`)
 
+2026-09-09 thorough hunt #1418 (hit): proved checklist supplemental-finding parity gap and lineage sealed-manifest guard gap.
 2026-09-08 seed hunt #1336 (hit): reseeded application-governance-policy; proved dry-run disposition parity gap; seeded checklist supplemental parity and lineage sealed-manifest guard candidates.
 2026-09-05 seed hunt #806 (hit): proved policy-pack dry-run sealed-manifest guard gap.
 

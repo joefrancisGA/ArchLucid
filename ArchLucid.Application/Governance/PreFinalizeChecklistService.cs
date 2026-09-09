@@ -19,6 +19,8 @@ public sealed partial class PreFinalizeChecklistService(
     IArchitectureRequestRepository architectureRequestRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     ITechnologyLedgerRepository technologyLedgerRepository,
+    ITechnologyConsistencyFindingEngine technologyConsistencyFindingEngine,
+    IOptions<TechnologyConsistencyFindingEngineOptions> technologyConsistencyFindingEngineOptions,
     IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
     IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
     IPreCommitGovernanceGate preCommitGovernanceGate,
@@ -45,6 +47,13 @@ public sealed partial class PreFinalizeChecklistService(
 
     private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
         technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
+
+    private readonly ITechnologyConsistencyFindingEngine _technologyConsistencyFindingEngine =
+        technologyConsistencyFindingEngine ?? throw new ArgumentNullException(nameof(technologyConsistencyFindingEngine));
+
+    private readonly IOptions<TechnologyConsistencyFindingEngineOptions> _technologyConsistencyFindingEngineOptions =
+        technologyConsistencyFindingEngineOptions
+        ?? throw new ArgumentNullException(nameof(technologyConsistencyFindingEngineOptions));
 
     private readonly IFindingEvidenceLinkageFindingEngine _findingEvidenceLinkageFindingEngine =
         findingEvidenceLinkageFindingEngine ?? throw new ArgumentNullException(nameof(findingEvidenceLinkageFindingEngine));
@@ -98,7 +107,7 @@ public sealed partial class PreFinalizeChecklistService(
         int assumedTechnologyCount = ledgerEntries.Count(entry => entry.Status == TechnologyLedgerStatus.Assumed);
         items.Add(BuildAssumedTechnologyItem(assumedTechnologyCount));
 
-        List<Finding> findings = await LoadFindingsAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
+        List<Finding> findings = await LoadFindingsAsync(scope, runId, run, cancellationToken).ConfigureAwait(false);
         IReadOnlyDictionary<string, ArchLucid.Contracts.Findings.FindingDisposition> latestDispositions =
             await LoadLatestDispositionsAsync(scope, findings, cancellationToken).ConfigureAwait(false);
         int criticalCount = PreFinalizeActiveFindingCounter.Count(findings, FindingSeverity.Critical, latestDispositions);
@@ -157,22 +166,23 @@ public sealed partial class PreFinalizeChecklistService(
         };
     }
 
-    private async Task<List<Finding>> LoadFindingsAsync(
+    private Task<List<Finding>> LoadFindingsAsync(
         ScopeContext scope,
-        Guid runKey,
+        string runId,
+        RunRecord run,
         CancellationToken cancellationToken)
     {
-        RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
-
-        if (run?.FindingsSnapshotId is not Guid snapshotId)
-            return [];
-
-        FindingsSnapshot? snapshot =
-            await _findingsSnapshotRepository.GetByIdAsync(scope, snapshotId, cancellationToken).ConfigureAwait(false);
-
-        return snapshot?.Findings is { Count: > 0 }
-            ? AuthorityFindingRollupFilter.ForAuthorityRollup(snapshot.Findings)
-            : [];
+        return PreFinalizeGateParityFindingLoader.LoadAsync(
+            runId,
+            scope,
+            run,
+            _findingsSnapshotRepository,
+            _technologyLedgerRepository,
+            _technologyConsistencyFindingEngine,
+            _technologyConsistencyFindingEngineOptions.Value,
+            _findingEvidenceLinkageFindingEngine,
+            _findingEvidenceLinkageFindingEngineOptions.Value,
+            cancellationToken);
     }
 
     private async Task<FindingsSnapshot?> LoadFindingsSnapshotAsync(
