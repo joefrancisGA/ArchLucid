@@ -1,0 +1,7 @@
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { compareRunPairBlockedReason } from "@/lib/compare/compare-run-pair-blocked-reason";
+
+/** Wave-60 suggestion 712: surface lifecycle/sealed-hash draft intake GET 409 copy. */
+export function architectureDraftBlockedReason(failure: ApiLoadFailureState | null): string | null {
+  return compareRunPairBlockedReason(failure);
+}

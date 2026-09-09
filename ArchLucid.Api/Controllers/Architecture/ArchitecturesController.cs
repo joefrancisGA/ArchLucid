@@ -139,6 +139,12 @@ public sealed partial class ArchitecturesController(
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureSealDeltaSealedManifestReadAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             ArchitectureSealDeltaResponse? delta = await _architectureSealDeltaService.GetSealDeltaAsync(

@@ -56,4 +56,28 @@ public sealed partial class ArchitecturesController
 
         return null;
     }
+
+    private async Task<IActionResult?> EnsureArchitectureSealDeltaSealedManifestReadAllowedAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await ArchitectureSealDeltaSealedManifestReadGuard.EnsureSealDeltaReadAllowedOrThrowAsync(
+                scope,
+                architectureId,
+                _architectureIdentityService,
+                _runRepository,
+                _goldenManifestRepository,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
 }

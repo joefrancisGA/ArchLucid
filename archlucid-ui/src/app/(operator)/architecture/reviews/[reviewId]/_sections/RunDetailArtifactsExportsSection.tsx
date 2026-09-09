@@ -49,6 +49,8 @@ import {
 } from "@/lib/runs/run-detail-deliverables-disclosure-url";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
+import { RunDetailExportRecordCompareCallout } from "./RunDetailExportRecordCompareCallout";
+
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
   readonly runId: string;
@@ -554,6 +556,10 @@ export function RunDetailArtifactsExportsSection(
             )}
           </div>
         </CollapsibleSection>
+      <RunDetailExportRecordCompareCallout
+        leftExportRecordId={searchParams.get("leftExportRecordId") ?? ""}
+        rightExportRecordId={searchParams.get("rightExportRecordId") ?? ""}
+      />
     </section>
   );
 }

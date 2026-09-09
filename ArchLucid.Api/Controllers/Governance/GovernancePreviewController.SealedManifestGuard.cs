@@ -1,7 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Application.Governance.Posture;
+using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -10,19 +10,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Controllers.Governance;
 
-public sealed partial class GovernanceCoverageController
+public sealed partial class GovernancePreviewController
 {
-    private async Task<IActionResult?> EnsureGovernanceScopeSealedManifestReadAllowedAsync(
+    private async Task<IActionResult?> EnsureGovernancePreviewRunSealedManifestReadAllowedAsync(
+        string runId,
         ScopeContext scope,
         CancellationToken cancellationToken)
     {
         try
         {
-            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                _runDetailQueryService,
+            await GovernancePreviewSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId,
+                scope,
                 _authorityQueryService,
                 _manifestHashService,
                 cancellationToken);
@@ -35,13 +34,13 @@ public sealed partial class GovernanceCoverageController
         return null;
     }
 
-    private async Task<IActionResult?> EnsureGovernanceCoveragePreviewSealedManifestReadAllowedAsync(
+    private async Task<IActionResult?> EnsureGovernancePreviewScopeSealedManifestReadAllowedAsync(
         ScopeContext scope,
         CancellationToken cancellationToken)
     {
         try
         {
-            await GovernanceCoveragePreviewSealedManifestHashGuard.EnsureCoveragePreviewAllowedOrThrowAsync(
+            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
