@@ -4,13 +4,14 @@ import {
   JIRA_INTEGRATION_ORIENTATION_SOURCES_INTRO,
   JIRA_INTEGRATION_SOURCES,
 } from "@/lib/jira-integration-evidence-copy";
+import { JIRA_INTEGRATION_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/jira-integration-shell-page-copy";
 
 /** Sources-only follow-ups for `/integrations/jira` buyer-polished shell (IJX). */
 export function JiraIntegrationSourcesOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="jira-integration"
-      stripTestId="jira-integration-orientation-bottom"
+      stripTestId={JIRA_INTEGRATION_ORIENTATION_BOTTOM_TEST_ID}
       sourcesTestId="jira-integration-sources"
       sourcesTitle={JIRA_INTEGRATION_FOLLOW_UPS_TITLE}
       sourcesIntro={JIRA_INTEGRATION_ORIENTATION_SOURCES_INTRO}

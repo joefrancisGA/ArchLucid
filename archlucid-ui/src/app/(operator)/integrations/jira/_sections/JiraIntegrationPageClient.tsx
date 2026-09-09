@@ -40,6 +40,7 @@ import {
 } from "@/lib/jira-integration-page-copy";
 import {
   JIRA_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
+  JIRA_INTEGRATION_BUYER_OVERVIEW,
   JIRA_INTEGRATION_PAGE_LEAD,
   JIRA_INTEGRATION_PRIMARY_CONTENT_ID,
   JIRA_INTEGRATION_SKIP_LINK_LABEL,
@@ -410,24 +411,31 @@ export function JiraIntegrationPageClient(): React.ReactElement {
         ) : null}
 
         {buyerPolishedShell ? (
-          <div
-            id={JIRA_INTEGRATION_SKIP_TARGET_ID}
-            data-testid={JIRA_INTEGRATION_FIRST_VIEWPORT_TEST_ID}
-            className={cn(
-              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-              OPERATOR_LAYOUT.sectionStack,
-            )}
-          >
-            <div className="space-y-4" data-testid="jira-integration-buyer-intro">
-              <p className={readingBodyClass} data-testid="jira-integration-intro">
-                {JIRA_INTEGRATION_PAGE_LEAD}
-              </p>
+          <>
+            <div
+              id={JIRA_INTEGRATION_SKIP_TARGET_ID}
+              data-testid={JIRA_INTEGRATION_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+            >
+              <div className="space-y-4" data-testid="jira-integration-buyer-intro">
+                <p className={readingBodyClass} data-testid="jira-integration-intro">
+                  {JIRA_INTEGRATION_PAGE_LEAD}
+                </p>
+              </div>
             </div>
-            {workspaceBody}
-          </div>
-        ) : (
-          workspaceBody
-        )}
+            <p
+              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="jira-integration-overview"
+            >
+              {JIRA_INTEGRATION_BUYER_OVERVIEW}
+            </p>
+          </>
+        ) : null}
+
+        {workspaceBody}
 
         {buyerPolishedShell ? <JiraIntegrationSourcesOrientationStrip /> : null}
       </div>
