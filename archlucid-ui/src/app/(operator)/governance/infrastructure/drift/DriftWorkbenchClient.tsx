@@ -726,7 +726,7 @@ export function DriftWorkbenchClient() {
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID}
-        className={cn("mx-auto flex w-full max-w-6xl flex-col gap-4 scroll-mt-24")}
+        className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-drift-primary-content"
       >
         <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-drift-selection-announcer" />
