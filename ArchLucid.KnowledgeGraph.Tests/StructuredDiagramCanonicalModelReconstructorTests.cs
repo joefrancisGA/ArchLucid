@@ -152,4 +152,47 @@ public sealed class StructuredDiagramCanonicalModelReconstructorTests
 
         document.LabelOnlyInferenceConfidence.Should().Be(0.7d);
     }
+
+    [Fact]
+    public void ReconstructDocuments_preserves_trust_boundary_subgraph_membership()
+    {
+        ArchitectureDiagramModelRecord sourceModel = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord
+                {
+                    Id = "corp",
+                    Label = "Corporate network",
+                },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "Orders API",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    SubgraphId = "corp",
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        IReadOnlyList<CanonicalObject> canonicalObjects = ArchitectureDiagramCanonicalObjectMapper.Map(
+            sourceModel,
+            "doc-mermaid-subgraph",
+            labelOnlyInferenceConfidence: 0.7);
+
+        StructuredDiagramReconstructedDocument document =
+            StructuredDiagramCanonicalModelReconstructor.ReconstructDocuments(canonicalObjects).Should().ContainSingle().Subject;
+
+        document.Model.Subgraphs.Should().ContainSingle(subgraph =>
+            subgraph.Id == "corp"
+            && subgraph.Label == "Corporate network");
+        document.Model.Nodes.Should().ContainSingle(node =>
+            node.Id == "api"
+            && node.SubgraphId == "corp");
+    }
 }
