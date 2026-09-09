@@ -32,10 +32,11 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/findings",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpFindingsGuideView } from "@/app/(operator)/help/_sections/HelpFindingsGuideView";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   FINDINGS_HELP_CLAIM_DISCIPLINE,
   FINDINGS_HELP_FOLLOW_UPS_TITLE,
@@ -51,6 +52,7 @@ import {
   FINDINGS_HELP_PRIMARY_ACTIONS,
 } from "@/lib/findings/findings-help-guide-content";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpFindingsGuideView buyer-polished shell (HFX)", () => {
   const entry = getProductDocumentationEntry("findings");
@@ -91,10 +93,7 @@ describe("HelpFindingsGuideView buyer-polished shell (HFX)", () => {
       within(actionPanel).getByRole("link", { name: FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.label }),
     ).toHaveAttribute("href", FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.href);
 
-    for (const source of FINDINGS_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), FINDINGS_HELP_SOURCES, "/help/findings");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

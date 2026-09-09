@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useMemo } from "react";
 
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -9,6 +8,7 @@ import { useArchitectureDraftQuery } from "@/hooks/use-architecture-draft-query"
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import { reviewReadinessFromDraftDocument } from "@/lib/architecture/architecture-draft-readiness";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
+import { useOperatorHomeEmptyDoThisNextAction } from "@/hooks/use-operator-home-empty-do-this-next-action";
 
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
@@ -20,7 +20,6 @@ import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
@@ -37,7 +36,11 @@ import {
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
-import { toOperatorCanonicalNextActionFromPilot } from "@/lib/operator-canonical-next-action";
+import {
+  toOperatorCanonicalNextActionFromEmptyHome,
+  toOperatorCanonicalNextActionFromLatestDraft,
+  toOperatorCanonicalNextActionFromPilot,
+} from "@/lib/operator-canonical-next-action";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 import { resolveLiveRunsDashboardModel } from "@/lib/operator/operator-home-live-runs-dashboard";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
@@ -56,8 +59,6 @@ import {
 import { resolveInviteeHomeOrientationCopy } from "@/lib/invitee-first-orientation";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useInviteeReviewerContext } from "@/hooks/use-invitee-reviewer-context";
-
-const heroCtaButtonClass = "h-8";
 
 const DEFAULT_NEXT_ACTION: PilotNextBestAction = {
   label: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
@@ -141,6 +142,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     seedRunItems: runsDashboard?.items,
   });
   const setupReadiness = useFinishSetupReadinessContext();
+  const emptyHomeDoThisNext = useOperatorHomeEmptyDoThisNextAction();
 
   const phaseSignals = useMemo(
     () => ({
@@ -167,7 +169,6 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const latestDraft = draftEntries[0] ?? null;
   const latestDraftPrimary = resolveOperatorHomeLatestDraftPrimaryAction(latestDraft);
   const resumeHref = latestDraftPrimary?.href ?? null;
-  const resumeCtaLabel = latestDraftPrimary?.ctaLabel ?? "Resume latest draft";
   const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
   const { isWorkingMode } = useWorkspaceMode();
   const rawEmphasizedPath = resolveOperatorHomeLifecycleEmphasizedPath(workspacePhase, latestDraft);
@@ -256,6 +257,9 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     workspacePhase === "active-reviews";
   const showOperationalHeroHeader = workspacePhase === "operational";
   const showEvalWithDraftsResumeHeader = workspacePhase === "eval-with-drafts";
+  const showEvalWithDraftsCanonicalNextAction =
+    workspacePhase === "eval-with-drafts" && latestDraftPrimary !== null;
+  const showEvalEmptyCanonicalNextAction = workspacePhase === "eval-empty" && !isWorkingMode;
   const showContextualHelpOnlyHeader = workspacePhase === "eval-empty" && showContextualHelp;
 
   return (
@@ -318,13 +322,6 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
               </p>
             ) : null}
           </div>
-          {resumeHref !== null ? (
-            <Button asChild variant="primary" size="sm" className={cn(heroCtaButtonClass, "shrink-0")}>
-              <Link href={resumeHref} data-testid="operator-home-resume-draft-primary">
-                {resumeCtaLabel}
-              </Link>
-            </Button>
-          ) : null}
           {showContextualHelp ? (
             <div className="shrink-0" data-testid="pilot-command-center-help">
               <PageContextualHelpButton />
@@ -367,6 +364,25 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
 
       {workspacePhase === "active-reviews" && !isWorkingMode ? (
         <OperatorHomeLifecycleAlternativesDisclosure emphasizedPath={emphasizedPath} />
+      ) : null}
+
+      {showEvalEmptyCanonicalNextAction ? (
+        <OperatorHomeCanonicalNextActionSlot
+          clientFallback={toOperatorCanonicalNextActionFromEmptyHome(emptyHomeDoThisNext.action)}
+          sampleLoading={emptyHomeDoThisNext.sampleLoading}
+          slotTestId="operator-home-eval-empty-canonical-next-action"
+          bridgeTestId="operator-home-do-this-next-bridge"
+          primaryTestId="operator-home-do-this-next-primary"
+        />
+      ) : null}
+
+      {showEvalWithDraftsCanonicalNextAction && latestDraftPrimary !== null ? (
+        <OperatorHomeCanonicalNextActionSlot
+          clientFallback={toOperatorCanonicalNextActionFromLatestDraft(latestDraftPrimary, heroCopy.lead)}
+          slotTestId="operator-home-eval-with-drafts-canonical-next-action"
+          bridgeTestId="operator-home-eval-with-drafts-lead"
+          primaryTestId="operator-home-resume-draft-primary"
+        />
       ) : null}
 
       {workspacePhase === "operational" ? (

@@ -48,7 +48,7 @@ export type GovernanceConflictRecord = Omit<GovernanceConflictRecordSchema, "can
 
 type EffectiveGovernanceResolutionResultSchema = components["schemas"]["EffectiveGovernanceResolutionResult"];
 
-/** Full governance resolution result: effective content, merge decisions, and any conflicts. */
+/** Full policy resolution result: effective content, merge decisions, and any conflicts. */
 export type EffectiveGovernanceResolutionResult = Omit<
   EffectiveGovernanceResolutionResultSchema,
   "effectiveContent" | "decisions" | "conflicts"

@@ -1,3 +1,8 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -9,6 +14,10 @@ import {
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { REPORT_PROBLEM_V1_SURFACES } from "@/lib/report-problem-surfaces";
+import {
+  parseReportProblemSurfaceTechKeyFromSearch,
+  reportProblemSurfaceTechDisclosureHrefFromSearch,
+} from "@/lib/support/report-problem-surface-tech-disclosure-url";
 import { cn } from "@/lib/utils";
 
 const VALIDATION_ONLY_400_EXCLUSION =
@@ -16,6 +25,28 @@ const VALIDATION_ONLY_400_EXCLUSION =
 
 /** Enumerates the Report problem surface registry for the help topic. */
 export function ReportProblemSurfaceCoverageTable(): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const reportProblemSurfaceTechKeyParam = searchParams.get("reportProblemSurfaceTechKey");
+  const [openSurfaceTechKey, setOpenSurfaceTechKeyState] = useState(() =>
+    parseReportProblemSurfaceTechKeyFromSearch(reportProblemSurfaceTechKeyParam),
+  );
+
+  const syncOpenSurfaceTechToUrl = useCallback(
+    (surfaceId: string | null) => {
+      router.replace(
+        reportProblemSurfaceTechDisclosureHrefFromSearch(searchParams.toString(), surfaceId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setOpenSurfaceTechKeyState(parseReportProblemSurfaceTechKeyFromSearch(reportProblemSurfaceTechKeyParam));
+  }, [reportProblemSurfaceTechKeyParam]);
+
   return (
     <section className="mt-4 space-y-2" data-testid="report-problem-surface-coverage">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
@@ -41,6 +72,12 @@ export function ReportProblemSurfaceCoverageTable(): React.JSX.Element {
                     summary="Technical details"
                     data-testid={`report-problem-surface-tech-${surface.id}`}
                     bodyTestId={`report-problem-surface-tech-body-${surface.id}`}
+                    open={openSurfaceTechKey === surface.id}
+                    onOpenChange={(detailsOpen) => {
+                      const nextSurfaceId = detailsOpen ? surface.id : null;
+                      setOpenSurfaceTechKeyState(nextSurfaceId ?? "");
+                      syncOpenSurfaceTechToUrl(nextSurfaceId);
+                    }}
                   >
                     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                       Route pattern: <code>{surface.routePattern}</code>

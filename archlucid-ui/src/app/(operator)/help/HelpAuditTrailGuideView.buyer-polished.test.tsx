@@ -44,9 +44,8 @@ import {
   AUDIT_TRAIL_HELP_SKIP_TARGET_ID,
   AUDIT_TRAIL_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/audit-trail-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpAuditTrailGuideView buyer-polished shell (H)", () => {
   const loaded = tryLoadProductDocumentation("audit-trail");
@@ -97,10 +96,7 @@ describe("HelpAuditTrailGuideView buyer-polished shell (H)", () => {
       within(actionPanel).getByRole("link", { name: AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.openAuditTrail.label }),
     ).toHaveAttribute("href", AUDIT_TRAIL_HELP_PRIMARY_ACTIONS.openAuditTrail.href);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(AUDIT_TRAIL_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), AUDIT_TRAIL_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

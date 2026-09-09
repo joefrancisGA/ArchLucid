@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { advisoryScansPageLead } from "@/lib/advisory-copy";
 import {
+  ADVISORY_HUB_FIRST_VIEWPORT_ID,
   ADVISORY_HUB_PRIMARY_CONTENT_ID,
   ADVISORY_HUB_SKIP_LINK_LABEL,
   ADVISORY_HUB_SKIP_TARGET_ID,
@@ -17,12 +18,13 @@ import {
 import { buildAdvisoryHubHref } from "@/lib/advisory-hub-href";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
 import { scopedRunIdFromQuery } from "@/lib/architecture/architecture-risk-register-page";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
+import { AdvisoryScansBuyerChrome } from "./AdvisoryScansBuyerChrome";
 import { AdvisoryScansContent } from "./AdvisoryScansContent";
 import { AdvisorySchedulesContent } from "./AdvisorySchedulesContent";
 import { ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION } from "@/lib/advisory-scans-help-guide-content";
@@ -45,7 +47,7 @@ export type AdvisoryHubClientProps = {
  * Tab state in `?tab=` for deep links. `initialTab` / `initialRunId` come from the server (no `useSearchParams` Suspense).
  */
 export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryHubClientProps): React.JSX.Element {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const router: ReturnType<typeof useRouter> = useRouter();
   const pathname: string = usePathname();
   const canMutate: boolean = useOperateCapability();
@@ -79,71 +81,100 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
     [pathname, router, scopedRunId],
   );
 
+  const advisoryHubTabs = (
+    <Tabs value={activeTab} onValueChange={onSelectTab} variant="line" className="mb-6">
+      <TabsList aria-label="Advisory hub sections" data-testid="advisory-hub-tablist">
+        {ADVISORY_HUB_TAB_IDS.map((id) => {
+          const readerHintId = !canMutate && id === "schedules" ? schedulesTabReaderHintId : undefined;
+
+          return (
+            <TabsTrigger
+              key={id}
+              value={id}
+              data-testid={`advisory-hub-tab-${id}`}
+              aria-describedby={readerHintId}
+            >
+              {TAB_LABEL[id]}
+            </TabsTrigger>
+          );
+        })}
+      </TabsList>
+
+      {!canMutate ? (
+        <span id={schedulesTabReaderHintId} className="sr-only">
+          {ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION}
+        </span>
+      ) : null}
+
+      <TabsContent value="scans" className="mt-4 min-w-0" data-testid="advisory-hub-panel">
+        {buyerPolishedShell ? <AdvisoryScansBuyerChrome /> : null}
+        <AdvisoryScansContent initialRunId={scopedRunId} />
+      </TabsContent>
+      <TabsContent value="schedules" className="mt-4 min-w-0">
+        <AdvisorySchedulesContent initialRunId={scopedRunId} />
+      </TabsContent>
+    </Tabs>
+  );
+
+  const advisoryPageHeader = (
+    <OperatorPageHeader
+      navHref={ADVISORY_SCANS_HREF}
+      title={OPERATOR_NAV_LINK_LABELS.architectureAdvisory}
+      actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
+      titleTestId="advisory-scans-page-title"
+    >
+      <p
+        data-testid="advisory-scans-page-lead"
+        className={cn(
+          "m-0 max-w-3xl text-neutral-600 dark:text-neutral-400",
+          buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : OPERATOR_TYPOGRAPHY.body,
+        )}
+      >
+        {advisoryScansPageLead(buyerPolishedShell, activeTab)}
+      </p>
+    </OperatorPageHeader>
+  );
+
   return (
     <div className="px-0" data-testid="advisory-hub">
       {buyerPolishedShell ? (
-        <a href={`#${ADVISORY_HUB_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
-          {ADVISORY_HUB_SKIP_LINK_LABEL}
-        </a>
-      ) : null}
+        <>
+          <a href={`#${ADVISORY_HUB_SKIP_TARGET_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+            {ADVISORY_HUB_SKIP_LINK_LABEL}
+          </a>
 
-      <div
-        id={ADVISORY_HUB_PRIMARY_CONTENT_ID}
-        data-testid={ADVISORY_HUB_PRIMARY_CONTENT_ID}
-        className={cn(buyerPolishedShell && "scroll-mt-24 space-y-6", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
-      >
-        <OperatorPageHeader
-          navHref={ADVISORY_SCANS_HREF}
-          title={OPERATOR_NAV_LINK_LABELS.architectureAdvisory}
-          actions={buyerPolishedShell ? undefined : <PageContextualHelpButton />}
-          titleTestId="advisory-scans-page-title"
-        >
-          <p
-            data-testid="advisory-scans-page-lead"
-            className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+          <div
+            id={ADVISORY_HUB_PRIMARY_CONTENT_ID}
+            data-testid={ADVISORY_HUB_PRIMARY_CONTENT_ID}
+            className={cn("scroll-mt-24 space-y-4", OPERATOR_LAYOUT.sectionStack)}
           >
-            {advisoryScansPageLead(buyerPolishedShell)}
-          </p>
-        </OperatorPageHeader>
+            {advisoryPageHeader}
 
-        <div
-          id={buyerPolishedShell ? ADVISORY_HUB_SKIP_TARGET_ID : undefined}
-          data-testid={buyerPolishedShell ? ADVISORY_HUB_SKIP_TARGET_ID : undefined}
-          className={cn(buyerPolishedShell && "scroll-mt-24")}
-        >
-          <Tabs value={activeTab} onValueChange={onSelectTab} variant="line" className="mb-6">
-            <TabsList aria-label="Advisory hub sections" data-testid="advisory-hub-tablist">
-              {ADVISORY_HUB_TAB_IDS.map((id) => {
-                const readerHintId = !canMutate && id === "schedules" ? schedulesTabReaderHintId : undefined;
+            <div
+              id={ADVISORY_HUB_SKIP_TARGET_ID}
+              data-testid={ADVISORY_HUB_FIRST_VIEWPORT_ID}
+              className={cn("scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800")}
+            >
+              {advisoryHubTabs}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <a href={`#${ADVISORY_HUB_PRIMARY_CONTENT_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
+            {ADVISORY_HUB_SKIP_LINK_LABEL}
+          </a>
 
-                return (
-                  <TabsTrigger
-                    key={id}
-                    value={id}
-                    data-testid={`advisory-hub-tab-${id}`}
-                    aria-describedby={readerHintId}
-                  >
-                    {TAB_LABEL[id]}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-
-            {!canMutate ? (
-              <span id={schedulesTabReaderHintId} className="sr-only">
-                {ADVISORY_SCANS_HUB_READER_ROLE_PRECONDITION}
-              </span>
-            ) : null}
-
-            <TabsContent value="scans" className="mt-4 min-w-0" data-testid="advisory-hub-panel">
-              <AdvisoryScansContent initialRunId={scopedRunId} />
-            </TabsContent>
-            <TabsContent value="schedules" className="mt-4 min-w-0">
-              <AdvisorySchedulesContent initialRunId={scopedRunId} />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
+          <div
+            id={ADVISORY_HUB_PRIMARY_CONTENT_ID}
+            data-testid={ADVISORY_HUB_PRIMARY_CONTENT_ID}
+            className="scroll-mt-24 space-y-6"
+          >
+            {advisoryPageHeader}
+            {advisoryHubTabs}
+          </div>
+        </>
+      )}
     </div>
   );
 }

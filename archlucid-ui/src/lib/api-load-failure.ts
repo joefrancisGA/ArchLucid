@@ -71,7 +71,22 @@ const TRANSIENT_ERROR_CODES = new Set([
   "CIRCUIT_BREAKER_OPEN",
 ]);
 
-export type ApiLoadFailurePresentation = "not-found" | "transient" | "error";
+export type ApiLoadFailurePresentation = "not-found" | "transient" | "forbidden" | "error";
+
+/** True when the API rejected the caller's authority (403). */
+export function isApiForbiddenFailure(f: ApiLoadFailureState | null | undefined): boolean {
+  if (f === null || f === undefined) {
+    return false;
+  }
+
+  if (f.httpStatus === 403) {
+    return true;
+  }
+
+  const ps = f.problem?.status;
+
+  return ps === 403;
+}
 
 function messageLooksTransient(message: string): boolean {
   const lower = message.toLowerCase();
@@ -144,6 +159,10 @@ export function resolveApiLoadFailurePresentation(
 
   if (isApiTransientLoadFailure(failure)) {
     return "transient";
+  }
+
+  if (isApiForbiddenFailure(failure)) {
+    return "forbidden";
   }
 
   if (isApiNotFoundFailure(failure)) {

@@ -4,6 +4,12 @@ export const ADMIN_SUPPORT_PAGE_TITLE = "Support" as const;
 
 export const ADMIN_SUPPORT_PRIMARY_CONTENT_ID = "admin-support-primary-content" as const;
 
+export const ADMIN_SUPPORT_FIRST_VIEWPORT_ID = "admin-support-first-viewport" as const;
+
+export const ADMIN_SUPPORT_FIRST_VIEWPORT_TEST_ID = ADMIN_SUPPORT_FIRST_VIEWPORT_ID;
+
+export const ADMIN_SUPPORT_SKIP_TARGET_ID = ADMIN_SUPPORT_FIRST_VIEWPORT_ID;
+
 export const ADMIN_SUPPORT_SKIP_LINK_LABEL = "Skip to support workspace" as const;
 
 export const ADMIN_SUPPORT_BREADCRUMB_ADMINISTRATION_LABEL = "Administration" as const;

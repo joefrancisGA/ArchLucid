@@ -5,8 +5,10 @@ import { useMemo, useSyncExternalStore } from "react";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
+  CORE_PILOT_AZURE_INVENTORY_OPTIONAL_STEP_INDEX,
   getCorePilotOptionalSkipServerSnapshot,
   getCorePilotOptionalSkipSnapshot,
+  readCorePilotOptionalStepSkipped,
   subscribeCorePilotChecklist,
 } from "@/lib/core-pilot-checklist-storage";
 import {
@@ -50,12 +52,23 @@ export function useCorePilotDerivedStepStatus(): CorePilotDerivedStepStatusState
       query.isPending || query.isError || query.data === undefined
         ? emptyCommitContext
         : query.data;
+    const azureInventoryPromptScope = { runId: commitContext.latestRunId };
     const optionalStepsSkipped = optionalSkipSnapshot
       .split("")
-      .map((flag) => flag === "1")
+      .map((flag, index) => {
+        if (index === CORE_PILOT_AZURE_INVENTORY_OPTIONAL_STEP_INDEX) {
+          return readCorePilotOptionalStepSkipped(index, azureInventoryPromptScope);
+        }
+
+        return flag === "1";
+      })
       .concat(emptyOptionalSkips)
       .slice(0, 7);
-    const statusContext = buildCorePilotStepStatusContext(commitContext, optionalStepsSkipped);
+    const statusContext = buildCorePilotStepStatusContext(
+      commitContext,
+      optionalStepsSkipped,
+      azureInventoryPromptScope,
+    );
     const statuses = resolveCorePilotStepStatuses(statusContext);
     const progress = buildCorePilotProgressFromStatuses(statuses);
 

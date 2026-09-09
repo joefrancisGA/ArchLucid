@@ -9,10 +9,13 @@ import { PostAuthBootstrapBuyerChrome } from "@/app/(operator)/auth/bootstrap/Po
 import { CreateWorkspaceForm } from "@/app/(operator)/auth/bootstrap/CreateWorkspaceForm";
 import { PostAuthBootstrapExitActions } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapExitActions";
 import { PostAuthBootstrapLoadingView } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapLoadingView";
+import { PostAuthBootstrapStepErrorRecovery } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapStepErrorRecovery";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { CREATE_WORKSPACE_COPY } from "@/lib/auth/create-workspace-schema";
 import type { CreateWorkspaceFormValues } from "@/lib/auth/create-workspace-schema";
 import { readInvitationToken } from "@/lib/auth/email-otp-session";
 import { resolveBootstrapCompletePath } from "@/lib/auth/email-otp-post-auth";
+import { restoreIdleDeskScopeAfterSignIn } from "@/lib/auth/idle-desk-restore";
 import {
   acceptPostAuthInvitation,
   createPostAuthWorkspace,
@@ -29,9 +32,6 @@ import {
   resolvePostAuthBootstrapDenialMessage,
 } from "@/lib/auth/post-auth-bootstrap-denial-copy";
 import { POST_AUTH_BOOTSTRAP_LOAD_ERROR_MESSAGE, POST_AUTH_BOOTSTRAP_LOAD_ERROR_TITLE } from "@/lib/auth/post-auth-bootstrap-exit-copy";
-import { AUTH_BOOTSTRAP_CLAIM_DISCIPLINE } from "@/lib/auth-bootstrap-evidence-copy";
-import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
-
 function applyBootstrapSession(session: {
   accessToken: string;
   tokenType: string;
@@ -43,6 +43,7 @@ function applyBootstrapSession(session: {
     token_type: session.tokenType,
     expires_in: session.expiresInSeconds,
   });
+  restoreIdleDeskScopeAfterSignIn();
 
   const destination = isSafeReturnPath(session.redirectPath) ? session.redirectPath : "/";
   window.location.replace(destination);
@@ -71,6 +72,7 @@ export function PostAuthBootstrapClient() {
       setStatus(nextStatus);
 
       if (nextStatus.destination === "Complete") {
+        restoreIdleDeskScopeAfterSignIn();
         window.location.replace(resolveBootstrapCompletePath(safeReturnUrl));
       }
 
@@ -183,6 +185,12 @@ export function PostAuthBootstrapClient() {
           <p role="alert" className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {errorMessage ?? POST_AUTH_BOOTSTRAP_LOAD_ERROR_MESSAGE}
           </p>
+          <FatalPageReportProblemSupportRow
+            surfaceId="auth-bootstrap-cannot-complete"
+            routePath="/auth/bootstrap"
+            errorTitle={POST_AUTH_BOOTSTRAP_LOAD_ERROR_TITLE}
+            errorCode="auth-bootstrap-load-error"
+          />
           <PostAuthBootstrapExitActions />
         </div>
     );
@@ -226,9 +234,15 @@ export function PostAuthBootstrapClient() {
             ))}
           </div>
           {errorMessage ? (
-            <p role="alert" className="mt-4 text-sm text-red-700">
-              {errorMessage}
-            </p>
+            <>
+              <p role="alert" className="mt-4 text-sm text-red-700">
+                {errorMessage}
+              </p>
+              <PostAuthBootstrapStepErrorRecovery
+                errorTitle={CREATE_WORKSPACE_COPY.invitationTitle}
+                errorCode="auth-bootstrap-invitation-accept-failed"
+              />
+            </>
           ) : null}
         </div>
     );
@@ -243,11 +257,6 @@ export function PostAuthBootstrapClient() {
           <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {POST_AUTH_BOOTSTRAP_COPY.selectWorkspaceLead}
           </p>
-          <PageHeaderClaimDiscipline
-            text={AUTH_BOOTSTRAP_CLAIM_DISCIPLINE}
-            testId="post-auth-bootstrap-claim-discipline"
-            className="mt-3 text-left"
-          />
           {status.workspaces.length === 0 ? (
             <p className={cn("mt-6 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
               {POST_AUTH_BOOTSTRAP_COPY.selectWorkspaceEmpty}
@@ -279,9 +288,15 @@ export function PostAuthBootstrapClient() {
             </div>
           )}
           {errorMessage ? (
-            <p role="alert" className="mt-4 text-sm text-red-700">
-              {errorMessage}
-            </p>
+            <>
+              <p role="alert" className="mt-4 text-sm text-red-700">
+                {errorMessage}
+              </p>
+              <PostAuthBootstrapStepErrorRecovery
+                errorTitle={CREATE_WORKSPACE_COPY.selectWorkspaceTitle}
+                errorCode="auth-bootstrap-workspace-select-failed"
+              />
+            </>
           ) : null}
         </div>
     );
@@ -318,6 +333,12 @@ export function PostAuthBootstrapClient() {
             {CREATE_WORKSPACE_COPY.accessRequest}
           </Button>
         )}
+        <FatalPageReportProblemSupportRow
+          surfaceId="auth-bootstrap-cannot-complete"
+          routePath="/auth/bootstrap"
+          errorTitle={CREATE_WORKSPACE_COPY.noAccessTitle}
+          errorCode="auth-bootstrap-no-access"
+        />
         <PostAuthBootstrapExitActions />
       </div>
   );

@@ -1,5 +1,6 @@
 import { ExecDigestSponsorDeepLinkPanel } from "@/app/(marketing)/digest/sponsor/_sections/ExecDigestSponsorDeepLinkPanel";
 import { fetchExecDigestSponsorDeepLinkView } from "@/lib/digest/exec-digest-sponsor-deep-link-server";
+import { buildDigestSponsorRunCollateralReturnPath } from "@/lib/marketing/digest-sponsor-page-copy";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { notFound } from "next/navigation";
 
@@ -34,5 +35,10 @@ export default async function ExecDigestSponsorRunDeepLinkPage(props: PageProps)
     return <ExecDigestSponsorRunCollateralUnavailablePage />;
   }
 
-  return <ExecDigestSponsorDeepLinkPanel view={view} />;
+  return (
+    <ExecDigestSponsorDeepLinkPanel
+      view={view}
+      signInReturnPath={buildDigestSponsorRunCollateralReturnPath(normalizedRunId, token)}
+    />
+  );
 }

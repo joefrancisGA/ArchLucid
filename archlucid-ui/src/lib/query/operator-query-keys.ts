@@ -102,6 +102,8 @@ export const operatorQueryKeys = {
     ["operator", "architecture", "identity", architectureId] as const,
   architectureSealDelta: (architectureId: string) =>
     ["operator", "architecture", "seal-delta", architectureId] as const,
+  architectureDeskDiagramSources: (latestReviewId: string) =>
+    ["operator", "architecture", "desk-diagram-sources", latestReviewId] as const,
   architectureIdentityList: (
     scope: OperatorScopeQueryKey,
     page: number,
@@ -153,6 +155,7 @@ export const operatorQueryKeys = {
   effectivePolicyPacks: ["operator", "governance", "effective-policy-packs"] as const,
   effectivePolicyContent: ["operator", "governance", "effective-policy-content"] as const,
   runSummary: (runId: string) => ["operator", "runs", "summary", runId] as const,
+  runAgentEvaluation: (runId: string) => ["operator", "runs", "agent-evaluation", runId] as const,
   architectureDecisionRegister: (projectId: string, filtersKey: string) =>
     ["operator", "governance", "decision-register", projectId, filtersKey] as const,
   runDetailWorkspaceContextBundle: (runId: string) =>

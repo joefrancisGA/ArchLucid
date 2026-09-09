@@ -1,6 +1,8 @@
 ﻿using ArchLucid.Api.Controllers.Planning;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Decisioning.Interfaces;
 
 using FluentAssertions;
 
@@ -20,7 +22,11 @@ public sealed class RetrievalControllerTests
     {
         Mock<IRetrievalQueryService> retrieval = new();
         Mock<IScopeContextProvider> scopeProvider = new();
-        RetrievalController sut = new(retrieval.Object, scopeProvider.Object)
+        RetrievalController sut = new(
+            retrieval.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -45,7 +51,11 @@ public sealed class RetrievalControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId });
-        RetrievalController sut = new(retrieval.Object, scopeProvider.Object)
+        RetrievalController sut = new(
+            retrieval.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -73,7 +83,11 @@ public sealed class RetrievalControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId });
-        RetrievalController sut = new(retrieval.Object, scopeProvider.Object)
+        RetrievalController sut = new(
+            retrieval.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

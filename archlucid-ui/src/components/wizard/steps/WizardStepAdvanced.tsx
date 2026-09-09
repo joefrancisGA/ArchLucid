@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import type { FieldPath } from "react-hook-form";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
@@ -23,6 +25,10 @@ import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
 import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import {
+  parseWizardStepAdvancedOpenFromSearch,
+  wizardStepAdvancedDisclosureHrefFromSearch,
+} from "@/lib/wizard/wizard-step-advanced-disclosure-url";
 
 import { WizardAdvancedChipList } from "./WizardAdvancedChipList";
 import { WizardAdvancedCollapsibleSection } from "./WizardAdvancedCollapsibleSection";
@@ -32,6 +38,33 @@ import { WizardEngineAliasPicker } from "./WizardEngineAliasPicker";
  * Step 5: optional policy hints, architecture structure, security, documents, infrastructure declarations.
  */
 export function WizardStepAdvanced(): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const wizardStepAdvancedOpenParam = searchParams.get("wizardStepAdvancedOpen");
+  const [advancedOpen, setAdvancedOpenState] = useState(() =>
+    parseWizardStepAdvancedOpenFromSearch(wizardStepAdvancedOpenParam),
+  );
+  const syncAdvancedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(wizardStepAdvancedDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+  const setAdvancedOpen = useCallback(
+    (open: boolean) => {
+      setAdvancedOpenState(open);
+      syncAdvancedOpenToUrl(open);
+    },
+    [syncAdvancedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAdvancedOpenState(parseWizardStepAdvancedOpenFromSearch(wizardStepAdvancedOpenParam));
+  }, [wizardStepAdvancedOpenParam]);
+
   const { control, watch, register, formState, clearErrors } = useFormContext<WizardFormValues>();
   const { errors } = formState;
   const policyReferences = watch("policyReferences") ?? [];
@@ -62,11 +95,11 @@ export function WizardStepAdvanced(): ReactElement {
         hints, attached documents, or raw infrastructure snippets for agents.
       </p>
 
-      <AdvancedOptionsAccordion className="mt-4">
+      <AdvancedOptionsAccordion className="mt-4" open={advancedOpen} onOpenChange={setAdvancedOpen}>
         <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
           <WizardFieldHint
             label="Model execution profile"
-            hint="Optional per-review override. Defaults to the workspace profile configured under Settings → AI and model governance."
+            hint="Optional per-review override. Defaults to the workspace profile configured under Settings → AI and model policy."
           />
           <Controller
             name="modelExecutionProfileOverride"
@@ -89,7 +122,11 @@ export function WizardStepAdvanced(): ReactElement {
 
         <WizardEngineAliasPicker />
 
-        <WizardAdvancedCollapsibleSection title="Policy references (Custom Policy Overrides)" count={policyReferences.length}>
+        <WizardAdvancedCollapsibleSection
+          sectionKey="policy-references"
+          title="Policy references (Custom Policy Overrides)"
+          count={policyReferences.length}
+        >
           <WizardAdvancedChipList
             fieldName="policyReferences"
             title="Policy references"
@@ -98,7 +135,11 @@ export function WizardStepAdvanced(): ReactElement {
           />
         </WizardAdvancedCollapsibleSection>
 
-        <WizardAdvancedCollapsibleSection title={ARCHITECTURE_HINTS_BUYER_LABEL} count={topologyHints.length}>
+        <WizardAdvancedCollapsibleSection
+          sectionKey="topology-hints"
+          title={ARCHITECTURE_HINTS_BUYER_LABEL}
+          count={topologyHints.length}
+        >
           <WizardAdvancedChipList
             fieldName="topologyHints"
             title={ARCHITECTURE_HINTS_BUYER_LABEL}
@@ -107,7 +148,7 @@ export function WizardStepAdvanced(): ReactElement {
           />
         </WizardAdvancedCollapsibleSection>
 
-        <WizardAdvancedCollapsibleSection title="Security baseline hints" count={securityBaselineHints.length}>
+        <WizardAdvancedCollapsibleSection sectionKey="security-baseline-hints" title="Security baseline hints" count={securityBaselineHints.length}>
           <WizardAdvancedChipList
             fieldName="securityBaselineHints"
             title="Security baseline hints"
@@ -116,7 +157,11 @@ export function WizardStepAdvanced(): ReactElement {
           />
         </WizardAdvancedCollapsibleSection>
 
-        <WizardAdvancedCollapsibleSection title="Documents" count={documents.filter((d) => d.name.trim() || d.content.trim()).length}>
+        <WizardAdvancedCollapsibleSection
+          sectionKey="documents"
+          title="Documents"
+          count={documents.filter((d) => d.name.trim() || d.content.trim()).length}
+        >
           <WizardFieldHint
             label="Documents"
             hint="Each row is a named UTF-8 attachment (name, content type, body) merged into agent context alongside the main brief."
@@ -204,6 +249,7 @@ export function WizardStepAdvanced(): ReactElement {
         </WizardAdvancedCollapsibleSection>
 
         <WizardAdvancedCollapsibleSection
+          sectionKey="infrastructure-declarations"
           title="Infrastructure declarations (Raw JSON Editors)"
           count={infrastructureDeclarations.filter((d) => d.name.trim() || d.content.trim()).length}
         >

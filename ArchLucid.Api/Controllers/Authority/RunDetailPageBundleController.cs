@@ -1,5 +1,7 @@
-using ArchLucid.Application.Audit;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Audit;
+using ArchLucid.Api.Support;
+using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
@@ -29,6 +31,7 @@ public sealed partial class RunDetailPageBundleController(
     IAuthorityQueryService queryService,
     IAuthorityRunDetailOperatorEnricher runDetailOperatorEnricher,
     IArtifactQueryService artifactQueryService,
+    IFindingVerificationReportQueryService findingVerificationReportQueryService,
     IRunPipelineAuditTimelineService pipelineAuditTimeline,
     IRunRepository runRepository,
     IRunStageOutcomesRepository runStageOutcomesRepository,
@@ -49,6 +52,10 @@ public sealed partial class RunDetailPageBundleController(
 
     private readonly IArtifactQueryService _artifactQueryService =
         artifactQueryService ?? throw new ArgumentNullException(nameof(artifactQueryService));
+
+    private readonly IFindingVerificationReportQueryService _findingVerificationReportQueryService =
+        findingVerificationReportQueryService
+        ?? throw new ArgumentNullException(nameof(findingVerificationReportQueryService));
 
     private readonly IRunPipelineAuditTimelineService _pipelineAuditTimeline =
         pipelineAuditTimeline ?? throw new ArgumentNullException(nameof(pipelineAuditTimeline));

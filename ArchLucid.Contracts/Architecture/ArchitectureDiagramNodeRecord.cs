@@ -20,6 +20,13 @@ public sealed class ArchitectureDiagramNodeRecord
         set;
     } = ArchitectureDiagramNodeKinds.System;
 
+    /// <summary>Optional swimlane / subgraph membership (AS-006).</summary>
+    public string? SubgraphId
+    {
+        get;
+        set;
+    }
+
     public string Provenance
     {
         get;

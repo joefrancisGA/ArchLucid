@@ -38,4 +38,17 @@ internal static partial class GcpSkuPricingParser
 
         return true;
     }
+
+    private static bool IsPreemptibleDescription(string description)
+        => description.Contains("preemptible", StringComparison.OrdinalIgnoreCase);
+
+    private static bool DescriptionMatchesRegion(string description, string? regionCode)
+    {
+        if (string.IsNullOrWhiteSpace(regionCode))
+            return true;
+
+        string regionNeedle = $" in {regionCode.Trim()}";
+
+        return description.Contains(regionNeedle, StringComparison.OrdinalIgnoreCase);
+    }
 }

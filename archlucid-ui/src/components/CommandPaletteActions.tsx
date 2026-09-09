@@ -12,6 +12,7 @@ import { CommandGroup, CommandItem } from "@/components/ui/command";
 import { useEffectiveNavCommittedArchitectureReview } from "@/hooks/use-effective-nav-committed-architecture-review";
 import { useRoleNavDensityExpanded } from "@/hooks/use-role-nav-density-expanded";
 import { useWorkingStartHref } from "@/hooks/use-working-start-href";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 
 export function CommandPaletteActions({
   pathname,
@@ -35,6 +36,7 @@ export function CommandPaletteActions({
     showFullNav,
     workingStartHref,
     visibleNavHrefs,
+    lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
   });
   const handlerActions: readonly CommandPaletteHandlerAction[] =
     resolveVisibleCommandPaletteHandlerActions(pathname, {

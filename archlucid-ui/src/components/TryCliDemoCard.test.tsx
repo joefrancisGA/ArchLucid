@@ -1,12 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { extendNextNavigationVitestMock } from "@/testing/next-navigation-vitest-mock";
+
 import { TryCliDemoCard } from "./TryCliDemoCard";
 import {
   TRY_CLI_DEMO_CLI_HELP_HREF,
   TRY_CLI_DEMO_CLI_HELP_LABEL,
   buildTryCliDemoCommand,
 } from "./try-cli-demo-copy";
+
+vi.mock("next/navigation", async (importOriginal) => extendNextNavigationVitestMock(importOriginal));
 
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,

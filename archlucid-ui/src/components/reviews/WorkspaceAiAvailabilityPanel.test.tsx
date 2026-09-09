@@ -95,16 +95,23 @@ describe("WorkspaceAiAvailabilityPanel", () => {
     fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
 
     await waitFor(() => {
+      expect(screen.getByTestId("review-package-workspace-ai-model")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /AI availability details/i }));
+
+    await waitFor(() => {
       expect(screen.getByTestId("review-package-workspace-ai-debug")).toBeInTheDocument();
     });
 
     expect(fetchWorkspaceAiAvailabilityMock).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("review-package-workspace-ai-vendor-error")).toHaveTextContent("HTTP 401");
-    expect(screen.getByTestId("review-package-workspace-ai-as-of")).toHaveTextContent("Validated at Aug 31, 2026, 6:00 PM UTC");
-    expect(screen.getByTestId("review-package-workspace-ai-model")).toHaveTextContent("gpt-4o");
-    expect(screen.getByTestId("review-package-workspace-ai-model-provenance")).toHaveTextContent(
-      "managed platform",
+    expect(screen.getByTestId("review-package-workspace-ai-checked-at")).toHaveAttribute(
+      "title",
+      "Aug 31, 2026, 6:00 PM UTC",
     );
+    expect(screen.getAllByTestId("review-package-workspace-ai-model")[0]).toHaveTextContent("gpt-4o");
+    expect(screen.queryByTestId("review-package-workspace-ai-model-provenance")).not.toBeInTheDocument();
     expect(screen.queryByText("probeDeploymentName:")).not.toBeInTheDocument();
   });
 
@@ -131,18 +138,16 @@ describe("WorkspaceAiAvailabilityPanel", () => {
     fireEvent.click(screen.getByTestId("review-package-check-ai-availability-button"));
 
     await waitFor(() => {
-      expect(screen.getByText("AI checked — OK")).toBeInTheDocument();
+      expect(screen.getByText("Ready")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("review-package-workspace-ai-checked-at")).toHaveTextContent(
-      "Checked Aug 31, 2026, 6:00 PM UTC",
-    );
+    expect(screen.getByTestId("review-package-workspace-ai-checked-at")).toBeInTheDocument();
     expect(screen.queryByTestId("review-package-workspace-ai-detail")).not.toBeInTheDocument();
     expect(screen.getByTestId("review-package-recheck-ai-availability-link")).toHaveTextContent("Re-check");
-    expect(screen.getByRole("button", { name: "Probe details" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByRole("button", { name: /AI availability details/i })).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByText("Probe checks")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Probe details" }));
+    fireEvent.click(screen.getByRole("button", { name: /AI availability details/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId("review-package-workspace-ai-debug")).toBeInTheDocument();

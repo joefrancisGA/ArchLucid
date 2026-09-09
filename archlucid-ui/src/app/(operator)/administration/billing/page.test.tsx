@@ -122,7 +122,7 @@ const pricingFixture = {
     {
       id: "team",
       title: "Team",
-      summary: "Small architecture team with basic governance",
+      summary: "Small architecture team with basic approval controls",
       planMonthlyUsd: 249,
       pricingDisplay: "monthly",
       includedUsers: 5,
@@ -135,7 +135,7 @@ const pricingFixture = {
     {
       id: "professional",
       title: "Professional",
-      summary: "Governed architecture review practice with policy packs and audit exports",
+      summary: "Formal architecture review practice with policy packs and audit exports",
       planMonthlyUsd: 1799,
       pricingDisplay: "monthly",
       includedUsers: 15,

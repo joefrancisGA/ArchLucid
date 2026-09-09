@@ -3,6 +3,8 @@
 import { useMemo } from "react";
 
 import { ReviewPackageContinueLastRow } from "@/components/reviews/ReviewPackageContinueLastRow";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { resolveContinueLastReviewPackageTarget } from "@/lib/resolve-continue-last-review-package";
 import type { RunSummary } from "@/types/authority";
 
@@ -15,9 +17,15 @@ export type OperatorHomeContinueLastReviewPackageSectionProps = {
 export function OperatorHomeContinueLastReviewPackageSection(
   props: OperatorHomeContinueLastReviewPackageSectionProps,
 ): React.JSX.Element | null {
+  const { isWorkingMode } = useWorkspaceMode();
+  const drafts = useArchitectureDraftRegistryEntries();
   const target = useMemo(
-    () => resolveContinueLastReviewPackageTarget(props.runs),
-    [props.runs],
+    () =>
+      resolveContinueLastReviewPackageTarget(props.runs, undefined, {
+        workingMode: isWorkingMode,
+        draftRegistryEntries: drafts,
+      }),
+    [drafts, isWorkingMode, props.runs],
   );
 
   if (target === null) {

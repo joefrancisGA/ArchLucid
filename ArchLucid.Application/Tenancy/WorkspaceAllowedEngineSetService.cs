@@ -57,6 +57,8 @@ public sealed class WorkspaceAllowedEngineSetService(
             },
             SerializerOptions);
 
+        EnsureSerializedPayloadFitsTenantSettings(payload);
+
         await _tenantSettingsRepository
             .UpsertAsync(tenantId, TenantSettingKeys.WorkspaceAllowedEngineAliases, payload, cancellationToken)
             .ConfigureAwait(false);
@@ -170,6 +172,15 @@ public sealed class WorkspaceAllowedEngineSetService(
         }
 
         return tenantId;
+    }
+
+    private static void EnsureSerializedPayloadFitsTenantSettings(string serializedPayload)
+    {
+        if (serializedPayload.Length > TenantSettingsSchemaLimits.SettingValueMaxLength)
+        {
+            throw new InvalidOperationException(
+                $"Allowed engine set JSON must be at most {TenantSettingsSchemaLimits.SettingValueMaxLength} characters.");
+        }
     }
 
     private sealed class StoredAllowedEngineSet

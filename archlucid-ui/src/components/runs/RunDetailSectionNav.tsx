@@ -2,11 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { scheduleScrollToReviewDetailSection, scheduleScrollToReviewDetailHashFromLocation } from "@/lib/review-detail-section-scroll";
 import {
   REVIEW_DETAIL_TAB_PARAM,
@@ -24,17 +25,28 @@ export type RunDetailSection = {
 
 type RunDetailSectionNavProps = {
   readonly runId: string;
+  readonly parentArchitectureId?: string | null;
   sections: RunDetailSection[];
+  readonly activeReviewTab?: ReviewDetailTabId;
 };
 
 /**
  * Sticky tab navigation for long run detail pages when the tab row is not already visible.
  */
-export function RunDetailSectionNav({ runId, sections }: RunDetailSectionNavProps) {
+export function RunDetailSectionNav({
+  runId,
+  parentArchitectureId,
+  sections,
+  activeReviewTab: activeReviewTabProp,
+}: RunDetailSectionNavProps) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const architectureId = resolveReviewWorkspaceArchitectureId(parentArchitectureId, pathname);
   const { isGovernanceModeEnabled, vocabulary } = useGovernanceMode();
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const activeReviewTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
+  const evalChromeShell = useProductionEvalChrome();
+  const buyerPolishedShell = evalChromeShell;
+  const activeReviewTab =
+    activeReviewTabProp ?? resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
 
   const normalizedSections = useMemo(() => {
     return sections
@@ -132,7 +144,7 @@ export function RunDetailSectionNav({ runId, sections }: RunDetailSectionNavProp
     return null;
   }
 
-  const buyerStickyChrome = isBuyerPolishedOperatorShellEnv();
+  const buyerStickyChrome = evalChromeShell;
 
   return (
     <nav
@@ -149,7 +161,7 @@ export function RunDetailSectionNav({ runId, sections }: RunDetailSectionNavProp
         {visible.map((section) => {
           const active = activeId === section.id;
           const href = isReviewDetailTabId(section.id)
-            ? buildReviewDetailTabHref(runId, section.id as ReviewDetailTabId)
+            ? buildReviewDetailTabHref(runId, section.id as ReviewDetailTabId, { architectureId })
             : `#${section.id}`;
 
           return (

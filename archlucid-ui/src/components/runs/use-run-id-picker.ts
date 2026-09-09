@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, useCallback } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
+import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -39,6 +40,8 @@ export type UseRunIdPickerOptions = {
   readonly useBuyerFacingRunLabels?: boolean;
   /** Invoked when the user picks a row from the list (not on every keystroke). */
   readonly onRunPicked?: (summary: RunSummary) => void;
+  /** When set, limits picker rows to reviews of this architecture (AO-29). */
+  readonly architectureId?: string;
 };
 
 export function runMatchesQuery(run: RunSummary, query: string, useBuyerFacingRunLabels: boolean): boolean {
@@ -74,6 +77,7 @@ export function useRunIdPicker({
   preferAutoPick = true,
   useBuyerFacingRunLabels = false,
   onRunPicked,
+  architectureId,
 }: UseRunIdPickerOptions) {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
@@ -170,9 +174,29 @@ export function useRunIdPicker({
     committedOnly,
     enabled: loadRequested,
   });
+  const normalizedArchitectureId = architectureId?.trim() ?? "";
+  const architectureQuery = useArchitectureIdentityQuery(
+    normalizedArchitectureId,
+    normalizedArchitectureId.length > 0,
+  );
+  const scopedRunIds = useMemo(() => {
+    if (normalizedArchitectureId.length === 0 || architectureQuery.data === undefined) {
+      return null;
+    }
 
-  const loading = loadRequested && runsQuery.isPending;
-  const runs = runsQuery.data?.items ?? [];
+    return new Set(architectureQuery.data.reviews.map((review) => review.runId));
+  }, [architectureQuery.data, normalizedArchitectureId.length]);
+
+  const loading = loadRequested && (runsQuery.isPending || (normalizedArchitectureId.length > 0 && architectureQuery.isLoading));
+  const runs = useMemo(() => {
+    const items = runsQuery.data?.items ?? [];
+
+    if (scopedRunIds === null) {
+      return items;
+    }
+
+    return items.filter((run) => scopedRunIds.has(run.runId));
+  }, [runsQuery.data?.items, scopedRunIds]);
   const loadError =
     runsQuery.isError || runsQuery.data?.loadError === true ? "Could not load reviews list." : null;
 

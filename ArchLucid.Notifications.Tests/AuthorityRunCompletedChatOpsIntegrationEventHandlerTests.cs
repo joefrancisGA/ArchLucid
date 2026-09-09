@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -5,7 +6,8 @@ using ArchLucid.Core.Integration;
 
 using FluentAssertions;
 
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -25,9 +27,7 @@ public sealed class AuthorityRunCompletedChatOpsIntegrationEventHandlerTests
             .Callback<AuthorityRunCommittedChatOpsNotice, CancellationToken>((notice, _) => captured = notice)
             .Returns(Task.CompletedTask);
 
-        AuthorityRunCompletedChatOpsIntegrationEventHandler sut = new(
-            hook.Object,
-            NullLogger<AuthorityRunCompletedChatOpsIntegrationEventHandler>.Instance);
+        AuthorityRunCompletedChatOpsIntegrationEventHandler sut = new(hook.Object);
 
         sut.EventType.Should().Be(IntegrationEventTypes.AuthorityRunCompletedV1);
 
@@ -59,5 +59,106 @@ public sealed class AuthorityRunCompletedChatOpsIntegrationEventHandlerTests
         hook.Verify(
             h => h.NotifyAsync(It.IsAny<AuthorityRunCommittedChatOpsNotice>(), It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_propagates_when_hook_reports_all_enabled_targets_failed()
+    {
+        Mock<IAuthorityRunCommittedChatOpsHook> hook = new();
+        hook.Setup(h => h.NotifyAsync(It.IsAny<AuthorityRunCommittedChatOpsNotice>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("ChatOps webhook delivery failed for all enabled targets."));
+
+        AuthorityRunCompletedChatOpsIntegrationEventHandler sut = new(hook.Object);
+
+        byte[] payload = Encoding.UTF8.GetBytes(
+            JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1,
+                runId = Guid.NewGuid(),
+                manifestId = Guid.NewGuid(),
+                tenantId = Guid.NewGuid(),
+                workspaceId = Guid.NewGuid(),
+                projectId = Guid.NewGuid(),
+            }));
+
+        Func<Task> act = async () => await sut.HandleAsync(payload, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task HandleAsync_accepts_future_schemaVersion_without_rejecting_payload()
+    {
+        Mock<IAuthorityRunCommittedChatOpsHook> hook = new();
+        hook.Setup(h => h.NotifyAsync(It.IsAny<AuthorityRunCommittedChatOpsNotice>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        AuthorityRunCompletedChatOpsIntegrationEventHandler sut = new(hook.Object);
+
+        byte[] payload = Encoding.UTF8.GetBytes(
+            JsonSerializer.Serialize(new
+            {
+                schemaVersion = 2,
+                runId = Guid.NewGuid(),
+                manifestId = Guid.NewGuid(),
+                tenantId = Guid.NewGuid(),
+                workspaceId = Guid.NewGuid(),
+                projectId = Guid.NewGuid(),
+            }));
+
+        Func<Task> act = async () => await sut.HandleAsync(payload, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+
+        hook.Verify(
+            h => h.NotifyAsync(It.IsAny<AuthorityRunCommittedChatOpsNotice>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleAsync_completes_when_enabled_target_uses_non_https_webhook_url()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+
+        ChatOpsIncomingWebhooksOptions opts = new()
+        {
+            SlackNotifyOnAuthorityRunCompleted = true,
+            SlackIncomingWebhookAbsoluteUri = "http://insecure.example/hook",
+        };
+
+        Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(opts);
+
+        AuthorityRunCommittedChatOpsHook hook = new(
+            delivery.Object,
+            optionsMonitor.Object,
+            Mock.Of<ILogger<AuthorityRunCommittedChatOpsHook>>());
+
+        AuthorityRunCompletedChatOpsIntegrationEventHandler sut = new(hook);
+
+        byte[] payload = Encoding.UTF8.GetBytes(
+            JsonSerializer.Serialize(new
+            {
+                schemaVersion = 1,
+                runId = Guid.NewGuid(),
+                manifestId = Guid.NewGuid(),
+                tenantId = Guid.NewGuid(),
+                workspaceId = Guid.NewGuid(),
+                projectId = Guid.NewGuid(),
+            }));
+
+        Func<Task> act = async () => await sut.HandleAsync(payload, CancellationToken.None);
+
+        await act.Should().NotThrowAsync(
+            "misconfigured non-HTTPS webhook URLs are skipped before delivery; integration events complete without retry");
+
+        delivery.Verify(
+            d => d.DeliverAsync(
+                It.IsAny<ChatOpsWebhookTarget>(),
+                It.IsAny<string>(),
+                It.IsAny<ChatOpsWebhookMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<WebhookPostOptions?>()),
+            Times.Never);
     }
 }

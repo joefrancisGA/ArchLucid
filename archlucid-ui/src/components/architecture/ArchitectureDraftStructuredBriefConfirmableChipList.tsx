@@ -207,6 +207,7 @@ export function ArchitectureDraftStructuredBriefConfirmableChipList(
                     suggestionKind={props.suggestionKind}
                     suggestionText={item}
                     sourceText={props.suggestionSourceText}
+                    explainKey={`${props.inputId}:${item}`}
                     disabled={props.disabled}
                     testId={`${props.inputId}-explain`}
                   />

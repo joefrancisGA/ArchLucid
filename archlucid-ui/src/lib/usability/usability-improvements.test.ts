@@ -56,26 +56,47 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/insights/evidence-graph")).toBeNull();
   });
 
+  it("routeViewExplanationForPathname covers ask and reviews hub (instrument primer)", () => {
+    expect(routeViewExplanationForPathname("/insights/ask-review-questions")?.title).toBe("Ask review questions");
+    expect(routeViewExplanationForPathname("/architecture/reviews")?.title).toBe("Reviews");
+    expect(routeViewExplanationForPathname("/architecture/reviews/run-1")).toBeNull();
+    expect(routeViewExplanationForPathname("/insights/search-review-evidence")?.title).toBe("Search review evidence");
+    expect(routeViewExplanationForPathname("/insights/patterns")?.title).toBe("Pattern library");
+    expect(routeViewExplanationForPathname("/help")?.title).toBe("Help");
+    expect(routeViewExplanationForPathname("/administration/security-trust")?.title).toBe("Security & trust");
+    expect(routeViewExplanationForPathname("/integrations/cloud-connections")?.title).toBe("Cloud connections");
+    expect(routeViewExplanationForPathname("/architecture/first-review-guide")?.title).toBe("First review guide");
+    expect(routeViewExplanationForPathname("/insights/sponsor-report")?.title).toBe("Sponsor report");
+    expect(routeViewExplanationForPathname("/integrations/jira")?.title).toBe("Jira integration");
+    expect(routeViewExplanationForPathname("/administration/system-health")?.title).toBe("System health");
+    expect(routeViewExplanationForPathname("/architecture/reviews/new")?.title).toBe("Start a review");
+    expect(routeViewExplanationForPathname("/integrations/cloud-connections/azure")?.title).toBe("Azure cloud connection");
+    expect(routeViewExplanationForPathname("/administration/support")?.title).toBe("Support");
+  });
+
   it("routeViewExplanationForPathname covers alerts hubs (TB-2216)", () => {
     expect(routeViewExplanationForPathname("/governance/alerts")?.title).toBe("Alerts");
     expect(routeViewExplanationForPathname("/alerts")?.title).toBe("Alerts");
+    expect(routeViewExplanationForPathname("/governance/alert-rules")?.title).toBe("Alert rules");
   });
 
-  it("routeViewExplanationForPathname returns null for governance routes — page headers own orientation", () => {
+  it("routeViewExplanationForPathname keeps non-hub governance routes null", () => {
     expect(routeViewExplanationForPathname("/governance")).toBeNull();
-    expect(routeViewExplanationForPathname("/governance/policy-packs")).toBeNull();
-    expect(routeViewExplanationForPathname("/governance/standards-and-rules")).toBeNull();
-    // Risk exceptions own layer guidance plus the governance approval banner, so no shell banner.
+    expect(routeViewExplanationForPathname("/governance/policy-packs/pack-1")).toBeNull();
+    // Risk exceptions own layer guidance plus the approval banner, so no shell banner.
     expect(routeViewExplanationForPathname("/governance/exceptions")).toBeNull();
-    expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
+    expect(routeViewExplanationForPathname("/governance/findings")?.title).toBe("Findings");
+    expect(routeViewExplanationForPathname("/governance/policy-packs")?.title).toBe("Policy packs");
+    expect(routeViewExplanationForPathname("/governance/standards-and-rules")?.title).toBe("Standards & rules");
+    expect(routeViewExplanationForPathname("/governance/approval-queue")?.title).toBe("Approval queue");
   });
 
   it("routeViewExplanationForPathname covers compare hub (TB-2216)", () => {
     expect(routeViewExplanationForPathname("/insights/compare-two-reviews")?.title).toBe("Compare two reviews");
   });
 
-  it("routeViewExplanationForPathname returns null for governance audit — page owns orientation", () => {
-    expect(routeViewExplanationForPathname("/governance/audit")).toBeNull();
+  it("routeViewExplanationForPathname covers governance audit hub primer", () => {
+    expect(routeViewExplanationForPathname("/governance/audit")?.title).toBe("Audit trail");
     expect(routeViewExplanationForPathname("/audit")).toBeNull();
   });
 
