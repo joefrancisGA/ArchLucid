@@ -10134,11 +10134,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — full execute acquired ownership before run-not-found and authority-pipeline gates
+- **last-bug:** 2026-09-09 — full execute acquired ownership before no-scheduled-tasks gate
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -10157,6 +10157,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ExecuteRunCoreAsync` run reload; a vanished/deleted run id still held the SQL lease until `finally` release (no mutations, admission-before-validation ordering per TB-943) — **hit 2026-09-09 (#1392):** `AcquireAsync` ran before `TryGetArchitectureRunAsync`; not-found execute briefly blocked peer acquire; fixed via `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync`; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_not_found`.
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ThrowIfAuthorityPipelineCompleteAsync` while selective execute re-checked authority completion before acquire (#1327); authority-complete runs held SQL lease until refused execute released it — **hit 2026-09-09 (#1392):** same pre-acquire eligibility guard; regression `ExecuteRunAsync_does_not_acquire_ownership_when_authority_pipeline_is_complete`.
 
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ThrowIfRunHasNoAgentWorkOrDeferredContext` while selective execute rejected zero-task runs before `AcquireAsync`; empty-task executes held SQL lease until `NoScheduledAgentTasksException` released it — **hit 2026-09-09 (#1393):** extended pre-acquire eligibility with shared `ThrowIfRunHasNoAgentWorkOrDeferredContext`; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_has_no_scheduled_tasks`.
+
+2026-09-09 thorough hunt #1393 (hit): proved full execute must reject no-task runs before ownership acquire; 42 scoped ownership/orchestrator tests passed.
 2026-09-09 thorough hunt #1392 (hit): proved full execute must validate run existence and authority-pipeline completion before ownership acquire; 41 scoped ownership/orchestrator tests passed.
 2026-09-08 seed hunt #1326 (hit): reseeded selective stale-status paths; proved committed transition after validation must block prep mutations.
 2026-09-08 thorough hunt #1325 (hit): proved selective execute prep ran before ownership acquire; fixed lease ordering to match full execute.
