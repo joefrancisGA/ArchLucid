@@ -951,11 +951,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 7
-- **bugs-found:** 4
+- **hunts:** 8
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — zero-width/format finding id bypassed disposition validation
+- **last-bug:** 2026-09-09 — zero-width-only trade-off acknowledgment passed Accepted validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
