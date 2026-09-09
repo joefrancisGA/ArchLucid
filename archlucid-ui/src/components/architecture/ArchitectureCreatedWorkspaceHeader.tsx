@@ -27,6 +27,7 @@ import {
   ARCHITECTURE_CREATED_GOVERNANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
 } from "@/lib/architecture/architecture-created-governance-sources";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 export type ArchitectureCreatedWorkspaceHeaderProps = {
   readonly model: ArchitectureCreatedHomeModel;
@@ -105,7 +106,7 @@ export function ArchitectureCreatedWorkspaceHeader(
         </div>
         {showEvidenceClaimDiscipline ? (
           <p
-            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", HELP_PAGE_LAYOUT.readingBody)}
             data-testid={ARCHITECTURE_CREATED_EVIDENCE_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           >
             {ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE}
