@@ -1255,6 +1255,13 @@ public static partial class GenericArchitectureAdvicePatterns
 
     public static bool HasConcreteEvidenceCitation(IReadOnlyList<string> evidenceRefs)
     {
+        return HasConcreteEvidenceCitation(evidenceRefs, packageDiagramCitationIndex: null);
+    }
+
+    public static bool HasConcreteEvidenceCitation(
+        IReadOnlyList<string> evidenceRefs,
+        DiagramPackageCitationIndex? packageDiagramCitationIndex)
+    {
         if (evidenceRefs.Count == 0)
             return false;
 
@@ -1268,7 +1275,7 @@ public static partial class GenericArchitectureAdvicePatterns
             if (IsGenericEvidenceRef(trimmed))
                 continue;
 
-            if (IsResolvableEvidenceRef(trimmed))
+            if (IsResolvableEvidenceRef(trimmed, packageDiagramCitationIndex))
                 return true;
         }
 
@@ -1314,8 +1321,13 @@ public static partial class GenericArchitectureAdvicePatterns
         return false;
     }
 
-    private static bool IsResolvableEvidenceRef(string trimmed)
+    private static bool IsResolvableEvidenceRef(
+        string trimmed,
+        DiagramPackageCitationIndex? packageDiagramCitationIndex)
     {
+        if (trimmed.StartsWith(DiagramEvidenceCitationRefs.Prefix, StringComparison.OrdinalIgnoreCase))
+            return DiagramEvidenceCitationRefs.IsPackageResolvable(trimmed, packageDiagramCitationIndex);
+
         if (trimmed.StartsWith("doc:", StringComparison.OrdinalIgnoreCase))
             return FindingEvidenceRefs.HasLineAnchoredDocRef(trimmed);
 
