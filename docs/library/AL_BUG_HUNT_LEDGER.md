@@ -9943,11 +9943,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 6
-- **bugs-found:** 5
+- **hunts:** 7
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — retry-exhaustion outbox dead-letter audits omitted ambient scope after ProcessEntryAsync unwind
+- **last-bug:** 2026-09-09 — cosmos graph snapshot outbox skipped shared max-attempts ceiling in VerifyOptions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9967,6 +9967,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` skips sealed-manifest hash guard when `RunId == Guid.Empty` — **cheap-disproof 2026-09-08 seed hunt #1373:** `AuthorityPipelineStagePersistence.SaveGraphAsync` enqueues with `snapshot.RunId` from the committed graph row; SQL `RunId NOT NULL`; empty GUID not reachable on production enqueue path
 - [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` omits `AmbientScopeContext.Push` while `AuditService.EnrichAuditEvent` and `RunExportBlobPushService` read `IScopeContextProvider.GetCurrentScope()` — worker dead-letter and push outcome audits inherit dev-default tenant triple instead of the outbox entry scope — **hit 2026-09-08 seed hunt #1373:** push ambient scope before guard/build/push/audit; regression `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_dead_letter_audit`
 - [x] (proven) `RecoverableOutboxProcessorBase` calls `OnDeadLetterAsync` after `ProcessEntryAsync` throws, so the entry's `AmbientScopeContext` is already disposed; `PostCommitProjectionOutboxProcessor.OnDeadLetterAsync` and `RunExportBlobPushOutboxProcessor.OnDeadLetterAsync` logged dead-letter audits without re-pushing scope — retry-exhaustion audits inherit dev-default tenant triple — **hit 2026-09-09 seed hunt #1407:** push entry scope in `OnDeadLetterAsync`; regressions `PostCommitProjectionOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_exhaustion_dead_letter_audit` and `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_exhaustion_dead_letter_audit`
+- [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` and `RetrievalIndexingOutboxProcessor` omit retry-exhaustion audit/instrumentation hooks present on post-commit and run-export processors — **cheap-disproof 2026-09-09 seed hunt #1424:** neither processor calls `IAuditService` on dead letter today; gap is observability-only, not tenant-scope mis-tagging like #1373/#1407
+- [x] (proven) `CosmosGraphSnapshotOutboxProcessor.VerifyOptions` copied `MaxAttemptsBeforeDeadLetter` without `OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry` 999 ceiling used by sibling outbox processors — configured values above 999 kept retrying past the shared dead-letter threshold (`AttemptCount` 998 + failure scheduled backoff instead of `RecordDeadLetterAsync`) — **hit 2026-09-09 seed hunt #1424:** route retry/lease options through shared verifier with `minLeaseDurationSeconds: 60`; regression `CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_dead_letters_at_shared_max_attempts_ceiling`
+
+2026-09-09 seed hunt #1424 (hit): reseeded host-core-coordination; cheap-disproof closed missing dead-letter audit/instrumentation on cosmos/retrieval processors; proved cosmos VerifyOptions skipped shared max-attempts ceiling; 29 scoped coordination processor tests passed.
 
 2026-09-09 seed hunt #1407 (hit): proved retry-exhaustion dead-letter path drops ambient scope before audit enrichment on post-commit projection and run-export outbox processors; 18 scoped coordination processor tests passed.
 

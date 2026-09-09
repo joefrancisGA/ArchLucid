@@ -111,14 +111,22 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
     {
         ArgumentNullException.ThrowIfNull(configured);
 
-        int leaseDurationSeconds = configured.LeaseDurationSeconds < 60 ? 60 : configured.LeaseDurationSeconds;
+        (int leaseDurationSeconds, int maxAttempts, int retryBackoffBaseSeconds, int retryBackoffMaxSeconds, _) =
+            OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry(
+                configured.LeaseDurationSeconds,
+                configured.MaxAttemptsBeforeDeadLetter,
+                configured.RetryBackoffBaseSeconds,
+                configured.RetryBackoffMaxSeconds,
+                maxConcurrentBatchEntries: 1,
+                MaxBatchSize,
+                minLeaseDurationSeconds: 60);
 
         return new CosmosGraphSnapshotOutboxProcessorOptions
         {
             LeaseDurationSeconds = leaseDurationSeconds,
-            MaxAttemptsBeforeDeadLetter = configured.MaxAttemptsBeforeDeadLetter,
-            RetryBackoffBaseSeconds = configured.RetryBackoffBaseSeconds,
-            RetryBackoffMaxSeconds = configured.RetryBackoffMaxSeconds,
+            MaxAttemptsBeforeDeadLetter = maxAttempts,
+            RetryBackoffBaseSeconds = retryBackoffBaseSeconds,
+            RetryBackoffMaxSeconds = retryBackoffMaxSeconds,
             PollIntervalSeconds = configured.PollIntervalSeconds,
         };
     }
