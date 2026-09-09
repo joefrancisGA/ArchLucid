@@ -1555,3 +1555,5 @@
 {"at":"2026-09-08T23:02:40.5360972Z","zoneId":"ui-infra-resource-hub","outcome":"hit"}
 {"at":"2026-09-08T23:14:26.0322332Z","zoneId":"architecture-recommendation","outcome":"hit"}
 {"at":"2026-09-08T23:19:12.6992893Z","zoneId":"ui-infra-resource-hub","outcome":"hit"}
+{"at":"2026-09-08T23:59:48.3840422Z","zoneId":"extraction-router","outcome":"hit"}
+{"at":"2026-09-09T00:04:42.2517249Z","zoneId":"core-tenancy-commercial","outcome":"hit"}
