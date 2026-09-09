@@ -151,6 +151,7 @@ public sealed partial class PolicyPacksController
     [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.SetAssignmentOrganizationRequiredAsync logs PolicyPackAssignmentOrganizationRequiredChanged.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SetAssignmentOrganizationRequired(
         Guid assignmentId,
         [FromBody] SetPolicyPackAssignmentOrganizationRequiredRequest? request,
@@ -180,6 +181,14 @@ public sealed partial class PolicyPacksController
             return this.MapResourceNotFound(
                 result,
                 $"Assignment '{assignmentId}' was not found or cannot be updated in the current scope.");
+        }
+
+        if (result.Outcome == PolicyPackHttpOutcome.Conflict)
+        {
+            return this.ConflictProblem(
+                result.Message
+                    ?? "Organization-required policy pack assignments cannot be set while the platform pack is inactive.",
+                ProblemTypes.Conflict);
         }
 
         return NoContent();
