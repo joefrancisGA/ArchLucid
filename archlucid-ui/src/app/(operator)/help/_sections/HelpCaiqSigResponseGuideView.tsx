@@ -243,9 +243,7 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
             <HelpTopicTableOfContents headings={headings} groups={tocGroups} enableScrollSpy />
           </div>
 
-          <div data-testid="help-caiq-sig-response-orientation-bottom">
-            <HelpCaiqSigResponseSourcesOrientationStrip />
-          </div>
+          <HelpCaiqSigResponseSourcesOrientationStrip />
         </div>
       ) : (
         <>
