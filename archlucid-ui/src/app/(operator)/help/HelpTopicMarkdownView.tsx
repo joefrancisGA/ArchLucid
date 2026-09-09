@@ -268,6 +268,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
       claimDisciplineTestId={
         buyerCatchallResidualChrome ? HELP_TOPIC_CATCHALL_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
       }
+      subtitleClassName={buyerCatchallResidualChrome ? HELP_PAGE_LAYOUT.readingBody : undefined}
       primaryAction={
         isCaiqSigResponse
           ? CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION
@@ -357,7 +358,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
             )}
           >
             <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-topic-catchall-intro"
             >
               {HELP_TOPIC_CATCHALL_PAGE_LEAD}
