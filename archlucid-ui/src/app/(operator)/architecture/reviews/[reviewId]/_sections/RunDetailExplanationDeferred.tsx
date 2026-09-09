@@ -1,10 +1,12 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { deriveRunDetailBaselineAnnualCostUsd } from "@/lib/derive-run-detail-baseline-cost";
 import { resolveFindingsSnapshotInsightDensityView } from "@/lib/findings/findings-snapshot-insight-density";
+import { resolveFindingsWithheldRows } from "@/lib/findings/findings-withheld-band";
 import {
   buildFindingWireSnapshotsForRunDetail,
   isQuickDecisionDerivedFromExplanationTraces,
   resolveQuickDecisionFindingsForRunDetail,
+  resolveRunDetailFindingStreams,
 } from "@/lib/quick-decision-summary-derive";
 import { resolveRunDecisionExplainabilityFromDetail } from "@/lib/runs/run-decision-explainability-from-detail";
 import type { RunDetail } from "@/types/authority";
@@ -93,12 +95,14 @@ export async function RunDetailExplanationDeferred(
   }
 
   const quickDecisionFindings = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
+  const findingStreams = resolveRunDetailFindingStreams(resolvedDetail, explanationSummary);
   const quickDecisionFromExplanationFallback = isQuickDecisionDerivedFromExplanationTraces(
     resolvedDetail,
     explanationSummary,
   );
   const findingWireSnapshots = buildFindingWireSnapshotsForRunDetail(resolvedDetail, explanationSummary);
   const insightDensityView = resolveFindingsSnapshotInsightDensityView(resolvedDetail);
+  const withheldFindings = resolveFindingsWithheldRows(resolvedDetail);
 
   const { baselineAnnualCostUsd, isIllustrativePricing } = deriveRunDetailBaselineAnnualCostUsd({
     savingsSummaryAnnualizedUsd: undefined,
@@ -113,6 +117,7 @@ export async function RunDetailExplanationDeferred(
       buyerPolishedArtifactTable={buyerPolishedArtifactTable}
       quickDecisionFindings={quickDecisionFindings}
       quickDecisionFromExplanationFallback={quickDecisionFromExplanationFallback}
+      buyerSummaryOmitsAgentFindings={findingStreams.buyerSummaryOmitsAgentFindings}
       findingWireSnapshots={findingWireSnapshots}
       findingCountDisplay={findingCountDisplay}
       warningCountDisplay={warningCountDisplay}
@@ -132,6 +137,8 @@ export async function RunDetailExplanationDeferred(
       triageVisibleCount={triageVisibleCount}
       graphSnapshot={resolvedDetail.graphSnapshot}
       requestAssumptionTexts={resolvedRequestAssumptionTexts}
+      withheldFindings={withheldFindings}
+      structuralExecutionMode={resolvedDetail.run.structuralExecutionMode}
     />
   );
 }

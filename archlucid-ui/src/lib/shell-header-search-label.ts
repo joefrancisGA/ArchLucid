@@ -1,4 +1,5 @@
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSponsorDashboardPath } from "@/lib/sponsor/sponsor-dashboard-route";
 import { resolveCommandPaletteDisplayShortcut } from "@/lib/keyboard-shortcut-display";
 
@@ -8,8 +9,18 @@ import {
 } from "@/lib/shell-header-route-local-search";
 import { isReviewDetailHeaderSearchPath } from "@/lib/review-detail-header-section-search";
 
+/** SecureNow shell header search — short placeholder without architecture vocabulary. */
+export const SECURENOW_SHELL_SEARCH_PLACEHOLDER = "Search" as const;
+
 /** Buyer-polished header search: route-aware label for the shell search + command palette. */
-export function resolveShellHeaderSearchLabel(pathname: string): string {
+export function resolveShellHeaderSearchLabel(
+  pathname: string,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (productLineId === "security") {
+    return SECURENOW_SHELL_SEARCH_PLACEHOLDER;
+  }
+
   const path = (pathname ?? "").split("?")[0] ?? "";
 
   if (isReviewsHubInventoryHeaderSearchPath(path)) {
@@ -62,7 +73,14 @@ export function resolveShellHeaderSearchLabel(pathname: string): string {
 }
 
 /** Route-aware placeholder for buyer-polished shell header search. */
-export function resolveShellHeaderSearchPlaceholder(pathname: string): string {
+export function resolveShellHeaderSearchPlaceholder(
+  pathname: string,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (productLineId === "security") {
+    return SECURENOW_SHELL_SEARCH_PLACEHOLDER;
+  }
+
   const path = (pathname ?? "").split("?")[0] ?? "";
 
   if (isReviewsHubInventoryHeaderSearchPath(path)) {

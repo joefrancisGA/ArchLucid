@@ -1,3 +1,8 @@
+using System.Text.Json;
+
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Sql;
 
 using FluentAssertions;
@@ -27,5 +32,63 @@ public sealed class RunListWarningFlagSqlTests
         joins.Should().Contain("GROUP BY ar.RunId");
         joins.Should().Contain(") fsWarn ON fsWarn.RunId = r.RunId");
         joins.Should().Contain(") govWarn ON govWarn.RunId = r.RunId");
+    }
+
+    [Fact]
+    public void LeftJoinAggregates_normalizes_architecture_request_id_before_package_origin_join()
+    {
+        const string joins = RunListWarningFlagSql.LeftJoinAggregates;
+
+        joins.Should().Contain("UPPER(LTRIM(RTRIM(r.ArchitectureRequestId)))");
+        joins.Should().Contain("UPPER(LTRIM(RTRIM(ar.RequestId)))");
+    }
+
+    [Fact]
+    public void SelectRunColumns_coalesces_persisted_package_origin_with_request_json_fallback()
+    {
+        const string columns = RunListWarningFlagSql.SelectRunColumns;
+
+        columns.Should().Contain("COALESCE(");
+        columns.Should().Contain("r.PackageOrigin");
+        columns.Should().Contain("JSON_VALUE(ar.RequestJson, '$.workflowIntent')");
+        columns.Should().Contain("THEN N'Created'");
+        columns.Should().Contain("ELSE N'Reviewed'");
+    }
+
+    [Fact]
+    public void SelectRunColumns_workflow_intent_fallback_uses_case_insensitive_json_compare()
+    {
+        RunListWarningFlagSql.SelectRunColumns.Should()
+            .Contain("UPPER(LTRIM(RTRIM(JSON_VALUE(ar.RequestJson, '$.workflowIntent')))) = N'CREATE-ARCHITECTURE'");
+    }
+
+    [Fact]
+    public void CreatedUtcDescOrderBy_includes_run_id_tie_break_for_stable_offset_pages()
+    {
+        RunListWarningFlagSql.CreatedUtcDescOrderBy.Should().Be("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public void Package_origin_json_fallback_targets_camel_case_workflow_intent_from_contract_json()
+    {
+        string json = JsonSerializer.Serialize(
+            new ArchitectureRequest { WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture },
+            ContractJson.Default);
+
+        using JsonDocument document = JsonDocument.Parse(json);
+
+        document.RootElement.TryGetProperty("workflowIntent", out JsonElement intent).Should().BeTrue();
+        intent.GetString().Should().Be(ArchitectureWorkflowIntent.CreateArchitecture);
+        document.RootElement.TryGetProperty("WorkflowIntent", out _).Should().BeFalse(
+            "ArchitectureRequests.RequestJson is always written via ContractJson.Default camelCase.");
+    }
+
+    [Fact]
+    public void Hot_path_list_shapes_pair_select_run_columns_with_left_join_aggregates()
+    {
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should()
+            .Contain(RunListWarningFlagSql.LeftJoinAggregates.Trim());
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should()
+            .Contain("JSON_VALUE(ar.RequestJson");
     }
 }

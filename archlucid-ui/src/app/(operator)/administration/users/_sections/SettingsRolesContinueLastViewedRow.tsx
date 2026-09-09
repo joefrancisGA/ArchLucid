@@ -26,7 +26,7 @@ export function SettingsRolesContinueLastViewedRow(
             id="settings-roles-continue-last-viewed-heading"
             className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
           >
-            Continue last viewed principal
+            Continue last viewed member
           </h2>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-medium text-al-text-primary">{props.target.name}</span>
@@ -41,7 +41,7 @@ export function SettingsRolesContinueLastViewedRow(
             props.onOpen(props.target.principalId);
           }}
         >
-          Open principal
+          Open member
         </Button>
       </div>
     </section>

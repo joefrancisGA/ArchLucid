@@ -49,6 +49,7 @@ Do **not** collapse desktop review tabs behind **More**. Do **not** auto-switch 
 | **LK-01–15** | Wave 12 kernel | **Do not fork.** BFF, undo, trail gate stay there |
 | **DA-01–12** | Wave 13 skeleton | **Do not paste.** This set owns execution |
 | **CA-01–50** | **This set** — wave 14 customer object | Run these |
+| **AO-01–50** | Wave 17 Working locator | [`architecture-object-00-index.md`](architecture-object-00-index.md) — **supersedes this set’s “keep ADR 0072 review-as-canonical-URL” for Working**. Do not paste CA to change the locator |
 
 If a CA row lists a DA/LK/IS owner, **do not re-implement that file**. Implement only the leftover in *What to build*. If the DA twin already landed, skip and say so.
 

@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-09-07
 
 > **Scope:** ArchLucid — Trial and signup experience design - full detail, tables, and links in the sections below.
 
@@ -9,7 +9,7 @@
 
 **Audience:** Product and engineering teams planning the self-serve trial path.
 
-**Last reviewed:** 2026-07-25 (**§3.2** — trial infra marginal cost vs AOAI + **no** gated Azure **subscription-commitment milestone** for prospects; §4 infra-purge urgency; §3 AOAI bands; prior §2 PLG/email stance unchanged).
+**Last reviewed:** 2026-09-07 (**§3.2** — paid **`ByPlan`** LLM bands; trial remains **\$10**; prior infra / PLG stance unchanged).
 
 **Pricing:** Trial parameters (seats, runs, duration) are governed by the free trial row in [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) §4. Prices for conversion are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — do not restate numbers here.
 
@@ -105,7 +105,7 @@ Target hosted signup hosts (**`Hosting` SaaS overlays merge `appsettings.SaaS.js
 | **`AgentExecution:Mode`** | **`Real`** for buyer‑started architecture runs (**welcome seed/sample** may remain **Simulator** for zero‑day cost control in **section 2**). |
 | **`AzureOpenAI`** deployment SKU | Prefer **mini / cost‑efficient** SKUs mapped to illustrative **`LlmCostEstimation`** rates (override USD/M tokens when SKU prices diverge — see [**`CAPACITY_AND_COST_PLAYBOOK.md`**](../library/CAPACITY_AND_COST_PLAYBOOK.md)). |
 | **`AzureOpenAI:MaxCompletionTokens`** | Rightsize below default **4096** when QA tolerates tighter findings (staging currently uses tighter caps elsewhere; align trial hosts deliberately). **`1024`** is an evaluation‑friendly midpoint when product agrees. |
-| **`LlmMonthlyTenantDollarBudget`** | Repo **`appsettings.SaaS.json`** enables budgeting with **`IncludedUsdPerUtcMonth`** **\$50** / **`HardCutoffUsdPerUtcMonth`** **\$75** (**all SaaS tenants** share this host today — generous headroom for trials **and** pilots). When **tier‑scoped** binds exist, tighten **Free/`Tier` trial tenants** toward **\$25** included / **\$35** hard‑cutoff (warn first via **`WarnFraction`**). Instrument with **`archlucid_llm_cost_usd_total`** and **`LlmTenantMonthlyDollarBudgetApproaching`** audits ([`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md)). |
+| **`LlmMonthlyTenantDollarBudget`** | Repo **`appsettings.SaaS.json`** enables budgeting with host defaults **`IncludedUsdPerUtcMonth`** **\$50** / **`HardCutoffUsdPerUtcMonth`** **\$75** (Team band). **`ByPlan`** overlays Architect **\$20 / \$35** and Professional **\$200 / \$300** (see [PRICING_PHILOSOPHY.md §3.3](PRICING_PHILOSOPHY.md#33-hosted-llm-spend-schedule-tier-scaled)). **Free/trial** tenants stay on **`AiUsageControls:DefaultTrialAiBudgetUsd` \$10**, not the paid host default. Instrument with **`archlucid_llm_cost_usd_total`** and **`LlmTenantMonthlyDollarBudgetApproaching`** audits ([`AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md)). |
 
 Merge order for **`appsettings`** is environment‑specific — reconcile **`AgentExecution:Mode=Real`** plus AOAI prerequisites before asserting hosted‑prospect fidelity (**[`FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)**); funnel scraping remains in **`docs/runbooks/TRIAL_FUNNEL.md`**.
 

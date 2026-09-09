@@ -7,17 +7,23 @@ export const REVIEW_PACKAGE_SEARCH_SCOPE_LABELS: Record<ReviewPackageSearchScope
   workspace: "Workspace",
 };
 
-export function reviewPackageSearchPlaceholder(scope: ReviewPackageSearchScope): string {
+export function reviewPackageSearchPlaceholder(
+  scope: ReviewPackageSearchScope,
+  labels: Record<ReviewPackageSearchScope, string> = REVIEW_PACKAGE_SEARCH_SCOPE_LABELS,
+): string {
   if (scope === "package") {
-    return "Search this review…";
+    return labels.package === "This architecture" ? "Search this architecture…" : "Search this review…";
   }
 
   return "Search workspace…";
 }
 
-export function reviewPackageSearchAriaLabel(scope: ReviewPackageSearchScope): string {
+export function reviewPackageSearchAriaLabel(
+  scope: ReviewPackageSearchScope,
+  labels: Record<ReviewPackageSearchScope, string> = REVIEW_PACKAGE_SEARCH_SCOPE_LABELS,
+): string {
   if (scope === "package") {
-    return "Search this review";
+    return labels.package === "This architecture" ? "Search this architecture" : "Search this review";
   }
 
   return "Search workspace";

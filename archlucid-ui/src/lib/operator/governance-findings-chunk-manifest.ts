@@ -1,6 +1,6 @@
 import type { DeferredChunkManifestEntry } from "@/lib/operator/deferred-chunk-manifest";
 
-/** TB-2371 — governance findings queue deferred chunk catalog. */
+/** TB-2371 — policy findings queue deferred chunk catalog. */
 export const GOVERNANCE_FINDINGS_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
   {
     id: "governance-findings-queue-client",

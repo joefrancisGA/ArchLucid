@@ -65,7 +65,7 @@ describe("authority Execute floor regression", () => {
    * `GovernanceController`'s class-level `[Authorize(ReadAuthority)]` default; approve/reject/promote/activate stay
    * Execute-gated inside `GovernanceWorkflowPageContent` (`canMutateWorkflow`), not the nav link (`docs/NAV_CONFIG_CONTRACT.md`).
    */
-  it("keeps governance workflow href in Reader-filtered Enterprise links alongside the alerts inbox", () => {
+  it("keeps approval workflow href in Reader-filtered Enterprise links alongside the alerts inbox", () => {
     const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
 
     expect(enterprise).toBeDefined();

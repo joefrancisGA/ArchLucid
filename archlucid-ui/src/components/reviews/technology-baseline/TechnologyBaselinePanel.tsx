@@ -37,6 +37,10 @@ import {
   parseTechnologyBaselineEntryIdFromSearch,
   technologyBaselineRationaleHrefFromSearch,
 } from "@/lib/reviews/technology-baseline-rationale-url";
+import {
+  parseTechnologyBaselineEvidenceRefEntryIdFromSearch,
+  technologyBaselineEvidenceRefDisclosureHrefFromSearch,
+} from "@/lib/reviews/technology-baseline-evidence-ref-disclosure-url";
 import type { TechnologyLedgerEntry } from "@/types/technology-ledger";
 
 export type TechnologyBaselinePanelProps = {
@@ -58,6 +62,31 @@ export function TechnologyBaselinePanel({
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
   const searchParams = useSearchParams();
   const urlTechEntryId = parseTechnologyBaselineEntryIdFromSearch(searchParams.get("techEntryId"));
+  const technologyBaselineEvidenceRefEntryIdParam = searchParams.get("technologyBaselineEvidenceRefEntryId");
+  const [openEvidenceRefEntryId, setOpenEvidenceRefEntryIdState] = useState(() =>
+    parseTechnologyBaselineEvidenceRefEntryIdFromSearch(technologyBaselineEvidenceRefEntryIdParam),
+  );
+  const syncOpenEvidenceRefEntryIdToUrl = useCallback(
+    (entryId: string | null) => {
+      router.replace(
+        technologyBaselineEvidenceRefDisclosureHrefFromSearch(searchParams.toString(), entryId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenEvidenceRefEntryId = useCallback(
+    (entryId: string | null) => {
+      setOpenEvidenceRefEntryIdState(entryId ?? "");
+      syncOpenEvidenceRefEntryIdToUrl(entryId);
+    },
+    [syncOpenEvidenceRefEntryIdToUrl],
+  );
+  useEffect(() => {
+    setOpenEvidenceRefEntryIdState(
+      parseTechnologyBaselineEvidenceRefEntryIdFromSearch(technologyBaselineEvidenceRefEntryIdParam),
+    );
+  }, [technologyBaselineEvidenceRefEntryIdParam]);
   const [entries, setEntries] = useState<TechnologyLedgerEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailure, setLoadFailure] = useState<ApiLoadFailureState | null>(null);
@@ -317,7 +346,14 @@ export function TechnologyBaselinePanel({
                     <div className="space-y-1">
                       <span>{entry.technologyName}</span>
                       {entry.evidenceRef !== null && entry.evidenceRef.length > 0 ? (
-                        <details className="text-xs text-al-text-secondary">
+                        <details
+                          className="text-xs text-al-text-secondary"
+                          open={openEvidenceRefEntryId === entry.entryId}
+                          onToggle={(event) => {
+                            const nextOpen = event.currentTarget.open;
+                            setOpenEvidenceRefEntryId(nextOpen ? entry.entryId : null);
+                          }}
+                        >
                           <summary className="cursor-pointer">Evidence ref</summary>
                           <code className="mt-1 block truncate font-mono">{entry.evidenceRef}</code>
                         </details>

@@ -1,8 +1,8 @@
 namespace ArchLucid.Notifications;
 
 /// <summary>
-///     Best-effort ChatOps webhook fan-out after authority runs finalize (exceptions are swallowed by the orchestrator —
-///     never fail the architectural commit surface).
+///     ChatOps webhook fan-out after authority runs finalize. Per-target delivery failures are logged; when every
+///     enabled target fails, <see cref="NotifyAsync" /> throws so Service Bus integration handlers can abandon for retry.
 /// </summary>
 public interface IAuthorityRunCommittedChatOpsHook
 {

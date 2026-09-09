@@ -1,8 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ROLE_NAV_DENSITY_SHOW_FULL_NAV_STORAGE_KEY } from "@/lib/role-shaped-nav-density";
+import {
+  parseRoleNavDensityShowFullNavOpenFromSearch,
+  roleNavDensityShowFullNavDisclosureHrefFromSearch,
+} from "@/lib/sidebar-nav/role-nav-density-show-full-nav-disclosure-url";
 
 function readShowFullNavFromStorage(): boolean {
   if (typeof window === "undefined") {
@@ -34,16 +39,46 @@ export function useRoleNavDensityExpanded(): {
   readonly setShowFullNav: (value: boolean) => void;
   readonly toggleShowFullNav: () => void;
 } {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const currentSearch = searchParams.toString();
+  const roleNavDensityShowFullNavOpenParam = searchParams.get("roleNavDensityShowFullNavOpen");
   const [showFullNav, setShowFullNavState] = useState(false);
 
-  useEffect(() => {
-    setShowFullNavState(readShowFullNavFromStorage());
-  }, []);
+  const syncShowFullNavToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(roleNavDensityShowFullNavDisclosureHrefFromSearch(currentSearch, open, pathname), {
+        scroll: false,
+      });
+    },
+    [currentSearch, pathname, router],
+  );
 
-  const setShowFullNav = useCallback((value: boolean) => {
-    setShowFullNavState(value);
-    writeShowFullNavToStorage(value);
-  }, []);
+  useEffect(() => {
+    const fromUrl = parseRoleNavDensityShowFullNavOpenFromSearch(roleNavDensityShowFullNavOpenParam);
+
+    if (roleNavDensityShowFullNavOpenParam !== null) {
+      setShowFullNavState(fromUrl);
+
+      return;
+    }
+
+    setShowFullNavState(readShowFullNavFromStorage());
+  }, [roleNavDensityShowFullNavOpenParam]);
+
+  const setShowFullNav = useCallback(
+    (value: boolean) => {
+      if (value === showFullNav) {
+        return;
+      }
+
+      setShowFullNavState(value);
+      writeShowFullNavToStorage(value);
+      syncShowFullNavToUrl(value);
+    },
+    [showFullNav, syncShowFullNavToUrl],
+  );
 
   const toggleShowFullNav = useCallback(() => {
     setShowFullNav(!showFullNav);

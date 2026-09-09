@@ -6,6 +6,12 @@ import {
 
 export const ROLE_MAPPING_SETTINGS_PRIMARY_CONTENT_ID = "role-mapping-settings-primary-content" as const;
 
+export const ROLE_MAPPING_SETTINGS_FIRST_VIEWPORT_ID = "role-mapping-settings-first-viewport" as const;
+
+export const ROLE_MAPPING_SETTINGS_FIRST_VIEWPORT_TEST_ID = ROLE_MAPPING_SETTINGS_FIRST_VIEWPORT_ID;
+
+export const ROLE_MAPPING_SETTINGS_SKIP_TARGET_ID = ROLE_MAPPING_SETTINGS_FIRST_VIEWPORT_ID;
+
 export const ROLE_MAPPING_SETTINGS_SKIP_LINK_LABEL = "Skip to role mapping workspace" as const;
 
 export const ROLE_MAPPING_SETTINGS_BREADCRUMB_ADMINISTRATION_LABEL = "Administration" as const;

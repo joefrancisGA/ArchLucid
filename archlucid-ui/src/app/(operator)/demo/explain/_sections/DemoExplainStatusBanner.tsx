@@ -1,5 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { StatusTag } from "@/components/StatusTag";
@@ -12,6 +15,10 @@ import {
   formatDemoExplainGeneratedLabel,
   resolveDemoExplainStatusTag,
 } from "@/lib/demo-explain-page-copy";
+import {
+  demoExplainStatusTechnicalDisclosureHrefFromSearch,
+  parseDemoExplainStatusTechnicalOpenFromSearch,
+} from "@/lib/demo-explain-status-technical-disclosure-url";
 import { cn } from "@/lib/utils";
 import type { DemoExplainResponse } from "@/types/demo-explain";
 
@@ -21,6 +28,34 @@ type Props = {
 
 export function DemoExplainStatusBanner(props: Props) {
   const payload = props.payload;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const demoExplainStatusTechnicalOpenParam = searchParams.get("demoExplainStatusTechnicalOpen");
+  const [statusTechnicalOpen, setStatusTechnicalOpenState] = useState(() =>
+    parseDemoExplainStatusTechnicalOpenFromSearch(demoExplainStatusTechnicalOpenParam),
+  );
+  const syncStatusTechnicalOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        demoExplainStatusTechnicalDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setStatusTechnicalOpen = useCallback(
+    (open: boolean) => {
+      setStatusTechnicalOpenState(open);
+      syncStatusTechnicalOpenToUrl(open);
+    },
+    [syncStatusTechnicalOpenToUrl],
+  );
+
+  useEffect(() => {
+    setStatusTechnicalOpenState(parseDemoExplainStatusTechnicalOpenFromSearch(demoExplainStatusTechnicalOpenParam));
+  }, [demoExplainStatusTechnicalOpenParam]);
+
   const statusTag = resolveDemoExplainStatusTag(payload.isDemoData, payload.demoStatusMessage);
   const generatedLabel = formatDemoExplainGeneratedLabel(payload.generatedUtc);
 
@@ -40,7 +75,11 @@ export function DemoExplainStatusBanner(props: Props) {
         <StatusTag kind={statusTag.kind} label={statusTag.label} />
         <span className="text-neutral-700 dark:text-neutral-300">{generatedLabel}</span>
       </div>
-      <AdvancedOptionsAccordion triggerLabel={DEMO_EXPLAIN_STATUS_BANNER_TECHNICAL_DETAILS_LABEL}>
+      <AdvancedOptionsAccordion
+        triggerLabel={DEMO_EXPLAIN_STATUS_BANNER_TECHNICAL_DETAILS_LABEL}
+        open={statusTechnicalOpen}
+        onOpenChange={setStatusTechnicalOpen}
+      >
         <dl
           className={cn(
             "m-0 grid gap-2 text-neutral-600 dark:text-neutral-400 sm:grid-cols-[auto_1fr] sm:gap-x-6 sm:gap-y-1",

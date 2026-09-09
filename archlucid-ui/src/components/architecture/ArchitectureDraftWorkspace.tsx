@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
+import { useOidcSessionKeepalive } from "@/hooks/use-oidc-session-keepalive";
 import type { ArchitectureDraftCreatedPayload } from "@/hooks/architecture-draft-autosave-shared";
 import { useArchitectureDraftDocumentUndo } from "@/hooks/use-architecture-draft-document-undo";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -51,6 +52,7 @@ import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 import { ArchitectureDraftWorkspaceBody } from "@/components/architecture/ArchitectureDraftWorkspaceBody";
 import { useArchitectureDraftWorkspaceEffects } from "@/components/architecture/ArchitectureDraftWorkspaceEffects";
+import { ReviewRoomElicitationShortcutHost } from "@/components/reviews/ReviewRoomElicitationShortcutHost";
 
 type ArchitectureDraftWorkspaceProps = {
   readonly draftId: string;
@@ -60,6 +62,7 @@ type ArchitectureDraftWorkspaceProps = {
 
 /** Long-lived architecture draft editor — save and resume without starting a review. */
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
+  useOidcSessionKeepalive(true);
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/architectures/${encodeURIComponent(props.draftId)}`;
   const searchParams = useSearchParams();
@@ -193,6 +196,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     acceptServerBaseline,
     syncServerUpdatedUtc,
     hasPersistedDraft,
+    recoveredLocally,
     markDirty,
     keepLocalDraftOnConflict,
   } = useArchitectureDraftAutosave({
@@ -272,6 +276,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     briefFrozen,
     linkedReviewId,
     effectiveDraftId,
+    parentArchitectureId: props.parentArchitectureId,
     fields,
     actorSet,
     draft,
@@ -304,7 +309,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   );
 
   const workspaceHeading = displayName;
-  const workspaceLead = architectureDraftDetailPageSubtitle(buyerPolishedShell, reviewReadiness.isValid);
+  const workspaceLead = architectureDraftDetailPageSubtitle(
+    buyerPolishedShell,
+    reviewReadiness.isValid,
+    hasPersistedDraft,
+    recoveredLocally,
+  );
 
   const scopeUnderstandingInput = useMemo(
     () => ({
@@ -385,6 +395,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         onConfirmLeave={inAppNavigationGuard.confirmLeave}
         onCancelLeave={inAppNavigationGuard.cancelLeave}
       />
+      <ReviewRoomElicitationShortcutHost />
       <ArchitectureDraftWorkspaceBody
       draftId={props.draftId}
       parentArchitectureId={props.parentArchitectureId}
