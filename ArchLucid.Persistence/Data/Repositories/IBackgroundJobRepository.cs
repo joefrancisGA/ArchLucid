@@ -4,6 +4,12 @@ public interface IBackgroundJobRepository
 {
     Task InsertAsync(BackgroundJobRow row, CancellationToken cancellationToken = default);
 
+    /// <summary>Atomically inserts a pending row when non-terminal count is below <paramref name="maxPendingJobs" />.</summary>
+    Task<bool> TryInsertPendingJobIfUnderCapacityAsync(
+        BackgroundJobRow row,
+        int maxPendingJobs,
+        CancellationToken cancellationToken = default);
+
     Task<BackgroundJobRow?> GetAsync(string jobId, CancellationToken cancellationToken = default);
 
     /// <summary>Sets state to Running when currently Pending. Returns rows affected (1 if claimed).</summary>

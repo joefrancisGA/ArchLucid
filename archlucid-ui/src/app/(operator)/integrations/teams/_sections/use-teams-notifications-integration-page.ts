@@ -45,6 +45,7 @@ import {
   parseTeamsRemoveConfirmOpenFromSearch,
   teamsNotificationsRemoveConfirmHrefFromSearch,
 } from "@/lib/integrations/teams-notifications-remove-confirm-url";
+import { teamsIntegrationHasUnsavedEdits } from "@/lib/teams-integration-form-unsaved";
 
 const SAVE_FAILURE_MESSAGE = "We could not save this Teams connection. Check the fields and try again.";
 
@@ -128,9 +129,12 @@ export function useTeamsNotificationsIntegrationPage(
     [syncRemoveConfirmToUrl],
   );
 
+  const teamsRemoveConfirmQuery = searchParams.get("teamsRemoveConfirm");
+
+  // Depend on the param string, not searchParams identity — unstable stub identities would reset the dialog.
   useEffect(() => {
-    setPendingRemoveConfirmState(parseTeamsRemoveConfirmOpenFromSearch(searchParams.get("teamsRemoveConfirm")));
-  }, [searchParams]);
+    setPendingRemoveConfirmState(parseTeamsRemoveConfirmOpenFromSearch(teamsRemoveConfirmQuery));
+  }, [teamsRemoveConfirmQuery]);
 
   const connectionStatus = useMemo(
     () =>
@@ -149,6 +153,11 @@ export function useTeamsNotificationsIntegrationPage(
 
     return secretValidation?.outcome === "valid";
   }, [secretName, secretValidation]);
+
+  const hasUnsavedEdits = useMemo(
+    () => teamsIntegrationHasUnsavedEdits(conn, catalog, secretName, label, enabledTriggers),
+    [catalog, conn, enabledTriggers, label, secretName],
+  );
 
   const load = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -406,5 +415,6 @@ export function useTeamsNotificationsIntegrationPage(
     requestRemove,
     cancelRemove,
     confirmRemove,
+    hasUnsavedEdits,
   };
 }

@@ -16,7 +16,8 @@ import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetr
 import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
-import { uploadWizardPendingDocumentEvidence } from "@/lib/wizard-pending-evidence-upload";
+import { uploadWizardPendingDocumentEvidence, WIZARD_PENDING_EVIDENCE_UPLOAD_DEFERRED_MESSAGE } from "@/lib/wizard-pending-evidence-upload";
+import { showError } from "@/lib/toast";
 
 import type { GuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 import type { GuidedIntakeDraftCoreState } from "./use-guided-intake-draft-workflow";
@@ -54,12 +55,10 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
         const uploadResult = await uploadWizardPendingDocumentEvidence(result.runId, filesToUpload);
 
         if (!uploadResult.ok) {
-          core.setSubmitError(new Error(uploadResult.message));
-
-          return;
+          showError("Evidence upload", WIZARD_PENDING_EVIDENCE_UPLOAD_DEFERRED_MESSAGE, { type: "warning" });
+        } else {
+          form.setEvidenceFiles([]);
         }
-
-        form.setEvidenceFiles([]);
       }
 
       upsertArchitectureDraftRegistryEntry(

@@ -15,6 +15,8 @@ using ArchLucid.Persistence.Search;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 using ArchLucid.Persistence.Architecture;
+using ArchLucid.Core.Evidence;
+using ArchLucid.Persistence.Evidence;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Provenance;
 
@@ -58,6 +60,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IRemediationInstanceRepository, SqlRemediationInstanceRepository>();
         services.AddScoped<IRemediationPrioritizationRepository, SqlRemediationPrioritizationRepository>();
         services.AddScoped<IRemediationWaveRepository, SqlRemediationWaveRepository>();
+        services.AddScoped<IRunStoredEvidenceFileRepository, SqlRunStoredEvidenceFileRepository>();
         services.AddScoped<IArchitectureDiagramModelRepository, SqlArchitectureDiagramModelRepository>();
         services.AddScoped<IArchitectureDiagramReconciliationRepository, SqlArchitectureDiagramReconciliationRepository>();
         services.AddScoped<SqlTenantBrandingProfileRepository>();

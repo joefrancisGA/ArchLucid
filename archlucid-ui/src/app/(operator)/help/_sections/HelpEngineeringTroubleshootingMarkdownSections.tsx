@@ -1,8 +1,17 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { createHelpHeadingSlugAllocator, resolveHelpHeadingId } from "@/lib/help/help-heading-slug";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  helpEngineeringTroubleshootingMarkdownSectionDisclosureHrefFromSearch,
+  parseHelpEngineeringTroubleshootingMarkdownSectionKeyFromSearch,
+} from "@/lib/help/help-engineering-troubleshooting-markdown-section-disclosure-url";
 import { cn } from "@/lib/utils";
 
 export type HelpEngineeringTroubleshootingMarkdownSection = {
@@ -81,6 +90,40 @@ type HelpEngineeringTroubleshootingMarkdownSectionsProps = {
 export function HelpEngineeringTroubleshootingMarkdownSections(
   props: HelpEngineeringTroubleshootingMarkdownSectionsProps,
 ): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpEngineeringTroubleshootingMarkdownSectionKeyParam = searchParams.get(
+    "helpEngineeringTroubleshootingMarkdownSectionKey",
+  );
+  const [openSectionKey, setOpenSectionKeyState] = useState(() =>
+    parseHelpEngineeringTroubleshootingMarkdownSectionKeyFromSearch(
+      helpEngineeringTroubleshootingMarkdownSectionKeyParam,
+    ),
+  );
+
+  const syncOpenSectionToUrl = useCallback(
+    (sectionKey: string | null) => {
+      router.replace(
+        helpEngineeringTroubleshootingMarkdownSectionDisclosureHrefFromSearch(
+          searchParams.toString(),
+          sectionKey,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setOpenSectionKeyState(
+      parseHelpEngineeringTroubleshootingMarkdownSectionKeyFromSearch(
+        helpEngineeringTroubleshootingMarkdownSectionKeyParam,
+      ),
+    );
+  }, [helpEngineeringTroubleshootingMarkdownSectionKeyParam]);
+
   const { preamble, sections } = splitEngineeringTroubleshootingMarkdownSections(props.markdown);
 
   return (
@@ -120,6 +163,12 @@ export function HelpEngineeringTroubleshootingMarkdownSections(
           bodyClassName={HELP_PAGE_LAYOUT.detailsBody}
           // Section title ids live in the summary; avoid mounting every body on any page hash.
           mountOnHash={false}
+          open={openSectionKey === section.id}
+          onOpenChange={(detailsOpen) => {
+            const nextSectionKey = detailsOpen ? section.id : null;
+            setOpenSectionKeyState(nextSectionKey ?? "");
+            syncOpenSectionToUrl(nextSectionKey);
+          }}
         >
           {section.body.length > 0 ? (
             <MarketingAccessibilityMarkdownFragment

@@ -6,6 +6,7 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useHelpDocsIndexQuery } from "@/hooks/use-help-docs-index-query";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
 import {
@@ -115,6 +116,7 @@ function helpDocCategoriesForDisplay(grouped: Map<string, DocIndexEntry[]>): str
 export function HelpDocsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { localize } = useLocalizedProductCopy();
   const currentSearch = searchParams.toString();
   const urlQuery = parseHelpHubSearchQuery(searchParams.get("q"));
   const indexQuery = useHelpDocsIndexQuery();
@@ -163,11 +165,13 @@ export function HelpDocsClient() {
     }
 
     return mergedEntries.filter((e) => {
-      const hay = `${e.title} ${e.summary}`.toLowerCase();
+      const localizedTitle = localize(e.title);
+      const localizedSummary = localize(e.summary);
+      const hay = `${e.category} ${e.title} ${e.summary} ${e.url} ${localizedTitle} ${localizedSummary}`.toLowerCase();
 
       return hay.includes(q);
     });
-  }, [mergedEntries, query]);
+  }, [mergedEntries, query, localize]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, DocIndexEntry[]>();
@@ -221,7 +225,7 @@ export function HelpDocsClient() {
             clearSearch();
           }
         }}
-        placeholder="Filter by title or summary"
+        placeholder="Filter by title, summary, category, or URL"
         className={cn("max-w-xl", HELP_PAGE_TOC.referenceSearchInput)}
         autoComplete="off"
       />
@@ -253,9 +257,9 @@ export function HelpDocsClient() {
                     className={OPERATOR_LINK.inline}
                     {...linkProps(row.url)}
                   >
-                    {row.title}
+                    {localize(row.title)}
                   </Link>
-                  <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{row.summary}</p>
+                  <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{localize(row.summary)}</p>
                 </li>
               ))}
             </ul>

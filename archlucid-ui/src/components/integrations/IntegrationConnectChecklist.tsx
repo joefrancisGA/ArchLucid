@@ -10,6 +10,7 @@ export type IntegrationConnectChecklistStep = {
 
 export type IntegrationConnectChecklistProps = {
   readonly title: string;
+  readonly titleHeadingLevel?: "cardTitle" | "helper";
   readonly description?: string;
   readonly steps: readonly IntegrationConnectChecklistStep[];
   readonly emphasizedStepId: string;
@@ -18,9 +19,18 @@ export type IntegrationConnectChecklistProps = {
 
 /** Reusable three-step integration setup checklist for connector pages. */
 export function IntegrationConnectChecklist(props: IntegrationConnectChecklistProps): React.JSX.Element {
+  const titleClass =
+    props.titleHeadingLevel === "helper"
+      ? OPERATOR_TYPOGRAPHY.helper
+      : OPERATOR_TYPOGRAPHY.cardTitle;
+
   return (
     <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
-      <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{props.title}</h2>
+      {props.titleHeadingLevel === "helper" ? (
+        <p className={cn("m-0", titleClass)}>{props.title}</p>
+      ) : (
+        <h2 className={cn("m-0", titleClass)}>{props.title}</h2>
+      )}
       {props.description !== undefined ? (
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.description}</p>
       ) : null}

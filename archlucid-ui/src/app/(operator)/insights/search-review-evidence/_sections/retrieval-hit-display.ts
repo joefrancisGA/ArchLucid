@@ -1,5 +1,9 @@
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
+import {
+  EVIDENCE_GRAPH_OPEN_ACTION_LABEL,
+} from "@/lib/evidence-graph-operator-source-link";
 import { findingInspectHref } from "@/lib/findings/finding-policy-evidence-citations";
+import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { reviewSignedRecordPath, signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
@@ -31,7 +35,7 @@ export function retrievalHitSourceTypeLabel(sourceType: string | undefined): str
     case "ManifestTopology":
       return "Architecture structure";
     case "ProvenanceGraph":
-      return "Evidence trail";
+      return BUYER_SURFACE_VOCABULARY.evidenceGraph;
     case "Artifact":
       return "Evidence artifact";
     case "ConversationMessage":
@@ -166,7 +170,7 @@ export function buildRetrievalHitActionLink(
   if (sourceType === "ProvenanceGraph" && runId !== null) {
     return {
       href: evidenceGraphHref({ runId }),
-      label: "Open evidence trail",
+      label: EVIDENCE_GRAPH_OPEN_ACTION_LABEL,
     };
   }
 

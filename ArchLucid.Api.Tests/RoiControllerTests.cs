@@ -163,10 +163,10 @@ public sealed class RoiControllerTests
             Mock.Of<ISponsorRoiSummaryService>(),
             Mock.Of<ISponsorRoiBoardPackExporter>());
 
-        ActionResult<CrossTenantPortfolioSummaryResponse> action =
+        IActionResult action =
             await controller.GetCrossTenantPortfolioSummaryAsync(CancellationToken.None);
 
-        ObjectResult forbidden = action.Result.Should().BeOfType<ObjectResult>().Subject;
+        ObjectResult forbidden = action.Should().BeOfType<ObjectResult>().Subject;
         forbidden.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 

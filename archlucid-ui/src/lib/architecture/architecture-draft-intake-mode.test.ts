@@ -65,8 +65,24 @@ describe("architecture-draft-intake-mode", () => {
     expect(resolveGuidedIntakeBlockedRedirectHref("arch-001", "run-001")).toBe(
       "/architecture/reviews/run-001",
     );
+    expect(
+      resolveGuidedIntakeBlockedRedirectHref("arch-001", "run-001", { workingMode: true }),
+    ).toBe("/architecture/architectures/arch-001/reviews/run-001");
     expect(resolveGuidedIntakeBlockedRedirectHref("arch-001", null)).toBe(
       "/architecture/architectures/arch-001",
     );
+  });
+
+  it("SY-25: Working handoff href is nested when architecture identity exists", () => {
+    expect(
+      resolveGuidedIntakeBlockedRedirectHref("architecture-identity-001", "run-42", {
+        workingMode: true,
+      }),
+    ).toBe("/architecture/architectures/architecture-identity-001/reviews/run-42");
+    expect(
+      resolveGuidedIntakeBlockedRedirectHref("architecture-identity-001", "run-42", {
+        workingMode: true,
+      }),
+    ).not.toContain("/architecture/reviews/run-42");
   });
 });

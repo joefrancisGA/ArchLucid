@@ -1,5 +1,7 @@
+import { PolicyPacksBundledRuleKeysDisclosure } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksBundledRuleKeysDisclosure";
+import { PolicyPacksEffectivePacksDisclosure } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksEffectivePacksDisclosure";
+import { PolicyPacksResolvedContentDisclosure } from "@/app/(operator)/governance/policy-packs/_sections/PolicyPacksResolvedContentDisclosure";
 import { cn } from "@/lib/utils";
-import { CollapsibleJsonTree } from "@/components/CollapsibleJsonTree";
 import { PolicyPackDiffView } from "@/components/policy/PolicyPackDiffView";
 import {
   policyPacksCompareVersionsIntroOperator,
@@ -13,7 +15,7 @@ import {
   policyPacksShowDiffButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type {
   EffectivePolicyPackSet,
   PolicyPackContentDocument,
@@ -73,7 +75,7 @@ export function PolicyPacksInspectSection(props: PolicyPacksInspectSectionProps)
               {effective.packs?.length ?? 0} pack(s) resolved for this scope. Connect a live API to inspect raw configuration.
             </p>
           ) : (
-            <CollapsibleJsonTree value={effective} className="max-h-[360px] border border-neutral-200 dark:border-neutral-600" />
+            <PolicyPacksEffectivePacksDisclosure effective={effective} />
           )}
         </div>
       ) : (
@@ -88,10 +90,7 @@ export function PolicyPacksInspectSection(props: PolicyPacksInspectSectionProps)
               Effective policy content is available with a live API connection.
             </p>
           ) : (
-            <CollapsibleJsonTree
-              value={effectiveContent}
-              className="max-h-[360px] border border-neutral-200 dark:border-neutral-600"
-            />
+            <PolicyPacksResolvedContentDisclosure effectiveContent={effectiveContent} />
           )}
         </div>
       ) : (
@@ -99,31 +98,11 @@ export function PolicyPacksInspectSection(props: PolicyPacksInspectSectionProps)
       )}
 
       {mergedKeys.length > 0 ? (
-        <details className="mb-6 rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/50">
-          <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
-            Bundled compliance rule keys merged for this scope ({mergedKeys.length})
-          </summary>
-          <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            These stable keys anchor evaluation; titles, remediation, and framework mapping text live on each finding inspect view and in{" "}
-            <code className={cn("rounded bg-neutral-100 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.badge)}>docs/samples/policy-packs/*.json</code>{" "}
-            / <code className={cn("rounded bg-neutral-100 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.badge)}>docs/library/POLICY_PACK_APPENDIX_*</code>.
-          </p>
-          <ul
-            className={cn(
-              "mb-0 mt-3 max-h-48 list-disc overflow-y-auto pl-5 leading-relaxed text-al-text-primary md:columns-2 md:gap-6",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-          >
-            {mergedKeyPreview.map((k) => (
-              <li key={k} className="break-all">
-                {k}
-              </li>
-            ))}
-          </ul>
-          {mergedKeyRemainder > 0 ? (
-            <p className={cn("mb-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>…and {mergedKeyRemainder} more.</p>
-          ) : null}
-        </details>
+        <PolicyPacksBundledRuleKeysDisclosure
+          mergedKeysCount={mergedKeys.length}
+          mergedKeyPreview={mergedKeyPreview}
+          mergedKeyRemainder={mergedKeyRemainder}
+        />
       ) : null}
 
       <h4 className={cn("mb-2 mt-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Published versions</h4>

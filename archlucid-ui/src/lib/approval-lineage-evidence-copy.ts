@@ -1,4 +1,5 @@
 import { GOVERNANCE_APPROVAL_QUEUE_PATH, GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -8,18 +9,45 @@ export const APPROVAL_LINEAGE_CANONICAL_PATH_PATTERN =
 
 export const APPROVAL_LINEAGE_HELP_TOPIC_LABEL = "How approval lineage works";
 
+export const APPROVAL_LINEAGE_PRIMARY_CONTENT_ID = "approval-lineage-primary-content" as const;
+
+export const APPROVAL_LINEAGE_SKIP_LINK_LABEL = "Skip to approval lineage" as const;
+
+export const APPROVAL_LINEAGE_FOLLOW_UPS_TITLE = "Where to go next";
+
 export const APPROVAL_LINEAGE_CLAIM_DISCIPLINE =
   "Approval lineage shows how one approval request connects to its review, findings, and finalized review record version. Use it to inspect links — not as a full audit export on its own. Open Audit or the architecture review when you need the fuller trail.";
 
-export const APPROVAL_LINEAGE_SOURCES_INTRO =
-  "Use these follow-ups when lineage needs queue context, findings triage, audit trail, or governance orientation.";
+export const APPROVAL_LINEAGE_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "lineage turns into queue context, findings triage, or audit trail",
+);
 
+export const APPROVAL_LINEAGE_PAGE_LEAD =
+  "Follow how one approval request links to its review, findings, and finalized review record version.";
+
+export const APPROVAL_LINEAGE_START_HERE_CARD_TITLE = "Start here" as const;
+
+export const APPROVAL_LINEAGE_BUYER_START_HERE_HELPER =
+  "Read the lineage spine, then open Approval queue, Findings, or Audit when you need queue context or a fuller trail.";
+
+export const APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID = "approval-lineage-first-viewport" as const;
+
+export const APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID = "approval-lineage-orientation-bottom" as const;
+
+export const APPROVAL_LINEAGE_OVERVIEW =
+  "The lineage spine below links this approval request to its review package, findings, and finalized record version.";
+
+/** Buyer bridge between first-viewport lead and approval lineage workspace (GAI). */
+export const APPROVAL_LINEAGE_BUYER_OVERVIEW =
+  "The lineage spine, approval card, and findings panels below link this request to its review package and finalized record version.";
+
+export const APPROVAL_LINEAGE_WORKSPACE_TEST_ID = "approval-lineage-workspace" as const;
 
 /** Operator Sources — no self-href to the dynamic lineage route pattern. */
 export const APPROVAL_LINEAGE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Approval help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },
 ] as const;

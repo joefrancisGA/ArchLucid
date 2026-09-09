@@ -8,3 +8,5 @@ export const SECURITY_TRUST_HELP_SKIP_LINK_LABEL = "Skip to security and trust w
 
 export const SECURITY_TRUST_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-security-trust-header-claim-discipline" as const;
+
+export const SECURITY_TRUST_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-security-trust-orientation-bottom" as const;

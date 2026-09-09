@@ -7,6 +7,15 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
 }));
 
+const demoEnvMock = vi.hoisted(() => ({
+  buyerPolished: false,
+  evalChrome: false,
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => demoEnvMock.evalChrome,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -15,10 +24,6 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: () => demoEnvMock.buyerPolished,
   };
 });
-
-const demoEnvMock = vi.hoisted(() => ({
-  buyerPolished: false,
-}));
 
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
@@ -47,6 +52,7 @@ function buildModel(overrides: Parameters<typeof buildArchitectureCreatedHomeMod
 describe("ArchitectureCreatedOverviewPanel", () => {
   beforeEach(() => {
     demoEnvMock.buyerPolished = false;
+    demoEnvMock.evalChrome = false;
   });
 
   it("links Continue clarifying to run-scoped correction href (TB-1862)", () => {
@@ -247,6 +253,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
 describe("ArchitectureCreatedOverviewPanel buyer-polished shell", () => {
   beforeEach(() => {
     demoEnvMock.buyerPolished = true;
+    demoEnvMock.evalChrome = true;
   });
 
   it("hides provenance legend, uses buyer empty copy, and omits inline Sources strip", () => {

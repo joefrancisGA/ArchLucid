@@ -1,5 +1,7 @@
 namespace ArchLucid.Contracts.Architecture;
 
+using ArchLucid.Contracts.Findings;
+
 /// <summary>
 ///     Policy theory-in-force and typed prior revision for finding-engine orchestration.
 /// </summary>
@@ -77,6 +79,13 @@ public sealed class FindingAnalysisContext
 
     /// <summary>Wave-7 suggestion 67: run header carries a create-time evidence pin hash commitment.</summary>
     public bool HasCreateTimeEvidencePinCommitment
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Missing-input attribution for fail-closed engines (DX-52). Null in golden harness.</summary>
+    public IHeldCheckLedger? HeldCheckLedger
     {
         get;
         init;

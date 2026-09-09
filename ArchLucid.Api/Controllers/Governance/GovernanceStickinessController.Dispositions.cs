@@ -3,6 +3,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -86,6 +87,10 @@ public sealed partial class GovernanceStickinessController
             TradeOffAcknowledgment = body.TradeOffAcknowledgment,
             RevisitDueUtc = body.RevisitDueUtc,
             EvidenceRequestText = body.EvidenceRequestText,
+            ImpactPreviewCompleted = body.ImpactPreviewCompleted,
+            PreviewOverrideReason = body.PreviewOverrideReason,
+            ArchitectRestatement = body.ArchitectRestatement,
+            ExpectedCurrentDispositionRowVersionBase64 = body.ExpectedCurrentDispositionRowVersionBase64,
         };
 
         try
@@ -98,6 +103,16 @@ public sealed partial class GovernanceStickinessController
         catch (RunNotFoundException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (FindingDispositionConflictException ex)
+        {
+            return this.ConflictProblem(
+                ex.Message,
+                ProblemTypes.Conflict,
+                extensions: new Dictionary<string, object?>
+                {
+                    ["currentDisposition"] = ex.CurrentDisposition,
+                });
         }
         catch (ConflictException ex)
         {
@@ -118,6 +133,7 @@ public sealed partial class GovernanceStickinessController
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecordBulkFindingDispositionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: IFindingReviewTrailAppendService logs FindingReviewDispositionRecorded via IAuditService.")]
     public async Task<IActionResult> RecordBulkDisposition(
@@ -158,6 +174,16 @@ public sealed partial class GovernanceStickinessController
         try
         {
             response = await _facade.RecordBulkDispositionAsync(request, cancellationToken);
+        }
+        catch (FindingDispositionConflictException ex)
+        {
+            return this.ConflictProblem(
+                ex.Message,
+                ProblemTypes.Conflict,
+                extensions: new Dictionary<string, object?>
+                {
+                    ["currentDisposition"] = ex.CurrentDisposition,
+                });
         }
         catch (ConflictException ex)
         {

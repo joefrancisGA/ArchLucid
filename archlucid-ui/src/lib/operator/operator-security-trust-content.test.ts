@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  OPERATOR_SECURITY_TRUST_MATERIAL_ITEMS,
+  operatorSecurityTrustMaterialItems,
   OPERATOR_SECURITY_TRUST_MATURITY_TAG_ROADMAP,
   OPERATOR_SECURITY_TRUST_MATURITY_TAG_UNDER_NDA,
   resolveOperatorSecurityTrustMaterialAvailability,
   resolveOperatorSecurityTrustMaterialReviewedLabel,
 } from "@/lib/operator/operator-security-trust-content";
 import { assuranceMaturityBadgeLabel } from "@/lib/security-trust-content";
+import { operatorSecurityTrustSubprocessorsWhatItIs } from "@/lib/security-trust-product-copy";
 
 describe("operator-security-trust-content", () => {
   it("sources reviewed dates from PRODUCT_DOCUMENTATION_REGISTRY without inventing values", () => {
@@ -36,8 +37,18 @@ describe("operator-security-trust-content", () => {
   });
 
   it("keeps unique hrefs across material inventory rows", () => {
-    const hrefs = OPERATOR_SECURITY_TRUST_MATERIAL_ITEMS.map((item) => item.href);
+    const hrefs = operatorSecurityTrustMaterialItems("architecture").map((item) => item.href);
     expect(new Set(hrefs).size).toBe(hrefs.length);
     expect(hrefs.some((href) => href.includes("/trust"))).toBe(false);
+  });
+
+  it("clarifies SecureNow delivery in subprocessors copy on the security shell", () => {
+    const securitySubprocessors = operatorSecurityTrustMaterialItems("security").find(
+      (item) => item.docSlug === "subprocessors",
+    );
+
+    expect(securitySubprocessors?.whatItIs).toBe(operatorSecurityTrustSubprocessorsWhatItIs("security"));
+    expect(securitySubprocessors?.whatItIs).toContain("ArchLucid SaaS");
+    expect(securitySubprocessors?.whatItIs).toContain("SecureNow");
   });
 });

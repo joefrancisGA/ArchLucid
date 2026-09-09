@@ -5,7 +5,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { DIGESTS_BROWSE_ORIENTATION_SOURCES } from "@/lib/digests-browse-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
-/** Buyer default: mount Sources orientation after primary Get started browse workspace (ARB). */
+/** Buyer default: mount Sources orientation above primary Get started browse workspace (ARD). */
 export function DigestsBrowseBuyerChrome(): React.JSX.Element | null {
   if (!isBuyerPolishedOperatorShellEnv()) {
     return null;

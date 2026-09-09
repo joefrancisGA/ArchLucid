@@ -120,7 +120,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: "governance-workflow",
-    title: "Governance approval",
+    title: "Approval",
     keywords: ["approval", "promote", "staging", "production"],
     summary:
       "Submit → review → approve → promote: walk approvals for a finalized review when your workspace enables approval workflows.",

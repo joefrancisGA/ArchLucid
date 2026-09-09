@@ -11,6 +11,7 @@ import { useOperatorTaskSuccessRatesQuery } from "@/hooks/use-operator-task-succ
 
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
+import { useOperatorHomeBooleanDisclosureUrlSync } from "@/hooks/use-operator-home-boolean-disclosure-url-sync";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import {
   getCorePilotChecklistStorageServerSnapshot,
@@ -22,6 +23,10 @@ import {
   CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS,
 } from "@/lib/core-pilot-first-review-copy";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
+import {
+  corePilotDiagnosticsChecklistDisclosureHrefFromSearch,
+  parseCorePilotDiagnosticsChecklistOpenFromSearch,
+} from "@/lib/operator/core-pilot-diagnostics-checklist-disclosure-url";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 /**
@@ -57,6 +62,14 @@ export function OperatorCorePilotDiagnosticsChecklist() {
 
   const sessionRecorded = rates != null ? rates.firstSessionCompletedTotal >= 1 : false;
 
+  const [diagnosticsChecklistExpanded, setDiagnosticsChecklistExpanded] = useOperatorHomeBooleanDisclosureUrlSync(
+    OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.diagnosticsChecklist,
+    "corePilotDiagnosticsChecklistOpen",
+    parseCorePilotDiagnosticsChecklistOpenFromSearch,
+    corePilotDiagnosticsChecklistDisclosureHrefFromSearch,
+    false,
+  );
+
   if (isAuthorityLoading || callerAuthorityRank < AUTHORITY_RANK.AdminAuthority) {
     return null;
   }
@@ -68,6 +81,8 @@ export function OperatorCorePilotDiagnosticsChecklist() {
       sectionTestId="core-pilot-diagnostics-checklist"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.diagnosticsChecklist}
       defaultExpanded={false}
+      expanded={diagnosticsChecklistExpanded}
+      onExpandedChange={setDiagnosticsChecklistExpanded}
       collapsedSummary="Server-tracked onboarding signals and step map for the first review."
     >
       <ul className={cn("m-0 list-disc space-y-1.5 pl-5 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

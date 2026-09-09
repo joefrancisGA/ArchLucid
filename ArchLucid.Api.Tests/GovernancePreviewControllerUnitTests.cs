@@ -6,8 +6,12 @@ using ArchLucid.Application;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Preview;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -361,6 +365,9 @@ public sealed class GovernancePreviewControllerUnitTests
             previewService,
             scopeProvider ?? scopeMock.Object,
             tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             NullLogger<GovernancePreviewController>.Instance)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },

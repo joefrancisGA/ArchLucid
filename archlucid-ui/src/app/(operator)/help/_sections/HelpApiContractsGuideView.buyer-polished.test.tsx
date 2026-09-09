@@ -35,8 +35,12 @@ import {
 } from "@/lib/api-contracts-help-evidence-copy";
 import {
   API_CONTRACTS_HELP_FIRST_VIEWPORT_TEST_ID,
+  API_CONTRACTS_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  API_CONTRACTS_HELP_PAGE_LEAD,
+  API_CONTRACTS_HELP_PAGE_SUBTITLE_BUYER,
   API_CONTRACTS_HELP_SKIP_LINK_LABEL,
   API_CONTRACTS_HELP_SKIP_TARGET_ID,
+  API_CONTRACTS_HELP_START_HERE_HELPER,
 } from "@/lib/api-contracts-help-page-copy";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -59,6 +63,11 @@ describe("HelpApiContractsGuideView buyer-polished shell (HG)", () => {
     expect(screen.getByTestId("help-api-contracts-header-claim-discipline")).toHaveTextContent(
       API_CONTRACTS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.getByText(API_CONTRACTS_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByTestId("help-api-contracts-intro")).toHaveTextContent(API_CONTRACTS_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-api-contracts-start-here-helper")).toHaveTextContent(
+      API_CONTRACTS_HELP_START_HERE_HELPER,
+    );
     expect(screen.queryByTestId("help-api-contracts-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-print-button")).not.toBeInTheDocument();
@@ -69,7 +78,7 @@ describe("HelpApiContractsGuideView buyer-polished shell (HG)", () => {
     const primaryContent = screen.getByTestId("help-api-contracts-primary-content");
     const firstViewport = screen.getByTestId(API_CONTRACTS_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-api-contracts-action-panel");
-    const orientationBottom = screen.getByTestId("help-api-contracts-orientation-bottom");
+    const orientationBottom = screen.getByTestId(API_CONTRACTS_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-api-contracts-sources");
 
     expect(primaryContent).toContainElement(firstViewport);

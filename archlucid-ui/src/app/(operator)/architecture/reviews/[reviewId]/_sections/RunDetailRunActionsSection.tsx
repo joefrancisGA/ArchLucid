@@ -8,15 +8,24 @@ import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorVa
 import { ShareReviewPackageButton } from "@/components/ShareReviewPackageButton";
 import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
 import { ReviewPackageWhatIfControl } from "@/components/reviews/ReviewPackageWhatIfControl";
+import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { downloadTraceabilityBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-contract-copy";
+import { exportVerifyBlockedRecovery } from "@/lib/exports/export-verify-recovery-copy";
+import {
+  isRunExportLineageAttested,
+  verifyRunExportLineage,
+} from "@/lib/exports/run-export-lineage-verify";
+import { showError } from "@/lib/toast";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { showError } from "@/lib/toast";
+import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { RunDetailRunGovernanceDispositionActions } from "@/components/runs/RunDetailRunGovernanceDispositionActions";
 
@@ -31,11 +40,14 @@ type RunDetailRunActionsSectionProps = {
   readonly operatorGovernanceDecision?: string | null;
   readonly isArchived?: boolean;
   readonly pipelineInFlight?: boolean;
+  /** Guided/sample reviews may skip export verify (DR-10). */
+  readonly isSample?: boolean;
 };
 
 export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProps): ReactElement {
   const { runId, systemName, manifestId, manifestVersion, hasCommitBlockingFailures, operatorGovernanceDecision = null } = props;
   const evalChromeShell = useProductionEvalChrome();
+  const workingDesk = useProductionDeskChrome();
   const packageCommitted =
     manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0;
   const sealedManifestVersion = manifestVersion ?? (packageCommitted ? manifestId?.trim() ?? null : null);
@@ -46,6 +58,9 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
   const [traceabilityBusy, setTraceabilityBusy] = useState(false);
 
   const onDownloadTraceabilityBundle = useCallback(() => {
+  const [traceabilityRecovery, setTraceabilityRecovery] = useState<ErrorRecoveryContractPresentation | null>(null);
+
+  const onDownloadTraceabilityBundle = useCallback(async () => {
     if (collateralExportBlockedReason !== null) {
       return;
     }
@@ -63,6 +78,29 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
         setTraceabilityBusy(false);
       });
   }, [collateralExportBlockedReason, runId]);
+    setTraceabilityRecovery(null);
+
+    try {
+      if (workingDesk && props.isSample !== true) {
+        const verifyResult = await verifyRunExportLineage(runId);
+
+        if (!isRunExportLineageAttested(verifyResult)) {
+          setTraceabilityRecovery(exportVerifyBlockedRecovery(verifyResult));
+
+          return;
+        }
+      }
+
+      await downloadTraceabilityBundleZip(runId);
+    } catch (error: unknown) {
+      showError(
+        "Evidence bundle",
+        error instanceof Error ? error.message : "Could not download traceability bundle.",
+      );
+    } finally {
+      setTraceabilityBusy(false);
+    }
+  }, [collateralExportBlockedReason, props.isSample, runId, workingDesk]);
 
   return (
     <section id="run-actions" className="scroll-mt-24">
@@ -122,6 +160,26 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
               >
                 {traceabilityBusy ? "Downloading…" : "Download evidence bundle (ZIP)"}
               </Button>
+              <div className="flex flex-col gap-1">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={traceabilityBusy}
+                  onClick={() => {
+                    void onDownloadTraceabilityBundle();
+                  }}
+                  data-testid="run-actions-traceability-bundle-download"
+                >
+                  {traceabilityBusy ? "Preparing evidence bundle…" : "Download evidence bundle (ZIP)"}
+                </Button>
+                {traceabilityRecovery !== null ? (
+                  <OperatorErrorRecoveryContract
+                    presentation={traceabilityRecovery}
+                    testId="run-actions-traceability-bundle-recovery"
+                  />
+                ) : null}
+              </div>
             )}
             {evalChromeShell ? null : (
             <Button variant="outline" size="sm" asChild>

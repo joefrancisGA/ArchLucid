@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { archiveReview } from "@/lib/api/review-archive-api";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { resolveReviewArchiveRedirectHref } from "@/lib/resolve-review-archive-redirect-href";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useWorkOwnershipDeletePolicyQuery } from "@/hooks/use-work-ownership-delete-policy-query";
 import { canArchiveReview } from "@/lib/review-archive-eligibility";
 import {
@@ -55,6 +57,7 @@ export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JS
   const urlArchiveConfirm = parseReviewArchiveConfirmOpenFromSearch(searchParams.get("archiveConfirm"));
   const { callerAuthorityRank, currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
   const policyQuery = useWorkOwnershipDeletePolicyQuery();
+  const { isWorkingMode } = useWorkspaceMode();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
   const [confirmOpen, setConfirmOpenState] = useState(
     urlArchiveConfirm && urlArchiveRunId === props.run.runId,
@@ -108,11 +111,11 @@ export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JS
     setConfirmOpen(false);
 
     if (props.redirectAfterArchive === true) {
-      router.push(REVIEWS_LIST_PATH);
+      router.push(resolveReviewArchiveRedirectHref(isWorkingMode));
     }
 
     router.refresh();
-  }, [props, router, setConfirmOpen]);
+  }, [isWorkingMode, props, router, setConfirmOpen]);
 
   const handleConfirm = useCallback(async () => {
     setBusy(true);

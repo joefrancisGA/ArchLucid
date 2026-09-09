@@ -170,6 +170,67 @@ public sealed class RealizedValueAttestationServiceTests
     }
 
     [Fact]
+    public async Task SaveAttestationAsync_throws_when_serialized_attestation_exceeds_tenant_setting_value_limit()
+    {
+        string existingPayload = JsonSerializer.Serialize(new
+        {
+            AttestedIncidentsAvoided = 1,
+            AttestedRevenueOrRetentionImpact = new string('a', RealizedValueAttestationUpsertValidation.NoteMaxLength),
+            AttestedReviewerTimeSavedNote = new string('b', RealizedValueAttestationUpsertValidation.NoteMaxLength),
+        });
+
+        Mock<ITenantSettingsRepository> repo = new();
+        repo.Setup(r => r.TryGetAsync(
+                TenantId,
+                $"{TenantSettingKeys.RealizedValueAttestation}.{WorkspaceId:D}",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingPayload);
+
+        RealizedValueAttestationService sut = new(repo.Object);
+
+        UpsertRealizedValueAttestationRequest request = new()
+        {
+            AttestedIncidentsAvoided = 999_999,
+        };
+
+        Func<Task> act = () => sut.SaveAttestationAsync(TenantId, WorkspaceId, request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage($"*at most {TenantSettingsSchemaLimits.SettingValueMaxLength}*");
+    }
+
+    [Fact]
+    public async Task SaveAttestationAsync_persists_when_both_notes_at_note_max_length()
+    {
+        string? capturedJson = null;
+        Mock<ITenantSettingsRepository> repo = new();
+        repo.Setup(r => r.UpsertAsync(
+                TenantId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<Guid, string, string, CancellationToken>((_, _, json, _) => capturedJson = json)
+            .Returns(Task.CompletedTask);
+
+        RealizedValueAttestationService sut = new(repo.Object);
+        string note = new('n', RealizedValueAttestationUpsertValidation.NoteMaxLength);
+
+        await sut.SaveAttestationAsync(
+            TenantId,
+            WorkspaceId,
+            new UpsertRealizedValueAttestationRequest
+            {
+                AttestedIncidentsAvoided = 1,
+                AttestedRevenueOrRetentionImpact = note,
+                AttestedReviewerTimeSavedNote = note,
+            },
+            CancellationToken.None);
+
+        capturedJson.Should().NotBeNull();
+        capturedJson!.Length.Should().BeLessThanOrEqualTo(TenantSettingsSchemaLimits.SettingValueMaxLength);
+    }
+
+    [Fact]
     public async Task SaveAttestationAsync_throws_when_note_is_whitespace_only()
     {
         RealizedValueAttestationService sut = new(Mock.Of<ITenantSettingsRepository>());

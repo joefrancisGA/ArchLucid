@@ -1,15 +1,28 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Services.Authority;
+using ArchLucid.Application;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Integrations.Itsm;
+using ArchLucid.Application.Integrations.Itsm.Outbound;
+using ArchLucid.Application.Reporting;
 using ArchLucid.Application.Runs.Query;
+using ArchLucid.Application.Runs.Query.Stages;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
@@ -280,6 +293,77 @@ public sealed class RunQueryControllerTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
+    [Fact]
+    public async Task ListRunFindings_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory()
+    {
+        RunQueryController controller = CreateController(runFindingsQueryService: CreateFindingsQueryService());
+
+        IActionResult action = await controller.ListRunFindings(
+            "   ",
+            orderBy: null,
+            take: null,
+            cursorSortOrder: null,
+            cursorPriorityRank: null,
+            cursorFindingRecordId: null,
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetFindingInspectForRun_returns_not_found_for_whitespace_run_id_like_GetRunExportHistory()
+    {
+        RunQueryController controller = CreateController(runFindingsQueryService: CreateFindingsQueryService());
+
+        IActionResult action = await controller.GetFindingInspectForRun(
+            "   ",
+            "finding-1",
+            includeTypedPayload: true,
+            CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    private static RunFindingsQueryService CreateFindingsQueryService()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext());
+
+        Mock<IRunRepository> runs = new();
+
+        return new RunFindingsQueryService(
+            new RunFindingsListStage(
+                runs.Object,
+                Mock.Of<IFindingsSnapshotRepository>(),
+                CreateExternalTrackingEnrichmentService(),
+                scopeProvider.Object),
+            new RunFindingsCsvExportStage(
+                Mock.Of<IRunDetailQueryService>(),
+                runs.Object,
+                CreateExternalTrackingEnrichmentService(),
+                scopeProvider.Object,
+                Mock.Of<IAuthorityQueryService>(),
+                Mock.Of<IManifestHashService>(),
+                new ExportFormatterService()),
+            new RunFindingsInspectStage(
+                runs.Object,
+                Mock.Of<IFindingInspectReadRepository>(),
+                Mock.Of<IFindingTrustLabelMapper>(),
+                Mock.Of<IReasoningSummaryBuilder>(),
+                scopeProvider.Object,
+                Mock.Of<IAuthorityQueryService>()),
+            runs.Object,
+            Mock.Of<IFindingEvidenceChainService>(),
+            scopeProvider.Object);
+    }
+
+    private static RunFindingExternalTrackingEnrichmentService CreateExternalTrackingEnrichmentService() =>
+        new(
+            Mock.Of<IRunFindingExternalTrackingReadRepository>(),
+            new ItsmExternalTicketUrlBuilder(Mock.Of<IExternalTicketConnectorRegistry>()));
+
     private static RunQueryController CreateController(
         IRunGraphQueryService? runGraphQueryService = null,
         IRunFindingsQueryService? runFindingsQueryService = null,
@@ -289,7 +373,10 @@ public sealed class RunQueryControllerTests
             runGraphQueryService ?? Mock.Of<IRunGraphQueryService>(),
             runFindingsQueryService ?? Mock.Of<IRunFindingsQueryService>(),
             runProvenanceQueryService ?? Mock.Of<IRunProvenanceQueryService>(),
-            traceabilityExport ?? Mock.Of<ITraceabilityBundleExportApplicationService>())
+            traceabilityExport ?? Mock.Of<ITraceabilityBundleExportApplicationService>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

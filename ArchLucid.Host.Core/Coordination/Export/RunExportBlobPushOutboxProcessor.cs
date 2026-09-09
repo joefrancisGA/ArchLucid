@@ -111,6 +111,7 @@ public sealed class RunExportBlobPushOutboxProcessor(
         ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
 
         using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
+        using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
 
         IAuthorityQueryService authorityQueryService =
             scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();

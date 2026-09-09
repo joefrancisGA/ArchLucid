@@ -42,7 +42,7 @@ public sealed class ExportsControllerScopeTests
             .Setup(r => r.GetRunDetailAsync(VictimRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
-        IActionResult result = await sut.GetExportRecord(ExportRecordId, CancellationToken.None);
+        IActionResult result = await sut.GetExportRecord(ExportRecordId, exports.Object, CancellationToken.None);
 
         result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
@@ -89,7 +89,7 @@ public sealed class ExportsControllerScopeTests
             authorityQuery: authorityQuery,
             manifestHashService: manifestHashService);
 
-        IActionResult result = await sut.GetExportRecord(ExportRecordId, CancellationToken.None);
+        IActionResult result = await sut.GetExportRecord(ExportRecordId, exports.Object, CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         RunExportRecordResponse body = ok.Value.Should().BeOfType<RunExportRecordResponse>().Subject;
@@ -119,7 +119,7 @@ public sealed class ExportsControllerScopeTests
 
         ExportsController sut = CreateController(exports, runDetails, lineageVerifier: lineageVerifier);
 
-        IActionResult result = await sut.GetExportRecord(ExportRecordId, CancellationToken.None);
+        IActionResult result = await sut.GetExportRecord(ExportRecordId, exports.Object, CancellationToken.None);
 
         result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
@@ -152,7 +152,7 @@ public sealed class ExportsControllerScopeTests
 
         ExportsController sut = CreateController(exports, runDetails, lineageVerifier: lineageVerifier);
 
-        IActionResult result = await sut.CompareExportRecords(leftId, rightId, CancellationToken.None);
+        IActionResult result = await sut.CompareExportRecords(leftId, rightId, exports.Object, CancellationToken.None);
 
         result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }

@@ -38,11 +38,9 @@ public static class FindingChecklistCoverageRouter
 
         snapshot.Findings = retained;
         snapshot.ChecklistCoverage = checklist;
-        snapshot.InsightDensityCuration = new InsightDensityCurationSummary
-        {
-            DemotedToChecklistCount = checklist.Count,
-            RetainedFindingCount = retained.Count,
-        };
+        snapshot.InsightDensityCuration ??= new InsightDensityCurationSummary();
+        snapshot.InsightDensityCuration.DemotedToChecklistCount = checklist.Count;
+        snapshot.InsightDensityCuration.RetainedFindingCount = retained.Count;
     }
 
     public static bool ShouldRouteToChecklist(Finding finding)

@@ -3,6 +3,7 @@
 import { GraphLoadedExperience } from "@/app/(operator)/insights/evidence-graph/_sections/GraphLoadedExperience";
 import { GraphFetchStatusAlerts } from "@/app/(operator)/insights/evidence-graph/_sections/GraphFetchStatusAlerts";
 import { GraphPickReviewBeforeCanvasStrip } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPickReviewBeforeCanvasStrip";
+import { WorkingInsightsArchitectureBindEmptyState } from "@/components/insights/WorkingInsightsArchitectureBindEmptyState";
 import { GraphIdlePlaceholder } from "@/app/(operator)/insights/evidence-graph/_sections/GraphIdlePlaceholder";
 import { GraphArchitectureNoteBanner } from "@/app/(operator)/insights/evidence-graph/_sections/GraphArchitectureNoteBanner";
 import type { useGraphPage } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page";
@@ -34,7 +35,16 @@ export function GraphPageCanvasShell(props: GraphPageCanvasShellProps): React.JS
           graphMode={vm.mode}
         />
       ) : null}
-      {!vm.buyerPolishedShell && vm.showReviewPickerBeforeCanvas ? (
+      {!vm.buyerPolishedShell && vm.showArchitectureDeskEmpty && vm.architectureBindResult !== null ? (
+        <WorkingInsightsArchitectureBindEmptyState
+          bindResult={vm.architectureBindResult}
+          tool="evidence-graph"
+        />
+      ) : null}
+      {!vm.buyerPolishedShell &&
+      vm.showReviewPickerBeforeCanvas &&
+      !vm.architectureBindPending &&
+      !vm.showArchitectureDeskEmpty ? (
         <GraphPickReviewBeforeCanvasStrip selectedReviewId={vm.runId} onSelectReview={vm.handleRunIdChange} />
       ) : null}
       {!vm.buyerPolishedShell && vm.showIdleCard && !vm.showReviewPickerBeforeCanvas ? (
