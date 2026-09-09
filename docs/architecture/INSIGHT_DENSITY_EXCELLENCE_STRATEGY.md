@@ -4,7 +4,19 @@
 
 # Insight density — excellence strategy
 
-**Created:** 2026-09-06 · **Status:** Owner-facing strategy note. **DX-01–DX-76 shipped** (2026-09-09, `#2530`). No further Cursor Composer prompt pack is checked in after DX-76. Still owner-gated: live frontier corpus **G-REAL-06**, `EnableProseAssumptionExtraction` default-on, Graph-RAG live ablation **TB-883**, live extractor-as-default (product/GTM). **DX-57** already made ranking priors and the insight generator effective-on in Real mode. **DX-59** already raised `DemotionThreshold` to 65.
+**Created:** 2026-09-06 · **Status:** Owner-facing strategy note. **DX-01–DX-76 shipped** (2026-09-09, `#2530`). No further Cursor Composer prompt pack is checked in after DX-76.
+
+### Owner decisions (2026-09-09)
+
+| Decision | Owner call | Engineering status |
+|----------|------------|-------------------|
+| Azure inventory extractors default-on for first review | **Yes — Azure first** | **Next batch** — intake/product wiring (hosted pull + upload prompt); AWS/GCP deferred |
+| `EnableProseAssumptionExtraction` default-on | **Yes** | **Shipped** — Real-mode effective-on with tenant opt-out (`Findings.InsightDensityProseAssumptionExtraction.Enabled`) |
+| Graph-RAG live ablation **TB-883** | **Yes — budget cap TBD** | Blocked on monthly AOAI ceiling + tenant cohort |
+| Next engineering priority | **PP-01** | **Core shipped** (Aug 2026); follow-up is ga-starter catalog extension (see `docs/quality/pp01-ga-starter-catalog-extension-scoping.md`) |
+| Live frontier corpus **G-REAL-06** | *(deferred)* | Unchanged — needs frozen architectures + human sampling |
+
+Still owner-gated until the rows above close: **TB-883** (budget), **G-REAL-06** (corpus), **Azure extractor first-review default** (product shape: hard gate vs soft prompt still open). **DX-57** already made ranking priors and the insight generator effective-on in Real mode. **DX-59** already raised `DemotionThreshold` to 65.
 
 ## Executive summary
 
