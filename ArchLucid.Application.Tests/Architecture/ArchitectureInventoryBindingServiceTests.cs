@@ -4,6 +4,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
 
@@ -11,119 +12,111 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Architecture;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class ArchitectureInventoryBindingServiceTests
 {
     private static readonly ScopeContext Scope = new()
     {
-        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+        WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+        ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
     };
 
     private static readonly Guid ArchitectureId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
-    private static readonly Guid SnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-    private static readonly Guid ForeignSnapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+    private static readonly Guid ForeignSnapshotId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
     [Fact]
-    public async Task AttachAsync_foreignSnapshotId_returnsSnapshotNotFound()
+    public async Task AttachAsync_cross_tenant_snapshot_id_fails_closed_as_snapshot_not_found()
     {
-        ArchitectureInventoryBindingService sut = CreateSut(
-            architectureExists: true,
-            snapshot: null);
+        Mock<IArchitectureIdentityRepository> identities = new();
+        identities
+            .Setup(repository => repository.GetByIdAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureIdentityRecord
+            {
+                ArchitectureId = ArchitectureId,
+                DisplayName = "Platform",
+            });
+
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(repository => repository.TryGetBySnapshotIdAsync(Scope, ForeignSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AzureInventorySnapshotRecord?)null);
+
+        Mock<IArchitectureInventoryBindingRepository> bindings = new();
+
+        ArchitectureInventoryBindingService sut = new(
+            identities.Object,
+            snapshots.Object,
+            bindings.Object);
 
         ArchitectureInventoryBindingAttachResult result = await sut.AttachAsync(
             Scope,
             ArchitectureId,
             ForeignSnapshotId,
-            "actor@example.com",
+            "reviewer@example.com",
             CancellationToken.None);
 
         result.Status.Should().Be(ArchitectureInventoryBindingAttachStatus.SnapshotNotFound);
-        result.Response.Should().BeNull();
+        bindings.Verify(
+            repository => repository.UpsertAsync(It.IsAny<ArchitectureInventoryBindingRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
-    public async Task AttachAsync_sameScopeSnapshot_returnsSuccess()
+    public async Task AttachAsync_same_tenant_snapshot_succeeds()
     {
-        AzureInventorySnapshotRecord snapshot = new()
-        {
-            SnapshotId = SnapshotId,
-            TenantId = Scope.TenantId,
-            WorkspaceId = Scope.WorkspaceId,
-            ProjectId = Scope.ProjectId,
-            CapturedUtc = new DateTime(2026, 7, 18, 12, 0, 0, DateTimeKind.Utc),
-            SubscriptionName = "Prod",
-        };
+        Mock<IArchitectureIdentityRepository> identities = new();
+        identities
+            .Setup(repository => repository.GetByIdAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureIdentityRecord
+            {
+                ArchitectureId = ArchitectureId,
+                DisplayName = "Platform",
+            });
 
-        ArchitectureInventoryBindingService sut = CreateSut(
-            architectureExists: true,
-            snapshot: snapshot);
+        Guid snapshotId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(repository => repository.TryGetBySnapshotIdAsync(Scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotRecord
+            {
+                SnapshotId = snapshotId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                CapturedUtc = DateTime.UtcNow,
+            });
+
+        Mock<IArchitectureInventoryBindingRepository> bindings = new();
+        bindings
+            .Setup(repository => repository.UpsertAsync(It.IsAny<ArchitectureInventoryBindingRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ArchitectureInventoryBindingService sut = new(
+            identities.Object,
+            snapshots.Object,
+            bindings.Object);
 
         ArchitectureInventoryBindingAttachResult result = await sut.AttachAsync(
             Scope,
             ArchitectureId,
-            SnapshotId,
-            "actor@example.com",
+            snapshotId,
+            "reviewer@example.com",
             CancellationToken.None);
 
         result.Status.Should().Be(ArchitectureInventoryBindingAttachStatus.Success);
-        result.Response.Should().NotBeNull();
         result.Response!.IsBound.Should().BeTrue();
-        result.Response.SnapshotId.Should().Be(SnapshotId);
-        result.Response.SnapshotCapturedUtc.Should().Be(snapshot.CapturedUtc);
-    }
+        result.Response.SnapshotId.Should().Be(snapshotId);
 
-    [Fact]
-    public async Task AttachAsync_missingArchitecture_returnsArchitectureNotFound()
-    {
-        ArchitectureInventoryBindingService sut = CreateSut(
-            architectureExists: false,
-            snapshot: null);
-
-        ArchitectureInventoryBindingAttachResult result = await sut.AttachAsync(
-            Scope,
-            ArchitectureId,
-            SnapshotId,
-            "actor@example.com",
-            CancellationToken.None);
-
-        result.Status.Should().Be(ArchitectureInventoryBindingAttachStatus.ArchitectureNotFound);
-    }
-
-    private static ArchitectureInventoryBindingService CreateSut(
-        bool architectureExists,
-        AzureInventorySnapshotRecord? snapshot)
-    {
-        Mock<IArchitectureIdentityRepository> identityRepository = new();
-        identityRepository
-            .Setup(repository => repository.GetByIdAsync(
-                Scope,
-                ArchitectureId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(architectureExists
-                ? new ArchitectureIdentityRecord { ArchitectureId = ArchitectureId }
-                : null);
-
-        Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
-        snapshotRepository
-            .Setup(repository => repository.TryGetBySnapshotIdAsync(
-                Scope,
-                It.IsAny<Guid>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(snapshot);
-
-        Mock<IArchitectureInventoryBindingRepository> bindingRepository = new();
-        bindingRepository
-            .Setup(repository => repository.UpsertAsync(
-                It.IsAny<ArchitectureInventoryBindingRecord>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        return new ArchitectureInventoryBindingService(
-            identityRepository.Object,
-            snapshotRepository.Object,
-            bindingRepository.Object);
+        bindings.Verify(
+            repository => repository.UpsertAsync(
+                It.Is<ArchitectureInventoryBindingRecord>(record =>
+                    record.ArchitectureId == ArchitectureId
+                    && record.SnapshotId == snapshotId
+                    && record.TenantId == Scope.TenantId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

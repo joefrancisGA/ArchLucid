@@ -199,28 +199,4 @@ public sealed partial class AdvisoryController(
         ReviewComment = r.ReviewComment, ResolutionRationale = r.ResolutionRationale,         SourceEvidenceLinks = RecommendationSourceEvidenceLinksBuilder.Build(r).ToList(),
     };
 
-    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
-        Guid runId,
-        CancellationToken cancellationToken)
-    {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
-
-        if (detail?.GoldenManifest is null)
-            return null;
-
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                _manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-
-        return null;
-    }
 }

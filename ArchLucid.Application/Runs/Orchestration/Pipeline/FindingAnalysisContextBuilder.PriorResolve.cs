@@ -15,14 +15,7 @@ public sealed partial class FindingAnalysisContextBuilder
         ArchitectureRequest? request,
         CancellationToken cancellationToken)
     {
-        if (header?.ArchitectureVersionId is not Guid currentVersionId || currentVersionId == Guid.Empty)
-            return null;
-
-        ArchitectureVersionRecord? currentVersion = await _architectureVersionRepository
-            .GetByIdAsync(scope, currentVersionId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (currentVersion is null)
+        if (header is null)
             return null;
 
         Guid? requestPriorRunId = request is null
@@ -40,54 +33,74 @@ public sealed partial class FindingAnalysisContextBuilder
             }
         }
 
-        if (currentVersion.VersionNumber > 1)
-        {
-            ArchitectureVersionRecord? predecessor = await _architectureVersionRepository
-                .GetByArchitectureIdAndVersionNumberAsync(
-                    scope,
-                    currentVersion.ArchitectureId,
-                    currentVersion.VersionNumber - 1,
-                    cancellationToken)
-                .ConfigureAwait(false);
+        PriorReviewSnapshots? versionLatticePrior = await TryResolvePriorFromVersionLatticeAsync(
+                scope,
+                header,
+                cancellationToken)
+            .ConfigureAwait(false);
 
-            if (predecessor is not null)
-            {
-                Guid? versionLatticePriorRunId = await _runRepository
-                    .GetLatestCommittedRunIdByArchitectureVersionIdAsync(
-                        scope,
-                        predecessor.ArchitectureVersionId,
-                        cancellationToken)
-                    .ConfigureAwait(false);
+        if (versionLatticePrior is not null)
+            return versionLatticePrior;
 
-                if (versionLatticePriorRunId is Guid parsedVersionLatticePriorRunId
-                    && parsedVersionLatticePriorRunId != Guid.Empty)
-                {
-                    Persistence.Models.RunRecord? versionLatticePriorHeader = await _runRepository
-                        .GetByIdAsync(scope, parsedVersionLatticePriorRunId, cancellationToken)
-                        .ConfigureAwait(false);
-
-                    if (versionLatticePriorHeader is not null)
-                    {
-                        return BuildPriorSnapshots(versionLatticePriorHeader, parsedVersionLatticePriorRunId);
-                    }
-                }
-            }
-        }
-
-        return await TryResolvePriorFromArchitectureCommittedRunsAsync(scope, header, cancellationToken)
+        return await TryResolvePriorFromArchitectureSealedReviewAsync(scope, header, cancellationToken)
             .ConfigureAwait(false);
     }
 
-    /// <summary>
-    ///     AS-053 / QR-14: second review on the same architecture without a version bump still loads the
-    ///     latest committed sealed graph for that architecture identity (ADR 0074).
-    /// </summary>
-    private async Task<PriorReviewSnapshots?> TryResolvePriorFromArchitectureCommittedRunsAsync(
+    private async Task<PriorReviewSnapshots?> TryResolvePriorFromVersionLatticeAsync(
         ScopeContext scope,
-        Persistence.Models.RunRecord? header,
+        Persistence.Models.RunRecord header,
         CancellationToken cancellationToken)
     {
-        if (header?.ArchitectureId is not Guid architectureId || architectureId == Guid.Empty)
+        if (header.ArchitectureVersionId is not Guid currentVersionId || currentVersionId == Guid.Empty)
+            return null;
+
+        ArchitectureVersionRecord? currentVersion = await _architectureVersionRepository
+            .GetByIdAsync(scope, currentVersionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (currentVersion is null || currentVersion.VersionNumber <= 1)
+            return null;
+
+        ArchitectureVersionRecord? predecessor = await _architectureVersionRepository
+            .GetByArchitectureIdAndVersionNumberAsync(
+                scope,
+                currentVersion.ArchitectureId,
+                currentVersion.VersionNumber - 1,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (predecessor is null)
+            return null;
+
+        Guid? priorRunId = await _runRepository
+            .GetLatestCommittedRunIdByArchitectureVersionIdAsync(scope, predecessor.ArchitectureVersionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (priorRunId is not Guid parsedPriorRunId || parsedPriorRunId == Guid.Empty)
+            return null;
+
+        Persistence.Models.RunRecord? priorHeader =
+            await _runRepository.GetByIdAsync(scope, parsedPriorRunId, cancellationToken).ConfigureAwait(false);
+
+        if (priorHeader is null)
+            return null;
+
+        return BuildPriorSnapshots(priorHeader, parsedPriorRunId);
+    }
+
+    /// <summary>
+    ///     AS-053 / DX-64: load the prior sealed review graph for the same architecture identity when a committed
+    ///     predecessor exists. Sample/demo runs keep the held-check path instead of inventing drift (R5).
+    /// </summary>
+    private async Task<PriorReviewSnapshots?> TryResolvePriorFromArchitectureSealedReviewAsync(
+        ScopeContext scope,
+        Persistence.Models.RunRecord header,
+        CancellationToken cancellationToken)
+    {
+        if (header.IsSample)
+            return null;
+
+        if (header.ArchitectureId is not Guid architectureId || architectureId == Guid.Empty)
             return null;
 
         Guid? priorRunId = await _runRepository
