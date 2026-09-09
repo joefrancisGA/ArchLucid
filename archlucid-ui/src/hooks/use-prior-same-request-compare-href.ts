@@ -6,10 +6,13 @@ import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
 import { pickPriorForSameRequest } from "@/components/BeforeAfterDelta/pick-prior-for-same-request";
 import { usePriorSameRequestCompareFallbackQuery } from "@/hooks/use-prior-same-request-compare-fallback-query";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 
 export type PriorSameRequestCompareHrefState = {
   readonly compareWithPriorHref: string | null;
   readonly hasSameRequestPrior: boolean;
+  readonly compareFallbackBlockedReason: string | null;
+  readonly compareFallbackFailure: ApiLoadFailureState | null;
 };
 
 /**
@@ -47,5 +50,7 @@ export function usePriorSameRequestCompareHref(
     compareWithPriorHref:
       priorRunId !== null ? comparePageHrefAdaptive(priorRunId, runId) : null,
     hasSameRequestPrior: priorRunId !== null,
+    compareFallbackBlockedReason: fallbackQuery.blockedReason,
+    compareFallbackFailure: fallbackQuery.failure,
   };
 }

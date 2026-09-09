@@ -3,6 +3,7 @@ import { cache } from "react";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { fetchRunDetailTimelinesBundle } from "@/lib/fetch-run-detail-page-bundle-client";
+import { runDetailTimelinesBundleBlockedReason } from "@/lib/runs/run-detail-timelines-bundle-blocked-reason";
 import { tryStaticDemoPipelineTimeline } from "@/lib/operator/operator-static-demo";
 import { isTimelineMilestoneEvent } from "@/lib/timeline-milestone-events";
 import type { PipelineTimelineItem } from "@/types/authority";
@@ -12,6 +13,7 @@ export type RunDetailPipelineTimelineModel = Readonly<{
   pipelineTimelineForUi: PipelineTimelineItem[] | null;
   pipelineTimelineAllForPackageChanges: PipelineTimelineItem[] | null;
   pipelineTimelineFailure: ApiLoadFailureState | null;
+  pipelineTimelinesBundleBlockedReason: string | null;
   stageTimelineForUi: StageTimelineSummary[];
 }>;
 
@@ -61,6 +63,7 @@ export const loadRunDetailPipelineTimelineCached = cache(
       pipelineTimelineForUi,
       pipelineTimelineAllForPackageChanges: pipelineTimeline,
       pipelineTimelineFailure,
+      pipelineTimelinesBundleBlockedReason: runDetailTimelinesBundleBlockedReason(pipelineTimelineFailure),
       stageTimelineForUi,
     };
   },

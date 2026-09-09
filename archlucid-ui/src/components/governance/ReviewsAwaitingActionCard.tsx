@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { useGovernanceReviewsAwaitingActionQuery } from "@/hooks/use-governance-reviews-awaiting-action-query";
+import { GovernanceStickinessSummaryGuardCallout } from "@/components/governance/GovernanceStickinessSummaryGuardCallout";
 import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,10 +22,15 @@ function formatRunId(runId: string): string {
 
 /** TB-263 — executed-but-uncommitted recurrence runs awaiting operator commit. */
 export function ReviewsAwaitingActionCard() {
-  const { items, loadError } = useGovernanceReviewsAwaitingActionQuery();
+  const { items, loadError, failure } = useGovernanceReviewsAwaitingActionQuery();
 
   if (loadError) {
-    return <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p>;
+    return (
+      <section data-testid="reviews-awaiting-action-card" className="space-y-2">
+        <GovernanceStickinessSummaryGuardCallout failure={failure} />
+        <p className={cn("m-0 text-red-700 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}>{loadError}</p>
+      </section>
+    );
   }
 
   if (items.length === 0) {

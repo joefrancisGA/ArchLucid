@@ -183,6 +183,7 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
   const bootstrapRecommendationsQuery = useAdvisoryRecommendationsQuery(bootstrappedRunId, {
     enabled: bootstrappedRunId.length > 0,
   });
+  const bootstrapBlockedReason = bootstrapRecommendationsQuery.blockedReason;
 
   const syncScansFiltersToUrl = useCallback(
     (patch: {
@@ -315,9 +316,12 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
       return;
     }
 
-    setFailure(toApiLoadFailure(bootstrapRecommendationsQuery.error));
+    setFailure(bootstrapRecommendationsQuery.failure);
     setLoading(false);
-  }, [bootstrapRecommendationsQuery.error, bootstrapRecommendationsQuery.isError]);
+  }, [
+    bootstrapRecommendationsQuery.failure,
+    bootstrapRecommendationsQuery.isError,
+  ]);
 
   useEffect(() => {
     if (!showSamplePreview) {
@@ -481,6 +485,7 @@ export function useAdvisoryScansContent(props: AdvisoryScansContentProps = {}) {
     recommendations,
     loading,
     failure,
+    bootstrapBlockedReason,
     showSamplePreview,
     pendingDisposition,
     setPendingDisposition,

@@ -182,6 +182,8 @@ export const operatorQueryKeys = {
   exportLineageVerify: (runId: string) => ["operator", "runs", "export-lineage-verify", runId] as const,
   exportRecordCompare: (leftExportRecordId: string, rightExportRecordId: string) =>
     ["operator", "compare", "export-records", leftExportRecordId, rightExportRecordId] as const,
+  exportRecordComparisonHistory: (exportRecordId: string) =>
+    ["operator", "compare", "export-record-history", exportRecordId] as const,
   comparisonSearch: (query: Record<string, string | number | undefined>) =>
     ["operator", "compare", "search", query] as const,
   governanceRealizedValueAttestation: () => ["operator", "governance", "realized-value-attestation"] as const,
