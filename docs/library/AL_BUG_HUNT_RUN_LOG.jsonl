@@ -1655,3 +1655,4 @@
 {"at":"2026-09-09T20:25:12.2125319Z","zoneId":"sql-run-repository","outcome":"seed-only"}
 {"at":"2026-09-09T20:28:42.0566625Z","zoneId":"topology-proposal-merge","outcome":"dry"}
 {"at":"2026-09-09T20:32:40.1673691Z","zoneId":"ui-runs-list","outcome":"hit"}
+{"at":"2026-09-09T20:36:01.6189162Z","zoneId":"review-recurrence","outcome":"seed-only"}

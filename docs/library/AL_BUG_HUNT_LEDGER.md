@@ -997,10 +997,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -1019,8 +1019,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ComputeNextRunsUtc` with negative `count` still invoked the underlying calculator — early return `Array.Empty<DateTime>()` for `count <= 0`; regression in `ComputeNextRunsUtc_returns_empty_when_count_is_negative`
 - [x] (valid-no-repro) Whitespace-only cron slips through `IsSupportedCronExpression` / `ComputeNextRunUtc` — wrapper delegates to `SimpleScanScheduleCalculator`, which rejects whitespace-only input; regressions in `IsSupportedCronExpression_rejects_whitespace_only_cron` / `ComputeNextRunUtc_returns_null_for_whitespace_only_cron`
 - [x] (valid-no-repro) Single-run `ComputeNextRunUtc` from an exact weekly cron occurrence repeats the reference Monday — Cronos `inclusive: false` plus `NormalizeNextRunUtc` advance to the following Monday; regression in `ComputeNextRunUtc_from_exact_weekly_occurrence_returns_next_monday`
+- [x] (valid-no-repro) `ComputeNextRunsUtc` batch preview ignores `isScheduleEnabled` and still returns future instants for paused schedules — **cheap-disproof 2026-09-09 seed hunt #1469:** preview route validates cron only (`GovernanceStickinessFacade.PreviewRecurrenceScheduleRuns`); persisted `NextRunUtc` uses `ComputeNextRunUtc(..., isScheduleEnabled)`; batch API has no enabled flag by design.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` can spin when the underlying calculator returns the same instant on every cursor advance — **cheap-disproof 2026-09-09 seed hunt #1469:** `NormalizeNextRunUtc` returns null when retry still `<= fromUtc`, breaking the batch loop; regression `ComputeNextRunUtc_returns_null_when_underlying_retry_still_not_after_reference`.
 
 2026-09-04 seed hunt #740: reseeded four recurrence-normalization candidates; cheap-disproved all with scoped regressions. No hunt-ready rows; seed-only.
+
+2026-09-09 seed hunt #1469 (seed-only): reseeded review-recurrence after prior normalization hits; cheap-disproof closed batch-preview enabled-flag and duplicate-cursor loop candidates; 17 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 ---
 
