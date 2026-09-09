@@ -10116,11 +10116,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 16
-- **bugs-found:** 26
+- **hunts:** 17
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — archived runs inflated home preview tab counts while workspace metrics excluded them
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — home preview tab counts ignored deduped previewItems pool
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10162,6 +10162,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `corePilotCommitContext` — scope-agnostic TanStack key cleared on lifecycle invalidation but not `notifyOperatorScopeChanged`; tenant switch may show prior tenant commit context until refetch — **hit 2026-09-05 (#800):** added to `OPERATOR_SHELL_STATUS_SCOPE_AGNOSTIC_QUERY_KEYS` (`operator-scope-storage.test.ts`).
 - [x] (proven) `deriveHomePreviewTabCounts` — archived runs inflated home preview tab counts while `deriveOperatorHomeWorkspaceMetrics` and `deriveAttentionSurfaceCounts` already skip `isArchived` — **hit 2026-09-08 seed hunt #1345 (seed→hit):** preview tab derivation counted archived approved/attention rows; fixed by filtering archived runs before `deriveRunsDashboardTabCounts`; regressions in `excludes archived runs from home preview tab counts` and `excludes archived runs from attention and approved tab counts`
 
+- [x] (proven) `deriveOperatorHomeTenantCountingSnapshot` — preview tab counts derived from `displayItems` instead of deduped `previewItems` — **hit 2026-09-09 seed hunt #1420:** buyer-polished Home passed rail-deduped `previewItems` but tab badges counted the full dashboard pool; fixed by counting `filterTenantOverviewRuns(input.previewItems)`; regression in `uses previewItems for tab counts when unfinished-work rail dedup shrinks the preview pool`
+
+- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — `reviewPackagesTotal` and KPI aggregates use loaded page length only; no workspace `totalCount` from paginated runs dashboard — seeded 2026-09-09; `OperatorHomeWorkspaceMetricsSummary` already uses `runsDashboard.totalCount` while tenant counting snapshot omits it
+
+2026-09-09 seed hunt #1420 (seed→hit): reseeded ui-operator-lib after HOM reconciliation commits; proved previewItems tab-count parity gap; seeded paginated totalCount metrics candidate; 5 tenant-counting tests passed.
 2026-09-08 seed hunt #1345 (seed→hit): reseeded home counting parity after HOM reconciliation commits; proved archived-run tab count inflation on Overview preview; 15 scoped home-counting tests passed.
 
 2026-09-05 thorough hunt #800: proved stable-cache alerts-only persistence, lifecycle userAttentionSummary invalidation gap, and corePilotCommitContext scope-cache leak.
