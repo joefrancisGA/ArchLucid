@@ -33,20 +33,29 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         };
 
         Dictionary<string, string> nodeIdMap = new(StringComparer.Ordinal);
+        Dictionary<string, SubgraphCompileContext> subgraphContexts = BuildSubgraphContexts(model.Subgraphs);
 
         foreach (ArchitectureDiagramSubgraphRecord subgraph in model.Subgraphs.OrderBy(subgraph => subgraph.OrderKey))
         {
-            string graphNodeId = BuildSubgraphNodeId(subgraph.Id);
-            nodeIdMap[subgraph.Id.Trim()] = graphNodeId;
+            string subgraphId = subgraph.Id.Trim();
+
+            if (!subgraphContexts.TryGetValue(subgraphId, out SubgraphCompileContext? context)
+                || !context.IsTrustBoundaryHint)
+            {
+                continue;
+            }
+
+            string graphNodeId = BuildSubgraphNodeId(subgraphId);
+            nodeIdMap[subgraphId] = graphNodeId;
 
             snapshot.Nodes.Add(new GraphNode
             {
                 NodeId = graphNodeId,
                 NodeType = GraphNodeTypes.TrustBoundary,
-                Label = string.IsNullOrWhiteSpace(subgraph.Label) ? subgraph.Id : subgraph.Label.Trim(),
+                Label = context.Label,
                 SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagramSubgraph,
-                SourceId = subgraph.Id.Trim(),
-                Properties = BuildSubgraphProperties(model, subgraph),
+                SourceId = subgraphId,
+                Properties = BuildTrustBoundarySubgraphProperties(model, subgraph, context.Label),
             });
         }
 
@@ -90,7 +99,7 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
                 Label = string.IsNullOrWhiteSpace(node.Label) ? node.Id.Trim() : node.Label.Trim(),
                 SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagram,
                 SourceId = node.Id.Trim(),
-                Properties = BuildNodeProperties(model, node, confidence),
+                Properties = BuildNodeProperties(model, node, confidence, subgraphContexts),
                 ReasoningTrace = BuildNodeReasoningTrace(node, confidence),
             });
         }
@@ -209,7 +218,8 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
     private static Dictionary<string, string> BuildNodeProperties(
         ArchitectureDiagramModelRecord model,
         ArchitectureDiagramNodeRecord node,
-        double confidence)
+        double confidence,
+        IReadOnlyDictionary<string, SubgraphCompileContext> subgraphContexts)
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
@@ -219,9 +229,16 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             [StructuredDiagramGraphPropertyKeys.DiagramNodeKind] = node.Kind,
         };
 
-        if (!string.IsNullOrWhiteSpace(node.SubgraphId))
+        if (!string.IsNullOrWhiteSpace(node.SubgraphId)
+            && subgraphContexts.TryGetValue(node.SubgraphId.Trim(), out SubgraphCompileContext? subgraphContext))
         {
-            properties[StructuredDiagramGraphPropertyKeys.DiagramSubgraphId] = node.SubgraphId.Trim();
+            properties[StructuredDiagramGraphPropertyKeys.DiagramSubgraphId] = subgraphContext.Id;
+            properties[StructuredDiagramGraphPropertyKeys.DiagramSubgraphLabel] = subgraphContext.Label;
+
+            if (subgraphContext.IsTrustBoundaryHint)
+            {
+                properties[StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel] = subgraphContext.Label;
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(model.SourceEvidenceItemId))
@@ -252,9 +269,10 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         return properties;
     }
 
-    private static Dictionary<string, string> BuildSubgraphProperties(
+    private static Dictionary<string, string> BuildTrustBoundarySubgraphProperties(
         ArchitectureDiagramModelRecord model,
-        ArchitectureDiagramSubgraphRecord subgraph)
+        ArchitectureDiagramSubgraphRecord subgraph,
+        string resolvedLabel)
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
         {
@@ -262,6 +280,8 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             [StructuredDiagramGraphPropertyKeys.ProvenanceKind] = StructuredDiagramGraphProvenanceKinds.DeterministicInference,
             [StructuredDiagramGraphPropertyKeys.InferenceConfidence] = "1",
             [StructuredDiagramGraphPropertyKeys.DiagramSubgraphId] = subgraph.Id.Trim(),
+            [StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel] = resolvedLabel,
+            ["trustOrigin"] = nameof(TrustOrigin.Internal),
         };
 
         if (!string.IsNullOrWhiteSpace(model.SourceEvidenceItemId))
@@ -270,6 +290,48 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         }
 
         return properties;
+    }
+
+    private static Dictionary<string, SubgraphCompileContext> BuildSubgraphContexts(
+        IReadOnlyList<ArchitectureDiagramSubgraphRecord> subgraphs)
+    {
+        Dictionary<string, SubgraphCompileContext> contexts = new(StringComparer.Ordinal);
+
+        foreach (ArchitectureDiagramSubgraphRecord subgraph in subgraphs)
+        {
+            string subgraphId = subgraph.Id.Trim();
+            string label = StructuredDiagramTrustBoundaryClassifier.ResolveSubgraphLabel(subgraphId, subgraph.Label);
+
+            contexts[subgraphId] = new SubgraphCompileContext
+            {
+                Id = subgraphId,
+                Label = label,
+                IsTrustBoundaryHint = StructuredDiagramTrustBoundaryClassifier.IsTrustBoundaryHint(label),
+            };
+        }
+
+        return contexts;
+    }
+
+    private sealed class SubgraphCompileContext
+    {
+        public required string Id
+        {
+            get;
+            init;
+        }
+
+        public required string Label
+        {
+            get;
+            init;
+        }
+
+        public required bool IsTrustBoundaryHint
+        {
+            get;
+            init;
+        }
     }
 
     private static Dictionary<string, string> BuildTrustBoundaryProperties(ArchitectureDiagramModelRecord model)
