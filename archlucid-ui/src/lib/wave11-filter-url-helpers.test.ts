@@ -6606,6 +6606,92 @@ describe("wave83 filter url helpers", () => {
   });
 });
 
+describe("wave85 filter url helpers", () => {
+  it("help authentication sign-in, core pilot, admin diagnostics, ai usage, procurement, system health, repeat review loop, review guide, alerts, audit trail sources params", async () => {
+    const {
+      helpAuthenticationSignInSourcesDisclosureHrefFromSearch,
+      parseHelpAuthenticationSignInSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-authentication-sign-in-sources-disclosure-url");
+    const {
+      helpCorePilotSourcesDisclosureHrefFromSearch,
+      parseHelpCorePilotSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-core-pilot-sources-disclosure-url");
+    const {
+      helpAdminDiagnosticsSourcesDisclosureHrefFromSearch,
+      parseHelpAdminDiagnosticsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-admin-diagnostics-sources-disclosure-url");
+    const {
+      helpAiUsageSourcesDisclosureHrefFromSearch,
+      parseHelpAiUsageSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-ai-usage-sources-disclosure-url");
+    const {
+      helpProcurementSourcesDisclosureHrefFromSearch,
+      parseHelpProcurementSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-procurement-sources-disclosure-url");
+    const {
+      helpSystemHealthSourcesDisclosureHrefFromSearch,
+      parseHelpSystemHealthSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-system-health-sources-disclosure-url");
+    const {
+      helpRepeatReviewLoopSourcesDisclosureHrefFromSearch,
+      parseHelpRepeatReviewLoopSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-repeat-review-loop-sources-disclosure-url");
+    const {
+      helpReviewGuideSourcesDisclosureHrefFromSearch,
+      parseHelpReviewGuideSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-review-guide-sources-disclosure-url");
+    const {
+      helpAlertsSourcesDisclosureHrefFromSearch,
+      parseHelpAlertsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-alerts-sources-disclosure-url");
+    const {
+      helpAuditTrailSourcesDisclosureHrefFromSearch,
+      parseHelpAuditTrailSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-audit-trail-sources-disclosure-url");
+
+    expect(parseHelpAuthenticationSignInSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      helpAuthenticationSignInSourcesDisclosureHrefFromSearch("", true, "/help/authentication-sign-in"),
+    ).toBe("/help/authentication-sign-in?helpAuthenticationSignInSourcesOpen=1");
+    expect(parseHelpCorePilotSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpCorePilotSourcesDisclosureHrefFromSearch("", true, "/help/first-architecture-review")).toBe(
+      "/help/first-architecture-review?helpCorePilotSourcesOpen=1",
+    );
+    expect(parseHelpAdminDiagnosticsSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpAdminDiagnosticsSourcesDisclosureHrefFromSearch("", true, "/help/admin-diagnostics")).toBe(
+      "/help/admin-diagnostics?helpAdminDiagnosticsSourcesOpen=1",
+    );
+    expect(parseHelpAiUsageSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpAiUsageSourcesDisclosureHrefFromSearch("tab=usage", true, "/help/ai-usage")).toBe(
+      "/help/ai-usage?tab=usage&helpAiUsageSourcesOpen=1",
+    );
+    expect(parseHelpProcurementSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpProcurementSourcesDisclosureHrefFromSearch("", true, "/help/procurement")).toBe(
+      "/help/procurement?helpProcurementSourcesOpen=1",
+    );
+    expect(parseHelpSystemHealthSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpSystemHealthSourcesDisclosureHrefFromSearch("", true, "/help/system-health")).toBe(
+      "/help/system-health?helpSystemHealthSourcesOpen=1",
+    );
+    expect(parseHelpRepeatReviewLoopSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpRepeatReviewLoopSourcesDisclosureHrefFromSearch("", true, "/help/repeat-review-loop")).toBe(
+      "/help/repeat-review-loop?helpRepeatReviewLoopSourcesOpen=1",
+    );
+    expect(parseHelpReviewGuideSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpReviewGuideSourcesDisclosureHrefFromSearch("", true, "/help/review-guide")).toBe(
+      "/help/review-guide?helpReviewGuideSourcesOpen=1",
+    );
+    expect(parseHelpAlertsSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpAlertsSourcesDisclosureHrefFromSearch("", true, "/help/alerts")).toBe(
+      "/help/alerts?helpAlertsSourcesOpen=1",
+    );
+    expect(parseHelpAuditTrailSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpAuditTrailSourcesDisclosureHrefFromSearch("", true, "/help/audit-trail")).toBe(
+      "/help/audit-trail?helpAuditTrailSourcesOpen=1",
+    );
+  });
+});
+
 describe("wave79 filter url helpers", () => {
   it("dev testing quick switch, operator first-run workflow minimized, run detail workspace disclosures, role nav density, sidebar groups, collapsible json path, finding ask inline finding id, technical id disclosure key, usability feedback, draft intake reason default open params", async () => {
     const {
