@@ -18,7 +18,6 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiTransientLoadFailure } from "@/lib/api-load-failure";
 import { governanceSealedManifestBlockedReason } from "@/lib/governance/governance-sealed-manifest-blocked-reason";
-import { manifestSummaryReadBlockedReason } from "@/lib/governance/manifest-summary-read-blocked-reason";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type ManifestDetailPageErrorFrameProps = {
@@ -67,9 +66,7 @@ export function ManifestDetailSummaryLoadErrorView(props: {
     );
   }
 
-  const sealedManifestBlockedReason =
-    manifestSummaryReadBlockedReason(props.summaryFailure)
-    ?? governanceSealedManifestBlockedReason(props.summaryFailure);
+  const sealedManifestBlockedReason = governanceSealedManifestBlockedReason(props.summaryFailure);
 
   return (
     <ManifestDetailPageErrorFrame buyerPolishedLayout={props.buyerPolishedLayout}>

@@ -1,7 +1,6 @@
 import { getManifestSummary } from "@/lib/api";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { governanceSealedManifestBlockedReason } from "@/lib/governance/governance-sealed-manifest-blocked-reason";
-import { manifestSummaryReadBlockedReason } from "@/lib/governance/manifest-summary-read-blocked-reason";
 import { coerceManifestSummary } from "@/lib/operator/operator-response-guards";
 import { tryStaticDemoManifestSummary } from "@/lib/operator/operator-static-demo";
 import { resolveGoldenManifestIdForRun } from "@/lib/resolve-golden-manifest-id-for-run";
@@ -40,9 +39,7 @@ async function fetchManifestSummaryForListRow(manifestId: string): Promise<{
     const failure = toApiLoadFailure(error);
 
     if (failure.httpStatus === 409) {
-      const blockedReason =
-        manifestSummaryReadBlockedReason(failure)
-        ?? governanceSealedManifestBlockedReason(failure);
+      const blockedReason = governanceSealedManifestBlockedReason(failure);
 
       if (blockedReason !== null) {
         return { summary: null, failure: "summary-unavailable" };

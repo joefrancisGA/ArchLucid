@@ -32,7 +32,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
-public sealed partial class RunAgentEvaluationController(
+public sealed class RunAgentEvaluationController(
     IAuthorityQueryService authorityQueryService,
     IRunRepository authorityRunRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
@@ -65,11 +65,23 @@ public sealed partial class RunAgentEvaluationController(
 
         if (TryParseRunId(runId, out Guid runGuid))
         {
-            IActionResult? sealedGuardResult =
-                await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
+            RunDetailDto? detail =
+                await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken).ConfigureAwait(false);
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            if (detail?.GoldenManifest is not null)
+            {
+                try
+                {
+                    SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                        detail.GoldenManifest,
+                        runGuid.ToString("D"),
+                        manifestHashService);
+                }
+                catch (ConflictException ex)
+                {
+                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                }
+            }
         }
 
         IReadOnlyList<AgentExecutionTrace> traces =

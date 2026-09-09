@@ -30,7 +30,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed partial class InternalArchitectureTraceForensicsController(
+public sealed class InternalArchitectureTraceForensicsController(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IRunRepository authorityRunRepository,
     IScopeContextProvider scopeContextProvider,
@@ -150,4 +150,29 @@ public sealed partial class InternalArchitectureTraceForensicsController(
 
     private static bool TryParseRunId(string runId, out Guid runGuid) =>
         Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
 }

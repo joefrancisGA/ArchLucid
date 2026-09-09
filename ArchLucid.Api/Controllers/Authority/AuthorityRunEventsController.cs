@@ -27,7 +27,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/authority")]
 [EnableRateLimiting("fixed")]
-public sealed partial class AuthorityRunEventsController(
+public sealed class AuthorityRunEventsController(
     IAuthorityQueryService queryService,
     IScopeContextProvider scopeProvider,
     IManifestHashService manifestHashService) : ControllerBase
@@ -54,13 +54,19 @@ public sealed partial class AuthorityRunEventsController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, cancellationToken);
 
-        if (detail is not null)
+        if (detail?.GoldenManifest is not null)
         {
-            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
-
-            if (sealedGuardResult is not null)
+            try
             {
-                await sealedGuardResult.ExecuteResultAsync(new ActionContext { HttpContext = HttpContext });
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                IActionResult conflict = this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                await conflict.ExecuteResultAsync(new ActionContext { HttpContext = HttpContext });
                 return;
             }
         }

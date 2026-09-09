@@ -1,6 +1,4 @@
 import { proxyJsonPost } from "@/lib/proxy-json-client";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { infraEvidenceAskBlockedReason } from "@/lib/infra-evidence/infra-evidence-ask-blocked-reason";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import type {
   InfraEvidenceAskRequest,
@@ -45,12 +43,5 @@ export async function submitInfraEvidenceAsk(
 }
 
 export function formatInfraEvidenceAskApiError(error: unknown): string {
-  const failure = toApiLoadFailure(error);
-  const blockedReason = infraEvidenceAskBlockedReason(failure);
-
-  if (blockedReason !== null) {
-    return blockedReason;
-  }
-
   return formatInfraEvidenceSealedManifestAwareApiError(error);
 }
