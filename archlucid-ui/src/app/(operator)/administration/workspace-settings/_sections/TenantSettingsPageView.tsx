@@ -70,6 +70,7 @@ type Props = {
 export function TenantSettingsPageView(props: Props) {
   const m = props.model;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
   const policyQuery = useWorkOwnershipDeletePolicyQuery({
     enabled: !buyerPolishedShell && !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority,
@@ -269,10 +270,7 @@ export function TenantSettingsPageView(props: Props) {
                 )}
               >
                 <div className="space-y-4" data-testid="tenant-settings-buyer-first-viewport-intro">
-                  <p
-                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                    data-testid="tenant-settings-intro"
-                  >
+                  <p className={readingBodyClass} data-testid="tenant-settings-intro">
                     {TENANT_SETTINGS_SETTINGS_PAGE_LEAD}
                   </p>
                   <section
@@ -296,10 +294,7 @@ export function TenantSettingsPageView(props: Props) {
                 </div>
               </div>
 
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="tenant-settings-overview"
-              >
+              <p className={readingBodyClass} data-testid="tenant-settings-overview">
                 {TENANT_SETTINGS_SETTINGS_BUYER_OVERVIEW}
               </p>
 

@@ -16,6 +16,7 @@ public static class DeclarationIdentityActorMaterializer
         "azuread_service_principal",
         "kubernetes_service_account",
         "azurerm_user_assigned_identity",
+        "google_service_account",
     };
 
     private static readonly HashSet<string> ExternalEdgeTerraformTypes = new(StringComparer.OrdinalIgnoreCase)

@@ -26,13 +26,14 @@ namespace ArchLucid.Api.Controllers.Findings;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class FindingInspectController(
+public sealed partial class FindingInspectController(
     IFindingInspectReadRepository findingInspectReadRepository,
     IReasoningSummaryBuilder reasoningSummaryBuilder,
     RunFindingExternalTrackingEnrichmentService runFindingExternalTrackingEnrichmentService,
     IFindingTrustLabelMapper findingTrustLabelMapper,
     IScopeContextProvider scopeContextProvider,
-    IAuthorityQueryService authorityQueryService) : ControllerBase
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
     private readonly IFindingInspectReadRepository _findingInspectReadRepository =
         findingInspectReadRepository ?? throw new ArgumentNullException(nameof(findingInspectReadRepository));
@@ -63,6 +64,7 @@ public sealed class FindingInspectController(
     [HttpGet("{findingId}/inspect")]
     [ProducesResponseType(typeof(FindingInspectResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetInspectAsync(
         string findingId,
         [FromQuery] bool includeTypedPayload = true,
@@ -84,6 +86,12 @@ public sealed class FindingInspectController(
             return this.NotFoundProblem(
                 $"Finding '{findingId.Trim()}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
+
+        IActionResult? sealedGuardResult =
+            await EnsureFindingInspectSealedManifestReadAllowedAsync(body.RunId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         await FindingInspectPinnedEvidenceGuard.EnsureInspectEvidenceInventoryBoundOrThrowAsync(
             body,

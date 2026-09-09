@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   ALERT_RULES_CONDITIONS_BUYER_OVERVIEW,
+  ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER,
   ALERT_RULES_CONDITIONS_PAGE_LEAD,
   ALERT_RULES_LIST_EMPTY_BODY,
   ALERT_RULES_LIST_EMPTY_TITLE,
@@ -31,6 +32,7 @@ describe("alert-rule-conditions-copy", () => {
   it("keeps buyer overview distinct from page lead and field help", () => {
     expect(ALERT_RULES_CONDITIONS_BUYER_OVERVIEW).not.toBe(ALERT_RULES_CONDITIONS_PAGE_LEAD);
     expect(ALERT_RULES_CONDITIONS_BUYER_OVERVIEW).not.toBe(ALERT_RULES_RULE_TYPE_HELP);
+    expect(ALERT_RULES_CONDITIONS_BUYER_OVERVIEW).not.toBe(ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER);
   });
 
   it("keeps hub tab config and content module on canonical alert-rule labels", () => {

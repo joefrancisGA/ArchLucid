@@ -120,6 +120,7 @@ public sealed class AdvisoryController(
     [ProducesResponseType(typeof(RecommendationActionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ApplyRecommendationAction(
         Guid recommendationId,
         [FromBody] RecommendationActionRequest? request,
@@ -130,7 +131,22 @@ public sealed class AdvisoryController(
 
         string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         string userName = User.Identity?.Name ?? "unknown";
-        ApplyRecommendationActionFacadeResult result = await _advisoryWorkflowFacade.ApplyRecommendationActionAsync(recommendationId, userId, userName, request, ct);
+
+        ApplyRecommendationActionFacadeResult result;
+
+        try
+        {
+            result = await _advisoryWorkflowFacade.ApplyRecommendationActionAsync(
+                recommendationId,
+                userId,
+                userName,
+                request,
+                ct);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         if (result.Outcome is ApplyRecommendationActionOutcome.NotFound)
             return this.NotFoundProblem($"Recommendation '{result.RecommendationId}' was not found.", ProblemTypes.ResourceNotFound);

@@ -146,6 +146,7 @@ export function useGraphPageControls(state: GraphPageState) {
             void performGraphLoad();
           }}
           graphEndpointHint={graphEndpointHint}
+          graphMode={mode}
         />
         {sampleGraphActive && effectiveGraph !== null ? (
           <GraphSampleModeBanner

@@ -8,6 +8,7 @@ import {
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
 import { secureNowCloudInventoryEvidenceSummary } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { SECURENOW_AZURE_CONNECTIONS_NAV_LABEL } from "@/lib/product-line/securenow-nav-reshape";
 
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 
@@ -36,7 +37,7 @@ export const SECURENOW_SECURITY_HOME_ROWS: readonly SecureNowHomeDestinationRow[
   },
   {
     href: CLOUD_CONNECTIONS_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.cloudConnections,
+    label: SECURENOW_AZURE_CONNECTIONS_NAV_LABEL,
     summary: secureNowCloudInventoryEvidenceSummary(),
   },
   {

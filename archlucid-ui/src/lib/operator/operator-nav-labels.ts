@@ -17,9 +17,10 @@ import {
 import { applyBuyerDemoVocabulary } from "@/lib/vocabulary/buyer-demo-vocabulary";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { governanceModeVocabulary } from "@/lib/vocabulary/governance-mode-vocabulary";
-import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
+import { INTEGRATIONS_TEAMS_PATH, CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
 import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
+import { SECURENOW_AZURE_CONNECTIONS_NAV_LABEL } from "@/lib/product-line/securenow-nav-reshape";
 
 /** Buyer-polished shell left-nav label for `/architecture/reviews/new`. */
 export const BUYER_NEW_REVIEW_NAV_LABEL = START_REVIEW_LABEL;
@@ -135,6 +136,14 @@ export function resolveNavLinkPresentation(
       href: link.href,
       label: teamsLabel,
       title: link.title.replaceAll("Microsoft Teams", teamsLabel),
+    });
+  }
+
+  if (productLine === "security" && link.href === CLOUD_CONNECTIONS_PATH) {
+    return applyBuyerNavVocabulary({
+      href: link.href,
+      label: SECURENOW_AZURE_CONNECTIONS_NAV_LABEL,
+      title: link.title.replaceAll("Cloud connections", SECURENOW_AZURE_CONNECTIONS_NAV_LABEL),
     });
   }
 

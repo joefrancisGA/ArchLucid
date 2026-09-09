@@ -304,6 +304,7 @@ async function RunDetailBelowFoldPipelineAsync(props: BelowFoldAsyncProps): Prom
         runId={m.routeRunId}
         buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
         pipelineTimelineFailure={pipeline.pipelineTimelineFailure}
+        pipelineTimelinesBundleBlockedReason={pipeline.pipelineTimelinesBundleBlockedReason}
         pipelineTimelineForUi={pipeline.pipelineTimelineForUi}
       />
 

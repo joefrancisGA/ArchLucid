@@ -8,3 +8,5 @@ export const MODEL_GOVERNANCE_HELP_SKIP_LINK_LABEL = "Skip to model policy guide
 
 export const MODEL_GOVERNANCE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-model-governance-header-claim-discipline" as const;
+
+export const MODEL_GOVERNANCE_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-model-governance-orientation-bottom" as const;

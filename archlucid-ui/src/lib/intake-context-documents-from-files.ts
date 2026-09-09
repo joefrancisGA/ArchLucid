@@ -22,6 +22,11 @@ import {
   STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE,
 } from "@/lib/architecture-spine/intake-archlucid-diagram-json-context-document";
 import {
+  encodeVsdxPackageAsBase64,
+  isVsdxIntakeFileName,
+  VISIO_VSDX_CONTEXT_DOCUMENT_CONTENT_TYPE,
+} from "@/lib/architecture-spine/intake-vsdx-context-document";
+import {
   isBinaryArchitectureDocumentFileName,
   isReadableEvidenceTextFileName,
   peekBinaryArchitectureDocumentText,
@@ -94,6 +99,10 @@ async function toIntakeContextDocument(
 
   if (isArchLucidDiagramJsonIntakeFileName(trimmedName)) {
     return readArchLucidDiagramJsonDocument(name, file);
+  }
+
+  if (isVsdxIntakeFileName(trimmedName)) {
+    return readVsdxDocument(name, file);
   }
 
   return null;
@@ -205,6 +214,38 @@ async function readArchLucidDiagramJsonSourceDocument(
       name,
       contentType: STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE,
       content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function readVsdxDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  return readVsdxSourceDocument(name, file);
+}
+
+async function readVsdxSourceDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  try {
+    if (file.size <= 0) {
+      return null;
+    }
+
+    const base64 = await encodeVsdxPackageAsBase64(file);
+
+    if (base64.length === 0 || base64.length > INTAKE_CONTEXT_DOCUMENT_MAX_CHARS) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: VISIO_VSDX_CONTEXT_DOCUMENT_CONTENT_TYPE,
+      content: base64,
     };
   } catch {
     return null;

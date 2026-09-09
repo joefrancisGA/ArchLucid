@@ -15,6 +15,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeline-blocked-reason";
+import { runDetailTimelinesBundleBlockedReason } from "@/lib/runs/run-detail-timelines-bundle-blocked-reason";
 import {
   parseRunPipelineTimelineOpenFromSearch,
   runPipelineTimelineDisclosureHrefFromSearch,
@@ -27,6 +28,7 @@ type RunDetailPipelineTimelineSectionProps = {
   readonly runId: string;
   readonly buyerPolishedArtifactTable: boolean;
   readonly pipelineTimelineFailure: ApiLoadFailureState | null;
+  readonly pipelineTimelinesBundleBlockedReason?: string | null;
   readonly pipelineTimelineForUi: PipelineTimelineItem[] | null;
 };
 
@@ -73,7 +75,10 @@ function buildAuditTrailSummaryLine(items: PipelineTimelineItem[] | null): strin
 
 function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): ReactElement {
   const { runId, buyerPolishedArtifactTable, pipelineTimelineFailure, pipelineTimelineForUi } = props;
-  const blockedReason = runPipelineTimelineBlockedReason(pipelineTimelineFailure);
+  const blockedReason =
+    props.pipelineTimelinesBundleBlockedReason
+    ?? runDetailTimelinesBundleBlockedReason(pipelineTimelineFailure)
+    ?? runPipelineTimelineBlockedReason(pipelineTimelineFailure);
   const totalCount = pipelineTimelineForUi?.length ?? 0;
   const showFullTrailLink =
     !buyerPolishedArtifactTable

@@ -427,7 +427,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
               </div>
             </div>
             <p
-              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              className={readingBodyClass}
               data-testid="jira-integration-overview"
             >
               {JIRA_INTEGRATION_BUYER_OVERVIEW}

@@ -50,6 +50,10 @@ import {
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 import { RunDetailExportRecordCompareCallout } from "./RunDetailExportRecordCompareCallout";
+import { RunDetailExportRecordStatusCallout } from "./RunDetailExportRecordStatusCallout";
+import { RunDetailExportHistoryCallout } from "./RunDetailExportHistoryCallout";
+import { RunDetailExportRecordComparisonHistoryCallout } from "./RunDetailExportRecordComparisonHistoryCallout";
+import { RunDetailAssuranceGuardCallouts } from "./RunDetailAssuranceGuardCallouts";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -568,6 +572,12 @@ export function RunDetailArtifactsExportsSection(
         leftExportRecordId={searchParams.get("leftExportRecordId") ?? ""}
         rightExportRecordId={searchParams.get("rightExportRecordId") ?? ""}
       />
+      <RunDetailExportRecordStatusCallout exportRecordId={searchParams.get("exportRecordId") ?? ""} />
+      <RunDetailExportRecordComparisonHistoryCallout
+        exportRecordId={searchParams.get("exportRecordId") ?? ""}
+      />
+      <RunDetailExportHistoryCallout runId={runId} />
+      <RunDetailAssuranceGuardCallouts runId={runId} />
     </section>
   );
 }

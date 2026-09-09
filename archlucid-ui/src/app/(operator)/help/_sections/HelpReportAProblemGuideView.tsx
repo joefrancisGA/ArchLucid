@@ -328,11 +328,7 @@ export function HelpReportAProblemGuideView(
           {buyerPolishedShell ? null : <ReportProblemHelpEvidenceOrientationStrip />}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-report-a-problem-orientation-bottom">
-            <HelpReportAProblemSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpReportAProblemSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

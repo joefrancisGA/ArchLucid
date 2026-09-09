@@ -1,4 +1,5 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   REVIEW_GUIDE_HELP_FOLLOW_UPS_TITLE,
   REVIEW_GUIDE_HELP_ORIENTATION_SOURCES_INTRO,
@@ -17,6 +18,7 @@ export function HelpReviewGuideSourcesOrientationStrip(): React.JSX.Element {
       sourcesIntro={REVIEW_GUIDE_HELP_ORIENTATION_SOURCES_INTRO}
       sources={REVIEW_GUIDE_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary
     />
   );
