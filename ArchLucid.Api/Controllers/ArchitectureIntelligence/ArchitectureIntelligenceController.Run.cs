@@ -1,9 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
-using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -20,6 +18,7 @@ public sealed partial class ArchitectureIntelligenceController
     [HttpPost("run")]
     [ProducesResponseType(typeof(ClosedLoopReasoningResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostRunAsync(
         [FromBody] ClosedLoopReasoningRequest? request,
         CancellationToken cancellationToken = default)
@@ -31,6 +30,16 @@ public sealed partial class ArchitectureIntelligenceController
 
             return this.BadRequestProblem(validationError!, ProblemTypes.ValidationFailed);
         }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = prepared.ContinueFromExistingRun && !string.IsNullOrWhiteSpace(prepared.RunId)
+            ? await EnsureRunSealedManifestReadAllowedAsync(prepared.RunId, cancellationToken)
+            : !string.IsNullOrWhiteSpace(prepared.RunId)
+                ? await EnsureRunSealedManifestReadAllowedAsync(prepared.RunId, cancellationToken)
+                : await EnsureArchitectureIntelligenceRunCreateSealedManifestAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ClosedLoopReasoningResult result = await _reasoningOrchestrator.RunAsync(prepared, cancellationToken);
 
@@ -60,6 +69,7 @@ public sealed partial class ArchitectureIntelligenceController
     [HttpPost("runs/{runId}/continue")]
     [ProducesResponseType(typeof(ClosedLoopReasoningResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostContinueAsync(
         [FromRoute] string runId,
         [FromBody] ClosedLoopReasoningRequest? request,
@@ -67,6 +77,11 @@ public sealed partial class ArchitectureIntelligenceController
     {
         if (string.IsNullOrWhiteSpace(runId))
             return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
+
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         request ??= new ClosedLoopReasoningRequest();
         request.RunId = runId;
@@ -105,6 +120,7 @@ public sealed partial class ArchitectureIntelligenceController
     [HttpPost("runs/{runId}/publish")]
     [ProducesResponseType(typeof(ArchitectureIntelligencePublishResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostPublishAsync(
         [FromRoute] string runId,
         [FromBody] ClosedLoopReasoningRequest? request,
@@ -112,6 +128,11 @@ public sealed partial class ArchitectureIntelligenceController
     {
         if (string.IsNullOrWhiteSpace(runId))
             return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
+
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         request ??= new ClosedLoopReasoningRequest();
         request.RunId = runId;
@@ -173,17 +194,10 @@ public sealed partial class ArchitectureIntelligenceController
 
         if (detail?.GoldenManifest is not null)
         {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    parsedRunId.ToString("D"),
-                    _manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
+            IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
         }
 
         if (_knowledgeModelAccess is null)

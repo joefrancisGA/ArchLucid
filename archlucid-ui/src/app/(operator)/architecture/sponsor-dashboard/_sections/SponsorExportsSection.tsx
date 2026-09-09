@@ -11,12 +11,15 @@ import { Button } from "@/components/ui/button";
 import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
 import { RoiSponsorExportVocabularyRail } from "@/components/RoiSponsorExportVocabularyRail";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
+import { downloadSponsorOnePagerPdf } from "@/lib/api/downloads-blob-trigger-reports";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 import { filterCommittedRunsForPicker } from "@/lib/committed-run-picker";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { sponsorOnePagerMutationBlockedReason } from "@/lib/pilots/sponsor-one-pager-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
 
@@ -137,6 +140,7 @@ export function SponsorExportsSection({
     mergeDemoOnEmpty: isExplicitStaticDemoMarketingBuild(),
   });
   const [docxDownloadBusy, setDocxDownloadBusy] = useState(false);
+  const [onePagerDownloadBusy, setOnePagerDownloadBusy] = useState(false);
 
   const sponsorDocx = useMemo((): SponsorDocxTarget | null => {
     if (runsQuery.data === undefined) {
@@ -197,6 +201,39 @@ export function SponsorExportsSection({
             }
             primaryDownloadBusy={docxDownloadBusy}
             testId="sponsor-exports-docx-download"
+          />
+        ) : null}
+        {sponsorDocx !== null ? (
+          <SponsorExportOutputCard
+            title="Sponsor one-pager (PDF)"
+            description="Executive summary PDF from a finalized review."
+            locked={
+              runCollateralSealedManifestCopyBlockedReason({
+                runId: sponsorDocx.runId,
+                manifestVersion: sponsorDocx.manifestVersion,
+              }) !== null
+            }
+            primaryActionLabel="Download one-pager"
+            onPrimaryDownload={
+              sponsorDocx !== null
+                ? async () => {
+                    setOnePagerDownloadBusy(true);
+
+                    try {
+                      await downloadSponsorOnePagerPdf(sponsorDocx.runId);
+                    } catch (error: unknown) {
+                      const failure = toApiLoadFailure(error);
+                      const blocked = sponsorOnePagerMutationBlockedReason(failure);
+
+                      showError("Download one-pager", blocked ?? failure.message);
+                    } finally {
+                      setOnePagerDownloadBusy(false);
+                    }
+                  }
+                : undefined
+            }
+            primaryDownloadBusy={onePagerDownloadBusy}
+            testId="sponsor-exports-one-pager-download"
           />
         ) : null}
         <SponsorExportOutputCard

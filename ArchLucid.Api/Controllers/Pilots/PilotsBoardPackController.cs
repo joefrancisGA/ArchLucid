@@ -4,7 +4,10 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -24,10 +27,27 @@ namespace ArchLucid.Api.Controllers.Pilots;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
-public sealed class PilotsBoardPackController(BoardPackPdfBuilder boardPackPdfBuilder) : ControllerBase
+public sealed partial class PilotsBoardPackController(
+    BoardPackPdfBuilder boardPackPdfBuilder,
+    IScopeContextProvider scopeContextProvider,
+    IRunDetailQueryService runDetailQueryService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
     private readonly BoardPackPdfBuilder _boardPackPdfBuilder =
         boardPackPdfBuilder ?? throw new ArgumentNullException(nameof(boardPackPdfBuilder));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <summary>Builds a quarterly sponsor board pack PDF for the current tenant scope.</summary>
     // idempotency-posture: operator-documented-safe-retry
@@ -42,6 +62,11 @@ public sealed class PilotsBoardPackController(BoardPackPdfBuilder boardPackPdfBu
     {
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        IActionResult? sealedGuardResult = await EnsureBoardPackSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
