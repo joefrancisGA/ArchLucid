@@ -33,6 +33,9 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
             candidate.Message,
             candidate.EvidenceRefs);
         bool isGenericAdvice = GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(candidate.Message);
+        bool hasProductShapedInventory =
+            GenericArchitectureAdvicePatterns.HasProductShapedInventoryEvidence(candidate.EvidenceRefs);
+        bool hasLineAnchoredDoc = candidate.EvidenceRefs.Any(FindingEvidenceRefs.HasLineAnchoredDocRef);
 
         if (isGenericAdvice)
         {
@@ -46,13 +49,37 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
             penaltyReasons.Add("no-concrete-evidence");
         }
 
-        if (!hasArchitectureAnchor)
+        // DX-72: inventory-shaped citations skip the missing-anchor penalty; quoted-name / title
+        // anchors without a product-shaped id get a weaker -8 instead of -15.
+        if (!hasProductShapedInventory)
         {
-            score -= 15;
-            penaltyReasons.Add("no-architecture-anchor");
+            if (hasArchitectureAnchor)
+            {
+                score -= 8;
+                penaltyReasons.Add("weak-architecture-anchor");
+            }
+            else
+            {
+                score -= 15;
+                penaltyReasons.Add("no-architecture-anchor");
+            }
         }
 
-        if (GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(candidate.Message))
+        if (hasConcreteEvidence)
+        {
+            if (hasProductShapedInventory)
+            {
+                score = Math.Min(100, score + 10);
+                penaltyReasons.Add("inventory-shaped-evidence");
+            }
+            else if (hasLineAnchoredDoc)
+            {
+                score = Math.Min(100, score + 5);
+                penaltyReasons.Add("line-anchored-doc");
+            }
+        }
+
+        if (GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(candidate.Message) && hasConcreteEvidence)
         {
             score += 10;
             penaltyReasons.Add("falsifiability-signal");
@@ -64,20 +91,43 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
             penaltyReasons.Add("severity-calibration");
         }
 
-        double duplicationSimilarity = InsightDensityTextSimilarity.MaxPeerSimilarity(
-            candidate.Message,
-            snapshotPeers,
-            candidate.CandidateKey);
+        (double duplicationSimilarity, InsightDensityGateCandidate? duplicationPeer) =
+            InsightDensityTextSimilarityWithPeer.MaxPeerSimilarityWithPeer(
+                candidate.Message,
+                snapshotPeers,
+                candidate.CandidateKey);
 
-        if (duplicationSimilarity >= _options.HighDuplicationSimilarityThreshold)
+        bool applyDuplicationPenalty = ShouldApplyDuplicationPenalty(candidate, duplicationPeer);
+
+        if (applyDuplicationPenalty && duplicationSimilarity >= _options.HighDuplicationSimilarityThreshold)
         {
             score -= 30;
             penaltyReasons.Add("high-duplication");
         }
-        else if (duplicationSimilarity >= _options.ModerateDuplicationSimilarityThreshold)
+        else if (applyDuplicationPenalty && duplicationSimilarity >= _options.ModerateDuplicationSimilarityThreshold)
         {
             score -= 15;
             penaltyReasons.Add("moderate-duplication");
+        }
+
+        if (HasCrossEngineCorroboration(candidate, snapshotPeers))
+        {
+            score = Math.Min(100, score + 10);
+            penaltyReasons.Add("cross-engine-corroboration");
+        }
+
+        if (hasConcreteEvidence && candidate.ImpactHopCount is int hopCount)
+        {
+            if (hopCount >= 4)
+            {
+                score = Math.Min(100, score + 10);
+                penaltyReasons.Add("impact-witness");
+            }
+            else if (hopCount >= 2)
+            {
+                score = Math.Min(100, score + 5);
+                penaltyReasons.Add("impact-witness");
+            }
         }
 
         score = Math.Clamp(score, 0, 100);
@@ -87,13 +137,13 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
             penaltyReasons.Add("typed-engine-scored");
         }
 
-        bool demote = score < _options.DemotionThreshold && !hasArchitectureAnchor && !hasConcreteEvidence;
-
-        if (demote && !InsightDensityAgentCategoryRules.IsDemotionEligibleCategory(candidate.Category))
-        {
-            demote = false;
-            penaltyReasons.Add("category-protected");
-        }
+        bool hasFalsifiabilitySignal = GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(candidate.Message);
+        bool demote = InsightDensityDemotionPredicate.ShouldDemote(
+            score,
+            _options.DemotionThreshold,
+            isGenericAdvice,
+            hasFalsifiabilitySignal,
+            hasConcreteEvidence);
 
         return new InsightDensityGateResult
         {
@@ -104,5 +154,74 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
                 : FindingClassification.DecisionGradeFinding,
             PenaltyReasons = penaltyReasons,
         };
+    }
+
+    private static bool ShouldApplyDuplicationPenalty(
+        InsightDensityGateCandidate candidate,
+        InsightDensityGateCandidate? duplicationPeer)
+    {
+        if (duplicationPeer is null)
+        {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(duplicationPeer.EngineType))
+        {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(candidate.EngineType))
+        {
+            return true;
+        }
+
+        return candidate.EngineType.Equals(duplicationPeer.EngineType, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool HasCrossEngineCorroboration(
+        InsightDensityGateCandidate candidate,
+        IReadOnlyList<InsightDensityGateCandidate> snapshotPeers)
+    {
+        if (!InsightDensityPreferredEngineTypes.IsPreferred(candidate.EngineType))
+        {
+            return false;
+        }
+
+        if (candidate.RelatedNodeIds.Count == 0)
+        {
+            return false;
+        }
+
+        foreach (InsightDensityGateCandidate peer in snapshotPeers)
+        {
+            if (string.Equals(peer.CandidateKey, candidate.CandidateKey, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(peer.EngineType))
+            {
+                continue;
+            }
+
+            if (peer.EngineType.Equals(candidate.EngineType, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (peer.RelatedNodeIds.Count == 0)
+            {
+                continue;
+            }
+
+            if (candidate.RelatedNodeIds.Any(nodeId =>
+                    peer.RelatedNodeIds.Any(peerNodeId =>
+                        peerNodeId.Equals(nodeId, StringComparison.OrdinalIgnoreCase))))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

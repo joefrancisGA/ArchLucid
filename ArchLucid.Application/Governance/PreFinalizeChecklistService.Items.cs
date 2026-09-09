@@ -8,6 +8,8 @@ using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Options;
 
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+
 namespace ArchLucid.Application.Governance;
 
 public sealed partial class PreFinalizeChecklistService
@@ -60,8 +62,13 @@ public sealed partial class PreFinalizeChecklistService
         };
     }
 
-    private PreFinalizeChecklistItem BuildEvidenceLinkageItem(string runId, IReadOnlyList<Finding> findings)
+    private PreFinalizeChecklistItem BuildEvidenceLinkageItem(
+        string runId,
+        IReadOnlyList<Finding> findings,
+        IReadOnlyDictionary<string, Disposition> latestDispositionsByFindingId)
     {
+        ArgumentNullException.ThrowIfNull(latestDispositionsByFindingId);
+
         FindingEvidenceLinkageFindingEngineOptions options = _findingEvidenceLinkageFindingEngineOptions.Value;
 
         if (!options.Enabled)
@@ -76,7 +83,21 @@ public sealed partial class PreFinalizeChecklistService
             };
         }
 
-        int linkageGapCount = _findingEvidenceLinkageFindingEngine.Evaluate(runId, findings)?.Count ?? 0;
+        IReadOnlyList<Finding> activeHighSeverityFindings = findings
+            .Where(finding =>
+                (finding.Severity == FindingSeverity.Critical
+                    && PreFinalizeActiveFindingCounter.IsActiveForChecklist(
+                        finding,
+                        FindingSeverity.Critical,
+                        latestDispositionsByFindingId))
+                || (finding.Severity == FindingSeverity.Error
+                    && PreFinalizeActiveFindingCounter.IsActiveForChecklist(
+                        finding,
+                        FindingSeverity.Error,
+                        latestDispositionsByFindingId)))
+            .ToList();
+
+        int linkageGapCount = _findingEvidenceLinkageFindingEngine.Evaluate(runId, activeHighSeverityFindings)?.Count ?? 0;
 
         return new PreFinalizeChecklistItem
         {
@@ -139,8 +160,22 @@ public sealed partial class PreFinalizeChecklistService
         };
     }
 
-    private static PreFinalizeChecklistItem BuildPreCommitGateItem(PreCommitGateResult gateResult)
+    private static PreFinalizeChecklistItem BuildPreCommitGateItem(
+        PreCommitGateResult gateResult,
+        bool preCommitGateEnabled)
     {
+        if (!preCommitGateEnabled)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "pre-commit-gate",
+                Title = PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerTitle,
+                Detail = PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerMessage,
+                Status = PreFinalizeChecklistItemStatus.Blocking,
+                Count = 1,
+            };
+        }
+
         if (gateResult.Blocked)
         {
             return new PreFinalizeChecklistItem

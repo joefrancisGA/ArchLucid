@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import {
+  ARCHITECTURES_HUB_BREADCRUMB_PARENT_HREF,
   ARCHITECTURES_HUB_EMPTY_BODY,
   ARCHITECTURES_HUB_EMPTY_FILTER_BODY,
   ARCHITECTURES_HUB_EMPTY_FILTER_TITLE,
@@ -33,5 +35,10 @@ describe("architectures-hub-copy", () => {
     expect(architecturesHubPageSubtitle(false)).toBe(ARCHITECTURES_HUB_PAGE_SUBTITLE);
     expect(ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER.toLowerCase()).toContain("account");
     expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("sync");
+  });
+
+  it("SY-32: architectures hub breadcrumb parent is Overview, not the reviews inbox", () => {
+    expect(ARCHITECTURES_HUB_BREADCRUMB_PARENT_HREF).toBe("/");
+    expect(ARCHITECTURES_HUB_BREADCRUMB_PARENT_HREF).not.toBe(REVIEWS_LIST_PATH);
   });
 });

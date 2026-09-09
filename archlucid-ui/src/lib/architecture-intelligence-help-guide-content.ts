@@ -13,15 +13,36 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_PAGE_TITLE =
     ? ARCHITECTURE_INTELLIGENCE_ROUTE_METADATA.title
     : "Architecture intelligence";
 
+export const ARCHITECTURE_INTELLIGENCE_HELP_BREADCRUMB_TOPIC_TITLE = "Architecture intelligence";
+
+export const ARCHITECTURE_INTELLIGENCE_HELP_PAGE_EYEBROW = "Help topic" as const;
+
 export const ARCHITECTURE_INTELLIGENCE_HELP_PAGE_SUBTITLE =
   "Run closed-loop architecture reasoning or repeatable baseline evaluation against a product review or free-form description.";
 
-export const ARCHITECTURE_INTELLIGENCE_HELP_OVERVIEW =
-  "Closed-loop reasoning produces structured findings and framing questions you can review before publishing anything to the workspace findings trail. Publishing is a governed follow-up — open Findings or start a review when output needs triage or an evidence-backed package.";
+export const ARCHITECTURE_INTELLIGENCE_HELP_PAGE_SUBTITLE_BUYER =
+  "Guided mode: run closed-loop reasoning and publish gated findings when output is ready for triage." as const;
 
-/** Help Start here card — governed follow-up guidance beside the primary action. */
+export function architectureIntelligenceHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? ARCHITECTURE_INTELLIGENCE_HELP_PAGE_SUBTITLE_BUYER
+    : ARCHITECTURE_INTELLIGENCE_HELP_PAGE_SUBTITLE;
+}
+
+export const ARCHITECTURE_INTELLIGENCE_HELP_PAGE_LEAD =
+  "Closed-loop reasoning produces structured findings and framing questions you can review before publishing anything to the workspace findings trail. Publishing is a formal follow-up — open Findings or start a review when output needs triage or an evidence-backed package.";
+
+export const ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_HELPER =
+  "Use Start here below to open the architecture intelligence workspace, then follow the step-by-step section when you need a guided walkthrough.";
+
+export const ARCHITECTURE_INTELLIGENCE_HELP_OVERVIEW = ARCHITECTURE_INTELLIGENCE_HELP_PAGE_LEAD;
+
+/** Help Start here card — formal follow-up guidance beside the primary action. */
 export const ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_SCOPE_NOTE =
-  "Submitting descriptions, running closed-loop reasoning, and publishing findings are governed follow-ups.";
+  "Submitting descriptions, running closed-loop reasoning, and publishing findings are formal follow-ups.";
+
+export const ARCHITECTURE_INTELLIGENCE_HELP_ORIENTATION_BOTTOM_TEST_ID =
+  "help-architecture-intelligence-orientation-bottom" as const;
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_START_HERE_CARD_TITLE = "Start here";
 

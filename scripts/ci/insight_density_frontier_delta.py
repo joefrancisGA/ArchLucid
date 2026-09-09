@@ -11,10 +11,19 @@ from pathlib import Path
 from typing import Any
 
 _SCHEMA = "archlucid.insight-density-frontier-delta-summary.v1"
+_CAPTURE_SCHEMA = "archlucid.insight-density-frontier-capture.v1"
 _DEFAULT_THRESHOLD = 0.60
+_MAX_NOVELTY_DEVIATION = 0.001
+_VALID_BASELINE_SOURCES = {"human-authored", "pilot-pending", "empty"}
+_VALID_LABELS = {"synthetic", "pilot-pending"}
 _CLAIM_BOUNDARY = (
     "Offline eval-corpus fixtures only. Hand-authored baseline transcripts are a regression instrument — "
     "not evidence that ArchLucid beats any named frontier model."
+)
+_SHIP_GATE_NOTE = (
+    "Ship gate (owner, after G-REAL-06): ≥40% novel vs committed human-authored baseline AND "
+    "≥80% of sampled Decision-grade findings marked DidNotThinkOfThat or human would-change-decision. "
+    "Not enforced in CI today."
 )
 
 
@@ -186,7 +195,126 @@ def _calculate_scenario(
 
 
 def _matches_expected(actual: float, expected: float) -> bool:
-    return abs(actual - expected) <= 0.001
+    return abs(actual - expected) <= _MAX_NOVELTY_DEVIATION
+
+
+def is_idle_pilot_pending_capture(document: dict[str, Any]) -> bool:
+    label = str(document.get("label") or "")
+
+    if label != "pilot-pending":
+        return False
+
+    baseline = document.get("frontierBaseline") or {}
+    source = str(baseline.get("source") or "")
+    findings = baseline.get("findings") or []
+
+    return source == "empty" and len(findings) == 0
+
+
+def validate_capture_fixture(document: dict[str, Any], threshold: float = _DEFAULT_THRESHOLD) -> list[str]:
+    errors: list[str] = []
+
+    if document.get("schema") != _CAPTURE_SCHEMA:
+        errors.append(f"schema must be {_CAPTURE_SCHEMA}")
+
+    label = str(document.get("label") or "")
+
+    if label not in _VALID_LABELS:
+        errors.append("label must be synthetic or pilot-pending")
+
+    baseline = document.get("frontierBaseline") or {}
+    source = str(baseline.get("source") or "")
+
+    if source not in _VALID_BASELINE_SOURCES:
+        errors.append("frontierBaseline.source must be human-authored, pilot-pending, or empty")
+
+    baseline_findings = baseline.get("findings") or []
+
+    if source == "empty" and len(baseline_findings) > 0:
+        errors.append("frontierBaseline.source=empty requires an empty findings array")
+
+    expected = document.get("expectedNoveltyPercentage")
+
+    if label == "synthetic" and expected is None:
+        errors.append("expectedNoveltyPercentage is required for synthetic capture fixtures")
+
+    if errors:
+        return errors
+
+    if is_idle_pilot_pending_capture(document):
+        return []
+
+    if expected is None:
+        return []
+
+    (
+        novelty_percentage,
+        _total,
+        _covered,
+        _novel,
+        _by_engine,
+    ) = _calculate_scenario(document, threshold)
+
+    if not _matches_expected(novelty_percentage, float(expected)):
+        errors.append(
+            f"expectedNoveltyPercentage {expected} deviates from computed {novelty_percentage} "
+            f"by more than {_MAX_NOVELTY_DEVIATION}",
+        )
+
+    return errors
+
+
+def build_capture_summary(capture_dir: Path, threshold: float = _DEFAULT_THRESHOLD) -> dict[str, Any]:
+    fixture_rows: list[dict[str, Any]] = []
+
+    for path in sorted(capture_dir.glob("*.json"), key=lambda p: p.name.casefold()):
+        document = json.loads(path.read_text(encoding="utf-8"))
+        errors = validate_capture_fixture(document, threshold)
+        idle = is_idle_pilot_pending_capture(document)
+        expected = document.get("expectedNoveltyPercentage")
+        (
+            novelty_percentage,
+            total,
+            covered,
+            novel,
+            by_engine,
+        ) = _calculate_scenario(document, threshold)
+        matches_expected = idle or (
+            expected is not None and _matches_expected(novelty_percentage, float(expected))
+        )
+
+        fixture_rows.append(
+            {
+                "fixtureId": str(document.get("id") or path.stem),
+                "file": path.name,
+                "label": str(document.get("label") or ""),
+                "baselineSource": str((document.get("frontierBaseline") or {}).get("source") or ""),
+                "idlePilotPending": idle,
+                "totalFindingCount": total,
+                "coveredByBaselineCount": covered,
+                "novelFindingCount": novel,
+                "noveltyPercentage": novelty_percentage,
+                "expectedNoveltyPercentage": expected,
+                "matchesExpected": matches_expected,
+                "validationErrors": errors,
+                "byEngine": by_engine,
+            }
+        )
+
+    all_fixtures_valid = all(not row.get("validationErrors") for row in fixture_rows)
+    rollup = "PASS" if all_fixtures_valid else "HOLD"
+
+    return {
+        "schema": "archlucid.insight-density-frontier-capture-summary.v1",
+        "generatedUtc": datetime.now(timezone.utc).isoformat(),
+        "rollup": rollup,
+        "fixtureCount": len(fixture_rows),
+        "matchSimilarityThreshold": threshold,
+        "allFixturesValid": all_fixtures_valid,
+        "shipGateNote": _SHIP_GATE_NOTE,
+        "claimBoundary": _CLAIM_BOUNDARY,
+        "fixtures": fixture_rows,
+    }
 
 
 def build_summary(corpus_dir: Path, threshold: float = _DEFAULT_THRESHOLD) -> dict[str, Any]:
@@ -237,6 +365,7 @@ def build_summary(corpus_dir: Path, threshold: float = _DEFAULT_THRESHOLD) -> di
         "hasPositivePercentScenario": has_positive_percent_scenario,
         "allScenariosMatchExpected": all_scenarios_match_expected,
         "claimBoundary": _CLAIM_BOUNDARY,
+        "shipGateNote": _SHIP_GATE_NOTE,
         "scenarios": scenario_rows,
     }
 
@@ -261,7 +390,17 @@ def write_markdown(summary: dict[str, Any], path: Path) -> None:
             f"{row['novelFindingCount']} | {row['coveredByBaselineCount']} |"
         )
 
-    lines.extend(["", summary["claimBoundary"], ""])
+    lines.extend(
+        [
+            "",
+            "## Ship gate (owner, after G-REAL-06)",
+            "",
+            summary.get("shipGateNote", _SHIP_GATE_NOTE),
+            "",
+            summary["claimBoundary"],
+            "",
+        ]
+    )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -280,6 +419,11 @@ def main(argv: list[str] | None = None) -> int:
         default=repo_root / "tests" / "eval-corpus" / "insight-density-frontier-delta",
     )
     parser.add_argument(
+        "--capture-corpus",
+        type=Path,
+        default=repo_root / "tests" / "eval-corpus" / "insight-density-frontier-capture",
+    )
+    parser.add_argument(
         "--json-out",
         type=Path,
         default=repo_root / "docs" / "quality" / "insight-density-frontier-delta.json",
@@ -290,11 +434,14 @@ def main(argv: list[str] | None = None) -> int:
         default=repo_root / "docs" / "quality" / "insight-density-frontier-delta.md",
     )
     parser.add_argument("--enforce", action="store_true")
+    parser.add_argument("--enforce-capture", action="store_true")
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args(argv)
 
     corpus_dir = args.corpus.expanduser().resolve()
+    capture_dir = args.capture_corpus.expanduser().resolve()
     summary = build_summary(corpus_dir)
+    capture_summary = build_capture_summary(capture_dir)
     json_path = args.json_out.expanduser().resolve()
     markdown_path = args.markdown_out.expanduser().resolve()
 
@@ -312,6 +459,16 @@ def main(argv: list[str] | None = None) -> int:
     json_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     write_markdown(summary, markdown_path)
+
+    if args.enforce_capture or args.enforce:
+        if capture_summary["rollup"] != "PASS":
+            print("Enforce failed: capture fixture validation errors.", file=sys.stderr)
+
+            for row in capture_summary["fixtures"]:
+                for error in row.get("validationErrors") or []:
+                    print(f"  {row['fixtureId']}: {error}", file=sys.stderr)
+
+            return 1
 
     if args.enforce:
         if not summary["hasZeroPercentScenario"] or not summary["hasPositivePercentScenario"]:

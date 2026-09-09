@@ -762,7 +762,7 @@ Requires **Admin** or **Execute** authority per link. Expand **Admin** group.
 | Projects recycle bin | `/administration/tenant/recycle-bin` | **Workspace settings** → **Recycle bin** link. |
 | Cost reporting | `/settings/cost-reporting` | **Admin → Cost reporting**. |
 | Settings hub | `/administration/settings` | **Admin → Settings** (searchable tenant-administration index; Read authority). |
-| Extract upload | `/administration/extract-upload` | **Ctrl+K** or workspace settings cross-links (not primary sidebar). |
+| Extract upload | `/administration/extract-upload` | **Administration → Extract & upload**, or **Settings hub** (`/administration`) Integrations section. |
 | Personal preferences | `/account/preferences` | **Top-bar account menu → Preferences** (any signed-in user, no authority gate). |
 | Account security | `/account/security` | **Top-bar account menu → Account security** (any signed-in user, no authority gate). |
 

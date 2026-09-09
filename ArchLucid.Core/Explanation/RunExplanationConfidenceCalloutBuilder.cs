@@ -125,6 +125,10 @@ public static class RunExplanationConfidenceCalloutBuilder
             {
                 citationCount = citationsEl.GetArrayLength();
             }
+            else if (citationsEl.ValueKind == JsonValueKind.Object)
+            {
+                citationCount = 1;
+            }
             else if (citationsEl.ValueKind == JsonValueKind.Number
                      && RunExplanationAggregateJsonReader.TryReadWholeNumber(citationsEl, out int wholeNumberCount))
             {
@@ -147,6 +151,10 @@ public static class RunExplanationConfidenceCalloutBuilder
                     citationCount = stringEncodedCount;
                 }
             }
+        }
+        else
+        {
+            citationCount = 0;
         }
 
         return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);

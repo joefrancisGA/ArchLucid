@@ -9,6 +9,7 @@ import {
   EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH,
   EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL,
 } from "@/lib/extract-upload-settings-evidence-copy";
+import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   INVITE_REVIEWER_CANONICAL_PATH,
   INVITE_REVIEWER_HELP_TOPIC_LABEL,
@@ -71,6 +72,24 @@ export const WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContext
   },
   {
     prefix: EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH,
+    entry: {
+      whatIsThisPage:
+        "Extract and Upload - run the read-only Azure extractor locally, validate the ZIP, then upload inventory for architecture reviews.",
+      whatToDoNext:
+        "Copy the quick-start command, upload a validated ZIP, then open Start a review when the package is ready.",
+      whyEmpty:
+        "Upload controls are ready when you have Admin or Execute authority; progress rows appear after a package is selected.",
+      whereToConfigurePrerequisite:
+        "Uploading packages needs workspace authority; cloud connectors are optional for evidence-only ZIP intake.",
+      taskSteps: [
+        "Copy the quick-start extractor command.",
+        "Upload a validated inventory ZIP package.",
+        "Open Start a review when the package is ready.",
+      ],
+    },
+  },
+  {
+    prefix: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
     entry: {
       whatIsThisPage:
         "Extract and Upload - run the read-only Azure extractor locally, validate the ZIP, then upload inventory for architecture reviews.",

@@ -172,7 +172,27 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
     expect(screen.getByTestId("review-detail-workspace-tabs")).toBeInTheDocument();
   });
 
-  it("uses only the presenter query flag for elicitation chrome", () => {
+  it("starts room elicitation inline without presenter zoom when roomElicitation=1", () => {
+    workspaceModeMock.isWorkingMode = true;
+    searchParamsMock.value = new URLSearchParams("reviewTab=overview&roomElicitation=1");
+
+    render(
+      <RunDetailPresenterElicitationBridge
+        runId={RUN_ID}
+        architectureRequestId="draft-1"
+        defensibilityStrip={<div data-testid="review-defensibility-strip">Trail</div>}
+        panels={panels}
+      />,
+    );
+
+    expect(screen.queryByTestId("review-presenter-surface")).toBeNull();
+    expect(screen.getByTestId("review-detail-workspace-tabs")).toBeInTheDocument();
+    expect(screen.getByTestId("review-room-elicitation-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("review-presenter-elicitation-confirm")).toHaveTextContent("Yes");
+    expect(screen.getByTestId("review-defensibility-strip")).toBeInTheDocument();
+  });
+
+  it("does not show elicitation chrome when neither presenter nor room flag is set", () => {
     workspaceModeMock.isWorkingMode = true;
     searchParamsMock.value = new URLSearchParams("reviewTab=overview");
 

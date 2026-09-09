@@ -19,15 +19,21 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { useWorkingInsightsArchitectureBind } from "@/hooks/use-working-insights-architecture-bind";
 import type { AskRunListAvailability } from "@/lib/graph-page-state";
 import { graphPresentationViewHrefFromSearch } from "@/lib/insights/graph-presentation-view-url";
 import { graphRunIdHrefFromSearch } from "@/lib/insights/graph-run-id-url";
 import { graphLoadRequestedHrefFromSearch } from "@/lib/insights/graph-load-requested-url";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 
-export function useGraphPageState() {
+export type UseGraphPageStateOptions = {
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string;
+};
+
+export function useGraphPageState(options: UseGraphPageStateOptions = {}) {
   const router = useRouter();
-  const pathname = usePathname() ?? EVIDENCE_GRAPH_PATH;
+  const pathname = usePathname() ?? options.basePathname ?? EVIDENCE_GRAPH_PATH;
   const searchParams = useSearchParams();
   const { isWorkingMode, mounted: workspaceMounted } = useWorkspaceMode();
   const workingMode = workspaceMounted && isWorkingMode;
@@ -67,6 +73,11 @@ export function useGraphPageState() {
     setDepth,
     setNodeId,
     setDecisionId,
+  });
+  const architectureBind = useWorkingInsightsArchitectureBind({
+    tool: "evidence-graph",
+    urlRunId,
+    pinnedArchitectureId: options.pinnedArchitectureId,
   });
 
   const setGraphLoadRequested = useCallback(
@@ -363,6 +374,9 @@ export function useGraphPageState() {
     getGraphSavedViewPayload: savedViews.getGraphSavedViewPayload,
     loadGraphSavedView: savedViews.loadGraphSavedView,
     workingMode,
+    architectureBindPending: architectureBind.bindPending,
+    showArchitectureDeskEmpty: architectureBind.showArchitectureDeskEmpty,
+    architectureBindResult: architectureBind.bindResult,
   };
 }
 

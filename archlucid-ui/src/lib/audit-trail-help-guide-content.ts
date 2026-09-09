@@ -39,7 +39,7 @@ export const AUDIT_TRAIL_HELP_ACTION_PANEL_INTRO =
   "Use these links when audit trail vocabulary turns into live activity, approval decisions, or assurance materials.";
 
 export const AUDIT_TRAIL_HELP_OVERVIEW =
-  "The audit trail is the append-only ledger of authenticated actions across architecture reviews, governance approval, decisions, and exports. It answers who acted, when, and in which workspace scope — separate from findings or application diagnostics.";
+  "The audit trail is the append-only ledger of authenticated actions across architecture reviews, approval, decisions, and exports. It answers who acted, when, and in which workspace scope — separate from findings or application diagnostics.";
 
 export const AUDIT_TRAIL_HELP_PRIMARY_ACTIONS = {
   openAuditTrail: {
@@ -47,7 +47,7 @@ export const AUDIT_TRAIL_HELP_PRIMARY_ACTIONS = {
     href: GOVERNANCE_AUDIT_PATH,
   },
   governanceApproval: {
-    label: "Governance approval",
+    label: "Approval",
     href: "/help/governance-approval",
   },
   securityTrust: {
@@ -57,7 +57,7 @@ export const AUDIT_TRAIL_HELP_PRIMARY_ACTIONS = {
 } as const;
 
 export const AUDIT_TRAIL_HELP_WHAT_IS_BODY =
-  "When an authorized user finalizes an architecture review, records governance approval, updates evidence, or exports a diligence bundle, ArchLucid appends an audit trail entry with actor identity, action type, timestamp, and correlation identifiers. Entries stay linked to the review so auditors can reconstruct accountability without opening every finding or finalized review record separately.";
+  "When an authorized user finalizes an architecture review, records approval, updates evidence, or exports a diligence bundle, ArchLucid appends an audit trail entry with actor identity, action type, timestamp, and correlation identifiers. Entries stay linked to the review so auditors can reconstruct accountability without opening every finding or finalized review record separately.";
 
 export type AuditTrailHelpAnatomyField = {
   readonly label: string;
@@ -130,7 +130,7 @@ export const AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_INTRO =
 
 export const AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_ITEMS = [
   "Input artifacts and evidence trail citations explain what was reviewed.",
-  "Findings and decisions capture architecture risk and governance approval.",
+  "Findings and decisions capture architecture risk and approval.",
   "Audit trail entries record authenticated actions — who submitted, approved, exported, or changed evidence.",
   "The finalized review record binds the committed architecture review state.",
 ] as const;
@@ -168,7 +168,7 @@ export const AUDIT_TRAIL_HELP_LIVE_VS_HELP_BODY =
 
 /** TB-1250 / TB-1387: buyer audit trail help must not deep-link eng API contracts in primary copy. */
 export const AUDIT_TRAIL_HELP_RELATED_PRODUCT_DOCS = {
-  label: "Governance approval",
+  label: "Approval",
   href: inAppHelpHref("governance-approval"),
 } as const;
 

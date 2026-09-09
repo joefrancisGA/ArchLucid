@@ -146,11 +146,7 @@ export function HelpScopeGuideView(props: HelpScopeGuideViewProps): React.ReactE
           <HelpTopicTableOfContents headings={headings} enableScrollSpy />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-scope-orientation-bottom">
-            <HelpScopeSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpScopeSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

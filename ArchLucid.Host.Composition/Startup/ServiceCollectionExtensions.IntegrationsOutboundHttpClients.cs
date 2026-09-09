@@ -37,7 +37,10 @@ public static partial class ServiceCollectionExtensions
             {
                 client.Timeout = TimeSpan.FromSeconds(30);
             })
-            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);
+            .ConfigureArchLucidOutboundSocketsHandler(
+                OutboundHttpSocketsHandlerProfile.ExternalIntegration,
+                allowAutoRedirect: false,
+                rejectPrivateNetworkConnectEndpoints: true);
         services
             .AddHttpClient<IItsmConnectorOAuthTokenExchanger, ItsmConnectorOAuthTokenExchanger>(
                 static client => client.Timeout = TimeSpan.FromSeconds(30))

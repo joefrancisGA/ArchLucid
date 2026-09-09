@@ -20,8 +20,16 @@ public sealed class FindingReviewTrailAppendService(IFindingReviewTrailRepositor
     {
         ArgumentNullException.ThrowIfNull(reviewEvent);
         await _trailRepository.AppendAsync(reviewEvent, cancellationToken);
+        await LogAuditAsync(reviewEvent, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public Task LogAuditAsync(FindingReviewEventRecord reviewEvent, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(reviewEvent);
         string eventType = MapActionToAuditEventType(reviewEvent.Action, reviewEvent.Disposition);
-        await _auditService.LogAsync(
+
+        return _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = eventType,

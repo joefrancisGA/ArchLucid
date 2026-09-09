@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Audit;
@@ -25,6 +26,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
+
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
 
 namespace ArchLucid.Application.Tests.Governance;
 
@@ -408,6 +411,98 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
     }
 
     [Fact]
+    public async Task EvaluateAsync_allows_when_remediated_critical_finding_matches_live_gate()
+    {
+        Guid runGuid = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+        const string findingId = "f-remediated-critical";
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-dry-remediated",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findingsRepo = new();
+        await findingsRepo.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = findingId,
+                        FindingType = "Compliance",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Critical,
+                        Title = "t",
+                        Rationale = "r",
+                        EnforcementTier = FindingEnforcementTier.PolicyViolation,
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
+                    FindingId = findingId,
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = Disposition.Remediated,
+                    OccurredAtUtc = DateTimeOffset.Parse("2026-09-08T12:00:00Z"),
+                },
+            ]);
+
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
+            runs,
+            findingsRepo,
+            new InMemoryGoldenManifestRepository(),
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            findingReviewTrailRepository: trail.Object);
+
+        PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
+            """{"metadata":{"governance.blockCommitOnCritical":"true"},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
+            runGuid.ToString("N"),
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateResult.Blocked.Should().BeFalse(
+            "dry-run must honor remediated dispositions like the live pre-commit gate");
+        result.GateResult.BlockingFindingIds.Should().BeEmpty();
+        result.FailedChecks.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task EvaluateAsync_throws_when_run_golden_manifest_is_unsealed()
     {
         Guid runGuid = Guid.NewGuid();
@@ -488,7 +583,8 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
         IOptions<TechnologyConsistencyFindingEngineOptions>? consistencyOptions = null,
         IOptions<FindingEvidenceLinkageFindingEngineOptions>? linkageOptions = null,
         IAuthorityQueryService? authorityQueryService = null,
-        IManifestHashService? manifestHashService = null)
+        IManifestHashService? manifestHashService = null,
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null)
     {
         Mock<IPromptRedactor> redactor = new();
         redactor
@@ -502,6 +598,15 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
 
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IFindingReviewTrailRepository> trailMock = new();
+        trailMock
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
 
         PolicyPackGovernanceDryRunService sut = new(
             scope.Object,
@@ -518,6 +623,7 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             linkageOptions ?? Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
             authorityQueryService ?? PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateAuthorityQueryServiceForAnyRun(TestScope),
             manifestHashService ?? PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(),
+            findingReviewTrailRepository ?? trailMock.Object,
             NullLogger<PolicyPackGovernanceDryRunService>.Instance);
 
         return new PolicyPackGovernanceDryRunServiceTestsFixture(sut, audit);

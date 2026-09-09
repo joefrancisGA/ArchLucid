@@ -6,7 +6,6 @@ using ArchLucid.TestSupport.GoldenCorpus;
 
 using FluentAssertions;
 
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
@@ -58,7 +57,9 @@ public sealed class InsightDensityEngineDistributionReportTests
                 graph.RunId,
                 graph.ContextSnapshotId,
                 graph,
-                CancellationToken.None);
+                CancellationToken.None,
+                input!.InventoryFixture,
+                input.PriorGraphFixture);
 
             InsightDensityEngineDistribution distribution = InsightDensityEngineDistributionCalculator.Calculate(
                 snapshot,
@@ -106,8 +107,8 @@ public sealed class InsightDensityEngineDistributionReportTests
         IInsightDensityGate gate = DeterministicInsightDensityGate.CreateDefault();
         InsightDensityGateOptions options = new();
 
-        Dictionary<string, List<int>> aggregatedScores = new(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, int> wouldDemoteCounts = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, InsightDensityEngineDistributionAccumulator> accumulators =
+            new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string dir in Directory.GetDirectories(root).OrderBy(static d => d, StringComparer.OrdinalIgnoreCase))
         {
@@ -127,58 +128,31 @@ public sealed class InsightDensityEngineDistributionReportTests
                 graph.RunId,
                 graph.ContextSnapshotId,
                 graph,
-                CancellationToken.None);
+                CancellationToken.None,
+                input!.InventoryFixture,
+                input.PriorGraphFixture);
 
-            InsightDensityEngineDistribution distribution = InsightDensityEngineDistributionCalculator.Calculate(
-                snapshot,
-                gate,
-                options);
+            List<InsightDensityGateCandidate> candidates = snapshot.Findings
+                .Select(InsightDensityGateCandidate.FromFinding)
+                .ToList();
 
-            foreach (InsightDensityEngineDistributionRow row in distribution.Rows)
+            foreach (Finding finding in snapshot.Findings)
             {
-                if (!aggregatedScores.TryGetValue(row.EngineType, out List<int>? bucket))
+                InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
+                InsightDensityGateResult result = gate.Score(candidate, candidates);
+
+                if (!accumulators.TryGetValue(finding.EngineType, out InsightDensityEngineDistributionAccumulator? accumulator))
                 {
-                    bucket = [];
-                    aggregatedScores[row.EngineType] = bucket;
+                    accumulator = new InsightDensityEngineDistributionAccumulator();
+                    accumulators[finding.EngineType] = accumulator;
                 }
 
-                List<InsightDensityGateCandidate> candidates = snapshot.Findings
-                    .Select(InsightDensityGateCandidate.FromFinding)
-                    .ToList();
-
-                foreach (Finding finding in snapshot.Findings.Where(f => f.EngineType == row.EngineType))
-                {
-                    InsightDensityGateCandidate candidate = InsightDensityGateCandidate.FromFinding(finding);
-                    int score = gate.Score(candidate, candidates).InsightDensityScore;
-                    bucket.Add(score);
-
-                    if (score < options.DemotionThreshold)
-                    {
-                        wouldDemoteCounts[row.EngineType] = wouldDemoteCounts.GetValueOrDefault(row.EngineType) + 1;
-                    }
-                }
+                accumulator.AddFinding(result, candidate, options.DemotionThreshold);
             }
         }
 
-        List<InsightDensityEngineDistributionRow> rollupRows = aggregatedScores
-            .Select(pair =>
-            {
-                List<int> sorted = pair.Value.OrderBy(static score => score).ToList();
-                int count = sorted.Count;
-                int median = count % 2 == 1
-                    ? sorted[count / 2]
-                    : (sorted[count / 2 - 1] + sorted[count / 2]) / 2;
-
-                return new InsightDensityEngineDistributionRow
-                {
-                    EngineType = pair.Key,
-                    FindingCount = count,
-                    MinScore = sorted[0],
-                    MedianScore = median,
-                    MaxScore = sorted[count - 1],
-                    WouldDemoteIfUnprotectedCount = wouldDemoteCounts.GetValueOrDefault(pair.Key),
-                };
-            })
+        List<InsightDensityEngineDistributionRow> rollupRows = accumulators
+            .Select(static pair => pair.Value.ToRow(pair.Key))
             .OrderBy(static row => row.MedianScore)
             .ThenBy(static row => row.EngineType, StringComparer.OrdinalIgnoreCase)
             .ToList();
@@ -209,9 +183,11 @@ public sealed class InsightDensityEngineDistributionReportTests
 
         markdown.Should().Contain(InsightDensityEngineDistributionMarkdown.ClaimBoundaryMarker);
         markdown.Should().Contain("typed-engine-scored");
-        markdown.Should().Contain("**16** engines");
-        markdown.Should().Contain("registers **16** engines");
+        markdown.Should().Contain("**42** engines");
+        markdown.Should().Contain("registers **42** engines");
         markdown.Should().Contain("WouldDemoteIfUnprotectedCount");
         markdown.Should().Contain("matches production demotion");
+        markdown.Should().Contain("WouldDemoteAt65Count");
+        markdown.Should().Contain("production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59)");
     }
 }

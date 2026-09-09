@@ -18,14 +18,13 @@ internal static class FindingInspectReadRepositoryCore
 
             if (ids is { Count: > 0 })
             {
-                string? firstRaw = ids[0];
+                string? firstValid = ids
+                    .Where(static id => !string.IsNullOrWhiteSpace(id))
+                    .Select(static id => id.Trim())
+                    .FirstOrDefault();
 
-                if (!string.IsNullOrWhiteSpace(firstRaw))
-                {
-                    string first = firstRaw.Trim();
-
-                    return (first, first);
-                }
+                if (firstValid is not null)
+                    return (firstValid, firstValid);
             }
         }
         catch (JsonException)
@@ -64,6 +63,24 @@ internal static class FindingInspectReadRepositoryCore
         {
             return null;
         }
+    }
+
+    /// <summary>
+    ///     Resolves typed payload for inspect reads: deserialize relational <c>PayloadJson</c> when valid; when the column
+    ///     is non-empty but not valid JSON, fall back to title/rationale metadata so operators can distinguish corrupt rows
+    ///     from truly absent payloads.
+    /// </summary>
+    public static JsonElement? ResolveTypedPayloadForInspect(string? payloadJson, string? title, string? rationale)
+    {
+        JsonElement? parsed = TryParsePayloadJson(payloadJson);
+
+        if (parsed is not null)
+            return parsed;
+
+        if (string.IsNullOrWhiteSpace(payloadJson))
+            return null;
+
+        return BuildMetadataTypedPayload(title, rationale);
     }
 
     public static FindingInspectResponse BuildInspectResponse(

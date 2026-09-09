@@ -10,6 +10,7 @@ import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
 } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { AlertRulesHubTabId } from "@/lib/alerts-hub-tab";
 import type { AlertRulesConfigChange } from "@/lib/alert-rules-config-change";
 import { ALERT_RULES_CONFIG_NEVER_CONFIGURED_LABEL } from "@/lib/alert-rule-conditions-copy";
@@ -111,6 +112,12 @@ function alertRulesConfigProvenanceMetadata(props: AlertRulesPageHeaderProps): R
 }
 
 function alertRulesHeaderMetadata(props: AlertRulesPageHeaderProps): React.JSX.Element | null {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  if (buyerPolishedShell) {
+    return null;
+  }
+
   const configProvenance = alertRulesConfigProvenanceMetadata(props);
 
   if (props.refreshing) {
@@ -150,6 +157,8 @@ function alertRulesHeaderMetadata(props: AlertRulesPageHeaderProps): React.JSX.E
 
 /** Shared `/governance/alert-rules` hero — title, lead, contextual help, refresh, and posture/freshness metadata. */
 export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <OperatorPageHeader
       navHref={GOVERNANCE_ALERT_RULES_PATH}
@@ -160,7 +169,7 @@ export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JS
       claimDisciplineTestId="alert-rules-hub-claim-discipline"
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-header-actions">
-          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+          {buyerPolishedShell ? null : <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />}
           <RefreshButton
             busy={props.refreshing}
             data-testid="alert-rules-refresh-button"

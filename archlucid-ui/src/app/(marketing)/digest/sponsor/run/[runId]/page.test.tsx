@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DIGEST_SPONSOR_COLLATERAL_TITLE } from "@/lib/marketing/digest-sponsor-page-copy";
+import { DIGEST_SPONSOR_COLLATERAL_TITLE, DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL } from "@/lib/marketing/digest-sponsor-page-copy";
 
 const fetchExecDigestSponsorDeepLinkView = vi.fn();
 const notFound = vi.fn(() => {
@@ -45,6 +45,7 @@ describe("ExecDigestSponsorRunDeepLinkPage (DIU)", () => {
 
     expect(screen.getByTestId("digest-sponsor-issue-page")).toBeInTheDocument();
     expect(screen.getByTestId("digest-sponsor-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("digest-sponsor-first-viewport")).toBeInTheDocument();
   });
 
   it("loads collateral view through shared digest panel", async () => {
@@ -68,6 +69,11 @@ describe("ExecDigestSponsorRunDeepLinkPage (DIU)", () => {
     });
 
     expect(screen.getByRole("heading", { level: 1, name: DIGEST_SPONSOR_COLLATERAL_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("digest-sponsor-first-viewport")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL })).toHaveAttribute(
+      "href",
+      "/auth/signin?returnUrl=%2Fdigest%2Fsponsor%2Frun%2Faaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3Ftoken%3Dsecret-token",
+    );
     expect(fetchExecDigestSponsorDeepLinkView).toHaveBeenCalledWith(
       "secret-token",
       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",

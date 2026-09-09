@@ -9,6 +9,23 @@ internal static class ItsmFindingAuthorityPayloadMapper
 {
     private static readonly JsonSerializerOptions SerializerOptions = new() { PropertyNameCaseInsensitive = true };
 
+    public static FindingClassification? TryGetClassification(JsonElement? typedPayload)
+    {
+        if (typedPayload is null || typedPayload.Value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+            return null;
+
+        try
+        {
+            ArchitectureFinding? parsed = JsonSerializer.Deserialize<ArchitectureFinding>(typedPayload.Value.GetRawText(), SerializerOptions);
+
+            return parsed?.Classification;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
     public static FindingSeverity TryGetSeverity(JsonElement? typedPayload, FindingSeverity @default = FindingSeverity.Info)
     {
         if (typedPayload is null || typedPayload.Value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)

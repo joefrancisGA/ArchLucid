@@ -3,6 +3,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   formatActiveTenantContextTooltip,
   resolveActiveTenantContext,
+  resolveTenantOrganizationDisplayName,
+  TENANT_ORGANIZATION_NAME_UNAVAILABLE,
 } from "@/lib/active-tenant-context-display";
 import { DEV_SCOPE_TENANT_ID } from "@/lib/scope";
 import {
@@ -42,6 +44,18 @@ describe("resolveActiveTenantContext", () => {
     const context = resolveActiveTenantContext(null, false);
 
     expect(context.displayName).toBe(DEV_SCOPE_TENANT_ID);
+  });
+});
+
+describe("resolveTenantOrganizationDisplayName", () => {
+  it("does not leak a raw catalog GUID into organization surfaces", () => {
+    expect(resolveTenantOrganizationDisplayName(DEV_SCOPE_TENANT_ID, DEV_SCOPE_TENANT_ID)).toBe(
+      TENANT_ORGANIZATION_NAME_UNAVAILABLE,
+    );
+  });
+
+  it("keeps a human-readable IdP name", () => {
+    expect(resolveTenantOrganizationDisplayName("tenant-1", "Acme Architecture")).toBe("Acme Architecture");
   });
 });
 

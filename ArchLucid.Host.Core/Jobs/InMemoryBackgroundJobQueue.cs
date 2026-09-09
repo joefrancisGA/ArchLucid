@@ -138,7 +138,11 @@ public sealed class InMemoryBackgroundJobQueue(
                     afterSuccess.State == BackgroundJobState.Canceled)
                     continue;
 
-                _info[item.JobId] = afterSuccess with
+                if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeSuccessWrite) ||
+                    beforeSuccessWrite.State == BackgroundJobState.Canceled)
+                    continue;
+
+                _info[item.JobId] = beforeSuccessWrite with
                 {
                     State = BackgroundJobState.Succeeded,
                     CompletedUtc = TimeProvider.System.GetUtcNow(),
@@ -164,7 +168,11 @@ public sealed class InMemoryBackgroundJobQueue(
                         nextRetry,
                         failed.MaxRetries);
 
-                    _info[item.JobId] = failed with { State = BackgroundJobState.Pending, RetryCount = nextRetry, Error = ex.Message };
+                    if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforePendingRetry) ||
+                        beforePendingRetry.State == BackgroundJobState.Canceled)
+                        continue;
+
+                    _info[item.JobId] = beforePendingRetry with { State = BackgroundJobState.Pending, RetryCount = nextRetry, Error = ex.Message };
 
                     int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
                     await Task.Delay(delayMs, stoppingToken);
@@ -179,7 +187,11 @@ public sealed class InMemoryBackgroundJobQueue(
                             "Background job {JobId} could not be re-queued; pending capacity exhausted.",
                             LogSanitizer.Sanitize(item.JobId));
 
-                        _info[item.JobId] = failed with
+                        if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeCapacityFailure) ||
+                            beforeCapacityFailure.State == BackgroundJobState.Canceled)
+                            continue;
+
+                        _info[item.JobId] = beforeCapacityFailure with
                         {
                             State = BackgroundJobState.Failed,
                             CompletedUtc = TimeProvider.System.GetUtcNow(),
@@ -193,7 +205,11 @@ public sealed class InMemoryBackgroundJobQueue(
 
                         logger.LogError("Background job {JobId} could not be re-queued; writer rejected item.", LogSanitizer.Sanitize(item.JobId));
 
-                        _info[item.JobId] = failed with
+                        if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeWriterFailure) ||
+                            beforeWriterFailure.State == BackgroundJobState.Canceled)
+                            continue;
+
+                        _info[item.JobId] = beforeWriterFailure with
                         {
                             State = BackgroundJobState.Failed,
                             CompletedUtc = TimeProvider.System.GetUtcNow(),
@@ -204,13 +220,21 @@ public sealed class InMemoryBackgroundJobQueue(
                 }
                 else
                 {
+                    if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? terminalCandidate) ||
+                        terminalCandidate.State == BackgroundJobState.Canceled)
+                        continue;
+
                     logger.LogError(
                         ex,
                         "Background job {JobId} failed after {Attempts} attempt(s); moving to DLQ.",
                         LogSanitizer.Sanitize(item.JobId),
                         nextRetry);
 
-                    _info[item.JobId] = failed with
+                    if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeTerminalFailure) ||
+                        beforeTerminalFailure.State == BackgroundJobState.Canceled)
+                        continue;
+
+                    _info[item.JobId] = beforeTerminalFailure with
                     {
                         State = BackgroundJobState.Failed, CompletedUtc = TimeProvider.System.GetUtcNow(), RetryCount = nextRetry, Error = ex.Message
                     };

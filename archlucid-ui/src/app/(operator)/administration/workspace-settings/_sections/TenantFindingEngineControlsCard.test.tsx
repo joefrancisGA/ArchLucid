@@ -10,8 +10,8 @@ describe("TenantFindingEngineControlsCard", () => {
     vi.unstubAllGlobals();
   });
 
-  it("loads controls and enables portfolio recurrence on toggle", async () => {
-    let portfolioEnabled = false;
+  it("loads controls and disables portfolio recurrence on toggle", async () => {
+    let portfolioEnabled = true;
 
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
@@ -24,26 +24,26 @@ describe("TenantFindingEngineControlsCard", () => {
             effectivePortfolioRecurrenceEnabled: portfolioEnabled,
             hostDefaultEnableLlmJudge: false,
             hostDefaultEnableLlmJudgeForEngineFindings: false,
-            hostDefaultPortfolioRecurrenceEnabled: false,
+            hostDefaultPortfolioRecurrenceEnabled: true,
             enableLlmJudgeOverridden: false,
             enableLlmJudgeForEngineFindingsOverridden: false,
-            portfolioRecurrenceEnabledOverridden: portfolioEnabled,
+            portfolioRecurrenceEnabledOverridden: !portfolioEnabled,
           }),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
 
       if (url.includes("finding-engine-controls") && init?.method === "PUT") {
-        portfolioEnabled = true;
+        portfolioEnabled = false;
 
         return new Response(
           JSON.stringify({
             effectiveEnableLlmJudge: false,
             effectiveEnableLlmJudgeForEngineFindings: false,
-            effectivePortfolioRecurrenceEnabled: true,
+            effectivePortfolioRecurrenceEnabled: false,
             hostDefaultEnableLlmJudge: false,
             hostDefaultEnableLlmJudgeForEngineFindings: false,
-            hostDefaultPortfolioRecurrenceEnabled: false,
+            hostDefaultPortfolioRecurrenceEnabled: true,
             enableLlmJudgeOverridden: false,
             enableLlmJudgeForEngineFindingsOverridden: false,
             portfolioRecurrenceEnabledOverridden: true,

@@ -1,5 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -13,7 +16,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LayerHeader } from "@/components/LayerHeader";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import {
   GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER,
@@ -24,8 +27,24 @@ import {
   GOVERNANCE_OVERVIEW_WORKSPACE_HEALTH_LINK_LABEL,
 } from "@/lib/governance/governance-overview-copy";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import {
+  APPROVAL_QUEUE_CLAIM_DISCIPLINE,
+  GOVERNANCE_APPROVAL_QUEUE_BUYER_OVERVIEW,
+  GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER,
+  GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID,
+  GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
+  GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID,
+  GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL,
+  GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE,
+  GOVERNANCE_APPROVAL_QUEUE_WORKSPACE_TEST_ID,
+} from "@/lib/approval-queue-evidence-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD } from "@/lib/buyer/buyer-polish-copy";
 import { GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL } from "@/lib/governance/governance-workflow-release-copy";
+import {
+  governanceWorkflowEnvironmentReleasesDisclosureHrefFromSearch,
+  parseGovernanceWorkflowEnvironmentReleasesOpenFromSearch,
+} from "@/lib/governance/governance-workflow-environment-releases-disclosure-url";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS } from "@/lib/operator/operator-static-demo";
@@ -44,6 +63,7 @@ import {
 import { GovernanceWorkflowMutationHost } from "./GovernanceWorkflowMutationHost";
 import { GovernanceApprovalQueueNextReviewFooterClient } from "./GovernanceApprovalQueueNextReviewFooterClient";
 import { ApprovalQueueEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { GovernanceApprovalQueueBuyerChrome } from "./GovernanceApprovalQueueBuyerChrome";
 import { GovernanceApprovalQueuePickReviewBeforeSubmittingStrip } from "./GovernanceApprovalQueuePickReviewBeforeSubmittingStrip";
 import {
   GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE,
@@ -126,6 +146,38 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
     replaceApprovalQueueUrl,
   } = props.model;
 
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const governanceWorkflowEnvironmentReleasesOpenParam = searchParams.get("governanceWorkflowEnvironmentReleasesOpen");
+  const [environmentReleasesOpen, setEnvironmentReleasesOpenState] = useState(() =>
+    parseGovernanceWorkflowEnvironmentReleasesOpenFromSearch(governanceWorkflowEnvironmentReleasesOpenParam),
+  );
+
+  const syncEnvironmentReleasesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceWorkflowEnvironmentReleasesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setEnvironmentReleasesOpen = useCallback(
+    (open: boolean) => {
+      setEnvironmentReleasesOpenState(open);
+      syncEnvironmentReleasesOpenToUrl(open);
+    },
+    [syncEnvironmentReleasesOpenToUrl],
+  );
+
+  useEffect(() => {
+    setEnvironmentReleasesOpenState(
+      parseGovernanceWorkflowEnvironmentReleasesOpenFromSearch(governanceWorkflowEnvironmentReleasesOpenParam),
+    );
+  }, [governanceWorkflowEnvironmentReleasesOpenParam]);
+
   const overviewHeaderActions = (
     <div className="flex flex-wrap items-center gap-2" data-testid="governance-overview-header-actions">
       <PageContextualHelpButton />
@@ -141,15 +193,27 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
     </div>
   );
 
+  const WorkspaceShell = buyerPolishedShell ? "section" : "div";
+
   return (
-    <MutationErrorBoundary title="Governance workflow failed to render">
+    <MutationErrorBoundary title="Approval workflow failed to render">
     <TooltipProvider delayDuration={300}>
     <OperatorPageContainer variant="workflow">
+      {buyerPolishedShell ? (
+        <a
+          href={`#${GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
       <OperatorPageHeader
         navHref="/governance/approval-queue"
         title={pageTitle}
         titleTestId="governance-overview-page-title"
         subtitle={pageLead}
+        claimDiscipline={buyerPolishedShell ? APPROVAL_QUEUE_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId="approval-queue-header-claim-discipline"
         metadata={
           !isReviewContext && !buyerPolishedShell ? (
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -166,13 +230,70 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
         actions={overviewHeaderActions}
       />
 
-      <ApprovalQueueEvidenceOrientationStrip />
+      {buyerPolishedShell ? null : <ApprovalQueueEvidenceOrientationStrip />}
 
-      <LayerHeader
-        pageKey="governance-workflow"
-        density="compact"
-        collapsibleGuidance={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}
-      />
+      {buyerPolishedShell ? null : (
+        <LayerHeader
+          pageKey="governance-workflow"
+          density="compact"
+          collapsibleGuidance={GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER}
+        />
+      )}
+
+      <main
+        id={buyerPolishedShell ? GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell ? "scroll-mt-24" : undefined)}
+        data-testid={buyerPolishedShell ? "governance-approval-queue-primary-content" : undefined}
+      >
+
+      {buyerPolishedShell ? (
+        <div
+          data-testid={GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="governance-approval-queue-intro"
+          >
+            {GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD}
+          </p>
+          <section
+            className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+            data-testid="governance-approval-queue-start-here-panel"
+            aria-labelledby="governance-approval-queue-start-here-heading"
+          >
+            <h2
+              id="governance-approval-queue-start-here-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE}
+            </h2>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="governance-approval-queue-buyer-start-here-helper"
+            >
+              {GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER}
+            </p>
+          </section>
+        </div>
+      ) : null}
+
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+          data-testid="governance-approval-queue-overview"
+        >
+          {GOVERNANCE_APPROVAL_QUEUE_BUYER_OVERVIEW}
+        </p>
+      ) : null}
+
+      <WorkspaceShell
+        className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+        data-testid={buyerPolishedShell ? GOVERNANCE_APPROVAL_QUEUE_WORKSPACE_TEST_ID : undefined}
+      >
 
       {showGovernanceSampleOverviewBanner ? (
         <p
@@ -199,7 +320,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
       <GovernanceWorkflowMutationHost mutations={mutations} />
 
       {!isReviewContext ? (
-        urlScopedRunId.length === 0 && !showGovernanceSampleOverviewBanner ? (
+        urlScopedRunId.length === 0 && !showGovernanceSampleOverviewBanner && !buyerPolishedShell ? (
           <GovernanceApprovalQueuePickReviewBeforeSubmittingStrip
             selectedReviewId=""
             onSelectReview={(reviewId) => {
@@ -369,7 +490,12 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
               <Separator className="mb-10" />
 
               <div data-testid="governance-workflow-advanced-options">
-                <AdvancedOptionsAccordionDeferred triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-10">
+                <AdvancedOptionsAccordionDeferred
+                  triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL}
+                  className="mb-10"
+                  open={environmentReleasesOpen}
+                  onOpenChange={setEnvironmentReleasesOpen}
+                >
                   <GovernanceWorkflowPromotionsActivationsSectionDeferred
                     canMutateWorkflow={canMutateWorkflow}
                     listsLoading={listsLoading}
@@ -394,6 +520,10 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
           ) : null}
         </>
       ) : null}
+
+      {buyerPolishedShell ? <GovernanceApprovalQueueBuyerChrome /> : null}
+      </WorkspaceShell>
+      </main>
     </OperatorPageContainer>
     </TooltipProvider>
     </MutationErrorBoundary>

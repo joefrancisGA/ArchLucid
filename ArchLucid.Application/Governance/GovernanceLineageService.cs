@@ -7,6 +7,8 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
+#pragma warning disable CS0618 // AuthorityManifestRiskPosture: migrate to TradeoffDetectionEngine (risk-03).
+
 namespace ArchLucid.Application.Governance;
 
 /// <inheritdoc cref = "IGovernanceLineageService"/>

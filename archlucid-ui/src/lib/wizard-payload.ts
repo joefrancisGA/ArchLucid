@@ -1,4 +1,6 @@
 import type { CreateArchitectureRunRequestPayload } from "@/lib/api";
+import type { CreateArchitectureRunDocumentPayload } from "@/lib/api/architecture-runs-create-types";
+import { isSupportedContextDocumentContentType } from "@/lib/architecture-spine/supported-context-document-content-types";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { evaluatePolicyPackCloudMismatch } from "@/lib/review-quality/review-intake-quality-gates";
 import { normalizeCloudProviderForMismatchCheck } from "@/lib/review-quality/policy-pack-cloud-mismatch-for-review";
@@ -32,6 +34,22 @@ export function deriveWizardPolicyPackCloudMismatch(
   );
 }
 
+function mapWizardDocumentsToCreateRunDocuments(
+  documents: WizardFormValues["documents"],
+): CreateArchitectureRunDocumentPayload[] {
+  return documents.flatMap((document) => {
+    const name = document.name.trim();
+    const content = document.content.trim();
+    const contentType = document.contentType.trim();
+
+    if (name.length === 0 || content.length === 0 || !isSupportedContextDocumentContentType(contentType)) {
+      return [];
+    }
+
+    return [{ name, contentType, content }];
+  });
+}
+
 /**
  * Maps validated wizard values to the POST `/v1/architecture/request` body (camelCase, optional fields omitted when empty).
  */
@@ -41,7 +59,9 @@ export function wizardValuesToCreateRunPayload(
 ): CreateArchitectureRunRequestPayload {
   const prior = values.priorManifestVersion?.trim();
   const inlineReq = values.inlineRequirements.map((s) => s.trim()).filter(Boolean);
-  const documents = values.documents.filter((d) => d.name.trim() && d.content.trim());
+  const documents = mapWizardDocumentsToCreateRunDocuments(
+    values.documents.filter((document) => document.name.trim() && document.content.trim()),
+  );
   const infra = values.infrastructureDeclarations.filter((d) => d.name.trim() && d.content.trim());
 
   const payload: CreateArchitectureRunRequestPayload = {

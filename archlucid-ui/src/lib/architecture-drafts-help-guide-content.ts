@@ -23,7 +23,23 @@ export const ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE_BUYER =
 
 export const ARCHITECTURE_DRAFTS_HELP_PRIMARY_CONTENT_ID = "help-architecture-drafts-primary-content" as const;
 
+export const ARCHITECTURE_DRAFTS_HELP_FIRST_VIEWPORT_TEST_ID = "help-architecture-drafts-first-viewport" as const;
+
+export const ARCHITECTURE_DRAFTS_HELP_SKIP_TARGET_ID = ARCHITECTURE_DRAFTS_HELP_FIRST_VIEWPORT_TEST_ID;
+
 export const ARCHITECTURE_DRAFTS_HELP_SKIP_LINK_LABEL = "Skip to architecture drafts guide" as const;
+
+export const ARCHITECTURE_DRAFTS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
+  "help-architecture-drafts-header-claim-discipline" as const;
+
+export const ARCHITECTURE_DRAFTS_HELP_ORIENTATION_BOTTOM_TEST_ID =
+  "help-architecture-drafts-orientation-bottom" as const;
+
+export const ARCHITECTURE_DRAFTS_HELP_PAGE_LEAD =
+  "Architecture drafts are saved child briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for approval review. In Working mode, the Architectures hub lists named architecture identities (each may own child drafts and reviews); this guide focuses on Guided-mode draft inventory and draft editing.";
+
+export const ARCHITECTURE_DRAFTS_HELP_START_HERE_HELPER =
+  "Use Start here below to open draft inventory or start review intake, then follow the step-by-step section when you need a guided walkthrough.";
 
 export function architectureDraftsHelpPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell
@@ -33,8 +49,7 @@ export function architectureDraftsHelpPageSubtitle(buyerPolishedShell: boolean):
 
 export const ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE = "Step-by-step" as const;
 
-export const ARCHITECTURE_DRAFTS_HELP_OVERVIEW =
-  "Architecture drafts are saved child briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for approval review. In Working mode, the Architectures hub lists named architecture identities (each may own child drafts and reviews); this guide focuses on Guided-mode draft inventory and draft editing.";
+export const ARCHITECTURE_DRAFTS_HELP_OVERVIEW = ARCHITECTURE_DRAFTS_HELP_PAGE_LEAD;
 
 export const ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION = {
   label: "Start a review",

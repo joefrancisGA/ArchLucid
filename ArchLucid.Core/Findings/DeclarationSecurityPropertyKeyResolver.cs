@@ -53,6 +53,32 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "tf.ipsecurityrestrictions",
                 "tf.ip_security_restrictions",
             ],
+            [DeclarationSecurityPropertyLogicalNames.StorageEncrypted] =
+            [
+                "tf.storage_encrypted",
+                "tf.storageencrypted",
+                "storageEncrypted",
+            ],
+            [DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction] =
+            [
+                "tf.defaultaction",
+                "tf.default_action",
+                "defaultAction",
+                "tf.networkacls",
+                "tf.network_acls",
+                "tf.networkrules",
+            ],
+            [DeclarationSecurityPropertyLogicalNames.K8sPrivileged] =
+            [
+                "k8s.privileged",
+                "privileged",
+            ],
+            [DeclarationSecurityPropertyLogicalNames.K8sHostNetwork] =
+            [
+                "k8s.hostnetwork",
+                "k8s.hostNetwork",
+                "hostNetwork",
+            ],
         };
 
     public static bool TryGet(

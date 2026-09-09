@@ -21,5 +21,6 @@ internal static class FindingsSnapshotMetadataMerger
         snapshot.GenerationStatus = header.GenerationStatus;
         snapshot.ChecklistCoverage = header.ChecklistCoverage ?? [];
         snapshot.InsightDensityCuration = header.InsightDensityCuration;
+        snapshot.WithheldFindings = header.WithheldFindings ?? [];
     }
 }

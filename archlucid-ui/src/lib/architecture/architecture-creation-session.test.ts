@@ -22,11 +22,13 @@ describe("architecture-creation-session", () => {
       architectureId: "architecture-identity-001",
     });
 
-    expect(window.location.pathname).toBe("/architecture/architectures/architecture-identity-001");
-    expect(window.location.search).toBe("?draft=draft-001");
+    expect(window.location.pathname).toBe(
+      "/architecture/architectures/architecture-identity-001/drafts/draft-001",
+    );
+    expect(window.location.search).toBe("");
     expect(readArchitectureCreationDraftId()).toBe("draft-001");
     expect(
       architectureIdentityDraftHref("architecture-identity-001", "draft-001"),
-    ).toBe("/architecture/architectures/architecture-identity-001?draft=draft-001");
+    ).toBe("/architecture/architectures/architecture-identity-001/drafts/draft-001");
   });
 });

@@ -6,8 +6,12 @@ import {
   type ResolveReviewDetailVisibleTabsInput,
   type ReviewDetailVisibleTabs,
 } from "@/lib/resolve-review-detail-visible-tabs";
+import { ARCH_TAB_TO_REVIEW_TAB } from "@/lib/unified-review-workspace-tabs";
 import {
   REVIEW_DETAIL_DEFAULT_TAB,
+  REVIEW_DETAIL_TAB_PARAM,
+  isReviewDetailTabId,
+  resolveReviewDetailTabFromLocation,
   type ReviewDetailTabId,
 } from "@/lib/review-detail-workspace-tabs";
 
@@ -58,6 +62,36 @@ export function resolveReviewWorkspaceTabForVisit(
   }
 
   return resolveReviewDetailTabForVisit(paramValue, resolved);
+}
+
+function hasExplicitLegacyArchTabParam(archTabValue: string | null | undefined): boolean {
+  if (archTabValue === null || archTabValue === undefined || archTabValue.trim().length === 0) {
+    return false;
+  }
+
+  return (Object.keys(ARCH_TAB_TO_REVIEW_TAB) as readonly string[]).includes(archTabValue);
+}
+
+/** Resolves the initial workspace tab from canonical and legacy URL params. */
+export function resolveReviewWorkspaceTabFromSearchParams(
+  searchParams: Pick<URLSearchParams, "get">,
+  resolved: ReviewWorkspaceVisibleTabs,
+  lifecycle: ReviewWorkspaceLifecycle,
+): ReviewDetailTabId {
+  const rawReviewTabParam = searchParams.get(REVIEW_DETAIL_TAB_PARAM);
+  const rawArchTabParam = searchParams.get("archTab");
+
+  if (isReviewDetailTabId(rawReviewTabParam)) {
+    return resolveReviewWorkspaceTabForVisit(rawReviewTabParam, resolved, lifecycle);
+  }
+
+  if (hasExplicitLegacyArchTabParam(rawArchTabParam)) {
+    const mappedTab = resolveReviewDetailTabFromLocation(rawReviewTabParam, rawArchTabParam);
+
+    return coerceReviewWorkspaceTabToVisible(mappedTab, resolved);
+  }
+
+  return resolveReviewWorkspaceTabForVisit(rawReviewTabParam, resolved, lifecycle);
 }
 
 export function coerceReviewWorkspaceTabToVisible(

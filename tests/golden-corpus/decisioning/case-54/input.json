@@ -1,0 +1,20 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000054",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000054",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000054-0000-4000-8000-000000000054",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000054",
+    "runId": "20000000-0000-4000-8000-000000000054",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": {
+    "cloudProvider": "Gcp",
+    "cloudPackageId": "30000000-0000-4000-8000-000000000054",
+    "cloudResourcesJson": "[\n  {\n    \"name\": \"projects/golden-demo/global/firewalls/allow-ssh-54\",\n    \"resourceType\": \"compute.googleapis.com/Firewall\",\n    \"properties\": {\n      \"sourceRanges\": [\"0.0.0.0/0\"],\n      \"allowed\": [\n        {\n          \"IPProtocol\": \"tcp\",\n          \"ports\": \"22\"\n        }\n      ]\n    }\n  }\n]"
+  }
+}

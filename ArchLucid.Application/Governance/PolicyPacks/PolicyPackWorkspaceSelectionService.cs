@@ -126,6 +126,11 @@ public sealed class PolicyPackWorkspaceSelectionService(
         if (assignment.IsOrganizationRequired == isOrganizationRequired)
             return true;
 
+        if (isOrganizationRequired
+            && !assignment.IsEnabled
+            && !await _platformAvailability.IsGloballyActiveAsync(pack, ct))
+            return false;
+
         assignment.IsOrganizationRequired = isOrganizationRequired;
 
         if (isOrganizationRequired)

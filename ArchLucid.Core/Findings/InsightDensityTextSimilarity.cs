@@ -5,28 +5,9 @@ public static class InsightDensityTextSimilarity
 {
     internal static double MaxPeerSimilarity(string message, IReadOnlyList<InsightDensityGateCandidate> peers, string candidateKey)
     {
-        ArgumentNullException.ThrowIfNull(message);
-        ArgumentNullException.ThrowIfNull(peers);
-        ArgumentException.ThrowIfNullOrWhiteSpace(candidateKey);
+        (double similarity, _) = InsightDensityTextSimilarityWithPeer.MaxPeerSimilarityWithPeer(message, peers, candidateKey);
 
-        double maxSimilarity = 0;
-
-        foreach (InsightDensityGateCandidate peer in peers)
-        {
-            if (string.Equals(peer.CandidateKey, candidateKey, StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            double similarity = JaccardSimilarity(message, peer.Message);
-
-            if (similarity > maxSimilarity)
-            {
-                maxSimilarity = similarity;
-            }
-        }
-
-        return maxSimilarity;
+        return similarity;
     }
 
     public static double JaccardSimilarity(string left, string right)
@@ -53,7 +34,7 @@ public static class InsightDensityTextSimilarity
     private static HashSet<string> Tokenize(string text)
     {
         HashSet<string> tokens = new(StringComparer.OrdinalIgnoreCase);
-        string[] parts = text.Split([' ', '\t', '\r', '\n', '.', ',', ';', ':', '(', ')', '[', ']', '{', '}', '`', '\'', '"'], StringSplitOptions.RemoveEmptyEntries);
+        string[] parts = text.Split([' ', '\t', '\r', '\n', '.', ',', ';', ':', '(', ')', '[', ']', '{', '}', '`', '\'', '"', '-', '/'], StringSplitOptions.RemoveEmptyEntries);
 
         foreach (string part in parts)
         {

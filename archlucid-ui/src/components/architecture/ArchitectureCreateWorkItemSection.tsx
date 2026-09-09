@@ -2,6 +2,8 @@
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 import { CreateWorkItemButton } from "@/components/work-items/CreateWorkItemButton";
@@ -9,6 +11,11 @@ import {
   CREATE_WORK_ITEM_SECTION_HELPER,
   CREATE_WORK_ITEM_SECTION_TITLE,
 } from "@/lib/create-work-item-copy";
+import {
+  ARCHITECTURE_CREATE_WORK_ITEM_OPEN_PARAM,
+  architectureCreateWorkItemDisclosureHrefFromSearch,
+  parseArchitectureCreateWorkItemOpenFromSearch,
+} from "@/lib/architecture/architecture-create-work-item-disclosure-url";
 
 export type ArchitectureCreateWorkItemSectionProps = {
   readonly runId: string;
@@ -22,6 +29,34 @@ export type ArchitectureCreateWorkItemSectionProps = {
 export function ArchitectureCreateWorkItemSection(
   props: ArchitectureCreateWorkItemSectionProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureCreateWorkItemParam = searchParams.get(ARCHITECTURE_CREATE_WORK_ITEM_OPEN_PARAM);
+  const [architectureCreateWorkItemOpen, setArchitectureCreateWorkItemOpenState] = useState(() =>
+    parseArchitectureCreateWorkItemOpenFromSearch(architectureCreateWorkItemParam),
+  );
+  const syncArchitectureCreateWorkItemOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        architectureCreateWorkItemDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setArchitectureCreateWorkItemOpen = useCallback(
+    (open: boolean) => {
+      setArchitectureCreateWorkItemOpenState(open);
+      syncArchitectureCreateWorkItemOpenToUrl(open);
+    },
+    [syncArchitectureCreateWorkItemOpenToUrl],
+  );
+  useEffect(() => {
+    setArchitectureCreateWorkItemOpenState(
+      parseArchitectureCreateWorkItemOpenFromSearch(architectureCreateWorkItemParam),
+    );
+  }, [architectureCreateWorkItemParam]);
   const siteOrigin = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
@@ -29,6 +64,8 @@ export function ArchitectureCreateWorkItemSection(
       className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
       data-workspace-disclosure
       data-testid="architecture-create-work-item-section"
+      open={architectureCreateWorkItemOpen}
+      onToggle={(event) => setArchitectureCreateWorkItemOpen(event.currentTarget.open)}
     >
       <summary className={cn("cursor-pointer list-none font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         {CREATE_WORK_ITEM_SECTION_TITLE}

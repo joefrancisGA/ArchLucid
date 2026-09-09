@@ -13,7 +13,7 @@ describe("finding-evidence-navigation", () => {
     );
   });
 
-  it("builds the governance disposition deep link for evidence trace", () => {
+  it("builds the approval disposition deep link for evidence trace", () => {
     expect(getFindingGovernanceDispositionHref("run-1", "finding-9")).toBe(
       "/architecture/reviews/run-1/findings/finding-9/evidence-trace#governance-disposition-heading",
     );
