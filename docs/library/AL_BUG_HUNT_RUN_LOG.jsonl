@@ -1673,3 +1673,4 @@
 {"at":"2026-09-09T21:14:28.2897226Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
 {"at":"2026-09-09T21:14:30.6422764Z","zoneId":"tenant-settings-sql","outcome":"seed-only"}
 {"at":"2026-09-09T21:14:32.8088919Z","zoneId":"ui-host-gate","outcome":"seed-only"}
+{"at":"2026-09-09T21:14:34.8802940Z","zoneId":"decisioning","outcome":"seed-only"}
