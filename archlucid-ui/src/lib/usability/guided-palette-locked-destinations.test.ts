@@ -10,6 +10,7 @@ describe("guided-palette-locked-destinations (CD-08)", () => {
     const destinations = resolveGuidedPaletteLockedDestinations();
 
     expect(destinations.some((entry) => entry.href === "/insights/sponsor-report")).toBe(true);
+    expect(destinations.some((entry) => entry.href === "/governance/alerts")).toBe(true);
     expect(destinations.every((entry) => entry.lockReason.length > 0)).toBe(true);
   });
 

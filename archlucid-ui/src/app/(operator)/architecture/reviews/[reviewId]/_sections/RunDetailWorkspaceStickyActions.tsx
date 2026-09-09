@@ -5,10 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_LINK, OPERATOR_SHELL_STICKY_TOP_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  REVIEW_DETAIL_TAB_PARAM,
-  resolveReviewDetailTab,
-} from "@/lib/review-detail-workspace-tabs";
+import { useResolvedReviewDetailActiveTab } from "@/hooks/use-resolved-review-detail-active-tab";
 import {
   parseRunDetailStickyActionsTechnicalDetailOpenFromSearch,
   runDetailStickyActionsTechnicalDetailDisclosureHrefFromSearch,
@@ -77,7 +74,13 @@ export function RunDetailWorkspaceStickyActions(
     );
   }, [runDetailStickyActionsTechnicalDetailOpenParam]);
 
-  const activeTab = resolveReviewDetailTab(searchParams.get(REVIEW_DETAIL_TAB_PARAM));
+  const activeTab = useResolvedReviewDetailActiveTab({
+    tabLifecycle: {
+      manifestId: props.manifestId,
+      showProgressTracker: props.showProgressTracker,
+      runCompleted: props.primaryActionContext.runCompleted,
+    },
+  });
   const blockerKind = resolveReviewPackageApprovalBlockerKind({
     ...props.primaryActionContext,
     commitBlockedReason: props.commitBlockedReason,
