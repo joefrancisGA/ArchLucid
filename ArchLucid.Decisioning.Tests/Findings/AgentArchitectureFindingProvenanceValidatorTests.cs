@@ -80,10 +80,23 @@ public sealed class AgentArchitectureFindingProvenanceValidatorTests
         {
             Classification = FindingClassification.DecisionGradeFinding,
             Message = "Cited concern",
-            EvidenceRefs = ["doc:manifest.json#services"],
+            EvidenceRefs = ["doc:manifest.json#L12"],
         };
 
         AgentArchitectureFindingProvenanceValidator.HasKindBProvenance(finding).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasKindBProvenance_rejects_heading_fragment_doc_ref()
+    {
+        ArchitectureFinding finding = new()
+        {
+            Classification = FindingClassification.DecisionGradeFinding,
+            Message = "Cited concern",
+            EvidenceRefs = ["doc:manifest.json#services"],
+        };
+
+        AgentArchitectureFindingProvenanceValidator.HasKindBProvenance(finding).Should().BeFalse();
     }
 
     [Fact]
