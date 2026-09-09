@@ -9,7 +9,8 @@ import type {
 } from "@/types/draft-intake";
 import type { CloneSnapshotDraftResponse } from "@/types/draft-intake-clone-snapshot";
 
-import { apiGet, apiPostJson } from "./http";
+import { apiPostJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
@@ -58,7 +59,7 @@ export async function reasonDraftRequest(
 
 /** Branch quota and estimated run cost for an admitted parent draft (R12). */
 export async function getDraftBranchQuota(draftId: string): Promise<DraftBranchQuotaResponse> {
-  return apiGet<DraftBranchQuotaResponse>(
+  return apiGetSealedManifestAware<DraftBranchQuotaResponse>(
     `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch-quota`,
   );
 }

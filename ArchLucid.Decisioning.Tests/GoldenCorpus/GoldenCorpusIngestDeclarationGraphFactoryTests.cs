@@ -61,4 +61,60 @@ public sealed class GoldenCorpusIngestDeclarationGraphFactoryTests
         findings.Should().NotBeEmpty();
         findings.Should().OnlyContain(finding => finding.EngineType == "identity-blast-radius");
     }
+
+    [Fact]
+    public async Task CreateCase66AwsIamIdentityPathGraphAsync_emits_identity_blast_radius_finding()
+    {
+        GraphSnapshot graph = await GoldenCorpusIngestDeclarationGraphFactory
+            .CreateCase66AwsIamIdentityPathGraphAsync();
+
+        IdentityBlastRadiusFindingEngine engine = new();
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        findings.Should().OnlyContain(finding => finding.EngineType == "identity-blast-radius");
+    }
+
+    [Fact]
+    public async Task CreateCase67GcpIamIdentityPathGraphAsync_emits_identity_blast_radius_finding()
+    {
+        GraphSnapshot graph = await GoldenCorpusIngestDeclarationGraphFactory
+            .CreateCase67GcpIamIdentityPathGraphAsync();
+
+        IdentityBlastRadiusFindingEngine engine = new();
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        findings.Should().OnlyContain(finding => finding.EngineType == "identity-blast-radius");
+    }
+
+    [Fact]
+    public async Task CreateCase68TerraformDataFlowPathGraphAsync_emits_data_flow_trust_boundary_finding()
+    {
+        GraphSnapshot graph = await GoldenCorpusIngestDeclarationGraphFactory
+            .CreateCase68TerraformDataFlowPathGraphAsync();
+
+        DataFlowTrustBoundaryFindingEngine engine = new();
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        findings.Should().OnlyContain(finding => finding.EngineType == "data-flow-trust-boundary");
+    }
+
+    [Fact]
+    public async Task CreateCase69TerraformSegmentationPathGraphAsync_emits_segmentation_semantics_finding()
+    {
+        GraphSnapshot graph = await GoldenCorpusIngestDeclarationGraphFactory
+            .CreateCase69TerraformSegmentationPathGraphAsync();
+
+        SegmentationSemanticsFindingEngine engine = new();
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        findings.Should().OnlyContain(finding => finding.EngineType == "segmentation-semantics");
+    }
 }

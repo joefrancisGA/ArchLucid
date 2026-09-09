@@ -13,6 +13,7 @@ public sealed class StructuredDiagramParseRouterTests
         new MermaidDiagramSourceParser(),
         new ArchLucidDiagramJsonParser(),
         new DrawIoXmlDiagramSourceParser(),
+        new VsdxDiagramSourceParser(),
         new SvgDiagramSourceParser(),
     ]);
 

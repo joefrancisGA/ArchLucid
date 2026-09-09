@@ -95,6 +95,7 @@ public sealed class ContextIngestionConnectorRegistrationTests(ArchLucidApiFacto
             typeof(MermaidContextDocumentParser),
             typeof(SvgContextDocumentParser),
             typeof(DrawIoContextDocumentParser),
+            typeof(VsdxContextDocumentParser),
             typeof(PlainTextContextDocumentParser));
     }
 }
