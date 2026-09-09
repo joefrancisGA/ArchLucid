@@ -681,9 +681,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-09 — golden-manifest committed run lookup lacked RunId tie-break in InMemory parity
 - **related-pd-tb:** none
@@ -793,6 +793,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` backfill queue lacks `RunId` tie-break when `CreatedUtc` ties — **cheap-disproof 2026-09-09 seed hunt #1451:** SQL orders `CreatedUtc ASC, RunId ASC`; InMemory uses `ThenBy(RunId)`; regression `InMemory_null_architecture_backfill_orders_by_run_id_when_created_utc_ties`.
 
 2026-09-09 seed hunt #1451 (seed-only): reseeded sql-run-repository after #1450; cheap-disproof closed GoldenManifest tenant join defense-in-depth, manifest-version-only INNER JOIN exclusion, version-scoped committed predicate breadth, optional row-version update, architecture-head latest-run semantics, and null-architecture backfill tie-break; 90 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectCommittedRunIdByGoldenManifestId` returns current rerun when `ExcludeRunId` is supplied — **cheap-disproof 2026-09-09 seed hunt #1456:** SQL and InMemory skip `ExcludeRunId`; regressions `SelectCommittedRunIdByGoldenManifestId_excludes_current_run_via_exclude_run_id` and `InMemory_committed_run_by_golden_manifest_excludes_current_run_when_seal_delta_requested`.
+- [x] (valid-no-repro) `ExistsActiveRunWithSystemNameInWorkspace` ignores optional `ExcludeRunId` and blocks rename of the active run — **cheap-disproof 2026-09-09 seed hunt #1456:** SQL uses `(@ExcludeRunId IS NULL OR RunId <> @ExcludeRunId)`; regression `ExistsActiveRunWithSystemNameInWorkspace_sql_honors_optional_exclude_run_id`.
+- [x] (valid-no-repro) `RunRepositorySql.Update` allows stale writes when `@RowVersion` is supplied — **cheap-disproof 2026-09-09 seed hunt #1456:** optimistic concurrency requires `RowVersionStamp = @RowVersion` unless stamp is null; regression `Update_requires_row_version_match_when_stamp_supplied`.
+- [x] (valid-no-repro) `Archival_PurgeStaleUncommittedRunsBatch` skips soft-archived uncommitted runs — **cheap-disproof 2026-09-09 seed hunt #1456:** retention purge intentionally hard-deletes stale uncommitted rows even when soft-archived; SQL and `IsEligibleForStaleUncommittedPurge` omit `ArchivedUtc`; regression `IsEligibleForStaleUncommittedPurge_includes_soft_archived_uncommitted_runs_by_design`.
+- [x] (valid-no-repro) `SampleRunPurgeBatch` / `HardDeleteSampleRunsBatchAsync` ignore tenant and cutoff filters — **cheap-disproof 2026-09-09 seed hunt #1456:** `IsEligibleForSamplePurge` and InMemory batch honor optional tenant/cutoff; regressions `IsEligibleForSamplePurge_honors_tenant_and_cutoff_filters`, `InMemory_sample_purge_honors_tenant_and_cutoff_filters`, and `SampleRunPurgeBatch_honors_optional_tenant_and_cutoff_filters`.
+
+2026-09-09 seed hunt #1456 (seed-only): reseeded sql-run-repository after #1451; cheap-disproof closed golden-manifest exclude-run seal-delta path, workspace-name exclude predicate, row-version match guard, stale-uncommitted archived eligibility, and sample purge tenant/cutoff filters; 98 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
