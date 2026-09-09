@@ -11,6 +11,8 @@ export const GCP_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 
 export const GCP_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID = "gcp-cloud-connection-orientation-bottom" as const;
 
+export const GCP_CLOUD_CONNECTION_WORKSPACE_TEST_ID = "gcp-cloud-connection-workspace" as const;
+
 export const GCP_CLOUD_CONNECTION_PAGE_SUBTITLE_BUYER =
   "Configure read-only GCP inventory through Workload Identity Federation — review the security preflight, copy the WIF starter, then save and validate your connection." as const;
 

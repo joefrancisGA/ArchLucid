@@ -42,6 +42,7 @@ import {
   GCP_CLOUD_CONNECTION_SKIP_TARGET_ID,
   GCP_CLOUD_CONNECTION_START_HERE_CARD_TITLE,
   GCP_CLOUD_CONNECTION_START_HERE_LEAD,
+  GCP_CLOUD_CONNECTION_WORKSPACE_TEST_ID,
   gcpCloudConnectionPageOverview,
 } from "./gcp-cloud-connection-page-copy";
 
@@ -215,16 +216,18 @@ export function GcpCloudConnectionDetailClient() {
                 </div>
                 <GcpCloudConnectionStartHerePanel />
               </div>
-              <p
-                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="gcp-cloud-connection-overview"
-              >
+              <p className={readingBodyClass} data-testid="gcp-cloud-connection-overview">
                 {GCP_CLOUD_CONNECTION_BUYER_OVERVIEW}
               </p>
             </>
           ) : null}
 
-          <GcpCloudConnectionDetailBody />
+          <section
+            className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+            data-testid={buyerPolishedShell ? GCP_CLOUD_CONNECTION_WORKSPACE_TEST_ID : undefined}
+          >
+            <GcpCloudConnectionDetailBody />
+          </section>
 
           {buyerPolishedShell ? <GcpCloudConnectionSourcesOrientationStrip /> : null}
         </div>
