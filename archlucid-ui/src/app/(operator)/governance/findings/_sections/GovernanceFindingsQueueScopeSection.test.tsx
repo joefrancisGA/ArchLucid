@@ -12,6 +12,7 @@ function buildProps(
     mode: "operational",
     buyerPolishedShell: false,
     navHref: "/governance/findings",
+    clearReviewScopeHref: "/governance/findings",
     pageTitle: "Findings",
     scopedRunId: "run-1",
     scopedRunFilterActive: false,
@@ -57,6 +58,10 @@ function buildProps(
       line: null,
       hasHidden: false,
     },
+    architectureScopeHonesty: { hiddenCount: 0, line: null },
+    isWorkingMode: false,
+    scopedArchitectureId: null,
+    lastOpenArchitectureId: null,
     onLoadFindingsSavedView: () => undefined,
     loading: false,
     rows: [],
@@ -90,5 +95,18 @@ describe("GovernanceFindingsQueueScopeSection", () => {
   it("renders scoped run banner when a review is selected", () => {
     render(<GovernanceFindingsQueueScopeSection {...buildProps()} />);
     expect(screen.getByTestId("governance-findings-run-scope-banner")).toHaveTextContent("run-1");
+  });
+
+  it("clear review scope link preserves register filters", () => {
+    render(
+      <GovernanceFindingsQueueScopeSection
+        {...buildProps({ clearReviewScopeHref: "/governance/findings?filter=open" })}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Clear review scope" })).toHaveAttribute(
+      "href",
+      "/governance/findings?filter=open",
+    );
   });
 });

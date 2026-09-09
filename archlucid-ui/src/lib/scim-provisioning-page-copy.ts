@@ -1,5 +1,14 @@
 /** Customer-facing copy for the SCIM provisioning settings page. */
 
+/** Branded document metadata for `/administration/scim-provisioning`. */
+export const SCIM_PROVISIONING_PAGE_METADATA_TITLE = "SCIM provisioning · ArchLucid";
+
+export const SCIM_PROVISIONING_PAGE_METADATA_DESCRIPTION =
+  "Issue and revoke SCIM bearer tokens so your identity provider can provision ArchLucid users automatically.";
+
+/** Suspense fallback copy while search params hydrate. */
+export const SCIM_PROVISIONING_LOADING_DETAIL = "Loading SCIM provisioning settings…";
+
 export const SCIM_PROVISIONING_PRIMARY_CONTENT_ID = "scim-provisioning-primary-content" as const;
 
 export const SCIM_PROVISIONING_FIRST_VIEWPORT_TEST_ID = "scim-provisioning-first-viewport" as const;

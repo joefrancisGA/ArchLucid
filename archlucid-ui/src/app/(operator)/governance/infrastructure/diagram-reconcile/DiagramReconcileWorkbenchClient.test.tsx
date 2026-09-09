@@ -106,7 +106,7 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(within(conflictRow).getAllByText(/publicIPAddresses\/gateway/).length).toBeGreaterThan(0);
     expect(within(conflictRow).getByTestId("infra-diagram-reconcile-ask-diagram-node-1")).toHaveAttribute(
       "href",
-      "/governance/infrastructure/ask?cloudResourceId=22222222-3333-4444-5555-666666666666&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "/governance/infrastructure/ask?cloudResourceId=22222222-3333-4444-5555-666666666666&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&tab=diagram",
     );
     expect(within(conflictRow).getByTestId("infra-diagram-reconcile-remediation-diagram-node-1")).toHaveAttribute(
       "href",
@@ -130,7 +130,7 @@ describe("DiagramReconcileWorkbenchClient", () => {
     render(<DiagramReconcileWorkbenchClient />);
 
     const conflictRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
-    expect(conflictRow).toHaveClass("bg-muted/40");
+    expect(conflictRow).toHaveClass("bg-neutral-100");
   });
 
   it("shows missing copy when correspondence deep link is absent from reconciliation", async () => {
@@ -153,9 +153,30 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagram-reconcile-resource-scope-banner")).toHaveTextContent(
       "22222222-3333-4444-5555-666666666666",
     );
-    expect(screen.getByRole("link", { name: "Open resource evidence hub" })).toHaveAttribute(
+    expect(screen.getByTestId("infra-diagram-reconcile-open-primary-hub")).toHaveAttribute(
       "href",
       "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=diagram&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByRole("link", { name: "View diagram correspondence in hub" })).toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagram-reconcile-open-diagrams")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/diagrams?snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=22222222-3333-4444-5555-666666666666",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-terraform-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=terraform&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-findings-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=findings&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-remediation-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=remediation&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-diagram-reconcile-open-drift-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/22222222-3333-4444-5555-666666666666?tab=drift&runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();

@@ -17,6 +17,9 @@ export type HelpLazyDetailsProps = {
    * Default true — SPA visits without a hash stay deferred (avoids Next Link Placement races).
    */
   readonly mountOnHash?: boolean;
+  /** Controlled open state; pair with {@link onOpenChange}. */
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
 };
 
 /**
@@ -34,8 +37,11 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
     id,
     bodyTestId,
     mountOnHash = true,
+    open: controlledOpen,
+    onOpenChange,
   } = props;
   const detailsTestId = props["data-testid"];
+  const controlled = controlledOpen !== undefined && onOpenChange !== undefined;
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const suppressToggleHandlerRef = useRef(false);
   const mountedRef = useRef(false);
@@ -58,6 +64,12 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
   }, []);
 
   useEffect(() => {
+    if (controlled && controlledOpen) {
+      mountBodyContent();
+    }
+  }, [controlled, controlledOpen]);
+
+  useEffect(() => {
     if (!mountOnHash) {
       return;
     }
@@ -71,13 +83,17 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
     const details = detailsRef.current;
 
     if (details !== null) {
-      suppressToggleHandlerRef.current = true;
-      details.open = true;
-      suppressToggleHandlerRef.current = false;
+      if (controlled) {
+        onOpenChange?.(true);
+      } else {
+        suppressToggleHandlerRef.current = true;
+        details.open = true;
+        suppressToggleHandlerRef.current = false;
+      }
     }
 
     mountBodyContent();
-  }, [mountOnHash]);
+  }, [controlled, mountOnHash, onOpenChange]);
 
   useEffect(() => {
     function onHelpHashScroll(): void {
@@ -101,8 +117,21 @@ export function HelpLazyDetails(props: HelpLazyDetailsProps): React.ReactElement
       id={id}
       className={className}
       data-testid={detailsTestId}
+      open={controlled ? controlledOpen : undefined}
       onToggle={(event) => {
-        if (suppressToggleHandlerRef.current || !event.currentTarget.open) {
+        const nextOpen = event.currentTarget.open;
+
+        if (controlled) {
+          onOpenChange?.(nextOpen);
+
+          if (nextOpen) {
+            mountBodyContent();
+          }
+
+          return;
+        }
+
+        if (suppressToggleHandlerRef.current || !nextOpen) {
           return;
         }
 

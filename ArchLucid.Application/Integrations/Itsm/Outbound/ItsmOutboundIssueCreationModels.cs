@@ -8,7 +8,8 @@ public enum ItsmOutboundCreateTerminalKind
     Succeeded = 1,
     VendorError = 2,
     Skipped = 3,
-    CorrelationPersistenceFailed = 4
+    CorrelationPersistenceFailed = 4,
+    NotDecisionGrade = 5,
 }
 
 /// <summary>Result of <see cref="ItsmOutboundIssueCreationService.TryCreateForFindingAsync"/> — carries audit rows for the API layer.</summary>

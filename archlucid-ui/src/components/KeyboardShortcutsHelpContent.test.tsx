@@ -7,6 +7,14 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
 }));
 
+const workspaceModeMocks = vi.hoisted(() => ({
+  isWorkingMode: false,
+}));
+
+vi.mock("@/components/WorkspaceModeProvider", () => ({
+  useWorkspaceMode: () => ({ isWorkingMode: workspaceModeMocks.isWorkingMode }),
+}));
+
 import { KeyboardShortcutsTabContent, matchesShortcutQuery } from "@/components/KeyboardShortcutsHelpContent";
 import { SHELL_COMMAND_SHORTCUTS } from "@/lib/shortcut-registry";
 
@@ -28,6 +36,33 @@ describe("KeyboardShortcutsTabContent", () => {
 
     expect(captions[0]).toBe("Command palette");
     expect(captions).toContain("Common");
+  });
+
+  it("lists architecture desk shortcuts before navigation when Working mode is active (AO-43)", () => {
+    workspaceModeMocks.isWorkingMode = true;
+
+    render(<KeyboardShortcutsTabContent />);
+
+    const captions = screen.getAllByRole("table").map((table) => table.getAttribute("aria-label"));
+    const architectureDeskIndex = captions.indexOf("Architecture desk (Working)");
+    const nestedJobIndex = captions.indexOf("Nested job work (Working)");
+    const commonIndex = captions.indexOf("Common");
+
+    expect(architectureDeskIndex).toBeGreaterThan(-1);
+    expect(nestedJobIndex).toBeGreaterThan(-1);
+    expect(commonIndex).toBeGreaterThan(-1);
+    expect(architectureDeskIndex).toBeLessThan(commonIndex);
+    expect(nestedJobIndex).toBeLessThan(commonIndex);
+
+    const deskWorkTable = screen.getByRole("table", { name: "Architecture desk (Working)" });
+
+    expect(deskWorkTable).toHaveTextContent("Start review");
+    expect(deskWorkTable).toHaveTextContent("resume in-flight review");
+    expect(deskWorkTable).toHaveTextContent("Alt");
+    expect(deskWorkTable).toHaveTextContent("Shift");
+    expect(deskWorkTable).toHaveTextContent("R");
+
+    workspaceModeMocks.isWorkingMode = false;
   });
 
   it("matches the palette row from a plain-language query", () => {

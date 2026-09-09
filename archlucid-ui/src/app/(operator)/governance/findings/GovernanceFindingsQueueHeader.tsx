@@ -104,7 +104,7 @@ export function GovernanceFindingsQueueHeader({
         <LayerHeader pageKey="governance-findings" density="compact" />
       ) : null}
 
-      {!isAssignedToMe ? <FindingsKeyboardTriageCoach /> : null}
+      {!isAssignedToMe && !buyerPolishedShell ? <FindingsKeyboardTriageCoach /> : null}
 
       <OperatorPageHeader
         navHref={navHref}

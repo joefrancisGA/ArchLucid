@@ -68,6 +68,7 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => sqlLoader.Object);
         services.AddScoped(_ => cosmosWriter.Object);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterSealedManifestGuardServices(services, snapshot.RunId);
         ServiceProvider provider = services.BuildServiceProvider();
 
         CosmosGraphSnapshotOutboxProcessor sut = new(

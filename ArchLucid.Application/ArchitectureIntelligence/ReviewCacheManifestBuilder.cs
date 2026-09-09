@@ -92,6 +92,7 @@ public static class ReviewCacheManifestBuilder
 
         if (!string.IsNullOrWhiteSpace(normalizedRunId))
         {
+            builder.Append("runid=").Append(normalizedRunId).Append('|');
             builder.Append("modelfp=")
                 .Append(ReviewCacheModelFingerprint.Compute(baselineKnowledgeModel ?? new ArchitectureKnowledgeModel()))
                 .Append('|');

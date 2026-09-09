@@ -42,6 +42,8 @@ Treat **agent findings** as **advisory rehearsal prose** unless:
 ## UI and export claim boundary
 
 - Never present agent-stream findings as the sole "what ArchLucid found" list without also showing sealed deterministic findings.
+- **LP-05 (shipped):** `resolveQuickDecisionFindingsForRunDetail` no longer synthesizes quick-decision rows from aggregate explanation traces; the review findings workspace shows dual counts (`Deterministic findings (sealed)` vs `Agent findings (advisory)`).
+- Buyer-summary payloads that omit agent `results[].findings` must name the omission when agents succeeded (`buyerSummaryOmitsAgentFindings`).
 - Simulator tenants must see `SIMULATOR_MODE_*` rehearsal language on paths that include agent findings (top bar chip + operation notices + export headings).
 - Dual counts in sponsor packs must label sections per WK-19 (`Deterministic findings (sealed)` vs `Agent findings (advisory)`).
 

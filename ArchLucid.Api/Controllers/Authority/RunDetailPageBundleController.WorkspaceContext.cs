@@ -189,6 +189,7 @@ public sealed partial class RunDetailPageBundleController
             PackageOrigin = summary.PackageOrigin,
             StructuralExecutionMode = summary.StructuralExecutionMode,
             AuthorityLifecyclePhase = summary.AuthorityLifecyclePhase,
+            LegacyRunStatus = summary.LegacyRunStatus,
         };
     }
 

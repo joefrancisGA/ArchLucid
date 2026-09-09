@@ -19,7 +19,7 @@ describe("ImpactPreviewEvidenceBasisSection buyer-polished shell", () => {
       <ImpactPreviewEvidenceBasisSection
         baselineRunId="run-baseline-42"
         linkedRunIds={["run-linked-1"]}
-        policyRulesLabel="Open governance approval"
+        policyRulesLabel="Open approval"
       />,
     );
 

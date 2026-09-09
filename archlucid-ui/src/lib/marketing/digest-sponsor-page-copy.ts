@@ -1,5 +1,9 @@
 export const DIGEST_SPONSOR_PRIMARY_CONTENT_ID = "digest-sponsor-primary-content" as const;
 
+export const DIGEST_SPONSOR_FIRST_VIEWPORT_ID = "digest-sponsor-first-viewport" as const;
+
+export const DIGEST_SPONSOR_SKIP_TARGET_ID = DIGEST_SPONSOR_FIRST_VIEWPORT_ID;
+
 export const DIGEST_SPONSOR_SKIP_LINK_LABEL = "Skip to digest content" as const;
 
 export const DIGEST_SPONSOR_PAGE_EYEBROW = "Weekly sponsor digest" as const;
@@ -38,3 +42,11 @@ export const DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL = "Sign in to open the full 
 export const DIGEST_SPONSOR_HIGHLIGHTED_REVIEWS_HEADING = "Highlighted reviews" as const;
 
 export const DIGEST_SPONSOR_COMMITTED_PACKAGES_PREFIX = "Architecture packages committed this period:" as const;
+
+/** Post-auth return path for sponsor run collateral deep links (DIU). */
+export function buildDigestSponsorRunCollateralReturnPath(runIdHex: string, token: string): string {
+  const normalizedRunIdHex = runIdHex.trim().replace(/-/g, "");
+  const trimmedToken = token.trim();
+
+  return `/digest/sponsor/run/${encodeURIComponent(normalizedRunIdHex)}?token=${encodeURIComponent(trimmedToken)}`;
+}

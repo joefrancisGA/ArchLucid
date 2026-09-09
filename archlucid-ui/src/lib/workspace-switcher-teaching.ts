@@ -6,6 +6,9 @@
  * when the scope switcher popover first opens.
  */
 
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
+
 export const WORKSPACE_SWITCHER_TEACHING_DISMISS_KEY =
   "archlucid_workspace_switcher_teaching_dismissed_v1" as const;
 
@@ -26,8 +29,12 @@ export type WorkspaceSwitcherTeachingModel = {
 
 export const WORKSPACE_SWITCHER_TEACHING_HEADING = "How scope works" as const;
 
-export const WORKSPACE_SWITCHER_TEACHING_LEAD =
-  "ArchLucid organizes work as tenant → workspace → project. This switcher sets which workspace and project you are viewing." as const;
+export function workspaceSwitcherTeachingLead(productLineId: ProductLineId = "architecture"): string {
+  return `${productLineDisplayName(productLineId)} organizes work as tenant → workspace → project. This switcher sets which workspace and project you are viewing.`;
+}
+
+/** Architecture-shell default lead (legacy imports and tests). */
+export const WORKSPACE_SWITCHER_TEACHING_LEAD = workspaceSwitcherTeachingLead("architecture");
 
 export const WORKSPACE_SWITCHER_TEACHING_STEPS: readonly WorkspaceSwitcherTeachingStep[] = [
   {
@@ -51,10 +58,12 @@ export const WORKSPACE_SWITCHER_TEACHING_STEPS: readonly WorkspaceSwitcherTeachi
 export const WORKSPACE_SWITCHER_TEACHING_DISMISS_LABEL = "Dismiss" as const;
 
 /** Full first-open coach model (heading, lead, hierarchy steps). */
-export function buildWorkspaceSwitcherTeaching(): WorkspaceSwitcherTeachingModel {
+export function buildWorkspaceSwitcherTeaching(
+  productLineId: ProductLineId = "architecture",
+): WorkspaceSwitcherTeachingModel {
   return {
     heading: WORKSPACE_SWITCHER_TEACHING_HEADING,
-    lead: WORKSPACE_SWITCHER_TEACHING_LEAD,
+    lead: workspaceSwitcherTeachingLead(productLineId),
     steps: WORKSPACE_SWITCHER_TEACHING_STEPS,
     dismissLabel: WORKSPACE_SWITCHER_TEACHING_DISMISS_LABEL,
   };

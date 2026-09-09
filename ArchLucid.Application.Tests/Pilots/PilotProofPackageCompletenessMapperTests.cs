@@ -38,6 +38,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.SponsorProofReadiness.Should().Be(nameof(SponsorProofReadinessClassification.Sendable));
         c.RoiBaselineInputs.Should().NotBeNull();
         c.RoiBaselineInputs!.ReviewCycleHoursBasis.Should().Be(PilotRoiBaselineInputBasis.BuyerProvided);
+        c.DeferredBuyerRequirementsPresent.Should().BeTrue();
     }
 
     [Fact]

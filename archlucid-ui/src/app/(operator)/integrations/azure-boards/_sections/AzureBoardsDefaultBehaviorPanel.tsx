@@ -1,5 +1,8 @@
 "use client";
 
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { LivelihoodPersistSaveStatus } from "@/components/operator/LivelihoodPersistSaveStatus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +29,10 @@ import {
 } from "@/lib/azure-boards-page-copy";
 import type { resolveAzureBoardsPageComposition } from "@/lib/azure-boards-integration-present";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  azureBoardsDefaultBehaviorCollapsedDisclosureHrefFromSearch,
+  parseAzureBoardsDefaultBehaviorCollapsedOpenFromSearch,
+} from "@/lib/integrations/azure-boards-default-behavior-collapsed-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -76,6 +83,38 @@ export function AzureBoardsDefaultBehaviorPanel({
   isSaving,
   onSaveSettings,
 }: AzureBoardsDefaultBehaviorPanelProps): React.ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/integrations/azure-boards";
+  const searchParams = useSearchParams();
+  const azureBoardsDefaultBehaviorCollapsedOpenParam = searchParams.get("azureBoardsDefaultBehaviorCollapsedOpen");
+  const [collapsedOpen, setCollapsedOpenState] = useState(() =>
+    parseAzureBoardsDefaultBehaviorCollapsedOpenFromSearch(azureBoardsDefaultBehaviorCollapsedOpenParam),
+  );
+
+  const syncCollapsedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        azureBoardsDefaultBehaviorCollapsedDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setCollapsedOpen = useCallback(
+    (open: boolean) => {
+      setCollapsedOpenState(open);
+      syncCollapsedOpenToUrl(open);
+    },
+    [syncCollapsedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setCollapsedOpenState(
+      parseAzureBoardsDefaultBehaviorCollapsedOpenFromSearch(azureBoardsDefaultBehaviorCollapsedOpenParam),
+    );
+  }, [azureBoardsDefaultBehaviorCollapsedOpenParam]);
+
   if (pageComposition.blocked) {
     return null;
   }
@@ -86,6 +125,10 @@ export function AzureBoardsDefaultBehaviorPanel({
         id="azure-boards-default-behavior-heading"
         className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
         data-testid="azure-boards-default-behavior-collapsed"
+        open={collapsedOpen}
+        onToggle={(event) => {
+          setCollapsedOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary
           className={cn(

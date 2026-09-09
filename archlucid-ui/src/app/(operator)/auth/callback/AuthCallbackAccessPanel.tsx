@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import {
   AUTH_CALLBACK_ACCESS_BACK_TO_SIGN_IN_ACTION,
   AUTH_CALLBACK_ACCESS_DUPLICATE_ERROR,
@@ -136,6 +137,13 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
           <Link href="/auth/signin">{AUTH_CALLBACK_ACCESS_TRY_AGAIN_ACTION}</Link>
         </Button>
       </div>
+
+      <FatalPageReportProblemSupportRow
+        surfaceId="auth-callback-cannot-complete"
+        routePath="/auth/callback"
+        errorTitle={AUTH_CALLBACK_ACCESS_HEADING}
+        errorCode="auth-callback-cannot-complete"
+      />
 
       {showForm ? (
         <form

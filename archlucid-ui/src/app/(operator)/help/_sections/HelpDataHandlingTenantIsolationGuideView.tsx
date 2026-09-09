@@ -5,8 +5,7 @@ import { HelpDataHandlingTenantIsolationJobMatrix } from "@/app/(operator)/help/
 import { HelpDataHandlingTenantIsolationLeavesStaysChrome } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationLeavesStaysChrome";
 import { HelpDataHandlingTenantIsolationOverview } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationOverview";
 import { HelpDataHandlingTenantIsolationRelatedTopics } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationRelatedTopics";
-import { HelpDataHandlingTenantIsolationSourceLinks } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationSourceLinks";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { HelpDataHandlingTenantIsolationSourcesDisclosure } from "@/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationSourcesDisclosure";
 import { DataHandlingTenantIsolationHelpEvidenceOrientationStrip } from "@/components/help/DataHandlingTenantIsolationHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -25,10 +24,6 @@ import {
   dataHandlingTenantIsolationHelpPageSubtitle,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_PATH } from "@/lib/data-handling-tenant-isolation-help-route";
-import {
-  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO,
-} from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
@@ -145,15 +140,7 @@ export function HelpDataHandlingTenantIsolationGuideView(
             />
           </div>
 
-          {!buyerPolishedShell ? (
-            <CollapsibleSection
-              title={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE}
-              summaryLine={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO}
-              sectionTestId="help-data-handling-tenant-isolation-source-disclosure"
-            >
-              <HelpDataHandlingTenantIsolationSourceLinks />
-            </CollapsibleSection>
-          ) : null}
+          {!buyerPolishedShell ? <HelpDataHandlingTenantIsolationSourcesDisclosure /> : null}
         </div>
 
         <HelpTopicTableOfContents headings={headings} enableScrollSpy />

@@ -28,13 +28,13 @@ export const REVIEW_PIPELINE_IN_FLIGHT_SURFACES: readonly ErrorRecoveryContractG
   {
     // Guided intake submits the admitted draft to the canonical POST /v1/architecture/request.
     id: "guided-intake-draft-submit",
-    sourceRoots: ["app/(operator)/architecture/reviews/new/use-guided-intake-draft-workflow.ts"],
+    sourceRoots: ["app/(operator)/architecture/reviews/new/use-guided-intake-draft-submit.ts"],
     requiredMarkers: IN_FLIGHT_REGISTRATION_MARKERS,
   },
   {
     // Tier C async re-execute already registered before TB-2077 was extended to create.
     id: "architecture-run-async-execute",
-    sourceRoots: ["lib/api/architecture-runs.ts"],
+    sourceRoots: ["lib/api/architecture-runs-lifecycle.ts"],
     requiredMarkers: ["trackInFlightOperation", "reviewPipelineOperationId"],
   },
 ] as const;

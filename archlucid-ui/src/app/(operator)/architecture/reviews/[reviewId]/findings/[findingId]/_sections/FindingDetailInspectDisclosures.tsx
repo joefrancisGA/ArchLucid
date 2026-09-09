@@ -33,6 +33,7 @@ import {
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
 import { FindingExplainabilityTracePanel } from "@/components/findings/FindingExplainabilityTracePanel";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 import { FindingInspectAuditSection } from "../FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "../FindingInspectEvidenceSection";
@@ -43,6 +44,7 @@ type FindingDetailInspectDisclosuresProps = {
   readonly findingIdRouteParam: string;
   readonly decodedFindingId: string;
   readonly inspectPayload: FindingInspectPayload;
+  readonly transparencyTrail?: TransparencyTrail | null;
   readonly demoFillGaps: boolean;
   readonly evidenceBasisSummary: string;
   readonly validationRequirementText: string;
@@ -300,7 +302,12 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
         onToggle={setExportOpen}
         summaryLine="Copy for Jira, Azure Boards, or ServiceNow"
       >
-        <FindingItsmExportPanel runId={runId} findingId={decodedFindingId} payload={inspectPayload} />
+        <FindingItsmExportPanel
+          runId={runId}
+          findingId={decodedFindingId}
+          payload={inspectPayload}
+          transparencyTrail={props.transparencyTrail ?? null}
+        />
       </CollapsibleSection>
 
       <CollapsibleSection

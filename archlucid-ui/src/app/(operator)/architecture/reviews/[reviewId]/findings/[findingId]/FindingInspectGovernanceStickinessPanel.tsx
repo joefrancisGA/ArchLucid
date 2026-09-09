@@ -172,6 +172,8 @@ export function FindingInspectGovernanceStickinessPanel(
         setApplyChangePreviewOverride={stickiness.setApplyChangePreviewOverride}
         tradeOffAcknowledgment={stickiness.tradeOffAcknowledgment}
         setTradeOffAcknowledgment={stickiness.setTradeOffAcknowledgment}
+        architectRestatement={stickiness.architectRestatement}
+        setArchitectRestatement={stickiness.setArchitectRestatement}
         showIncrementalRereviewLink={stickiness.showIncrementalRereviewLink}
         submitRemediationAssignment={stickiness.submitRemediationAssignment}
         submitDisposition={stickiness.submitDisposition}
@@ -188,6 +190,9 @@ export function FindingInspectGovernanceStickinessPanel(
         remediationBaseline={stickiness.remediationBaseline}
         dispositionLastSavedUtc={stickiness.dispositionLastSavedUtc}
         dispositionInlineSaveError={stickiness.dispositionInlineSaveError}
+        dispositionConflict={stickiness.dispositionConflict}
+        reloadDispositionConflict={stickiness.reloadDispositionConflict}
+        dismissDispositionConflict={stickiness.dismissDispositionConflict}
         dispositionBaseline={stickiness.dispositionBaseline}
         waiverBaseline={stickiness.waiverBaseline}
       />

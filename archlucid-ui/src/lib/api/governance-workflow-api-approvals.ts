@@ -32,7 +32,7 @@ export async function getGovernanceApprovalRationale(
   );
 }
 
-/** Lists approval requests for a run (governance workflow). */
+/** Lists approval requests for a run (approval workflow). */
 export async function listApprovalRequests(
   runId: string,
   options?: Pick<ApiGetOptions, "suppressErrorToast">,
@@ -47,7 +47,7 @@ export async function listApprovalRequests(
   );
 }
 
-/** Submits a new governance approval request for manifest promotion between environments. */
+/** Submits a new approval request for manifest promotion between environments. */
 export async function submitApprovalRequest(body: {
   runId: string;
   manifestVersion: string;
@@ -58,7 +58,7 @@ export async function submitApprovalRequest(body: {
   return apiPostJson<GovernanceApprovalRequest>(`${governanceBase()}/approval-requests`, body);
 }
 
-/** Approves a pending governance approval request. */
+/** Approves a pending approval request. */
 export async function approveRequest(
   approvalRequestId: string,
   body: { reviewedBy?: string; reviewComment?: string },
@@ -69,7 +69,7 @@ export async function approveRequest(
   );
 }
 
-/** Rejects a pending governance approval request. */
+/** Rejects a pending approval request. */
 export async function rejectRequest(
   approvalRequestId: string,
   body: { reviewedBy?: string; reviewComment?: string },
@@ -80,7 +80,7 @@ export async function rejectRequest(
   );
 }
 
-/** Batch approve/reject many governance approval requests (ExecuteAuthority — partial success per id). */
+/** Batch approve/reject many approval requests (ExecuteAuthority — partial success per id). */
 export async function batchReviewGovernanceApprovalRequests(body: {
   approvalRequestIds: string[];
   decision: "approve" | "reject";
