@@ -14,7 +14,7 @@ describe("canonicalizeLegacyOperatorRoutePath", () => {
     expect(canonicalizeLegacyOperatorRoutePath("/alert-rules")).toBe("/governance/alert-rules");
   });
 
-  it("maps the retired governance dashboard bookmark to workspace health", () => {
+  it("maps the retired approval dashboard bookmark to workspace health", () => {
     expect(canonicalizeLegacyOperatorRoutePath(LEGACY_GOVERNANCE_DASHBOARD_PATH)).toBe(WORKSPACE_HEALTH_PATH);
     expect(canonicalizeLegacyOperatorRoutePath(`${LEGACY_GOVERNANCE_DASHBOARD_PATH}/details`)).toBe(
       `${WORKSPACE_HEALTH_PATH}/details`,

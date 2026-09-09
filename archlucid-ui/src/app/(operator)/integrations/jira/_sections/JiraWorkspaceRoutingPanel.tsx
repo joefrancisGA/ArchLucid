@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +17,10 @@ import {
   JIRA_WORKSPACE_ROUTING_UNAVAILABLE_LEAD,
 } from "@/lib/jira-integration-page-copy";
 import type { resolveJiraPageComposition } from "@/lib/jira-integration-present";
+import {
+  jiraWorkspaceRoutingCollapsedDisclosureHrefFromSearch,
+  parseJiraWorkspaceRoutingCollapsedOpenFromSearch,
+} from "@/lib/integrations/jira-workspace-routing-collapsed-disclosure-url";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -58,11 +64,47 @@ export function JiraWorkspaceRoutingPanel({
   onSaveSettings,
   onRefresh,
 }: JiraWorkspaceRoutingPanelProps): React.ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const jiraWorkspaceRoutingCollapsedOpenParam = searchParams.get("jiraWorkspaceRoutingCollapsedOpen");
+  const [collapsedOpen, setCollapsedOpenState] = useState(() =>
+    parseJiraWorkspaceRoutingCollapsedOpenFromSearch(jiraWorkspaceRoutingCollapsedOpenParam),
+  );
+
+  const syncCollapsedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        jiraWorkspaceRoutingCollapsedDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setCollapsedOpen = useCallback(
+    (open: boolean) => {
+      setCollapsedOpenState(open);
+      syncCollapsedOpenToUrl(open);
+    },
+    [syncCollapsedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setCollapsedOpenState(
+      parseJiraWorkspaceRoutingCollapsedOpenFromSearch(jiraWorkspaceRoutingCollapsedOpenParam),
+    );
+  }, [jiraWorkspaceRoutingCollapsedOpenParam]);
+
   if (pageComposition.workspaceRoutingCollapsed) {
     return (
       <details
         className="rounded-md border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-900/40"
         data-testid="jira-workspace-routing-collapsed"
+        open={collapsedOpen}
+        onToggle={(event) => {
+          setCollapsedOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary
           className={cn(

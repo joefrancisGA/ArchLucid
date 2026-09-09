@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildStaticFindPageSearchIndex,
@@ -6,7 +6,24 @@ import {
   searchFindPageIndex,
 } from "@/lib/find-page-search-index";
 
+const productLineState = vi.hoisted(() => ({
+  current: "architecture" as "architecture" | "security",
+}));
+
+vi.mock("@/lib/product-line/resolve-product-line-id", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/product-line/resolve-product-line-id")>();
+
+  return {
+    ...actual,
+    resolveProductLineIdFromEnv: () => productLineState.current,
+  };
+});
+
 describe("find-page-search-index (TB-2364)", () => {
+  afterEach(() => {
+    productLineState.current = "architecture";
+  });
+
   it("builds a static index from nav links, curated tasks, and palette actions", () => {
     const index = buildStaticFindPageSearchIndex();
 
@@ -36,10 +53,19 @@ describe("find-page-search-index (TB-2364)", () => {
   });
 
   it("surfaces the same top static match for header and palette consumers", () => {
-    const query = "governance approval";
+    const query = "approval";
     const headerMatch = searchFindPageIndex(query, { limit: 1 })[0];
     const paletteMatch = searchFindPageIndex(query, { limit: 1 })[0];
 
     expect(headerMatch).toEqual(paletteMatch);
+  });
+
+  it("uses Teams instead of Microsoft Teams for the SecureNow nav label", () => {
+    productLineState.current = "security";
+
+    const teamsEntry = buildStaticFindPageSearchIndex().find((entry) => entry.href === "/integrations/teams");
+
+    expect(teamsEntry?.label).toBe("Teams");
+    expect(teamsEntry?.searchValue).toContain("Microsoft Teams");
   });
 });

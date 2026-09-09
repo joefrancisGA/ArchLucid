@@ -108,7 +108,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
         // Reasoning-only traces (TB-196) have zero prompt/completion sums but may still produce a USD estimate.
 
         if (promptSum + completionSum + reasoningSum <= 0 && !anyCost)
-            return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, modelLabel, costBasis);
+            return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, reasoningSum, modelLabel, costBasis);
 
         if (anyCost)
         {
@@ -120,7 +120,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
             costBasis = RunLlmCostEstimationBasis.ProviderTokensWithoutRate;
         }
 
-        return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, modelLabel, costBasis);
+        return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, reasoningSum, modelLabel, costBasis);
     }
 
     private static string BuildModelLabelFromDeployments(

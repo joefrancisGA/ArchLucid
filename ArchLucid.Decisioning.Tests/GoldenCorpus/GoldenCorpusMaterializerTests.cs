@@ -67,7 +67,8 @@ public sealed class GoldenCorpusMaterializerTests
                 def.Graph,
                 audit,
                 def.Merge,
-                CancellationToken.None);
+                CancellationToken.None,
+                null);
 
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
@@ -113,6 +114,339 @@ public sealed class GoldenCorpusMaterializerTests
         await RecordHandAuthoredCaseAsync("case-35");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_case_36_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        GraphSnapshot graph = GoldenCorpusActorEngineGraphFactory.CreateLegacyMixedOriginActorGraph();
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+        };
+
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, "case-36");
+        Directory.CreateDirectory(dir);
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        await RecordHandAuthoredCaseAsync("case-36");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_37_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        GraphSnapshot graph = GoldenCorpusInventoryContradictionGraphFactory.CreateDeclarationDisabledInventoryEnabledGraph();
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+            InventoryFixture = GoldenCorpusInventoryContradictionGraphFactory.CreateMismatchInventoryFixture(),
+        };
+
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, "case-37");
+        Directory.CreateDirectory(dir);
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        await RecordHandAuthoredCaseAsync("case-37");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_38_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-38",
+            GoldenCorpusPathEngineGraphFactory.CreateIdentityBlastRadiusGraph(),
+            "Machine actor Contributor path to regulated Key Vault — expect **identity-blast-radius**.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_39_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-39",
+            GoldenCorpusPathEngineGraphFactory.CreateSegmentationSemanticsGraph(),
+            "Internet-exposed SSH to subnet with SQL datastore path — expect **segmentation-semantics**.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_40_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-40",
+            GoldenCorpusPathEngineGraphFactory.CreateDrRpoTopologyGraph(),
+            "Requirement RPO 15 min with SQL lacking replica/failover — expect **dr-rpo-topology**.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_41_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-41",
+            GoldenCorpusDxEngineGraphFactory.CreateDanglingDeclarationReferenceGraph(),
+            "Function appSettings Key Vault URI with no vault node — expect **dangling-declaration-reference**.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_42_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-42",
+            GoldenCorpusDxEngineGraphFactory.CreateRequirementSkuTierGraph(),
+            "Zone-redundant requirement with Standard_LRS SQL SKU — expect **requirement-sku-tier**.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_43_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-43",
+            GoldenCorpusPathEngineGraphFactory.CreateIdentityBlastRadiusGraphSecond(),
+            "Billing machine actor Contributor path to audit storage account — second **identity-blast-radius** fixture.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_44_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-44",
+            GoldenCorpusPathEngineGraphFactory.CreateSegmentationSemanticsGraphSecond(),
+            "Internet-exposed RDP (3389) to subnet with HR SQL path — second **segmentation-semantics** fixture.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_45_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-45",
+            GoldenCorpusPathEngineGraphFactory.CreateDrRpoTopologyGraphSecond(),
+            "Requirement RPO 5 min with ledger SQL lacking replica/failover — second **dr-rpo-topology** fixture.");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_46_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-46",
+            GoldenCorpusChecklistClusterGraphFactory.CreateSixHttpsDeclarationClusterGraph(),
+            "Six declaration public-network gaps — feeds **ChecklistClusterSynthesisGoldenCorpusTests** (DX-22).");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_47_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-47",
+            GoldenCorpusPathEngineGraphFactory.CreateDataFlowTrustBoundaryGraph(),
+            "External actor path to SQL without trust-boundary hop — expect **data-flow-trust-boundary** (DX-36).");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_48_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordHandAuthoredCaseAsync("case-48");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_49_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordHandAuthoredCaseAsync("case-49");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_50_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordHandAuthoredCaseAsync("case-50");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_cases_51_54_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordHandAuthoredCaseAsync("case-51");
+        await RecordHandAuthoredCaseAsync("case-52");
+        await RecordHandAuthoredCaseAsync("case-53");
+        await RecordHandAuthoredCaseAsync("case-54");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_cases_55_57_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordHandAuthoredCaseAsync("case-55");
+        await RecordHandAuthoredCaseAsync("case-56");
+        await RecordHandAuthoredCaseAsync("case-57");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_cases_58_60_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-58",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase58CloudFormationContradictionGraphAsync(),
+            GoldenCorpusIngestDeclarationGraphFactory.CreateCase58AwsInventoryFixture(),
+            "CloudFormation S3 declaration (format cloudformation) vs AWS inventory public access — expect **declaration-inventory-contradiction** (DX-48).");
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-59",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase59PulumiIdentityBlastRadiusGraphAsync(),
+            null,
+            "Pulumi stack-export storage node (format pulumi-stack-json) with identity path overlay — expect **identity-blast-radius** (DX-48).");
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-60",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase60CdkDataFlowTrustBoundaryGraphAsync(),
+            null,
+            "CDK synth Lambda node (format cdk-synth) with external actor path overlay — expect **data-flow-trust-boundary** (DX-48).");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_65_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-65",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase65TerraformIdentityPathGraphAsync(),
+            null,
+            "Simple Terraform identity + role assignment (format simple-terraform) parsed through DefaultGraphBuilder — expect **identity-blast-radius** (DX-69).");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_cases_61_63_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-61",
+            GoldenCorpusDx49GraphFactory.CreateTopologyAntiPatternGraph(),
+            "Compute + datastore topology nodes with no CONNECTS_TO/DEPENDS_ON — expect **topology-anti-pattern** (DX-49).");
+
+        await RecordPathEngineCaseAsync(
+            "case-62",
+            GoldenCorpusDx49GraphFactory.CreateSecurityBaselineExpectationGraph(),
+            "Compute topology node with no security baseline PROTECTS edge — expect **security-baseline-expectation** (DX-49).");
+
+        await RecordPathEngineCaseAsync(
+            "case-63",
+            GoldenCorpusDx49GraphFactory.CreateRequiredCapabilityCoverageGraph(),
+            "Context snapshot requires encryption-at-rest with no matching graph evidence — expect **required-capability-coverage** (DX-49).");
+    }
+
+    private static async Task RecordIngestDeclarationCaseAsync(
+        string caseFolderName,
+        GraphSnapshot graph,
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture,
+        string readmeTitle)
+    {
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, caseFolderName);
+        Directory.CreateDirectory(dir);
+
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+            InventoryFixture = inventoryFixture,
+        };
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        string readme =
+            $"# {caseFolderName}\n\n{readmeTitle}\n\nRegenerated with `ARCHLUCID_RECORD_DECISIONING_GOLDEN=1`.\n";
+        await File.WriteAllTextAsync(Path.Combine(dir, "README.md"), readme);
+
+        await RecordHandAuthoredCaseAsync(caseFolderName);
+    }
+
+    private static async Task RecordPathEngineCaseAsync(
+        string caseFolderName,
+        GraphSnapshot graph,
+        string readmeTitle)
+    {
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, caseFolderName);
+        Directory.CreateDirectory(dir);
+
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+        };
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        string readme =
+            $"# {caseFolderName}\n\n{readmeTitle}\n\nRegenerated with `ARCHLUCID_RECORD_DECISIONING_GOLDEN=1`.\n";
+        await File.WriteAllTextAsync(Path.Combine(dir, "README.md"), readme);
+
+        await RecordHandAuthoredCaseAsync(caseFolderName);
+    }
+
     private static async Task RecordHandAuthoredCaseAsync(string caseFolderName)
     {
         string compliance = Path.Combine(
@@ -146,7 +480,9 @@ public sealed class GoldenCorpusMaterializerTests
             input.GraphSnapshot,
             audit,
             merge,
-            CancellationToken.None);
+            CancellationToken.None,
+            input.InventoryFixture,
+            input.PriorGraphFixture);
 
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
@@ -198,7 +534,9 @@ public sealed class GoldenCorpusMaterializerTests
                 input.GraphSnapshot,
                 audit,
                 merge,
-                CancellationToken.None);
+                CancellationToken.None,
+                input.InventoryFixture,
+                input.PriorGraphFixture);
 
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);

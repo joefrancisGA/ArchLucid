@@ -23,8 +23,10 @@ import {
   splitAdminDiagnosticsHelpMarkdown,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
 import {
+  ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW,
   ADMIN_DIAGNOSTICS_HELP_FIRST_VIEWPORT_TEST_ID,
   ADMIN_DIAGNOSTICS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD,
   ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE_BUYER,
   ADMIN_DIAGNOSTICS_HELP_PRIMARY_CONTENT_ID,
   ADMIN_DIAGNOSTICS_HELP_SKIP_LINK_LABEL,
@@ -182,8 +184,25 @@ export function HelpAdminDiagnosticsGuideView(
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="help-admin-diagnostics-buyer-intro">
+              <p
+                className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="help-admin-diagnostics-intro"
+              >
+                {ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD}
+              </p>
+            </div>
             <AdminDiagnosticsStartHerePanel />
           </div>
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <p
+            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="help-admin-diagnostics-overview"
+          >
+            {ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW}
+          </p>
         ) : null}
 
         <div className={contentGridClass}>
@@ -210,11 +229,7 @@ export function HelpAdminDiagnosticsGuideView(
           {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-admin-diagnostics-orientation-bottom">
-            <HelpAdminDiagnosticsSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpAdminDiagnosticsSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

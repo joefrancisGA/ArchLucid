@@ -1,5 +1,6 @@
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS } from "@/lib/repeat-review-loop-help-guide-content";
@@ -23,6 +24,10 @@ export const REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID =
 
 export const REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO =
   "Use these follow-ups when repeat-review guidance turns into sponsor outcomes, review workflow detail, or assurance trails.";
+
+export const REPEAT_REVIEW_LOOP_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "repeat-review guidance turns into sponsor outcomes, review workflow detail, or assurance trails",
+);
 
 /** Navigable proof-column destinations for the repeat-review signals table. */
 export const REPEAT_REVIEW_LOOP_HELP_WHERE_YOU_SEE_IT: readonly EvidenceSourceLink[] = [

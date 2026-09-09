@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -16,6 +16,9 @@ import {
 } from "@/lib/administration/extract-upload-demo-scenario-url";
 
 export type UseExtractUploadDemoInput = {
+  readonly router: AppRouterInstance;
+  readonly pathname: string;
+  readonly searchParams: Readonly<URLSearchParams>;
   readonly onUpload: (file: File) => Promise<void>;
   readonly clearUploadState: () => void;
   readonly setUploadError: (error: {
@@ -28,15 +31,15 @@ export type UseExtractUploadDemoInput = {
 };
 
 export function useExtractUploadDemo({
+  router,
+  pathname,
+  searchParams,
   onUpload,
   clearUploadState,
   setUploadError,
   clearSelectionState,
   setSelectedFileLabel,
 }: UseExtractUploadDemoInput) {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/administration/extract-upload";
-  const searchParams = useSearchParams();
   const urlDemoScenario = parseExtractUploadDemoScenarioFromSearch(searchParams.get("demoScenario"));
   const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<AzureExtractorDemoScenarioId>(
     urlDemoScenario ?? DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,

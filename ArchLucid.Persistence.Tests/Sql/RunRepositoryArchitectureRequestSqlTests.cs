@@ -92,6 +92,21 @@ public sealed class RunRepositoryArchitectureRequestSqlTests
     }
 
     [Fact]
+    public void Architecture_list_queries_read_persisted_package_origin_without_dashboard_coalesce()
+    {
+        const string listByArchitectureSql = """
+                                             SELECT RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description,
+                                                    PackageOrigin, ArchitectureId, ArchitectureVersionId, CreatedUtc, UpdatedUtc,
+                                                    ArchivedUtc, LegacyRunStatus, CurrentManifestVersion, GoldenManifestId
+                                             FROM dbo.Runs
+                                             """;
+
+        listByArchitectureSql.Should().Contain("PackageOrigin");
+        listByArchitectureSql.Should().NotContain("JSON_VALUE(");
+        listByArchitectureSql.Should().NotContain("COALESCE(");
+    }
+
+    [Fact]
     public async Task InMemory_count_active_runs_ignores_case_on_architecture_request_id()
     {
         ScopeContext scope = new()

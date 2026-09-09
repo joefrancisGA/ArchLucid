@@ -7,6 +7,9 @@ export const SERVICENOW_INTEGRATION_CANONICAL_PATH = "/integrations/servicenow" 
 
 export const SERVICENOW_INTEGRATION_HELP_TOPIC_LABEL = "How ServiceNow integration works";
 
+export const SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE =
+  "ServiceNow integration settings configure outbound incident routing from findings — not delivery retry forensics, a signed audit record, or platform incident response. Use Integration readiness or Audit when operations needs readiness context or export follow-up.";
+
 export const SERVICENOW_INTEGRATION_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SERVICENOW_INTEGRATION_SOURCES_INTRO =

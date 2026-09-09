@@ -58,9 +58,14 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
   const endSessionEndpoint = record.end_session_endpoint;
 
   if (typeof endSessionEndpoint === "string" && endSessionEndpoint.trim().length > 0) {
+    const trimmedEndSession = endSessionEndpoint.trim();
+
     try {
-      new URL(endSessionEndpoint.trim());
-      doc.end_session_endpoint = endSessionEndpoint.trim();
+      new URL(trimmedEndSession);
+
+      if (isHttpOrHttpsUrl(trimmedEndSession)) {
+        doc.end_session_endpoint = trimmedEndSession;
+      }
     } catch {
       /* optional logout endpoint must be a valid absolute URL */
     }

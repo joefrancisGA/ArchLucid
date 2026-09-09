@@ -17,7 +17,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER,
   ADVISORY_SCANS_SCHEDULES_INTRO,
@@ -26,6 +26,7 @@ import {
   ADVISORY_SCANS_SCHEDULES_PAGE_HEADING,
   ADVISORY_SCANS_SCHEDULES_READ_ONLY,
   ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL,
+  ADVISORY_SCHEDULES_PAGE_LEAD,
 } from "@/lib/advisory-copy";
 
 /**
@@ -38,7 +39,7 @@ export type AdvisorySchedulesContentProps = {
 
 export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = {}): ReactElement {
   const page = useAdvisorySchedulesPage(props.initialRunId);
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
 
   const createScheduleButton =
     page.showHeaderCreate && !buyerPolishedShell ? (
@@ -117,7 +118,7 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
               data-testid="advisory-schedules-intro"
             >
-              {ADVISORY_SCANS_SCHEDULES_INTRO}
+              {ADVISORY_SCHEDULES_PAGE_LEAD}
             </p>
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -133,6 +134,15 @@ export function AdvisorySchedulesContent(props: AdvisorySchedulesContentProps = 
             currentSurfaceId="advisory-schedules"
             peerLinkLabel={ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL}
           />
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="advisory-schedules-overview"
+          >
+            {ADVISORY_SCANS_SCHEDULES_INTRO}
+          </p>
         ) : null}
 
         {!page.scopedRunFilterActive ? (

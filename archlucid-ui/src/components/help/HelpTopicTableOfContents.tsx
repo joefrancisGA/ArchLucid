@@ -2,9 +2,21 @@
 
 import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import type { HelpTopicTocGroup } from "@/lib/caiq-sig-response-help-presentation";
+import {
+  HELP_TOPIC_TOC_GROUP_KEY_PARAM,
+  helpTopicTocGroupDisclosureHrefFromSearch,
+  parseHelpTopicTocGroupKeyFromSearch,
+} from "@/lib/help/help-topic-toc-group-disclosure-url";
+import {
+  HELP_TOPIC_TOC_MOBILE_OPEN_PARAM,
+  helpTopicTocMobileDisclosureHrefFromSearch,
+  parseHelpTopicTocMobileOpenFromSearch,
+} from "@/lib/help/help-topic-toc-mobile-disclosure-url";
 import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
 
 export type HelpTopicTableOfContentsProps = {
@@ -66,15 +78,21 @@ function TableOfContentsList(props: {
 function GroupedTableOfContentsList(props: {
   readonly groups: readonly HelpTopicTocGroup[];
   readonly activeId: string;
+  readonly openGroupKey: string;
+  readonly onGroupKeyOpenChange: (groupKey: string | null) => void;
 }): React.JSX.Element {
   return (
     <ul className={HELP_PAGE_TOC.list}>
-      {props.groups.map((group) => (
-        <li key={group.id}>
-          <details
-            className={cn(HELP_PAGE_TOC.referenceGroup, HELP_PAGE_TOC.referenceGroupOpen)}
-            open
-          >
+      {props.groups.map((group) => {
+        const groupOpen = props.openGroupKey === group.id || props.openGroupKey.length === 0;
+
+        return (
+          <li key={group.id}>
+            <details
+              className={cn(HELP_PAGE_TOC.referenceGroup, HELP_PAGE_TOC.referenceGroupOpen)}
+              open={groupOpen}
+              onToggle={(event) => props.onGroupKeyOpenChange(event.currentTarget.open ? group.id : null)}
+            >
             <summary className={HELP_PAGE_TOC.referenceGroupSummary}>
               <span className="font-semibold text-al-text-primary">{group.label}</span>
             </summary>
@@ -85,16 +103,67 @@ function GroupedTableOfContentsList(props: {
                 </li>
               ))}
             </ul>
-          </details>
-        </li>
-      ))}
+            </details>
+          </li>
+        );
+      })}
     </ul>
   );
 }
 
 /** Sticky jump links for long in-app help topics. */
 export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): React.JSX.Element | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpTopicTocGroupKeyParam = searchParams.get(HELP_TOPIC_TOC_GROUP_KEY_PARAM);
+  const helpTopicTocMobileParam = searchParams.get(HELP_TOPIC_TOC_MOBILE_OPEN_PARAM);
+  const [openGroupKey, setOpenGroupKeyState] = useState(() =>
+    parseHelpTopicTocGroupKeyFromSearch(helpTopicTocGroupKeyParam),
+  );
+  const [helpTopicTocMobileOpen, setHelpTopicTocMobileOpenState] = useState(() =>
+    parseHelpTopicTocMobileOpenFromSearch(helpTopicTocMobileParam),
+  );
+  const syncOpenGroupKeyToUrl = useCallback(
+    (groupKey: string | null) => {
+      router.replace(helpTopicTocGroupDisclosureHrefFromSearch(searchParams.toString(), groupKey, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenGroupKey = useCallback(
+    (groupKey: string | null) => {
+      setOpenGroupKeyState(groupKey ?? "");
+      syncOpenGroupKeyToUrl(groupKey);
+    },
+    [syncOpenGroupKeyToUrl],
+  );
+  const syncHelpTopicTocMobileOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(helpTopicTocMobileDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+  const setHelpTopicTocMobileOpen = useCallback(
+    (open: boolean) => {
+      setHelpTopicTocMobileOpenState(open);
+      syncHelpTopicTocMobileOpenToUrl(open);
+    },
+    [syncHelpTopicTocMobileOpenToUrl],
+  );
   const [activeId, setActiveId] = useState("");
+
+  useEffect(() => {
+    setOpenGroupKeyState(parseHelpTopicTocGroupKeyFromSearch(helpTopicTocGroupKeyParam));
+  }, [helpTopicTocGroupKeyParam]);
+
+  useEffect(() => {
+    setHelpTopicTocMobileOpenState(parseHelpTopicTocMobileOpenFromSearch(helpTopicTocMobileParam));
+  }, [helpTopicTocMobileParam]);
+
   const sectionIds = useMemo(() => {
     if (props.groups !== undefined && props.groups.length > 0) {
       return props.groups.flatMap((group) => group.headings.map((heading) => heading.id));
@@ -175,7 +244,12 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
 
   const tocBody =
     props.groups !== undefined && props.groups.length > 0 ? (
-      <GroupedTableOfContentsList groups={props.groups} activeId={activeId} />
+      <GroupedTableOfContentsList
+        groups={props.groups}
+        activeId={activeId}
+        openGroupKey={openGroupKey}
+        onGroupKeyOpenChange={setOpenGroupKey}
+      />
     ) : (
       <TableOfContentsList headings={props.headings} activeId={activeId} />
     );
@@ -187,7 +261,11 @@ export function HelpTopicTableOfContents(props: HelpTopicTableOfContentsProps): 
   return (
     <>
       {showHeaderInline ? (
-        <details className="mb-4 rounded-md border border-neutral-200 bg-al-surface-raised p-3 xl:hidden dark:border-neutral-800">
+        <details
+          className="mb-4 rounded-md border border-neutral-200 bg-al-surface-raised p-3 xl:hidden dark:border-neutral-800"
+          open={helpTopicTocMobileOpen}
+          onToggle={(event) => setHelpTopicTocMobileOpen(event.currentTarget.open)}
+        >
           <summary className={cn("cursor-pointer font-semibold", HELP_PAGE_TOC.heading)}>On this page</summary>
           <nav aria-label="On this page" className="mt-3" data-testid="help-topic-toc-mobile">
             {tocBody}

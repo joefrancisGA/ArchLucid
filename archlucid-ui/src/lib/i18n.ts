@@ -5,6 +5,7 @@
 import { ARCHITECTURE_IDENTITIES_NAV_LABEL, CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY, BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { BUYER_ONBOARDING_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE } from "@/lib/extract-upload-settings-page-copy";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 // Canonical definitions live in the dependency-free leaf module `pipeline-status-labels.ts`
@@ -29,7 +30,7 @@ export const DOMAIN_TERMS = {
   findingsSnapshot: "Findings Snapshot",
   artifactBundle: "Deliverables bundle",
   preCommitGate: "Approval check",
-  governanceApproval: "Governance approval",
+  governanceApproval: "Approval",
 } as const;
 
 export const ARCHITECTURE_REVIEW_LABELS = {
@@ -63,6 +64,8 @@ export const RUNS_DASHBOARD_LABELS = {
   tabNeedsAttention: "Needs attention",
   tabOpenFindings: "Findings",
   tabMonitoring: "Monitoring",
+  tabAwaitingApproval: "Awaiting approval",
+  tabAwaitingApprovalEmpty: "No reviews awaiting approval in this workspace.",
   tabMonitoredRisks: "Monitored risks",
   tabOutcomes: "Outcomes",
   latestInWorkspace: "Latest in workspace",
@@ -108,6 +111,8 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   analysis: "Insights",
   governance: "Approval",
   policy: "Policy",
+  compliance: "Compliance",
+  security: "Security",
   reports: "Reports",
   integrations: "Integrations",
   infrastructure: "Infrastructure",
@@ -141,19 +146,20 @@ export const OPERATOR_NAV_LINK_LABELS = {
   remediationFactory: "Remediation factory",
   infrastructureOverview: "Infrastructure overview",
   infrastructureDrift: "Drift & snapshots",
+  infrastructureTerraform: "Terraform mapping",
   infrastructureDiagrams: "Inventory diagrams",
   infrastructureDiagramReconcile: "Diagram reconciliation",
   infrastructureResources: "Resource explorer",
-  infrastructureAsk: "Infrastructure Ask",
+  infrastructureAsk: "Ask",
   infrastructureRemediation: "Remediation instances",
   remediationPatterns: "Remediation patterns",
   auditEvidenceLineage: "Audit evidence lineage",
   decisionRegister: "Decision register",
-  sealedReviewRecords: "Finalized review records",
+  sealedReviewRecords: "Sealed review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
-  /** Baseline settings (`/administration/baseline`) — sidebar short form; the page H1 keeps the "— ROI measurement" qualifier. */
-  baselineSettings: "Baseline settings",
+  /** ROI settings (`/administration/baseline`) — sidebar short form; the page H1 uses the full measurement title. */
+  baselineSettings: "ROI Settings",
   /** Architecture scorecard (`/insights/architecture-scorecard`). */
   scorecard: BUYER_TERMINOLOGY.reviewScorecard,
   alerts: "Alerts",
@@ -209,6 +215,8 @@ export const OPERATOR_NAV_LINK_LABELS = {
   systemHealth: "System health",
   /** Notification preference hub (`/administration/notifications`) TB-2203. */
   notifications: "Notifications",
+  /** Inventory ZIP intake (`/administration/extract-upload`). */
+  extractUpload: EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE,
   digests: "Digests",
   /**
    * Settings hub (`/administration`) — the searchable index, not a leaf page. Named "All settings" so the

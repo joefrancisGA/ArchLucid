@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
@@ -61,6 +62,10 @@ public sealed class DeclarationSecurityBaselineFindingEngine(IComplianceRulePack
                 ? ["declaration-security-baseline", signal.Theme]
                 : [policyRuleId, signal.Theme];
 
+            List<string> evidenceRefs = [];
+            FindingEvidenceRefs.TryCollectFromNodeProperties(evidenceRefs, node.Properties);
+            FindingEvidenceRefs.TryAppendPolicyRuleId(evidenceRefs, policyRuleId);
+
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -72,6 +77,7 @@ public sealed class DeclarationSecurityBaselineFindingEngine(IComplianceRulePack
                 Rationale =
                     "Infrastructure declaration properties on the knowledge graph indicate a security posture risk.",
                 RelatedNodeIds = [node.NodeId],
+                EvidenceRefs = evidenceRefs,
                 RecommendedActions =
                 [
                     "Review the cited declaration attribute and align the resource with your security baseline.",

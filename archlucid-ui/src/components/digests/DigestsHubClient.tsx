@@ -55,8 +55,10 @@ import { DigestsScheduleBuyerChrome } from "./DigestsScheduleBuyerChrome";
 import { WeeklyDigestHealthBanner } from "./WeeklyDigestHealthBanner";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
+  DIGESTS_HUB_FIRST_VIEWPORT_TEST_ID,
   DIGESTS_HUB_PRIMARY_CONTENT_ID,
   DIGESTS_HUB_SKIP_LINK_LABEL,
+  DIGESTS_HUB_SKIP_TARGET_ID,
 } from "@/lib/digests-browse-copy";
 
 const TAB_PARAM = "tab";
@@ -242,132 +244,169 @@ export function DigestsHubClient(): ReactElement {
     return DIGESTS_SUBSCRIPTIONS_TAB_RESPONSIBILITY;
   };
 
+  const digestsHubTabs = (
+    <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-4">
+      <TabsList aria-label="Digest hub sections" data-testid="digests-hub-tablist">
+        {DIGESTS_HUB_TAB_IDS.map((id) => {
+          const readerTitle: string | undefined =
+            !canMutate && id === "subscriptions"
+              ? SUBSCRIPTIONS_TAB_READER_TITLE
+              : !canMutate && id === "schedule"
+                ? SCHEDULE_TAB_READER_TITLE
+                : undefined;
+          const tabTitle: string = readerTitle ?? tabResponsibility(id);
+
+          return (
+            <TabsTrigger
+              key={id}
+              value={id}
+              data-testid={`digests-hub-tab-${id}`}
+              aria-label={tabTitle}
+            >
+              {tabLabel(id)}
+            </TabsTrigger>
+          );
+        })}
+      </TabsList>
+
+      {activeTab === "schedule" ? (
+        buyerPolishedShell ? null : <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
+      ) : activeTab === "subscriptions" ? (
+        buyerPolishedShell ? null : (
+          <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
+        )
+      ) : buyerPolishedShell ? null : (
+        <DigestsRelatedSurfacesRail />
+      )}
+
+      {activeTab === "schedule" ? (
+        <WeeklyDigestHealthBanner
+          refreshToken={healthRefreshToken}
+          onHealthLoaded={onHealthLoaded}
+          variant="schedule"
+          loadOnly
+        />
+      ) : activeTab === "subscriptions" ? (
+        <WeeklyDigestHealthBanner
+          refreshToken={healthRefreshToken}
+          onHealthLoaded={onHealthLoaded}
+          variant="subscriptions"
+          loadOnly
+        />
+      ) : (
+        <WeeklyDigestHealthBanner
+          refreshToken={healthRefreshToken}
+          onHealthLoaded={onHealthLoaded}
+          variant={healthBannerVariant}
+          suppressCompactFacts={browseSetupGuidesChecklist}
+        />
+      )}
+
+      {activeTab === DIGESTS_HUB_GET_STARTED_TAB_ID && !browseSetupGuidesChecklist ? (
+        <p
+          className={cn(
+            "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+          data-testid="digests-privacy-note"
+        >
+          {DIGESTS_PRIVACY_NOTE}
+        </p>
+      ) : null}
+
+      <TabsContent value={DIGESTS_HUB_GET_STARTED_TAB_ID} className="mt-4" data-testid="digests-hub-panel">
+        {buyerPolishedShell ? <DigestsBrowseBuyerChrome /> : null}
+        <DigestsBrowseContent
+          refreshToken={browseRefreshToken}
+          onLoaded={onBrowseLoaded}
+          hidePageHeader
+          healthSnap={healthSnap}
+          scopedRunId={scopedRunId}
+          onPickReview={onPickReview}
+        />
+      </TabsContent>
+      <TabsContent value="subscriptions" className="mt-4" data-testid="digests-hub-panel-subscriptions">
+        {buyerPolishedShell ? <DigestsSubscriptionsBuyerChrome /> : null}
+        <DigestSubscriptionsContent
+          healthSnap={healthSnap}
+          refreshToken={healthRefreshToken}
+          scopedRunId={scopedRunId}
+          onPickReview={onPickReview}
+        />
+      </TabsContent>
+      <TabsContent value="schedule" className="mt-4">
+        {buyerPolishedShell ? <DigestsScheduleBuyerChrome /> : null}
+        <ExecDigestScheduleContent
+          refreshToken={scheduleRefreshToken}
+          healthSnap={healthSnap}
+          onRefresh={onRefresh}
+          refreshing={refreshing}
+          scopedRunId={scopedRunId}
+          onPickReview={onPickReview}
+        />
+      </TabsContent>
+    </Tabs>
+  );
+
+  const digestsPageHeader = (
+    <DigestsPageHeader
+      subtitle={pageSubtitle}
+      refreshing={refreshing}
+      lastUpdatedUtc={lastUpdatedUtc}
+      onRefresh={onRefresh}
+      lastUpdatedPrefix={browseSetupGuidesChecklist ? DIGESTS_HEALTH_CHECK_PREFIX : undefined}
+      actions={browseHeaderActions}
+    />
+  );
+
   return (
     <div className="px-0" data-testid="digests-hub">
-      <a
-        href={`#${DIGESTS_HUB_PRIMARY_CONTENT_ID}`}
-        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-      >
-        {DIGESTS_HUB_SKIP_LINK_LABEL}
-      </a>
-
-      <div
-        id={DIGESTS_HUB_PRIMARY_CONTENT_ID}
-        data-testid="digests-hub-primary-content"
-        className={cn("scroll-mt-24")}
-      >
-        <DigestsPageHeader
-          subtitle={pageSubtitle}
-          refreshing={refreshing}
-          lastUpdatedUtc={lastUpdatedUtc}
-          onRefresh={onRefresh}
-          lastUpdatedPrefix={browseSetupGuidesChecklist ? DIGESTS_HEALTH_CHECK_PREFIX : undefined}
-          actions={browseHeaderActions}
-        />
-
-      {/* Tabs sit immediately under the header so hub navigation precedes orientation chrome. */}
-      <Tabs value={activeTab} onValueChange={onSelectTab} className="mb-4">
-        <TabsList aria-label="Digest hub sections" data-testid="digests-hub-tablist">
-          {DIGESTS_HUB_TAB_IDS.map((id) => {
-            const readerTitle: string | undefined =
-              !canMutate && id === "subscriptions"
-                ? SUBSCRIPTIONS_TAB_READER_TITLE
-                : !canMutate && id === "schedule"
-                  ? SCHEDULE_TAB_READER_TITLE
-                  : undefined;
-            const tabTitle: string = readerTitle ?? tabResponsibility(id);
-
-            return (
-              <TabsTrigger
-                key={id}
-                value={id}
-                data-testid={`digests-hub-tab-${id}`}
-                aria-label={tabTitle}
-              >
-                {tabLabel(id)}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
-
-        {activeTab === "schedule" ? (
-          buyerPolishedShell ? null : <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
-        ) : activeTab === "subscriptions" ? (
-          buyerPolishedShell ? null : (
-            <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
-          )
-        ) : buyerPolishedShell ? null : (
-          <DigestsRelatedSurfacesRail />
-        )}
-
-        {activeTab === "schedule" ? (
-          <WeeklyDigestHealthBanner
-            refreshToken={healthRefreshToken}
-            onHealthLoaded={onHealthLoaded}
-            variant="schedule"
-            loadOnly
-          />
-        ) : activeTab === "subscriptions" ? (
-          <WeeklyDigestHealthBanner
-            refreshToken={healthRefreshToken}
-            onHealthLoaded={onHealthLoaded}
-            variant="subscriptions"
-            loadOnly
-          />
-        ) : (
-          <WeeklyDigestHealthBanner
-            refreshToken={healthRefreshToken}
-            onHealthLoaded={onHealthLoaded}
-            variant={healthBannerVariant}
-            suppressCompactFacts={browseSetupGuidesChecklist}
-          />
-        )}
-
-        {activeTab === DIGESTS_HUB_GET_STARTED_TAB_ID && !browseSetupGuidesChecklist ? (
-          <p
-            className={cn(
-              "mb-4 m-0 max-w-3xl rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400",
-              OPERATOR_TYPOGRAPHY.helper,
-            )}
-            data-testid="digests-privacy-note"
+      {buyerPolishedShell ? (
+        <>
+          <a
+            href={`#${DIGESTS_HUB_SKIP_TARGET_ID}`}
+            className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
           >
-            {DIGESTS_PRIVACY_NOTE}
-          </p>
-        ) : null}
+            {DIGESTS_HUB_SKIP_LINK_LABEL}
+          </a>
 
-        <TabsContent value={DIGESTS_HUB_GET_STARTED_TAB_ID} className="mt-4" data-testid="digests-hub-panel">
-          <DigestsBrowseContent
-            refreshToken={browseRefreshToken}
-            onLoaded={onBrowseLoaded}
-            hidePageHeader
-            healthSnap={healthSnap}
-            scopedRunId={scopedRunId}
-            onPickReview={onPickReview}
-          />
-          {buyerPolishedShell ? <DigestsBrowseBuyerChrome /> : null}
-        </TabsContent>
-        <TabsContent value="subscriptions" className="mt-4" data-testid="digests-hub-panel-subscriptions">
-          <DigestSubscriptionsContent
-            healthSnap={healthSnap}
-            refreshToken={healthRefreshToken}
-            scopedRunId={scopedRunId}
-            onPickReview={onPickReview}
-          />
-          {buyerPolishedShell ? <DigestsSubscriptionsBuyerChrome /> : null}
-        </TabsContent>
-        <TabsContent value="schedule" className="mt-4">
-          <ExecDigestScheduleContent
-            refreshToken={scheduleRefreshToken}
-            healthSnap={healthSnap}
-            onRefresh={onRefresh}
-            refreshing={refreshing}
-            scopedRunId={scopedRunId}
-            onPickReview={onPickReview}
-          />
-          {buyerPolishedShell ? <DigestsScheduleBuyerChrome /> : null}
-        </TabsContent>
-      </Tabs>
-      </div>
+          <div
+            id={DIGESTS_HUB_PRIMARY_CONTENT_ID}
+            data-testid="digests-hub-primary-content"
+            className={cn("scroll-mt-24 space-y-4")}
+          >
+            {digestsPageHeader}
+
+            <div
+              id={DIGESTS_HUB_SKIP_TARGET_ID}
+              data-testid={DIGESTS_HUB_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              )}
+            >
+              {digestsHubTabs}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <a
+            href={`#${DIGESTS_HUB_PRIMARY_CONTENT_ID}`}
+            className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+          >
+            {DIGESTS_HUB_SKIP_LINK_LABEL}
+          </a>
+
+          <div
+            id={DIGESTS_HUB_PRIMARY_CONTENT_ID}
+            data-testid="digests-hub-primary-content"
+            className={cn("scroll-mt-24")}
+          >
+            {digestsPageHeader}
+            {digestsHubTabs}
+          </div>
+        </>
+      )}
     </div>
   );
 }

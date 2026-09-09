@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
@@ -52,12 +53,13 @@ const TEAMS_CONNECT_CONTENT_MEASURE = "max-w-xl" as const;
 
 export function TeamsNotificationsIntegrationPageView(props: Props): React.ReactElement {
   const m = props.model;
+  const { localize } = useLocalizedProductCopy();
 
   if (m.isDemo) {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
-        capability="Microsoft Teams integration"
-        description={TEAMS_INTEGRATION_DEMO_CAPABILITY_DESCRIPTION}
+        capability={localize("Microsoft Teams integration")}
+        description={localize(TEAMS_INTEGRATION_DEMO_CAPABILITY_DESCRIPTION)}
       />
     );
   }
@@ -93,14 +95,14 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
     >
       <PageHeading
         navHref={INTEGRATIONS_TEAMS_PATH}
-        title={TEAMS_INTEGRATION_PAGE_TITLE}
+        title={localize(TEAMS_INTEGRATION_PAGE_TITLE)}
         variant="integration"
         bordered
         actions={<PageContextualHelpButton />}
         description={
           <>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
-              {TEAMS_INTEGRATION_PAGE_SUBTITLE}
+              {localize(TEAMS_INTEGRATION_PAGE_SUBTITLE)}
             </p>
             <div className="space-y-2" data-testid="teams-connection-status">
               {m.loading ? (
@@ -118,7 +120,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                   className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="teams-not-configured-next-step"
                 >
-                  {TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP}
+                  {localize(TEAMS_INTEGRATION_NOT_CONFIGURED_NEXT_STEP)}
                 </p>
               ) : null}
             </div>
@@ -162,7 +164,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                 conn={m.conn}
                 destinationName={destinationName}
                 status={m.connectionStatus}
-                lastTestMessage={m.lastTestMessage}
+                lastTestMessage={m.lastTestMessage === null ? null : localize(m.lastTestMessage)}
               />
             ) : null}
 
@@ -351,7 +353,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
                   )}
                   data-testid="teams-form-test-feedback"
                 >
-                  {m.testMessage}
+                  {localize(m.testMessage)}
                 </p>
               ) : null}
             </section>
@@ -377,8 +379,8 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
             m.cancelRemove();
           }
         }}
-        title="Remove Teams connection?"
-        description={TEAMS_INTEGRATION_REMOVE_CONFIRM}
+        title={localize("Remove Microsoft Teams connection?")}
+        description={localize(TEAMS_INTEGRATION_REMOVE_CONFIRM)}
         confirmLabel="Remove connection"
         variant="destructive"
         busy={m.saving}

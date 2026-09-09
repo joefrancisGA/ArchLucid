@@ -22,6 +22,62 @@ public sealed class TrialLimitGateTests
         new FixedUtcTimeProvider(new DateTime(2026, 4, 17, 12, 0, 0, DateTimeKind.Utc));
 
     [SkippableFact]
+    public async Task GuardWriteAsync_lowercase_active_expired_throws_Expired()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "n",
+                    Slug = "s",
+                    Tier = TenantTier.Standard,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    TrialStatus = "active",
+                    TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
+                    TrialRunsLimit = 10,
+                    TrialRunsUsed = 0,
+                });
+
+        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+        Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<TrialLimitExceededException>()).Which.Reason.Should().Be(TrialLimitReason.Expired);
+    }
+
+    [SkippableFact]
+    public async Task GuardWriteAsync_lowercase_expired_throws_LifecycleWritesFrozen()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "n",
+                    Slug = "s",
+                    Tier = TenantTier.Standard,
+                    CreatedUtc = TimeProvider.System.GetUtcNow(),
+                    TrialStatus = "expired",
+                    TrialExpiresUtc = DateTimeOffset.Parse("2026-04-10T00:00:00Z", CultureInfo.InvariantCulture),
+                });
+
+        TrialLimitGate gate = new(tenants.Object, FixedTime);
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+        Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<TrialLimitExceededException>())
+            .Which.Reason.Should()
+            .Be(TrialLimitReason.LifecycleWritesFrozen);
+    }
+
+    [SkippableFact]
     public async Task GuardWriteAsync_active_within_limits_does_not_throw()
     {
         Guid tenantId = Guid.NewGuid();

@@ -5,6 +5,7 @@ import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/desi
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { DismissControl } from "@/components/usability/DismissControl";
@@ -18,6 +19,10 @@ import {
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { useCorePilotDerivedStepStatus } from "@/lib/use-core-pilot-derived-step-status";
 import { SHOW_ALL_DESTINATIONS } from "@/lib/nav-disclosure-copy";
+import {
+  afterCorePilotWhatsNextDisclosureHrefFromSearch,
+  parseAfterCorePilotWhatsNextOpenFromSearch,
+} from "@/lib/operator/after-core-pilot-whats-next-disclosure-url";
 
 type Suggestion = {
   title: string;
@@ -40,7 +45,7 @@ const suggestions: Suggestion[] = [
     sidebarNote: `Use “${SHOW_ALL_DESTINATIONS.show}” in the sidebar if Insights is collapsed.`,
   },
   {
-    title: "Set up governance alerts",
+    title: "Set up approval alerts",
     href: "/governance/alert-rules",
     description: "Inbox, routing, and rules on one hu — une when architecture-risk signals need action.",
     sidebarNote:
@@ -49,7 +54,7 @@ const suggestions: Suggestion[] = [
   {
     title: "Review policy packs",
     href: GOVERNANCE_POLICY_PACKS_PATH,
-    description: "Versions, effective content, and how governance rules attach to your scope.",
+    description: "Versions, effective content, and how policy rules attach to your scope.",
     sidebarNote: `Expand Governance in the sidebar, or use “${SHOW_ALL_DESTINATIONS.show}” if groups are hidden.`,
   },
 ];
@@ -59,6 +64,34 @@ const suggestions: Suggestion[] = [
  * with dismissal persisted in localStorage. Does not change sidebar toggle — nly explains them.
  */
 export function AfterCorePilotChecklistHint() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const afterCorePilotWhatsNextOpenParam = searchParams.get("afterCorePilotWhatsNextOpen");
+  const [suggestionsOpen, setSuggestionsOpenState] = useState(() =>
+    parseAfterCorePilotWhatsNextOpenFromSearch(afterCorePilotWhatsNextOpenParam),
+  );
+  const syncSuggestionsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        afterCorePilotWhatsNextDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setSuggestionsOpen = useCallback(
+    (open: boolean) => {
+      setSuggestionsOpenState(open);
+      syncSuggestionsOpenToUrl(open);
+    },
+    [syncSuggestionsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSuggestionsOpenState(parseAfterCorePilotWhatsNextOpenFromSearch(afterCorePilotWhatsNextOpenParam));
+  }, [afterCorePilotWhatsNextOpenParam]);
+
   const { progress } = useCorePilotDerivedStepStatus();
   const [dismissed, setDismissed] = useState(false);
 
@@ -120,7 +153,11 @@ export function AfterCorePilotChecklistHint() {
             the sidebar until sponsors or policy need the — ot part of first-pilot success criteria.
           </p>
 
-          <Collapsible defaultOpen className="rounded-md border border-neutral-200 bg-white/70 dark:border-neutral-700 dark:bg-neutral-900/40">
+          <Collapsible
+            open={suggestionsOpen}
+            onOpenChange={setSuggestionsOpen}
+            className="rounded-md border border-neutral-200 bg-white/70 dark:border-neutral-700 dark:bg-neutral-900/40"
+          >
             <CollapsibleTrigger
               className={cn("auth-panel-focus flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left font-semibold text-al-text-primary [&[data-state=open]_svg]:rotate-180", OPERATOR_TYPOGRAPHY.cardTitle)}
               data-testid="after-core-pilot-whats-next-collapsible-trigger"

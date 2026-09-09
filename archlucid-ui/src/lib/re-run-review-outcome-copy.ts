@@ -63,3 +63,54 @@ export function reRunReviewOutcomePhaseFromOperationState(
       return null;
   }
 }
+
+export type ReRunReviewConfirmBudgetInput = {
+  readonly monthlyBudgetMonitoringActive: boolean;
+  readonly blocksLlmExecution: boolean;
+  readonly remainingBudgetUsd: number | null;
+};
+
+export type ReRunReviewConfirmDescription =
+  | { readonly kind: "ready"; readonly text: string }
+  | { readonly kind: "blocked"; readonly text: string };
+
+function formatReRunReviewConfirmRemainingAllowanceClause(remainingUsd: number): string {
+  const formatted = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(remainingUsd);
+
+  return ` About ${formatted} of this month's AI budget allowance remains.`;
+}
+
+/** Single-paragraph copy for the re-run confirmation modal (no duplicate AI-budget lines). */
+export function buildReRunReviewConfirmDescription(
+  attemptNumber: number,
+  budget: ReRunReviewConfirmBudgetInput | null,
+): ReRunReviewConfirmDescription {
+  const lead = `Attempt ${attemptNumber} will re-invoke architecture analysis on this review.`;
+
+  if (budget === null || budget.monthlyBudgetMonitoringActive !== true) {
+    return { kind: "ready", text: lead };
+  }
+
+  if (budget.blocksLlmExecution) {
+    return {
+      kind: "blocked",
+      text: `The AI budget for this workspace is exhausted, so attempt ${attemptNumber} cannot re-run this review.`,
+    };
+  }
+
+  const remainingUsd = budget.remainingBudgetUsd;
+
+  if (typeof remainingUsd === "number" && Number.isFinite(remainingUsd)) {
+    return {
+      kind: "ready",
+      text: `${lead}${formatReRunReviewConfirmRemainingAllowanceClause(remainingUsd)}`,
+    };
+  }
+
+  return { kind: "ready", text: lead };
+}

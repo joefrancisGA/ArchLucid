@@ -8,10 +8,9 @@ on:
     branches: [main, master]
 
 concurrency:
-  # One running + one pending per ref group: cancel-in-progress protects only the running job,
-  # so queued runs are evicted on every new push. Per-commit groups let each push complete.
-  group: ui-typecheck-push-${{ github.sha }}
-  cancel-in-progress: false
+  # One push corset per ref: cancel superseded trunk pushes so the queue drains to the latest SHA.
+  group: ui-typecheck-push-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -93,17 +92,22 @@ jobs:
           python3 scripts/ci/check_no_merge_conflict_markers.py
           python3 scripts/ci/check_sponsor_export_execution_mode_label.py
           python3 scripts/ci/check_live_api_private_beta_access_ci_wiring.py
+          python3 scripts/ci/check_auth_beta_readiness_invite_callout_surfaces.py
           python3 scripts/ci/check_ui_jwt_bearer_build_on_push_corset.py
           python3 scripts/ci/check_push_corset_openapi_snapshot.py
           python3 scripts/ci/check_api_types_package_in_sync.py
           python3 scripts/ci/check_release_gate_playwright_wiring.py
           python3 scripts/ci/check_insight_density_advisory_surfaces.py
+          python3 scripts/ci/check_architecture_object_acceptance_wiring.py
+          python3 scripts/ci/check_securenow_archlucid_leak_guard_wiring.py
           python3 scripts/ci/check_policy_pack_finding_delta_offline_packet.py
+          python3 scripts/ci/check_policy_pack_compounding_evidence_ledger.py
           python3 scripts/ci/check_manifest_summary_manifest_version_access.py
           python3 scripts/ci/check_status_tag_kind_warning.py
           python3 scripts/ci/check_npm_overrides_lockfile_sync.py
           python3 scripts/ci/check_live_e2e_simulator_azure_openai_env.py
           python3 scripts/ci/check_schemathesis_light_auth_paths.py
+          python3 scripts/ci/check_sponsor_roi_summary_section_imports.py
 
       - name: Beta-readiness guard unit tests
         run: |
@@ -115,13 +119,18 @@ jobs:
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_api_types_package_in_sync.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_release_gate_playwright_wiring.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_insight_density_advisory_surfaces.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_architecture_object_acceptance_wiring.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_securenow_archlucid_leak_guard_wiring.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_golden_cohort_gate_ruleset_batch.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_golden_cohort_private_beta_addon_ruleset_batch.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_policy_pack_finding_delta_offline_packet.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_policy_pack_compounding_evidence_ledger.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_manifest_summary_manifest_version_access.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_status_tag_kind_warning.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_npm_overrides_lockfile_sync.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_live_e2e_simulator_azure_openai_env.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_check_schemathesis_light_auth_paths.py"
+          python3 -m unittest discover -s scripts/ci/tests -p "test_check_sponsor_roi_summary_section_imports.py"
           python3 -m unittest discover -s scripts/ci/tests -p "test_retrigger_private_beta_access_on_push.py"
 
   ui-typecheck:
@@ -174,4 +183,4 @@ jobs:
           python3 ../scripts/ci/check_npm_overrides_lockfile_sync.py --prefix .
           npm ci
           python3 ../scripts/ci/assert_single_npm_dependency_version.py @tanstack/query-core --prefix .
-          npm run build
+          npm run build:live-e2e

@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Feasibility;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Services;
@@ -163,7 +164,14 @@ public sealed class DecisionReceiptServiceTests
             .ReturnsAsync((ScopeContext _, Guid runId, CancellationToken _) =>
             {
                 ManifestDocument manifest = CreateCommittedManifest(runId, CreateFeasibleVerdict());
+                string hashBeforeReceipt = ManifestDecisionReceiptExportBinder.ComputeHashBeforeReceipt(manifest, _manifestHashService);
+                DecisionReceiptDocument sealedReceipt = DecisionReceiptComposer.BuildForRun(
+                    runId,
+                    CreateFeasibleVerdict(),
+                    hashBeforeReceipt,
+                    "v1");
                 manifest.CommittedDecisionReceiptHashSha256 = new string('A', 64);
+                manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
 
                 return new RunDetailDto
                 {
@@ -257,6 +265,27 @@ public sealed class DecisionReceiptServiceTests
     }
 
     [Fact]
+    public async Task BuildForRunAsync_SkippedMustOnTrail_ReturnsCareerArtifactBlocked()
+    {
+        SetupCommittedRunDetail();
+        FeasibilityVerdict verdict = CreateFeasibleVerdict();
+        verdict.TransparencyTrail.Skipped.Add(new SkippedQuestionTrailEntry
+        {
+            Tier = ElicitationQuestionTier.Must,
+            QuestionKey = "security.dataClassification",
+        });
+        SetupVerifiedCommittedManifest(verdict, out _);
+
+        DecisionReceiptService sut = CreateSut();
+
+        DecisionReceiptRunBuildResult buildResult = await sut.BuildForRunAsync(Scope, RunId, CancellationToken.None);
+
+        buildResult.Outcome.Should().Be(DecisionReceiptRunBuildOutcome.CareerArtifactBlocked);
+        buildResult.BlockReasonCode.Should().Be(CareerArtifactCompletenessValidator.SkippedMustCode);
+        buildResult.Receipt.Should().BeNull();
+    }
+
+    [Fact]
     public async Task BuildForRunAsync_UsesSealedManifestVerdictAndVersion()
     {
         SetupCommittedRunDetail();
@@ -313,6 +342,7 @@ public sealed class DecisionReceiptServiceTests
             hashBeforeReceipt,
             "v1");
         manifest.CommittedDecisionReceiptHashSha256 = sealedReceipt.ReceiptHashSha256;
+        manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
         sealedReceiptHash = sealedReceipt.ReceiptHashSha256!;
 
         _authority

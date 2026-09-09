@@ -44,7 +44,7 @@ describe("policy-pack-detail-resolver", () => {
         tenantId: "t",
         workspaceId: "w",
         projectId: "p",
-        name: "Responsible AI governance pack",
+        name: "Responsible AI policy pack",
         description: "",
         packType: "Custom",
         distributionScope: "Tenant",

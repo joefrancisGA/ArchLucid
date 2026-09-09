@@ -35,6 +35,8 @@ export type RunProgressTrackerProps = {
   readonly preFinalizeReadyToFinalize?: boolean;
   /** Buyer-facing assessment copy instead of pipeline transport jargon. */
   readonly buyerAssessmentCopy?: boolean;
+  /** Working desk: review-progress copy without pipeline transport jargon (WS-16). */
+  readonly workingDeskProgressCopy?: boolean;
   /** Optional run-detail fields for dev telemetry and stall diagnosis. */
   readonly diagnosticContext?: ReviewPipelineDiagnosticContext | null;
   /** When Do this next already owns recovery guidance, avoid repeating the failure callout here. */
@@ -46,6 +48,7 @@ export function RunProgressTracker({
   initialSummary,
   preFinalizeReadyToFinalize,
   buyerAssessmentCopy = false,
+  workingDeskProgressCopy = false,
   diagnosticContext = null,
   deferFailureRecoveryToDoThisNext = false,
 }: RunProgressTrackerProps) {
@@ -54,6 +57,7 @@ export function RunProgressTracker({
     initialSummary,
     preFinalizeReadyToFinalize,
     buyerAssessmentCopy,
+    workingDeskProgressCopy,
     diagnosticContext,
     deferFailureRecoveryToDoThisNext,
   });
@@ -190,6 +194,7 @@ export function RunProgressTracker({
         activeSummary={tracker.activeSummary}
         pipelineTerminalFailure={tracker.showPipelineTerminalFailure}
         suppressIntakeDescription={deferFailureRecoveryToDoThisNext}
+        suppressStageCountLine={deferFailureRecoveryToDoThisNext && tracker.buyerAssessmentCopy}
       />
 
       {tracker.pipelineDebugEnabled ? (
