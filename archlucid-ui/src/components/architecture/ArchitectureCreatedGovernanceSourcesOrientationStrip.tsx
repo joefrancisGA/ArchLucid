@@ -8,6 +8,7 @@ import { EvidenceOrientationSourcesSection } from "@/components/evidence-orienta
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
   ARCHITECTURE_CREATED_GOVERNANCE_FOLLOW_UPS_TITLE,
+  ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_BOTTOM_TEST_ID,
   ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_SOURCES_INTRO,
   ARCHITECTURE_CREATED_GOVERNANCE_SOURCES,
 } from "@/lib/architecture/architecture-created-governance-sources";
@@ -54,7 +55,7 @@ export function ArchitectureCreatedGovernanceSourcesOrientationStrip(): React.JS
     <CollapsibleSection
       title={ARCHITECTURE_CREATED_GOVERNANCE_FOLLOW_UPS_TITLE}
       summaryLine={ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_SOURCES_INTRO}
-      sectionTestId="architecture-created-governance-sources-disclosure"
+      sectionTestId={ARCHITECTURE_CREATED_GOVERNANCE_ORIENTATION_BOTTOM_TEST_ID}
       open={sourcesOpen}
       onToggle={setSourcesOpen}
     >
