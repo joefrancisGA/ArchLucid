@@ -454,6 +454,98 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void SelectCommittedRunIdByGoldenManifestId_orders_by_created_utc_then_run_id()
+    {
+        RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should()
+            .Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public async Task InMemory_committed_run_by_golden_manifest_picks_newest_when_manifest_is_shared()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid architectureId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        Guid lowerRunId = Guid.Parse("11111111-0000-0000-0000-000000000001");
+        Guid higherRunId = Guid.Parse("22222222-0000-0000-0000-000000000002");
+        DateTime sharedCreatedUtc = new(2026, 9, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = lowerRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                GoldenManifestId = manifestId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = sharedCreatedUtc,
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = higherRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                GoldenManifestId = manifestId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = sharedCreatedUtc,
+            },
+            CancellationToken.None);
+
+        Guid? selected = await runs.GetCommittedRunIdByGoldenManifestIdAsync(
+            scope,
+            architectureId,
+            manifestId,
+            Guid.Empty,
+            CancellationToken.None);
+
+        selected.Should().Be(higherRunId,
+            "seal-delta lookup must match SQL RunId tie-break when committed runs share CreatedUtc.");
+    }
+
+    [Fact]
+    public void ExistsActiveRunWithSystemNameInWorkspace_scopes_to_workspace_not_scope_project()
+    {
+        RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace.Should().Contain("WorkspaceId = @WorkspaceId");
+        RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace.Should().NotContain("ScopeProjectId");
+    }
+
+    [Fact]
+    public void ListWithNullArchitectureId_orders_ascending_for_backfill_queue()
+    {
+        const string sql = """
+                           SELECT TOP (@Take)
+                                  RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description,
+                                  PackageOrigin, ArchitectureId, ArchitectureVersionId, ArchitectureRequestId,
+                                  KnowledgeModelId, CreatedUtc, UpdatedUtc, ArchivedUtc, LegacyRunStatus,
+                                  CurrentManifestVersion, GoldenManifestId
+                           FROM dbo.Runs
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId
+                             AND ArchitectureId IS NULL
+                             AND ArchivedUtc IS NULL
+                           ORDER BY CreatedUtc ASC, RunId ASC;
+                           """;
+
+        sql.Should().Contain("ORDER BY CreatedUtc ASC, RunId ASC");
+    }
+
+    [Fact]
     public async Task InMemory_offset_list_pages_all_runs_when_created_utc_ties()
     {
         ScopeContext scope = new()

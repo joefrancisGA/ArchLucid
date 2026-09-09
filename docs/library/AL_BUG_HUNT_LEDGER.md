@@ -681,11 +681,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 11
-- **bugs-found:** 8
+- **hunts:** 12
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — representative architecture-request run lookup lacked RunId tie-break
+- **last-bug:** 2026-09-09 — golden-manifest committed run lookup lacked RunId tie-break in InMemory parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -715,7 +715,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ExistsRunForArchitectureRequestInScope` omits `ArchivedUtc IS NULL` and treats archived reruns as scope existence — **cheap-disproof 2026-09-09 seed hunt #1440:** existence latch is intentionally historical (request was ever materialized in scope); active concurrency remains on `CountActiveRunsForArchitectureRequest`; shape regression `ExistsRunForArchitectureRequestInScope_includes_archived_runs_by_design`.
 - [x] (valid-no-repro) `SelectLatestCommittedRunIdByManifestCreatedUtc` orders by `gm.CreatedUtc` while `SelectPriorCommittedRunIdBeforeCurrent` filters on `r.CreatedUtc` — **cheap-disproof 2026-09-09 seed hunt #1440:** latest-committed picks newest manifest commit; prior-committed walks run timeline before current — different semantics by design; regression `SelectLatestCommittedRunIdByManifestCreatedUtc_orders_by_manifest_created_utc`.
 
-2026-09-09 seed hunt #1440 (hit): reseeded sql-run-repository; proved representative request-run lookup tie-break gap; cheap-disproof closed archived existence and manifest-vs-run ordering candidates; 32 scoped Persistence tests passed (1 SQL integration skipped).
+2026-09-09 seed hunt #1440 (hit): reseeded sql-run-repository; proved representative request-run lookup tie-break gap; cheap-disproof closed archived existence and manifest-vs-run ordering candidates; 34 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (proven) `RunRepositoryCore.SelectCommittedRunIdByGoldenManifestId` returns first in-memory match while SQL orders by `CreatedUtc DESC, RunId DESC` — **hit 2026-09-09 seed hunt #1441:** tied CreatedUtc on shared manifest made seal-delta lookup pick lower RunId in tests; fixed InMemory parity ordering; regressions in `SelectCommittedRunIdByGoldenManifestId_picks_highest_run_id_when_created_utc_ties` and `InMemory_committed_run_by_golden_manifest_picks_newest_when_manifest_is_shared`.
+- [x] (valid-no-repro) `ExistsActiveRunWithSystemNameInWorkspace` omits `ScopeProjectId` and blocks duplicate system names workspace-wide — **cheap-disproof 2026-09-09 seed hunt #1441:** workspace intake guard intentionally spans projects; shape regression `ExistsActiveRunWithSystemNameInWorkspace_scopes_to_workspace_not_scope_project`.
+- [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` uses ascending CreatedUtc for backfill batching — **cheap-disproof 2026-09-09 seed hunt #1441:** `ArchitectureIdentityBackfillService` consumes oldest unlinked runs first by design; shape regression `ListWithNullArchitectureId_orders_ascending_for_backfill_queue`.
+
+2026-09-09 seed hunt #1441 (hit): reseeded sql-run-repository after #1440; proved golden-manifest committed lookup InMemory/SQL ordering gap; cheap-disproof closed workspace-wide system-name and null-architecture backfill ordering candidates; 38 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
