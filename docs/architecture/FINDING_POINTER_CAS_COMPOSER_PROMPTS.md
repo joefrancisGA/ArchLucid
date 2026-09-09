@@ -1,6 +1,7 @@
 > **Scope:** Copy-paste Composer prompts that close **ADR 0076 current-pointer CAS** on every client write that can change a finding’s current disposition. Internal engineering only — not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **CAS contract:** [`../library/FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md`](../library/FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md) · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/finding-pointer-00-index.md`](../../.cursor/prompts/finding-pointer-00-index.md) (**FP-01–FP-24**)
+> **Successor (wave 22 — architecture spine):** [`ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md`](ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md) (**AS-001–AS-100**). **Do not re-run FP.** Paste AS files for diagrams-on-decide, semantic support band, Career/Rehearsal doors, and optional RestrictToShares.
 > **Predecessor (wave 20 — livelihood-proof persist gates):** [`LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md`](LIVELIHOOD_PROOF_COMPOSER_PROMPTS.md) (**LP-01–LP-20**). **Do not re-run LP.** This set does **not** implement LP-19 (401 resume).
 
 # Finding-pointer CAS Composer prompts (FP-01–FP-24)
