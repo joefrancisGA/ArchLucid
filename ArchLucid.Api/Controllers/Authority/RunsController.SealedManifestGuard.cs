@@ -1,5 +1,6 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -11,6 +12,29 @@ namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class RunsController
 {
+    private async Task<IActionResult?> EnsureArchitectureRunCreateSealedManifestAllowedAsync(
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await DraftIntakeSealedManifestReadGuard.EnsureDraftIntakeReadAllowedOrThrowAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                _runDetailQueryService,
+                authorityQuery,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
+
     private async Task<IActionResult?> EnsureArchitectureRequestSealedManifestReadAllowedAsync(
         string requestId,
         IManifestHashService manifestHashService,

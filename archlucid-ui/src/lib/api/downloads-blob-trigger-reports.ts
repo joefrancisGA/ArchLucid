@@ -4,6 +4,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
   ensureOidcBearerReady,
+  getBearerToken,
   isBrowser,
 } from "./http";
 
