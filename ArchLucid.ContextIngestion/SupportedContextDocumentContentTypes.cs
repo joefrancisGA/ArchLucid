@@ -21,12 +21,30 @@ public static class SupportedContextDocumentContentTypes
     /// </summary>
     public const string Mermaid = "text/vnd.mermaid";
 
+    /// <summary>
+    ///     Sanitized SVG diagram source for server-side structured parse (AS-008). Raw <c>image/svg+xml</c> remains forbidden.
+    /// </summary>
+    public const string StructuredDiagramSvg = "application/vnd.archlucid.diagram+svg";
+
+    /// <summary>
+    ///     Uncompressed draw.io / diagrams.net <c>mxfile</c> XML (AS-009).
+    /// </summary>
+    public const string DrawIoXml = "application/vnd.jgraph.mxfile";
+
+    /// <summary>
+    ///     Visio <c>.vsdx</c> Open Packaging zip posted as base64 (AS-010). Legacy <c>.vsd</c> remains unsupported.
+    /// </summary>
+    public const string VisioVsdx = "application/vnd.ms-visio.drawing.main+xml";
+
     public static readonly IReadOnlyList<string> All =
     [
         "text/plain",
         "text/markdown",
         StructuredDiagramJson,
         Mermaid,
+        StructuredDiagramSvg,
+        DrawIoXml,
+        VisioVsdx,
     ];
 
     public static bool IsSupported(string? contentType)
@@ -51,6 +69,24 @@ public static class SupportedContextDocumentContentTypes
     {
         return !string.IsNullOrWhiteSpace(contentType)
                && string.Equals(contentType.Trim(), Mermaid, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsStructuredDiagramSvgContentType(string? contentType)
+    {
+        return !string.IsNullOrWhiteSpace(contentType)
+               && string.Equals(contentType.Trim(), StructuredDiagramSvg, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsDrawIoXmlContentType(string? contentType)
+    {
+        return !string.IsNullOrWhiteSpace(contentType)
+               && string.Equals(contentType.Trim(), DrawIoXml, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsVisioVsdxContentType(string? contentType)
+    {
+        return !string.IsNullOrWhiteSpace(contentType)
+               && string.Equals(contentType.Trim(), VisioVsdx, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

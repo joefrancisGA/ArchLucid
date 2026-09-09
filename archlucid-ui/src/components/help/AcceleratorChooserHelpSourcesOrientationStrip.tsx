@@ -7,6 +7,7 @@ import {
   ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS,
 } from "@/lib/accelerator-chooser-help-evidence-copy";
 import { ACCELERATOR_CHOOSER_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/accelerator-chooser-help-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 /** Sources-only follow-ups for `/help/accelerator-chooser` buyer-polished shell (HAX). */
 export function AcceleratorChooserHelpSourcesOrientationStrip(): React.JSX.Element {
@@ -19,6 +20,7 @@ export function AcceleratorChooserHelpSourcesOrientationStrip(): React.JSX.Eleme
       sources={ACCELERATOR_CHOOSER_HELP_RELATED_NEXT_STEPS}
       sourcesTestId="help-accelerator-chooser-sources"
       hubSecondary
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }

@@ -14,6 +14,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
 } from "@/lib/governance/governance-infrastructure-copy";
+import { GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL } from "@/lib/governance/governance-infrastructure-drift-help-evidence-copy";
 import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
@@ -87,7 +88,7 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly { prefix: string
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
-    topic: { slug: "cloud-connections", label: GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE },
+    topic: { slug: "governance-infrastructure-drift", label: GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_PATH,
@@ -101,6 +102,10 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly { prefix: string
   {
     prefix: "/help/recurrence-schedules",
     topic: { slug: "recurrence-schedules", label: RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: "/help/governance-infrastructure-drift",
+    topic: { slug: "governance-infrastructure-drift", label: GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL },
   },
   {
     prefix: "/help/standards-and-rules",

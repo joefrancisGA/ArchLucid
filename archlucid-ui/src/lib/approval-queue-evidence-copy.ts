@@ -44,6 +44,12 @@ export const GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD =
 export const GOVERNANCE_APPROVAL_QUEUE_OVERVIEW =
   "Workflow panels below list pending requests, submit actions, and approval decisions for the active workspace scope.";
 
+/** Buyer bridge between first-viewport lead and approval workflow workspace (GOP). */
+export const GOVERNANCE_APPROVAL_QUEUE_BUYER_OVERVIEW =
+  "Load-review, summary, and pending-approval panels below walk through submit and approve actions for the active workspace scope.";
+
+export const GOVERNANCE_APPROVAL_QUEUE_WORKSPACE_TEST_ID = "governance-approval-queue-workspace" as const;
+
 export const GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE = "Start here" as const;
 
 export const GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER =

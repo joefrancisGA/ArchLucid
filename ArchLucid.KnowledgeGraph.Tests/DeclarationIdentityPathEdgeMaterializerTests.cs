@@ -58,6 +58,45 @@ public sealed class DeclarationIdentityPathEdgeMaterializerTests
     }
 
     [Fact]
+    public void Materialize_emits_iam_path_for_aws_policy_attachment()
+    {
+        GraphNode role = BuildTopology(
+            "obj-role",
+            "pay_runner",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "aws_iam_role",
+            });
+        GraphNode attachment = BuildTopology(
+            "obj-attach",
+            "s3_full",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "aws_iam_role_policy_attachment",
+                ["principalId"] = "pay_runner",
+                ["roleName"] = "AmazonS3FullAccess",
+                ["declarationTargetResourceId"] = "pay_bucket",
+            });
+        GraphNode bucket = BuildDatastore("obj-bucket", "pay_bucket");
+        GraphNode actor = BuildMachineActor("actor-role", "pay_runner", role.NodeId);
+
+        IReadOnlyList<GraphEdge> edges = DeclarationIdentityPathEdgeMaterializer.Materialize(
+            [role, attachment, bucket, actor]);
+
+        edges.Should().Contain(edge =>
+            edge.FromNodeId == actor.NodeId
+            && edge.ToNodeId == attachment.NodeId
+            && edge.EdgeType == GraphEdgeTypes.RelatesTo);
+        edges.Should().Contain(edge =>
+            edge.FromNodeId == attachment.NodeId
+            && edge.ToNodeId == bucket.NodeId
+            && edge.EdgeType == GraphEdgeTypes.AppliesTo);
+
+        GraphSnapshot graph = BuildGraphSnapshot([role, attachment, bucket, actor], edges);
+        IdentityPathAnalyzer.Analyze(graph).Should().NotBeEmpty();
+    }
+
+    [Fact]
     public void Materialize_emits_no_iam_edges_when_principal_id_missing()
     {
         GraphNode roleAssignment = BuildTopology(

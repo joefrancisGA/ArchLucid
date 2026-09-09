@@ -70,6 +70,10 @@ public static class GraphEdgeInferenceReasoningSummaries
                 return "ArchLucid linked an external declaration Actor to a declared backend compute node and, "
                        + "when present, that compute node to a declared datastore — only when both ends already exist.";
 
+            case GraphEdgeInferenceSources.DeclarationSegmentationPath:
+                return "ArchLucid linked a declared NSG/SG/firewall to its associated subnet or NIC and, when present, "
+                       + "that network node to a declared datastore — only when both ends already exist.";
+
             default:
                 return $"ArchLucid inferred this edge via rule `{inferenceSource.Trim()}` "
                        + "(deterministic heuristic or connector hint).";

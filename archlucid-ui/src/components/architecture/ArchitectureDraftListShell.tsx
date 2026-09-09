@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { ArchitecturesHubListSkeleton } from "@/app/(operator)/architecture/architectures/_sections/ArchitecturesHubListSkeleton";
 import { ArchitectureDraftCloneSnapshotControl } from "@/components/architecture/ArchitectureDraftCloneSnapshotControl";
 import { ArchitectureDraftDeleteControl } from "@/components/architecture/ArchitectureDraftDeleteControl";
@@ -130,6 +131,8 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
     continueLastDraft,
     workspaceScopeTeaching,
     sortOptions,
+    listBlockedReason,
+    listFailure,
   } = props.controller;
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
@@ -141,6 +144,15 @@ export function ArchitectureDraftListShell(props: ArchitectureDraftListShellProp
   if (entries.length === 0) {
     return (
       <div className="mt-4 space-y-4" data-testid="architecture-draft-list-empty">
+        {listFailure ? <OperatorApiProblem failure={listFailure} /> : null}
+        {listBlockedReason ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-draft-list-blocked-reason"
+          >
+            {listBlockedReason}
+          </p>
+        ) : null}
         {!buyerPolishedShell ? (
           <>
             <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="architecture-drafts" />

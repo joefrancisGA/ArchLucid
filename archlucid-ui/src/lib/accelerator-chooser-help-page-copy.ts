@@ -19,6 +19,8 @@ export const ACCELERATOR_CHOOSER_HELP_BUYER_START_HERE_HELPER =
 export const ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW =
   "Pack cards and workflow steps below map stakeholder scenarios to in-product accelerator presets for this tenant." as const;
 
+export const ACCELERATOR_CHOOSER_HELP_WORKSPACE_TEST_ID = "help-accelerator-chooser-workspace" as const;
+
 export const ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL = "Skip to starter packs guide" as const;
 
 export const ACCELERATOR_CHOOSER_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
