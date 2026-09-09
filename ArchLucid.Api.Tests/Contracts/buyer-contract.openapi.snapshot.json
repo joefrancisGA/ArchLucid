@@ -5956,6 +5956,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "snapshotId"
+        ],
         "type": "object"
       },
       "AuditEvaluationOutcome": {
