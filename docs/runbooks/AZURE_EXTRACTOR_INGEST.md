@@ -6,6 +6,8 @@
 
 Customers run **`scripts/azure/Get-ArchLucidAzurePackage.ps1`** in their tenant (no ArchLucid credentials in their environment) and upload the resulting **`.zip`** to ArchLucid.
 
+First-review workspaces surface a **skippable** “Upload Azure inventory ZIP” prompt on the review checklist and review detail — it links here and to `POST /v1/azure-extractor/upload`. Skipping is allowed and does **not** block finalize; engines still fail closed when inventory is absent (R5). This is **not** a hard gate, **not** SOC 2 attestation, and **not** default-on AWS/GCP inventory collection.
+
 ## API
 
 - **`POST /v1/azure-extractor/upload`**

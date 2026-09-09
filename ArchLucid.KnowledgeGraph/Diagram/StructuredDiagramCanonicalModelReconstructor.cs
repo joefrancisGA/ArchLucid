@@ -102,6 +102,7 @@ public static class StructuredDiagramCanonicalModelReconstructor
         }
 
         List<ArchitectureDiagramEdgeRecord> edges = ReconstructEdges(nodes, diagramNodeIdByObjectId);
+        string? sourceEvidenceItemId = ResolveSourceEvidenceItemId(nodes, group.Key);
 
         return new StructuredDiagramReconstructedDocument
         {
@@ -111,9 +112,24 @@ public static class StructuredDiagramCanonicalModelReconstructor
                 Edges = edges,
                 Subgraphs = subgraphs.Values.OrderBy(subgraph => subgraph.OrderKey).ToList(),
                 ExtractionMethod = extractionMethod,
+                SourceEvidenceItemId = sourceEvidenceItemId,
             },
             LabelOnlyInferenceConfidence = ResolveLabelOnlyInferenceConfidence(nodes),
         };
+    }
+
+    private static string? ResolveSourceEvidenceItemId(IReadOnlyList<CanonicalObject> nodes, string documentSourceId)
+    {
+        foreach (CanonicalObject canonicalObject in nodes)
+        {
+            if (canonicalObject.Properties.TryGetValue("sourceEvidenceItemId", out string? raw)
+                && !string.IsNullOrWhiteSpace(raw))
+            {
+                return raw.Trim();
+            }
+        }
+
+        return string.IsNullOrWhiteSpace(documentSourceId) ? null : documentSourceId.Trim();
     }
 
     public static double ResolveLabelOnlyInferenceConfidence(IReadOnlyList<CanonicalObject> nodes)

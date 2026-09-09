@@ -15,7 +15,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { RunPackageExportFormat } from "@/lib/api/downloads-blob-urls";
+import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildPackagePrintPath } from "@/lib/package-print-view";
 import {
@@ -143,10 +145,10 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
 
       void downloadRunPackageExport(props.runId, step.exportFormat)
         .catch((error: unknown) => {
-          showError(
-            step.downloadLabel ?? step.label,
-            error instanceof Error ? error.message : "Download failed.",
-          );
+          const failure = toApiLoadFailure(error);
+          const blocked = runPackageExportMutationBlockedReason(failure);
+
+          showError(step.downloadLabel ?? step.label, blocked ?? failure.message);
         })
         .finally(() => {
           setExportBusyStepId(null);

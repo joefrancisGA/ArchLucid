@@ -163,6 +163,51 @@ public sealed class StructuredDiagramCanonicalBinderTests
     }
 
     [Fact]
+    public void BindToCanonicalNodes_copies_source_evidence_item_id_onto_bound_canonical_node()
+    {
+        const string EvidenceItemId = "doc-tf-bind-evidence";
+
+        GraphNode declarationNode = CreateTopologyNode(
+            "obj-pay-sql",
+            "pay_sql",
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["terraformType"] = "azurerm_mssql_server",
+            });
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult compileResult = compiler.Compile(
+            new ArchitectureDiagramModelRecord
+            {
+                Nodes =
+                [
+                    new ArchitectureDiagramNodeRecord
+                    {
+                        Id = "sql",
+                        Label = "azurerm_mssql_server.pay_sql",
+                        Kind = ArchitectureDiagramNodeKinds.System,
+                        Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                    },
+                ],
+                ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+                SourceEvidenceItemId = EvidenceItemId,
+            },
+            CreateCompileOptions());
+
+        StructuredDiagramGraphCompileResult bound = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(
+            compileResult,
+            [declarationNode]);
+
+        StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+            [declarationNode],
+            bound.CanonicalBindings);
+
+        declarationNode.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId].Should().Be("sql");
+        declarationNode.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId]
+            .Should().Be(EvidenceItemId);
+    }
+
+    [Fact]
     public void BindToCanonicalNodes_remaps_edges_to_bound_canonical_nodes()
     {
         GraphNode apiNode = CreateTopologyNode("obj-api-1", "API Gateway", []);

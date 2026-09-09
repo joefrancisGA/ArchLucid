@@ -2,12 +2,15 @@ using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Roi;
+using ArchLucid.Api.Tests.Roi;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 
 using FluentAssertions;
@@ -193,7 +196,10 @@ public sealed class RoiControllerTests
                 scopeProvider.Object,
                 complianceDriftTrendService ?? Mock.Of<IComplianceDriftTrendService>(),
                 Mock.Of<IAuthorityQueryService>(),
-                Mock.Of<IManifestHashService>())
+                Mock.Of<IManifestHashService>(),
+                Mock.Of<ITenantRepository>(),
+                Mock.Of<IScimUserRepository>(),
+                RoiControllerTestSupport.CreateRunCollector(scopeProvider.Object))
             {
                 ControllerContext = new ControllerContext { HttpContext = httpContext }
             };
