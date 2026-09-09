@@ -681,7 +681,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -794,6 +794,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1451 (seed-only): reseeded sql-run-repository after #1450; cheap-disproof closed GoldenManifest tenant join defense-in-depth, manifest-version-only INNER JOIN exclusion, version-scoped committed predicate breadth, optional row-version update, architecture-head latest-run semantics, and null-architecture backfill tie-break; 90 scoped Persistence tests passed (1 SQL integration skipped).
 
+- [x] (valid-no-repro) `SelectCommittedRunIdByGoldenManifestId` returns current rerun when `ExcludeRunId` is supplied — **cheap-disproof 2026-09-09 seed hunt #1456:** SQL and InMemory skip `ExcludeRunId`; regressions `SelectCommittedRunIdByGoldenManifestId_excludes_current_run_via_exclude_run_id` and `InMemory_committed_run_by_golden_manifest_excludes_current_run_when_seal_delta_requested`.
+- [x] (valid-no-repro) `ExistsActiveRunWithSystemNameInWorkspace` ignores optional `ExcludeRunId` and blocks rename of the active run — **cheap-disproof 2026-09-09 seed hunt #1456:** SQL uses `(@ExcludeRunId IS NULL OR RunId <> @ExcludeRunId)`; regression `ExistsActiveRunWithSystemNameInWorkspace_sql_honors_optional_exclude_run_id`.
+- [x] (valid-no-repro) `RunRepositorySql.Update` allows stale writes when `@RowVersion` is supplied — **cheap-disproof 2026-09-09 seed hunt #1456:** optimistic concurrency requires `RowVersionStamp = @RowVersion` unless stamp is null; regression `Update_requires_row_version_match_when_stamp_supplied`.
+- [x] (valid-no-repro) `Archival_PurgeStaleUncommittedRunsBatch` skips soft-archived uncommitted runs — **cheap-disproof 2026-09-09 seed hunt #1456:** retention purge intentionally hard-deletes stale uncommitted rows even when soft-archived; SQL and `IsEligibleForStaleUncommittedPurge` omit `ArchivedUtc`; regression `IsEligibleForStaleUncommittedPurge_includes_soft_archived_uncommitted_runs_by_design`.
+- [x] (valid-no-repro) `SampleRunPurgeBatch` / `HardDeleteSampleRunsBatchAsync` ignore tenant and cutoff filters — **cheap-disproof 2026-09-09 seed hunt #1456:** `IsEligibleForSamplePurge` and InMemory batch honor optional tenant/cutoff; regressions `IsEligibleForSamplePurge_honors_tenant_and_cutoff_filters`, `InMemory_sample_purge_honors_tenant_and_cutoff_filters`, and `SampleRunPurgeBatch_honors_optional_tenant_and_cutoff_filters`.
+
+2026-09-09 seed hunt #1456 (seed-only): reseeded sql-run-repository after #1451; cheap-disproof closed golden-manifest exclude-run seal-delta path, workspace-name exclude predicate, row-version match guard, stale-uncommitted archived eligibility, and sample purge tenant/cutoff filters; 98 scoped Persistence tests passed (1 SQL integration skipped).
+
 - [x] (proven) `CountActiveRunsForArchitectureRequest` / `ExistsRunForArchitectureRequestInScope` / `SelectRepresentativeRunIdForArchitectureRequestInScope` and `RunListWarningFlagSql.LeftJoinAggregates` compared `ArchitectureRequestId` with trim-only normalization while callers collapse internal whitespace — **hit 2026-09-09 seed hunt #1465 (seed→hit):** `NormalizeArchitectureRequestId` and `CollapsedUpperArchitectureRequestId` SQL collapse internal whitespace before uppercase compare; InMemory `ArchitectureRequestIdMatches` aligned; regressions in `Architecture_request_queries_collapse_internal_whitespace_before_compare`, `InMemory_count_active_runs_matches_internal_whitespace_in_stored_architecture_request_id`, `InMemory_exists_run_for_architecture_request_matches_internal_whitespace_in_stored_id`, and `LeftJoinAggregates_normalizes_architecture_request_id_before_package_origin_join`.
 - [x] (candidate) `ExistsActiveRunWithSystemNameInWorkspace` / project-list SQL compare stored `ProjectId` without collapsing internal whitespace — open on unmerged branches **#1460** / **#1462**; not reproved on this run.
 - [x] (candidate) `HardDeleteStaleUncommittedRunsBatchAsync` omits `IsSample` — open on unmerged branch **#1463**; not reproved on this run.
@@ -804,7 +812,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Authority project slug list/committed lookups compare edge-trimmed `ProjectId` only so internal whitespace variants miss dashboard lists and committed-run resolution — **hit 2026-09-09 seed hunt #1466 (seed→hit):** stored `Claims  API` omitted from list/committed seeks for `claims api`; fixed with `NormalizeAuthorityProjectSlug` and SQL `STRING_SPLIT`/`STRING_AGG` collapse across project list, graph-at-or-before, and committed lookup shapes; regressions `Project_list_queries_collapse_internal_whitespace_in_project_slug`, `InMemory_list_by_project_matches_internal_whitespace_in_stored_project_slug`, and `InMemory_matches_internal_whitespace_for_latest_committed_run_lookup`.
 
 2026-09-09 seed hunt #1466 (seed→hit): reseeded sql-run-repository after #1451; proved authority project slug internal-whitespace bypass in list and committed lookups; 126 scoped Persistence tests passed (1 SQL integration skipped).
-
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
