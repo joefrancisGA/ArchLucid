@@ -104,6 +104,15 @@ public sealed class RunListWarningFlagSqlTests
     }
 
     [Fact]
+    public void RunsListRecentInScopeKeysetNoLock_reuses_shared_keyset_cursor_predicate()
+    {
+        HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock.Should()
+            .Contain(RunListWarningFlagSql.KeysetCursorPredicate.Trim());
+        HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock.Should()
+            .Contain(RunListWarningFlagSql.KeysetOrderBy);
+    }
+
+    [Fact]
     public void Hot_path_list_shapes_pair_select_run_columns_with_left_join_aggregates()
     {
         HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should()

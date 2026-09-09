@@ -681,7 +681,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -769,6 +769,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` includes archived backfill candidates — **cheap-disproof 2026-09-09 seed hunt #1447:** backfill batch requires `ArchivedUtc IS NULL`; regression `ListWithNullArchitectureId_excludes_archived_backfill_candidates` plus `InMemory_list_with_null_architecture_id_excludes_archived_runs`.
 
 2026-09-09 seed hunt #1447 (seed-only): reseeded sql-run-repository after #1446; cheap-disproof closed graph-at-time snapshot requirement, prior-committed timeline guard, archive-by-ids idempotency, catalog retention scope, and null-architecture backfill archival filter; 74 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectPriorCommittedRunIdForArchitectureBeforeCurrent` ranks all architecture commits and ignores current-run timeline — **cheap-disproof 2026-09-09 seed hunt #1448:** SQL excludes current id and requires strictly earlier `(CreatedUtc, RunId)` tuple; regression `SelectPriorCommittedRunIdForArchitectureBeforeCurrent_excludes_current_and_later_timeline`.
+- [x] (valid-no-repro) `RunRepositorySql.Insert` omits row-version output for optimistic concurrency — **cheap-disproof 2026-09-09 seed hunt #1448:** insert captures `OUTPUT inserted.RowVersionStamp`; regression `Insert_outputs_row_version_stamp_for_optimistic_concurrency`.
+- [x] (valid-no-repro) `HardDeleteStaleUncommittedRunsBatchAsync` purges committed/demo/showcase runs — **cheap-disproof 2026-09-09 seed hunt #1448:** `IsEligibleForStaleUncommittedPurge` excludes committed, demo welcome, and public showcase rows; regressions `IsEligibleForStaleUncommittedPurge_excludes_committed_demo_and_showcase_runs` and `InMemory_stale_uncommitted_purge_skips_committed_runs`.
+- [x] (valid-no-repro) `CountByArchitectureIdAsync` includes archived architecture child runs — **cheap-disproof 2026-09-09 seed hunt #1448:** SQL and InMemory count active in-scope runs only; regression `InMemory_count_by_architecture_id_excludes_archived_runs`.
+- [x] (valid-no-repro) `ArchiveRunsCreatedBeforeForScopeAsync` archives cross-scope runs when global variant exists — **cheap-disproof 2026-09-09 seed hunt #1448:** InMemory scoped archive leaves other scope-project rows active; regression `InMemory_archive_runs_created_before_for_scope_leaves_other_scopes_active`.
+- [x] (valid-no-repro) Recent-in-scope keyset list uses ad-hoc cursor predicate — **cheap-disproof 2026-09-09 seed hunt #1448:** `RunsListRecentInScopeKeysetNoLock` reuses shared `KeysetCursorPredicate` and `KeysetOrderBy`; regression `RunsListRecentInScopeKeysetNoLock_reuses_shared_keyset_cursor_predicate`.
+
+2026-09-09 seed hunt #1448 (seed-only): reseeded sql-run-repository after #1447; cheap-disproof closed architecture prior-committed timeline, insert row-version output, stale-uncommitted purge eligibility, architecture count scope, scoped archive isolation, and recent keyset cursor reuse; 81 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 

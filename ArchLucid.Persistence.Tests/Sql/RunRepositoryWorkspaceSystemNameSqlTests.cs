@@ -536,6 +536,196 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void SelectPriorCommittedRunIdForArchitectureBeforeCurrent_excludes_current_and_later_timeline()
+    {
+        RunRepositorySql.SelectPriorCommittedRunIdForArchitectureBeforeCurrent.Should()
+            .Contain("r.RunId <> @CurrentRunId");
+        RunRepositorySql.SelectPriorCommittedRunIdForArchitectureBeforeCurrent.Should()
+            .Contain("r.CreatedUtc < @CurrentCreatedUtc");
+        RunRepositorySql.SelectPriorCommittedRunIdForArchitectureBeforeCurrent.Should()
+            .Contain("(r.CreatedUtc = @CurrentCreatedUtc AND r.RunId < @CurrentRunId)");
+    }
+
+    [Fact]
+    public void Insert_outputs_row_version_stamp_for_optimistic_concurrency()
+    {
+        RunRepositorySql.Insert.Should().Contain("OUTPUT inserted.RowVersionStamp INTO @RunInsertOutput");
+        RunRepositorySql.Insert.Should().Contain("SELECT RowVersionStamp FROM @RunInsertOutput");
+    }
+
+    [Fact]
+    public void IsEligibleForStaleUncommittedPurge_excludes_committed_demo_and_showcase_runs()
+    {
+        DateTime cutoff = new(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime oldCreated = new(2026, 8, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        RunRepositoryCore.IsEligibleForStaleUncommittedPurge(
+            new RunRecord
+            {
+                CreatedUtc = oldCreated,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            },
+            cutoff).Should().BeFalse();
+
+        RunRepositoryCore.IsEligibleForStaleUncommittedPurge(
+            new RunRecord
+            {
+                CreatedUtc = oldCreated,
+                IsDemoWelcomeRun = true,
+            },
+            cutoff).Should().BeFalse();
+
+        RunRepositoryCore.IsEligibleForStaleUncommittedPurge(
+            new RunRecord
+            {
+                CreatedUtc = oldCreated,
+                IsPublicShowcase = true,
+            },
+            cutoff).Should().BeFalse();
+
+        RunRepositoryCore.IsEligibleForStaleUncommittedPurge(
+            new RunRecord
+            {
+                CreatedUtc = oldCreated,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            },
+            cutoff).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task InMemory_stale_uncommitted_purge_skips_committed_runs()
+    {
+        InMemoryRunRepository runs = new();
+        RunRecord committed = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ScopeProjectId = Guid.NewGuid(),
+            ProjectId = "billing",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            GoldenManifestId = Guid.NewGuid(),
+            CreatedUtc = new DateTime(2026, 8, 1, 0, 0, 0, DateTimeKind.Utc),
+        };
+
+        await runs.SaveAsync(committed, CancellationToken.None);
+
+        RunStaleUncommittedPurgeBatchResult result = await runs.HardDeleteStaleUncommittedRunsBatchAsync(
+            new DateTimeOffset(2026, 9, 1, 0, 0, 0, TimeSpan.Zero),
+            10,
+            CancellationToken.None);
+
+        result.Deleted.Should().BeEmpty();
+        (await runs.GetByIdAsync(
+            new ScopeContext
+            {
+                TenantId = committed.TenantId,
+                WorkspaceId = committed.WorkspaceId,
+                ProjectId = committed.ScopeProjectId,
+            },
+            committed.RunId,
+            CancellationToken.None)).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task InMemory_count_by_architecture_id_excludes_archived_runs()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid architectureId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                ArchivedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                ArchitectureId = architectureId,
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        int count = await runs.CountByArchitectureIdAsync(scope, architectureId, CancellationToken.None);
+
+        count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task InMemory_archive_runs_created_before_for_scope_leaves_other_scopes_active()
+    {
+        ScopeContext targetScope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        ScopeContext otherScope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime oldCreated = new(2026, 8, 1, 0, 0, 0, DateTimeKind.Utc);
+        InMemoryRunRepository runs = new();
+
+        RunRecord targetRun = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = targetScope.TenantId,
+            WorkspaceId = targetScope.WorkspaceId,
+            ScopeProjectId = targetScope.ProjectId,
+            ProjectId = "billing",
+            CreatedUtc = oldCreated,
+        };
+        RunRecord otherRun = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = otherScope.TenantId,
+            WorkspaceId = otherScope.WorkspaceId,
+            ScopeProjectId = otherScope.ProjectId,
+            ProjectId = "billing",
+            CreatedUtc = oldCreated,
+        };
+
+        await runs.SaveAsync(targetRun, CancellationToken.None);
+        await runs.SaveAsync(otherRun, CancellationToken.None);
+
+        RunArchiveBatchResult batch = await runs.ArchiveRunsCreatedBeforeForScopeAsync(
+            targetScope,
+            new DateTimeOffset(2026, 9, 1, 0, 0, 0, TimeSpan.Zero),
+            CancellationToken.None);
+
+        batch.UpdatedCount.Should().Be(1);
+        (await runs.GetByIdAsync(otherScope, otherRun.RunId, CancellationToken.None)).Should().NotBeNull();
+        (await runs.GetByIdAsync(targetScope, targetRun.RunId, CancellationToken.None)).Should().BeNull();
+    }
+
+    [Fact]
     public void SelectLatestRunIdForArchitecture_orders_active_runs_by_created_utc_then_run_id()
     {
         RunRepositorySql.SelectLatestRunIdForArchitecture.Should().Contain("r.ArchivedUtc IS NULL");
