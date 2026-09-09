@@ -6606,6 +6606,92 @@ describe("wave83 filter url helpers", () => {
   });
 });
 
+describe("wave84 filter url helpers", () => {
+  it("aws/azure/gcp cloud connection, jira/servicenow/slack integration, help cloud connections/connect azure/jira/webhooks sources params", async () => {
+    const {
+      awsCloudConnectionSourcesDisclosureHrefFromSearch,
+      parseAwsCloudConnectionSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/aws-cloud-connection-sources-disclosure-url");
+    const {
+      azureCloudConnectionSourcesDisclosureHrefFromSearch,
+      parseAzureCloudConnectionSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/azure-cloud-connection-sources-disclosure-url");
+    const {
+      gcpCloudConnectionSourcesDisclosureHrefFromSearch,
+      parseGcpCloudConnectionSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/gcp-cloud-connection-sources-disclosure-url");
+    const {
+      jiraIntegrationSourcesDisclosureHrefFromSearch,
+      parseJiraIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/jira-integration-sources-disclosure-url");
+    const {
+      parseServicenowIntegrationSourcesOpenFromSearch,
+      servicenowIntegrationSourcesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/servicenow-integration-sources-disclosure-url");
+    const {
+      parseSlackIntegrationSourcesOpenFromSearch,
+      slackIntegrationSourcesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/slack-integration-sources-disclosure-url");
+    const {
+      helpCloudConnectionsSourcesDisclosureHrefFromSearch,
+      parseHelpCloudConnectionsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-cloud-connections-sources-disclosure-url");
+    const {
+      helpConnectAzureSecurelySourcesDisclosureHrefFromSearch,
+      parseHelpConnectAzureSecurelySourcesOpenFromSearch,
+    } = await import("@/lib/help/help-connect-azure-securely-sources-disclosure-url");
+    const {
+      helpJiraIntegrationSourcesDisclosureHrefFromSearch,
+      parseHelpJiraIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-jira-integration-sources-disclosure-url");
+    const {
+      helpWebhooksIntegrationSourcesDisclosureHrefFromSearch,
+      parseHelpWebhooksIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-webhooks-integration-sources-disclosure-url");
+
+    expect(parseAwsCloudConnectionSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      awsCloudConnectionSourcesDisclosureHrefFromSearch("", true, "/integrations/cloud-connections/aws"),
+    ).toBe("/integrations/cloud-connections/aws?awsCloudConnectionSourcesOpen=1");
+    expect(parseAzureCloudConnectionSourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      azureCloudConnectionSourcesDisclosureHrefFromSearch("tab=status", true, "/integrations/cloud-connections/azure"),
+    ).toBe("/integrations/cloud-connections/azure?tab=status&azureCloudConnectionSourcesOpen=1");
+    expect(parseGcpCloudConnectionSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      gcpCloudConnectionSourcesDisclosureHrefFromSearch("", true, "/integrations/cloud-connections/gcp"),
+    ).toBe("/integrations/cloud-connections/gcp?gcpCloudConnectionSourcesOpen=1");
+    expect(parseJiraIntegrationSourcesOpenFromSearch("true")).toBe(true);
+    expect(jiraIntegrationSourcesDisclosureHrefFromSearch("", true, "/integrations/jira")).toBe(
+      "/integrations/jira?jiraIntegrationSourcesOpen=1",
+    );
+    expect(parseServicenowIntegrationSourcesOpenFromSearch("1")).toBe(true);
+    expect(servicenowIntegrationSourcesDisclosureHrefFromSearch("", true, "/integrations/servicenow")).toBe(
+      "/integrations/servicenow?servicenowIntegrationSourcesOpen=1",
+    );
+    expect(parseSlackIntegrationSourcesOpenFromSearch("true")).toBe(true);
+    expect(slackIntegrationSourcesDisclosureHrefFromSearch("view=channels", true, "/integrations/slack")).toBe(
+      "/integrations/slack?view=channels&slackIntegrationSourcesOpen=1",
+    );
+    expect(parseHelpCloudConnectionsSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpCloudConnectionsSourcesDisclosureHrefFromSearch("", true, "/help/cloud-connections")).toBe(
+      "/help/cloud-connections?helpCloudConnectionsSourcesOpen=1",
+    );
+    expect(parseHelpConnectAzureSecurelySourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      helpConnectAzureSecurelySourcesDisclosureHrefFromSearch("", true, "/help/cloud-connections/azure"),
+    ).toBe("/help/cloud-connections/azure?helpConnectAzureSecurelySourcesOpen=1");
+    expect(parseHelpJiraIntegrationSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpJiraIntegrationSourcesDisclosureHrefFromSearch("", true, "/help/jira-integration")).toBe(
+      "/help/jira-integration?helpJiraIntegrationSourcesOpen=1",
+    );
+    expect(parseHelpWebhooksIntegrationSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpWebhooksIntegrationSourcesDisclosureHrefFromSearch("", true, "/help/webhooks-integration")).toBe(
+      "/help/webhooks-integration?helpWebhooksIntegrationSourcesOpen=1",
+    );
+  });
+});
+
 describe("wave79 filter url helpers", () => {
   it("dev testing quick switch, operator first-run workflow minimized, run detail workspace disclosures, role nav density, sidebar groups, collapsible json path, finding ask inline finding id, technical id disclosure key, usability feedback, draft intake reason default open params", async () => {
     const {
