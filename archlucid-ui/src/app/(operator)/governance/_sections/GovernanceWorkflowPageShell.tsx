@@ -255,7 +255,7 @@ export function GovernanceWorkflowPageShell(props: GovernanceWorkflowPageShellPr
           )}
         >
           <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
             data-testid="governance-approval-queue-intro"
           >
             {GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD}
