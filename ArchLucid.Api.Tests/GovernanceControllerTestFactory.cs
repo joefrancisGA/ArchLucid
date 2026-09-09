@@ -96,6 +96,8 @@ internal static class GovernanceControllerTestFactory
             mutationCorrection,
             actorContext ?? Mock.Of<IActorContext>(),
             scope,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),
             policyPackGovernanceDryRunService ?? Mock.Of<IPolicyPackGovernanceDryRunService>(),
             policyPackHttpFacade ?? Mock.Of<IPolicyPackHttpFacade>(),

@@ -243,6 +243,15 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Returns the most recently created run id in <paramref name="scope" /> linked to
+    ///     <paramref name="architectureRequestId" />, or <see langword="null" /> when none exist.
+    /// </summary>
+    Task<Guid?> TryGetRepresentativeRunIdForArchitectureRequestInScopeAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Returns <see langword="true" /> when the workspace has at least one non-archived run whose
     ///     <see cref="RunRecord.ProjectId" /> matches <paramref name="systemName" /> case-insensitively and whose
     ///     <see cref="RunRecord.LegacyRunStatus" /> occupies the name (excludes terminal

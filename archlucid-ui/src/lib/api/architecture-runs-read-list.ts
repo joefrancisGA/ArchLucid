@@ -7,7 +7,6 @@ import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import {
   type ApiResponseWithTrace,
-  apiGet,
   apiPostJson,
 } from "./http";
 import type {
@@ -20,7 +19,7 @@ export async function getArchitectureRequest(
   requestId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<components["schemas"]["ArchitectureRequest"]> {
-  return apiGet<components["schemas"]["ArchitectureRequest"]>(
+  return apiGetSealedManifestAware<components["schemas"]["ArchitectureRequest"]>(
     `/v1/architecture/request/${encodeURIComponent(requestId)}`,
     options,
   );

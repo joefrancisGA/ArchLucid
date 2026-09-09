@@ -6,6 +6,8 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 
@@ -27,9 +29,11 @@ public sealed partial class RunsController
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(ArchitectureRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRequest(
         [FromRoute] string requestId,
         [FromServices] IArchitectureRequestRepository requestRepository,
+        [FromServices] IManifestHashService manifestHashService,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(requestId))
@@ -40,6 +44,14 @@ public sealed partial class RunsController
 
         if (request is null)
             return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        IActionResult? sealedGuardResult = await EnsureArchitectureRequestSealedManifestReadAllowedAsync(
+            requestId,
+            manifestHashService,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         return Ok(request);
     }

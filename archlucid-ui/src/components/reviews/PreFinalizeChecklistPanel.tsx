@@ -10,7 +10,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { getPreFinalizeChecklist } from "@/lib/api/pre-finalize-checklist";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
+import { preFinalizeChecklistBlockedReason } from "@/lib/runs/pre-finalize-checklist-blocked-reason";
 import type {
   PreFinalizeChecklistItem,
   PreFinalizeChecklistItemStatus,
@@ -98,7 +100,8 @@ export function PreFinalizeChecklistPanel({
       setChecklist(response);
     } catch (error: unknown) {
       setChecklist(null);
-      setLoadError(isApiRequestError(error) ? error.message : "Unable to load pre-finalize checklist.");
+      const failure = toApiLoadFailure(error);
+      setLoadError(preFinalizeChecklistBlockedReason(failure) ?? (isApiRequestError(error) ? error.message : "Unable to load pre-finalize checklist."));
     } finally {
       setLoading(false);
     }
