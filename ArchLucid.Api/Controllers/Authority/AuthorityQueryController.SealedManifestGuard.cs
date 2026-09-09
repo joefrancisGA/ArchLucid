@@ -79,4 +79,30 @@ public sealed partial class AuthorityQueryController
 
         return null;
     }
+
+    private IActionResult? EnsureManifestSummarySealedReadAllowed(
+        ManifestSummaryDto result,
+        RunDetailDto? manifestDetail)
+    {
+        try
+        {
+            if (manifestDetail?.GoldenManifest is null)
+            {
+                return this.ConflictProblem(
+                    $"Manifest '{result.ManifestId}' sealed hash verification is unavailable because the committed golden manifest is missing.",
+                    ProblemTypes.Conflict);
+            }
+
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                manifestDetail.GoldenManifest,
+                result.RunId.ToString("D"),
+                manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
 }
