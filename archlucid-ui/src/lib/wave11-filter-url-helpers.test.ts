@@ -6950,6 +6950,28 @@ describe("wave88 filter url helpers", () => {
   });
 });
 
+describe("wave89 filter url helpers", () => {
+  it("help topic catchall and quick scan sources params", async () => {
+    const {
+      helpTopicCatchallSourcesDisclosureHrefFromSearch,
+      parseHelpTopicCatchallSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-topic-catchall-sources-disclosure-url");
+    const {
+      quickScanSourcesDisclosureHrefFromSearch,
+      parseQuickScanSourcesOpenFromSearch,
+    } = await import("@/lib/marketing/quick-scan-sources-disclosure-url");
+
+    expect(parseHelpTopicCatchallSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      helpTopicCatchallSourcesDisclosureHrefFromSearch("", true, "/help/engineering-troubleshooting"),
+    ).toBe("/help/engineering-troubleshooting?helpTopicCatchallSourcesOpen=1");
+    expect(parseQuickScanSourcesOpenFromSearch("true")).toBe(true);
+    expect(quickScanSourcesDisclosureHrefFromSearch("", true, "/quick-scan")).toBe(
+      "/quick-scan?quickScanSourcesOpen=1",
+    );
+  });
+});
+
 describe("wave79 filter url helpers", () => {
   it("dev testing quick switch, operator first-run workflow minimized, run detail workspace disclosures, role nav density, sidebar groups, collapsible json path, finding ask inline finding id, technical id disclosure key, usability feedback, draft intake reason default open params", async () => {
     const {
