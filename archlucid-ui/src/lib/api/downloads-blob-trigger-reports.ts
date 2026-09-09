@@ -4,6 +4,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
   ensureOidcBearerReady,
+  getBearerToken,
   isBrowser,
 } from "./http";
 
@@ -154,6 +155,44 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
   const fileName =
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
     `ArchLucid-board-pack-Q${quarter}-${year}.pdf`;
+  const blob = await response.blob();
+  await triggerBrowserBlobDownload(blob, fileName);
+}
+
+/**
+ * POST `/v1/pilots/runs/{runId}/sponsor-one-pager` and trigger a browser download of the resulting PDF.
+ */
+export async function downloadSponsorOnePagerPdf(runId: string): Promise<void> {
+  if (!isBrowser()) {
+    throw new Error("downloadSponsorOnePagerPdf is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const path = `/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-one-pager`;
+  const url = `/api/proxy${path}`;
+  const headers = new Headers();
+  headers.set("Accept", "application/pdf, application/json");
+  const bearer = getBearerToken();
+  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+  const init = mergeRegistrationScopeForProxy({
+    method: "POST",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+  });
+  const { response, correlationId } = await fetchBrowserDownload(url, { ...init, method: "POST" });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
+  }
+
+  assertBinaryDownloadContentType(response, ["application/pdf"]);
+
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `ArchLucid-sponsor-one-pager-${runId}.pdf`;
   const blob = await response.blob();
   await triggerBrowserBlobDownload(blob, fileName);
 }

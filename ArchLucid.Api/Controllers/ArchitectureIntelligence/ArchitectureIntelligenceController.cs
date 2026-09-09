@@ -36,6 +36,7 @@ public sealed partial class ArchitectureIntelligenceController(
     IArchitectureIntelligenceProductRunSourceContextLoader productRunSourceContextLoader,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
+    IRunDetailQueryService runDetailQueryService,
     IManifestHashService manifestHashService,
     IAuditService auditService) : ControllerBase
 {
@@ -58,6 +59,9 @@ public sealed partial class ArchitectureIntelligenceController(
 
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));

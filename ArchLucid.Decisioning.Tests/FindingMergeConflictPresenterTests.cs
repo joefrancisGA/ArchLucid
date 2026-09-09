@@ -29,6 +29,9 @@ public sealed class FindingMergeConflictPresenterTests
         rows[0].FindingType.Should().Be(FindingMergeConflictPresenter.FindingType);
         rows[0].Severity.Should().Be(FindingSeverity.Warning);
         rows[0].PolicyRuleId.Should().Be(FindingMergeConflictPresenter.PolicyRuleId);
+        rows[0].RelatedNodeIds.Should().ContainSingle().Which.Should().Be(rows[0].FindingId);
+        rows[0].EvidenceRefs.Should().Contain($"policy-rule:{FindingMergeConflictPresenter.PolicyRuleId}");
+        rows[0].Trace!.RulesApplied.Should().Contain(FindingMergeConflictPresenter.PolicyRuleId);
         rows[0].Properties["findingMerge.conflict"].Should().Be(bool.TrueString);
     }
 

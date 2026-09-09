@@ -3,14 +3,13 @@
 claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
 DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
 (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-The golden corpus harness registers **42** engines; **23** appear in this table (≥1 finding across case-01..case-69). **30** built-in product engines are absent from this corpus-derived slice.
+The golden corpus harness registers **42** engines; **23** appear in this table (≥1 finding across case-01..case-71). **30** built-in product engines are absent from this corpus-derived slice.
 `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
 `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
 Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
 Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.
 Recorded scores on this corpus do not form a 60/65/75/80/85 ladder; inventory and line-anchored doc bonuses apply only where those anchors exist.
-QR-05 (2026-09-09): `security-baseline` now emits `EvidenceRefs` from resolvable node properties; this corpus slice still has no inventory-shaped citations on those nodes, so the row stays median 65 with `No evidence = 10` (fail closed — no invented ARM ids).
 
 | Engine | Findings | Min | Median | Max | Would demote if unprotected | Generic advice | No evidence | No anchor | Duplication | Would demote at 65 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
