@@ -163,6 +163,8 @@ public sealed partial class PolicyPackHttpFacade
 
         await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
 
+        bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
+
         PolicyPackSetAssignmentEnabledOutcome outcome =
             await _workflow.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
 

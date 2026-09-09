@@ -149,6 +149,93 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_corporate_network_subgraph_tags_member_nodes_as_trust_boundary()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord
+                {
+                    Id = "corp",
+                    Label = "Corporate network",
+                },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "api",
+                    Label = "API",
+                    SubgraphId = "corp",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult result = compiler.Compile(
+            model,
+            new StructuredDiagramGraphCompileOptions
+            {
+                RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                GraphSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                CreatedUtc = DateTime.Parse("2026-01-01T00:00:00Z"),
+            });
+
+        result.Snapshot.Nodes.Should().ContainSingle(node => node.NodeType == GraphNodeTypes.TrustBoundary
+            && node.Label == "Corporate network");
+        GraphNode apiNode = result.Snapshot.Nodes.Single(node => node.SourceId == "api");
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel]
+            .Should().Be("Corporate network");
+        result.Snapshot.Edges.Should().ContainSingle(edge => edge.EdgeType == GraphEdgeTypes.Contains);
+    }
+
+    [Fact]
+    public void Compile_legend_subgraph_does_not_create_trust_boundary_node()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Subgraphs =
+            [
+                new ArchitectureDiagramSubgraphRecord
+                {
+                    Id = "legend-lane",
+                    Label = "Legend",
+                },
+            ],
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "color-key",
+                    Label = "Blue = external",
+                    SubgraphId = "legend-lane",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult result = compiler.Compile(
+            model,
+            new StructuredDiagramGraphCompileOptions
+            {
+                RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                GraphSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                CreatedUtc = DateTime.Parse("2026-01-01T00:00:00Z"),
+            });
+
+        result.Snapshot.Nodes.Should().NotContain(node => node.NodeType == GraphNodeTypes.TrustBoundary);
+        GraphNode legendNode = result.Snapshot.Nodes.Should().ContainSingle().Subject;
+        legendNode.Properties[StructuredDiagramGraphPropertyKeys.DiagramSubgraphLabel].Should().Be("Legend");
+        legendNode.Properties.Should().NotContainKey(StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel);
+        result.Snapshot.Edges.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Compile_three_unlabeled_rects_produce_zero_resource_nodes()
     {
         ArchitectureDiagramModelRecord model = new()
