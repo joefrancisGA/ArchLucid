@@ -7376,11 +7376,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — Enterprise one-seat subscription mapped to Architect LLM spend plan
+- **last-bug:** 2026-09-09 — Enterprise 1-seat LLM plan shortcut; exclude/minus negation marketplace tier gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7398,13 +7398,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `no-enterprise-*` / `never-enterprise-*` / `sans-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 seed hunt #1320:** #1319 guarded `non`/`not`/`anti`/`without` only; `contoso-no-enterprise-standard`, `never-enterprise-plan`, and `sans-enterprise-plan` still matched delimiter-bounded `enterprise`; extended `IsEnterpriseNegationToken` with `no`, `never`, and `sans`; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_no_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_never_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_sans_enterprise_delimited_plan`
 - [x] (valid-no-repro) `AuthEmailDomainNormalizer.TryNormalize` — IPv4 literal domains (`127.0.0.1`, `8.8.8.8`) pass `IsValidDomain` and can be proposed into tenant sign-in domain registry despite lacking public DNS ownership semantics — **cheap-disproof 2026-09-08 (#1321):** `AuthSignInRoutingEvaluator` requires `VerificationStatus.Verified` and `IsEnforcementActive` before SSO enforcement; unverified proposed rows (including IPv4 literal shape) do not affect live sign-in routing (`EvaluateAsync_allows_email_code_for_unverified_ipv4_literal_domain_registry_row`, existing `EvaluateAsync_blocks_unverified_domain_enforcement`); DNS TXT verification gate prevents verified enforcement without zone control; normalizer acceptance documented (`TryNormalize_accepts_ipv4_literal_domain_shape`)
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` / `IsEnterpriseNegationToken` — `exclude-*` / `excluding-*` / `excluded-*` and extended negation adverbs (`minus`, `un`, `de`, `ex`, `pseudo`, `semi`, `sub`, `micro`, `less`, `lacking`, `omit`, `outside`, `except`) delimited plan ids false-positive Enterprise tier — **hit 2026-09-09 seed hunt #1382:** #1320 guarded `non`/`not`/`no`/`never`/`anti`/`without`/`sans` only; negation-adverb prefixes still matched delimiter-bounded `enterprise`; fixed with `exclud` stem guard plus extended negation adverb tokens; regressions in `TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan` and `TierStorageCodeFromPlanId_does_not_false_positive_on_extended_enterprise_negation_adverbs`
-- [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — one-seat subscription shortcut returns `architect` before Enterprise label null path — **hit 2026-09-09 seed hunt #1381:** Enterprise commercial label with 1-seat/1-workspace subscription mapped to Architect spend plan instead of null; reachable via `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync`; fixed by returning null for Enterprise label before Architect shortcut; regression `FromCommercialPackaging_returns_null_for_enterprise_with_one_seat_subscription`
+- [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — one-seat subscription shortcut returns `architect` before Enterprise label null path — **hit 2026-09-09 seed hunts #1381/#1390:** Enterprise commercial label with 1-seat/1-workspace subscription mapped to Architect spend plan instead of null; reachable via `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync`; fixed by returning null for Enterprise label before Architect shortcut; regression `FromCommercialPackaging_returns_null_for_enterprise_with_one_seat_subscription`
+- [ ] (candidate) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `devoid-enterprise-*` / `bare-enterprise-*` / `free-enterprise-*` plan id may still false-positive Enterprise tier after minus/less/lacking sweep — **seeded 2026-09-09 seed hunt #1390**
+- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Professional commercial label paired with 1-seat subscription may inherit Architect shortcut before Professional branch when callers pass mismatched resolver inputs — **seeded 2026-09-09 seed hunt #1390**
 
 2026-09-09 seed hunt #1380 (hit): reseeded Identity/Billing/Budgeting after #1321 dry; proved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate.
 
 2026-09-09 seed hunt #1381 (hit): reseeded Identity/Billing/Budgeting; proved Enterprise one-seat Architect spend-plan mapping; 9 scoped LlmMonthlySpendPlanId/CommercialTenant tests passed.
 
 2026-09-09 seed hunt #1382 (hit): reseeded Identity/Billing/Budgeting; reproved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate; 52 scoped MarketplaceWebhookPayloadParser/CommercialTenant tests passed.
+
+2026-09-09 seed hunt #1390 (hit): reseeded Identity/Billing/Budgeting after dry #1321; reproved Enterprise LLM plan shortcut bleed and marketplace negation-token gaps; seeded devoid/bare/free negation and Professional-label shortcut pairing candidates; 47 scoped CommercialTenant-related unit tests passed.
 
 2026-09-08 thorough hunt #1321 (dry): cheap-disproved IPv4 literal domain candidate; added routing + normalizer regression tests; no open hypotheses remain — reseed on next seed hunt.
 
