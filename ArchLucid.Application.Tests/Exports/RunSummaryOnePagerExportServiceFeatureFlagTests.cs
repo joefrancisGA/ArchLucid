@@ -39,6 +39,7 @@ public sealed class RunSummaryOnePagerExportServiceFeatureFlagTests
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository>(),
             Mock.Of<IConfiguration>());
 
+
         Func<Task> act = () => sut.GenerateMarkdownAsync("run-1", CancellationToken.None);
 
         await act.Should().ThrowAsync<ConflictException>()

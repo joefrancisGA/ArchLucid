@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/dialog";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { recordRunOperatorGovernanceDisposition } from "@/lib/api/architecture-runs";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { runOperatorGovernanceDispositionMutationBlockedReason } from "@/lib/runs/run-operator-governance-disposition-mutation-blocked-reason";
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -129,7 +131,10 @@ export function RunDetailRunGovernanceDispositionActions(
       setSuccessMessage(runOperatorGovernanceDispositionSuccessMessage(decision));
       router.refresh();
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Failed to record review disposition.";
+      const failure = toApiLoadFailure(e);
+      const message =
+        runOperatorGovernanceDispositionMutationBlockedReason(failure)
+        ?? (e instanceof Error ? e.message : "Failed to record review disposition.");
       setErrorMessage(message);
     } finally {
       setBusy(false);

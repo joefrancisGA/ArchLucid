@@ -54,6 +54,8 @@ import { RunDetailExportRecordStatusCallout } from "./RunDetailExportRecordStatu
 import { RunDetailExportHistoryCallout } from "./RunDetailExportHistoryCallout";
 import { RunDetailExportRecordComparisonHistoryCallout } from "./RunDetailExportRecordComparisonHistoryCallout";
 import { RunDetailAssuranceGuardCallouts } from "./RunDetailAssuranceGuardCallouts";
+import { RunDetailExportBlobPushPanel } from "@/components/runs/RunDetailExportBlobPushPanel";
+
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -577,6 +579,8 @@ export function RunDetailArtifactsExportsSection(
         exportRecordId={searchParams.get("exportRecordId") ?? ""}
       />
       <RunDetailExportHistoryCallout runId={runId} />
+      <RunDetailExportBlobPushPanel runId={runId} disabled={collateralExportBlockedReason !== null} />
+
       <RunDetailAssuranceGuardCallouts runId={runId} />
     </section>
   );
