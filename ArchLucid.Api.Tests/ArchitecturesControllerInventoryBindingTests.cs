@@ -169,6 +169,19 @@ public sealed class ArchitecturesControllerInventoryBindingTests
         attribute!.Policy.Should().Be(ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority);
     }
 
+    [Fact]
+    public void DetachInventoryBinding_RequiresExecuteAuthority()
+    {
+        AuthorizeAttribute? attribute = typeof(ArchitecturesController)
+            .GetMethod(nameof(ArchitecturesController.DetachInventoryBinding))
+            ?.GetCustomAttributes(typeof(AuthorizeAttribute), inherit: true)
+            .Cast<AuthorizeAttribute>()
+            .FirstOrDefault();
+
+        attribute.Should().NotBeNull();
+        attribute!.Policy.Should().Be(ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority);
+    }
+
     private ArchitecturesController BuildSut() =>
         new(
             _scopeProvider.Object,

@@ -191,5 +191,8 @@ describe("ArchitectureIdentityDeskInventoryBindingPanel (AS-049)", () => {
     expect(screen.getByTestId("architecture-identity-desk-inventory-binding-bound")).toHaveTextContent("Prod");
     expect(screen.getByTestId("architecture-identity-desk-inventory-binding-detach")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-identity-desk-inventory-binding-attach")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-desk-inventory-binding-stale")).toHaveTextContent(
+      "Bound snapshot captured 2026-07-18",
+    );
   });
 });
