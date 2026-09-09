@@ -40,4 +40,5 @@ export type PilotValueReportJson = Omit<
     committedRunsTimeline: PilotValueReportTimelineRow[];
     averagePipelineCompletionSeconds: number | null;
     roiSourceFreshnessDisposition?: string | null;
+
   };

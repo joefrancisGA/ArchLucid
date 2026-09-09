@@ -24,6 +24,7 @@ public sealed partial class RunsController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [EnableRateLimiting("expensive")]
     public async Task<IActionResult> ReplayRun(
         [FromRoute] string runId,
@@ -34,6 +35,14 @@ public sealed partial class RunsController
 
         if (invalidRun is not null)
             return invalidRun;
+
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runGuid, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         request ??= new ReplayRunRequest();
 
@@ -101,6 +110,10 @@ public sealed partial class RunsController
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

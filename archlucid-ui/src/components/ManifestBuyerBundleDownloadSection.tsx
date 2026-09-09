@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 
@@ -30,7 +29,6 @@ export type ManifestBuyerBundleDownloadSectionProps = {
 };
 
 function bundleDownloadCopyAndAction(
-  manifestId: string,
   blockedHintId: string,
   downloadsDisabled: boolean,
   busy: boolean,
@@ -100,9 +98,6 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
       });
   }, [downloadsDisabled, manifestId]);
 
-  const action = bundleDownloadCopyAndAction(manifestId, blockedHintId, downloadsDisabled, busy, onDownload);
-  const action = bundleDownloadCopyAndAction(blockedHintId, downloadsDisabled, busy, onDownload);
-
   const syncBundleOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(
@@ -114,13 +109,18 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
   );
 
   const setBundleOpen = useCallback(
+    (open: boolean) => {
       setBundleOpenState(open);
       syncBundleOpenToUrl(open);
+    },
     [syncBundleOpenToUrl],
+  );
 
   useEffect(() => {
     setBundleOpenState(parseManifestBuyerBundleDownloadOpenFromSearch(manifestBuyerBundleDownloadOpenParam));
   }, [manifestBuyerBundleDownloadOpenParam]);
+
+  const action = bundleDownloadCopyAndAction(blockedHintId, downloadsDisabled, busy, onDownload);
 
   if (expanded === true) {
     return (

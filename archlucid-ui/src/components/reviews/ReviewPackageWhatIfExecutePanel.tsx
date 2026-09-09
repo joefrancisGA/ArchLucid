@@ -20,7 +20,7 @@ export function ReviewPackageWhatIfExecutePanel(
   props: ReviewPackageWhatIfExecutePanelProps,
 ): ReactElement | null {
   const draftQuery = useArchitectureDraftQuery(props.linkedDraft.draftId);
-  const { busy, executeBranch } = useReviewPackageWhatIfExecute(props.baseRunId);
+  const { busy, errorMessage, executeBranch } = useReviewPackageWhatIfExecute(props.baseRunId);
   const draft = draftQuery.data;
 
   if (draft === undefined) {
@@ -32,18 +32,29 @@ export function ReviewPackageWhatIfExecutePanel(
   }
 
   return (
-    <DraftIntakeWhatIfBranchPanel
-      draftId={draft.draftId}
-      draftStatus={draft.status}
-      disabled={props.disabled === true || busy}
-      intent={draft.document.freeTextIntent}
-      outcome={draft.document.businessOutcome ?? ""}
-      systemName={draft.document.systemName ?? ""}
-      questionOptions={[]}
-      suppressQuestionAnswerOverride={true}
-      onBranched={(response) => {
-        void executeBranch(response);
-      }}
-    />
+    <div className="space-y-2">
+      <DraftIntakeWhatIfBranchPanel
+        draftId={draft.draftId}
+        draftStatus={draft.status}
+        disabled={props.disabled === true || busy}
+        intent={draft.document.freeTextIntent}
+        outcome={draft.document.businessOutcome ?? ""}
+        systemName={draft.document.systemName ?? ""}
+        questionOptions={[]}
+        suppressQuestionAnswerOverride={true}
+        onBranched={(response) => {
+          void executeBranch(response);
+        }}
+      />
+      {errorMessage !== null ? (
+        <p
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="review-package-what-if-execute-blocked-reason"
+          role="alert"
+        >
+          {errorMessage}
+        </p>
+      ) : null}
+    </div>
   );
 }
