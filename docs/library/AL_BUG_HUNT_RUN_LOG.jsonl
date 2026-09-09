@@ -1657,3 +1657,4 @@
 {"at":"2026-09-09T20:32:40.1673691Z","zoneId":"ui-runs-list","outcome":"hit"}
 {"at":"2026-09-09T20:36:01.6189162Z","zoneId":"review-recurrence","outcome":"seed-only"}
 {"at":"2026-09-09T20:40:45.9658724Z","zoneId":"finding-disposition","outcome":"hit"}
+{"at":"2026-09-09T20:43:48.7419514Z","zoneId":"alert-simulation","outcome":"seed-only"}
