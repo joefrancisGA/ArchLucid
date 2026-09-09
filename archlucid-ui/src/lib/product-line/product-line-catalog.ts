@@ -62,7 +62,8 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
   "/administration/branding": "architecture",
   "/administration/users": "both",
   "/administration/identity-providers": "both",
-  "/administration/scim-provisioning": "both",
+  // SCIM directory provisioning is an Architecture tenant-admin surface — not in SecureNow nav (SN).
+  "/administration/scim-provisioning": "architecture",
   "/administration/billing": "architecture",
   "/administration/security-trust": "both",
   "/administration/connection-status": "both",

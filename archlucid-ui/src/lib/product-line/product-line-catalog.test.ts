@@ -77,6 +77,7 @@ describe("product-line catalog", () => {
     expect(hrefs).not.toContain("/administration/ai-usage");
     expect(hrefs).not.toContain("/administration/workspace-settings/recycle-bin");
     expect(hrefs).not.toContain("/administration/branding");
+    expect(hrefs).not.toContain("/administration/scim-provisioning");
   });
 
   it("keeps shared Internal diagnostics in Security when vendor Internal nav is on", () => {
@@ -142,6 +143,8 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/administration/billing", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/branding", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/branding", "architecture")).toBe(true);
+    expect(isPathAllowedForProductLine("/administration/scim-provisioning", "security")).toBe(false);
+    expect(isPathAllowedForProductLine("/administration/scim-provisioning", "architecture")).toBe(true);
     expect(isPathAllowedForProductLine("/integrations/azure-boards", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/slack", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/integrations/webhooks", "security")).toBe(false);
