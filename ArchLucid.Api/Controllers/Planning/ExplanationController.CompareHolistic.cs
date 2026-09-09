@@ -33,6 +33,12 @@ public sealed partial class ExplanationController
         [FromQuery] Guid targetRunId,
         CancellationToken ct = default)
     {
+        IActionResult? sealedGuardResult =
+            await EnsureCompareRunsSealedManifestReadAllowedAsync(baseRunId, targetRunId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ManifestCompareLoadResult loadResult =
             await compareRunsFacade.CompareManifestsAsync(baseRunId, targetRunId, ct);
 

@@ -13,6 +13,7 @@ using ArchLucid.Contracts.Advisory.Models;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
@@ -34,11 +35,12 @@ namespace ArchLucid.Api.Controllers.Advisory;
 [Route("v{version:apiVersion}/advisory")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class AdvisoryController(
+public sealed partial class AdvisoryController(
     IAdvisoryWorkflowFacade advisoryWorkflowFacade,
     IScopeContextProvider scopeProvider,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
+    IRecommendationRepository recommendationRepository,
     IAuditService auditService,
     ILogger<AdvisoryController> logger) : ControllerBase
 {
@@ -128,6 +130,12 @@ public sealed class AdvisoryController(
     {
         if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         if (!IsKnownRecommendationAction(request.Action)) return this.BadRequestProblem("Unknown or missing action.", ProblemTypes.ValidationFailed);
+
+        IActionResult? sealedGuardResult =
+            await EnsureAdvisoryApplySealedManifestAllowedAsync(recommendationId, request, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         string userName = User.Identity?.Name ?? "unknown";

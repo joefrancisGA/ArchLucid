@@ -7,7 +7,9 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -23,10 +25,12 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [Route("v{version:apiVersion}/infra-evidence/cloud-resources")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class CloudResourceEvidenceHubController(
+public sealed partial class CloudResourceEvidenceHubController(
     ICloudResourceEvidenceHubService hubService,
     ICloudResourceExplorerQueryService explorerQueryService,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<CloudResourceSummary>), StatusCodes.Status200OK)]
@@ -89,6 +93,11 @@ public sealed class CloudResourceEvidenceHubController(
                 $"pageSize cannot exceed {PaginationDefaults.MaxPageSize}. Use page and pageSize to paginate finding and remediation streams.",
                 ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? sealedGuardResult = await EnsureHubRunSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 

@@ -19,6 +19,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
 import { showError } from "@/lib/toast";
 import { OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -196,10 +198,10 @@ export function ReviewPackageSponsorHandoffStrip(
 
                 void downloadRunPackageExport(props.runId, "docx")
                   .catch((error: unknown) => {
-                    showError(
-                      "Architecture review report (DOCX)",
-                      error instanceof Error ? error.message : "Download failed.",
-                    );
+                    const failure = toApiLoadFailure(error);
+                    const blocked = runPackageExportMutationBlockedReason(failure);
+
+                    showError("Architecture review report (DOCX)", blocked ?? failure.message);
                   })
                   .finally(() => {
                     setDocxExportBusy(false);

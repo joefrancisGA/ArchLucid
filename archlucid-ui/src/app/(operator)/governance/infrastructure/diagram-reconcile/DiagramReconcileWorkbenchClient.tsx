@@ -30,6 +30,7 @@ import {
   ingestOperationalSecurityFindings,
   reconcileArchitectureDiagram,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
+import { diagramReconcileLoadModelBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-load-model-blocked-reason";
 import {
   buildDiagramReconcileOperationalFindingRequestItem,
   formatDiagramReconcileExplanation,
@@ -82,6 +83,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE,
@@ -445,7 +447,10 @@ export function DiagramReconcileWorkbenchClient() {
       showSuccess(`Loaded existing diagram model — ${activeNodes.length} active node(s) on this sealed run.`);
     } catch (error: unknown) {
       setModelNodeCount(null);
-      showError("Could not load diagram model", formatInfraEvidenceDiagramReconcileApiError(error));
+      const failure = toApiLoadFailure(error);
+      const blocked = diagramReconcileLoadModelBlockedReason(failure);
+
+      showError("Could not load diagram model", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
     }
   }, [runId]);
 

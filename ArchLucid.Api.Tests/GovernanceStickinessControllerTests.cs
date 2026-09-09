@@ -235,6 +235,7 @@ public sealed class GovernanceStickinessControllerTests
                 nextRun.Object,
                 CreateAuthorityQueryService(),
                 CreateManifestHashService(),
+                Mock.Of<IRunDetailQueryService>(),
                 riskExceptionService.Object,
                 findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
                 recurrenceRepository.Object)
@@ -276,6 +277,7 @@ public sealed class GovernanceStickinessControllerTests
                 Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
                 CreateAuthorityQueryService(),
                 CreateManifestHashService(),
+                Mock.Of<IRunDetailQueryService>(),
                 Mock.Of<IRiskExceptionService>(),
                 Mock.Of<IFindingInspectReadRepository>(),
                 Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>())
