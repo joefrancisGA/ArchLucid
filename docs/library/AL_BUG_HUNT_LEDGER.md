@@ -683,7 +683,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
 - **hunts:** 13
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-09 — golden-manifest committed run lookup lacked RunId tie-break in InMemory parity
 - **related-pd-tb:** none
