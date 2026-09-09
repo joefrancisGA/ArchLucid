@@ -63,6 +63,12 @@ public sealed class RunRepositoryCoreTests
             GoldenManifestId = Guid.NewGuid(),
             LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
         }).Should().BeFalse("quality-rejected rows with manifest headers are not committed lookups.");
+
+        RunRepositoryCore.IsCommittedRun(new RunRecord
+        {
+            CurrentManifestVersion = "v1",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
+        }).Should().BeFalse("quality-rejected rows with manifest headers are not committed lookups.");
     }
 
     [Fact]
