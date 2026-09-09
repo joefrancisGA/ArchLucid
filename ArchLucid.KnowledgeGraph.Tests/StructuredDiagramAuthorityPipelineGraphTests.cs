@@ -1,5 +1,7 @@
 using ArchLucid.ContextIngestion;
+using ArchLucid.ContextIngestion.Mapping;
 using ArchLucid.ContextIngestion.Parsing;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Builders;
@@ -82,6 +84,68 @@ public sealed class StructuredDiagramAuthorityPipelineGraphTests
         apiNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
             .Should().NotBe(StructuredDiagramGraphProvenanceKinds.ObservedFact);
         apiNode.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence].Should().Be("0.7");
+    }
+
+    [Fact]
+    public async Task BuildAsync_DiagramLabelWithArmId_BindsToInventoryNodeInsteadOfDuplicateDiagramNode()
+    {
+        const string armSqlId =
+            "/subscriptions/11111111-2222-3333-4444-555555555555/resourceGroups/pay/providers/Microsoft.Sql/servers/pay-sql";
+
+        CanonicalObject inventorySql = new()
+        {
+            ObjectId = "sql-inv-1",
+            ObjectType = GraphNodeTypes.TopologyResource,
+            Name = "pay-sql",
+            SourceType = "InfrastructureDeclaration",
+            SourceId = "decl-sql",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["azureResourceId"] = armSqlId,
+            },
+        };
+
+        ArchitectureDiagramModelRecord diagramModel = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "sql",
+                    Label = armSqlId,
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        IReadOnlyList<CanonicalObject> diagramObjects = ArchitectureDiagramCanonicalObjectMapper.Map(
+            diagramModel,
+            "doc-arm-bind",
+            labelOnlyInferenceConfidence: 0.7);
+
+        DefaultGraphBuilder builder = GraphMaterializationTestHelpers.CreateDefaultGraphBuilder(
+            new GraphNodeFactory(),
+            new DefaultGraphEdgeInferer());
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("dddddddd-eeee-ffff-0000-111111111111"),
+            RunId = Guid.Parse("33333333-4444-5555-6666-777777777777"),
+            ProjectId = "project-arm-bind",
+            CanonicalObjects = [inventorySql, .. diagramObjects],
+        };
+
+        GraphBuildResult result = await builder.BuildAsync(snapshot, CancellationToken.None);
+
+        result.Nodes.Should().Contain(node => node.NodeId == "obj-sql-inv-1");
+        result.Nodes.Should().NotContain(node => node.NodeId == "diagram-node:sql");
+
+        GraphNode boundNode = result.Nodes.Single(node => node.NodeId == "obj-sql-inv-1");
+        boundNode.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId].Should().Be("sql");
+        boundNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
+            .Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
     }
 
     [Fact]

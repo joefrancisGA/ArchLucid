@@ -12,9 +12,12 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
     private readonly IArchitectureDiagramToGraphCompiler compiler =
         compiler ?? throw new ArgumentNullException(nameof(compiler));
 
-    public StructuredDiagramGraphMergeResult Merge(ContextSnapshot contextSnapshot)
+    public StructuredDiagramGraphMergeResult Merge(
+        ContextSnapshot contextSnapshot,
+        IReadOnlyList<GraphNode> bindTargets)
     {
         ArgumentNullException.ThrowIfNull(contextSnapshot);
+        ArgumentNullException.ThrowIfNull(bindTargets);
 
         IReadOnlyList<StructuredDiagramReconstructedDocument> documents =
             StructuredDiagramCanonicalModelReconstructor.ReconstructDocuments(contextSnapshot.CanonicalObjects);
@@ -27,6 +30,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
         List<GraphNode> nodes = [];
         List<GraphEdge> edges = [];
         List<string> warnings = [];
+        List<StructuredDiagramCanonicalBinding> bindings = [];
         Guid graphSnapshotId = Guid.NewGuid();
 
         foreach (StructuredDiagramReconstructedDocument document in documents)
@@ -42,9 +46,16 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
                     LabelOnlyInferenceConfidence = document.LabelOnlyInferenceConfidence,
                 });
 
+            compileResult = StructuredDiagramCompiledGraphBinder.BindToCanonicalNodes(compileResult, bindTargets);
+
             if (compileResult.Warnings.Count > 0)
             {
                 warnings.AddRange(compileResult.Warnings);
+            }
+
+            if (compileResult.CanonicalBindings.Count > 0)
+            {
+                bindings.AddRange(compileResult.CanonicalBindings);
             }
 
             if (compileResult.Snapshot.Nodes.Count == 0)
@@ -61,6 +72,7 @@ public sealed class StructuredDiagramGraphMerger(IArchitectureDiagramToGraphComp
             Nodes = nodes,
             Edges = edges,
             Warnings = warnings,
+            CanonicalBindings = bindings,
         };
     }
 }
@@ -80,6 +92,12 @@ public sealed class StructuredDiagramGraphMergeResult
     } = [];
 
     public IReadOnlyList<string> Warnings
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<StructuredDiagramCanonicalBinding> CanonicalBindings
     {
         get;
         init;

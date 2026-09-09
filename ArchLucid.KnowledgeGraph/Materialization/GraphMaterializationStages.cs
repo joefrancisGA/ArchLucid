@@ -124,13 +124,21 @@ public static class GraphMaterializationStages
 
         public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
         {
-            StructuredDiagramGraphMergeResult mergeResult = merger.Merge(context.Snapshot);
+            StructuredDiagramGraphMergeResult mergeResult = merger.Merge(
+                context.Snapshot,
+                context.Nodes);
 
-            if (mergeResult.Nodes.Count == 0 && mergeResult.Edges.Count == 0)
+            if (mergeResult.Nodes.Count == 0
+                && mergeResult.Edges.Count == 0
+                && mergeResult.CanonicalBindings.Count == 0)
             {
                 context.MarkStageSkipped();
                 return Task.CompletedTask;
             }
+
+            StructuredDiagramCompiledGraphBinder.ApplyBindingsToGraphNodes(
+                context.Nodes,
+                mergeResult.CanonicalBindings);
 
             context.Nodes.AddRange(mergeResult.Nodes);
             context.Edges.AddRange(mergeResult.Edges);
