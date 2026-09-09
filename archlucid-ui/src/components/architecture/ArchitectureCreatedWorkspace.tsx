@@ -644,7 +644,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                 </div>
 
                 <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
                   data-testid="architecture-created-governance-overview"
                 >
                   {ARCHITECTURE_CREATED_GOVERNANCE_BUYER_OVERVIEW}
