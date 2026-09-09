@@ -134,27 +134,27 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
 
     private static string ResolveCategory(string resourceType)
     {
-        if (resourceType.Contains("/network", StringComparison.OrdinalIgnoreCase)
+        if (resourceType.Contains("microsoft.network", StringComparison.OrdinalIgnoreCase)
             || resourceType.Contains("networksecuritygroups", StringComparison.OrdinalIgnoreCase))
         {
             return GraphTopologyCategories.Network;
         }
 
-        if (resourceType.Contains("/storage", StringComparison.OrdinalIgnoreCase))
+        if (resourceType.Contains("microsoft.storage", StringComparison.OrdinalIgnoreCase))
         {
             return GraphTopologyCategories.Storage;
         }
 
-        if (resourceType.Contains("/compute", StringComparison.OrdinalIgnoreCase)
+        if (resourceType.Contains("microsoft.compute", StringComparison.OrdinalIgnoreCase)
             || resourceType.Contains("sites", StringComparison.OrdinalIgnoreCase)
             || resourceType.Contains("serverfarms", StringComparison.OrdinalIgnoreCase))
         {
             return GraphTopologyCategories.Compute;
         }
 
-        if (resourceType.Contains("/sql", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("/documentdb", StringComparison.OrdinalIgnoreCase)
-            || resourceType.Contains("/dbfor", StringComparison.OrdinalIgnoreCase))
+        if (resourceType.Contains("microsoft.sql", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Contains("microsoft.documentdb", StringComparison.OrdinalIgnoreCase)
+            || resourceType.Contains("microsoft.dbfor", StringComparison.OrdinalIgnoreCase))
         {
             return GraphTopologyCategories.Data;
         }
