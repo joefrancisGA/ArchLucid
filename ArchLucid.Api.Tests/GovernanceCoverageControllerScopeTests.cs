@@ -15,6 +15,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
+using ArchLucid.TestSupport.SealedManifest;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Core.Manifest;
 
 namespace ArchLucid.Api.Tests;
 
@@ -61,7 +65,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             preview.Object,
             Mock.Of<IPolicyPackRepository>(),
             scopeProvider.Object,
-            TenantExistsRepository());
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult action = await controller.PreviewCoverage(null, CancellationToken.None);
@@ -89,7 +96,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             preview.Object,
             Mock.Of<IPolicyPackRepository>(),
             scopeProvider.Object,
-            tenants.Object);
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         CoveragePreviewRequest request = new()
@@ -123,7 +133,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             preview.Object,
             Mock.Of<IPolicyPackRepository>(),
             scopeProvider.Object,
-            tenants.Object);
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         CoveragePreviewRequest request = new()
@@ -157,7 +170,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             preview.Object,
             Mock.Of<IPolicyPackRepository>(),
             scopeProvider.Object,
-            tenants.Object);
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         CoveragePreviewRequest request = new()
@@ -192,7 +208,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             preview.Object,
             Mock.Of<IPolicyPackRepository>(),
             scopeProvider.Object,
-            tenants.Object);
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         CoveragePreviewRequest request = new()
@@ -227,7 +246,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             preview.Object,
             Mock.Of<IPolicyPackRepository>(),
             scopeProvider.Object,
-            tenants.Object);
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         CoveragePreviewRequest request = new()
@@ -262,7 +284,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             Mock.Of<ICoveragePreviewService>(),
             Mock.Of<IPolicyPackRepository>(),
             scopeProvider.Object,
-            tenants.Object);
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult action = await controller.GetScopeCoverage(CancellationToken.None);
@@ -307,7 +332,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             Mock.Of<ICoveragePreviewService>(),
             Mock.Of<IPolicyPackRepository>(),
             scopeProvider.Object,
-            tenants.Object);
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         IActionResult action = await controller.GetScopeCoverage(CancellationToken.None);
@@ -352,7 +380,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             preview.Object,
             Mock.Of<IPolicyPackRepository>(),
             scopeProvider.Object,
-            tenants.Object);
+            tenants.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns());
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         CoveragePreviewRequest request = new()
@@ -431,7 +462,10 @@ public sealed class GovernanceCoverageControllerScopeTests
             Mock.Of<ICoveragePreviewService>(),
             packs.Object,
             scopeProvider.Object,
-            TenantExistsRepository())
+            TenantExistsRepository(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

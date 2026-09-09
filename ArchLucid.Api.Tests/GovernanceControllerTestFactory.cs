@@ -98,6 +98,7 @@ internal static class GovernanceControllerTestFactory
             scope,
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
+            Mock.Of<IRunDetailQueryService>(),
             policyPackDryRunService ?? Mock.Of<IPolicyPackDryRunService>(),
             policyPackGovernanceDryRunService ?? Mock.Of<IPolicyPackGovernanceDryRunService>(),
             policyPackHttpFacade ?? Mock.Of<IPolicyPackHttpFacade>(),
