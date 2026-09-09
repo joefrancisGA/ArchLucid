@@ -409,14 +409,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: storage-vs-data-category
 
 - **id:** storage-vs-data-category
-- **status:** open
+- **status:** exhausted
 - **impact:** medium
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 3
+- **hunts:** 5
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
 - **last-bug:** never
 - **related-pd-tb:** none
@@ -436,6 +436,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` — relationship-only rows whose endpoints match only via `EndpointKeyIsKnownViaArmNormalization` while `declaredBatchEndpointKeys.Contains` is false defer to merge gate by design — **cheap-disproof 2026-09-09 thorough hunt #1476:** intentional defer path; merge gate retains ARM-normalized endpoints (`ApplyToResults_preserves_relationship_only_proposal_when_arm_endpoint_uses_different_casing_than_batch_declaration`).
 
 2026-09-09 thorough hunt #1476 (dry): cheap-disproof closed storage-synthetic-on-service and deferred-ARM merge-handoff candidates; 30 scoped post-processor/consistency-gate tests passed.
+
+- [x] (valid-no-repro) `ApplyToProposal` for `AgentType.Cost` leaves duplicate `RequiredControls` because dedupe runs only for Compliance/Critic — **cheap-disproof 2026-09-09 seed hunt #1479:** cost agents do not emit required controls on production paths; regression `ApplyToProposal_leaves_cost_required_controls_undeduplicated_by_design`.
+- [x] (valid-no-repro) `ApplyBriefGrounding` drops contradicting `AddedServices` but not `AddedDatastores` when confirmed constraints mention HTTPS — **cheap-disproof 2026-09-09 seed hunt #1479:** brief grounding intentionally scopes to service-name contradiction (TB-2349); regression `ApplyBriefGrounding_filters_services_only_not_datastores`.
+
+2026-09-09 seed hunt #1479 (seed-only): reseeded storage-vs-data-category after exhaustion threshold; cheap-disproof closed Cost controls dedupe and brief-grounding datastore scope candidates; zone marked exhausted; 32 scoped Application tests passed.
 
 2026-09-07 thorough hunt #1274 (dry): cheap-disproof closed three hunt-ready endpoint-index hypotheses; 30 scoped unit tests passed; reseeded storage-synthetic-on-service and deferred-ARM merge-handoff candidates.
 
