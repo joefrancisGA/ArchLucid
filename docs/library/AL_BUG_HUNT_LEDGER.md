@@ -10251,11 +10251,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 3
-- **bugs-found:** 4
+- **hunts:** 4
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — architecture package inspect checklist ignored detail snapshot findings when explanation count deferred
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — policy callout and review-package summary omitted deferred-explanation finding counts
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10268,7 +10268,9 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `useReviewDetailWorkspaceTabs` — legacy `archTab=` deep links ignored on initial hydration (popstate path only) — **hit 2026-09-07 (#1196):** initial tab resolution read only `reviewTab`; fixed via `resolveReviewWorkspaceTabFromSearchParams` and `resolveReviewDetailTabFromLocation` on first paint (`hydrates legacy archTab deep links on initial visit`, `maps legacy archTab params when reviewTab is absent`)
 - [x] (valid-no-repro) `deriveRunDetailWorkspaceStatus` Approved without operator decision when manifest gate Passed — intentional gate semantics per `run-detail-governance-cta-visibility.test.ts`; governance CTA hidden when manifest status is Committed
 - [x] (proven) `RunDetailPageViewCommitted` / `resolveRunDetailReviewPackageInspectSteps` — inspect checklist keyed on deferred `findingCountDisplay` only while tab badge already falls back to detail snapshot triage counts — **hit 2026-09-08 hunt #1301 (seed→hit):** create-home inspect checklist kept findings step incomplete when `explanationSummary` null but `quickDecisionFindings` already had triage-visible rows; fixed via `resolveRunDetailFindingsReviewed` shared with tab badge fallback; regressions in `run-detail-findings-tab-badge-count.test.ts` and `run-detail-review-package-inspect-checklist.test.ts`
-- [ ] (candidate) `RunDetailPageViewCommitted` / tabbed workspace deferred surfaces — `RunDetailPolicyPackImpactCalloutDeferred` and review-package summary props still pass raw `findingCountDisplay` without detail snapshot fallback when explanation deferred
+- [x] (proven) `RunDetailPageViewCommitted` / tabbed workspace deferred surfaces — `RunDetailPolicyPackImpactCalloutDeferred` and review-package summary props passed raw `findingCountDisplay` without detail snapshot fallback when explanation deferred — **hit 2026-09-09 hunt #1389:** tab badge and inspect checklist already used `resolveRunDetailFindingsTabBadgeCount`; policy callout, review-package section, and sample summary still showed null/` — ` counts until explanation loaded; fixed via shared `resolveRunDetailDeferredSurfaceFindingCount` in `RunDetailPageViewCommitted`, `resolveRunDetailTabbedWorkspace`, and `RunDetailPageViewShell`; regression in `run-detail-findings-tab-badge-count.test.ts`
+
+2026-09-09 thorough hunt #1389 (hit): proved deferred-surface finding count parity gap; 20 scoped review-detail unit tests passed.
 
 2026-09-08 seed hunt #1301 (hit): reseeded ui-review-detail-workspace; proved inspect checklist deferred-explanation findings gap; seeded policy callout/review-package summary count parity candidate.
 
