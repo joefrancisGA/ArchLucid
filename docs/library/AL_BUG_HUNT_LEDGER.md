@@ -791,6 +791,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1514 (seed-only): reseeded auth-return-path; cheap-disproved picker reseed candidate; 41 scoped AuthSignInReturnPathGuard tests passed.
 
+- [x] (valid-no-repro) Semicolon-delimited path segments (`/signin/..;/evil`) bypass dot-segment check — **valid-no-repro 2026-09-09 seed hunt #1513:** `ContainsDotDotSegment` compares whole segments; `..;` is not `..`
+
+2026-09-09 seed hunt #1513 (seed-only): reseeded auth-return-path; cheap-disproved semicolon segment bypass; 41 scoped AuthSignInReturnPathGuard tests passed.
+
 ## Zone: tenant-erasure
 
 - **id:** tenant-erasure
