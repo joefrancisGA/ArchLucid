@@ -1,9 +1,7 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { useUrlSyncedSourcesDisclosure } from "@/hooks/use-url-synced-sources-disclosure";
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import {
@@ -19,34 +17,12 @@ import {
 
 /** Sources-only follow-ups for `/help/notifications` buyer-polished shell (HEN). */
 export function HelpNotificationsSourcesOrientationStrip(): React.JSX.Element {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/";
-  const searchParams = useSearchParams();
-  const sourcesOpenParam = searchParams.get("helpNotificationsSourcesOpen");
-  const [sourcesOpen, setSourcesOpenState] = useState(() =>
-    parseHelpNotificationsSourcesOpenFromSearch(sourcesOpenParam),
-  );
-
-  const syncSourcesOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(helpNotificationsSourcesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setSourcesOpen = useCallback(
-    (open: boolean) => {
-      setSourcesOpenState(open);
-      syncSourcesOpenToUrl(open);
-    },
-    [syncSourcesOpenToUrl],
-  );
-
-  useEffect(() => {
-    setSourcesOpenState(parseHelpNotificationsSourcesOpenFromSearch(sourcesOpenParam));
-  }, [sourcesOpenParam]);
+  const { sourcesOpen, setSourcesOpen } = useUrlSyncedSourcesDisclosure({
+    surfaceId: "help-notifications-sources",
+    searchParamKey: "helpNotificationsSourcesOpen",
+    parseOpenFromSearch: parseHelpNotificationsSourcesOpenFromSearch,
+    disclosureHrefFromSearch: helpNotificationsSourcesDisclosureHrefFromSearch,
+  });
 
   return (
     <CollapsibleSection
