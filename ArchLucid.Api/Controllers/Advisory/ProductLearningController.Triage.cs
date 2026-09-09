@@ -51,6 +51,7 @@ public sealed partial class ProductLearningController
     [ProducesResponseType(typeof(ProductLearningReportExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProductLearningTriageReportDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetTriageReport(
         [FromQuery] string? since,
         [FromQuery] string? format,
@@ -112,6 +113,7 @@ public sealed partial class ProductLearningController
     [Produces("text/markdown", "application/json")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadTriageReport(
         [FromQuery] string? since,
         [FromQuery] string? format,

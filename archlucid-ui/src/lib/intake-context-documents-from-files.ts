@@ -1,5 +1,14 @@
 import type { CreateArchitectureRunDocumentPayload } from "@/lib/api/architecture-runs-mutate";
 import {
+  buildIntakePixelDiagramContextDocument,
+  isPixelDiagramIntakeFileName,
+} from "@/lib/architecture-spine/intake-pixel-diagram-context-document";
+import {
+  isMermaidIntakeFileName,
+  looksLikeMermaidSource,
+  MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
+} from "@/lib/architecture-spine/intake-mermaid-context-document";
+import {
   isBinaryArchitectureDocumentFileName,
   isReadableEvidenceTextFileName,
   peekBinaryArchitectureDocumentText,
@@ -11,23 +20,34 @@ const INTAKE_CONTEXT_DOCUMENT_MAX_CHARS = 500_000;
 
 const INTAKE_CONTEXT_DOCUMENT_NAME_MAX_CHARS = 500;
 
+export type BuildIntakeContextDocumentsOptions = {
+  /** ESI catalog ids keyed by trimmed attachment file name (AS-014 binds after upload). */
+  readonly storedEvidenceIdsByFileName?: Readonly<Record<string, string>>;
+};
+
 /**
  * Turns intake attachments into inline context documents the authority pipeline can parse.
  *
- * Context ingestion only accepts text/plain and text/markdown. PDF/DOCX bytes are not parseable
- * there, so this sends the extracted text under the original file name.
+ * Readable text and PDF/DOCX extract bridge to text/plain or text/markdown. Pixel diagrams emit
+ * structured diagram JSON stubs (ExtractionMethod=None, NotVerifiable) — never raster bytes.
  */
 export async function buildIntakeContextDocumentsFromEvidenceFiles(
   files: readonly File[],
+  options?: BuildIntakeContextDocumentsOptions,
 ): Promise<CreateArchitectureRunDocumentPayload[]> {
-  const documents = await Promise.all(files.map((file) => toIntakeContextDocument(file)));
+  const documents = await Promise.all(
+    files.map((file) => toIntakeContextDocument(file, options)),
+  );
 
   return documents.filter(
     (document): document is CreateArchitectureRunDocumentPayload => document !== null,
   );
 }
 
-async function toIntakeContextDocument(file: File): Promise<CreateArchitectureRunDocumentPayload | null> {
+async function toIntakeContextDocument(
+  file: File,
+  options?: BuildIntakeContextDocumentsOptions,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
   const trimmedName = file.name.trim();
   const name = trimmedName.slice(0, INTAKE_CONTEXT_DOCUMENT_NAME_MAX_CHARS);
 
@@ -43,7 +63,58 @@ async function toIntakeContextDocument(file: File): Promise<CreateArchitectureRu
     return readExtractedBinaryDocument(name, file);
   }
 
+  if (isPixelDiagramIntakeFileName(trimmedName)) {
+    return readPixelDiagramDocument(name, trimmedName, file, options);
+  }
+
+  if (isMermaidIntakeFileName(trimmedName)) {
+    return readMermaidDocument(name, file);
+  }
+
   return null;
+}
+
+function readMermaidDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  return readMermaidSourceDocument(name, file);
+}
+
+async function readMermaidSourceDocument(
+  name: string,
+  file: File,
+): Promise<CreateArchitectureRunDocumentPayload | null> {
+  try {
+    const text = (await file.text()).trim();
+
+    if (text.length === 0) {
+      return null;
+    }
+
+    return {
+      name,
+      contentType: MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
+      content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function readPixelDiagramDocument(
+  name: string,
+  trimmedName: string,
+  file: File,
+  options?: BuildIntakeContextDocumentsOptions,
+): CreateArchitectureRunDocumentPayload | null {
+  if (file.size <= 0) {
+    return null;
+  }
+
+  const evidenceItemId = options?.storedEvidenceIdsByFileName?.[trimmedName] ?? null;
+
+  return buildIntakePixelDiagramContextDocument(name, file, { evidenceItemId });
 }
 
 async function readReadableTextDocument(
@@ -56,6 +127,14 @@ async function readReadableTextDocument(
 
     if (text.length === 0) {
       return null;
+    }
+
+    if (!trimmedName.toLowerCase().endsWith(".md") && looksLikeMermaidSource(text)) {
+      return {
+        name,
+        contentType: MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
+        content: text.slice(0, INTAKE_CONTEXT_DOCUMENT_MAX_CHARS),
+      };
     }
 
     return {

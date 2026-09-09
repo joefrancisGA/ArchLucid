@@ -1,6 +1,11 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +21,7 @@ public sealed partial class ArchitectureIntelligenceController
     [ProducesResponseType(typeof(ClosedLoopReasoningRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetProductRunSourceContextAsync(
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
@@ -23,6 +29,27 @@ public sealed partial class ArchitectureIntelligenceController
         if (string.IsNullOrWhiteSpace(runId))
         {
             return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (Guid.TryParse(runId, out Guid runGuid))
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+
+            if (detail?.GoldenManifest is not null)
+            {
+                try
+                {
+                    SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                        detail.GoldenManifest,
+                        runGuid.ToString("D"),
+                        _manifestHashService);
+                }
+                catch (ConflictException ex)
+                {
+                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                }
+            }
         }
 
         ArchitectureIntelligenceProductRunSourceContextLoadResult loaded =

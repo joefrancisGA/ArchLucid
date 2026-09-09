@@ -27,6 +27,7 @@ using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Rules;
 using ArchLucid.Core.Findings;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.KnowledgeGraph.Models;
@@ -63,13 +64,14 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         CollectingAuditService audit,
         GoldenCorpusMergeInput? merge,
         CancellationToken ct,
-        GoldenCorpusInventoryFixtureDocument? inventoryFixture = null)
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture = null,
+        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(audit);
 
         (FindingsOrchestrator orchestrator, FindingAnalysisContext? analysisContext) =
-            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture);
+            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture, priorGraphFixture);
 
         FindingsSnapshot findings = await orchestrator.GenerateFindingsSnapshotAsync(
             runId,
@@ -120,12 +122,13 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         Guid contextSnapshotId,
         GraphSnapshot graph,
         CancellationToken ct,
-        GoldenCorpusInventoryFixtureDocument? inventoryFixture = null)
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture = null,
+        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
 
         (FindingsOrchestrator orchestrator, FindingAnalysisContext? analysisContext) =
-            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture);
+            CreateOrchestrator(runId, contextSnapshotId, inventoryFixture, priorGraphFixture);
 
         return await orchestrator.GenerateFindingsSnapshotAsync(
             runId,
@@ -138,12 +141,27 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
     private (FindingsOrchestrator Orchestrator, FindingAnalysisContext? AnalysisContext) CreateOrchestrator(
         Guid runId,
         Guid contextSnapshotId,
-        GoldenCorpusInventoryFixtureDocument? inventoryFixture)
+        GoldenCorpusInventoryFixtureDocument? inventoryFixture,
+        GoldenCorpusPriorGraphFixtureDocument? priorGraphFixture)
     {
-        (IAzureExtractorPackageRepository azureRepository, ICloudInventoryExtractorPackageRepository cloudRepository, FindingAnalysisContext? analysisContext) =
+        (
+            IAzureExtractorPackageRepository azureRepository,
+            ICloudInventoryExtractorPackageRepository cloudRepository,
+            FindingAnalysisContext? analysisContext) =
             ResolveInventoryFixture(runId, contextSnapshotId, inventoryFixture);
 
-        IFindingEngine[] engines = CreateEngines();
+        IGraphSnapshotRepository graphSnapshotRepository = new Moq.Mock<IGraphSnapshotRepository>().Object;
+
+        if (priorGraphFixture is not null)
+        {
+            (graphSnapshotRepository, analysisContext) = GoldenCorpusPriorGraphSupport.CreatePriorFixture(
+                runId,
+                contextSnapshotId,
+                priorGraphFixture,
+                analysisContext);
+        }
+
+        IFindingEngine[] engines = CreateEngines(graphSnapshotRepository);
         FileComplianceRulePackLoader complianceLoader = new(_complianceRulesPath);
         FileComplianceRulePackProvider complianceProvider = new(complianceLoader);
         IEffectfulFindingEngine[] effectfulEngines = GoldenCorpusEffectfulEngineFactory.Create(
@@ -268,8 +286,10 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
         return (azureRepository, cloudRepository, analysisContext);
     }
 
-    private IFindingEngine[] CreateEngines()
+    private IFindingEngine[] CreateEngines(IGraphSnapshotRepository graphSnapshotRepository)
     {
+        ArgumentNullException.ThrowIfNull(graphSnapshotRepository);
+
         GraphCoverageAnalyzer analyzer = new();
         FileComplianceRulePackLoader complianceLoader = new(_complianceRulesPath);
         FileComplianceRulePackProvider complianceProvider = new(complianceLoader);
@@ -305,6 +325,7 @@ public sealed class GoldenCorpusHarness(string complianceRulesPath, TimeProvider
             new RequiredCapabilityCoverageFindingEngine(new RequiredCapabilityCoverageAnalyzer()),
             new DataFlowTrustBoundaryFindingEngine(),
             new TopologyAntiPatternFindingEngine(),
+            new TopologySecurityDriftFindingEngine(graphSnapshotRepository, _scopeContextProvider),
         ];
     }
 
@@ -389,6 +410,7 @@ public static class GoldenCorpusNormalization
         ArgumentNullException.ThrowIfNull(snapshot);
 
         List<FindingGoldenRow> rows = snapshot.Findings
+            .Concat(snapshot.ChecklistCoverage)
             .Select(FindingGoldenRow.FromFinding)
             .OrderBy(static r => r.FindingType, StringComparer.Ordinal)
             .ThenBy(static r => r.Title, StringComparer.Ordinal)

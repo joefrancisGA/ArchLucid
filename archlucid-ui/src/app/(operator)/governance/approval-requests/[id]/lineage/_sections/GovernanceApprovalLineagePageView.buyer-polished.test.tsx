@@ -1,8 +1,6 @@
 /** @vitest-environment jsdom */
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -54,12 +52,20 @@ vi.mock("@/app/(operator)/governance/_sections/GovernanceApprovalQueueNextReview
 }));
 
 import {
+  APPROVAL_LINEAGE_BUYER_START_HERE_HELPER,
   APPROVAL_LINEAGE_CLAIM_DISCIPLINE,
   APPROVAL_LINEAGE_FOLLOW_UPS_TITLE,
+  APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID,
+  APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID,
+  APPROVAL_LINEAGE_OVERVIEW,
+  APPROVAL_LINEAGE_PAGE_LEAD,
   APPROVAL_LINEAGE_PRIMARY_CONTENT_ID,
   APPROVAL_LINEAGE_SKIP_LINK_LABEL,
   APPROVAL_LINEAGE_SOURCES,
+  APPROVAL_LINEAGE_START_HERE_CARD_TITLE,
 } from "@/lib/approval-lineage-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { GovernanceApprovalLineagePageView } from "./GovernanceApprovalLineagePageView";
 import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-approval-lineage-page";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
@@ -121,11 +127,27 @@ describe("GovernanceApprovalLineagePageView buyer-polished chrome (GAI)", () => 
     expect(screen.getByTestId("approval-lineage-claim-discipline")).toHaveTextContent(
       APPROVAL_LINEAGE_CLAIM_DISCIPLINE,
     );
+    expect(screen.getByTestId("approval-lineage-intro")).toHaveTextContent(APPROVAL_LINEAGE_PAGE_LEAD);
+    expect(screen.getByTestId("approval-lineage-overview")).toHaveTextContent(APPROVAL_LINEAGE_OVERVIEW);
+    expect(screen.getByTestId(APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("approval-lineage-intro"),
+    );
+    expect(
+      screen.getByTestId(APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("approval-lineage-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getByTestId("approval-lineage-buyer-start-here-helper")).toHaveTextContent(
+      APPROVAL_LINEAGE_BUYER_START_HERE_HELPER,
+    );
+    expect(
+      screen.getByRole("heading", { level: 2, name: APPROVAL_LINEAGE_START_HERE_CARD_TITLE }),
+    ).toBeInTheDocument();
     expect(screen.queryByTestId("approval-lineage-queue-vocabulary")).not.toBeInTheDocument();
 
     const primary = screen.getByTestId("approval-lineage-primary-content");
     const spine = screen.getByTestId("approval-lineage-spine");
-    const orientation = screen.getByTestId("approval-lineage-orientation-bottom");
+    const orientation = screen.getByTestId(APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primary).toContainElement(spine);
     expect(primary).toContainElement(orientation);
@@ -133,8 +155,11 @@ describe("GovernanceApprovalLineagePageView buyer-polished chrome (GAI)", () => 
 
     expect(screen.getByRole("heading", { level: 2, name: APPROVAL_LINEAGE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    for (const source of APPROVAL_LINEAGE_SOURCES) {
-      expectFollowUpLink(screen, source);
+    const sourcesSection = screen.getByTestId("approval-lineage-sources");
+
+    for (const source of filterWhereToGoNextFollowUpLinks(APPROVAL_LINEAGE_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
   });
 });

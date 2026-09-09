@@ -1,8 +1,15 @@
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
+import {
+  parseFilenameFromContentDisposition,
+  triggerBrowserBlobDownload,
+} from "./downloads-blob-trigger-browser";
 import {
   apiGet,
   ensureOidcBearerReady,
   resolveBinaryGetRequest,
-  throwApiRequestError,
   withCorrelationHeaders,
 } from "./http";
 
@@ -110,34 +117,20 @@ export async function downloadAuditExportCsv(params: {
 
   await ensureOidcBearerReady();
   const { url, headers } = await resolveBinaryGetRequest(`/v1/audit/export?${query.toString()}`);
-  const h = withCorrelationHeaders(new Headers(headers));
-  h.set("Accept", "text/csv");
-  const response = await fetch(url, { cache: "no-store", headers: h });
+  const requestHeaders = withCorrelationHeaders(new Headers(headers));
+  requestHeaders.set("Accept", "text/csv");
+  const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(requestHeaders);
+  const response = await fetch(url, { cache: "no-store", headers: correlatedHeaders });
   const text = await response.text();
 
   if (!response.ok) {
-    throwApiRequestError(response, text);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
-  const disposition = response.headers.get("Content-Disposition");
-  let filename = "audit-export.csv";
+  const filename =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ?? "audit-export.csv";
 
-  if (disposition) {
-    const m = /filename="?([^";]+)"?/i.exec(disposition);
-
-    if (m?.[1]) {
-      filename = m[1].trim();
-    }
-  }
-
-  const objectUrl = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = objectUrl;
-  anchor.download = filename;
-  anchor.rel = "noopener";
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  URL.revokeObjectURL(objectUrl);
+  await triggerBrowserBlobDownload(blob, filename);
 }

@@ -14,7 +14,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
-import { getBundleDownloadUrl } from "@/lib/api";
+import { ManifestDetailBundleExportButton } from "@/components/ManifestDetailBundleExportButton";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import type { ArtifactDescriptor } from "@/types/authority";
@@ -68,9 +68,12 @@ export function ManifestDetailDeliverablesCard(props: ManifestDetailDeliverables
                 Download bundle (ZIP)
               </Button>
             ) : (
-              <Button variant="outline" size="sm" asChild>
-                <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
-              </Button>
+              <ManifestDetailBundleExportButton
+                manifestId={manifestId}
+                runId={runId}
+                label="Download bundle (ZIP)"
+                variant="outline"
+              />
             )}
           </div>
         ) : null}

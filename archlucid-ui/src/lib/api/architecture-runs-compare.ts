@@ -4,13 +4,17 @@ import type {
   RunExplanation,
 } from "@/types/explanation";
 import type { RunComparison } from "@/types/authority";
+import type { components } from "@/lib/openapi-schemas";
 import {
-  apiGet,
   ensureOidcBearerReady,
   resolveRequest,
-  throwApiRequestError,
   withCorrelationHeaders,
 } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
 
 type EndToEndReplayComparisonWireResponse = {
   readonly report?: {
@@ -26,14 +30,34 @@ export async function compareRunsEndToEnd(
   leftRunId: string,
   rightRunId: string,
 ): Promise<EndToEndReplayComparisonWireResponse> {
-  return apiGet<EndToEndReplayComparisonWireResponse>(
+  return apiGetSealedManifestAware<EndToEndReplayComparisonWireResponse>(
     `/v1/architecture/review/compare/end-to-end?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+  );
+}
+
+/** Structured agent-result diff between two runs. */
+export async function compareAgentResults(
+  leftRunId: string,
+  rightRunId: string,
+): Promise<components["schemas"]["AgentResultCompareResponse"]> {
+  return apiGetSealedManifestAware<components["schemas"]["AgentResultCompareResponse"]>(
+    `/v1/architecture/review/compare/agents?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+  );
+}
+
+/** Markdown summary of agent-result diffs between two runs. */
+export async function compareAgentResultsSummary(
+  leftRunId: string,
+  rightRunId: string,
+): Promise<components["schemas"]["AgentResultCompareSummaryResponse"]> {
+  return apiGetSealedManifestAware<components["schemas"]["AgentResultCompareSummaryResponse"]>(
+    `/v1/architecture/review/compare/agents/summary?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
   );
 }
 
 /** Legacy flat-diff comparison between two runs (run-level + optional manifest diffs). */
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
-  return apiGet<RunComparison>(
+  return apiGetSealedManifestAware<RunComparison>(
     `/v1/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
   );
 }
@@ -43,7 +67,7 @@ export async function compareGoldenManifestRuns(
   baseRunId: string,
   targetRunId: string,
 ): Promise<GoldenManifestComparison> {
-  return apiGet<GoldenManifestComparison>(
+  return apiGetSealedManifestAware<GoldenManifestComparison>(
     `/v1/compare?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
   );
 }
@@ -53,14 +77,14 @@ export async function explainComparisonRuns(
   baseRunId: string,
   targetRunId: string,
 ): Promise<ComparisonExplanation> {
-  return apiGet<ComparisonExplanation>(
+  return apiGetSealedManifestAware<ComparisonExplanation>(
     `/v1/explain/compare/explain?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
   );
 }
 
 /** Requests an AI-generated explanation of a single run's decisions and implications. */
 export async function explainRun(runId: string): Promise<RunExplanation> {
-  return apiGet<RunExplanation>(`/v1/explain/runs/${encodeURIComponent(runId)}/explain`);
+  return apiGetSealedManifestAware<RunExplanation>(`/v1/explain/runs/${encodeURIComponent(runId)}/explain`);
 }
 
 /**
@@ -70,14 +94,18 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
 export async function getFirstValueReportMarkdown(runId: string): Promise<string | null> {
   await ensureOidcBearerReady();
   const { url, headers } = await resolveRequest(`/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`);
-  const h = withCorrelationHeaders(headers);
-  h.set("Accept", "text/markdown");
-  const response = await fetch(url, { cache: "no-store", headers: h });
+  const baseHeaders = withCorrelationHeaders(headers);
+  baseHeaders.set("Accept", "text/markdown");
+  const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(baseHeaders);
+  const response = await fetch(url, { cache: "no-store", headers: correlatedHeaders });
   const text = await response.text();
 
   if (response.status === 404) return null;
 
-  if (!response.ok) throwApiRequestError(response, text);
+  if (!response.ok) {
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
+  }
 
   return text;
 }

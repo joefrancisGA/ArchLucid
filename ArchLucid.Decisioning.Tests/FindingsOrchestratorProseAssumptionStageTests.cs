@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Interfaces;
@@ -14,11 +15,6 @@ using Moq;
 
 namespace ArchLucid.Decisioning.Tests;
 
-/// <summary>
-///     Guards the DX-55 pipeline wiring. <see cref="FindingsProseAssumptionStage" /> shipped registered in DI but
-///     unreferenced by <see cref="FindingsOrchestrator" />, which made prose extraction unreachable at runtime even
-///     with the flag on. These tests fail if the stage is dropped from the pipeline again.
-/// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class FindingsOrchestratorProseAssumptionStageTests
@@ -50,8 +46,6 @@ public sealed class FindingsOrchestratorProseAssumptionStageTests
     [Fact]
     public async Task GenerateFindingsSnapshotAsync_prose_assumption_findings_are_scored_by_the_density_gate()
     {
-        // The stage runs before merge-and-gate, so an extracted finding must arrive carrying a gate verdict.
-        // A finding appended after the gate would keep the default unscored classification.
         Finding contradiction = CreateProseContradictionFinding();
         StubProseAssumptionFindingGenerator generator = new([contradiction]);
 
@@ -59,6 +53,27 @@ public sealed class FindingsOrchestratorProseAssumptionStageTests
 
         Finding emitted = snapshot.Findings.Single(finding => finding.FindingId == contradiction.FindingId);
         emitted.InsightDensityScore.Should().BeGreaterThan(0, "the gate must have scored the prose finding");
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_persists_prose_assumption_register_on_snapshot()
+    {
+        ProseAssumptionRegisterEntry registerEntry = new()
+        {
+            Statement = "The storage account must not be public.",
+            DocumentPath = "architecture.md",
+            LineNumber = 1,
+            EvidenceRef = "doc:architecture.md#L1",
+            LogicalPropertyName = DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+            Disposition = ProseAssumptionDisposition.Consistent,
+        };
+
+        StubProseAssumptionFindingGenerator generator = new([], [registerEntry]);
+
+        FindingsSnapshot snapshot = await RunOrchestratorAsync(generator);
+
+        snapshot.InsightDensityCuration?.ProseAssumptionRegisterEntries.Should().ContainSingle()
+            .Which.Disposition.Should().Be(ProseAssumptionDisposition.Consistent);
     }
 
     private static async Task<FindingsSnapshot> RunOrchestratorAsync(
@@ -90,26 +105,67 @@ public sealed class FindingsOrchestratorProseAssumptionStageTests
 
     private static Finding CreateProseContradictionFinding()
     {
+        const string graphNodeId = "storage-1";
+        const string inventoryResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod";
+
         return new Finding
         {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
             FindingId = "prose-assumption-1",
-            FindingType = "PolicyViolation",
+            FindingType = "DeclarationPremiseConflictFinding",
             Category = "Security",
             EngineType = "declaration-premise-conflict",
-            Title = "Design document states payments never leave the VNet; sql-pay allows public network access",
-            Rationale = "Document assumption contradicts the inventory property on the matched resource.",
-            Severity = FindingSeverity.Error,
+            Title = "stpayprod prose assumption contradicts live inventory (publicNetworkAccess=Enabled)",
+            Rationale =
+                "In-batch prose states \"must not be public\" while scoped Azure inventory reports "
+                + "'publicNetworkAccess' as 'Enabled'.",
+            Severity = FindingSeverity.Warning,
+            RelatedNodeIds = [graphNodeId],
             EvidenceRefs =
             [
                 "doc:docs/design/payments.docx#L42",
+                inventoryResourceId,
             ],
+            PayloadType = nameof(DeclarationPremiseConflictFindingPayload),
+            Payload = new DeclarationPremiseConflictFindingPayload
+            {
+                ConflictKind = "prose-inventory-contradiction",
+                DeclarationPropertyKey = DeclarationSecurityPropertyLogicalNames.PublicNetworkAccess,
+                DeclarationPropertyValue = "Disabled",
+                IntentNodeId = graphNodeId,
+                IntentRequirementText = "The storage account must not be public.",
+                IsNarrowApplicability = false,
+                TopologyNodeId = graphNodeId,
+                Source = "prose-assumption",
+            },
+            Trace = new ExplainabilityTrace
+            {
+                GraphNodeIdsExamined = [graphNodeId],
+                RulesApplied = ["declaration-premise-conflict", "prose-assumption"],
+                DecisionsTaken =
+                [
+                    "Compared mapped prose assumption to inventory row properties for the same resource identifier.",
+                ],
+                Notes =
+                [
+                    "doc:docs/design/payments.docx#L42",
+                    $"evidence:inventory:{inventoryResourceId}",
+                    $"evidence:graph-node:{graphNodeId}",
+                ],
+            },
         };
     }
 
-    private sealed class StubProseAssumptionFindingGenerator(IReadOnlyList<Finding> findings)
+    private sealed class StubProseAssumptionFindingGenerator(
+        IReadOnlyList<Finding> findings,
+        IReadOnlyList<ProseAssumptionRegisterEntry>? registerEntries = null)
         : IProseAssumptionFindingGenerator
     {
         private readonly IReadOnlyList<Finding> _findings = findings ?? throw new ArgumentNullException(nameof(findings));
+
+        private readonly IReadOnlyList<ProseAssumptionRegisterEntry> _registerEntries =
+            registerEntries ?? [];
 
         public int InvocationCount
         {
@@ -117,7 +173,7 @@ public sealed class FindingsOrchestratorProseAssumptionStageTests
             private set;
         }
 
-        public Task<IReadOnlyList<Finding>> GenerateAsync(
+        public Task<ProseAssumptionGenerationResult> GenerateAsync(
             GraphSnapshot graphSnapshot,
             FindingAnalysisContext? analysisContext,
             CancellationToken cancellationToken = default)
@@ -127,7 +183,7 @@ public sealed class FindingsOrchestratorProseAssumptionStageTests
 
             InvocationCount++;
 
-            return Task.FromResult(_findings);
+            return Task.FromResult(new ProseAssumptionGenerationResult(_findings, _registerEntries));
         }
     }
 }

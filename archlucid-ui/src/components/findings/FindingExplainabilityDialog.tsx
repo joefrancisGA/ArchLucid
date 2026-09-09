@@ -23,6 +23,7 @@ import { SeverityTag } from "@/components/ui/severity-tag";
 import { getFindingExplainability } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-blocked-reason";
 import {
   findingRationalePreview,
   findingSeverityAudienceCopy,
@@ -168,7 +169,7 @@ export function FindingExplainabilityDialog({
         {failure !== null ? (
           <OperatorApiProblem
             problem={failure.problem}
-            fallbackMessage={failure.message}
+            fallbackMessage={findingExplainBlockedReason(failure) ?? failure.message}
             correlationId={failure.correlationId}
             httpStatus={failure.httpStatus}
             retryAfterSeconds={failure.retryAfterSeconds}

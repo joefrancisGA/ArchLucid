@@ -14,6 +14,7 @@ export type FindingDispositionConflictPanelProps = {
   readonly onReload: () => void;
   readonly onDismiss?: () => void;
   readonly testId?: string;
+  readonly message?: string;
 };
 
 /** Working inline recovery when disposition CAS returns 409 (ADR 0076 / RS-11). */
@@ -26,7 +27,7 @@ export function FindingDispositionConflictPanel(
     <div className="space-y-2" data-testid={testId}>
       <OperatorMutationInlineError
         testId={`${testId}-message`}
-        message={formatFindingDispositionConflictMessage(props.conflict)}
+        message={props.message ?? formatFindingDispositionConflictMessage(props.conflict)}
       />
       <div className="flex flex-wrap gap-2">
         <Button

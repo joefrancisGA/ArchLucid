@@ -57,6 +57,7 @@ import {
   PRIVACY_SOURCES_INTRO,
 } from "@/lib/privacy-evidence-copy";
 import {
+  QUICK_SCAN_FOLLOW_UPS_TITLE,
   QUICK_SCAN_SOURCES,
   QUICK_SCAN_SOURCES_INTRO,
 } from "@/lib/quick-scan-evidence-copy";
@@ -127,10 +128,13 @@ export function ArchitectureCreatedFindingsEvidenceOrientationStrip(): React.JSX
   );
 }
 
-export function ArchitectureCreatedEvidenceEvidenceOrientationStrip(): React.JSX.Element {
+export function ArchitectureCreatedEvidenceEvidenceOrientationStrip(
+  props: { readonly part?: EvidenceOrientationStripPart } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="architecture-evidence"
+      part={props.part}
       align="text-left"
       sourcesIntro={ARCHITECTURE_CREATED_EVIDENCE_SOURCES_INTRO}
       sources={ARCHITECTURE_CREATED_EVIDENCE_SOURCES}
@@ -140,10 +144,13 @@ export function ArchitectureCreatedEvidenceEvidenceOrientationStrip(): React.JSX
   );
 }
 
-export function ArchitectureCreatedGovernanceEvidenceOrientationStrip(): React.JSX.Element {
+export function ArchitectureCreatedGovernanceEvidenceOrientationStrip(
+  props: { readonly part?: EvidenceOrientationStripPart } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="architecture-governance"
+      part={props.part}
       align="text-left"
       sourcesIntro={ARCHITECTURE_CREATED_GOVERNANCE_SOURCES_INTRO}
       sources={ARCHITECTURE_CREATED_GOVERNANCE_SOURCES}
@@ -280,6 +287,7 @@ export function QuickScanEvidenceOrientationStrip(): React.JSX.Element {
       align="text-left"
       sourcesIntro={QUICK_SCAN_SOURCES_INTRO}
       sources={QUICK_SCAN_SOURCES}
+      sourcesTitle={QUICK_SCAN_FOLLOW_UPS_TITLE}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationMutedAccentLink}
       claimHeading=""
       claim=""

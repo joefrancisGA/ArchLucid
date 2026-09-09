@@ -2,6 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -26,6 +28,9 @@ import {
   downloadProductLearningReportMarkdown,
   openProductLearningReportJsonInNewTab,
 } from "@/lib/product-learning-report-download";
+import { productLearningReportBlockedReason } from "@/lib/product-learning/product-learning-report-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { showError } from "@/lib/toast";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import { BUYER_TERMINOLOGY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
@@ -35,6 +40,11 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { PRODUCT_LEARNING_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import {
+  PRODUCT_LEARNING_SUMMARY_NOTES_OPEN_PARAM,
+  parseProductLearningSummaryNotesOpenFromSearch,
+  productLearningSummaryNotesDisclosureHrefFromSearch,
+} from "@/lib/internal/product-learning-summary-notes-disclosure-url";
 
 import {
   formatUtc,
@@ -51,13 +61,51 @@ type Props = {
   readonly model: ProductLearningPageViewModel;
 };
 
+function runProductLearningReportDownload(download: () => Promise<void>, title: string): void {
+  void download().catch((error: unknown) => {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = productLearningReportBlockedReason(failure);
+
+    showError(title, blockedReason ?? failure.message);
+  });
+}
+
 /**
  * Pilot feedback dashboard: outcome trends, opportunities, and improvement planning — distinct from advisory recommendation learning.
  */
 export function ProductLearningPageView(props: Props) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const productLearningSummaryNotesParam = searchParams.get(PRODUCT_LEARNING_SUMMARY_NOTES_OPEN_PARAM);
+  const [productLearningSummaryNotesOpen, setProductLearningSummaryNotesOpenState] = useState(() =>
+    parseProductLearningSummaryNotesOpenFromSearch(productLearningSummaryNotesParam),
+  );
+  const syncProductLearningSummaryNotesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        productLearningSummaryNotesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setProductLearningSummaryNotesOpen = useCallback(
+    (open: boolean) => {
+      setProductLearningSummaryNotesOpenState(open);
+      syncProductLearningSummaryNotesOpenToUrl(open);
+    },
+    [syncProductLearningSummaryNotesOpenToUrl],
+  );
   const m = props.model;
   const emptyDataset = m.bundle !== null && m.bundle.summary.totalSignalsInScope === 0;
   const showPopulatedSections = m.bundle !== null && !emptyDataset;
+
+  useEffect(() => {
+    setProductLearningSummaryNotesOpenState(
+      parseProductLearningSummaryNotesOpenFromSearch(productLearningSummaryNotesParam),
+    );
+  }, [productLearningSummaryNotesParam]);
 
   return (
     <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack}>
@@ -116,7 +164,10 @@ export function ProductLearningPageView(props: Props) {
             <button
               type="button"
               className={OPERATOR_LINK.inline}
-              onClick={() => void downloadProductLearningReportMarkdown(sinceIsoForRange(m.range))}
+              onClick={() => runProductLearningReportDownload(
+                () => downloadProductLearningReportMarkdown(sinceIsoForRange(m.range)),
+                "Pilot feedback report",
+              )}
             >
               Download Markdown
             </button>
@@ -124,7 +175,10 @@ export function ProductLearningPageView(props: Props) {
             <button
               type="button"
               className={OPERATOR_LINK.inline}
-              onClick={() => void downloadProductLearningReportJson(sinceIsoForRange(m.range))}
+              onClick={() => runProductLearningReportDownload(
+                () => downloadProductLearningReportJson(sinceIsoForRange(m.range)),
+                "Pilot feedback report JSON",
+              )}
             >
               Download JSON
             </button>
@@ -132,7 +186,10 @@ export function ProductLearningPageView(props: Props) {
             <button
               type="button"
               className={OPERATOR_LINK.inline}
-              onClick={() => void openProductLearningReportJsonInNewTab(sinceIsoForRange(m.range))}
+              onClick={() => runProductLearningReportDownload(
+                () => openProductLearningReportJsonInNewTab(sinceIsoForRange(m.range)),
+                "Pilot feedback report JSON",
+              )}
             >
               Open JSON in new tab
             </button>
@@ -203,7 +260,11 @@ export function ProductLearningPageView(props: Props) {
                 <div className={OPERATOR_TYPOGRAPHY.pageTitle}>{m.bundle!.summary.triageQueueItemCount}</div>
               </li>
             </ul>
-            <details className="mt-4">
+            <details
+              className="mt-4"
+              open={productLearningSummaryNotesOpen}
+              onToggle={(event) => setProductLearningSummaryNotesOpen(event.currentTarget.open)}
+            >
               <summary className={cn("cursor-pointer text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
                 {PILOT_FEEDBACK_VOCABULARY.summaryNotesHeading}
               </summary>

@@ -31,6 +31,7 @@ public sealed partial class AuditController
     [Produces("text/csv")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [EnableRateLimiting("expensive")]
     public async Task<IActionResult> ExportAuditCsv(
         [FromQuery] string? eventType = null,

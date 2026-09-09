@@ -32,6 +32,7 @@ public sealed partial class LearningController
     [ProducesResponseType(typeof(LearningPlanningReportExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(LearningPlanningReportDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetPlanningReport(
         [FromQuery] string? maxThemes,
         [FromQuery] string? maxPlans,
@@ -99,6 +100,7 @@ public sealed partial class LearningController
     [Produces("text/markdown", "application/json")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadPlanningReport(
         [FromQuery] string? maxThemes,
         [FromQuery] string? maxPlans,

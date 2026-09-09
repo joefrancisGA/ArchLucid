@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { GovernanceApprovalQueueBuyerChrome } from "@/app/(operator)/governance/_sections/GovernanceApprovalQueueBuyerChrome";
+import { GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/approval-queue-evidence-copy";
+
+import { GovernanceApprovalQueueBuyerChrome } from "./GovernanceApprovalQueueBuyerChrome";
 
 vi.mock("@/lib/demo-ui-env", () => ({
   isBuyerPolishedOperatorShellEnv: () => demoEnvMock.buyerPolished,
@@ -17,8 +19,9 @@ describe("GovernanceApprovalQueueBuyerChrome", () => {
 
     render(<GovernanceApprovalQueueBuyerChrome />);
 
-    expect(screen.getByTestId("governance-approval-queue-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("approval-queue-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("approval-queue-claim-discipline")).not.toBeInTheDocument();
   });
 
   it("renders nothing outside buyer-polished shell", () => {

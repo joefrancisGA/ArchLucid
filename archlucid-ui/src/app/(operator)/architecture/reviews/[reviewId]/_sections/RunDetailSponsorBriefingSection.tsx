@@ -1,5 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunDetailAiReadinessGateCard } from "@/components/runs/RunDetailAiReadinessGateCard";
@@ -13,6 +17,11 @@ import {
 
 import type { CareerArtifactHonestyInput } from "@/lib/career-artifact/career-artifact-honesty";
 import type { ManifestSummary, RunSummary } from "@/types/authority";
+import {
+  RUN_DETAIL_SPONSOR_BRIEFING_OPEN_PARAM,
+  parseRunDetailSponsorBriefingOpenFromSearch,
+  runDetailSponsorBriefingDisclosureHrefFromSearch,
+} from "@/lib/runs/run-detail-sponsor-briefing-disclosure-url";
 
 type RunDetailSponsorBriefingSectionProps = {
   readonly runId: string;
@@ -95,6 +104,39 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
     pagePrimaryOwnedElsewhere,
     careerArtifactHonesty,
   } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const runDetailSponsorBriefingOpenParam = searchParams.get(RUN_DETAIL_SPONSOR_BRIEFING_OPEN_PARAM);
+  const [sponsorBriefingOpen, setSponsorBriefingOpenState] = useState(() =>
+    runDetailSponsorBriefingOpenParam === null
+      ? true
+      : parseRunDetailSponsorBriefingOpenFromSearch(runDetailSponsorBriefingOpenParam),
+  );
+  const syncSponsorBriefingOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runDetailSponsorBriefingDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setSponsorBriefingOpen = useCallback(
+    (open: boolean) => {
+      setSponsorBriefingOpenState(open);
+      syncSponsorBriefingOpenToUrl(open);
+    },
+    [syncSponsorBriefingOpenToUrl],
+  );
+
+  useEffect(() => {
+    if (runDetailSponsorBriefingOpenParam === null) {
+      return;
+    }
+
+    setSponsorBriefingOpenState(parseRunDetailSponsorBriefingOpenFromSearch(runDetailSponsorBriefingOpenParam));
+  }, [runDetailSponsorBriefingOpenParam]);
 
   const deliverables = (
     <>
@@ -113,7 +155,11 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
 
   if (buyerPolishedArtifactTable) {
     return (
-      <CollapsibleSection title={BUYER_SPONSOR_BRIEFING_PACKAGE_LABEL} defaultOpen>
+      <CollapsibleSection
+        title={BUYER_SPONSOR_BRIEFING_PACKAGE_LABEL}
+        open={sponsorBriefingOpen}
+        onToggle={setSponsorBriefingOpen}
+      >
         <div id="sponsor-handoff-extended" className="scroll-mt-24">
           {deliverables}
         </div>

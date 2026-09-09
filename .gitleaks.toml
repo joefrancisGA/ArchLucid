@@ -133,6 +133,15 @@ paths = [
 ]
 
 [[allowlists]]
+description = "wave11 URL helper Vitest: disclosure search-param fixtures (caiqSigEvidenceSegmentKey segment ids, not API secrets); generic-api-key false positive"
+paths = [
+  '''(?:^|/)archlucid-ui/src/lib/wave11-filter-url-helpers\.test\.ts$''',
+]
+regexes = [
+  '''caiqSigEvidenceSegmentKey=''',
+]
+
+[[allowlists]]
 description = "Declaration premise conflict classifier: Kubernetes property key literal k8s.privileged (policy control id, not an API secret); generic-api-key false positive on propertyKey assignment"
 paths = [
   '''(?:^|/)ArchLucid\.Decisioning/Analysis/DeclarationPremiseConflictClassifier(?:\.WorkloadIsolation)?\.cs$''',
@@ -145,6 +154,12 @@ paths = [
 ]
 regexes = [
   "PROJ-389-ambiguous",
+]
+
+[[allowlists]]
+description = "ITSM inbound disposition sync unit test: base64 PointerToken fixture (decodes to pointer-token), not an API key; generic-api-key false positive on PointerToken assignment"
+paths = [
+  '''(?:^|/)ArchLucid\.Application\.Tests/Integrations/Itsm/ItsmInboundDispositionSyncTests\.cs$''',
 ]
 
 [[allowlists]]

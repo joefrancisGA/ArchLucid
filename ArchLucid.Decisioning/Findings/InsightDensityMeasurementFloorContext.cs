@@ -24,8 +24,36 @@ public sealed class InsightDensityMeasurementFloorContext
         init;
     }
 
+    /// <summary>Configured Premium judge cap before remaining-budget shrink (DX-62).</summary>
+    public int? JudgeConfiguredCap
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Effective Premium judge cap after remaining-budget shrink (DX-62).</summary>
+    public int? JudgeEffectiveCap
+    {
+        get;
+        init;
+    }
+
     /// <summary>Ranked missing-input rollup from held-check ledger (DX-52).</summary>
     public IReadOnlyList<HeldCheckLedgerRollupEntry> HeldCheckLedgerEntries
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>Inventory-upload second-pass summary when findings were regenerated (DX-60).</summary>
+    public HeldCheckSecondPassSummary? HeldCheckSecondPass
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Upload asks from NotVerifiable prose assumptions (DX-66).</summary>
+    public IReadOnlyList<ProseAssumptionHeldCheckAsk> ProseAssumptionHeldCheckAsks
     {
         get;
         init;

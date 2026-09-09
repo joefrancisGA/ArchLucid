@@ -26,6 +26,7 @@ public static class BuiltInFindingEngineTypeCatalog
             ["TopologyCoverageFindingEngine"] = "topology-coverage",
             ["TopologyStructureFindingEngine"] = "topology-structure",
             ["TopologyCrossRunDiffFindingEngine"] = "topology-cross-run-diff",
+            ["TopologySecurityDriftFindingEngine"] = "topology-security-drift",
             ["TopologyAntiPatternFindingEngine"] = "topology-anti-pattern",
             ["SecurityBaselineFindingEngine"] = "security-baseline",
             ["SecurityBaselineExpectationFindingEngine"] = "security-baseline-expectation",

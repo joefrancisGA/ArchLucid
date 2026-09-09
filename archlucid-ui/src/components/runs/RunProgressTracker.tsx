@@ -84,6 +84,16 @@ export function RunProgressTracker({
         {progressHeading}
       </h3>
 
+      {tracker.streamBlockedReason !== null ? (
+        <p
+          role="alert"
+          className={cn("mt-3 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="run-progress-summary-blocked-reason"
+        >
+          {tracker.streamBlockedReason}
+        </p>
+      ) : null}
+
       {tracker.pollEnabled && !tracker.buyerAssessmentCopy && tracker.backgroundSafetyMessage ? (
         <p
           className={cn("mt-3 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}

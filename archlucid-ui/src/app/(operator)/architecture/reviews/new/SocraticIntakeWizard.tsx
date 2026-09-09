@@ -15,7 +15,7 @@ import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudge
 import { architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import {
   GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
@@ -37,7 +37,7 @@ import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
 export function SocraticIntakeWizard() {
-  const evalChrome = useProductionEvalChrome();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { isWorkingMode } = useWorkspaceMode();
   const suppressWizardResumePrompt = useReviewsNewSuppressWizardResumePrompt();
   const { isSimulator } = useAgentExecutionMode();
@@ -180,6 +180,7 @@ export function SocraticIntakeWizard() {
         />
         <WizardSessionSaveStatus saveState={wizardSession.saveState} />
       </div>
+      {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
       {draftId !== null && step >= 1 ? (
         <div data-testid="socratic-intake-advanced-options">
           <SocraticIntakeWizardAdvancedRail
@@ -355,8 +356,6 @@ export function SocraticIntakeWizard() {
           onSubmit={submitDraft}
         />
       ) : null}
-
-      {evalChrome ? <ReviewsNewBuyerChrome /> : null}
       </div>
     </div>
   );

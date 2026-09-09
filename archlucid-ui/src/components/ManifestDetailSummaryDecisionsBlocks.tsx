@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import { getBundleDownloadUrl } from "@/lib/api";
+import { ManifestDetailBundleExportButton } from "@/components/ManifestDetailBundleExportButton";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
@@ -281,9 +281,11 @@ export function ManifestDetailSummaryBundleDownload({
               {BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP}
             </Button>
           ) : (
-            <Button variant="primary" size="sm" asChild>
-              <a href={getBundleDownloadUrl(summary.manifestId)}>{BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP}</a>
-            </Button>
+            <ManifestDetailBundleExportButton
+              manifestId={summary.manifestId}
+              runId={summary.runId}
+              label={BUYER_MANIFEST_DOWNLOAD_REVIEW_PACKAGE_ZIP}
+            />
           )}
         </div>
       </div>

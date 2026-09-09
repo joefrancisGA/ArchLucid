@@ -4,6 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 
 import { getReviewClarificationQuestions } from "@/lib/api/review-clarification-questions-api";
 import { isBrowser } from "@/lib/api/http";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { reviewClarificationQuestionsBlockedReason } from "@/lib/runs/review-clarification-questions-blocked-reason";
 import type { ReviewClarificationQuestionsResponse } from "@/lib/review-clarification-questions-types";
 
 export type UseReviewClarificationQuestionsOptions = {
@@ -26,6 +29,8 @@ export function useReviewClarificationQuestions(
   readonly isLoading: boolean;
   readonly isError: boolean;
   readonly error: unknown;
+  readonly failure: ApiLoadFailureState | null;
+  readonly blockedReason: string | null;
   readonly refetch: () => void;
 } {
   const enabled = (options.enabled ?? true) && options.runId.trim().length > 0 && isBrowser();
@@ -36,11 +41,16 @@ export function useReviewClarificationQuestions(
     enabled,
   });
 
+  const failure = query.isError ? toApiLoadFailure(query.error) : null;
+  const blockedReason = reviewClarificationQuestionsBlockedReason(failure);
+
   return {
     data: query.data,
     isLoading: query.isLoading,
     isError: query.isError,
     error: query.error,
+    failure,
+    blockedReason,
     refetch: () => {
       void query.refetch();
     },

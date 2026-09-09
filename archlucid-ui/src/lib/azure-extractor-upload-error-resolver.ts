@@ -129,7 +129,7 @@ function guidanceForSemanticCode(
     case "AZURE_EXTRACTOR_INVALID_MANIFEST_JSON":
       return "manifest.json is not valid JSON. Re-run the extractor locally and confirm the file opens cleanly before uploading.";
     case "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION":
-      return "manifest.json must include schemaVersion 1. Download the latest extractor script and regenerate the ZIP.";
+      return "manifest.json must include a supported schemaVersion (1–2). Download the latest extractor script and regenerate the ZIP.";
     case "AZURE_EXTRACTOR_MISSING_RESOURCES_JSON":
       return `The ZIP must include resources.json from ${packagerScript}. Do not upload a manifest-only archive.`;
     case "AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE":

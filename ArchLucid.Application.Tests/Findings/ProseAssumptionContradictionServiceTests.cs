@@ -68,14 +68,15 @@ public sealed class ProseAssumptionContradictionServiceTests
             },
         ];
 
-        IReadOnlyList<Finding> findings = await service.EmitContradictionsAsync(
+        ProseAssumptionContradictionOutcome outcome = await service.EmitOutcomeAsync(
             candidates,
             CreateStorageGraph(),
             context,
             maxFindings: 8,
+            maxRegisterEntries: 8,
             CancellationToken.None);
 
-        Finding finding = findings.Should().ContainSingle().Subject;
+        Finding finding = outcome.Findings.Should().ContainSingle().Subject;
         finding.EngineType.Should().Be("declaration-premise-conflict");
         finding.EvidenceRefs.Should().Contain("doc:architecture.md#L1");
         finding.EvidenceRefs.Should().Contain(StorageArmId);

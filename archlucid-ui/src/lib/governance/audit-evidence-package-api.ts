@@ -3,6 +3,7 @@ import { formatAuditEvidenceSealedManifestAwareApiError } from "@/lib/governance
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
+import { triggerBrowserBlobDownload } from "@/lib/api/downloads-blob-trigger-browser";
 
 /** Downloads audit evidence package ZIP for an assessment snapshot. */
 export async function downloadAuditEvidencePackageZip(
@@ -29,12 +30,8 @@ export async function downloadAuditEvidencePackageZip(
   }
 
   const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = `audit-evidence-${snapshotId}.zip`;
-  anchor.click();
-  URL.revokeObjectURL(url);
+
+  await triggerBrowserBlobDownload(blob, `audit-evidence-${snapshotId}.zip`);
 }
 
 export function formatAuditEvidencePackageApiError(error: unknown): string {

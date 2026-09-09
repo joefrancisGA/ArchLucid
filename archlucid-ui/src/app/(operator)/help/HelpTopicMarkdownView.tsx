@@ -45,7 +45,7 @@ import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTION } from "@/lib/report-a-problem-hel
 import { SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
 import { SUBPROCESSORS_HELP_PRIMARY_ACTION } from "@/lib/subprocessors-help-evidence-copy";
 
-import { HelpTopicCatchallEvidenceOrientationStrip } from "@/components/help/HelpTopicCatchallEvidenceOrientationStrip";
+import { HelpTopicCatchallSourcesOrientationStrip } from "@/components/help/HelpTopicCatchallSourcesOrientationStrip";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
@@ -55,11 +55,15 @@ import {
   HELP_TOPIC_CATCHALL_FOLLOW_UPS_TITLE,
 } from "@/lib/help/help-topic-catchall-evidence-copy";
 import {
+  HELP_TOPIC_CATCHALL_BUYER_START_HERE_HELPER,
+  HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID,
   HELP_TOPIC_CATCHALL_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  HELP_TOPIC_CATCHALL_ORIENTATION_BOTTOM_TEST_ID,
+  HELP_TOPIC_CATCHALL_OVERVIEW,
+  HELP_TOPIC_CATCHALL_PAGE_LEAD,
   HELP_TOPIC_CATCHALL_PRIMARY_CONTENT_ID,
   HELP_TOPIC_CATCHALL_SKIP_LINK_LABEL,
   HELP_TOPIC_CATCHALL_SKIP_TARGET_ID,
+  HELP_TOPIC_CATCHALL_START_HERE_CARD_TITLE,
 } from "@/lib/help/help-topic-catchall-page-copy";
 
 import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
@@ -344,14 +348,50 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
           className={cn("scroll-mt-24 space-y-6", OPERATOR_LAYOUT.sectionStack)}
         >
           {header}
+          <div
+            data-testid={HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="help-topic-catchall-intro"
+            >
+              {HELP_TOPIC_CATCHALL_PAGE_LEAD}
+            </p>
+            <section
+              className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="help-topic-catchall-start-here-panel"
+              aria-labelledby="help-topic-catchall-start-here-heading"
+            >
+              <h2
+                id="help-topic-catchall-start-here-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+              >
+                {HELP_TOPIC_CATCHALL_START_HERE_CARD_TITLE}
+              </h2>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-topic-catchall-buyer-start-here-helper"
+              >
+                {HELP_TOPIC_CATCHALL_BUYER_START_HERE_HELPER}
+              </p>
+            </section>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="help-topic-catchall-overview"
+            >
+              {HELP_TOPIC_CATCHALL_OVERVIEW}
+            </p>
+          </div>
           {developerRunbookLine}
           {caiqSigPostureCounts !== null ? (
             <CaiqSigResponseHelpPostureSummary counts={caiqSigPostureCounts} tableRowTotal={postureTableRowTotal} />
           ) : null}
           {contentGrid}
-          <div data-testid={HELP_TOPIC_CATCHALL_ORIENTATION_BOTTOM_TEST_ID}>
-            <HelpTopicCatchallEvidenceOrientationStrip />
-          </div>
+          <HelpTopicCatchallSourcesOrientationStrip />
         </div>
       ) : (
         <>

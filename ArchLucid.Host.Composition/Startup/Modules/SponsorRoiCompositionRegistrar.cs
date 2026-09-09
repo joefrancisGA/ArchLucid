@@ -96,6 +96,7 @@ internal static class SponsorRoiCompositionRegistrar
         services.AddScoped<ITenantLlmCostReportingService, TenantLlmCostReportingService>();
         services.AddScoped<IAdminFleetLlmCogsService, AdminFleetLlmCogsService>();
         services.AddScoped<ISponsorEvidencePackService, SponsorEvidencePackService>();
+        services.AddScoped<IPilotValueReportRoiFreshnessResolver, PilotValueReportRoiFreshnessResolver>();
         services.AddScoped<IPilotValueReportService, PilotValueReportService>();
         services.AddScoped<IPilotValueReportMarkdownFormatter, PilotValueReportMarkdownFormatter>();
         services.AddScoped<ValueReportSnapshotMarkdownFormatter>();

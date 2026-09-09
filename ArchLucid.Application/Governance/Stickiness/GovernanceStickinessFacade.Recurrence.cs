@@ -123,6 +123,8 @@ public sealed partial class GovernanceStickinessFacade
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        await EnsureRegistersSealedManifestOrThrowAsync(scope.ProjectId, ct).ConfigureAwait(false);
+
         return await _recurrenceScheduleRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
@@ -268,6 +270,8 @@ public sealed partial class GovernanceStickinessFacade
     public async Task<RealizedValueAttestationResponse> GetRealizedValueAttestationAsync(CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        await EnsureRegistersSealedManifestOrThrowAsync(scope.ProjectId, ct).ConfigureAwait(false);
 
         return await _attestationService.GetAttestationAsync(scope.TenantId, scope.WorkspaceId, ct);
     }

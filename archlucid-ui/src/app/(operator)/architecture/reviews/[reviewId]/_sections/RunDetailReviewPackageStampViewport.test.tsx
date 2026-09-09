@@ -12,6 +12,7 @@ vi.mock("@/components/governance/GovernanceRecordCorrectionDialog", () => ({
 }));
 
 import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
+import { PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 
 const feasibilityVerdict = {
   kind: "SoftInfeasible" as const,
@@ -119,5 +120,31 @@ describe("RunDetailReviewPackageStampViewport (FD-05)", () => {
 
     expect(screen.queryByTestId("run-detail-pre-finalize-gate-honesty-strip")).toBeNull();
     expect(screen.queryByTestId("run-detail-quality-gate-mode-strip")).toBeNull();
+  });
+
+  it("shows pixel-only diagram honesty on the measurement strip (AS-005)", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailReviewPackageStampViewport
+        hasGoldenManifest
+        runId="run-1"
+        enginesSucceeded={16}
+        feasibilityVerdict={feasibilityVerdict}
+        runCompleted
+        pixelDiagramNotVerifiableSources={[
+          {
+            fileName: "topology.png",
+            sourceMimeType: "image/png",
+            evidenceItemId: null,
+            pendingStoredFileMarker: "pending-stored-file:topology.png",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("pixel-diagram-not-verifiable-list")).toHaveTextContent(
+      PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE,
+    );
   });
 });

@@ -5,6 +5,8 @@ import { MARKETING_FAQ_ITEMS, MARKETING_FAQ_MOST_ASKED_ITEM_IDS } from "@/lib/ma
 import {
   MARKETING_FAQ_PAGE_INTRO,
   MARKETING_FAQ_PRIMARY_CONTENT_ID,
+  MARKETING_FAQ_SKIP_LINK_LABEL,
+  MARKETING_FAQ_SKIP_TARGET_ID,
 } from "@/lib/marketing/marketing-faq-page-copy";
 
 import { MarketingFaqPageClient } from "./MarketingFaqPageClient";
@@ -13,14 +15,16 @@ describe("MarketingFaqPageClient", () => {
   it("renders buyer intro, category index, hero links, most asked, and diligence CTAs", () => {
     render(<MarketingFaqPageClient />);
 
-    expect(screen.getByRole("link", { name: "Skip to FAQ content" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: MARKETING_FAQ_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${MARKETING_FAQ_PRIMARY_CONTENT_ID}`,
+      `#${MARKETING_FAQ_SKIP_TARGET_ID}`,
     );
     expect(screen.getByTestId("marketing-faq-page-hero")).toBeInTheDocument();
+    expect(screen.getByTestId("marketing-faq-first-viewport")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Product FAQ" })).toBeInTheDocument();
     expect(screen.getByText(MARKETING_FAQ_PAGE_INTRO)).toBeInTheDocument();
     expect(screen.getByTestId("faq-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("marketing-faq-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("marketing-faq-toc")).toBeInTheDocument();
     expect(screen.getByTestId("marketing-faq-cta-top")).toBeInTheDocument();
     expect(screen.getByTestId("marketing-faq-hero-links")).toBeInTheDocument();
@@ -31,6 +35,15 @@ describe("MarketingFaqPageClient", () => {
     expect(screen.getByTestId("marketing-faq-most-asked")).toBeInTheDocument();
     expect(screen.getByTestId("marketing-faq-diligence-ctas")).toBeInTheDocument();
     expect(screen.getByTestId("faq-orientation")).toBeInTheDocument();
+  });
+
+  it("keeps hero outside the first-viewport orientation band", () => {
+    render(<MarketingFaqPageClient />);
+
+    const hero = screen.getByTestId("marketing-faq-page-hero");
+    const firstViewport = screen.getByTestId("marketing-faq-first-viewport");
+
+    expect(firstViewport).not.toContainElement(hero);
   });
 
   it("places evaluation orientation above Most asked", () => {

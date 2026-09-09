@@ -3,15 +3,13 @@
 import Link from "next/link";
 
 import { HelpRepeatReviewLoopPageHeader } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopPageHeader";
+import { HelpRepeatReviewLoopSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopSourcesOrientationStrip";
 import { HelpRepeatReviewLoopWorkflowStepper } from "@/app/(operator)/help/_sections/HelpRepeatReviewLoopWorkflowStepper";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MermaidDiagram } from "@/components/help/MermaidDiagram";
 import { RepeatReviewLoopHelpClaimDisciplineStrip } from "@/components/help/RepeatReviewLoopHelpClaimDisciplineStrip";
 import { RepeatReviewLoopHelpEvidenceOrientationStrip } from "@/components/help/RepeatReviewLoopHelpEvidenceOrientationStrip";
-import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
-import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
-import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -44,11 +42,8 @@ import {
   REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH,
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE,
   REPEAT_REVIEW_LOOP_HELP_CLAIM_HEADING_ID,
-  REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE,
   REPEAT_REVIEW_LOOP_HELP_RELATED,
   REPEAT_REVIEW_LOOP_HELP_RELATED_HEADING,
-  REPEAT_REVIEW_LOOP_HELP_SOURCES,
-  REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO,
 } from "@/lib/repeat-review-loop-help-evidence-copy";
 import {
   COMPARE_REPEAT_REVIEW_HELP_JOB_MATRIX_HEADING,
@@ -56,9 +51,10 @@ import {
   REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX_TEST_ID,
 } from "@/lib/compare-repeat-review-help-ia-dual";
 import {
+  REPEAT_REVIEW_LOOP_HELP_BUYER_OVERVIEW,
   REPEAT_REVIEW_LOOP_HELP_FIRST_VIEWPORT_TEST_ID,
   REPEAT_REVIEW_LOOP_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD,
   REPEAT_REVIEW_LOOP_HELP_PRIMARY_CONTENT_ID,
   REPEAT_REVIEW_LOOP_HELP_SKIP_LINK_LABEL,
   REPEAT_REVIEW_LOOP_HELP_SKIP_TARGET_ID,
@@ -158,21 +154,6 @@ function RepeatReviewLoopActionPanel(): React.ReactElement {
   );
 }
 
-function RepeatReviewLoopBuyerSourcesOrientationStrip(): React.ReactElement {
-  return (
-    <EvidenceOrientationStripShell testId={REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-      <EvidenceOrientationSourcesSection
-        testId="repeat-review-loop-help-sources"
-        headingId="where-to-go-next"
-        title={REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE}
-        intro={REPEAT_REVIEW_LOOP_HELP_SOURCES_INTRO}
-        links={REPEAT_REVIEW_LOOP_HELP_SOURCES}
-        style={EVIDENCE_SOURCES_STYLE.evaluationMuted}
-      />
-    </EvidenceOrientationStripShell>
-  );
-}
-
 /** Buyer-safe repeat-review orientation for `/help/repeat-review-loop`. */
 export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideViewProps): React.JSX.Element {
   const { entry, markdown } = props;
@@ -192,6 +173,7 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
   );
   const showSectionNav = !buyerPolishedShell && headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
   const contentGridClass = resolveHelpPageContentGridClass(showSectionNav ? headings.length : 0);
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
   const diagramThemeVariables = dark
     ? REPEAT_REVIEW_LOOP_HELP_DIAGRAM_THEME_VARIABLES_DARK
     : REPEAT_REVIEW_LOOP_HELP_DIAGRAM_THEME_VARIABLES;
@@ -227,6 +209,11 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
+          <div className="space-y-4" data-testid="help-repeat-review-loop-buyer-intro">
+            <p className={readingBodyClass} data-testid="help-repeat-review-loop-intro">
+              {REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD}
+            </p>
+          </div>
           <RepeatReviewLoopEligibilitySection />
           <RepeatReviewLoopJobMatrixSection />
           <RepeatReviewLoopActionPanel />
@@ -247,15 +234,26 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
         </>
       )}
 
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="help-repeat-review-loop-overview"
+        >
+          {REPEAT_REVIEW_LOOP_HELP_BUYER_OVERVIEW}
+        </p>
+      ) : null}
+
       <HelpRepeatReviewLoopWorkflowStepper />
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           {buyerPolishedShell ? null : <RepeatReviewLoopHelpEvidenceOrientationStrip />}
 
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-repeat-review-loop-overview">
-            {REPEAT_REVIEW_LOOP_HELP_OVERVIEW}
-          </p>
+          {!buyerPolishedShell ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-repeat-review-loop-overview">
+              {REPEAT_REVIEW_LOOP_HELP_OVERVIEW}
+            </p>
+          ) : null}
 
           <div
             className={cn(
@@ -316,7 +314,7 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
         {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
       </div>
 
-      {buyerPolishedShell ? <RepeatReviewLoopBuyerSourcesOrientationStrip /> : null}
+      {buyerPolishedShell ? <HelpRepeatReviewLoopSourcesOrientationStrip /> : null}
     </>
   );
 

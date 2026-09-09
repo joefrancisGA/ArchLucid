@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { shouldShowOperatorDemoMarketingChrome } from "@/lib/buyer/buyer-demo-content-gating";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { getBundleDownloadUrl } from "@/lib/api";
+import { ManifestDetailBundleExportButton } from "@/components/ManifestDetailBundleExportButton";
 import {
   BUYER_MANIFEST_AUTHORITY_SUMMARY,
   BUYER_MANIFEST_HEADLINE_SUFFIX,
@@ -41,9 +41,12 @@ import {
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
+  SEALED_RECORD_DETAIL_BUYER_START_HERE_HELPER,
+  SEALED_RECORD_DETAIL_PAGE_LEAD,
   SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID,
   SEALED_RECORD_DETAIL_SKIP_LINK_LABEL,
 } from "@/lib/sealed-record-detail-page-copy";
+import { SIGNED_RECORD_CLAIM_DISCIPLINE } from "@/lib/signed-record-evidence-copy";
 import type { ManifestDetailSectionTabId } from "@/lib/manifest-detail-section-tabs";
 import {
   resolveManifestDetailInspectEmphasizedStepId,
@@ -57,6 +60,7 @@ import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-mode
 import { ManifestDetailOverviewCard } from "./ManifestDetailOverviewCard";
 import { ManifestDetailMonitoredRiskCard } from "./ManifestDetailMonitoredRiskCard";
 import { ManifestDetailDeliverablesCard } from "./ManifestDetailDeliverablesCard";
+import { manifestDetailPageSubtitle } from "./manifest-detail-page-copy";
 
 type ManifestDetailPageViewProps = {
   readonly model: ManifestDetailPageSuccessModel;
@@ -153,7 +157,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
 
   return (
     <OperatorPageContainer
-      variant="dashboard"
+      variant={buyerPolishedLayout ? "workflow" : "dashboard"}
       className={cn("px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)}
     >
       {buyerPolishedLayout ? (
@@ -209,20 +213,11 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         }
         headingLevel="h1"
         breadcrumb={buyerPolishedLayout ? <GovernanceSealedRecordDetailBreadcrumb /> : undefined}
+        claimDiscipline={buyerPolishedLayout ? SIGNED_RECORD_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId="sealed-record-detail-claim-discipline"
         subtitle={
           buyerPolishedLayout ? (
-            <>
-              {showcasePackage === true ? (
-                BUYER_MANIFEST_AUTHORITY_SUMMARY
-              ) : (
-                <>
-                  This is the <InlineGlossaryChip nounId="sealed-review-record" pulseOnFirstEncounter={false}>Finalized review record</InlineGlossaryChip> for the architecture review —{" "}
-                  <InlineGlossaryChip nounId="decision" pulseOnFirstEncounter={false}>decisions</InlineGlossaryChip>,{" "}
-                  <InlineGlossaryChip nounId="finding" pulseOnFirstEncounter={false}>findings</InlineGlossaryChip>, and the files you
-                  can open or download.
-                </>
-              )}
-            </>
+            showcasePackage === true ? BUYER_MANIFEST_AUTHORITY_SUMMARY : manifestDetailPageSubtitle(true)
           ) : (
             <>
               A <InlineGlossaryChip nounId="sealed-review-record" pulseOnFirstEncounter={false}>Finalized review record</InlineGlossaryChip> is the immutable authority for this review. It captures{" "}
@@ -234,14 +229,34 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         }
         actions={
           buyerPolishedLayout !== true ? (
-            <Button variant="primary" size="sm" asChild>
-              <a href={getBundleDownloadUrl(manifestId)}>Export review bundle</a>
-            </Button>
+            <ManifestDetailBundleExportButton
+              manifestId={manifestId}
+              runId={summary.runId}
+              label="Export review bundle"
+            />
           ) : undefined
         }
       />
 
-      <ManifestDetailBuyerChrome />
+      {buyerPolishedLayout ? (
+        <div
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid="governance-sealed-record-detail-first-viewport"
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="governance-sealed-record-detail-intro"
+          >
+            {SEALED_RECORD_DETAIL_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="governance-sealed-record-detail-buyer-start-here-helper"
+          >
+            {SEALED_RECORD_DETAIL_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
 
       {listScopedRunFilterActive ? (
         <p
@@ -332,6 +347,8 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
       <ManifestDetailNextRecordFooterClient manifestId={manifestId} />
 
       <SignedRecordsListNextReviewFooterClient runId={summary.runId.trim()} />
+
+      {buyerPolishedLayout ? <ManifestDetailBuyerChrome /> : null}
 
       <OperatorEvidenceLimitsFooter
         runId={summary.runId}

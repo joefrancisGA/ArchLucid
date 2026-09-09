@@ -19,6 +19,10 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
+
 import { HelpJiraIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpJiraIntegrationGuideView";
 import {
   JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE,
@@ -30,9 +34,11 @@ import {
   JIRA_INTEGRATION_HELP_PRIMARY_ACTION,
 } from "@/lib/jira-integration-help-guide-content";
 import {
+  JIRA_INTEGRATION_HELP_BUYER_OVERVIEW,
   JIRA_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID,
   JIRA_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   JIRA_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  JIRA_INTEGRATION_HELP_PAGE_LEAD,
   JIRA_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER,
   JIRA_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
   JIRA_INTEGRATION_HELP_SKIP_LINK_LABEL,
@@ -46,7 +52,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("HelpJiraIntegrationGuideView buyer-polished shell (HEJ)", () => {
   const entry = getProductDocumentationEntry("jira-integration");
 
-  it("renders skip link, header claim discipline, first-viewport start here, and bottom Sources", () => {
+  it("renders skip link, header claim discipline, first-viewport intro, and bottom Sources", () => {
     if (entry === undefined) {
       throw new Error("Expected jira-integration documentation entry.");
     }
@@ -65,28 +71,37 @@ describe("HelpJiraIntegrationGuideView buyer-polished shell (HEJ)", () => {
     expect(screen.queryByTestId("help-jira-integration-claim-discipline-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-jira-integration-intro")).toHaveTextContent(JIRA_INTEGRATION_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-jira-integration-overview")).toHaveTextContent(
+      JIRA_INTEGRATION_HELP_BUYER_OVERVIEW,
+    );
     expect(screen.getByRole("heading", { level: 2, name: JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(JIRA_INTEGRATION_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(JIRA_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-jira-integration-action-panel");
-    const orientationBottom = screen.getByTestId(JIRA_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const overview = screen.getByTestId("help-jira-integration-overview");
+    const featureItems = screen.getByTestId("help-jira-integration-feature-items");
+    const orientationBottom = screen.getByTestId(JIRA_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("help-jira-integration-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(screen.getByTestId("help-jira-integration-intro"));
     expect(firstViewport).toContainElement(actionPanel);
-    expect(primaryContent).toContainElement(orientationBottom);
     expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(featureItems);
+    expect(primaryContent).toContainElement(orientationBottom);
+    expect(orientationBottom).toContainElement(sourcesSection);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(featureItems) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(featureItems.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("help-jira-integration-start-here-helper")).toHaveTextContent(
       JIRA_INTEGRATION_HELP_START_HERE_HELPER,
     );
     expect(
       within(actionPanel).getByRole("link", { name: JIRA_INTEGRATION_HELP_PRIMARY_ACTION.label }),
     ).toHaveAttribute("href", JIRA_INTEGRATION_HELP_PRIMARY_ACTION.href);
-
-    const sourcesSection = screen.getByTestId("help-jira-integration-sources");
 
     for (const source of filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_HELP_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);

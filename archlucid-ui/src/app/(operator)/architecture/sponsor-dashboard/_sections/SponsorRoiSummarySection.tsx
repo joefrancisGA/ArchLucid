@@ -8,6 +8,8 @@ import { useAskRunCoverageHonestyQuery } from "@/hooks/use-ask-run-coverage-hone
 import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
 
 import { downloadSponsorRoiBoardPack } from "@/lib/api/sponsor-roi-board-pack-api";
+import { downloadSponsorRoiCsvExport } from "@/lib/api/downloads-blob-trigger-sponsor-roi-csv-export";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
@@ -36,12 +38,9 @@ import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-con
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import {
   resolveSponsorHeadlineScopeLabel,
   resolveSponsorSystemRowScopeLabel,
@@ -52,8 +51,6 @@ import {
 } from "@/lib/roi-resolution-priority";
 
 import { SponsorRoiSystemicIssueTrendChartDeferred } from "./sponsor-roi-dashboard-deferred-chunks";
-
-const SPONSOR_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiSponsorReport}`;
 
 function sponsorRoiSummaryCardTitle(evalChromeShell: boolean): string {
   if (evalChromeShell) {
@@ -184,63 +181,7 @@ export function SponsorRoiSummarySection({
     }
 
     try {
-      const response = await fetch(
-        `${SPONSOR_ROI_SUMMARY_PATH}/export`,
-        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const json = (await response.json()) as {
-        rows?: Array<{
-          findingId: string;
-          runId: string;
-          systemName: string;
-          environment: string;
-          category: string;
-          severity: string;
-          title: string;
-          affectedResource?: string | null;
-          estimatedUsdSavings?: number | null;
-        }>;
-        savingsPricingBasis?: string;
-        eaDiscountMultiplier?: number;
-        savingsPricingBasisDescription?: string;
-        costEvidenceFreshnessStatus?: string;
-      };
-
-      const eaMultiplier = json.eaDiscountMultiplier ?? 1;
-      const preamble = [
-        `# Savings pricing basis: ${json.savingsPricingBasis ?? "Retail"} (EA discount multiplier ${eaMultiplier})`,
-        json.savingsPricingBasisDescription ? `# ${json.savingsPricingBasisDescription}` : null,
-        json.costEvidenceFreshnessStatus ? `# Cost evidence freshness: ${json.costEvidenceFreshnessStatus}` : null,
-      ]
-        .filter(Boolean)
-        .join("\n");
-      const header = "FindingId,RunId,SystemName,Environment,Category,Severity,Title,AffectedResource,EstimatedUsdSavings";
-      const lines = (json.rows ?? []).map((row) =>
-        [
-          row.findingId,
-          row.runId,
-          row.systemName,
-          row.environment,
-          row.category,
-          row.severity,
-          `"${row.title.replaceAll('"', '""')}"`,
-          row.affectedResource ?? "",
-          row.estimatedUsdSavings ?? "",
-        ].join(","),
-      );
-
-      const blob = new Blob([[preamble, header, ...lines].join("\n")], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = "sponsor-roi-findings.csv";
-      anchor.click();
-      URL.revokeObjectURL(url);
+      await downloadSponsorRoiCsvExport();
     } catch (e: unknown) {
       showError("CSV export failed", e instanceof Error ? e.message : String(e));
     }

@@ -50,9 +50,9 @@ import {
   parseIdentityProvidersDiagnosticsProtocolOpenFromSearch,
 } from "@/lib/administration/identity-providers-diagnostics-protocol-disclosure-url";
 import {
-  identityProvidersDiagnosticsTechnicalDisclosureHrefFromSearch,
-  parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch,
-} from "@/lib/administration/identity-providers-diagnostics-technical-disclosure-url";
+  identityProvidersTechnicalDetailsDisclosureHrefFromSearch,
+  parseIdentityProvidersTechnicalDetailsOpenFromSearch,
+} from "@/lib/administration/identity-providers-technical-details-disclosure-url";
 import {
   identityProvidersDiagnosticsCustomerToolsDisclosureHrefFromSearch,
   parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch,
@@ -92,7 +92,7 @@ export function IdentityProvidersDiagnosticsPageView(
   const pathname = usePathname() ?? "/administration/identity-providers/diagnostics";
   const searchParams = useSearchParams();
   const identityProvidersDiagnosticsProtocolOpenParam = searchParams.get("identityProvidersDiagnosticsProtocolOpen");
-  const identityProvidersDiagnosticsTechnicalOpenParam = searchParams.get("identityProvidersDiagnosticsTechnicalOpen");
+  const identityProvidersTechnicalDetailsOpenParam = searchParams.get("identityProvidersTechnicalDetailsOpen");
   const identityProvidersDiagnosticsCustomerToolsOpenParam = searchParams.get("identityProvidersDiagnosticsCustomerToolsOpen");
   const showTechnicalDetails = canViewIdentityProviderTechnicalDiagnostics(isArchLucidInternalOperatorShellEnv());
   const bundlePending = diagnosticsBundlePending(props.model);
@@ -103,7 +103,7 @@ export function IdentityProvidersDiagnosticsPageView(
     parseIdentityProvidersDiagnosticsProtocolOpenFromSearch(identityProvidersDiagnosticsProtocolOpenParam),
   );
   const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
-    parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch(identityProvidersDiagnosticsTechnicalOpenParam),
+    parseIdentityProvidersTechnicalDetailsOpenFromSearch(identityProvidersTechnicalDetailsOpenParam),
   );
   const [customerToolsOpen, setCustomerToolsOpenState] = useState(() =>
     parseIdentityProvidersDiagnosticsCustomerToolsOpenFromSearch(identityProvidersDiagnosticsCustomerToolsOpenParam),
@@ -137,7 +137,7 @@ export function IdentityProvidersDiagnosticsPageView(
   const syncTechnicalDetailsOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(
-        identityProvidersDiagnosticsTechnicalDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        identityProvidersTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { scroll: false },
       );
     },
@@ -154,9 +154,9 @@ export function IdentityProvidersDiagnosticsPageView(
 
   useEffect(() => {
     setTechnicalDetailsOpenState(
-      parseIdentityProvidersDiagnosticsTechnicalOpenFromSearch(identityProvidersDiagnosticsTechnicalOpenParam),
+      parseIdentityProvidersTechnicalDetailsOpenFromSearch(identityProvidersTechnicalDetailsOpenParam),
     );
-  }, [identityProvidersDiagnosticsTechnicalOpenParam]);
+  }, [identityProvidersTechnicalDetailsOpenParam]);
 
   const syncCustomerToolsOpenToUrl = useCallback(
     (open: boolean) => {

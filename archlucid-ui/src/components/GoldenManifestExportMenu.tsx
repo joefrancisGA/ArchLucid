@@ -37,6 +37,9 @@ import {
   isUsableGoldenManifestExportJson,
   triggerGoldenManifestMarkdownDownload,
 } from "@/lib/export-markdown";
+import { downloadManifestMarkdownExport } from "@/lib/api/manifest-markdown-export-api";
+import { manifestMarkdownExportBlockedReason } from "@/lib/manifest/manifest-markdown-export-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { EXPORT_FORMAT_MARKDOWN } from "@/lib/export-format-when-to-use";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
@@ -55,6 +58,7 @@ export type GoldenManifestExportMenuProps = {
   progressSummary?: RunSummary | null;
   graphSnapshot?: unknown;
   findingsSnapshot?: unknown;
+  contextSnapshot?: unknown;
   classificationCounts?: CareerExportClassificationCounts | null;
   /** Recorded aggregate quality-gate outcome when the parent already loaded agent evaluation (DR-05). */
   aggregateQualityGateOutcome?: number | null;
@@ -191,6 +195,7 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
         progressSummary: props.progressSummary ?? null,
         graphSnapshot: props.graphSnapshot ?? null,
         findingsSnapshot: props.findingsSnapshot ?? null,
+        contextSnapshot: props.contextSnapshot ?? null,
         enginesSucceeded: props.enginesSucceeded ?? null,
         workingDesk,
         classificationCounts: props.classificationCounts ?? null,
@@ -209,6 +214,29 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     triggerGoldenManifestMarkdownDownload(markdown, filename);
     recordFirstExportOpenedOnce();
     setExportMenuKey((k: number) => k + 1);
+  }
+
+  async function downloadServerMarkdownSummary(): Promise<void> {
+    const blockedReason = runCollateralSealedManifestCopyBlockedReason({
+      runId,
+      manifestVersion: manifestSummarySealedVersionForCopyGuard(manifestSummary),
+    });
+
+    if (blockedReason !== null) {
+      setExportError(blockedReason);
+      return;
+    }
+
+    setExportError(null);
+
+    try {
+      await downloadManifestMarkdownExport(manifestId);
+      recordFirstExportOpenedOnce();
+      setExportMenuKey((k: number) => k + 1);
+    } catch (error: unknown) {
+      const failure = toApiLoadFailure(error);
+      setExportError(manifestMarkdownExportBlockedReason(failure) ?? failure.message);
+    }
   }
 
   const markdownOptionLabel =
@@ -293,11 +321,14 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
     <Select
       key={exportMenuKey}
       onValueChange={(value: string) => {
-        if (value !== "markdown-summary") {
+        if (value === "markdown-summary") {
+          downloadMarkdownSummary();
           return;
         }
 
-        void downloadMarkdownSummary();
+        if (value === "server-markdown-export") {
+          void downloadServerMarkdownSummary();
+        }
       }}
     >
       <SelectTrigger
@@ -321,6 +352,11 @@ export function GoldenManifestExportMenu(props: GoldenManifestExportMenuProps) {
               {markdownOptionLabel}
             </span>
             <ExportFormatWhenToUseHint format="markdown" />
+          </span>
+        </SelectItem>
+        <SelectItem value="server-markdown-export" className="items-start py-2">
+          <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+            Download server manifest export (Markdown)
           </span>
         </SelectItem>
       </SelectContent>

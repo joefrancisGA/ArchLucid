@@ -1084,7 +1084,10 @@ export interface components {
         };
         ArchitectureDiagramModelRecord: {
             edges?: components["schemas"]["ArchitectureDiagramEdgeRecord"][];
+            extractionMethod?: string;
             nodes?: components["schemas"]["ArchitectureDiagramNodeRecord"][];
+            sourceEvidenceItemId?: null | string;
+            subgraphs?: components["schemas"]["ArchitectureDiagramSubgraphRecord"][];
             trustBoundaryLabels?: string[];
         };
         ArchitectureDiagramNodeRecord: {
@@ -1094,6 +1097,13 @@ export interface components {
             label?: string;
             provenance?: string;
             removed?: boolean;
+            subgraphId?: null | string;
+        };
+        ArchitectureDiagramSubgraphRecord: {
+            id?: string;
+            label?: string;
+            orderKey?: number;
+            parentSubgraphId?: null | string;
         };
         ArchitectureDigest: {
             /** Format: date-time */
@@ -4324,6 +4334,7 @@ export interface components {
         /** @enum {string} */
         FindingDisposition: "Accepted" | "Deferred" | "NeedsEvidence" | "Remediated" | "RejectedAsNotApplicable";
         FindingDispositionEventDto: {
+            architectRestatement?: null | string;
             currentDispositionRowVersionBase64?: null | string;
             disposition?: components["schemas"]["FindingDisposition"];
             /** Format: uuid */
@@ -5078,6 +5089,16 @@ export interface components {
             engineTypes?: string[];
             inputCode?: components["schemas"]["HeldCheckInputCode"];
         };
+        /** @enum {string} */
+        HeldCheckSecondPassStatus: "Completed" | "NotEligible" | "NoPriorLedger" | "NoNewFindings";
+        HeldCheckSecondPassSummary: {
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+            /** Format: int32 */
+            newDecisionGradeCount?: number;
+            status?: components["schemas"]["HeldCheckSecondPassStatus"];
+            /** Format: int32 */
+            unblockedEngineCount?: number;
+        };
         HolisticCriticRequest: {
             focus?: null | string;
         };
@@ -5360,8 +5381,15 @@ export interface components {
             /** Format: int32 */
             demotedToChecklistCount?: number;
             heldCheckLedgerEntries?: null | components["schemas"]["HeldCheckLedgerRollupEntry"][];
+            heldCheckSecondPass?: null | components["schemas"]["HeldCheckSecondPassSummary"];
+            /** Format: int32 */
+            judgeConfiguredCap?: null | number;
+            /** Format: int32 */
+            judgeEffectiveCap?: null | number;
             /** Format: int32 */
             judgeSkippedByCap?: number;
+            proseAssumptionHeldCheckAsks?: null | components["schemas"]["ProseAssumptionHeldCheckAsk"][];
+            proseAssumptionRegisterEntries?: null | components["schemas"]["ProseAssumptionRegisterEntry"][];
             /** Format: int32 */
             retainedFindingCount?: number;
         };
@@ -6832,6 +6860,7 @@ export interface components {
             governanceRejections?: number;
             /** Format: int32 */
             policyPackAssignments?: number;
+            roiSourceFreshnessDisposition?: string;
             /** Format: int32 */
             runDetailCap?: number;
             runDetailsTruncated?: boolean;
@@ -7575,6 +7604,23 @@ export interface components {
             invariantKey?: string;
             tradeOffDescription?: string;
         };
+        /** @enum {string} */
+        ProseAssumptionDisposition: "Contradicted" | "Consistent" | "NotVerifiable";
+        ProseAssumptionHeldCheckAsk: {
+            evidenceRef?: string;
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+            statement?: string;
+        };
+        ProseAssumptionRegisterEntry: {
+            disposition?: components["schemas"]["ProseAssumptionDisposition"];
+            documentPath?: string;
+            evidenceRef?: string;
+            findingId?: null | string;
+            /** Format: int32 */
+            lineNumber?: number;
+            logicalPropertyName?: null | string;
+            statement?: string;
+        };
         ProvenanceEdge: {
             /** Format: uuid */
             fromNodeId?: string;
@@ -7967,6 +8013,9 @@ export interface components {
         RecordBulkFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            expectedCurrentDispositionRowVersionBase64ByFindingId?: {
+                [key: string]: string;
+            } | null;
             findingIds: string[];
             rationale: string;
             /** Format: date-time */
@@ -7974,15 +8023,21 @@ export interface components {
             tradeOffAcknowledgment?: null | string;
         };
         RecordBulkFindingDispositionResponse: {
+            currentDispositionRowVersionBase64ByFindingId?: {
+                [key: string]: string;
+            } | null;
             /** Format: int32 */
             processedCount?: number;
             updatedFindingIds: string[];
         };
         RecordFindingDispositionRequest: {
+            architectRestatement?: null | string;
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
             expectedCurrentDispositionRowVersionBase64?: null | string;
             findingId: string;
+            impactPreviewCompleted?: null | boolean;
+            previewOverrideReason?: null | string;
             rationale?: null | string;
             /** Format: date-time */
             revisitDueUtc?: null | string;

@@ -5,6 +5,11 @@ import { ProvenancePageWorkspace } from "@/components/provenance/ProvenancePageW
 import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => false,
+  useProductionDeskChrome: (): boolean => true,
+}));
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/reviews/demo-run/provenance",
   useSearchParams: () => new URLSearchParams(),

@@ -45,9 +45,9 @@ import {
   type SponsorReadinessStatus,
 } from "@/lib/architecture/architecture-sponsor-readiness";
 import {
-  architectureSponsorReadinessDisclosureHrefFromSearch,
-  parseArchitectureSponsorReadinessOpenFromSearch,
-} from "@/lib/architecture/architecture-sponsor-readiness-disclosure-url";
+  architectureSponsorSharingDisclosureHrefFromSearch,
+  parseArchitectureSponsorSharingOpenFromSearch,
+} from "@/lib/architecture/architecture-sponsor-sharing-disclosure-url";
 import {
   architectureSponsorShareConfirmHrefFromSearch,
   parseArchitectureSponsorShareConfirmOpenFromSearch,
@@ -99,14 +99,14 @@ export function ArchitectureSponsorSharingPanel(
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const sponsorShareConfirmParam = searchParams.get("sponsorShareConfirm");
-  const architectureSponsorReadinessOpenParam = searchParams.get("architectureSponsorReadinessOpen");
+  const architectureSponsorSharingOpenParam = searchParams.get("architectureSponsorSharingOpen");
   const resolveReadinessVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const preliminarySubmitVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const [dialogOpen, setDialogOpenState] = useState(
     () => parseArchitectureSponsorShareConfirmOpenFromSearch(sponsorShareConfirmParam),
   );
   const [readinessPanelOpen, setReadinessPanelOpenState] = useState(() =>
-    parseArchitectureSponsorReadinessOpenFromSearch(architectureSponsorReadinessOpenParam),
+    parseArchitectureSponsorSharingOpenFromSearch(architectureSponsorSharingOpenParam),
   );
   const [overrideConfirmed, setOverrideConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -148,7 +148,7 @@ export function ArchitectureSponsorSharingPanel(
       }
 
       router.replace(
-        architectureSponsorReadinessDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        architectureSponsorSharingDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { scroll: false },
       );
     },
@@ -165,9 +165,9 @@ export function ArchitectureSponsorSharingPanel(
 
   useEffect(() => {
     setReadinessPanelOpenState(
-      parseArchitectureSponsorReadinessOpenFromSearch(architectureSponsorReadinessOpenParam),
+      parseArchitectureSponsorSharingOpenFromSearch(architectureSponsorSharingOpenParam),
     );
-  }, [architectureSponsorReadinessOpenParam]);
+  }, [architectureSponsorSharingOpenParam]);
 
   const assessment = useMemo(
     () =>

@@ -9,6 +9,8 @@ import {
   type RunSummaryStreamPhase,
 } from "@/lib/runs/run-summary-stream-poll-policy";
 import { getRunSummary } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
 import type { RunSummary } from "@/types/authority";
 
 export type { RunSummaryStreamPhase };
@@ -17,6 +19,7 @@ export type UseRunSummaryStreamResult = {
   summary: RunSummary | null;
   streamPhase: RunSummaryStreamPhase;
   sseConnected: boolean;
+  streamBlockedReason: string | null;
 };
 
 /**
@@ -31,6 +34,7 @@ export function useRunSummaryStream(
   const [summary, setSummary] = useState<RunSummary | null>(initial);
   const [streamPhase, setStreamPhase] = useState<RunSummaryStreamPhase>("streaming");
   const [sseConnected, setSseConnected] = useState(false);
+  const [streamBlockedReason, setStreamBlockedReason] = useState<string | null>(null);
   const fallbackStartedRef = useRef(false);
   const fallbackIntervalRef = useRef<number | undefined>(undefined);
   const streamPhaseRef = useRef<RunSummaryStreamPhase>("streaming");
@@ -54,6 +58,7 @@ export function useRunSummaryStream(
     }
 
     fallbackStartedRef.current = false;
+    setStreamBlockedReason(null);
     let canceled = false;
     const url = `${typeof window !== "undefined" ? window.location.origin : ""}/api/proxy/v1/authority/reviews/${encodeURIComponent(runId)}/events`;
 
@@ -91,8 +96,15 @@ export function useRunSummaryStream(
           streamPhaseRef.current = "complete";
           setStreamPhase("complete");
         }
-      } catch {
-        /* keep polling */
+      } catch (error: unknown) {
+        const blockedReason = runSummaryBlockedReason(toApiLoadFailure(error));
+
+        if (blockedReason !== null) {
+          setStreamBlockedReason(blockedReason);
+          clearFallback();
+          streamPhaseRef.current = "complete";
+          setStreamPhase("complete");
+        }
       }
     };
 
@@ -208,5 +220,5 @@ export function useRunSummaryStream(
     };
   }, [runId, options.enabled, retryToken]);
 
-  return { summary, streamPhase, sseConnected };
+  return { summary, streamPhase, sseConnected, streamBlockedReason };
 }

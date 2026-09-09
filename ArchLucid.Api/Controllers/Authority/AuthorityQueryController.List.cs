@@ -34,6 +34,7 @@ public sealed partial class AuthorityQueryController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListRunsByProject(
         string projectId,
         [FromQuery] string? cursor = null,
@@ -72,6 +73,11 @@ public sealed partial class AuthorityQueryController
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
+        IActionResult? sealedGuardResult = await EnsureRunInventorySealedManifestReadAllowedAsync(scope, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         (IReadOnlyList<RunSummaryDto> Items, bool HasMore) keysetPage =
             await queryService.ListRunsByProjectKeysetAsync(scope, projectId, cu, rid, effectiveTake, ct);
 
@@ -99,6 +105,7 @@ public sealed partial class AuthorityQueryController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListRunsInScope(
         [FromQuery] string? cursor = null,
         [FromQuery] int take = RunPagination.DefaultTake,
@@ -130,6 +137,12 @@ public sealed partial class AuthorityQueryController
             string.IsNullOrWhiteSpace(cursor) && page.HasValue
                 ? RunPagination.ClampTake(pageSize)
                 : RunPagination.ClampTake(take);
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = await EnsureRunInventorySealedManifestReadAllowedAsync(scope, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         (IReadOnlyList<RunSummaryDto> Items, bool HasMore) keysetPage =
             await readHandlers.ListRunsInScopeKeysetAsync(cu, rid, effectiveTake, ct);

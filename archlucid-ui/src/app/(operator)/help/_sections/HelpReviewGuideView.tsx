@@ -1,15 +1,13 @@
 import Link from "next/link";
 
 import { HelpReviewGuideRelatedGuidesSection } from "@/app/(operator)/help/_sections/HelpReviewGuideRelatedGuidesSection";
+import { HelpReviewGuideSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpReviewGuideSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { ReviewGuideHelpClaimDisciplineStrip } from "@/components/help/ReviewGuideHelpClaimDisciplineStrip";
 import { ReviewGuideHelpHeaderAsOfLine } from "@/components/help/ReviewGuideHelpHeaderAsOfLine";
-import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
-import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
-import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -24,11 +22,6 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-pre
 import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
-  REVIEW_GUIDE_HELP_FOLLOW_UPS_TITLE,
-  REVIEW_GUIDE_HELP_SOURCES,
-  REVIEW_GUIDE_HELP_SOURCES_INTRO,
-} from "@/lib/review-guide-help-evidence-copy";
-import {
   REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE,
   REVIEW_GUIDE_HELP_OVERVIEW,
   REVIEW_GUIDE_HELP_PAGE_SUBTITLE,
@@ -38,9 +31,10 @@ import {
   prepareReviewGuideHelpBodyMarkdown,
 } from "@/lib/review-guide-help-guide-content";
 import {
+  REVIEW_GUIDE_HELP_BUYER_OVERVIEW,
   REVIEW_GUIDE_HELP_FIRST_VIEWPORT_TEST_ID,
   REVIEW_GUIDE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  REVIEW_GUIDE_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  REVIEW_GUIDE_HELP_PAGE_LEAD,
   REVIEW_GUIDE_HELP_PAGE_SUBTITLE_BUYER,
   REVIEW_GUIDE_HELP_PRIMARY_CONTENT_ID,
   REVIEW_GUIDE_HELP_SKIP_LINK_LABEL,
@@ -93,21 +87,6 @@ function ReviewGuideStartHerePanel(): React.ReactElement {
   );
 }
 
-function ReviewGuideBuyerSourcesOrientationStrip(): React.ReactElement {
-  return (
-    <EvidenceOrientationStripShell testId={REVIEW_GUIDE_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-      <EvidenceOrientationSourcesSection
-        testId="help-review-guide-sources"
-        headingId="where-to-go-next"
-        title={REVIEW_GUIDE_HELP_FOLLOW_UPS_TITLE}
-        intro={REVIEW_GUIDE_HELP_SOURCES_INTRO}
-        links={REVIEW_GUIDE_HELP_SOURCES}
-        style={EVIDENCE_SOURCES_STYLE.evaluationMuted}
-      />
-    </EvidenceOrientationStripShell>
-  );
-}
-
 /** Specialty review wizard field-reference for `/help/review-guide` (HR). */
 export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.ReactElement {
   const { entry, markdown } = props;
@@ -120,6 +99,7 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
   const showSectionNav = !buyerPolishedShell && headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
   const contentGridClass = resolveHelpPageContentGridClass(showSectionNav ? headings.length : 0);
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   const pageBody = (
     <>
@@ -186,6 +166,11 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
+          <div className="space-y-4" data-testid="help-review-guide-buyer-intro">
+            <p className={readingBodyClass} data-testid="help-review-guide-intro">
+              {REVIEW_GUIDE_HELP_PAGE_LEAD}
+            </p>
+          </div>
           <ReviewGuideStartHerePanel />
           <p
             className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -196,11 +181,22 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
         </div>
       ) : null}
 
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="help-review-guide-overview"
+        >
+          {REVIEW_GUIDE_HELP_BUYER_OVERVIEW}
+        </p>
+      ) : null}
+
       <div className={contentGridClass}>
         <div className="min-w-0 space-y-6">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-review-guide-overview">
-            {REVIEW_GUIDE_HELP_OVERVIEW}
-          </p>
+          {!buyerPolishedShell ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-review-guide-overview">
+              {REVIEW_GUIDE_HELP_OVERVIEW}
+            </p>
+          ) : null}
 
           <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-review-guide-content">
             <MarketingAccessibilityMarkdownFragment
@@ -235,7 +231,7 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
         {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
       </div>
 
-      {buyerPolishedShell ? <ReviewGuideBuyerSourcesOrientationStrip /> : null}
+      {buyerPolishedShell ? <HelpReviewGuideSourcesOrientationStrip /> : null}
     </>
   );
 

@@ -1,16 +1,14 @@
 import Link from "next/link";
 
-import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpSystemHealthHeaderActions } from "@/app/(operator)/help/_sections/HelpSystemHealthHeaderActions";
+import { HelpSystemHealthSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpSystemHealthSourcesOrientationStrip";
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { SystemHealthHelpClaimDisciplineStrip } from "@/components/help/SystemHealthHelpClaimDisciplineStrip";
 import { SystemHealthHelpEvidenceOrientationStrip } from "@/components/help/SystemHealthHelpEvidenceOrientationStrip";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
-import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
-import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
-import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { Button } from "@/components/ui/button";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
@@ -31,9 +29,6 @@ import { SYSTEM_HEALTH_HELP_TOPIC_LABEL } from "@/lib/system-health-evidence-cop
 import {
   SYSTEM_HEALTH_HELP_CANONICAL_PATH,
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
-  SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE,
-  SYSTEM_HEALTH_HELP_SOURCES,
-  SYSTEM_HEALTH_HELP_SOURCES_INTRO,
 } from "@/lib/system-health-help-evidence-copy";
 import {
   SYSTEM_HEALTH_HELP_BREADCRUMB_TOPIC_TITLE,
@@ -48,9 +43,10 @@ import {
   SYSTEM_HEALTH_HELP_TILE_ITEMS,
 } from "@/lib/system-health-help-guide-content";
 import {
+  SYSTEM_HEALTH_HELP_BUYER_OVERVIEW,
   SYSTEM_HEALTH_HELP_FIRST_VIEWPORT_TEST_ID,
   SYSTEM_HEALTH_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  SYSTEM_HEALTH_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  SYSTEM_HEALTH_HELP_PAGE_LEAD,
   SYSTEM_HEALTH_HELP_PAGE_SUBTITLE_BUYER,
   SYSTEM_HEALTH_HELP_PRIMARY_CONTENT_ID,
   SYSTEM_HEALTH_HELP_SKIP_LINK_LABEL,
@@ -112,21 +108,6 @@ function SystemHealthStartHerePanel(): React.ReactElement {
   );
 }
 
-function SystemHealthBuyerSourcesOrientationStrip(): React.ReactElement {
-  return (
-    <EvidenceOrientationStripShell testId={SYSTEM_HEALTH_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-      <EvidenceOrientationSourcesSection
-        testId="help-system-health-sources"
-        headingId="where-to-go-next"
-        title={SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE}
-        intro={SYSTEM_HEALTH_HELP_SOURCES_INTRO}
-        links={SYSTEM_HEALTH_HELP_SOURCES}
-        style={EVIDENCE_SOURCES_STYLE.evaluationMuted}
-      />
-    </EvidenceOrientationStripShell>
-  );
-}
-
 /** Operator system health orientation for `/help/system-health`. */
 export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps): React.ReactElement {
   const { entry } = props;
@@ -173,17 +154,30 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
+          <div className="space-y-4" data-testid="help-system-health-buyer-intro">
+            <p className={cn(readingBodyClass, "max-w-3xl")} data-testid="help-system-health-intro">
+              {SYSTEM_HEALTH_HELP_PAGE_LEAD}
+            </p>
+          </div>
           <SystemHealthStartHerePanel />
         </div>
+      ) : null}
+
+      {buyerPolishedShell ? (
+        <p className={readingBodyClass} data-testid="help-system-health-overview">
+          {SYSTEM_HEALTH_HELP_BUYER_OVERVIEW}
+        </p>
       ) : null}
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
           {buyerPolishedShell ? null : <SystemHealthHelpEvidenceOrientationStrip />}
 
-          <p className={readingBodyClass} data-testid="help-system-health-overview">
-            {SYSTEM_HEALTH_HELP_OVERVIEW}
-          </p>
+          {!buyerPolishedShell ? (
+            <p className={readingBodyClass} data-testid="help-system-health-overview">
+              {SYSTEM_HEALTH_HELP_OVERVIEW}
+            </p>
+          ) : null}
 
           {!buyerPolishedShell ? (
             <p
@@ -239,7 +233,7 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
         {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
       </div>
 
-      {buyerPolishedShell ? <SystemHealthBuyerSourcesOrientationStrip /> : null}
+      {buyerPolishedShell ? <HelpSystemHealthSourcesOrientationStrip /> : null}
     </>
   );
 

@@ -42,9 +42,11 @@ import {
   REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS,
 } from "@/lib/repeat-review-loop-help-guide-content";
 import {
+  REPEAT_REVIEW_LOOP_HELP_BUYER_OVERVIEW,
   REPEAT_REVIEW_LOOP_HELP_FIRST_VIEWPORT_TEST_ID,
   REPEAT_REVIEW_LOOP_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD,
   REPEAT_REVIEW_LOOP_HELP_PRIMARY_CONTENT_ID,
   REPEAT_REVIEW_LOOP_HELP_SKIP_LINK_LABEL,
   REPEAT_REVIEW_LOOP_HELP_SKIP_TARGET_ID,
@@ -57,7 +59,7 @@ import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
 describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
   const loaded = tryLoadProductDocumentation("repeat-review-loop");
 
-  it("renders skip link, header claim discipline, first-viewport start loop, and bottom Sources", () => {
+  it("renders skip link, intro lead, header claim discipline, first-viewport start loop, and bottom Sources", () => {
     if (loaded === null) {
       throw new Error("Expected repeat-review-loop documentation to load.");
     }
@@ -77,14 +79,21 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
     expect(screen.queryByTestId("help-repeat-review-loop-header-actions")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-repeat-review-loop-related-help")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: REPEAT_REVIEW_LOOP_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-repeat-review-loop-page-title")).toHaveTextContent(
       REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
     );
 
+    expect(screen.getByTestId("help-repeat-review-loop-intro")).toHaveTextContent(REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-repeat-review-loop-overview")).toHaveTextContent(
+      REPEAT_REVIEW_LOOP_HELP_BUYER_OVERVIEW,
+    );
+
     const primaryContent = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-repeat-review-loop-action-panel");
+    const overview = screen.getByTestId("help-repeat-review-loop-overview");
     const stepper = screen.getByTestId("repeat-review-loop-workflow-stepper");
     const orientationBottom = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
@@ -96,9 +105,11 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
     expect(screen.getByTestId("help-repeat-review-loop-start-here-helper")).toHaveTextContent(
       REPEAT_REVIEW_LOOP_HELP_START_HERE_HELPER,
     );
+    expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(stepper);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(stepper.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sourcesSection = screen.getByTestId("repeat-review-loop-help-sources");

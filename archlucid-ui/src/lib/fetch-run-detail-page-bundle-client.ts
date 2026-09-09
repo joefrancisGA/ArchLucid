@@ -1,5 +1,5 @@
 import type { ApiResponseWithTrace } from "@/lib/api";
-import { apiGetJsonWithTrace } from "@/lib/api/http";
+import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import {
   tryStaticRunDetailCriticalPageBundle,
@@ -35,12 +35,12 @@ export async function fetchRunDetailCriticalPageBundle(
     }
   }
 
-  const response = await apiGetJsonWithTrace<RunDetailCriticalPageBundle>(
+  const data = await apiGetSealedManifestAware<RunDetailCriticalPageBundle>(
     `/v1/authority/reviews/${encodeURIComponent(runId)}/critical-page-bundle`,
     options,
   );
 
-  return response;
+  return { data, traceId: null };
 }
 
 export type RunDetailTimelinesBundle = {
@@ -56,10 +56,10 @@ export async function fetchRunDetailTimelinesBundle(
     return { pipelineTimeline: [], stageTimeline: [] };
   }
 
-  return apiGetJsonWithTrace<RunDetailTimelinesBundle>(
+  return apiGetSealedManifestAware<RunDetailTimelinesBundle>(
     `/v1/authority/reviews/${encodeURIComponent(runId)}/timelines-bundle`,
     options,
-  ).then((response) => response.data);
+  );
 }
 
 export async function fetchRunDetailWorkspaceContextBundle(
@@ -74,10 +74,8 @@ export async function fetchRunDetailWorkspaceContextBundle(
     }
   }
 
-  const response = await apiGetJsonWithTrace<RunDetailWorkspaceContextBundle>(
+  return apiGetSealedManifestAware<RunDetailWorkspaceContextBundle>(
     `/v1/authority/reviews/${encodeURIComponent(runId)}/workspace-context-bundle`,
     options,
   );
-
-  return response.data;
 }

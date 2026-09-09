@@ -24,6 +24,9 @@ public sealed class FindingsDecisionGradeFusionStage : IFindingsDecisionGradeFus
         }
 
         context.Snapshot.Findings.AddRange(fusionFindings);
+        DecisionGradeFusionConstituentDemoter.DemoteFusedConstituents(
+            context.Snapshot.Findings,
+            fusionFindings);
         context.SuccessfulEngineTypes.Add(DecisionGradeFusionApplicator.EngineType);
 
         return Task.CompletedTask;

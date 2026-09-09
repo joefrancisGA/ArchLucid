@@ -1,4 +1,5 @@
 import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
+import { shouldSuppressReadyToFinalizeForPreCommitGateHonesty } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { shouldSuppressReadyToFinalizeForQualityGateHonesty } from "@/lib/governance/agent-output-quality-gate-career-honesty";
 import { shouldSuppressReadyToFinalizeForSimulatorRehearsal } from "@/lib/governance/simulator-career-honesty";
 import { countSkippedMustQuestions } from "@/lib/review-quality/count-skipped-must-questions";
@@ -8,6 +9,7 @@ import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type RunPipelineFinalizeBlockedHonestyInput = {
   readonly workingDesk?: boolean;
+  readonly preCommitGateEnabled?: boolean | null;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
   readonly hostAgentExecutionMode?: string | null;
@@ -20,6 +22,10 @@ export type RunPipelineFinalizeBlockedHonestyInput = {
 export function shouldSuppressReadyToFinalizeForCareerHonesty(
   input: RunPipelineFinalizeBlockedHonestyInput,
 ): boolean {
+  if (shouldSuppressReadyToFinalizeForPreCommitGateHonesty(input)) {
+    return true;
+  }
+
   if (shouldSuppressReadyToFinalizeForQualityGateHonesty(input)) {
     return true;
   }

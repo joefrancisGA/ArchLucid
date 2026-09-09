@@ -11,6 +11,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Application.Roi;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -227,7 +228,8 @@ public sealed class GovernanceStickinessControllerTests
                     audit.Object,
                     findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
                     CreateAuthorityQueryService(),
-                    CreateManifestHashService()),
+                    CreateManifestHashService(),
+                    Mock.Of<IRunDetailQueryService>()),
                 scope.Object,
                 tenantRepository ?? TenantExistsRepository(),
                 nextRun.Object)
@@ -262,7 +264,8 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IAuditService>(),
                     Mock.Of<IFindingInspectReadRepository>(),
                     CreateAuthorityQueryService(),
-                    CreateManifestHashService()),
+                    CreateManifestHashService(),
+                    Mock.Of<IRunDetailQueryService>()),
                 scopeProvider,
                 tenantRepository ?? TenantExistsRepository(),
                 Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>())

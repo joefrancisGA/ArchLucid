@@ -8,19 +8,27 @@ import {
   buildProvenanceSources,
 } from "@/lib/provenance-evidence-copy";
 import {
+  PROVENANCE_BUYER_OVERVIEW,
   PROVENANCE_BUYER_START_HERE_HELPER,
   PROVENANCE_FIRST_VIEWPORT_TEST_ID,
   PROVENANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  PROVENANCE_ORIENTATION_BOTTOM_TEST_ID,
   PROVENANCE_PAGE_LEAD,
   PROVENANCE_PAGE_SUBTITLE_BUYER,
   PROVENANCE_PRIMARY_CONTENT_ID,
   PROVENANCE_SKIP_LINK_LABEL,
   PROVENANCE_SKIP_TARGET_ID,
   PROVENANCE_START_HERE_CARD_TITLE,
+  PROVENANCE_WORKSPACE_TEST_ID,
 } from "@/lib/provenance-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => true,
+  useProductionDeskChrome: (): boolean => false,
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -46,10 +54,6 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-}));
-
-vi.mock("@/components/provenance/ProvenanceWayfinding", () => ({
-  ProvenanceWayfinding: () => <div data-testid="provenance-wayfinding" />,
 }));
 
 vi.mock("@/components/operator/OperatorDemoStaticBanner", () => ({
@@ -138,6 +142,13 @@ describe("ProvenancePageWorkspace buyer-polished shell (RRP)", () => {
     );
     expect(screen.getByTestId("provenance-buyer-subtitle")).toHaveTextContent(PROVENANCE_PAGE_SUBTITLE_BUYER);
     expect(screen.getByTestId("provenance-intro")).toHaveTextContent(PROVENANCE_PAGE_LEAD);
+    expect(screen.getByTestId("provenance-overview")).toHaveTextContent(PROVENANCE_BUYER_OVERVIEW);
+    expect(screen.getByTestId(PROVENANCE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("provenance-intro"),
+    );
+    expect(
+      screen.getByTestId(PROVENANCE_FIRST_VIEWPORT_TEST_ID),
+    ).not.toContainElement(screen.getByTestId("provenance-overview"));
     expect(screen.getByTestId("provenance-buyer-start-here-helper")).toHaveTextContent(
       PROVENANCE_BUYER_START_HERE_HELPER,
     );
@@ -148,6 +159,9 @@ describe("ProvenancePageWorkspace buyer-polished shell (RRP)", () => {
       PROVENANCE_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("provenance-wayfinding")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("provenance-run-scope-banner")).not.toBeInTheDocument();
+    expect(screen.queryByText("Review identifier")).not.toBeInTheDocument();
     expect(screen.queryByTestId("run-provenance-evidence-graph-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("provenance-inspect-checklist")).not.toBeInTheDocument();
     expect(screen.queryByTestId("provenance-next-review-footer-stub")).not.toBeInTheDocument();
@@ -161,11 +175,16 @@ describe("ProvenancePageWorkspace buyer-polished shell (RRP)", () => {
 
     const primaryContent = screen.getByTestId(PROVENANCE_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(PROVENANCE_FIRST_VIEWPORT_TEST_ID);
-    const orientationBottom = screen.getByTestId("provenance-orientation-bottom");
+    const overview = screen.getByTestId("provenance-overview");
+    const workspace = screen.getByTestId(PROVENANCE_WORKSPACE_TEST_ID);
+    const orientationBottom = screen.getByTestId(PROVENANCE_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("provenance-settings-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(workspace);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(workspace).toContainElement(screen.getByTestId("provenance-graph-viewport"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
     for (const source of filterWhereToGoNextFollowUpLinks(buildProvenanceSources("demo-run"))) {
@@ -173,6 +192,8 @@ describe("ProvenancePageWorkspace buyer-polished shell (RRP)", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

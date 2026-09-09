@@ -1275,10 +1275,49 @@ public static partial class GenericArchitectureAdvicePatterns
         return false;
     }
 
+    /// <summary>
+    ///     DX-72: true when any citation is a product-shaped inventory id (ARM, <c>aws:arn:</c>, GCP
+    ///     <c>projects/</c>, or a <c>graph-node:</c> remainder that formats as one of those).
+    ///     <c>policy-rule:</c> and line-anchored <c>doc:</c> are concrete but not inventory-shaped.
+    /// </summary>
+    public static bool HasProductShapedInventoryEvidence(IReadOnlyList<string> evidenceRefs)
+    {
+        ArgumentNullException.ThrowIfNull(evidenceRefs);
+
+        if (evidenceRefs.Count == 0)
+            return false;
+
+        foreach (string evidenceRef in evidenceRefs)
+        {
+            if (string.IsNullOrWhiteSpace(evidenceRef))
+                continue;
+
+            string trimmed = evidenceRef.Trim();
+
+            if (IsGenericEvidenceRef(trimmed))
+                continue;
+
+            if (trimmed.StartsWith("graph-node:", StringComparison.OrdinalIgnoreCase))
+            {
+                string nodeId = trimmed["graph-node:".Length..].Trim();
+
+                if (IsProductShapedGraphNodeId(nodeId))
+                    return true;
+
+                continue;
+            }
+
+            if (FindingEvidenceRefs.TryFormatInventoryResourceId(trimmed) is not null)
+                return true;
+        }
+
+        return false;
+    }
+
     private static bool IsResolvableEvidenceRef(string trimmed)
     {
         if (trimmed.StartsWith("doc:", StringComparison.OrdinalIgnoreCase))
-            return trimmed.Length > "doc:".Length;
+            return FindingEvidenceRefs.HasLineAnchoredDocRef(trimmed);
 
         if (trimmed.StartsWith("policy-rule:", StringComparison.OrdinalIgnoreCase))
         {
@@ -1294,12 +1333,9 @@ public static partial class GenericArchitectureAdvicePatterns
             return IsProductShapedGraphNodeId(nodeId);
         }
 
+        // DX-70: finding:{id} may appear for navigation but never vetoes demotion.
         if (trimmed.StartsWith("finding:", StringComparison.OrdinalIgnoreCase))
-        {
-            string findingId = trimmed["finding:".Length..].Trim();
-
-            return !string.IsNullOrWhiteSpace(findingId);
-        }
+            return false;
 
         if (trimmed.StartsWith("aws:arn:", StringComparison.OrdinalIgnoreCase))
             return trimmed.Length > "aws:arn:".Length;

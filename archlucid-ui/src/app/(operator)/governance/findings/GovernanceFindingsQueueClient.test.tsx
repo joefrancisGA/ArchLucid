@@ -14,8 +14,11 @@ import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-cli
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { routeViewExplanationForPathname } from "@/lib/usability/route-view-explanations";
 import { BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE, BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL } from "@/lib/buyer/buyer-polish-copy";
-import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/governance/governance-findings-evidence-copy";
+import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE, GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE } from "@/lib/governance/governance-findings-evidence-copy";
 import {
+  GOVERNANCE_FINDINGS_BUYER_START_HERE_HELPER,
+  GOVERNANCE_FINDINGS_PAGE_LEAD,
+  GOVERNANCE_FINDINGS_PAGE_SUBTITLE_BUYER,
   GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID,
   GOVERNANCE_FINDINGS_SKIP_LINK_LABEL,
 } from "@/lib/governance-findings-page-copy";
@@ -603,7 +606,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(screen.queryByRole("link", { name: "View approval record" })).not.toBeInTheDocument();
   });
 
-  it("renders skip link, breadcrumb, and orientation after queue body in buyer shell", async () => {
+  it("renders skip link, breadcrumb, first-viewport intro, and orientation after queue body in buyer shell", async () => {
     vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 
@@ -617,18 +620,26 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(screen.getByTestId("architecture-risk-register-page-title")).toHaveTextContent(
       BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
     );
-    expect(screen.getByTestId("governance-findings-orientation-top")).toBeInTheDocument();
+    expect(screen.getByText(GOVERNANCE_FINDINGS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByTestId("governance-findings-first-viewport")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-findings-intro")).toHaveTextContent(GOVERNANCE_FINDINGS_PAGE_LEAD);
+    expect(screen.getByTestId("governance-findings-buyer-start-here-helper")).toHaveTextContent(
+      GOVERNANCE_FINDINGS_BUYER_START_HERE_HELPER,
+    );
+    expect(screen.getByTestId("governance-findings-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("governance-findings-claim-discipline").textContent).toContain(
       GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.queryByTestId("layer-header")).not.toBeInTheDocument();
     expect(screen.queryByTestId("alerts-findings-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("review-package-governance-findings-vocabulary")).not.toBeInTheDocument();
 
-    const orientationTop = screen.getByTestId("governance-findings-orientation-top");
-    const queueBody = screen.getByTestId("governance-findings-queue-body");
+    const orientationBottom = screen.getByTestId("governance-findings-orientation-bottom");
+    const queueBody = screen.getByTestId("governance-findings-primary-content");
 
-    expect(queueBody).toContainElement(orientationTop);
-    expect(queueBody.compareDocumentPosition(orientationTop) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(queueBody).toContainElement(orientationBottom);
+    expect(queueBody.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(queueBody).toHaveAttribute("id", GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID);
   });
 });

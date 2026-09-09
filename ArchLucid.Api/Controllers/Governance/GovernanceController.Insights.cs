@@ -6,6 +6,7 @@ using ArchLucid.Application.Http;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetDashboard(
         [FromQuery] int maxPending = 20,
         [FromQuery] int maxDecisions = 20,
@@ -49,6 +51,12 @@ public sealed partial class GovernanceController
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             GovernanceDashboardSummary summary = await _insightsFacade.GetDashboardAsync(
@@ -77,6 +85,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(typeof(IReadOnlyList<ComplianceDriftTrendPoint>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetComplianceDriftTrend(
         [FromQuery] DateTime fromUtc,
         [FromQuery] DateTime toUtc,
@@ -116,23 +125,38 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        IReadOnlyList<ComplianceDriftTrendPoint> points = await _insightsFacade.GetComplianceDriftTrendAsync(
-            scope.TenantId,
-            fromUtcNormalized,
-            toUtcNormalized,
-            bucketSize,
-            cancellationToken);
+        try
+        {
+            IReadOnlyList<ComplianceDriftTrendPoint> points = await _insightsFacade.GetComplianceDriftTrendAsync(
+                scope.TenantId,
+                fromUtcNormalized,
+                toUtcNormalized,
+                bucketSize,
+                cancellationToken);
 
-        return Ok(points);
+            return Ok(points);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("approval-requests/{approvalRequestId}/lineage")]
     [ProducesResponseType(typeof(GovernanceLineageResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetApprovalRequestLineage(
         [FromRoute] string approvalRequestId,
+        [FromServices] IGovernanceApprovalRequestRepository approvalRepository,
         CancellationToken cancellationToken)
     {
         approvalRequestId = GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(approvalRequestId);
@@ -148,6 +172,14 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
+            approvalRequestId,
+            approvalRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
@@ -181,8 +213,10 @@ public sealed partial class GovernanceController
     [HttpGet("approval-requests/{approvalRequestId}/rationale")]
     [ProducesResponseType(typeof(GovernanceRationaleResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetApprovalRequestRationale(
         [FromRoute] string approvalRequestId,
+        [FromServices] IGovernanceApprovalRequestRepository approvalRepository,
         CancellationToken cancellationToken)
     {
         approvalRequestId = GovernanceApprovalRequestsHttpMapper.NormalizeApprovalRequestId(approvalRequestId);
@@ -198,6 +232,14 @@ public sealed partial class GovernanceController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForApprovalRequestAsync(
+            approvalRequestId,
+            approvalRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

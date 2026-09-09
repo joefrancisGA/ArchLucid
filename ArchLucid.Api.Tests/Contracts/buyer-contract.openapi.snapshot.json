@@ -3763,9 +3763,24 @@
             },
             "type": "array"
           },
+          "extractionMethod": {
+            "type": "string"
+          },
           "nodes": {
             "items": {
               "$ref": "#/components/schemas/ArchitectureDiagramNodeRecord"
+            },
+            "type": "array"
+          },
+          "sourceEvidenceItemId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "subgraphs": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureDiagramSubgraphRecord"
             },
             "type": "array"
           },
@@ -3797,6 +3812,33 @@
           },
           "removed": {
             "type": "boolean"
+          },
+          "subgraphId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureDiagramSubgraphRecord": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "orderKey": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "parentSubgraphId": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -14989,6 +15031,12 @@
       },
       "FindingDispositionEventDto": {
         "properties": {
+          "architectRestatement": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "currentDispositionRowVersionBase64": {
             "type": [
               "null",
@@ -17637,6 +17685,34 @@
         },
         "type": "object"
       },
+      "HeldCheckSecondPassStatus": {
+        "enum": [
+          "Completed",
+          "NotEligible",
+          "NoPriorLedger",
+          "NoNewFindings"
+        ],
+        "type": "string"
+      },
+      "HeldCheckSecondPassSummary": {
+        "properties": {
+          "inputCode": {
+            "$ref": "#/components/schemas/HeldCheckInputCode"
+          },
+          "newDecisionGradeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/HeldCheckSecondPassStatus"
+          },
+          "unblockedEngineCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "HolisticCriticRequest": {
         "properties": {
           "focus": {
@@ -18511,9 +18587,51 @@
               "array"
             ]
           },
+          "heldCheckSecondPass": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/HeldCheckSecondPassSummary"
+              }
+            ]
+          },
+          "judgeConfiguredCap": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "judgeEffectiveCap": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
           "judgeSkippedByCap": {
             "format": "int32",
             "type": "integer"
+          },
+          "proseAssumptionHeldCheckAsks": {
+            "items": {
+              "$ref": "#/components/schemas/ProseAssumptionHeldCheckAsk"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
+          "proseAssumptionRegisterEntries": {
+            "items": {
+              "$ref": "#/components/schemas/ProseAssumptionRegisterEntry"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
           },
           "retainedFindingCount": {
             "format": "int32",
@@ -23493,6 +23611,9 @@
             "format": "int32",
             "type": "integer"
           },
+          "roiSourceFreshnessDisposition": {
+            "type": "string"
+          },
           "runDetailCap": {
             "format": "int32",
             "type": "integer"
@@ -25832,6 +25953,61 @@
         },
         "type": "object"
       },
+      "ProseAssumptionDisposition": {
+        "enum": [
+          "Contradicted",
+          "Consistent",
+          "NotVerifiable"
+        ],
+        "type": "string"
+      },
+      "ProseAssumptionHeldCheckAsk": {
+        "properties": {
+          "evidenceRef": {
+            "type": "string"
+          },
+          "inputCode": {
+            "$ref": "#/components/schemas/HeldCheckInputCode"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ProseAssumptionRegisterEntry": {
+        "properties": {
+          "disposition": {
+            "$ref": "#/components/schemas/ProseAssumptionDisposition"
+          },
+          "documentPath": {
+            "type": "string"
+          },
+          "evidenceRef": {
+            "type": "string"
+          },
+          "findingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lineNumber": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "logicalPropertyName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ProvenanceEdge": {
         "properties": {
           "fromNodeId": {
@@ -27090,6 +27266,16 @@
               "string"
             ]
           },
+          "expectedCurrentDispositionRowVersionBase64ByFindingId": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": [
+              "null",
+              "object"
+            ]
+          },
           "findingIds": {
             "items": {
               "type": "string"
@@ -27122,6 +27308,16 @@
       },
       "RecordBulkFindingDispositionResponse": {
         "properties": {
+          "currentDispositionRowVersionBase64ByFindingId": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": [
+              "null",
+              "object"
+            ]
+          },
           "processedCount": {
             "format": "int32",
             "type": "integer"
@@ -27140,6 +27336,12 @@
       },
       "RecordFindingDispositionRequest": {
         "properties": {
+          "architectRestatement": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "disposition": {
             "$ref": "#/components/schemas/FindingDisposition"
           },
@@ -27157,6 +27359,18 @@
           },
           "findingId": {
             "type": "string"
+          },
+          "impactPreviewCompleted": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "previewOverrideReason": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "rationale": {
             "type": [
@@ -41414,13 +41628,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -41800,13 +42029,28 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -44006,13 +44250,18 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -44152,13 +44401,18 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -44482,13 +44736,18 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -44628,13 +44887,18 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {

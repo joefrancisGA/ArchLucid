@@ -359,6 +359,19 @@ public sealed class GoldenCorpusMaterializerTests
     }
 
     [Fact]
+    public async Task Record_hand_authored_case_65_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-65",
+            await GoldenCorpusIngestDeclarationGraphFactory.CreateCase65TerraformIdentityPathGraphAsync(),
+            null,
+            "Simple Terraform identity + role assignment (format simple-terraform) parsed through DefaultGraphBuilder — expect **identity-blast-radius** (DX-69).");
+    }
+
+    [Fact]
     public async Task Record_hand_authored_cases_61_63_when_env_flag_set()
     {
         if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
@@ -468,7 +481,8 @@ public sealed class GoldenCorpusMaterializerTests
             audit,
             merge,
             CancellationToken.None,
-            input.InventoryFixture);
+            input.InventoryFixture,
+            input.PriorGraphFixture);
 
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
@@ -521,7 +535,8 @@ public sealed class GoldenCorpusMaterializerTests
                 audit,
                 merge,
                 CancellationToken.None,
-                input.InventoryFixture);
+                input.InventoryFixture,
+                input.PriorGraphFixture);
 
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);

@@ -34,4 +34,36 @@ public static class HeldCheckInputCodeLabels
             ? $"Uploading {label} would unblock 1 engine."
             : $"Uploading {label} would unblock {count} engines.";
     }
+
+    public static string? FormatSecondPassClause(HeldCheckSecondPassSummary? summary)
+    {
+        if (summary is null)
+        {
+            return null;
+        }
+
+        if (summary.Status != HeldCheckSecondPassStatus.Completed || summary.NewDecisionGradeCount < 1)
+        {
+            return null;
+        }
+
+        string label = ToOperatorLabel(summary.InputCode);
+        int count = summary.UnblockedEngineCount;
+
+        return count == 1
+            ? $"Re-ran after {label}: 1 previously held engine produced findings."
+            : $"Re-ran after {label}: {count} previously held engines produced findings.";
+    }
+
+    public static string? FormatProseAssumptionAskClause(ProseAssumptionHeldCheckAsk ask)
+    {
+        ArgumentNullException.ThrowIfNull(ask);
+
+        string label = ToOperatorLabel(ask.InputCode);
+        string reason = string.IsNullOrWhiteSpace(ask.EvidenceRef)
+            ? ask.Statement
+            : $"{ask.Statement} ({ask.EvidenceRef})";
+
+        return $"Upload {label} to verify: '{reason}'.";
+    }
 }

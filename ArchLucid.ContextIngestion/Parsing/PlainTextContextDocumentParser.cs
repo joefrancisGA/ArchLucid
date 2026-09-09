@@ -10,7 +10,8 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 {
     public bool CanParse(string contentType)
     {
-        return IsSupported(contentType);
+        return SupportedContextDocumentContentTypes.IsPlainTextContentType(contentType)
+               || SupportedContextDocumentContentTypes.IsMarkdownContentType(contentType);
     }
 
     public Task<IReadOnlyList<CanonicalObject>> ParseAsync(

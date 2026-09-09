@@ -17,6 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { askReviewQuestionsHref } from "@/lib/ask-review-questions-route";
 import { useAskStream } from "@/hooks/useAskStream";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { askBlockedReason } from "@/lib/ask/ask-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -134,6 +136,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
           problem: null,
           correlationId: null,
         });
+
         return;
       }
 
@@ -153,17 +156,19 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
       setTurns((current) => [...current, { question: trimmed, answer: response.answer }]);
       setQuestion("");
     } catch (e: unknown) {
+      const failure = toApiLoadFailure(e);
+
       if (isApiRequestError(e)) {
         setError({
-          message: e.message,
+          message: askBlockedReason(failure) ?? e.message,
           problem: e.problem,
           correlationId: e.correlationId,
         });
       } else {
         setError({
-          message: e instanceof Error ? e.message : "Ask request failed.",
-          problem: null,
-          correlationId: null,
+          message: askBlockedReason(failure) ?? (e instanceof Error ? e.message : "Ask request failed."),
+          problem: failure.problem,
+          correlationId: failure.correlationId,
         });
       }
     }

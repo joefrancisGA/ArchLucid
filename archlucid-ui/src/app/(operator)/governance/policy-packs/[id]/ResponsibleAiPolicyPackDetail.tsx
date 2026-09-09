@@ -2,17 +2,15 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
-import { CopyIdButton } from "@/components/CopyIdButton";
+import { ResponsibleAiPolicyPackTechnicalDetailsDisclosure } from "@/app/(operator)/governance/policy-packs/[id]/ResponsibleAiPolicyPackTechnicalDetailsDisclosure";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { POLICY_PACK_DETAIL_CLAIM_DISCIPLINE } from "@/lib/policy/policy-pack-detail-evidence-copy";
 import {
-  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -50,12 +48,10 @@ import {
   RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE,
   RESPONSIBLE_AI_POLICY_PACK_SUBTITLE,
   RESPONSIBLE_AI_RULES_TABLE_INTRO,
-  RESPONSIBLE_AI_TECHNICAL_DETAILS_TITLE,
-  RESPONSIBLE_AI_VIEW_TECHNICAL_DETAILS,
 } from "@/lib/responsible-ai-policy-pack-detail-content";
 
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
-import { PolicyPackDetailBuyerChrome } from "./PolicyPackDetailBuyerChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 type ResponsibleAiPolicyPackDetailProps = {
   readonly policyPackId: string;
@@ -193,6 +189,7 @@ function resolvePackProvenanceLabel(packRecord: PolicyPack | null, policyPackId:
 
 export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDetailProps): React.JSX.Element {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const versionMetric = resolveVersionMetric(packRecord);
   const lastUpdatedMetric = resolveLastUpdatedMetric(packRecord);
   const rulesResolution = resolveResponsibleAiPolicyRuleRows(packContent, {
@@ -221,7 +218,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
   );
 
   return (
-    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="responsible-ai-policy-pack-detail">
+    <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"} className={OPERATOR_LAYOUT.sectionStack} data-testid="responsible-ai-policy-pack-detail">
       <OperatorPageHeader
         navHref={GOVERNANCE_POLICY_PACKS_PATH}
         title={RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE}
@@ -244,8 +241,6 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         }
         actions={headerActions}
       />
-
-      <PolicyPackDetailBuyerChrome />
 
       <Card data-testid="policy-pack-summary-card">
         <CardHeader>
@@ -328,35 +323,10 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{RESPONSIBLE_AI_POLICY_PACK_GOVERNANCE_WORKFLOW}</p>
       </section>
 
-      <Collapsible>
-        <CollapsibleTrigger className={cn(OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.optional)} data-testid="policy-pack-technical-details-trigger">
-          {RESPONSIBLE_AI_VIEW_TECHNICAL_DETAILS}
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-3 rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
-          <h4 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{RESPONSIBLE_AI_TECHNICAL_DETAILS_TITLE}</h4>
-          <dl className={cn("m-0 mt-3 grid gap-2", OPERATOR_TYPOGRAPHY.helper)}>
-            <div>
-              <dt className="text-al-text-secondary">Pack reference</dt>
-              <dd className="m-0 flex flex-wrap items-center gap-2 font-mono text-al-text-primary">{policyPackId}</dd>
-            </div>
-            <div>
-              <dt className="text-al-text-secondary">Template id</dt>
-              <dd className="m-0 font-mono text-al-text-primary">{BUNDLED_RESPONSIBLE_AI_POLICY_PACK_ID}</dd>
-            </div>
-            <div>
-              <dt className="text-al-text-secondary">Curated rules artifact</dt>
-              <dd className="m-0 font-mono text-al-text-primary">ai-governance-responsible-ai-rules-v1.json</dd>
-            </div>
-            <div>
-              <dt className="text-al-text-secondary">Version history</dt>
-              <dd className="m-0 text-al-text-primary">{technicalVersion} · platform default baseline</dd>
-            </div>
-          </dl>
-          <div className="mt-3">
-            <CopyIdButton value={policyPackId} aria-label="Copy policy pack ID" />
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+      <ResponsibleAiPolicyPackTechnicalDetailsDisclosure
+        policyPackId={policyPackId}
+        technicalVersion={technicalVersion}
+      />
     </OperatorPageContainer>
   );
 }

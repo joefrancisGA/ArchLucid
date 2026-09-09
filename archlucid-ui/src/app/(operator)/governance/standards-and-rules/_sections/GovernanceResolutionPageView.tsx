@@ -13,6 +13,7 @@ import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvid
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -22,17 +23,27 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  GOVERNANCE_STANDARDS_RULES_BUYER_START_HERE_HELPER,
+  GOVERNANCE_STANDARDS_RULES_LOAD_ERROR,
+  GOVERNANCE_STANDARDS_RULES_PAGE_LEAD,
+  GOVERNANCE_STANDARDS_RULES_PAGE_SUBTITLE_BUYER,
+  GOVERNANCE_STANDARDS_RULES_PRIMARY_CONTENT_ID,
+  GOVERNANCE_STANDARDS_RULES_SKIP_LINK_LABEL,
+} from "@/lib/governance-standards-rules-page-copy";
+import { STANDARDS_RULES_LOAD_RETRY_LABEL } from "@/lib/standards-rules-page";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { STANDARDS_RULES_CLAIM_DISCIPLINE } from "@/lib/standards-rules-evidence-copy";
 import { EMPTY_STANDARDS_RULES_FILTER_STATE } from "@/lib/standards-rules-rows";
 import {
   STANDARDS_RULES_FILTER_NO_MATCH_BODY,
   STANDARDS_RULES_FILTER_NO_MATCH_TITLE,
-  STANDARDS_RULES_LOAD_RETRY_LABEL,
-  STANDARDS_RULES_PAGE_SUBTITLE,
   STANDARDS_RULES_PAGE_TITLE,
   STANDARDS_RULES_RESET_FILTERS,
 } from "@/lib/standards-rules-page";
@@ -51,6 +62,7 @@ import { StandardsRulesReviewContextRow } from "./StandardsRulesReviewContextRow
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
 import { StandardsRulesTable } from "./StandardsRulesTable";
 import { StandardsRulesTableSkeleton } from "./StandardsRulesTableSkeleton";
+import { StandardsRulesBuyerChrome } from "./StandardsRulesBuyerChrome";
 import { useGovernanceResolutionRows } from "./use-governance-resolution-rows";
 
 type Props = {
@@ -83,8 +95,26 @@ export function GovernanceResolutionPageView(props: Props) {
   ) : null;
 
   if (m.buyerPolishedShell) {
-    return (
-      <OperatorPageContainer variant="dashboard">
+    const buyerPrimaryBody = (
+      <>
+        <div
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid="governance-standards-rules-first-viewport"
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="governance-standards-rules-intro"
+          >
+            {GOVERNANCE_STANDARDS_RULES_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="governance-standards-rules-buyer-start-here-helper"
+          >
+            {GOVERNANCE_STANDARDS_RULES_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+
         {rows.usesShowcaseRuleRows ? (
           <div className="mb-3">
             <OperatorDemoStaticBanner emphasizeSampleData />
@@ -98,16 +128,14 @@ export function GovernanceResolutionPageView(props: Props) {
             hrefs={rows.governanceBanner.hrefs}
           />
         ) : null}
-        <OperatorPageHeader
-          navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
-          title={STANDARDS_RULES_PAGE_TITLE}
-          subtitle={STANDARDS_RULES_PAGE_SUBTITLE}
-          breadcrumb={<GovernanceStandardsRulesBreadcrumb />}
-          actions={<PageContextualHelpButton />}
-        />
-        <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" variant="compact" />
+
         {m.failure !== null ? (
           <div className="mb-4 space-y-3" role="alert" data-testid="standards-rules-load-failure">
+            {m.blockedReason !== null ? (
+              <p className="m-0 text-sm text-al-text-secondary" data-testid="standards-rules-blocked-reason">
+                {m.blockedReason}
+              </p>
+            ) : null}
             <OperatorApiProblem failure={m.failure} />
             <Button
               type="button"
@@ -123,6 +151,7 @@ export function GovernanceResolutionPageView(props: Props) {
             </Button>
           </div>
         ) : null}
+
         {m.failure === null ? (
           <>
             {!rows.scopedRunFilterActive ? (
@@ -218,6 +247,39 @@ export function GovernanceResolutionPageView(props: Props) {
             ) : null}
           </>
         ) : null}
+        <StandardsRulesBuyerChrome />
+      </>
+    );
+
+    return (
+      <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack}>
+        <a
+          href={`#${GOVERNANCE_STANDARDS_RULES_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_STANDARDS_RULES_SKIP_LINK_LABEL}
+        </a>
+
+        <LayerHeader pageKey="governance-resolution" density="compact" className="mb-3" />
+
+        <OperatorPageHeader
+          navHref={GOVERNANCE_STANDARDS_AND_RULES_PATH}
+          title={STANDARDS_RULES_PAGE_TITLE}
+          titleTestId="standards-rules-page-title"
+          subtitle={GOVERNANCE_STANDARDS_RULES_PAGE_SUBTITLE_BUYER}
+          claimDiscipline={STANDARDS_RULES_CLAIM_DISCIPLINE}
+          claimDisciplineTestId="standards-rules-claim-discipline"
+          breadcrumb={<GovernanceStandardsRulesBreadcrumb />}
+          actions={<PageContextualHelpButton />}
+        />
+
+        <div
+          id={GOVERNANCE_STANDARDS_RULES_PRIMARY_CONTENT_ID}
+          className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+          data-testid="governance-standards-rules-primary-content"
+        >
+          {buyerPrimaryBody}
+        </div>
       </OperatorPageContainer>
     );
   }
@@ -250,7 +312,12 @@ export function GovernanceResolutionPageView(props: Props) {
         </>
       )}
       {m.failure !== null ? (
-        <div role="alert">
+        <div role="alert" data-testid="standards-rules-load-failure">
+          {m.blockedReason !== null ? (
+            <p className="m-0 mb-2 text-sm text-al-text-secondary" data-testid="standards-rules-blocked-reason">
+              {m.blockedReason}
+            </p>
+          ) : null}
           <OperatorApiProblem
             problem={m.failure.problem}
             fallbackMessage={m.failure.message}

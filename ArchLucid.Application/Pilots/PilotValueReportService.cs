@@ -35,6 +35,7 @@ public sealed class PilotValueReportService(
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeContextProvider,
     IGovernanceApprovalRequestRepository approvalRequestRepository,
+    IPilotValueReportRoiFreshnessResolver roiFreshnessResolver,
     ILogger<PilotValueReportService> logger) : IPilotValueReportService
 {
     /// <summary>
@@ -81,6 +82,9 @@ public sealed class PilotValueReportService(
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IPilotValueReportRoiFreshnessResolver _roiFreshnessResolver =
+        roiFreshnessResolver ?? throw new ArgumentNullException(nameof(roiFreshnessResolver));
 
     /// <inheritdoc/>
     public async Task<PilotValueReport?> BuildAsync(DateTime? fromUtc, DateTime? toUtc, CancellationToken cancellationToken)
@@ -174,6 +178,18 @@ public sealed class PilotValueReportService(
         timeline.Sort(static (a, b) => a.CreatedUtc.CompareTo(b.CreatedUtc));
         int totalFindings = severities.Critical + severities.High + severities.Medium + severities.Low + severities.Info;
         double? avgSeconds = completionSeconds.Count > 0 ? completionSeconds.Average() : null;
+        string roiSourceFreshnessDisposition = "PASS";
+
+        if (committedRuns.Count > 0)
+        {
+            CommittedRunRef latestRun = committedRuns[^1];
+            ArchitectureRunDetail? latestDetail =
+                await _runDetailQuery.GetRunDetailForRoiAsync(latestRun.RunId, cancellationToken).ConfigureAwait(false);
+
+            roiSourceFreshnessDisposition =
+                await _roiFreshnessResolver.ResolveForRunDetailAsync(latestDetail, cancellationToken).ConfigureAwait(false);
+        }
+
         return new PilotValueReport
         {
             TenantId = scope.TenantId,
@@ -193,7 +209,8 @@ public sealed class PilotValueReportService(
             UniqueAgentTypes = agentTypes.OrderBy(static s => s, StringComparer.OrdinalIgnoreCase).ToList(),
             CommittedRunsTimeline = timeline,
             GovernancePendingApprovalsNow = pendingApprovalsNow,
-            AuditExportTruncated = auditTruncated
+            AuditExportTruncated = auditTruncated,
+            RoiSourceFreshnessDisposition = roiSourceFreshnessDisposition
         };
     }
 
@@ -294,7 +311,8 @@ public sealed class PilotValueReportService(
             UniqueAgentTypes = [],
             CommittedRunsTimeline = [],
             GovernancePendingApprovalsNow = pendingApprovals,
-            AuditExportTruncated = false
+            AuditExportTruncated = false,
+            RoiSourceFreshnessDisposition = "PASS"
         };
     }
 

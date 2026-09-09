@@ -4,6 +4,10 @@ export const ASSURANCE_STATUS_PAGE_TITLE = "Assurance status" as const;
 
 export const ASSURANCE_STATUS_PRIMARY_CONTENT_ID = "assurance-status-primary-content" as const;
 
+export const ASSURANCE_STATUS_FIRST_VIEWPORT_ID = "assurance-status-first-viewport" as const;
+
+export const ASSURANCE_STATUS_SKIP_TARGET_ID = ASSURANCE_STATUS_FIRST_VIEWPORT_ID;
+
 export const ASSURANCE_STATUS_SKIP_LINK_LABEL = "Skip to assurance status content" as const;
 
 export const ASSURANCE_STATUS_BREADCRUMB_HUB_LABEL = "Welcome" as const;

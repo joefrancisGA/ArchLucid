@@ -1,15 +1,13 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpProcurementSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpProcurementSourcesOrientationStrip";
 import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { ProcurementHelpClaimDisciplineStrip } from "@/components/help/ProcurementHelpClaimDisciplineStrip";
 import { ProcurementHelpDiligenceCtaSection } from "@/components/help/ProcurementHelpDiligenceCtaSection";
 import { ProcurementHelpEvidenceOrientationStrip } from "@/components/help/ProcurementHelpEvidenceOrientationStrip";
-import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
-import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
-import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -21,9 +19,6 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-pre
 import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import {
   PROCUREMENT_HELP_CLAIM_DISCIPLINE,
-  PROCUREMENT_HELP_FOLLOW_UPS_TITLE,
-  PROCUREMENT_HELP_SOURCES,
-  PROCUREMENT_HELP_SOURCES_INTRO,
 } from "@/lib/procurement-help-evidence-copy";
 import {
   formatProcurementHelpProvenanceLine,
@@ -33,9 +28,10 @@ import {
   PROCUREMENT_HELP_PATH,
 } from "@/lib/procurement-help-guide-content";
 import {
+  PROCUREMENT_HELP_BUYER_OVERVIEW,
   PROCUREMENT_HELP_FIRST_VIEWPORT_TEST_ID,
   PROCUREMENT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  PROCUREMENT_HELP_PAGE_LEAD,
   PROCUREMENT_HELP_PAGE_SUBTITLE_BUYER,
   PROCUREMENT_HELP_PRIMARY_CONTENT_ID,
   PROCUREMENT_HELP_SKIP_LINK_LABEL,
@@ -100,21 +96,6 @@ function ProcurementHelpJobMatrixSection(): React.ReactElement {
   );
 }
 
-function ProcurementHelpBuyerSourcesOrientationStrip(): React.ReactElement {
-  return (
-    <EvidenceOrientationStripShell testId={PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-      <EvidenceOrientationSourcesSection
-        testId="procurement-help-sources"
-        headingId="where-to-go-next"
-        title={PROCUREMENT_HELP_FOLLOW_UPS_TITLE}
-        intro={PROCUREMENT_HELP_SOURCES_INTRO}
-        links={PROCUREMENT_HELP_SOURCES}
-        style={EVIDENCE_SOURCES_STYLE.evaluationMuted}
-      />
-    </EvidenceOrientationStripShell>
-  );
-}
-
 /** Buyer procurement FAQ specialty view for `/help/procurement` (TB-1253). */
 export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): React.ReactElement {
   const { entry, markdown } = props;
@@ -127,6 +108,7 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
   const headings = extractHelpMarkdownHeadings(preparedMarkdown);
   const showSectionNav = !buyerPolishedShell && headings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
   const contentGridClass = resolveHelpPageContentGridClass(showSectionNav ? headings.length : 0);
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
   const provenanceLine = formatProcurementHelpProvenanceLine(entry);
   const relatedGuides = procurementHelpRelatedGuides();
 
@@ -172,6 +154,11 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
+          <div className="space-y-4" data-testid="help-procurement-buyer-intro">
+            <p className={readingBodyClass} data-testid="help-procurement-intro">
+              {PROCUREMENT_HELP_PAGE_LEAD}
+            </p>
+          </div>
           <ProcurementHelpJobMatrixSection />
           <ProcurementHelpDiligenceCtaSection />
           <p
@@ -184,6 +171,15 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
       ) : (
         <ProcurementHelpJobMatrixSection />
       )}
+
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="help-procurement-overview"
+        >
+          {PROCUREMENT_HELP_BUYER_OVERVIEW}
+        </p>
+      ) : null}
 
       {buyerPolishedShell ? null : (
         <HelpTopicExportClaimDiscipline claimDiscipline={PROCUREMENT_HELP_CLAIM_DISCIPLINE} />
@@ -239,7 +235,7 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
         {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
 
-      {buyerPolishedShell ? <ProcurementHelpBuyerSourcesOrientationStrip /> : null}
+      {buyerPolishedShell ? <HelpProcurementSourcesOrientationStrip /> : null}
     </>
   );
 

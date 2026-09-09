@@ -2,12 +2,17 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.Models.Graph;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Authority;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Query;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.DevTesting;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,10 +27,16 @@ public sealed partial class RunQueryController
     [Produces("application/json")]
     [ProducesResponseType(typeof(CytoscapeInteractiveGraphResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetInteractiveGraphSnapshot(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunInteractiveGraphQueryResult result =
             await runGraphQueryService.GetInteractiveGraphSnapshotAsync(runId, cancellationToken);
 
@@ -44,10 +55,16 @@ public sealed partial class RunQueryController
     [HttpGet("reviews/{runId}/provenance")]
     [ProducesResponseType(typeof(ArchitectureRunProvenanceGraph), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetArchitectureRunProvenance(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ArchitectureRunProvenanceGraph? graph =
             await runProvenanceQueryService.GetProvenanceAsync(runId, cancellationToken);
 
@@ -68,6 +85,7 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/provenance/{nodeId}/explanation")]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status501NotImplemented)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetProvenanceNodeExplanation(
         [FromRoute] string runId,
         [FromRoute] string nodeId,
@@ -75,6 +93,11 @@ public sealed partial class RunQueryController
     {
         if (string.IsNullOrWhiteSpace(nodeId))
             return this.BadRequestProblem("Node id is required.", ProblemTypes.ValidationFailed);
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         if (!await runProvenanceQueryService.AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -96,10 +119,16 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/decisions")]
     [ProducesResponseType(typeof(DecisionNodeResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunDecisions(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunDecisionsQueryResult result =
             await runProvenanceQueryService.GetRunDecisionsAsync(runId, cancellationToken);
 
@@ -114,10 +143,16 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/evidence")]
     [ProducesResponseType(typeof(AgentEvidencePackageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunEvidence(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunEvidenceQueryResult result =
             await runProvenanceQueryService.GetRunEvidenceAsync(runId, cancellationToken);
 
@@ -133,12 +168,18 @@ public sealed partial class RunQueryController
     [HttpGet("review/{runId}/traces")]
     [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunTraces(
         [FromRoute] string runId,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 50,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunTracesQueryResult result =
             await runProvenanceQueryService.GetRunTracesAsync(runId, pageNumber, pageSize, cancellationToken);
 
@@ -157,15 +198,49 @@ public sealed partial class RunQueryController
     [Authorize(Policy = ArchLucidPolicies.RequireOperatorRole)]
     [ProducesResponseType(typeof(RunToolInvocationForensicsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunToolInvocationForensics(
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunToolInvocationForensicsQueryResult result =
             await runProvenanceQueryService.GetRunToolInvocationForensicsAsync(runId, cancellationToken);
 
         return result.Outcome == RunGraphQueryOutcome.Success
             ? Ok(result.Response)
             : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound);
+    }
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return null;
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runGuid.ToString("D"),
+                manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
     }
 }

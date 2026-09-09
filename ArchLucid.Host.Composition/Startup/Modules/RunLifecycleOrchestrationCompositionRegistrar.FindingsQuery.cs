@@ -40,6 +40,7 @@ using ArchLucid.Application.Runs.Enrichment;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Findings.HeldCheck;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Application.Runs.Query.Stages;
 using ArchLucid.Application.Runs.Sample;
@@ -92,6 +93,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureRiskRegisterService, ArchitectureRiskRegisterService>();
         services.AddScoped<IArchitectureDecisionRegisterService, ArchitectureDecisionRegisterService>();
         services.AddScoped<IFindingAnalysisContextBuilder, FindingAnalysisContextBuilder>();
+        services.AddScoped<IHeldCheckSecondPassService, HeldCheckSecondPassService>();
         services.AddScoped<IFindingVerificationScorer, FindingVerificationDeterministicScorer>();
         services.AddScoped<IFindingVerificationService, FindingVerificationService>();
         services.AddScoped<IFindingVerificationReportQueryService, FindingVerificationReportQueryService>();

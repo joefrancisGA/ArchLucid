@@ -16,6 +16,14 @@ namespace ArchLucid.Application.Tests.Configuration;
 public sealed class InsightDensityGateOptionsTests
 {
     [Fact]
+    public void Default_demotion_threshold_is_sixty_five()
+    {
+        InsightDensityGateOptions options = new();
+
+        options.DemotionThreshold.Should().Be(65);
+    }
+
+    [Fact]
     public void Default_prefer_high_novelty_engines_is_false()
     {
         InsightDensityGateOptions options = new();

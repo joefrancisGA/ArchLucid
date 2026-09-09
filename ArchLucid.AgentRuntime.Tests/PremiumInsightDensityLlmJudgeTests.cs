@@ -2,6 +2,7 @@ using ArchLucid.AgentRuntime.Tests.Support;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
@@ -505,6 +506,66 @@ public sealed class PremiumInsightDensityLlmJudgeTests
     }
 
     [Fact]
+    public void SelectEngineJudgedCandidates_orders_by_human_accept_residual_when_flag_enabled()
+    {
+        Finding underScoredNovel = CreatePromotedEngineFinding(
+            "under-scored-novel",
+            engineType: "review-pack-gap",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        Finding overScoredCoverage = CreatePromotedEngineFinding(
+            "over-scored-coverage",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+
+        Dictionary<string, double> residuals = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["review-pack-gap"] = 0.8,
+            ["topology-coverage"] = 0.1,
+        };
+
+        (IReadOnlyList<Finding> judged, int skipped) = InsightDensityJudgeCandidateSelector.SelectEngineJudgedCandidates(
+            [overScoredCoverage, underScoredNovel],
+            maxJudgedFindingsPerSnapshot: 1,
+            humanAcceptResidualByEngineType: residuals,
+            preferHighHumanAcceptResidual: true);
+
+        skipped.Should().Be(1);
+        judged.Should().ContainSingle().Which.FindingId.Should().Be("under-scored-novel");
+    }
+
+    [Fact]
+    public void SelectEngineJudgedCandidates_ignores_human_accept_residual_when_flag_disabled()
+    {
+        Finding first = CreatePromotedEngineFinding(
+            "first",
+            engineType: "topology-coverage",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+        Finding second = CreatePromotedEngineFinding(
+            "second",
+            engineType: "review-pack-gap",
+            severity: FindingSeverity.Warning,
+            insightDensityScore: 50);
+
+        Dictionary<string, double> residuals = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["topology-coverage"] = 0.1,
+            ["review-pack-gap"] = 0.9,
+        };
+
+        (IReadOnlyList<Finding> judged, int skipped) = InsightDensityJudgeCandidateSelector.SelectEngineJudgedCandidates(
+            [first, second],
+            maxJudgedFindingsPerSnapshot: 1,
+            humanAcceptResidualByEngineType: residuals,
+            preferHighHumanAcceptResidual: false);
+
+        skipped.Should().Be(1);
+        judged.Should().ContainSingle().Which.FindingId.Should().Be("first");
+    }
+
+    [Fact]
     public void ResolveVerificationPriorRate_uses_neutral_prior_for_missing_engine()
     {
         Dictionary<string, double> rates = new(StringComparer.OrdinalIgnoreCase)
@@ -515,6 +576,103 @@ public sealed class PremiumInsightDensityLlmJudgeTests
         InsightDensityVerificationPriorLookup.ResolveVerificationPriorRate("unknown-engine", rates)
             .Should()
             .Be(EngineVerificationConfirmedRateAggregation.NeutralPriorRate);
+    }
+
+    [Fact]
+    public async Task ApplyToFindingsAsync_remaining_zero_budget_skips_all_candidates()
+    {
+        List<Finding> findings = Enumerable.Range(0, 10)
+            .Select(index => CreatePromotedEngineFinding($"engine-{index:D2}"))
+            .ToList();
+
+        CountingCompletionClient countingClient = new();
+        PremiumInsightDensityLlmJudge judge = CreateJudge(
+            countingClient,
+            enableLlmJudge: true,
+            enableEngineJudge: true,
+            maxJudged: 40,
+            reasoningDeployment: "reasoning-deploy",
+            scopeContextProvider: new FixedScopeContextProvider(new ScopeContext { TenantId = Guid.NewGuid() }),
+            budgetPolicyResolver: new FixedBudgetPolicyResolver(remainingUsd: 0m),
+            costEstimator: new FixedJudgeCostEstimator(0.10m));
+
+        InsightDensityLlmJudgeApplyResult result = await judge.ApplyToFindingsAsync(findings, CancellationToken.None);
+
+        countingClient.CallCount.Should().Be(0);
+        result.SkippedByCap.Should().Be(10);
+        result.JudgeConfiguredCap.Should().Be(40);
+        result.JudgeEffectiveCap.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ApplyToFindingsAsync_remaining_budget_shrinks_cap_before_selection()
+    {
+        List<Finding> findings = Enumerable.Range(0, 10)
+            .Select(index => CreatePromotedEngineFinding($"engine-{index:D2}"))
+            .ToList();
+
+        JudgedFindingIdsCompletionClient judgingClient = new();
+        PremiumInsightDensityLlmJudge judge = CreateJudge(
+            judgingClient,
+            enableLlmJudge: true,
+            enableEngineJudge: true,
+            maxJudged: 40,
+            reasoningDeployment: "reasoning-deploy",
+            scopeContextProvider: new FixedScopeContextProvider(new ScopeContext { TenantId = Guid.NewGuid() }),
+            budgetPolicyResolver: new FixedBudgetPolicyResolver(remainingUsd: 0.30m),
+            costEstimator: new FixedJudgeCostEstimator(0.10m));
+
+        InsightDensityLlmJudgeApplyResult result = await judge.ApplyToFindingsAsync(findings, CancellationToken.None);
+
+        judgingClient.CallCount.Should().Be(3);
+        result.SkippedByCap.Should().Be(7);
+        result.JudgeConfiguredCap.Should().Be(40);
+        result.JudgeEffectiveCap.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task ApplyToFindingsAsync_null_budget_resolver_keeps_configured_cap()
+    {
+        List<Finding> findings = Enumerable.Range(0, 10)
+            .Select(index => CreatePromotedEngineFinding($"engine-{index:D2}"))
+            .ToList();
+
+        JudgedFindingIdsCompletionClient judgingClient = new();
+        PremiumInsightDensityLlmJudge judge = CreateJudge(
+            judgingClient,
+            enableLlmJudge: true,
+            enableEngineJudge: true,
+            maxJudged: 40,
+            reasoningDeployment: "reasoning-deploy");
+
+        InsightDensityLlmJudgeApplyResult result = await judge.ApplyToFindingsAsync(findings, CancellationToken.None);
+
+        judgingClient.CallCount.Should().Be(10);
+        result.SkippedByCap.Should().Be(0);
+        result.JudgeConfiguredCap.Should().BeNull();
+        result.JudgeEffectiveCap.Should().BeNull();
+    }
+
+    private sealed class FixedBudgetPolicyResolver(decimal remainingUsd) : ITenantAiBudgetPolicyResolver
+    {
+        public Task<TenantAiBudgetPolicySnapshot> ResolveAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new TenantAiBudgetPolicySnapshot
+            {
+                RemainingAmountUsd = remainingUsd,
+            });
+
+        public Task<AiUsageWorkspaceKind> ResolveWorkspaceKindAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(AiUsageWorkspaceKind.Paid);
+    }
+
+    private sealed class FixedJudgeCostEstimator(decimal costUsd) : ILlmCostEstimator
+    {
+        public decimal? EstimateUsd(
+            int inputTokens,
+            int outputTokens,
+            int reasoningTokens = 0,
+            string? deploymentLabel = null,
+            string? modelAliasId = null) => costUsd;
     }
 
     private static Finding CreatePromotedEngineFinding(
@@ -568,7 +726,9 @@ public sealed class PremiumInsightDensityLlmJudgeTests
         bool preferHighVerificationEngines = false,
         IFindingInsightSignalRepository? insightSignalRepository = null,
         IAppendOnlyFindingVerificationReportRepository? verificationReportRepository = null,
-        IScopeContextProvider? scopeContextProvider = null)
+        IScopeContextProvider? scopeContextProvider = null,
+        ITenantAiBudgetPolicyResolver? budgetPolicyResolver = null,
+        ILlmCostEstimator? costEstimator = null)
     {
         Dictionary<string, string?> configValues = new(StringComparer.OrdinalIgnoreCase);
 
@@ -603,6 +763,8 @@ public sealed class PremiumInsightDensityLlmJudgeTests
             insightSignalRepository,
             verificationReportRepository,
             scopeContextProvider,
+            budgetPolicyResolver,
+            costEstimator,
             TimeProvider.System,
             NullLogger<PremiumInsightDensityLlmJudge>.Instance);
     }

@@ -21,6 +21,7 @@ export type FindingInspectGovernanceStickinessPanelProps = {
   readonly recommendation?: string | null;
   readonly recommendedActions?: readonly string[];
   readonly approvedDecisionTitles?: readonly string[];
+  readonly latestDispositionRowVersionBase64?: string | null;
 };
 
 export function useFindingInspectGovernanceStickiness(
@@ -35,6 +36,7 @@ export function useFindingInspectGovernanceStickiness(
     recommendation = null,
     recommendedActions = [],
     approvedDecisionTitles = [],
+    latestDispositionRowVersionBase64 = null,
   } = props;
   const canMutate = useOperateCapability();
   const buyerPolishedShell = useProductionEvalChrome();
@@ -72,6 +74,7 @@ export function useFindingInspectGovernanceStickiness(
     busyAction,
     setBusyAction,
     resolveMutationError,
+    latestDispositionRowVersionBase64,
   });
 
   const waivers = useFindingInspectGovernanceStickinessWaivers({
@@ -146,6 +149,8 @@ export function useFindingInspectGovernanceStickiness(
     setApplyChangePreviewOverride: dispositions.setApplyChangePreviewOverride,
     tradeOffAcknowledgment: dispositions.tradeOffAcknowledgment,
     setTradeOffAcknowledgment: dispositions.setTradeOffAcknowledgment,
+    architectRestatement: dispositions.architectRestatement,
+    setArchitectRestatement: dispositions.setArchitectRestatement,
     showIncrementalRereviewLink: dispositions.showIncrementalRereviewLink,
     submitRemediationAssignment: remediation.submitRemediationAssignment,
     submitDisposition: dispositions.submitDisposition,
@@ -169,5 +174,9 @@ export function useFindingInspectGovernanceStickiness(
     waiverBaseline: waivers.waiverBaseline,
     dispositionHistoryAsOfUtc: dispositions.dispositionHistoryAsOfUtc,
     refreshDispositionHistory: dispositions.refreshDispositionHistory,
+    expectedCurrentDispositionRowVersionBase64: dispositions.expectedCurrentDispositionRowVersionBase64,
+    dispositionConflict: dispositions.dispositionConflict,
+    reloadDispositionConflict: dispositions.reloadDispositionConflict,
+    dismissDispositionConflict: dispositions.dismissDispositionConflict,
   };
 }

@@ -1,4 +1,5 @@
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
@@ -15,6 +16,9 @@ export const REVIEW_GUIDE_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 export const REVIEW_GUIDE_HELP_SOURCES_INTRO =
   "Use these follow-ups when field reference turns into starting a review, first-run onboarding, or findings triage.";
 
+export const REVIEW_GUIDE_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "field reference turns into starting a review, first-run onboarding, or findings triage",
+);
 
 /** Operator Sources — no self-href to `/help/review-guide`. */
 export const REVIEW_GUIDE_HELP_SOURCES: readonly EvidenceSourceLink[] = [

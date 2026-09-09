@@ -3,12 +3,15 @@ using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.ProblemDetails;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -31,21 +34,35 @@ public sealed partial class RunCoverageController(
     ICoverageQueryService coverageQueryService,
     IRunCoverageAcknowledgementService acknowledgementService,
     IPolicyPackRepository policyPackRepository,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
     private readonly IScopeContextProvider scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly IRunCoverageAcknowledgementService acknowledgementService =
         acknowledgementService ?? throw new ArgumentNullException(nameof(acknowledgementService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     [HttpGet("{runId:guid}/coverage")]
     [ProducesResponseType(typeof(RunCoverageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunCoverage(Guid runId, CancellationToken cancellationToken)
     {
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             CoverageSummary summary = await coverageQueryService.GetByRunIdAsync(scope, runId, cancellationToken);
             Dictionary<Guid, PolicyPack> packById = await LoadPacksAsync(summary, cancellationToken);
 
@@ -75,5 +92,31 @@ public sealed partial class RunCoverageController(
             cancellationToken);
 
         return packs.ToDictionary(static pack => pack.PolicyPackId);
+    }
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        RunDetailDto? detail =
+            await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
     }
 }

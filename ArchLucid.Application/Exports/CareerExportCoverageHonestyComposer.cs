@@ -207,7 +207,10 @@ public static class CareerExportCoverageHonestyComposer
             ActorNodeCount = input.CoverageContext.ActorNodeCount,
             AnalysisStagesComplete = input.CoverageContext.AnalysisStagesComplete,
             JudgeSkippedByCap = input.JudgeSkippedByCap,
+            JudgeConfiguredCap = input.FindingsSnapshot?.InsightDensityCuration?.JudgeConfiguredCap,
+            JudgeEffectiveCap = input.FindingsSnapshot?.InsightDensityCuration?.JudgeEffectiveCap,
             HeldCheckLedgerEntries = input.FindingsSnapshot?.InsightDensityCuration?.HeldCheckLedgerEntries ?? [],
+            HeldCheckSecondPass = input.FindingsSnapshot?.InsightDensityCuration?.HeldCheckSecondPass,
         };
     }
 

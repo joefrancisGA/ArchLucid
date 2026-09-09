@@ -17,3 +17,9 @@ export const SYSTEM_HEALTH_HELP_PAGE_SUBTITLE_BUYER =
 
 export const SYSTEM_HEALTH_HELP_START_HERE_HELPER =
   "Open system health below to refresh readiness probes, then use the tile summaries and steps when connectors or runtime failures need follow-up." as const;
+
+export const SYSTEM_HEALTH_HELP_PAGE_LEAD =
+  "Workspace operational readiness — live and ready checks plus deployment identity before reviews depend on them." as const;
+
+export const SYSTEM_HEALTH_HELP_BUYER_OVERVIEW =
+  "Tile summaries and read steps below explain readiness probes, deployment identity, and dependency follow-ups before you open system health." as const;

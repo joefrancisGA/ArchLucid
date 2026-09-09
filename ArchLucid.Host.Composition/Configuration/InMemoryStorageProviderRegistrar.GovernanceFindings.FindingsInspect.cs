@@ -60,6 +60,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
             new InMemoryFindingInsightSignalRepository(sp.GetRequiredService<IAuthorityQueryService>()));
         services.AddSingleton<IAppendOnlyFindingVerificationReportRepository, InMemoryFindingVerificationReportRepository>();
         services.AddSingleton<IFindingReviewTrailRepository, NoOpFindingReviewTrailRepository>();
+        // Demo host only — NoOpFindingDispositionConcurrencyRepository is not ADR 0076 CAS.
         services.AddSingleton<IFindingDispositionConcurrencyRepository, NoOpFindingDispositionConcurrencyRepository>();
         services.AddSingleton<IRiskExceptionRepository, NoOpRiskExceptionRepository>();
         services.AddSingleton<IArchitectureRiskRegisterQuery, NoOpArchitectureRiskRegisterQuery>();

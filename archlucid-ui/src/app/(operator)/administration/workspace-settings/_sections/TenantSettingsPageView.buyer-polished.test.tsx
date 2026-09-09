@@ -61,14 +61,17 @@ import {
 import { TENANT_SETTINGS_PAGE_SUBTITLE } from "@/lib/tenant-settings-page-copy";
 import {
   TENANT_SETTINGS_PAGE_SUBTITLE_BUYER,
+  TENANT_SETTINGS_SETTINGS_BUYER_OVERVIEW,
   TENANT_SETTINGS_SETTINGS_BUYER_START_HERE_HELPER,
   TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   TENANT_SETTINGS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  TENANT_SETTINGS_SETTINGS_ORIENTATION_BOTTOM_TEST_ID,
   TENANT_SETTINGS_SETTINGS_PAGE_LEAD,
   TENANT_SETTINGS_SETTINGS_PRIMARY_CONTENT_ID,
   TENANT_SETTINGS_SETTINGS_SKIP_LINK_LABEL,
   TENANT_SETTINGS_SETTINGS_SKIP_TARGET_ID,
   TENANT_SETTINGS_SETTINGS_START_HERE_CARD_TITLE,
+  TENANT_SETTINGS_SETTINGS_WORKSPACE_TEST_ID,
 } from "@/lib/tenant-settings-settings-page-copy";
 import { TenantSettingsPageView } from "./TenantSettingsPageView";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
@@ -106,6 +109,13 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
     expect(screen.getByText(TENANT_SETTINGS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(TENANT_SETTINGS_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("tenant-settings-intro")).toHaveTextContent(TENANT_SETTINGS_SETTINGS_PAGE_LEAD);
+    expect(screen.getByTestId("tenant-settings-overview")).toHaveTextContent(TENANT_SETTINGS_SETTINGS_BUYER_OVERVIEW);
+    expect(screen.getByTestId(TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("tenant-settings-intro"),
+    );
+    expect(
+      screen.getByTestId(TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID),
+    ).not.toContainElement(screen.getByTestId("tenant-settings-overview"));
     expect(screen.getByTestId("tenant-settings-buyer-start-here-helper")).toHaveTextContent(
       TENANT_SETTINGS_SETTINGS_BUYER_START_HERE_HELPER,
     );
@@ -116,6 +126,8 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
       TENANT_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.queryByRole("button", { name: "Page help" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-active-scope-summary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("tenant-settings-caller-authority")).not.toBeInTheDocument();
     expect(screen.queryByTestId("workspace-scope-vocabulary-rail-stub")).not.toBeInTheDocument();
     expect(screen.queryByTestId("tenant-workspace-projects-card-stub")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Download support bundle" })).not.toBeInTheDocument();
@@ -125,13 +137,17 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
 
     const primaryContent = screen.getByTestId(TENANT_SETTINGS_SETTINGS_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID);
-    const orientationBottom = screen.getByTestId("tenant-settings-orientation-bottom");
+    const overview = screen.getByTestId("tenant-settings-overview");
+    const workspace = screen.getByTestId(TENANT_SETTINGS_SETTINGS_WORKSPACE_TEST_ID);
+    const orientationBottom = screen.getByTestId(TENANT_SETTINGS_SETTINGS_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("tenant-settings-settings-sources");
     const organizationCard = screen.getByTestId("tenant-settings-organization-card");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(workspace);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport).toContainElement(organizationCard);
+    expect(workspace).toContainElement(organizationCard);
     expect(orientationBottom).toContainElement(sourcesSection);
 
     for (const source of filterWhereToGoNextFollowUpLinks(TENANT_SETTINGS_SOURCES)) {
@@ -139,6 +155,8 @@ describe("TenantSettingsPageView buyer-polished shell (ATE)", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

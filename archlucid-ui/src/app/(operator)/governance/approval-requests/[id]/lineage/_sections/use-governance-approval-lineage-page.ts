@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getApprovalRequestLineage } from "@/lib/api";
+import { governanceApprovalLineageBlockedReason } from "@/lib/governance/governance-approval-lineage-blocked-reason";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -16,6 +17,7 @@ export type UseGovernanceApprovalLineagePageModel = {
   buyerPolishedShell: boolean;
   data: GovernanceLineageResult | null;
   failure: ApiLoadFailureState | null;
+  blockedReason: string | null;
   load: () => Promise<void>;
   loading: boolean;
   nextDemo: boolean;
@@ -78,6 +80,7 @@ export function useGovernanceApprovalLineagePage(
     buyerPolishedShell: isBuyerPolishedOperatorShellEnv(),
     data,
     failure,
+    blockedReason: governanceApprovalLineageBlockedReason(failure),
     load,
     loading,
     nextDemo: isNextPublicDemoMode(),

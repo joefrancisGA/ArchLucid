@@ -87,6 +87,9 @@ public sealed partial class GovernanceStickinessController
             TradeOffAcknowledgment = body.TradeOffAcknowledgment,
             RevisitDueUtc = body.RevisitDueUtc,
             EvidenceRequestText = body.EvidenceRequestText,
+            ImpactPreviewCompleted = body.ImpactPreviewCompleted,
+            PreviewOverrideReason = body.PreviewOverrideReason,
+            ArchitectRestatement = body.ArchitectRestatement,
             ExpectedCurrentDispositionRowVersionBase64 = body.ExpectedCurrentDispositionRowVersionBase64,
         };
 
@@ -193,6 +196,7 @@ public sealed partial class GovernanceStickinessController
     [HttpGet("findings/{findingId}/dispositions")]
     [ProducesResponseType(typeof(IReadOnlyList<FindingDispositionEventDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListDispositions(string findingId, CancellationToken cancellationToken = default)
     {
         IActionResult? findingIdProblem =
@@ -207,10 +211,17 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IReadOnlyList<FindingDispositionEventDto> history =
-            await _facade.ListDispositionsAsync(findingId, cancellationToken);
+        try
+        {
+            IReadOnlyList<FindingDispositionEventDto> history =
+                await _facade.ListDispositionsAsync(findingId, cancellationToken);
 
-        return Ok(history);
+            return Ok(history);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry

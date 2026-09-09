@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
@@ -14,9 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
-import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { useExtractUploadBaselineQuery, extractorScriptCdnUrl } from "@/hooks/use-extract-upload-baseline-query";
-import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { buildAdvancedGetArchLucidAzurePackageCommandLine } from "@/lib/get-archlucid-azure-package-command";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
@@ -46,7 +42,6 @@ import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHead
 import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_TEST_ID,
@@ -54,126 +49,44 @@ import {
   EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
   EXTRACT_UPLOAD_SETTINGS_SKIP_TARGET_ID,
 } from "@/lib/extract-upload-settings-page-copy";
-import {
-  resolveExtractUploadPackageEmphasizedStepId,
-  resolveExtractUploadPackageSteps,
-} from "@/lib/extract-upload-package-checklist";
-import { useExtractUploadUpload } from "./use-extract-upload-upload";
-import { useExtractUploadFolderZip } from "./use-extract-upload-folder-zip";
-import { useExtractUploadDemo } from "./use-extract-upload-demo";
-import {
-  extractUploadValidateDisclosureHrefFromSearch,
-  parseExtractUploadValidateDisclosureOpenFromSearch,
-} from "@/lib/administration/extract-upload-validate-disclosure-url";
-import {
-  extractUploadAdvancedCommandDisclosureHrefFromSearch,
-  parseExtractUploadAdvancedCommandOpenFromSearch,
-} from "@/lib/administration/extract-upload-advanced-command-disclosure-url";
+import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
 
 /**
  * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
  */
 export function ExtractUploadSettingsPageClient() {
-  const router = useRouter();
-  const { productLine } = useProductLine();
-  const extractorScriptDownloadUrl = extractorScriptCdnUrl(productLine);
-  const pathname = usePathname() ?? "/administration/extract-upload";
+  return <ExtractUploadSettingsPageClientInner />;
+}
+
+function ExtractUploadSettingsPageClientInner() {
   const searchParams = useSearchParams();
-  const extractUploadValidateDisclosureOpenParam = searchParams.get("extractUploadValidateDisclosureOpen");
-  const extractUploadAdvancedCommandOpenParam = searchParams.get("extractUploadAdvancedCommandOpen");
-  const [validateDisclosureOpen, setValidateDisclosureOpenState] = useState(() =>
-    parseExtractUploadValidateDisclosureOpenFromSearch(extractUploadValidateDisclosureOpenParam),
-  );
-  const [advancedCommandOpen, setAdvancedCommandOpenState] = useState(() =>
-    parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
-  );
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const baselineQuery = useExtractUploadBaselineQuery();
-  const upload = useExtractUploadUpload();
-  const folderZip = useExtractUploadFolderZip({
-    onUpload: upload.onUpload,
-    clearUploadState: upload.clearUploadState,
-    setUploadError: upload.setUploadError,
-  });
-  const demo = useExtractUploadDemo({
-    onUpload: upload.onUpload,
-    clearUploadState: upload.clearUploadState,
-    setUploadError: upload.setUploadError,
-    clearSelectionState: folderZip.clearSelectionState,
-    setSelectedFileLabel: folderZip.setSelectedFileLabel,
+  const router = useRouter();
+  const pathname = usePathname() ?? "/administration/extract-upload";
+  const viewModel = useExtractUploadPageClient({
+    router,
+    pathname,
+    searchParams,
   });
 
-  const baselineLoading = baselineQuery.isPending;
-  const hasBaselineArtifacts = baselineQuery.data?.hasBaselineArtifacts ?? null;
-  const extractorScriptVersion = baselineQuery.data?.extractorScriptVersion ?? null;
-  const extractorUpdateBanner = baselineQuery.data?.extractorUpdateBanner ?? null;
-  const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
-  const extractUploadSteps = useMemo(
-    () =>
-      resolveExtractUploadPackageSteps({
-        scenarioSelected: demo.selectedDemoScenarioId.trim().length > 0,
-        packageUploaded: upload.packageId !== null || folderZip.selectedFileLabel !== null,
-        inventoryParsed: hasBaselineArtifacts === true || upload.packageId !== null,
-      }),
-    [demo.selectedDemoScenarioId, folderZip.selectedFileLabel, hasBaselineArtifacts, upload.packageId],
-  );
-  const extractUploadEmphasizedStepId = useMemo(
-    () =>
-      resolveExtractUploadPackageEmphasizedStepId({
-        scenarioSelected: demo.selectedDemoScenarioId.trim().length > 0,
-        packageUploaded: upload.packageId !== null || folderZip.selectedFileLabel !== null,
-        inventoryParsed: hasBaselineArtifacts === true || upload.packageId !== null,
-      }),
-    [demo.selectedDemoScenarioId, folderZip.selectedFileLabel, hasBaselineArtifacts, upload.packageId],
-  );
-
-  const syncValidateDisclosureOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        extractUploadValidateDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setValidateDisclosureOpen = useCallback(
-    (open: boolean) => {
-      setValidateDisclosureOpenState(open);
-      syncValidateDisclosureOpenToUrl(open);
-    },
-    [syncValidateDisclosureOpenToUrl],
-  );
-
-  useEffect(() => {
-    setValidateDisclosureOpenState(
-      parseExtractUploadValidateDisclosureOpenFromSearch(extractUploadValidateDisclosureOpenParam),
-    );
-  }, [extractUploadValidateDisclosureOpenParam]);
-
-  const syncAdvancedCommandOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        extractUploadAdvancedCommandDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setAdvancedCommandOpen = useCallback(
-    (open: boolean) => {
-      setAdvancedCommandOpenState(open);
-      syncAdvancedCommandOpenToUrl(open);
-    },
-    [syncAdvancedCommandOpenToUrl],
-  );
-
-  useEffect(() => {
-    setAdvancedCommandOpenState(
-      parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
-    );
-  }, [extractUploadAdvancedCommandOpenParam]);
+  const {
+    productLine,
+    extractorScriptDownloadUrl,
+    validateDisclosureOpen,
+    setValidateDisclosureOpen,
+    advancedCommandOpen,
+    setAdvancedCommandOpen,
+    buyerPolishedShell,
+    baselineLoading,
+    hasBaselineArtifacts,
+    extractorScriptVersion,
+    extractorUpdateBanner,
+    maxMb,
+    extractUploadSteps,
+    extractUploadEmphasizedStepId,
+    upload,
+    folderZip,
+    demo,
+  } = viewModel;
 
   return (
     <div
@@ -321,11 +234,6 @@ export function ExtractUploadSettingsPageClient() {
                   Package accepted (<span className="font-mono">{upload.packageId}</span>).
                 </p>
               ) : null}
-              <Button asChild type="button" variant="outline" size="sm">
-                <Link href="/architecture/reviews" data-testid="extract-upload-go-reviews">
-                  Go to Reviews
-                </Link>
-              </Button>
             </CardContent>
           </Card>
         </div>

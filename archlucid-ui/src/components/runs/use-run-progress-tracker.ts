@@ -8,6 +8,8 @@ import {
 } from "@/hooks/use-review-completion-notification";
 import { useRunStageTimelineQuery } from "@/hooks/use-run-stage-timeline-query";
 import { useReviewPipelineInFlightForRun } from "@/hooks/use-review-pipeline-in-flight-for-run";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import {
@@ -29,6 +31,7 @@ import {
   type ReviewPipelineDiagnosticContext,
 } from "@/lib/review-pipeline-stall-diagnosis";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
+import { shouldSuppressReadyToFinalizeForPreCommitGateHonesty } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import { formatWorkspaceReviewDurationBand } from "@/lib/workspace-review-duration-estimate";
@@ -64,24 +67,31 @@ export function useRunProgressTracker({
 }: UseRunProgressTrackerOptions) {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const pipelineDebugEnabled = isReviewPipelineDebugEnabled();
+  const workingDesk = useProductionDeskChrome();
+  const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
   const [preFinalizeTerminal, setPreFinalizeTerminal] = useState(() =>
     resolvePreFinalizeTerminal(initialSummary, preFinalizeReadyToFinalize),
   );
+  const gateSuppressesReady = shouldSuppressReadyToFinalizeForPreCommitGateHonesty({
+    workingDesk,
+    preCommitGateEnabled: healthQuery.data?.preCommitGateEnabled,
+  });
+  const effectivePreFinalizeTerminal = preFinalizeTerminal && !gateSuppressesReady;
   const pipelineTerminalFailure = isReviewPipelineTerminalFailure(diagnosticContext);
   const inFlightOperation = useReviewPipelineInFlightForRun(runId);
   const rerunning =
     inFlightOperation !== null && !isTerminalOperationState(inFlightOperation.state);
   const showPipelineTerminalFailure = pipelineTerminalFailure && !rerunning;
   const pollEnabled =
-    (!allStagesReady(initialSummary) && !preFinalizeTerminal && !pipelineTerminalFailure) || rerunning;
+    (!allStagesReady(initialSummary) && !effectivePreFinalizeTerminal && !pipelineTerminalFailure) || rerunning;
 
   const [pollSession, setPollSession] = useState(0);
   const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
-    preFinalizeTerminal || allStagesReady(initialSummary) ? "complete" : "polling",
+    effectivePreFinalizeTerminal || allStagesReady(initialSummary) ? "complete" : "polling",
   );
   const liveTrackingActive = pollEnabled && (clientPhase === "polling" || rerunning);
   const timelineEnabled =
-    buyerAssessmentCopy || pollEnabled || preFinalizeTerminal || pipelineTerminalFailure;
+    buyerAssessmentCopy || pollEnabled || effectivePreFinalizeTerminal || pipelineTerminalFailure;
   const stageTimelineQuery = useRunStageTimelineQuery(runId, {
     enabled: timelineEnabled,
     pollSession,
@@ -102,7 +112,7 @@ export function useRunProgressTracker({
     [durationEstimate?.p90Seconds],
   );
 
-  const { summary, streamPhase, sseConnected } = useRunSummaryStream(runId, {
+  const { summary, streamPhase, sseConnected, streamBlockedReason } = useRunSummaryStream(runId, {
     enabled: liveTrackingActive,
     initialSummary,
     retryToken: pollSession,
@@ -277,7 +287,7 @@ export function useRunProgressTracker({
   );
 
   const liveStatus = useMemo(() => {
-    if (preFinalizeTerminal) {
+    if (effectivePreFinalizeTerminal) {
       return "Ready to finalize — use Finalize review to create the finalized review record for this architecture review.";
     }
 
@@ -351,7 +361,7 @@ export function useRunProgressTracker({
     durationEstimate?.p90Seconds,
     showPipelineTerminalFailure,
     rerunning,
-    preFinalizeTerminal,
+    effectivePreFinalizeTerminal,
     deferFailureRecoveryToDoThisNext,
     runId,
     sseConnected,
@@ -366,7 +376,7 @@ export function useRunProgressTracker({
   }, []);
 
   const shouldRender =
-    pollEnabled || preFinalizeTerminal || buyerAssessmentCopy || pipelineTerminalFailure;
+    pollEnabled || effectivePreFinalizeTerminal || buyerAssessmentCopy || pipelineTerminalFailure;
 
   return {
     runId,
@@ -377,7 +387,7 @@ export function useRunProgressTracker({
     workingDeskProgressCopy,
     pipelineDebugEnabled,
     pollEnabled,
-    preFinalizeTerminal,
+    preFinalizeTerminal: effectivePreFinalizeTerminal,
     pipelineTerminalFailure,
     showPipelineTerminalFailure,
     rerunning,
@@ -388,6 +398,7 @@ export function useRunProgressTracker({
     summary,
     streamPhase,
     sseConnected,
+    streamBlockedReason,
     pollSession,
     pollMaxMs,
     pollCount,

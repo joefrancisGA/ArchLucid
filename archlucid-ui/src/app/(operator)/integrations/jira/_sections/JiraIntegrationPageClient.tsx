@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 import { JiraIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -24,6 +24,10 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { launchJiraAtlassianOAuthConnect } from "@/lib/jira-atlassian-oauth-connect";
 import { buildJiraPageLoadResult } from "@/lib/jira-page-load";
 import {
@@ -36,6 +40,8 @@ import {
 } from "@/lib/jira-integration-page-copy";
 import {
   JIRA_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
+  JIRA_INTEGRATION_BUYER_OVERVIEW,
+  JIRA_INTEGRATION_PAGE_LEAD,
   JIRA_INTEGRATION_PRIMARY_CONTENT_ID,
   JIRA_INTEGRATION_SKIP_LINK_LABEL,
   JIRA_INTEGRATION_SKIP_TARGET_ID,
@@ -60,6 +66,7 @@ import { JiraConnectionSettingsPanel } from "./JiraConnectionSettingsPanel";
 import { JiraConnectionTestPanel } from "./JiraConnectionTestPanel";
 import { JiraIntegrationAside } from "./JiraIntegrationAside";
 import { JiraIntegrationPageHeader } from "./JiraIntegrationPageHeader";
+import { JiraIntegrationSourcesOrientationStrip } from "./JiraIntegrationSourcesOrientationStrip";
 import { JiraWorkspaceRoutingPanel } from "./JiraWorkspaceRoutingPanel";
 
 export function JiraIntegrationPageClient(): React.ReactElement {
@@ -260,6 +267,16 @@ export function JiraIntegrationPageClient(): React.ReactElement {
   const credentialStatus = resolveJiraCredentialStatusLabel(settings, credentialsReady);
   const connectionLabel = connection?.label?.trim();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+  const hasUnsavedSettingsEdits =
+    settings !== null
+    && !settingsLoadFailed
+    && (
+      jiraProjectKey !== (settings.jiraProjectKeyOverride ?? "")
+      || jiraSendInfo !== (settings.jiraSendInfoSeverity ?? false)
+      || issueTypeJson !== (settings.jiraIssueTypeBySeverityJson ?? "")
+    );
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedSettingsEdits });
 
   const workspaceBody =
     isLoading && health === null && settings === null ? (
@@ -350,6 +367,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     );
 
   return (
+    <>
     <OperatorPageContainer
       variant="workflow"
       className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
@@ -393,26 +411,41 @@ export function JiraIntegrationPageClient(): React.ReactElement {
         ) : null}
 
         {buyerPolishedShell ? (
-          <div
-            id={JIRA_INTEGRATION_SKIP_TARGET_ID}
-            data-testid={JIRA_INTEGRATION_FIRST_VIEWPORT_TEST_ID}
-            className={cn(
-              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-              OPERATOR_LAYOUT.sectionStack,
-            )}
-          >
-            {workspaceBody}
-          </div>
-        ) : (
-          workspaceBody
-        )}
-
-        {buyerPolishedShell ? (
-          <div data-testid="jira-integration-orientation-bottom">
-            <JiraIntegrationEvidenceOrientationStrip />
-          </div>
+          <>
+            <div
+              id={JIRA_INTEGRATION_SKIP_TARGET_ID}
+              data-testid={JIRA_INTEGRATION_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+            >
+              <div className="space-y-4" data-testid="jira-integration-buyer-intro">
+                <p className={readingBodyClass} data-testid="jira-integration-intro">
+                  {JIRA_INTEGRATION_PAGE_LEAD}
+                </p>
+              </div>
+            </div>
+            <p
+              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="jira-integration-overview"
+            >
+              {JIRA_INTEGRATION_BUYER_OVERVIEW}
+            </p>
+          </>
         ) : null}
+
+        {workspaceBody}
+
+        {buyerPolishedShell ? <JiraIntegrationSourcesOrientationStrip /> : null}
       </div>
     </OperatorPageContainer>
+    <LivelihoodDocumentGuardDialog
+      open={documentGuards.dialogOpen}
+      message={documentGuards.dialogMessage}
+      onConfirmLeave={documentGuards.confirmLeave}
+      onCancelLeave={documentGuards.cancelLeave}
+    />
+    </>
   );
 }

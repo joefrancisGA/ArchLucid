@@ -1,15 +1,15 @@
-import Link from "next/link";
+"use client";
 
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
+import Link from "next/link";
+import { useCallback, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
-import {
-  getArchitecturePackageDocxUrl,
-  getBundleDownloadUrl,
-  getRunExportDownloadUrl,
-  getRunPackageExportUrl,
-} from "@/lib/api";
+import { downloadArchitecturePackageDocx } from "@/lib/api/downloads-blob-trigger-architecture-package-docx";
+import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { downloadRunExportZip } from "@/lib/api/downloads-blob-trigger-run-export";
+import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
 import {
   OPERATOR_BODY_INLINE_LINK_CLASS,
   OPERATOR_LINK,
@@ -18,6 +18,12 @@ import {
 import { cn } from "@/lib/utils";
 import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import {
+  downloadPilotFirstValueReportMarkdown,
+  downloadSponsorProofPackZip,
+  downloadSponsorReviewPacketMarkdown,
+} from "@/lib/api/pilots-collateral-download-api";
+import { showError } from "@/lib/toast";
 
 export type EmailRunToSponsorExportActionsProps = {
   readonly runId: string;
@@ -34,9 +40,6 @@ export type EmailRunToSponsorExportActionsProps = {
   readonly blockSponsorPdfForAiGate: boolean;
   readonly blockSponsorPdfForProjectedDollar: boolean;
   readonly blockSponsorPdfForRoi: boolean;
-  readonly sponsorProofPackHref: string;
-  readonly SponsorReviewPacketHref: string;
-  readonly markdownHref: string;
   readonly onDownloadPdf: () => Promise<void>;
   readonly onMarkSentToSponsor: () => Promise<void>;
 };
@@ -56,16 +59,33 @@ export function EmailRunToSponsorExportActions({
   blockSponsorPdfForAiGate,
   blockSponsorPdfForProjectedDollar,
   blockSponsorPdfForRoi,
-  sponsorProofPackHref,
-  SponsorReviewPacketHref,
-  markdownHref,
   onDownloadPdf,
   onMarkSentToSponsor,
 }: EmailRunToSponsorExportActionsProps) {
+  const [collateralBusy, setCollateralBusy] = useState<string | null>(null);
   const collateralExportBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
     manifestVersion: manifestId,
   });
+
+  const runCollateralDownload = useCallback(
+    (key: string, download: () => Promise<void>, title: string) => {
+      if (collateralExportBlockedReason !== null) {
+        return;
+      }
+
+      setCollateralBusy(key);
+
+      void download()
+        .catch((error: unknown) => {
+          showError(title, error instanceof Error ? error.message : "Download failed.");
+        })
+        .finally(() => {
+          setCollateralBusy(null);
+        });
+    },
+    [collateralExportBlockedReason],
+  );
 
   return (
     <>
@@ -84,18 +104,15 @@ export function EmailRunToSponsorExportActions({
           </p>
         ) : null}
         <Button
+          type="button"
           variant={proofPackZipVariant}
-          asChild={collateralExportBlockedReason === null}
-          disabled={collateralExportBlockedReason !== null}
+          disabled={collateralExportBlockedReason !== null || collateralBusy !== null}
           data-testid="email-run-to-sponsor-proof-pack-zip"
+          onClick={() => {
+            runCollateralDownload("proof-pack", () => downloadSponsorProofPackZip(runId), "Sponsor proof pack");
+          }}
         >
-          {collateralExportBlockedReason === null ? (
-            <ExportTrackedAnchor href={sponsorProofPackHref} download={`sponsor-proof-pack-${runId}.zip`}>
-              Download sponsor proof pack (ZIP)
-            </ExportTrackedAnchor>
-          ) : (
-            <span>Download sponsor proof pack (ZIP)</span>
-          )}
+          {collateralBusy === "proof-pack" ? "Downloading…" : "Download sponsor proof pack (ZIP)"}
         </Button>
         <Button
           type="button"
@@ -125,13 +142,20 @@ export function EmailRunToSponsorExportActions({
               Download Sponsor Export (DOCX)
             </Button>
           ) : (
-            <Button variant="secondary" asChild>
-              <ExportTrackedAnchor
-                href={getRunPackageExportUrl(runId, "docx")}
-                data-testid="email-run-to-sponsor-sponsor-docx"
-              >
-                Download Sponsor Export (DOCX)
-              </ExportTrackedAnchor>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={collateralBusy !== null}
+              data-testid="email-run-to-sponsor-sponsor-docx"
+              onClick={() => {
+                runCollateralDownload(
+                  "sponsor-docx",
+                  () => downloadRunPackageExport(runId, "docx"),
+                  "Sponsor export (DOCX)",
+                );
+              }}
+            >
+              Download Sponsor Export (DOCX)
             </Button>
           )
         ) : null}
@@ -203,14 +227,21 @@ export function EmailRunToSponsorExportActions({
               {buyerPolishedShell ? "Sponsor review packet (one-click Markdown)" : "Sponsor review packet (Markdown)"} — blocked until sealed manifest verification passes
             </span>
           ) : (
-            <a
+            <button
+              type="button"
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
-              href={SponsorReviewPacketHref}
-              download={`archlucid-sponsor-review-packet-${runId}.md`}
               data-testid="email-run-to-sponsor-sponsor-review-packet"
+              disabled={collateralBusy !== null}
+              onClick={() => {
+                runCollateralDownload(
+                  "review-packet",
+                  () => downloadSponsorReviewPacketMarkdown(runId),
+                  "Sponsor review packet",
+                );
+              }}
             >
               {buyerPolishedShell ? "Sponsor review packet (one-click Markdown)" : "Sponsor review packet (Markdown)"}
-            </a>
+            </button>
           )}
         </li>
         <li>
@@ -219,25 +250,40 @@ export function EmailRunToSponsorExportActions({
               {buyerPolishedShell ? "Sponsor value summary (Markdown)" : "First-value report (Markdown)"} — blocked until sealed manifest verification passes
             </span>
           ) : (
-            <a
+            <button
+              type="button"
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
-              href={markdownHref}
-              download={`archlucid-first-value-report-${runId}.md`}
+              disabled={collateralBusy !== null}
+              onClick={() => {
+                runCollateralDownload(
+                  "first-value",
+                  () => downloadPilotFirstValueReportMarkdown(runId),
+                  "First-value report",
+                );
+              }}
             >
               {buyerPolishedShell ? "Sponsor value summary (Markdown)" : "First-value report (Markdown)"}
-            </a>
+            </button>
           )}
         </li>
         <li>
           {collateralExportBlockedReason !== null ? (
             <span className="text-neutral-500 dark:text-neutral-400">Architecture decision package (DOCX) — blocked until sealed manifest verification passes</span>
           ) : (
-            <a
+            <button
+              type="button"
               className={OPERATOR_BODY_INLINE_LINK_CLASS}
-              href={getArchitecturePackageDocxUrl(runId)}
+              disabled={collateralBusy !== null}
+              onClick={() => {
+                runCollateralDownload(
+                  "architecture-docx",
+                  () => downloadArchitecturePackageDocx(runId),
+                  "Architecture decision package",
+                );
+              }}
             >
               Architecture decision package (DOCX)
-            </a>
+            </button>
           )}
         </li>
         <li>
@@ -247,19 +293,35 @@ export function EmailRunToSponsorExportActions({
             </span>
           ) : (
             <>
-              <a
+              <button
+                type="button"
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                href={getBundleDownloadUrl(manifestId)}
+                disabled={collateralBusy !== null}
+                onClick={() => {
+                  runCollateralDownload(
+                    "review-bundle",
+                    () => downloadArtifactBundleZip(manifestId),
+                    "Review bundle",
+                  );
+                }}
               >
                 Review bundle (ZIP)
-              </a>
+              </button>
               {" · "}
-              <a
+              <button
+                type="button"
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                href={getRunExportDownloadUrl(runId)}
+                disabled={collateralBusy !== null}
+                onClick={() => {
+                  runCollateralDownload(
+                    "run-export",
+                    () => downloadRunExportZip(runId),
+                    "Review export",
+                  );
+                }}
               >
                 {buyerPolishedShell ? "Audit-ready review export (ZIP)" : "Architecture review export (ZIP)"}
-              </a>
+              </button>
               {" · "}
               {buyerPolishedShell ? null : (
                 <>

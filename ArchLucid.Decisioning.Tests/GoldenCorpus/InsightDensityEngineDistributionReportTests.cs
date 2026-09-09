@@ -181,11 +181,11 @@ public sealed class InsightDensityEngineDistributionReportTests
 
         markdown.Should().Contain(InsightDensityEngineDistributionMarkdown.ClaimBoundaryMarker);
         markdown.Should().Contain("typed-engine-scored");
-        markdown.Should().Contain("**41** engines");
-        markdown.Should().Contain("registers **41** engines");
+        markdown.Should().Contain("**42** engines");
+        markdown.Should().Contain("registers **42** engines");
         markdown.Should().Contain("WouldDemoteIfUnprotectedCount");
         markdown.Should().Contain("matches production demotion");
         markdown.Should().Contain("WouldDemoteAt65Count");
-        markdown.Should().Contain("production DemotionThreshold remains 50 until DX-59");
+        markdown.Should().Contain("production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59)");
     }
 }

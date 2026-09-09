@@ -46,12 +46,21 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
 
     public async Task<FindingDispositionBulkRecordResult> RecordBulkAsync(
         IReadOnlyList<FindingReviewEventRecord> reviewEvents,
+        IReadOnlyList<byte[]?> expectedCurrentRowVersions,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(reviewEvents);
+        ArgumentNullException.ThrowIfNull(expectedCurrentRowVersions);
 
         if (reviewEvents.Count == 0)
             throw new ArgumentException("At least one review event is required.", nameof(reviewEvents));
+
+        if (expectedCurrentRowVersions.Count != reviewEvents.Count)
+        {
+            throw new ArgumentException(
+                "Expected row version count must match review event count.",
+                nameof(expectedCurrentRowVersions));
+        }
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync(
@@ -60,13 +69,16 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
 
         List<byte[]> rowVersions = new(reviewEvents.Count);
 
-        foreach (FindingReviewEventRecord reviewEvent in reviewEvents)
+        for (int index = 0; index < reviewEvents.Count; index++)
         {
+            FindingReviewEventRecord reviewEvent = reviewEvents[index];
+            byte[]? expectedCurrentRowVersion = expectedCurrentRowVersions[index];
+
             FindingDispositionRecordResult result = await RecordInTransactionAsync(
                 connection,
                 transaction,
                 reviewEvent,
-                expectedCurrentRowVersion: null,
+                expectedCurrentRowVersion,
                 cancellationToken);
 
             if (result.Status == FindingDispositionRecordStatus.Conflict)
@@ -297,10 +309,10 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
         const string sql = """
                            INSERT INTO dbo.FindingReviewEvents
                            (EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes,
-                            OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText)
+                            OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText, ArchitectRestatement)
                            VALUES
                            (@EventId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @ReviewerUserId, @Action, @Notes,
-                            @OccurredAtUtc, @RunId, @Disposition, @RevisitDueUtc, @EvidenceRequestText);
+                            @OccurredAtUtc, @RunId, @Disposition, @RevisitDueUtc, @EvidenceRequestText, @ArchitectRestatement);
                            """;
 
         await connection.ExecuteAsync(
@@ -321,6 +333,7 @@ public sealed class SqlFindingDispositionConcurrencyRepository(ISqlConnectionFac
                     Disposition = reviewEvent.Disposition?.ToString(),
                     RevisitDueUtc = reviewEvent.RevisitDueUtc?.UtcDateTime,
                     reviewEvent.EvidenceRequestText,
+                    reviewEvent.ArchitectRestatement,
                 },
                 transaction,
                 cancellationToken: cancellationToken));

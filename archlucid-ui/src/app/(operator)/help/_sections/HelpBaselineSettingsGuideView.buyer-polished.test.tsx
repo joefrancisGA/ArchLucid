@@ -38,13 +38,19 @@ import {
   BASELINE_SETTINGS_HELP_SOURCES,
 } from "@/lib/baseline-settings-help-evidence-copy";
 import {
+  BASELINE_SETTINGS_HELP_PAGE_SUBTITLE,
   BASELINE_SETTINGS_HELP_PRIMARY_ACTION,
   BASELINE_SETTINGS_HELP_BUYER_START_HERE_HELPER,
   BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/baseline-settings-help-guide-content";
 import {
+  BASELINE_SETTINGS_HELP_BUYER_OVERVIEW,
   BASELINE_SETTINGS_HELP_FIRST_VIEWPORT_TEST_ID,
   BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  BASELINE_SETTINGS_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  BASELINE_SETTINGS_HELP_PAGE_LEAD,
+  BASELINE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER,
+  BASELINE_SETTINGS_HELP_PRIMARY_CONTENT_ID,
   BASELINE_SETTINGS_HELP_SKIP_LINK_LABEL,
   BASELINE_SETTINGS_HELP_SKIP_TARGET_ID,
 } from "@/lib/baseline-settings-help-page-copy";
@@ -67,6 +73,8 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
       "href",
       `#${BASELINE_SETTINGS_HELP_SKIP_TARGET_ID}`,
     );
+    expect(screen.getByText(BASELINE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.queryByText(BASELINE_SETTINGS_HELP_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId(BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
@@ -78,17 +86,28 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
     );
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-baseline-settings-header-actions")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc-mobile")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-baseline-settings-sources")).toBeInTheDocument();
+    expect(screen.getByTestId("help-baseline-settings-intro")).toHaveTextContent(BASELINE_SETTINGS_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-baseline-settings-overview")).toHaveTextContent(
+      BASELINE_SETTINGS_HELP_BUYER_OVERVIEW,
+    );
 
-    const primaryContent = screen.getByTestId("help-baseline-settings-primary-content");
+    const primaryContent = screen.getByTestId(BASELINE_SETTINGS_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(BASELINE_SETTINGS_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-baseline-settings-action-panel");
-    const orientationBottom = screen.getByTestId("help-baseline-settings-orientation-bottom");
+    const overview = screen.getByTestId("help-baseline-settings-overview");
+    const anchorItems = screen.getByTestId("help-baseline-settings-anchor-items");
+    const orientationBottom = screen.getByTestId(BASELINE_SETTINGS_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-baseline-settings-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(screen.getByTestId("help-baseline-settings-intro"));
     expect(firstViewport).toContainElement(actionPanel);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(anchorItems);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.getByTestId("help-baseline-settings-saved-baseline-warn")).toHaveTextContent(
@@ -100,8 +119,6 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
     expect(
       within(actionPanel).queryByRole("link", { name: BASELINE_SETTINGS_HELP_PRIMARY_ACTION.label }),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-baseline-settings-overview")).toHaveTextContent(/measurement anchors/);
-    expect(firstViewport).toContainElement(screen.getByTestId("help-baseline-settings-overview"));
     expect(
       screen.getByRole("heading", { level: 2, name: BASELINE_SETTINGS_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
@@ -111,6 +128,8 @@ describe("HelpBaselineSettingsGuideView buyer-polished shell (HEB)", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(anchorItems) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(anchorItems.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

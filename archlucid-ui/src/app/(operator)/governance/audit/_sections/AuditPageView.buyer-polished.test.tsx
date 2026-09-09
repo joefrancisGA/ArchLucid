@@ -13,10 +13,26 @@ import {
   AUDIT_TRAIL_FOLLOW_UPS_TITLE,
 } from "@/lib/audit-trail-evidence-copy";
 import {
+  GOVERNANCE_AUDIT_BUYER_START_HERE_HELPER,
+  GOVERNANCE_AUDIT_PAGE_LEAD,
   GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID,
   GOVERNANCE_AUDIT_SKIP_LINK_LABEL,
 } from "@/lib/governance-audit-page-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => true,
+    isOperatorExperienceFullShellEnv: () => false,
+  };
+});
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 vi.mock("@/components/LayerHeader", () => ({
   LayerHeader: () => null,
@@ -104,8 +120,8 @@ function buildProps(overrides: Partial<AuditPageViewProps> = {}): AuditPageViewP
   };
 }
 
-describe("AuditPageView buyer-polished shell", () => {
-  it("renders skip link, breadcrumb, and orientation above the audit body", () => {
+describe("AuditPageView buyer-polished shell (AUD)", () => {
+  it("renders skip link, first-viewport intro, and orientation after the audit body", () => {
     render(<AuditPageView {...buildProps()} />);
 
     expect(screen.getByRole("link", { name: GOVERNANCE_AUDIT_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -115,7 +131,21 @@ describe("AuditPageView buyer-polished shell", () => {
     expect(screen.getByTestId("audit-trail-claim-discipline")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: AUDIT_TRAIL_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("governance-audit-primary-content")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-audit-first-viewport")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-audit-intro")).toHaveTextContent(GOVERNANCE_AUDIT_PAGE_LEAD);
+    expect(screen.getByTestId("governance-audit-buyer-start-here-helper")).toHaveTextContent(
+      GOVERNANCE_AUDIT_BUYER_START_HERE_HELPER,
+    );
     expect(screen.queryByTestId("audit-evidence-trail-vocabulary")).toBeNull();
+    expect(screen.queryByText("Writes below: API-enforced.")).not.toBeInTheDocument();
+
+    const primary = screen.getByTestId("governance-audit-primary-content");
+    const orientation = screen.getByTestId("audit-page-orientation-bottom");
+    const results = screen.getByTestId("audit-results-section");
+
+    expect(primary).toContainElement(orientation);
+    expect(primary).toContainElement(results);
+    expect(results.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("uses buyer subtitle in the header without a duplicate intro paragraph", () => {

@@ -20,4 +20,7 @@ public static class GraphEdgeInferenceSources
     public const string TopologyExposes = "topology-exposes";
     public const string AgentProposalRelationship = "agent-proposal-relationship";
     public const string DeclarationIdentityActorLink = "declaration-identity-actor-link";
+    public const string DeclarationIdentityIamPath = "declaration-identity-iam-path";
+    public const string DeclarationIdentityDataFlowPath = "declaration-identity-data-flow-path";
+    public const string StructuredParse = "structured-parse";
 }

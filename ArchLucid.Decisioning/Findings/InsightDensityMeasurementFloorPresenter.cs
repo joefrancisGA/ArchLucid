@@ -23,9 +23,16 @@ public static class InsightDensityMeasurementFloorPresenter
         bool meetsFloor = measured is not null && measured.Value >= CareerExportMeasurementFloorMinEngines;
         IReadOnlyList<string> skippedActorEngineTypes = ResolveSkippedActorEngineTypes(context);
         int? judgeSkippedByCap = NormalizeJudgeSkippedByCap(context?.JudgeSkippedByCap);
+        string? judgeCapReductionClause = ResolveJudgeCapReductionClause(
+            context?.JudgeConfiguredCap,
+            context?.JudgeEffectiveCap);
         IReadOnlyList<HeldCheckLedgerRollupEntry> heldCheckLedgerEntries =
             context?.HeldCheckLedgerEntries ?? [];
+        IReadOnlyList<ProseAssumptionHeldCheckAsk> proseAssumptionHeldCheckAsks =
+            context?.ProseAssumptionHeldCheckAsks ?? [];
         string? topHeldCheckUnblockClause = ResolveTopHeldCheckUnblockClause(heldCheckLedgerEntries);
+        string? proseAssumptionHeldCheckClause = ResolveProseAssumptionHeldCheckClause(proseAssumptionHeldCheckAsks);
+        string? heldCheckSecondPassClause = HeldCheckInputCodeLabels.FormatSecondPassClause(context?.HeldCheckSecondPass);
 
         return new InsightDensityMeasurementFloorPresentation
         {
@@ -38,13 +45,27 @@ public static class InsightDensityMeasurementFloorPresenter
                 harness,
                 skippedActorEngineTypes,
                 judgeSkippedByCap,
-                topHeldCheckUnblockClause),
+                judgeCapReductionClause,
+                topHeldCheckUnblockClause,
+                proseAssumptionHeldCheckClause,
+                heldCheckSecondPassClause),
             MeetsCareerExportFloor = meetsFloor,
             SkippedActorEngineTypes = skippedActorEngineTypes,
             JudgeSkippedByCap = judgeSkippedByCap,
             HeldCheckLedgerEntries = heldCheckLedgerEntries,
             TopHeldCheckUnblockClause = topHeldCheckUnblockClause,
+            HeldCheckSecondPassClause = heldCheckSecondPassClause,
         };
+    }
+
+    internal static string? ResolveProseAssumptionHeldCheckClause(IReadOnlyList<ProseAssumptionHeldCheckAsk> asks)
+    {
+        if (asks.Count == 0)
+        {
+            return null;
+        }
+
+        return HeldCheckInputCodeLabels.FormatProseAssumptionAskClause(asks[0]);
     }
 
     internal static string? ResolveTopHeldCheckUnblockClause(IReadOnlyList<HeldCheckLedgerRollupEntry> entries)
@@ -67,6 +88,22 @@ public static class InsightDensityMeasurementFloorPresenter
         return InsightDensityMeasurementFloorContext.DeriveSkippedActorEngineTypes(
             context.ActorNodeCount,
             context.AnalysisStagesComplete);
+    }
+
+    private static string? ResolveJudgeCapReductionClause(int? configuredCap, int? effectiveCap)
+    {
+        if (configuredCap is null or <= 0 || effectiveCap is null)
+        {
+            return null;
+        }
+
+        if (effectiveCap >= configuredCap)
+        {
+            return null;
+        }
+
+        return
+            $"Premium judge cap reduced from {configuredCap.Value} to {effectiveCap.Value} from remaining AI budget.";
     }
 
     private static int? NormalizeJudgeSkippedByCap(int? judgeSkippedByCap)
@@ -131,7 +168,10 @@ public static class InsightDensityMeasurementFloorPresenter
         int harness,
         IReadOnlyList<string> skippedActorEngineTypes,
         int? judgeSkippedByCap,
-        string? topHeldCheckUnblockClause)
+        string? judgeCapReductionClause,
+        string? topHeldCheckUnblockClause,
+        string? proseAssumptionHeldCheckClause,
+        string? heldCheckSecondPassClause)
     {
         string baseSentence;
 
@@ -155,14 +195,20 @@ public static class InsightDensityMeasurementFloorPresenter
             baseSentence,
             skippedActorEngineTypes,
             judgeSkippedByCap,
-            topHeldCheckUnblockClause);
+            judgeCapReductionClause,
+            topHeldCheckUnblockClause,
+            proseAssumptionHeldCheckClause,
+            heldCheckSecondPassClause);
     }
 
     private static string AppendHonestySuffixes(
         string baseSentence,
         IReadOnlyList<string> skippedActorEngineTypes,
         int? judgeSkippedByCap,
-        string? topHeldCheckUnblockClause)
+        string? judgeCapReductionClause,
+        string? topHeldCheckUnblockClause,
+        string? proseAssumptionHeldCheckClause,
+        string? heldCheckSecondPassClause)
     {
         List<string> suffixes = [];
 
@@ -180,9 +226,24 @@ public static class InsightDensityMeasurementFloorPresenter
                     : $"Premium insight-density judge skipped {judgeSkippedByCap.Value} findings by per-snapshot cap.");
         }
 
+        if (!string.IsNullOrWhiteSpace(judgeCapReductionClause))
+        {
+            suffixes.Add(judgeCapReductionClause);
+        }
+
         if (!string.IsNullOrWhiteSpace(topHeldCheckUnblockClause))
         {
             suffixes.Add(topHeldCheckUnblockClause);
+        }
+
+        if (!string.IsNullOrWhiteSpace(proseAssumptionHeldCheckClause))
+        {
+            suffixes.Add(proseAssumptionHeldCheckClause);
+        }
+
+        if (!string.IsNullOrWhiteSpace(heldCheckSecondPassClause))
+        {
+            suffixes.Add(heldCheckSecondPassClause);
         }
 
         if (suffixes.Count == 0)

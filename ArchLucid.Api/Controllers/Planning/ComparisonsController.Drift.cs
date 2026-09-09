@@ -17,10 +17,17 @@ public sealed partial class ComparisonsController
     [ProducesResponseType(typeof(DriftAnalysisResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AnalyzeComparisonDrift(
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         DriftAnalysisResult? drift = await _comparisons.TryAnalyzeDriftAsync(comparisonRecordId, cancellationToken);
 
         return drift is null
@@ -33,11 +40,18 @@ public sealed partial class ComparisonsController
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetComparisonDriftReport(
         [FromRoute] string comparisonRecordId,
         [FromQuery] string format = "markdown",
         CancellationToken cancellationToken = default)
     {
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedForComparisonRecordIdAsync(comparisonRecordId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         DriftAnalysisResult? drift = await _comparisons.TryAnalyzeDriftAsync(comparisonRecordId, cancellationToken);
 
         if (drift is null)

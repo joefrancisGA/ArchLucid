@@ -13,5 +13,6 @@ public interface IFindingDispositionConcurrencyRepository
 
     Task<FindingDispositionBulkRecordResult> RecordBulkAsync(
         IReadOnlyList<FindingReviewEventRecord> reviewEvents,
+        IReadOnlyList<byte[]?> expectedCurrentRowVersions,
         CancellationToken cancellationToken = default);
 }

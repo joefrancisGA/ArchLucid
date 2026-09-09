@@ -57,6 +57,15 @@ vi.mock("@/hooks/use-agent-execution-mode", () => ({
   }),
 }));
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => true,
+  };
+});
+
 vi.mock("@/hooks/use-inferred-universal-intake-answers", () => ({
   useInferredUniversalIntakeAnswers: () => ({
     inferredQuestionKeys: new Set<string>(),
@@ -873,12 +882,12 @@ describe("SocraticIntakeWizard", () => {
 
     const wizard = screen.getByTestId("socratic-intake-wizard");
     const mainColumn = wizard.firstElementChild as HTMLElement;
-    const orientation = screen.getByTestId("reviews-new-orientation-bottom");
+    const orientation = screen.getByTestId("reviews-new-orientation-top");
 
     expect(mainColumn).toContainElement(orientation);
     expect(mainColumn).toContainElement(clarificationsStep);
     expect(
-      orientation.compareDocumentPosition(clarificationsStep) & Node.DOCUMENT_POSITION_PRECEDING,
+      orientation.compareDocumentPosition(clarificationsStep) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Related resources" })).toBeInTheDocument();
   });

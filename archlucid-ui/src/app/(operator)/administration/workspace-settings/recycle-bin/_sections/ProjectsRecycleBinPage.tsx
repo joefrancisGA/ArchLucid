@@ -75,6 +75,7 @@ import {
   PROJECTS_RECYCLE_BIN_CLAIM_DISCIPLINE,
 } from "@/lib/projects-recycle-bin-evidence-copy";
 import {
+  PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_OVERVIEW,
   PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER,
   PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   PROJECTS_RECYCLE_BIN_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
@@ -83,6 +84,7 @@ import {
   PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_LINK_LABEL,
   PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_TARGET_ID,
   PROJECTS_RECYCLE_BIN_SETTINGS_START_HERE_CARD_TITLE,
+  PROJECTS_RECYCLE_BIN_SETTINGS_WORKSPACE_TEST_ID,
   recycleBinPageSubtitle,
 } from "@/lib/projects-recycle-bin-settings-page-copy";
 import { SETTINGS_WORKSPACE_SETTINGS_RECYCLE_BIN_PATH } from "@/lib/settings-admin-route-paths";
@@ -171,13 +173,15 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
                 <EnterpriseTableCell>
                   <div className="space-y-1">
                     <span data-testid="projects-recycle-bin-deleted-by">{PROJECTS_RECYCLE_BIN_DELETED_BY_NOT_RECORDED}</span>
-                    <Link
-                      href={GOVERNANCE_AUDIT_PATH}
-                      className={cn("block", OPERATOR_LINK.nav)}
-                      data-testid={`projects-recycle-bin-audit-trail-${project.projectId}`}
-                    >
-                      {PROJECTS_RECYCLE_BIN_ROW_AUDIT_TRAIL_LINK_LABEL}
-                    </Link>
+                    {!buyerPolishedShell ? (
+                      <Link
+                        href={GOVERNANCE_AUDIT_PATH}
+                        className={cn("block", OPERATOR_LINK.nav)}
+                        data-testid={`projects-recycle-bin-audit-trail-${project.projectId}`}
+                      >
+                        {PROJECTS_RECYCLE_BIN_ROW_AUDIT_TRAIL_LINK_LABEL}
+                      </Link>
+                    ) : null}
                   </div>
                 </EnterpriseTableCell>
                 {buyerPolishedShell ? null : (
@@ -420,119 +424,188 @@ export function ProjectsRecycleBinPage() {
           }}
         />
 
-        <div
-          id={PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_TARGET_ID}
-          data-testid={PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID}
-          className={cn(
-            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-            OPERATOR_LAYOUT.sectionStack,
-          )}
-        >
-          {buyerPolishedShell ? (
-            <div className="space-y-4" data-testid="projects-recycle-bin-buyer-first-viewport-intro">
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="projects-recycle-bin-intro"
-              >
-                {PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD}
-              </p>
-              <section
-                className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-                data-testid="projects-recycle-bin-start-here-panel"
-                aria-labelledby="projects-recycle-bin-start-here-heading"
-              >
-                <h2
-                  id="projects-recycle-bin-start-here-heading"
-                  className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-                >
-                  {PROJECTS_RECYCLE_BIN_SETTINGS_START_HERE_CARD_TITLE}
-                </h2>
+        {buyerPolishedShell ? (
+          <>
+            <div
+              id={PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_TARGET_ID}
+              data-testid={PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+            >
+              <div className="space-y-4" data-testid="projects-recycle-bin-buyer-first-viewport-intro">
                 <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="projects-recycle-bin-buyer-start-here-helper"
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="projects-recycle-bin-intro"
                 >
-                  {PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER}
+                  {PROJECTS_RECYCLE_BIN_SETTINGS_PAGE_LEAD}
                 </p>
-              </section>
+                <section
+                  className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                  data-testid="projects-recycle-bin-start-here-panel"
+                  aria-labelledby="projects-recycle-bin-start-here-heading"
+                >
+                  <h2
+                    id="projects-recycle-bin-start-here-heading"
+                    className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                  >
+                    {PROJECTS_RECYCLE_BIN_SETTINGS_START_HERE_CARD_TITLE}
+                  </h2>
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="projects-recycle-bin-buyer-start-here-helper"
+                  >
+                    {PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_START_HERE_HELPER}
+                  </p>
+                </section>
+              </div>
             </div>
-          ) : null}
 
-          {!buyerPolishedShell ? <ProjectsRecycleBinEvidenceOrientationStrip /> : null}
-          {!buyerPolishedShell ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="projects-recycle-bin-overview"
+            >
+              {PROJECTS_RECYCLE_BIN_SETTINGS_BUYER_OVERVIEW}
+            </p>
+
+            <section
+              className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)}
+              data-testid={PROJECTS_RECYCLE_BIN_SETTINGS_WORKSPACE_TEST_ID}
+            >
+              {error !== null ? (
+                <div
+                  className={cn(DESIGN_TOKENS.callout.blocked, "space-y-2 px-3 py-3")}
+                  role="alert"
+                  data-testid="projects-recycle-bin-error"
+                >
+                  <StatusTag kind="blocked" label={PROJECTS_RECYCLE_BIN_LOAD_ERROR_STATUS_LABEL} />
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
+                </div>
+              ) : null}
+
+              {restoreFeedback !== null ? (
+                <div
+                  className={cn(recycleBinFeedbackCalloutClass(restoreFeedback.kind), "space-y-2 px-3 py-3")}
+                  role={restoreFeedback.kind === "success" ? "status" : "alert"}
+                  data-testid="projects-recycle-bin-restore-message"
+                  data-feedback-kind={restoreFeedback.kind}
+                >
+                  <StatusTag
+                    kind={recycleBinFeedbackStatusKind(restoreFeedback.kind)}
+                    label={restoreFeedbackStatusLabel(restoreFeedback.kind)}
+                  />
+                  <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{restoreFeedback.message}</p>
+                </div>
+              ) : null}
+
+              {loading && rows.length === 0 ? <ProjectsRecycleBinLoadingNotice /> : null}
+
+              {!loading && rows.length === 0 && error === null ? (
+                <ProjectsRecycleBinEmptyState retentionDays={retentionDays} />
+              ) : null}
+
+              {rows.map((workspace) => {
+                return (
+                  <WorkspaceRecycleBinTable
+                    key={workspace.workspaceId}
+                    workspace={workspace}
+                    canRestoreExecute={canRestoreExecute}
+                    buyerPolishedShell={buyerPolishedShell}
+                    restoreBusyRow={restoreBusyRow}
+                    onRequestRestore={(workspaceId, workspaceName, projectId, projectName) => {
+                      setPendingRestore({
+                        workspaceId,
+                        workspaceName,
+                        projectId,
+                        projectName,
+                      });
+                    }}
+                  />
+                );
+              })}
+            </section>
+          </>
+        ) : (
+          <div
+            id={PROJECTS_RECYCLE_BIN_SETTINGS_SKIP_TARGET_ID}
+            data-testid={PROJECTS_RECYCLE_BIN_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            <ProjectsRecycleBinEvidenceOrientationStrip />
             <ProjectsRecycleDraftsPackageVocabularyRail currentSurfaceId="projects-recycle" />
-          ) : null}
-          {!buyerPolishedShell ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="projects-recycle-bin-restore-residue-honesty"
             >
               {PROJECTS_RECYCLE_DRAFTS_PACKAGE_RESTORE_RESIDUE_HONESTY}
             </p>
-          ) : null}
-          {!buyerPolishedShell && !isAuthorityLoading && !canRestoreExecute ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this
-              signed-in principal.
-            </p>
-          ) : null}
+            {!isAuthorityLoading && !canRestoreExecute ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                Restore requires Execute authority — you can browse deleted projects below, but restoring is unavailable for this
+                signed-in principal.
+              </p>
+            ) : null}
 
-      {error !== null ? (
-        <div
-          className={cn(DESIGN_TOKENS.callout.blocked, "space-y-2 px-3 py-3")}
-          role="alert"
-          data-testid="projects-recycle-bin-error"
-        >
-          <StatusTag kind="blocked" label={PROJECTS_RECYCLE_BIN_LOAD_ERROR_STATUS_LABEL} />
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
-        </div>
-      ) : null}
+            {error !== null ? (
+              <div
+                className={cn(DESIGN_TOKENS.callout.blocked, "space-y-2 px-3 py-3")}
+                role="alert"
+                data-testid="projects-recycle-bin-error"
+              >
+                <StatusTag kind="blocked" label={PROJECTS_RECYCLE_BIN_LOAD_ERROR_STATUS_LABEL} />
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{error}</p>
+              </div>
+            ) : null}
 
-      {restoreFeedback !== null ? (
-        <div
-          className={cn(recycleBinFeedbackCalloutClass(restoreFeedback.kind), "space-y-2 px-3 py-3")}
-          role={restoreFeedback.kind === "success" ? "status" : "alert"}
-          data-testid="projects-recycle-bin-restore-message"
-          data-feedback-kind={restoreFeedback.kind}
-        >
-          <StatusTag
-            kind={recycleBinFeedbackStatusKind(restoreFeedback.kind)}
-            label={restoreFeedbackStatusLabel(restoreFeedback.kind)}
-          />
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{restoreFeedback.message}</p>
-        </div>
-      ) : null}
+            {restoreFeedback !== null ? (
+              <div
+                className={cn(recycleBinFeedbackCalloutClass(restoreFeedback.kind), "space-y-2 px-3 py-3")}
+                role={restoreFeedback.kind === "success" ? "status" : "alert"}
+                data-testid="projects-recycle-bin-restore-message"
+                data-feedback-kind={restoreFeedback.kind}
+              >
+                <StatusTag
+                  kind={recycleBinFeedbackStatusKind(restoreFeedback.kind)}
+                  label={restoreFeedbackStatusLabel(restoreFeedback.kind)}
+                />
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{restoreFeedback.message}</p>
+              </div>
+            ) : null}
 
-      {loading && rows.length === 0 ? <ProjectsRecycleBinLoadingNotice /> : null}
+            {loading && rows.length === 0 ? <ProjectsRecycleBinLoadingNotice /> : null}
 
-      {!loading && rows.length === 0 && error === null ? (
-        <ProjectsRecycleBinEmptyState retentionDays={retentionDays} />
-      ) : null}
+            {!loading && rows.length === 0 && error === null ? (
+              <ProjectsRecycleBinEmptyState retentionDays={retentionDays} />
+            ) : null}
 
-          {continueLastProject !== null && !buyerPolishedShell ? (
-            <ProjectsRecycleBinContinueLastViewedRow target={continueLastProject} onOpen={openDeletedProject} />
-          ) : null}
+            {continueLastProject !== null ? (
+              <ProjectsRecycleBinContinueLastViewedRow target={continueLastProject} onOpen={openDeletedProject} />
+            ) : null}
 
-          {rows.map((workspace) => {
-            return (
-              <WorkspaceRecycleBinTable
-                key={workspace.workspaceId}
-                workspace={workspace}
-                canRestoreExecute={canRestoreExecute}
-                buyerPolishedShell={buyerPolishedShell}
-                restoreBusyRow={restoreBusyRow}
-                onRequestRestore={(workspaceId, workspaceName, projectId, projectName) => {
-                  setPendingRestore({
-                    workspaceId,
-                    workspaceName,
-                    projectId,
-                    projectName,
-                  });
-                }}
-              />
-            );
-          })}
+            {rows.map((workspace) => {
+              return (
+                <WorkspaceRecycleBinTable
+                  key={workspace.workspaceId}
+                  workspace={workspace}
+                  canRestoreExecute={canRestoreExecute}
+                  buyerPolishedShell={buyerPolishedShell}
+                  restoreBusyRow={restoreBusyRow}
+                  onRequestRestore={(workspaceId, workspaceName, projectId, projectName) => {
+                    setPendingRestore({
+                      workspaceId,
+                      workspaceName,
+                      projectId,
+                      projectName,
+                    });
+                  }}
+                />
+              );
+            })}
 
-          {!buyerPolishedShell ? (
             <ProjectsRecycleBinRestoreConfirmDialog
               busy={restoreBusyRow !== null}
               pending={pendingRestore}
@@ -549,19 +622,19 @@ export function ProjectsRecycleBinPage() {
                 void restoreProject(pendingRestore.workspaceId, pendingRestore.projectId);
               }}
             />
-          ) : null}
 
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="projects-recycle-bin-audit-note"
-          >
-            {PROJECTS_RECYCLE_BIN_AUDIT_TRAIL_ATTRIBUTION_NOTE}{" "}
-            <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
-              audit trail
-            </Link>
-            .
-          </p>
-        </div>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="projects-recycle-bin-audit-note"
+            >
+              {PROJECTS_RECYCLE_BIN_AUDIT_TRAIL_ATTRIBUTION_NOTE}{" "}
+              <Link href={GOVERNANCE_AUDIT_PATH} className={OPERATOR_LINK.nav}>
+                audit trail
+              </Link>
+              .
+            </p>
+          </div>
+        )}
 
         {buyerPolishedShell ? <ProjectsRecycleBinBuyerChrome /> : null}
       </div>

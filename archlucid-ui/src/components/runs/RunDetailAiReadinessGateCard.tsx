@@ -1,12 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
+import { downloadPilotFirstValueReportMarkdown } from "@/lib/api/pilots-collateral-download-api";
 import { OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { isAgentOutputPilotStrictSponsorSafe } from "@/lib/pilot-proof-readiness";
+import { showError } from "@/lib/toast";
+import Link from "next/link";
 
 /** Surfaces strict AI quality / AI readiness posture on committed review detail before sponsor send. */
 export function RunDetailAiReadinessGateCard(props: { readonly runId: string; readonly manifestId: string | null }) {
@@ -82,12 +84,20 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
         ) : null}
       </p>
       <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-        <Link
-          href={`/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`}
+        <button
+          type="button"
           className="font-medium underline underline-offset-2"
+          onClick={() => {
+            void downloadPilotFirstValueReportMarkdown(runId).catch((error: unknown) => {
+              showError(
+                "First-value report",
+                error instanceof Error ? error.message : "Download failed.",
+              );
+            });
+          }}
         >
           First-value report
-        </Link>
+        </button>
         {" · "}
         <Link
           href={resolveInAppDocHref("docs/library/AGENT_OUTPUT_EVALUATION.md")}

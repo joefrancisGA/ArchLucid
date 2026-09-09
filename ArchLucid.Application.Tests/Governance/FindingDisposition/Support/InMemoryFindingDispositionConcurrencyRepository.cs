@@ -93,28 +93,59 @@ internal sealed class InMemoryFindingDispositionConcurrencyRepository : IFinding
 
     public async Task<FindingDispositionBulkRecordResult> RecordBulkAsync(
         IReadOnlyList<FindingReviewEventRecord> reviewEvents,
+        IReadOnlyList<byte[]?> expectedCurrentRowVersions,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(reviewEvents);
+        ArgumentNullException.ThrowIfNull(expectedCurrentRowVersions);
 
         if (reviewEvents.Count == 0)
             throw new ArgumentException("At least one review event is required.", nameof(reviewEvents));
+
+        if (expectedCurrentRowVersions.Count != reviewEvents.Count)
+        {
+            throw new ArgumentException(
+                "Expected row version count must match review event count.",
+                nameof(expectedCurrentRowVersions));
+        }
 
         List<(string Key, PointerRow Pointer, byte[] RowVersion)> staged = new(reviewEvents.Count);
 
         lock (_gate)
         {
-            foreach (FindingReviewEventRecord reviewEvent in reviewEvents)
+            for (int index = 0; index < reviewEvents.Count; index++)
             {
+                FindingReviewEventRecord reviewEvent = reviewEvents[index];
+                byte[]? expectedCurrentRowVersion = expectedCurrentRowVersions[index];
                 string key = BuildKey(reviewEvent);
                 _pointers.TryGetValue(key, out PointerRow? current);
 
                 if (current is not null)
                 {
+                    if (expectedCurrentRowVersion is null
+                        || expectedCurrentRowVersion.Length == 0
+                        || !current.RowVersion.AsSpan().SequenceEqual(expectedCurrentRowVersion))
+                    {
+                        return new FindingDispositionBulkRecordResult
+                        {
+                            Status = FindingDispositionRecordStatus.Conflict,
+                            Conflict = BuildConflict(reviewEvent.FindingId, current),
+                        };
+                    }
+                }
+                else if (expectedCurrentRowVersion is not null && expectedCurrentRowVersion.Length > 0)
+                {
                     return new FindingDispositionBulkRecordResult
                     {
                         Status = FindingDispositionRecordStatus.Conflict,
-                        Conflict = BuildConflict(reviewEvent.FindingId, current),
+                        Conflict = new FindingDispositionConflictDetail
+                        {
+                            FindingId = reviewEvent.FindingId,
+                            Disposition = reviewEvent.Disposition ?? FindingDispositionKind.Accepted,
+                            ReviewerUserId = string.Empty,
+                            OccurredAtUtc = DateTimeOffset.MinValue,
+                            CurrentDispositionRowVersionBase64 = string.Empty,
+                        },
                     };
                 }
 

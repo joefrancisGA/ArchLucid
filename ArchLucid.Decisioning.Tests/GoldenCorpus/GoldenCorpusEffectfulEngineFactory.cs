@@ -76,6 +76,7 @@ internal static class GoldenCorpusEffectfulEngineFactory
                 scopeContextProvider,
                 reviewTrailRepository,
                 riskExceptionService,
+                new ArchLucid.Persistence.InfraEvidence.NoOpOperationalSecurityExceptionRepository(),
                 findingInspectReadRepository,
                 timeProvider,
                 disabledOpenCommitment),

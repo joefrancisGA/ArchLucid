@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+import { HelpAiUsageSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpAiUsageSourcesOrientationStrip";
 import { AiUsageHelpClaimDisciplineStrip } from "@/components/help/AiUsageHelpClaimDisciplineStrip";
 import { AiUsageHelpEvidenceOrientationStrip } from "@/components/help/AiUsageHelpEvidenceOrientationStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -28,9 +29,10 @@ import {
   AI_USAGE_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/ai-usage-help-evidence-copy";
 import {
+  AI_USAGE_HELP_BUYER_OVERVIEW,
   AI_USAGE_HELP_FIRST_VIEWPORT_TEST_ID,
   AI_USAGE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  AI_USAGE_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  AI_USAGE_HELP_PAGE_LEAD,
   AI_USAGE_HELP_PAGE_SUBTITLE_BUYER,
   AI_USAGE_HELP_PRIMARY_CONTENT_ID,
   AI_USAGE_HELP_SKIP_LINK_LABEL,
@@ -153,17 +155,30 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="help-ai-usage-buyer-intro">
+              <p className={readingBodyClass} data-testid="help-ai-usage-intro">
+                {AI_USAGE_HELP_PAGE_LEAD}
+              </p>
+            </div>
             <AiUsageStartHerePanel />
           </div>
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <p className={readingBodyClass} data-testid="help-ai-usage-overview">
+            {AI_USAGE_HELP_BUYER_OVERVIEW}
+          </p>
         ) : null}
 
         <div className={contentGridClass}>
           <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? <AiUsageHelpEvidenceOrientationStrip /> : null}
 
-            <p className={readingBodyClass} data-testid="help-ai-usage-overview">
-              {AI_USAGE_HELP_OVERVIEW}
-            </p>
+            {!buyerPolishedShell ? (
+              <p className={readingBodyClass} data-testid="help-ai-usage-overview">
+                {AI_USAGE_HELP_OVERVIEW}
+              </p>
+            ) : null}
 
             {!buyerPolishedShell ? <AiUsageStartHerePanel /> : null}
 
@@ -208,11 +223,7 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
           {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid={AI_USAGE_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-            <AiUsageHelpEvidenceOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpAiUsageSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

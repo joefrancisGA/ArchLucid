@@ -35,3 +35,16 @@ export function formatHeldCheckUnblockClause(engineCount: number, inputCode: Hel
     ? `Uploading ${label} would unblock 1 engine.`
     : `Uploading ${label} would unblock ${engineCount} engines.`;
 }
+
+export function formatProseAssumptionHeldCheckAskClause(ask: {
+  readonly inputCode: HeldCheckInputCode;
+  readonly statement: string;
+  readonly evidenceRef: string;
+}): string {
+  const label = formatHeldCheckInputCodeLabel(ask.inputCode);
+  const reason = ask.evidenceRef.trim().length > 0
+    ? `${ask.statement} (${ask.evidenceRef})`
+    : ask.statement;
+
+  return `Upload ${label} to verify: '${reason}'.`;
+}

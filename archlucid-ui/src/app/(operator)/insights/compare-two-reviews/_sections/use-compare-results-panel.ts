@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { createAndDownloadComparisonPdf, getArchitecturePackageDocxUrl } from "@/lib/api";
+import { createAndDownloadComparisonPdf } from "@/lib/api";
+import { downloadArchitecturePackageDocx } from "@/lib/api/downloads-blob-trigger-architecture-package-docx";
 import { buildCompareVerdictSummary } from "@/lib/build-compare-verdict-summary";
 import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
 import {
@@ -10,6 +11,8 @@ import {
 } from "@/lib/review-quality/compare-quality-delta";
 import { useCompareGovernanceDiff } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
 import { useCompareFindingCorrelation } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFindingCorrelation";
+import { useComparisonSearchQuery } from "@/hooks/use-comparison-search-query";
+import { useComparisonDriftDownload } from "@/hooks/use-comparison-drift-download";
 import type { CompareResultsPanelProps } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanel";
 
 export function useCompareResultsPanel(props: CompareResultsPanelProps) {
@@ -34,6 +37,23 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
 
   const [pdfDownloading, setPdfDownloading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [docxDownloading, setDocxDownloading] = useState(false);
+  const [docxError, setDocxError] = useState<string | null>(null);
+
+  const comparisonSearchQuery = useComparisonSearchQuery({
+    query: {
+      leftRunId: leftTrim,
+      rightRunId: rightTrim,
+      comparisonType: "end-to-end",
+    },
+    enabled: leftTrim.length > 0 && rightTrim.length > 0,
+  });
+
+  const comparisonRecordId = comparisonSearchQuery.data?.records?.[0]?.comparisonRecordId ?? "";
+  const comparisonDriftDownload = useComparisonDriftDownload({ comparisonRecordId });
+  const comparisonSearchBlockedReason = comparisonSearchQuery.blockedReason;
+  const comparisonDriftBlockedReason = comparisonDriftDownload.blockedReason;
+
 
   const handleDownloadPdf = async () => {
     if (!lastComparedPair) return;
@@ -47,6 +67,23 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
       setPdfDownloading(false);
     }
   };
+
+  const handleDownloadDocx = async () => {
+    if (golden === null) return;
+    setDocxDownloading(true);
+    setDocxError(null);
+    try {
+      await downloadArchitecturePackageDocx(golden.baseRunId, golden.targetRunId, {
+        includeComparisonExplanation: true,
+      });
+    } catch (e: unknown) {
+      setDocxError(e instanceof Error ? e.message : "Failed to download DOCX package.");
+    } finally {
+      setDocxDownloading(false);
+    }
+  };
+
+  const showDocxDownload = golden !== null;
 
   const citeBaselineRunId = lastComparedPair?.left ?? leftTrim;
   const citeUpdatedRunId = lastComparedPair?.right ?? rightTrim;
@@ -96,13 +133,6 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     });
   }, [loading, verdictSummary, lastComparedPair]);
 
-  const docxHref =
-    golden !== null
-      ? getArchitecturePackageDocxUrl(golden.baseRunId, golden.targetRunId, {
-          includeComparisonExplanation: true,
-        })
-      : null;
-
   return {
     ...props,
     summarizeCue,
@@ -110,7 +140,11 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     liveAnnouncement,
     pdfDownloading,
     pdfError,
+    docxDownloading,
+    docxError,
     handleDownloadPdf,
+    handleDownloadDocx,
+    showDocxDownload,
     citeBaselineRunId,
     citeUpdatedRunId,
     showPairCiteStrip,
@@ -125,7 +159,9 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     showTrustBanner,
     showVerdictSummary,
     verdictSummary,
-    docxHref,
+    comparisonSearchBlockedReason,
+    comparisonDriftBlockedReason,
+    comparisonDriftDownload,
   };
 }
 

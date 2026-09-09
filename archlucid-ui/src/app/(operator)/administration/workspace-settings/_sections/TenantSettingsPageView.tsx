@@ -42,6 +42,7 @@ import {
   tenantSettingsEffectiveScopeSummary,
 } from "@/lib/tenant-settings-page-copy";
 import {
+  TENANT_SETTINGS_SETTINGS_BUYER_OVERVIEW,
   TENANT_SETTINGS_SETTINGS_BUYER_START_HERE_HELPER,
   TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   TENANT_SETTINGS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
@@ -50,6 +51,7 @@ import {
   TENANT_SETTINGS_SETTINGS_SKIP_LINK_LABEL,
   TENANT_SETTINGS_SETTINGS_SKIP_TARGET_ID,
   TENANT_SETTINGS_SETTINGS_START_HERE_CARD_TITLE,
+  TENANT_SETTINGS_SETTINGS_WORKSPACE_TEST_ID,
   tenantSettingsPageSubtitle,
 } from "@/lib/tenant-settings-settings-page-copy";
 import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evidence-copy";
@@ -234,85 +236,123 @@ export function TenantSettingsPageView(props: Props) {
           claimDiscipline={buyerPolishedShell ? TENANT_SETTINGS_CLAIM_DISCIPLINE : undefined}
           claimDisciplineTestId={TENANT_SETTINGS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           metadata={
-            <>
-              <span
-                className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="tenant-settings-active-scope-summary"
-              >
-                {activeScopeSummary}
-              </span>
-              {callerAuthorityLine !== null ? (
+            buyerPolishedShell ? undefined : (
+              <>
                 <span
-                  className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="tenant-settings-caller-authority"
+                  className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="tenant-settings-active-scope-summary"
                 >
-                  {callerAuthorityLine}
+                  {activeScopeSummary}
                 </span>
-              ) : null}
-            </>
+                {callerAuthorityLine !== null ? (
+                  <span
+                    className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="tenant-settings-caller-authority"
+                  >
+                    {callerAuthorityLine}
+                  </span>
+                ) : null}
+              </>
+            )
           }
         />
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_9.5rem] lg:items-start">
-          <div
-            id={TENANT_SETTINGS_SETTINGS_SKIP_TARGET_ID}
-            data-testid={TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID}
-            className={cn(
-              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-              OPERATOR_LAYOUT.sectionStack,
-            )}
-          >
-            {buyerPolishedShell ? (
-              <div className="space-y-4" data-testid="tenant-settings-buyer-first-viewport-intro">
-                <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid="tenant-settings-intro"
-                >
-                  {TENANT_SETTINGS_SETTINGS_PAGE_LEAD}
-                </p>
-                <section
-                  className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-                  data-testid="tenant-settings-start-here-panel"
-                  aria-labelledby="tenant-settings-start-here-heading"
-                >
-                  <h2
-                    id="tenant-settings-start-here-heading"
-                    className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-                  >
-                    {TENANT_SETTINGS_SETTINGS_START_HERE_CARD_TITLE}
-                  </h2>
+        <div className={buyerPolishedShell ? cn("space-y-6", OPERATOR_LAYOUT.sectionStack) : "grid gap-6 lg:grid-cols-[minmax(0,1fr)_9.5rem] lg:items-start"}>
+          {buyerPolishedShell ? (
+            <>
+              <div
+                id={TENANT_SETTINGS_SETTINGS_SKIP_TARGET_ID}
+                data-testid={TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+                className={cn(
+                  "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                  OPERATOR_LAYOUT.sectionStack,
+                )}
+              >
+                <div className="space-y-4" data-testid="tenant-settings-buyer-first-viewport-intro">
                   <p
-                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="tenant-settings-buyer-start-here-helper"
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                    data-testid="tenant-settings-intro"
                   >
-                    {TENANT_SETTINGS_SETTINGS_BUYER_START_HERE_HELPER}
+                    {TENANT_SETTINGS_SETTINGS_PAGE_LEAD}
                   </p>
-                </section>
+                  <section
+                    className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                    data-testid="tenant-settings-start-here-panel"
+                    aria-labelledby="tenant-settings-start-here-heading"
+                  >
+                    <h2
+                      id="tenant-settings-start-here-heading"
+                      className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                    >
+                      {TENANT_SETTINGS_SETTINGS_START_HERE_CARD_TITLE}
+                    </h2>
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="tenant-settings-buyer-start-here-helper"
+                    >
+                      {TENANT_SETTINGS_SETTINGS_BUYER_START_HERE_HELPER}
+                    </p>
+                  </section>
+                </div>
               </div>
-            ) : null}
 
-            {!buyerPolishedShell ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="tenant-settings-overview"
+              >
+                {TENANT_SETTINGS_SETTINGS_BUYER_OVERVIEW}
+              </p>
+
+              <section
+                className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)}
+                data-testid={TENANT_SETTINGS_SETTINGS_WORKSPACE_TEST_ID}
+              >
+                <TenantSettingsGeneralSection
+                  tenantDisplayName={tenantDisplayName}
+                  scope={scope}
+                  model={m}
+                  buyerPolishedShell={buyerPolishedShell}
+                />
+
+                <TenantSettingsBusinessSection
+                  canEdit={canEditTenantSettings}
+                  tenantDisplayName={tenantDisplayName}
+                  buyerPolishedShell={buyerPolishedShell}
+                  advancedQualityOpen={advancedQualityOpen}
+                  onAdvancedQualityToggle={setAdvancedQualityOpen}
+                />
+              </section>
+            </>
+          ) : (
+            <div
+              id={TENANT_SETTINGS_SETTINGS_SKIP_TARGET_ID}
+              data-testid={TENANT_SETTINGS_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+            >
               <WorkspaceScopeTenantSettingsVocabularyRail
                 currentSurfaceId="tenant-settings"
                 currentLabel={TENANT_SETTINGS_VOCABULARY_CURRENT_LABEL}
               />
-            ) : null}
 
-            <TenantSettingsGeneralSection
-              tenantDisplayName={tenantDisplayName}
-              scope={scope}
-              model={m}
-              buyerPolishedShell={buyerPolishedShell}
-            />
+              <TenantSettingsGeneralSection
+                tenantDisplayName={tenantDisplayName}
+                scope={scope}
+                model={m}
+                buyerPolishedShell={buyerPolishedShell}
+              />
 
-            <TenantSettingsBusinessSection
-              canEdit={canEditTenantSettings}
-              tenantDisplayName={tenantDisplayName}
-              buyerPolishedShell={buyerPolishedShell}
-              advancedQualityOpen={advancedQualityOpen}
-              onAdvancedQualityToggle={setAdvancedQualityOpen}
-            />
-          </div>
+              <TenantSettingsBusinessSection
+                canEdit={canEditTenantSettings}
+                tenantDisplayName={tenantDisplayName}
+                buyerPolishedShell={buyerPolishedShell}
+                advancedQualityOpen={advancedQualityOpen}
+                onAdvancedQualityToggle={setAdvancedQualityOpen}
+              />
+            </div>
+          )}
 
           {!buyerPolishedShell ? (
             <aside className="hidden lg:block">

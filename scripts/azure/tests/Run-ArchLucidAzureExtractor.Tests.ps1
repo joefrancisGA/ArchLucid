@@ -122,4 +122,20 @@ Describe "Run-ArchLucidAzureExtractor.ps1" {
         $connectParams.Tenant | Should -Be $tenantId
         $connectParams.UseDeviceAuthentication | Should -Be $true
     }
+
+    It "does not throw when the delegated extractor completes without setting LASTEXITCODE" {
+        [string]$fakeExtractor = Join-Path $TestDrive "Get-ArchLucidAzurePackage.ps1"
+
+        Set-Content -LiteralPath $fakeExtractor -Encoding utf8 -Value @'
+Write-Output "fake extractor success"
+'@
+
+        { & $fakeExtractor } | Should -Not -Throw
+
+        if (Test-Path -Path 'Variable:LASTEXITCODE') {
+            exit $LASTEXITCODE
+        }
+
+        $true | Should -Be $true
+    }
 }

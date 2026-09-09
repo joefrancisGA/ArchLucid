@@ -11,7 +11,10 @@ import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDe
 import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
-import type { HeldCheckLedgerRollupEntry } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
+import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
+import type { PixelDiagramNotVerifiableSource } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 
@@ -31,7 +34,13 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly withheldFindingCount?: number;
   readonly catalogAdvisoryEngineFailureCount?: number;
   readonly judgeSkippedByCap?: number | null;
+  readonly judgeConfiguredCap?: number | null;
+  readonly judgeEffectiveCap?: number | null;
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
+  readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
+  readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
+  readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
+  readonly pixelDiagramNotVerifiableSources?: readonly PixelDiagramNotVerifiableSource[];
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
   readonly preCommitGateEnabled?: boolean | null;
@@ -49,6 +58,8 @@ export function RunDetailReviewPackageStampViewport(
     actorNodeCount,
     analysisStagesComplete: props.analysisStagesComplete === true,
     judgeSkippedByCap: props.judgeSkippedByCap ?? null,
+    judgeConfiguredCap: props.judgeConfiguredCap ?? null,
+    judgeEffectiveCap: props.judgeEffectiveCap ?? null,
   };
 
   if (props.hasGoldenManifest) {
@@ -93,7 +104,13 @@ export function RunDetailReviewPackageStampViewport(
           actorNodeCount={measurementFloorOptions.actorNodeCount}
           analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
           judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
+          judgeConfiguredCap={measurementFloorOptions.judgeConfiguredCap}
+          judgeEffectiveCap={measurementFloorOptions.judgeEffectiveCap}
           heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+          heldCheckSecondPass={props.heldCheckSecondPass}
+          proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
+          proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
+          pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
           suppressOnTerminalFailure={props.suppressMeasurementDenominator}
         />
         <RunDetailReviewPackageDecisionReceiptStrip
@@ -148,7 +165,13 @@ export function RunDetailReviewPackageStampViewport(
         actorNodeCount={measurementFloorOptions.actorNodeCount}
         analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
         judgeSkippedByCap={measurementFloorOptions.judgeSkippedByCap}
+        judgeConfiguredCap={measurementFloorOptions.judgeConfiguredCap}
+        judgeEffectiveCap={measurementFloorOptions.judgeEffectiveCap}
         heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+        heldCheckSecondPass={props.heldCheckSecondPass}
+        proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
+        proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
+        pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
         suppressOnTerminalFailure={props.suppressMeasurementDenominator}
       />
       <RunDetailOverviewTransparencyTrail

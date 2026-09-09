@@ -3,8 +3,14 @@ import { Suspense } from "react";
 import { RunDetailPresenterElicitationBridge } from "@/components/reviews/RunDetailPresenterElicitationBridge";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
-import { readHeldCheckLedgerFromFindingsSnapshot } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
-import { readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
+import {
+  readHeldCheckLedgerFromFindingsSnapshot,
+  readHeldCheckSecondPassFromFindingsSnapshot,
+} from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import { readJudgeCapReductionFromFindingsSnapshot, readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
+import { readProseAssumptionRegisterFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
+import { readProseAssumptionHeldCheckAsksFromFindingsSnapshot } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
+import { readPixelDiagramNotVerifiableSourcesFromContextSnapshot } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 import {
   RunDetailExplanationSkeleton,
   RunDetailTabbedSectionNavDeferred,
@@ -23,6 +29,7 @@ type RunDetailTabbedWorkspaceShellProps = {
 /** Tab chrome and deferred chunk wiring for the tabbed run-detail workspace. */
 export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShellProps): React.JSX.Element {
   const { model, presentation, resolved } = props;
+  const judgeCapReduction = readJudgeCapReductionFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot);
   const {
     blockingApprovalCount,
     commitBlockedReason,
@@ -84,7 +91,13 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       realModeFellBackToSimulator={model.resolvedDetail.run.realModeFellBackToSimulator === true}
       enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
       judgeSkippedByCap={readJudgeSkippedByCapFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      judgeConfiguredCap={judgeCapReduction?.configuredCap ?? null}
+      judgeEffectiveCap={judgeCapReduction?.effectiveCap ?? null}
       heldCheckLedgerEntries={readHeldCheckLedgerFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      heldCheckSecondPass={readHeldCheckSecondPassFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      proseAssumptionRegisterEntries={readProseAssumptionRegisterFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      proseAssumptionHeldCheckAsks={readProseAssumptionHeldCheckAsksFromFindingsSnapshot(model.resolvedDetail.findingsSnapshot)}
+      pixelDiagramNotVerifiableSources={readPixelDiagramNotVerifiableSourcesFromContextSnapshot(model.resolvedDetail.contextSnapshot)}
       withheldFindingCount={withheldFindings.length}
       catalogAdvisoryEngineFailureCount={catalogAdvisoryEngineFailureCount}
     />

@@ -6,6 +6,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { buildPilotValueReportQuery, getTenantPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { downloadBoardPackPdf, downloadValueReportDocx } from "@/lib/api";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
+import {
+  parseFilenameFromContentDisposition,
+  triggerBrowserBlobDownload,
+} from "@/lib/api/downloads-blob-trigger-browser";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatPilotOutcomesReportingPeriod } from "@/lib/pilot-outcomes-report-diagnostics";
 import {
@@ -187,26 +195,28 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
     async (fromIso: string, toIso: string, tenantId: string | undefined) => {
       const q = buildPilotValueReportQuery(fromIso, toIso);
 
-      const res = await fetch(
-        `/api/proxy/v1/tenant/pilot-value-report?${q}`,
-        mergeRegistrationScopeForProxy({
-          headers: { Accept: "text/markdown" },
-        }),
-      );
+      const scoped = mergeRegistrationScopeForProxy({
+        headers: { Accept: "text/markdown" },
+      });
+      const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(new Headers(scoped.headers));
+      const res = await fetch(`/api/proxy/v1/tenant/pilot-value-report?${q}`, {
+        ...scoped,
+        headers: correlatedHeaders,
+      });
 
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+        const errText = await res.text();
+        const failure = toApiLoadFailure(buildApiRequestErrorFromParts(res, errText, correlationId));
+        throw new Error(formatExportSealedManifestAwareApiError(failure));
       }
 
       const text = await res.text();
       const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const fileName =
+        parseFilenameFromContentDisposition(res.headers.get("Content-Disposition")) ??
+        `archlucid-sponsor-report-${tenantId ?? "tenant"}.md`;
 
-      a.href = url;
-      a.download = `archlucid-sponsor-report-${tenantId ?? "tenant"}.md`;
-      a.click();
-      URL.revokeObjectURL(url);
+      await triggerBrowserBlobDownload(blob, fileName);
     },
     [],
   );
@@ -298,15 +308,19 @@ export function usePilotValueReportPilotPage(loaded: PilotValueReportPageServerL
       const toIso = new Date(toUtc).toISOString();
       const q = buildPilotValueReportQuery(fromIso, toIso);
 
-      const res = await fetch(
-        `/api/proxy/v1/tenant/pilot-value-report?${q}`,
-        mergeRegistrationScopeForProxy({
-          headers: { Accept: "text/markdown" },
-        }),
-      );
+      const scoped = mergeRegistrationScopeForProxy({
+        headers: { Accept: "text/markdown" },
+      });
+      const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(new Headers(scoped.headers));
+      const res = await fetch(`/api/proxy/v1/tenant/pilot-value-report?${q}`, {
+        ...scoped,
+        headers: correlatedHeaders,
+      });
 
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+        const errText = await res.text();
+        const failure = toApiLoadFailure(buildApiRequestErrorFromParts(res, errText, correlationId));
+        throw new Error(formatExportSealedManifestAwareApiError(failure));
       }
 
       const text = await res.text();

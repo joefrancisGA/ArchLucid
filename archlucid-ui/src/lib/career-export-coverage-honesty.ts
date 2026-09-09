@@ -4,6 +4,7 @@ import {
   type InsightDensityMeasurementFloorOptions,
   type InsightDensityMeasurementFloorPresentation,
 } from "@/lib/quality/insight-density-measurement-floor";
+import { readPixelDiagramNotVerifiableSourcesFromContextSnapshot } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
 import { readJudgeSkippedByCapFromFindingsSnapshot } from "@/lib/findings/read-judge-skipped-by-cap";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
@@ -36,6 +37,7 @@ export type CareerExportCoverageHonestyInput = SponsorReviewCoverageHonestyInput
   readonly aggregateQualityGateOutcome?: number | null;
   readonly judgeSkippedByCap?: number | null;
   readonly findingsSnapshot?: unknown;
+  readonly contextSnapshot?: unknown;
   readonly exportFindings?: readonly QuickDecisionFinding[];
 };
 
@@ -89,14 +91,23 @@ export function formatCareerExportMeasurementFloorMarkdown(
   options: InsightDensityMeasurementFloorOptions = {},
 ): string {
   const presentation = formatInsightDensityMeasurementFloorPresentation(enginesSucceeded, options);
+  const lines = [`## Measurement floor`, ``, presentation.line];
 
-  return `## Measurement floor\n\n${presentation.line}\n`;
+  if (presentation.pixelDiagramNotVerifiableLabels.length > 0) {
+    lines.push("");
+
+    for (const label of presentation.pixelDiagramNotVerifiableLabels) {
+      lines.push(`- ${label}`);
+    }
+  }
+
+  return `${lines.join("\n")}\n`;
 }
 
 export function resolveCareerExportMeasurementFloorOptions(
   input: Pick<
     CareerExportCoverageHonestyInput,
-    "graphSnapshot" | "progressSummary" | "judgeSkippedByCap" | "findingsSnapshot"
+    "graphSnapshot" | "progressSummary" | "judgeSkippedByCap" | "findingsSnapshot" | "contextSnapshot"
   >,
 ): InsightDensityMeasurementFloorOptions {
   return {
@@ -104,6 +115,9 @@ export function resolveCareerExportMeasurementFloorOptions(
     analysisStagesComplete: analysisStagesCompleteOnSummary(input.progressSummary ?? null),
     judgeSkippedByCap:
       input.judgeSkippedByCap ?? readJudgeSkippedByCapFromFindingsSnapshot(input.findingsSnapshot),
+    pixelDiagramNotVerifiableSources: readPixelDiagramNotVerifiableSourcesFromContextSnapshot(
+      input.contextSnapshot,
+    ),
   };
 }
 

@@ -1,6 +1,9 @@
 "use client";
 
 import { getAuthorityRunManifest } from "@/lib/api/architecture-runs";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { compareGovernanceDiffBlockedReason } from "@/lib/compare/compare-governance-diff-blocked-reason";
 import { getEffectivePolicyContent, getEffectivePolicyPacks } from "@/lib/api/policy-governance-api";
 import {
   buildCompareEffectiveGovernanceSnapshot,
@@ -46,15 +49,18 @@ async function fetchCompareGovernanceDiff(
   const failures: string[] = [];
   let currentEffective = null;
 
+  const recordManifestFailure = (error: unknown): null => {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = compareGovernanceDiffBlockedReason(failure);
+
+    failures.push(blockedReason ?? formatExportSealedManifestAwareApiError(error));
+
+    return null;
+  };
+
   const [baselineWire, targetWire, effectivePacks, effectiveContent] = await Promise.all([
-    loadManifestForCompareRun(baselineRunId).catch(() => {
-      failures.push("baseline manifest");
-      return null;
-    }),
-    loadManifestForCompareRun(targetRunId).catch(() => {
-      failures.push("updated manifest");
-      return null;
-    }),
+    loadManifestForCompareRun(baselineRunId).catch(recordManifestFailure),
+    loadManifestForCompareRun(targetRunId).catch(recordManifestFailure),
     getEffectivePolicyPacks().catch(() => {
       failures.push("current effective policy packs");
       return null;

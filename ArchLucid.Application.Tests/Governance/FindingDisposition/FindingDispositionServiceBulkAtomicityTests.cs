@@ -64,20 +64,98 @@ public sealed class FindingDispositionServiceBulkAtomicityTests
         (await sut.ListHistoryAsync(Scope, "finding-fresh", CancellationToken.None)).Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task RecordBulkAsync_null_expected_after_pointer_exists_throws_conflict()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        await sut.RecordAsync(
+            CreateRequest(
+                "finding-existing",
+                FindingDispositionKind.Accepted,
+                "existing accepted disposition",
+                tradeOffAcknowledgment: "accepting existing disposition trade-off for pilot scope"),
+            Scope,
+            "alice",
+            CancellationToken.None);
+
+        Func<Task> act = () => sut.RecordBulkAsync(
+            [
+                CreateRequest(
+                    "finding-existing",
+                    FindingDispositionKind.Remediated,
+                    "bulk missing expected version"),
+            ],
+            Scope,
+            "bob",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArchLucid.Application.Governance.FindingDisposition.FindingDispositionConflictException>();
+        trailRepository.EventCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task RecordBulkAsync_matching_expected_version_records_and_stale_version_conflicts()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        FindingDispositionEventDto first = await sut.RecordAsync(
+            CreateRequest(
+                "finding-existing",
+                FindingDispositionKind.Accepted,
+                "existing accepted disposition",
+                tradeOffAcknowledgment: "accepting existing disposition trade-off for pilot scope"),
+            Scope,
+            "alice",
+            CancellationToken.None);
+
+        IReadOnlyList<FindingDispositionEventDto> recorded = await sut.RecordBulkAsync(
+            [
+                CreateRequest(
+                    "finding-existing",
+                    FindingDispositionKind.Remediated,
+                    "bulk matching version",
+                    expectedRowVersionBase64: first.CurrentDispositionRowVersionBase64),
+            ],
+            Scope,
+            "carol",
+            CancellationToken.None);
+
+        recorded.Should().HaveCount(1);
+        recorded[0].Disposition.Should().Be(FindingDispositionKind.Remediated);
+        trailRepository.EventCount.Should().Be(2);
+
+        Func<Task> stale = () => sut.RecordBulkAsync(
+            [
+                CreateRequest(
+                    "finding-existing",
+                    FindingDispositionKind.Deferred,
+                    "bulk stale version",
+                    expectedRowVersionBase64: first.CurrentDispositionRowVersionBase64,
+                    revisitDueUtc: DateTimeOffset.UtcNow.AddDays(7)),
+            ],
+            Scope,
+            "dave",
+            CancellationToken.None);
+
+        await stale.Should().ThrowAsync<ArchLucid.Application.Governance.FindingDisposition.FindingDispositionConflictException>();
+        trailRepository.EventCount.Should().Be(2);
+    }
+
     private static FindingDispositionService CreateService(ConcurrentFindingReviewTrailRepository trailRepository)
     {
-        IFindingDispositionConcurrencyRepository concurrencyRepository =
-            new InMemoryFindingDispositionConcurrencyRepository(trailRepository);
-        FindingReviewTrailAppendService appendService = new(trailRepository, Mock.Of<IAuditService>());
-
-        return new FindingDispositionService(concurrencyRepository, trailRepository, appendService);
+        return FindingDispositionServiceTestFactory.Create(trailRepository);
     }
 
     private static RecordFindingDispositionRequest CreateRequest(
         string findingId,
         FindingDispositionKind disposition,
         string rationale,
-        string? tradeOffAcknowledgment = null)
+        string? tradeOffAcknowledgment = null,
+        string? expectedRowVersionBase64 = null,
+        DateTimeOffset? revisitDueUtc = null)
     {
         return new RecordFindingDispositionRequest
         {
@@ -85,6 +163,8 @@ public sealed class FindingDispositionServiceBulkAtomicityTests
             Disposition = disposition,
             Rationale = rationale,
             TradeOffAcknowledgment = tradeOffAcknowledgment,
+            ExpectedCurrentDispositionRowVersionBase64 = expectedRowVersionBase64,
+            RevisitDueUtc = revisitDueUtc,
         };
     }
 }

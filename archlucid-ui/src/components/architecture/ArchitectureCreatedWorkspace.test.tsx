@@ -241,6 +241,7 @@ describe("ArchitectureCreatedWorkspace", () => {
     const findingsPanel = screen.getByTestId("architecture-workspace-panel-findings");
 
     expect(within(findingsPanel).queryByTestId("clarifications-findings-vocabulary")).not.toBeInTheDocument();
+    expect(within(findingsPanel).queryByTestId("architecture-findings-next-action")).not.toBeInTheDocument();
     expect(within(findingsPanel).getByTestId("architecture-findings-orientation-bottom")).toBeInTheDocument();
     expect(within(findingsPanel).getByTestId("findings-panel-slot")).toBeInTheDocument();
 
@@ -251,7 +252,7 @@ describe("ArchitectureCreatedWorkspace", () => {
     demoEnvMock.buyerPolished = true;
     demoEnvMock.evalChrome = true;
     searchParamsState.value = new URLSearchParams(
-      "fromGeneration=1&intent=create-architecture&reviewTab=decisions-remediation",
+      "fromGeneration=1&intent=create-architecture&reviewTab=policies",
     );
 
     render(
@@ -289,6 +290,7 @@ describe("ArchitectureCreatedWorkspace", () => {
 
     expect(within(governancePanel).queryByTestId("package-governance-approval-queue-vocabulary")).not.toBeInTheDocument();
     expect(within(governancePanel).getByTestId("architecture-governance-orientation-bottom")).toBeInTheDocument();
+    expect(within(governancePanel).queryByTestId("architecture-governance-claim-discipline")).not.toBeInTheDocument();
     expect(within(governancePanel).getByTestId("governance-panel-slot")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-created-compact-context-bar")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-created-compact-first-viewport")).not.toBeInTheDocument();

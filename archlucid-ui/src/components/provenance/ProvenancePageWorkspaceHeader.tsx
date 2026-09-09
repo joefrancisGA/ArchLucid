@@ -104,7 +104,7 @@ export function ProvenancePageWorkspaceHeader({
           selectedReviewId={scopedRunId}
           onSelectReview={onPickReviewForInspecting}
         />
-      ) : (
+      ) : !buyerPolishedShell ? (
         <p
           className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
           data-testid="provenance-run-scope-banner"
@@ -121,10 +121,12 @@ export function ProvenancePageWorkspaceHeader({
             All reviews
           </Link>
         </p>
-      )}
+      ) : null}
 
       <header className="space-y-2">
-        <ProvenanceWayfinding reviewPackageHref={reviewHref} hideContextualHelp={buyerPolishedShell} />
+        {!buyerPolishedShell ? (
+          <ProvenanceWayfinding reviewPackageHref={reviewHref} hideContextualHelp={buyerPolishedShell} />
+        ) : null}
         {buyerPolishedShell ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="provenance-buyer-subtitle">
             {PROVENANCE_PAGE_SUBTITLE_BUYER}
@@ -148,25 +150,27 @@ export function ProvenancePageWorkspaceHeader({
           {graph.edges.length} {PROVENANCE_SECTION_RELATIONSHIPS_LABEL.toLowerCase()},{" "}
           {graph.timeline.length} recorded events.
         </p>
-        <details
-          className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700"
-          open={reviewIdentifierOpen}
-          onToggle={(event) => {
-            setReviewIdentifierOpen((event.currentTarget as HTMLDetailsElement).open);
-          }}
-        >
-          <summary className={cn("cursor-pointer text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.micro)}>
-            Review identifier
-          </summary>
-          <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.micro)}>
-            <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">{graph.runId}</code>
-          </p>
-          {provenanceTraceId !== null && provenanceTraceId.length > 0 ? (
-            <div className="mt-2">
-              <RunTraceViewerLink traceId={provenanceTraceId} presentation="disclosure-body" />
-            </div>
-          ) : null}
-        </details>
+        {!buyerPolishedShell ? (
+          <details
+            className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-700"
+            open={reviewIdentifierOpen}
+            onToggle={(event) => {
+              setReviewIdentifierOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
+          >
+            <summary className={cn("cursor-pointer text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.micro)}>
+              Review identifier
+            </summary>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.micro)}>
+              <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">{graph.runId}</code>
+            </p>
+            {provenanceTraceId !== null && provenanceTraceId.length > 0 ? (
+              <div className="mt-2">
+                <RunTraceViewerLink traceId={provenanceTraceId} presentation="disclosure-body" />
+              </div>
+            ) : null}
+          </details>
+        ) : null}
         {buyerPolishedShell ? (
           <p
             className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}

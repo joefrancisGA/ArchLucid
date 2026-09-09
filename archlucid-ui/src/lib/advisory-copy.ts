@@ -7,7 +7,17 @@ export const ADVISORY_SCANS_PAGE_LEAD =
 export const ADVISORY_SCANS_PAGE_LEAD_BUYER =
   "Prioritized follow-up recommendations from finalized reviews.";
 
-export function advisoryScansPageLead(buyerPolishedShell: boolean): string {
+export const ADVISORY_SCHEDULES_HUB_PAGE_LEAD_BUYER =
+  "Recurring advisory scans from finalized architecture reviews." as const;
+
+export function advisoryScansPageLead(
+  buyerPolishedShell: boolean,
+  activeTab: "scans" | "schedules" = "scans",
+): string {
+  if (buyerPolishedShell && activeTab === "schedules") {
+    return ADVISORY_SCHEDULES_HUB_PAGE_LEAD_BUYER;
+  }
+
   return buyerPolishedShell ? ADVISORY_SCANS_PAGE_LEAD_BUYER : ADVISORY_SCANS_PAGE_LEAD;
 }
 
@@ -162,8 +172,14 @@ export const ADVISORY_SCANS_SCHEDULES_PAGE_HEADING = "Schedule advisory scans";
 export const ADVISORY_SCANS_SCHEDULES_BUYER_START_HERE_HELPER =
   "Review how recurring advisory scans are configured in this workspace — schedule changes require admin access on the Schedules workspace below.";
 
+export const ADVISORY_SCHEDULES_PAGE_LEAD =
+  "Configure recurring advisory scans from finalized architecture reviews." as const;
+
 export const ADVISORY_SCANS_SCHEDULES_INTRO =
   "Run advisory scans automatically after reviews are finalized.";
+
+/** Buyer-polished overview bridge on the Schedules tab (AD). */
+export const ADVISORY_SCHEDULES_BUYER_OVERVIEW = ADVISORY_SCANS_SCHEDULES_INTRO;
 
 export const ADVISORY_SCANS_SCHEDULES_ELIGIBILITY =
   "Each scheduled scan uses the latest finalized reviews for the selected project to generate follow-up recommendations.";

@@ -12,8 +12,8 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
         InsightDensityMeasurementFloorPresentation presentation =
             InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 23);
 
-        presentation.CatalogEngineCount.Should().Be(52);
-        presentation.HarnessEngineCount.Should().Be(41);
+        presentation.CatalogEngineCount.Should().Be(53);
+        presentation.HarnessEngineCount.Should().Be(42);
         presentation.MeasuredThisRunEngineCount.Should().Be(23);
     }
 
@@ -107,6 +107,21 @@ public sealed class InsightDensityMeasurementFloorPresenterTests
 
         presentation.JudgeSkippedByCap.Should().Be(2);
         presentation.Sentence.Should().Contain("skipped 2 findings by per-snapshot cap");
+    }
+
+    [Fact]
+    public void Present_includes_judge_cap_reduction_clause_when_effective_cap_is_lower()
+    {
+        InsightDensityMeasurementFloorContext context = new()
+        {
+            JudgeConfiguredCap = 40,
+            JudgeEffectiveCap = 6,
+        };
+
+        InsightDensityMeasurementFloorPresentation presentation =
+            InsightDensityMeasurementFloorPresenter.Present(measuredEnginesSucceeded: 16, context);
+
+        presentation.Sentence.Should().Contain("Premium judge cap reduced from 40 to 6 from remaining AI budget.");
     }
 
     [Fact]

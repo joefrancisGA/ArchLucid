@@ -1,6 +1,7 @@
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance.FindingDisposition;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -34,7 +35,8 @@ public sealed partial class GovernanceStickinessFacade(
     IAuditService auditService,
     IFindingInspectReadRepository findingInspectReadRepository,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : IGovernanceStickinessFacade
+    IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService) : IGovernanceStickinessFacade
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -90,6 +92,9 @@ public sealed partial class GovernanceStickinessFacade(
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     /// <inheritdoc />
     public async Task<ArchitectureRiskRegisterResponse> GetRiskRegisterAsync(
         Guid? projectId,
@@ -101,6 +106,8 @@ public sealed partial class GovernanceStickinessFacade(
 
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return new ArchitectureRiskRegisterResponse { Entries = [] };
+
+        await EnsureRegistersSealedManifestOrThrowAsync(resolvedProjectId, ct).ConfigureAwait(false);
 
         ArchitectureRiskRegisterListOptions? options = null;
 
@@ -136,6 +143,8 @@ public sealed partial class GovernanceStickinessFacade(
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return 0;
 
+        await EnsureRegistersSealedManifestOrThrowAsync(resolvedProjectId, ct).ConfigureAwait(false);
+
         IReadOnlyList<string> identities =
             ArchitectureRiskRegisterAssignedToMeIdentityResolver.Resolve(_actorContext);
 
@@ -161,6 +170,8 @@ public sealed partial class GovernanceStickinessFacade(
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        await EnsureRegistersSealedManifestOrThrowAsync(scope.ProjectId, ct).ConfigureAwait(false);
+
         return await _reviewsAwaitingActionQueryService.ListAsync(scope, ct);
     }
 
@@ -173,6 +184,8 @@ public sealed partial class GovernanceStickinessFacade(
 
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return new GovernanceDecisionsNeededSummaryResponse();
+
+        await EnsureRegistersSealedManifestOrThrowAsync(resolvedProjectId, ct).ConfigureAwait(false);
 
         return await _governanceDigestDecisionNeededComposer.BuildSummaryAsync(
             scope.TenantId,
@@ -192,6 +205,8 @@ public sealed partial class GovernanceStickinessFacade(
 
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return new GovernanceFindingsRegistersBundleResponse();
+
+        await EnsureRegistersSealedManifestOrThrowAsync(resolvedProjectId, ct).ConfigureAwait(false);
 
         Task<ArchitectureRiskRegisterResponse> riskTask = _riskRegisterService.GetRegisterAsync(
             scope.TenantId,
@@ -229,6 +244,8 @@ public sealed partial class GovernanceStickinessFacade(
 
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return new ArchitectureDecisionRegisterResponse();
+
+        await EnsureRegistersSealedManifestOrThrowAsync(resolvedProjectId, ct).ConfigureAwait(false);
 
         return await _decisionRegisterService.GetRegisterAsync(
             scope.TenantId,

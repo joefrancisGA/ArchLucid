@@ -17,3 +17,9 @@ export const REVIEW_GUIDE_HELP_PAGE_SUBTITLE_BUYER =
 
 export const REVIEW_GUIDE_HELP_START_HERE_HELPER =
   "Use the start actions below to open the review wizard or follow the first-review walkthrough, then scan the field reference sections for each wizard step." as const;
+
+export const REVIEW_GUIDE_HELP_PAGE_LEAD =
+  "Field-level guidance for each wizard step while you create or finish an architecture review." as const;
+
+export const REVIEW_GUIDE_HELP_BUYER_OVERVIEW =
+  "The field reference sections below complement the first-review walkthrough with wizard-step detail for naming, evidence, scope, and finalize." as const;

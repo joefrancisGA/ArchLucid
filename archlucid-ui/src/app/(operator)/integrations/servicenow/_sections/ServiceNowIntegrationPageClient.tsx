@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { ServiceNowIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { ServiceNowIntegrationSourcesOrientationStrip } from "./ServiceNowIntegrationSourcesOrientationStrip";
 import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -21,6 +22,10 @@ import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import {
   SERVICENOW_CONNECTION_STATUS_HEADING,
@@ -30,7 +35,9 @@ import {
   SERVICENOW_SAVE_SUCCESS,
 } from "@/lib/servicenow-integration-page-copy";
 import {
+  SERVICENOW_INTEGRATION_BUYER_OVERVIEW,
   SERVICENOW_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
+  SERVICENOW_INTEGRATION_PAGE_LEAD,
   SERVICENOW_INTEGRATION_PRIMARY_CONTENT_ID,
   SERVICENOW_INTEGRATION_SKIP_LINK_LABEL,
   SERVICENOW_INTEGRATION_SKIP_TARGET_ID,
@@ -242,6 +249,12 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   const credentialStatus = resolveServiceNowCredentialStatusLabel(settings, connection, credentialsReady);
   const connectionLabel = connection?.label?.trim();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+  const hasUnsavedSettingsEdits =
+    settings !== null
+    && !settingsLoadFailed
+    && snowAutoCmdb !== (settings.serviceNowAutoCreateCmdbCi ?? false);
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedSettingsEdits });
 
   const workspaceBody =
     isLoading && health === null && settings === null ? (
@@ -332,6 +345,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     );
 
   return (
+    <>
     <OperatorPageContainer
       variant="workflow"
       className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
@@ -367,26 +381,41 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
         ) : null}
 
         {buyerPolishedShell ? (
-          <div
-            id={SERVICENOW_INTEGRATION_SKIP_TARGET_ID}
-            data-testid={SERVICENOW_INTEGRATION_FIRST_VIEWPORT_TEST_ID}
-            className={cn(
-              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-              OPERATOR_LAYOUT.sectionStack,
-            )}
-          >
-            {workspaceBody}
-          </div>
-        ) : (
-          workspaceBody
-        )}
-
-        {buyerPolishedShell ? (
-          <div data-testid="servicenow-integration-orientation-bottom">
-            <ServiceNowIntegrationEvidenceOrientationStrip />
-          </div>
+          <>
+            <div
+              id={SERVICENOW_INTEGRATION_SKIP_TARGET_ID}
+              data-testid={SERVICENOW_INTEGRATION_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+            >
+              <div className="space-y-4" data-testid="servicenow-integration-buyer-intro">
+                <p className={readingBodyClass} data-testid="servicenow-integration-intro">
+                  {SERVICENOW_INTEGRATION_PAGE_LEAD}
+                </p>
+              </div>
+            </div>
+            <p
+              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="servicenow-integration-overview"
+            >
+              {SERVICENOW_INTEGRATION_BUYER_OVERVIEW}
+            </p>
+          </>
         ) : null}
+
+        {workspaceBody}
+
+        {buyerPolishedShell ? <ServiceNowIntegrationSourcesOrientationStrip /> : null}
       </div>
     </OperatorPageContainer>
+    <LivelihoodDocumentGuardDialog
+      open={documentGuards.dialogOpen}
+      message={documentGuards.dialogMessage}
+      onConfirmLeave={documentGuards.confirmLeave}
+      onCancelLeave={documentGuards.cancelLeave}
+    />
+    </>
   );
 }

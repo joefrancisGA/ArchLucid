@@ -22,3 +22,16 @@ export {
   downloadScopedProxyFileGet,
   openScopedProxyFileGetInNewTab,
 } from "./downloads-blob-trigger-scoped-proxy";
+
+export {
+  downloadArtifactBundleZip,
+  downloadTraceabilityBundleZip,
+} from "./downloads-blob-trigger-artifact-bundle";
+
+export { downloadArtifactFile } from "./downloads-blob-trigger-artifact-single";
+
+export { downloadRunDecisionReceiptJson } from "./downloads-blob-trigger-decision-receipt";
+
+export { downloadRunPackageExport } from "./downloads-blob-trigger-run-package";
+
+export { downloadManifestMarkdownExport } from "./manifest-markdown-export-api";

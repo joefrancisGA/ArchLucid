@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
@@ -14,7 +14,6 @@ import { ConsultingDocxExportButton } from "@/components/ConsultingDocxExportBut
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ExportTerraformAdvisoryButton } from "@/components/ExportTerraformAdvisoryButton";
 import { ExportFormatWhenToUseHint } from "@/components/ExportFormatWhenToUseHint";
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { ReviewBoardWhitelabelConsultingExportButton } from "@/components/ReviewBoardWhitelabelConsultingExportButton";
 import { RunScopedAuditExportButton } from "@/components/runs/RunScopedAuditExportButton";
@@ -25,13 +24,12 @@ import {
 } from "@/components/operator/OperatorShellMessage";
 import { OperatorSectionRetryButton } from "@/components/operator/OperatorSectionRetryButton";
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  getArchitectureRequestDownloadUrl,
-  getBundleDownloadUrl,
-  getRunExportDownloadUrl,
-  getRunPackageExportUrl,
-  SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
-} from "@/lib/api";
+import { downloadArchitectureRequestJson } from "@/lib/api/downloads-blob-trigger-architecture-request";
+import { downloadArtifactBundleZip } from "@/lib/api/downloads-blob-trigger-artifact-bundle";
+import { downloadRunExportZip } from "@/lib/api/downloads-blob-trigger-run-export";
+import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
+import { SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT } from "@/lib/api/downloads-blob-urls";
+import { showError } from "@/lib/toast";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_MANIFEST_DELIVERABLES_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
@@ -50,6 +48,8 @@ import {
   runDetailDeliverablesDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-deliverables-disclosure-url";
 import { manifestSummarySealedVersionForCopyGuard, runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+
+import { RunDetailExportRecordCompareCallout } from "./RunDetailExportRecordCompareCallout";
 
 export type RunDetailArtifactsExportsSectionProps = {
   readonly manifestId: string;
@@ -73,6 +73,7 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly progressSummary?: RunSummary | null;
   readonly graphSnapshot?: unknown;
   readonly findingsSnapshot?: unknown;
+  readonly contextSnapshot?: unknown;
 };
 
 function resolveFeasibilityVerdict(
@@ -142,6 +143,87 @@ export function RunDetailArtifactsExportsSection(
     [pathname, router, searchParams],
   );
 
+  const [bundleBusy, setBundleBusy] = useState(false);
+  const [reviewExportBusy, setReviewExportBusy] = useState(false);
+  const [docxExportBusy, setDocxExportBusy] = useState(false);
+  const [requestJsonBusy, setRequestJsonBusy] = useState(false);
+
+  const onDownloadEvidenceBundle = useCallback(() => {
+    if (collateralExportBlockedReason !== null) {
+      return;
+    }
+
+    setBundleBusy(true);
+
+    void downloadArtifactBundleZip(manifestId)
+      .catch((error: unknown) => {
+        showError(
+          "Evidence bundle",
+          error instanceof Error ? error.message : "Could not download artifact bundle.",
+        );
+      })
+      .finally(() => {
+        setBundleBusy(false);
+      });
+  }, [collateralExportBlockedReason, manifestId]);
+
+  const onDownloadReviewExportZip = useCallback(() => {
+    if (collateralExportBlockedReason !== null) {
+      return;
+    }
+
+    setReviewExportBusy(true);
+
+    void downloadRunExportZip(runId)
+      .catch((error: unknown) => {
+        showError(
+          "Review export",
+          error instanceof Error ? error.message : "Could not download review export.",
+        );
+      })
+      .finally(() => {
+        setReviewExportBusy(false);
+      });
+  }, [collateralExportBlockedReason, runId]);
+
+  const onDownloadRunPackageDocx = useCallback(() => {
+    if (collateralExportBlockedReason !== null) {
+      return;
+    }
+
+    setDocxExportBusy(true);
+
+    void downloadRunPackageExport(runId, "docx")
+      .catch((error: unknown) => {
+        showError(
+          "Architecture review report",
+          error instanceof Error ? error.message : "Could not download DOCX export.",
+        );
+      })
+      .finally(() => {
+        setDocxExportBusy(false);
+      });
+  }, [collateralExportBlockedReason, runId]);
+
+  const onDownloadManifestBundleZip = useCallback(() => {
+    if (collateralExportBlockedReason !== null) {
+      return;
+    }
+
+    setBundleBusy(true);
+
+    void downloadArtifactBundleZip(manifestId)
+      .catch((error: unknown) => {
+        showError(
+          "Artifact bundle",
+          error instanceof Error ? error.message : "Could not download artifact bundle.",
+        );
+      })
+      .finally(() => {
+        setBundleBusy(false);
+      });
+  }, [collateralExportBlockedReason, manifestId]);
+
   return (
     <section id="artifacts-exports" className="scroll-mt-24">
         <CollapsibleSection
@@ -194,23 +276,39 @@ export function RunDetailArtifactsExportsSection(
               </div>
             ) : (
               <div className={cn("flex flex-col gap-1", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
-                <ExportTrackedAnchor
-                  className={buttonVariants({ variant: "outline" })}
-                  href={getRunPackageExportUrl(runId, "docx")}
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={docxExportBusy}
+                  onClick={onDownloadRunPackageDocx}
                 >
-                  Download architecture review report (DOCX)
-                </ExportTrackedAnchor>
+                  {docxExportBusy ? "Downloading…" : "Download architecture review report (DOCX)"}
+                </Button>
                 <ExportFormatWhenToUseHint format="docx" />
               </div>
             )}
             {requestId ? (
-              <ExportTrackedAnchor
-                className={buttonVariants({ variant: "secondary" })}
-                href={getArchitectureRequestDownloadUrl(requestId)}
-                download={`ArchitectureRequest-${requestId}.json`}
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={requestJsonBusy}
+                onClick={() => {
+                  setRequestJsonBusy(true);
+
+                  void downloadArchitectureRequestJson(requestId)
+                    .catch((error: unknown) => {
+                      showError(
+                        "Architecture request JSON",
+                        error instanceof Error ? error.message : "Download failed.",
+                      );
+                    })
+                    .finally(() => {
+                      setRequestJsonBusy(false);
+                    });
+                }}
               >
-                Download Request JSON
-              </ExportTrackedAnchor>
+                {requestJsonBusy ? "Downloading…" : "Download Request JSON"}
+              </Button>
             ) : null}
           </div>
           {buyerPolishedArtifactTable ? (
@@ -342,12 +440,16 @@ export function RunDetailArtifactsExportsSection(
                       </p>
                     </>
                   ) : (
-                    <ExportTrackedAnchor
-                      className={buttonVariants({ variant: "outline", size: "sm" })}
-                      href={getBundleDownloadUrl(manifestId)}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={bundleBusy}
+                      data-testid="run-detail-evidence-bundle-export"
+                      onClick={onDownloadEvidenceBundle}
                     >
-                      Download evidence bundle
-                    </ExportTrackedAnchor>
+                      {bundleBusy ? "Downloading…" : "Download evidence bundle"}
+                    </Button>
                   )}
                   <ExportFormatWhenToUseHint format="zip" />
                 </div>
@@ -362,6 +464,7 @@ export function RunDetailArtifactsExportsSection(
                   progressSummary={props.progressSummary ?? null}
                   graphSnapshot={props.graphSnapshot ?? null}
                   findingsSnapshot={props.findingsSnapshot ?? null}
+                  contextSnapshot={props.contextSnapshot ?? null}
                   usedStaticDemoRun={usedStaticDemoRun}
                 />
               </div>
@@ -377,6 +480,7 @@ export function RunDetailArtifactsExportsSection(
                   progressSummary={props.progressSummary ?? null}
                   graphSnapshot={props.graphSnapshot ?? null}
                   findingsSnapshot={props.findingsSnapshot ?? null}
+                  contextSnapshot={props.contextSnapshot ?? null}
                   usedStaticDemoRun={usedStaticDemoRun}
                 />
                 <div className="flex max-w-[14rem] flex-col gap-1">
@@ -394,12 +498,15 @@ export function RunDetailArtifactsExportsSection(
                       </p>
                     </>
                   ) : (
-                    <ExportTrackedAnchor
-                      className={buttonVariants({ variant: "outline", size: "sm" })}
-                      href={getBundleDownloadUrl(manifestId)}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={bundleBusy}
+                      onClick={onDownloadManifestBundleZip}
                     >
-                      Download bundle (ZIP)
-                    </ExportTrackedAnchor>
+                      {bundleBusy ? "Downloading…" : "Download bundle (ZIP)"}
+                    </Button>
                   )}
                   <ExportFormatWhenToUseHint format="zip" />
                 </div>
@@ -425,12 +532,15 @@ export function RunDetailArtifactsExportsSection(
                       </p>
                     </>
                   ) : (
-                    <ExportTrackedAnchor
-                      className={buttonVariants({ variant: "outline", size: "sm" })}
-                      href={getRunExportDownloadUrl(runId)}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={reviewExportBusy}
+                      onClick={onDownloadReviewExportZip}
                     >
-                      Download review export (ZIP)
-                    </ExportTrackedAnchor>
+                      {reviewExportBusy ? "Downloading…" : "Download review export (ZIP)"}
+                    </Button>
                   )}
                   <ExportFormatWhenToUseHint format="zip" />
                 </div>
@@ -454,6 +564,10 @@ export function RunDetailArtifactsExportsSection(
             )}
           </div>
         </CollapsibleSection>
+      <RunDetailExportRecordCompareCallout
+        leftExportRecordId={searchParams.get("leftExportRecordId") ?? ""}
+        rightExportRecordId={searchParams.get("rightExportRecordId") ?? ""}
+      />
     </section>
   );
 }

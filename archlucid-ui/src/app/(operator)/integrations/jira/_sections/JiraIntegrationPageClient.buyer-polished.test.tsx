@@ -44,8 +44,11 @@ vi.mock("@/lib/jira-atlassian-oauth-connect", () => ({
 
 import { JiraIntegrationPageClient } from "./JiraIntegrationPageClient";
 import {
+  JIRA_INTEGRATION_BUYER_OVERVIEW,
   JIRA_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
   JIRA_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  JIRA_INTEGRATION_ORIENTATION_BOTTOM_TEST_ID,
+  JIRA_INTEGRATION_PAGE_LEAD,
   JIRA_INTEGRATION_PAGE_SUBTITLE_BUYER,
   JIRA_INTEGRATION_PRIMARY_CONTENT_ID,
   JIRA_INTEGRATION_SKIP_LINK_LABEL,
@@ -117,13 +120,18 @@ describe("JiraIntegrationPageClient buyer-polished shell (IJX)", () => {
 
     const primaryContent = screen.getByTestId(JIRA_INTEGRATION_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(JIRA_INTEGRATION_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("jira-integration-overview");
     const pageMain = screen.getByTestId("jira-page-main");
-    const orientationBottom = screen.getByTestId("jira-integration-orientation-bottom");
+    const orientationBottom = screen.getByTestId(JIRA_INTEGRATION_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("jira-integration-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("jira-integration-intro")).toHaveTextContent(JIRA_INTEGRATION_PAGE_LEAD);
+    expect(screen.getByTestId("jira-integration-overview")).toHaveTextContent(JIRA_INTEGRATION_BUYER_OVERVIEW);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(pageMain);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport).toContainElement(pageMain);
+    expect(firstViewport).toContainElement(screen.getByTestId("jira-integration-intro"));
     expect(orientationBottom).toContainElement(sourcesSection);
 
     for (const source of filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_SOURCES)) {
@@ -131,6 +139,8 @@ describe("JiraIntegrationPageClient buyer-polished shell (IJX)", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(pageMain) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(pageMain.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

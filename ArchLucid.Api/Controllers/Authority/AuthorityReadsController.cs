@@ -3,6 +3,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Routing;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Traceability;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Explanation;
@@ -11,6 +12,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 
@@ -33,14 +36,31 @@ namespace ArchLucid.Api.Controllers.Authority;
 [Route("v{version:apiVersion}/runs")]
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
-public sealed class AuthorityReadsController(
+public sealed partial class AuthorityReadsController(
     AuthorityRunReadHandlers readHandlers,
-    ITraceabilityBundleExportApplicationService traceabilityBundleExport) : ControllerBase
+    ITraceabilityBundleExportApplicationService traceabilityBundleExport,
+    IManifestHashService manifestHashService,
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IRunDetailQueryService runDetailQueryService) : ControllerBase
 {
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <summary>Lists runs across the current tenant/workspace/project scope (newest first, keyset).</summary>
     [HttpGet("")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListRuns(
         [FromQuery] string? cursor = null,
         [FromQuery] int take = RunPagination.DefaultTake,
@@ -72,6 +92,12 @@ public sealed class AuthorityReadsController(
                 ? RunPagination.ClampTake(pageSize)
                 : RunPagination.ClampTake(take);
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = await EnsureRunInventorySealedManifestReadAllowedAsync(scope, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         (IReadOnlyList<RunSummaryDto> Items, bool HasMore) keysetPage =
             await readHandlers.ListRunsInScopeKeysetAsync(createdUtc, runId, effectiveTake, ct);
 
@@ -96,19 +122,37 @@ public sealed class AuthorityReadsController(
     [HttpGet("{runId:guid}")]
     [ProducesResponseType(typeof(RunDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunDetail(Guid runId, CancellationToken ct = default)
     {
         RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
-        return detail is null
-            ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
-            : Ok(detail);
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
+        return Ok(detail);
     }
 
     /// <summary>Golden (sealed) review record JSON when the run is finalized.</summary>
     [HttpGet("{runId:guid}/manifest")]
     [ProducesResponseType(typeof(ManifestDocument), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunManifest(Guid runId, CancellationToken ct = default)
     {
         RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
@@ -120,6 +164,18 @@ public sealed class AuthorityReadsController(
             return this.NotFoundProblem(
                 $"Golden manifest for run '{runId}' was not found.",
                 ProblemTypes.ManifestNotFound);
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
 
         await readHandlers.LogRunScopedAuditAsync(
             AuditEventTypes.ManifestViewed,
@@ -134,8 +190,29 @@ public sealed class AuthorityReadsController(
     [HttpGet("{runId:guid}/review-trail")]
     [ProducesResponseType(typeof(IReadOnlyList<RunPipelineTimelineItemResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrail(Guid runId, CancellationToken ct = default)
     {
+        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
         IReadOnlyList<RunPipelineTimelineItemResponse>? body =
             await readHandlers.TryGetPipelineTimelineAsync(runId, ct);
 
@@ -151,8 +228,29 @@ public sealed class AuthorityReadsController(
     [HttpGet("{runId:guid}/review-trail/rationale")]
     [ProducesResponseType(typeof(RunRationale), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrailRationale(Guid runId, CancellationToken ct = default)
     {
+        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
         RunRationale? rationale = await readHandlers.GetRunRationaleAsync(runId, ct);
 
         return rationale is null
@@ -167,7 +265,20 @@ public sealed class AuthorityReadsController(
     [ProducesResponseType(typeof(DecisionProvenanceGraph), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrailProvenance(Guid runId, CancellationToken ct = default)
+    {
+        try
+        {
+            return await GetReviewTrailProvenanceCoreAsync(runId, ct);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+    }
+
+    private async Task<IActionResult> GetReviewTrailProvenanceCoreAsync(Guid runId, CancellationToken ct)
     {
         (DecisionProvenanceGraph? graph, RunDetailDto? detail, string? unprocessableDetail) =
             await readHandlers.TryGetProvenanceGraphAsync(runId, ct);
@@ -195,6 +306,26 @@ public sealed class AuthorityReadsController(
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrailExport(Guid runId, CancellationToken ct = default)
     {
+        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    runId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
         string runIdText = runId.ToString("D");
 
         try

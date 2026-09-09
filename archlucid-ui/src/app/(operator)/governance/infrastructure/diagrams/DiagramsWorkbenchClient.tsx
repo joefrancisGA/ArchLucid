@@ -53,6 +53,11 @@ import {
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
+  INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM,
+  infraDiagramsResourceIdDisclosureHrefFromSearch,
+  parseInfraDiagramsResourceIdDisclosureOpenFromSearch,
+} from "@/lib/infra-evidence/infra-diagrams-resource-id-disclosure-url";
+import {
   hasStaleInfraEvidenceAuditUrlParams,
   mergeInfrastructureAskAuditScope,
   mergeWorkbenchHubScopePatch,
@@ -160,6 +165,31 @@ export function DiagramsWorkbenchClient() {
   const urlMermaidMode = parseInfraDiagramsMermaidModeFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_MODE_PARAM));
   const urlMermaidView = parseInfraDiagramsMermaidViewFromSearch(searchParams.get(INFRA_DIAGRAMS_MERMAID_VIEW_PARAM));
   const urlSeedNodeId = parseInfraDiagramsSeedNodeIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SEED_NODE_ID_PARAM));
+  const diagramsResourceIdOpenParam = searchParams.get(INFRA_DIAGRAMS_RESOURCE_ID_DISCLOSURE_OPEN_PARAM);
+  const [diagramsResourceIdOpen, setDiagramsResourceIdOpenState] = useState(() =>
+    parseInfraDiagramsResourceIdDisclosureOpenFromSearch(diagramsResourceIdOpenParam),
+  );
+
+  const syncDiagramsResourceIdOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(infraDiagramsResourceIdDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDiagramsResourceIdOpen = useCallback(
+    (open: boolean) => {
+      setDiagramsResourceIdOpenState(open);
+      syncDiagramsResourceIdOpenToUrl(open);
+    },
+    [syncDiagramsResourceIdOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDiagramsResourceIdOpenState(parseInfraDiagramsResourceIdDisclosureOpenFromSearch(diagramsResourceIdOpenParam));
+  }, [diagramsResourceIdOpenParam]);
 
   const [snapshots, setSnapshots] = useState<InfraEvidenceSnapshotSummary[]>([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
@@ -569,6 +599,8 @@ export function DiagramsWorkbenchClient() {
               title="Resource id"
               sectionTestId="infra-diagrams-resource-id-disclosure"
               summaryLine="Cloud resource UUID from the scoped link"
+              open={diagramsResourceIdOpen}
+              onToggle={setDiagramsResourceIdOpen}
             >
               <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {urlCloudResourceId}

@@ -1,9 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { FinalizeSkippedMustStrip } from "@/components/reviews/FinalizeSkippedMustStrip";
@@ -23,12 +23,13 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { EXPORT_FORMAT_DOCX, EXPORT_FORMAT_PDF } from "@/lib/export-format-when-to-use";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
-import { runSponsorReportExportHref } from "@/lib/api/run-summary-export-api";
+import { downloadRunSummaryExport } from "@/lib/api/run-summary-export-api";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import {
-  getRunPackageExportUrl,
   SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
 } from "@/lib/api/downloads-api";
+import { downloadRunPackageExport } from "@/lib/api/downloads-blob-trigger-run-package";
+import { showError } from "@/lib/toast";
 import {
   MARKETING_TYPOGRAPHY,
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
@@ -169,37 +170,94 @@ function RunPackageExportButtons({
   }
 
   return (
+    <RunPackageExportButtonsLive runId={runId} />
+  );
+}
+
+function RunPackageExportButtonsLive({ runId }: { runId: string }) {
+  const [busyFormat, setBusyFormat] = useState<"docx" | "pdf" | "html" | "summary" | null>(null);
+
+  const onDownload = useCallback(
+    (format: "docx" | "pdf" | "html") => {
+      setBusyFormat(format);
+
+      void downloadRunPackageExport(runId, format)
+        .catch((error: unknown) => {
+          showError(
+            RUN_PACKAGE_EXPORT_LABELS[format],
+            error instanceof Error ? error.message : "Download failed.",
+          );
+        })
+        .finally(() => {
+          setBusyFormat(null);
+        });
+    },
+    [runId],
+  );
+
+  const onDownloadSponsorSummary = useCallback(() => {
+    setBusyFormat("summary");
+
+    void downloadRunSummaryExport(runId)
+      .catch((error: unknown) => {
+        showError(
+          "Download Sponsor Report",
+          error instanceof Error ? error.message : "Download failed.",
+        );
+      })
+      .finally(() => {
+        setBusyFormat(null);
+      });
+  }, [runId]);
+
+  return (
     <div className="mt-1 flex flex-col gap-2">
       <div className="flex flex-wrap gap-2">
         <div className="flex max-w-[14rem] flex-col gap-1">
-          <Button variant="outline" size="sm" asChild>
-            <Link href={getRunPackageExportUrl(runId, "docx")} prefetch={false} target="_blank">
-              <Download className="mr-2 h-4 w-4" />
-              {EXPORT_FORMAT_DOCX.label}
-            </Link>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={busyFormat !== null}
+            onClick={() => onDownload("docx")}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {busyFormat === "docx" ? "Downloading…" : EXPORT_FORMAT_DOCX.label}
           </Button>
           <ExportFormatWhenToUseHint format="docx" />
         </div>
         <div className="flex max-w-[14rem] flex-col gap-1">
-          <Button variant="outline" size="sm" asChild>
-            <Link href={getRunPackageExportUrl(runId, "pdf")} prefetch={false} target="_blank">
-              <Download className="mr-2 h-4 w-4" />
-              {EXPORT_FORMAT_PDF.label}
-            </Link>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={busyFormat !== null}
+            onClick={() => onDownload("pdf")}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {busyFormat === "pdf" ? "Downloading…" : EXPORT_FORMAT_PDF.label}
           </Button>
           <ExportFormatWhenToUseHint format="pdf" />
         </div>
-        <Button variant="outline" size="sm" asChild>
-          <Link href={getRunPackageExportUrl(runId, "html")} prefetch={false} target="_blank">
-            <Download className="mr-2 h-4 w-4" />
-            {RUN_PACKAGE_EXPORT_LABELS.html}
-          </Link>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={busyFormat !== null}
+          onClick={() => onDownload("html")}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          {busyFormat === "html" ? "Downloading…" : RUN_PACKAGE_EXPORT_LABELS.html}
         </Button>
-        <Button variant="outline" size="sm" asChild>
-          <Link href={runSponsorReportExportHref(runId)} prefetch={false} target="_blank">
-            <Download className="mr-2 h-4 w-4" />
-            Download Sponsor Report
-          </Link>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={busyFormat !== null}
+          onClick={onDownloadSponsorSummary}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          {busyFormat === "summary" ? "Downloading…" : "Download Sponsor Report"}
         </Button>
       </div>
     </div>

@@ -2,16 +2,17 @@
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Founding contract:** [`ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md`](../ARCHLUCID_FOUNDATIONAL_DESIGN_DEBATE.md) R4 / R13 · **UI standard:** [`../library/UI_DESIGN_SYSTEM.md`](../library/UI_DESIGN_SYSTEM.md)
 > **Paste-ready files:** [`.cursor/prompts/livelihood-proof-00-index.md`](../../.cursor/prompts/livelihood-proof-00-index.md) (**LP-01–LP-20**)
 > **Predecessor (wave 19 — Working seat):** [`WORKING_SEAT_COMPOSER_PROMPTS.md`](WORKING_SEAT_COMPOSER_PROMPTS.md) (**WS-01–WS-24**, shipped). **Do not re-run WS.** This set does **not** evict buyer polish.
+> **Successor (wave 21 — finding-pointer CAS):** [`FINDING_POINTER_CAS_COMPOSER_PROMPTS.md`](FINDING_POINTER_CAS_COMPOSER_PROMPTS.md) (**FP-01–FP-24**). **Do not paste LP** to wire inspect/bulk `expectedCurrentDispositionRowVersionBase64`; that leftover is FP.
 
 # Livelihood-proof Composer prompts (LP-01–LP-20)
 
-**Created:** 2026-09-08 · **Status:** LP-02 typed Kind A + LP-03 agent Kind B + LP-04 citation-coverage PilotStrict + LP-05 dual-stream desk + LP-06 simulator career honesty + LP-07 LLM rec provenance + LP-08 ADR 0083 promote/activate same-tx contract shipped; LP-01 ADR **0082 Proposed** · **Do not re-run** WS, SY, AO, FC, DR, DX, PC, LK, or overlay waves except as an LP row names a leftover. **Do not paste this wave to add engines, MCP, finding-comment chat, or G-REAL-06.**
+**Created:** 2026-09-08 · **Status:** Wave 20 **shipped** — close audit [`LIVELIHOOD_PROOF_ACCEPTANCE_2026-09-08.md`](LIVELIHOOD_PROOF_ACCEPTANCE_2026-09-08.md). LP-02–LP-19 engineering gates landed; ADR **0082** / **0083** remain **Proposed**; LP-18 Ready-label suppression on draft PR #2339. **Do not re-run** WS, SY, AO, FC, DR, DX, PC, LK, or overlay waves except as an LP row names a leftover. **Do not paste this wave to add engines, MCP, finding-comment chat, or G-REAL-06.**
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Waves through **WS-24** built the **court reporter** (trail, stamp, CAS, career-artifact honesty, Working-as-product). The remaining livelihood failures are:
 
 1. **Analysis mistaken for proof** — Simulator default, dual finding streams, TB-1221 emission/commit validators still follow-on.
 2. **Human judgment that does not fully become the record** — dispositions exist; several edit surfaces and ITSM current-state still fail the all-day desk.
-3. **Seal vs production change** — approve/reject are same-tx; promote/activate/submit and some authority-chain audits remain post-commit or best-effort.
+3. **Seal vs production change** — approve/reject are same-tx; promote/activate/submit co-commit (LP-09); Working career authority-chain audit is Required fail-closed (LP-10). Demo/replay chain audit stays informational.
 
 **Owner authorization (2026-09-08):** Execute the leftover fail-closed gates that honesty contracts already named. Do **not** flip `AgentExecution:Mode` from Simulator to Real. Do **not** merge `DraftRequests` / `Runs`. Do **not** add finding-comment chat.
 

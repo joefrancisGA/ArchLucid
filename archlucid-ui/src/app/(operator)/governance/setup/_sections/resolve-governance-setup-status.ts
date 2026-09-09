@@ -1,4 +1,6 @@
 import { fetchGovernanceSetupGuideBundle } from "@/lib/api/policy-governance-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governanceSetupGuideBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
 
 import {
   GOVERNANCE_SETUP_FOUNDATION_INDICATORS,
@@ -18,6 +20,7 @@ function initialStepStatuses(): GovernanceSetupStepStatus[] {
 export async function resolveGovernanceSetupGuideViewModel(): Promise<GovernanceSetupGuideViewModel> {
   const stepStatuses = initialStepStatuses();
   let bundleLoadFailed = false;
+  let blockedReason: string | null = null;
 
   try {
     const bundle = await fetchGovernanceSetupGuideBundle();
@@ -33,8 +36,9 @@ export async function resolveGovernanceSetupGuideViewModel(): Promise<Governance
     }
 
     // Step 4 stays not-started until a non-seeding workspace signal exists.
-  } catch {
+  } catch (error) {
     bundleLoadFailed = true;
+    blockedReason = governanceSetupGuideBlockedReason(toApiLoadFailure(error));
   }
 
   // Step 5 stays not-started until a workspace signal exists (tracked: false in step definition).
@@ -44,5 +48,6 @@ export async function resolveGovernanceSetupGuideViewModel(): Promise<Governance
     steps: GOVERNANCE_SETUP_GUIDE_STEPS,
     foundationIndicators: GOVERNANCE_SETUP_FOUNDATION_INDICATORS,
     bundleLoadFailed,
+    blockedReason,
   };
 }

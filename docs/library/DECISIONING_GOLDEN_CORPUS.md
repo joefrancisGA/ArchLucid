@@ -18,12 +18,12 @@ The pipeline **agent output → typed findings → manifest decisions → audit*
 
 ## Corpus contract
 
-Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **63** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-63`** are **hand-authored** scenarios (see each folder’s `README.md`).
+Each case is a directory under `tests/golden-corpus/decisioning/` named `case-NN` (two-digit index). **65** directories exist today: **`case-01` … `case-30`** are produced by `GoldenCorpusGraphFactory` / the materializer; **`case-31`** through **`case-65`** are **hand-authored** scenarios (see each folder’s `README.md`).
 
 | File | Purpose |
 |------|---------|
 | `input.json` | Agent-result bundle: graph snapshot, run identifiers, optional merge payload (same shape as `GoldenCorpusInputDocument`). |
-| `expected-findings.json` | Normalized typed finding rows (stable sort order). Each `findingId` is a **deterministic surrogate** (SHA256-derived Guid over canonical fields) because production engines emit fresh runtime IDs per run; golden files must not depend on those. |
+| `expected-findings.json` | Normalized typed finding rows (stable sort order). Includes both retained decision-grade findings and demoted checklist-band rows after insight-density routing (DX-59 threshold **65**). Each `findingId` is a **deterministic surrogate** (SHA256-derived Guid over canonical fields) because production engines emit fresh runtime IDs per run; golden files must not depend on those. |
 | `expected-decisions.json` | Manifest decision payload after authority + optional merge (stable shape). |
 | `expected-audit-types.json` | Sorted list of `AuditEventType` string names emitted during the harness run. |
 | `README.md` | What the case exercises; note any intentional quirks of frozen behavior. |
@@ -32,7 +32,7 @@ On assertion failure, `GoldenCorpusRegressionTests` writes sibling files with an
 
 ---
 
-## Coverage map (`case-01` … `case-63`)
+## Coverage map (`case-01` … `case-65`)
 
 Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`index % 6`) with a stable suffix per block of six (`index / 6`).
 
@@ -71,6 +71,8 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 | **`case-61`** (hand-authored) | **DX-49** — compute + datastore topology nodes with no `CONNECTS_TO`/`DEPENDS_ON` edge. Exercises **`topology-anti-pattern`**. See `tests/golden-corpus/decisioning/case-61/README.md`. |
 | **`case-62`** (hand-authored) | **DX-49** — compute topology node with no security baseline `PROTECTS` edge. Exercises **`security-baseline-expectation`**. See `tests/golden-corpus/decisioning/case-62/README.md`. |
 | **`case-63`** (hand-authored) | **DX-49** — context snapshot requires `encryption-at-rest` with no matching graph evidence. Exercises **`required-capability-coverage`**. See `tests/golden-corpus/decisioning/case-63/README.md`. |
+| **`case-64`** (hand-authored) | **DX-64** — prior graph retains SQL geo-redundant replica evidence; current graph removes it. Exercises **`topology-security-drift`** via `priorGraphFixture` in `input.json`. See `tests/golden-corpus/decisioning/case-64/README.md`. |
+| **`case-65`** (hand-authored) | **DX-69** — simple Terraform user-assigned identity + Contributor role assignment on data-bearing SQL, parsed through **`DefaultGraphBuilder`** with no hand-authored Actor/path overlay. Exercises **`identity-blast-radius`**. See `tests/golden-corpus/decisioning/case-65/README.md`. |
 
 ### Archetypes (`case-01` … `case-30` only)
 
@@ -104,7 +106,7 @@ Cases **`case-01` … `case-30`** are built by cycling **six archetypes** (`inde
 
 ### Non-goal: production governance loader in the harness (WK-22)
 
-`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-63` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, expectation stamps, checklist-cluster synthesis, and three-way policy-declaration-inventory contradiction stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyDeclarationInventoryContradictionGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`, `ChecklistClusterSynthesisGoldenCorpusTests`).
+`GoldenCorpusHarness` must keep **`FileComplianceRulePackProvider`** wired directly in `CreateEngines()`. Do **not** inject **`IEffectiveGovernanceLoader`**, tenant curated-rule merger, or production **`PolicyFilteredComplianceRulePackProvider`** into the merge-blocking harness — that would make `case-01` … `case-65` depend on tenant pack seeds and break bit-stability. Policy filter, P1 pack toggle, expectation stamps, checklist-cluster synthesis, and three-way policy-declaration-inventory contradiction stay in sibling tests (`PolicyFilteredGoldenCorpusTests`, `PolicyFilteredDeclarationGoldenCorpusTests`, `PolicyDeclarationInventoryContradictionGoldenCorpusTests`, `PolicyPackP1ToggleGoldenCorpusTests`, `PolicyExpectationCoverageGoldenCorpusTests`, `ChecklistClusterSynthesisGoldenCorpusTests`).
 
 ---
 

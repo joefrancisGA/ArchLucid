@@ -58,6 +58,7 @@ Only then dispatch the full matrix (`bash scripts/ci/dispatch_full_ci_matrix.sh 
 | Playwright never starts | Shell warm `set -e` on required path | Check scope/invitations warm; API not ready |
 | `GET /api/proxy/v1/architecture/draft` 60s timeout | Draft list hit before route stub | Spec stubs `**/api/proxy/v1/architecture/draft**`; ensure stub runs before `page.goto` |
 | `POST /v1/architecture/request` 401 | JwtBearer / proxy token mismatch | `ARCHLUCID_PROXY_BEARER_TOKEN` must equal `LIVE_JWT_TOKEN` in workflow env |
+| Wave-3 / invite / create-run **401** after ~50m+ Playwright | CI JWT minted before shell warm; default 1h `exp` elapsed mid-suite | **Shipped** — `refresh_private_beta_ci_jwt.sh` re-mints (7200s exp) immediately before Playwright after warm |
 | create-run retry exhaustion | Cold SQL / Simulator queue | `LIVE_E2E_PRIVATE_BETA_ACCESS=1` caps attempts at **5** with 120s pre-create health poll (see `live-api-client.ts`) |
 | Reviews hub row not visible | Run list poll lag | `waitForArchitectureRunListIncludesRun` + `reviews-hub-row-{runId}` test id |
 | Actions queue backlog | Many trunk merges enqueue parallel private-beta runs on different SHAs | Workflow uses **ref-level concurrency** (`private-beta-access-on-push-${{ github.ref }}`, `cancel-in-progress: true`) — only the latest `master` push runs; superseded SHAs cancel mid-flight. After heavy merge churn, **wait for the queue to drain** then `bash scripts/ci/retrigger_private_beta_access_on_push.sh master` so one run can finish Playwright. |
@@ -158,7 +159,7 @@ cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spe
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:
 
-1. Apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](../.github/rulesets/golden-cohort-gate-private-beta-addon.json) via `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` (or merge into `golden-cohort-gate-required-check.json`).
+1. Apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](../../.github/rulesets/golden-cohort-gate-private-beta-addon.json) via `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` (or merge into `golden-cohort-gate-required-check.json`).
 2. Re-run the ruleset script (or add the check in GitHub Rulesets UI).
 3. Confirm trunk push still runs all four private-beta specs (`live-api-private-beta-access`, `live-api-private-beta-wave-3`, `live-api-invite-flow`, `live-api-scim-invite-substitute-smoke`) before sending beta invites.
 

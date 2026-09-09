@@ -13,6 +13,11 @@ public sealed class SupportedContextDocumentContentTypesTests
     [InlineData("TEXT/PLAIN", true)]
     [InlineData(" text/plain ", true)]
     [InlineData("text/markdown", true)]
+    [InlineData("application/vnd.archlucid.diagram+json", true)]
+    [InlineData("APPLICATION/VND.ARCHLUCID.DIAGRAM+JSON", true)]
+    [InlineData("text/vnd.mermaid", true)]
+    [InlineData("TEXT/VND.MERMAID", true)]
+    [InlineData("image/png", false)]
     [InlineData("application/pdf", false)]
     [InlineData("", false)]
     public void IsSupported_MatchesCanonicalList(string contentType, bool expected)
@@ -23,6 +28,22 @@ public sealed class SupportedContextDocumentContentTypesTests
     [Fact]
     public void All_AlignsWithPlainTextParserExpectations()
     {
-        SupportedContextDocumentContentTypes.All.Should().Contain(["text/plain", "text/markdown"]);
+        SupportedContextDocumentContentTypes.All.Should().Contain(
+        [
+            "text/plain",
+            "text/markdown",
+            SupportedContextDocumentContentTypes.StructuredDiagramJson,
+            SupportedContextDocumentContentTypes.Mermaid,
+        ]);
+    }
+
+    [Theory]
+    [InlineData("image/png")]
+    [InlineData("image/jpeg")]
+    [InlineData("IMAGE/SVG+XML")]
+    public void IsForbiddenImageContentType_RejectsImageMimeTypes(string contentType)
+    {
+        SupportedContextDocumentContentTypes.IsForbiddenImageContentType(contentType).Should().BeTrue();
+        SupportedContextDocumentContentTypes.IsSupported(contentType).Should().BeFalse();
     }
 }

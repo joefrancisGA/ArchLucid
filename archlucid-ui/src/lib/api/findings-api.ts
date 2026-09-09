@@ -5,12 +5,20 @@
 } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { mapFindingInspectApiPayload } from "@/lib/findings/finding-inspect-payload-map";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
+import {
+  parseFilenameFromContentDisposition,
+  triggerBrowserBlobDownload,
+} from "./downloads-blob-trigger-browser";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import {
   apiGet,
   apiPostJson,
   ensureOidcBearerReady,
   resolveBinaryGetRequest,
-  throwApiRequestError,
   withCorrelationHeaders,
 } from "./http";
 
@@ -32,7 +40,7 @@ export async function getFindingInspect(
   const query = includeTypedPayload ? "" : "?includeTypedPayload=false";
 
   return mapFindingInspectApiPayload(
-    await apiGet<Record<string, unknown>>(
+    await apiGetSealedManifestAware<Record<string, unknown>>(
       `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect${query}`,
     ),
   );
@@ -42,7 +50,7 @@ export async function getFindingInspect(
 export async function getFindingExplainability(runId: string, findingId: string): Promise<FindingExplainability> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  return apiGet<FindingExplainability>(
+  return apiGetSealedManifestAware<FindingExplainability>(
     `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/explainability`,
   );
 }
@@ -51,7 +59,7 @@ export async function getFindingExplainability(runId: string, findingId: string)
 export async function getFindingEvidenceChain(runId: string, findingId: string): Promise<FindingEvidenceChain> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  return apiGet<FindingEvidenceChain>(
+  return apiGetSealedManifestAware<FindingEvidenceChain>(
     `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodedFinding}/evidence-chain`,
   );
 }
@@ -60,7 +68,7 @@ export async function getFindingEvidenceChain(runId: string, findingId: string):
 export async function getFindingLlmAudit(runId: string, findingId: string): Promise<FindingLlmAudit> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  return apiGet<FindingLlmAudit>(
+  return apiGetSealedManifestAware<FindingLlmAudit>(
     `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/llm-audit`,
   );
 }
@@ -106,23 +114,21 @@ export async function downloadRunFindingsCsv(runId: string): Promise<void> {
   const { url, headers } = await resolveBinaryGetRequest(path);
   const requestHeaders = withCorrelationHeaders(new Headers(headers));
   requestHeaders.set("Accept", "text/csv");
-  const response = await fetch(url, { cache: "no-store", headers: requestHeaders });
+  const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(requestHeaders);
+  const response = await fetch(url, { cache: "no-store", headers: correlatedHeaders });
 
   if (!response.ok) {
     const text = await response.text();
-    throwApiRequestError(response, text);
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
+    throw new Error(formatExportSealedManifestAwareApiError(failure));
   }
 
   const blob = await response.blob();
-  const disposition = response.headers.get("Content-Disposition") ?? "";
-  const fileNameMatch = /filename="?([^";]+)"?/i.exec(disposition);
-  const fileName = fileNameMatch?.[1] ?? `architecture-run-${runId}-findings.csv`;
-  const objectUrl = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = objectUrl;
-  anchor.download = fileName;
-  anchor.click();
-  URL.revokeObjectURL(objectUrl);
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `architecture-run-${runId}-findings.csv`;
+
+  await triggerBrowserBlobDownload(blob, fileName);
 }
 
 /** Mutes a finding for a run (ExecuteAuthority); persists to relational findings snapshot. */

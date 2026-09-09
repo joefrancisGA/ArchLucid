@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { Button } from "@/components/ui/button";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import {
@@ -13,6 +14,8 @@ import {
   downloadLearningPlanningReportMarkdown,
   openLearningPlanningReportJsonInNewTab,
 } from "@/lib/learning-planning-report-download";
+import { learningPlanningReportBlockedReason } from "@/lib/learning/learning-planning-report-blocked-reason";
+import { showError } from "@/lib/toast";
 import {
   IMPROVEMENT_PLANNING_DOWNLOAD_REPORT_CTA,
   IMPROVEMENT_PLANNING_EXPORT_DATA_CTA,
@@ -29,6 +32,15 @@ const boxCls = cn(
   "mt-5 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50/90 px-3.5 py-3 leading-relaxed text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-300",
   OPERATOR_TYPOGRAPHY.body,
 );
+
+function runPlanningReportDownload(download: () => Promise<void>, title: string): void {
+  void download().catch((error: unknown) => {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = learningPlanningReportBlockedReason(failure);
+
+    showError(title, blockedReason ?? failure.message);
+  });
+}
 
 /** Product-facing export actions for planning summaries, with technical options behind disclosure. */
 export function PlanningExportReadinessNote() {
@@ -77,7 +89,7 @@ export function PlanningExportReadinessNote() {
           variant="outline"
           size="sm"
           id="planning-export-report"
-          onClick={() => void downloadLearningPlanningReportMarkdown()}
+          onClick={() => runPlanningReportDownload(downloadLearningPlanningReportMarkdown, "Planning report")}
         >
           {IMPROVEMENT_PLANNING_DOWNLOAD_REPORT_CTA}
         </Button>
@@ -86,7 +98,7 @@ export function PlanningExportReadinessNote() {
           variant="outline"
           size="sm"
           id="planning-export-data"
-          onClick={() => void downloadLearningPlanningReportJson()}
+          onClick={() => runPlanningReportDownload(downloadLearningPlanningReportJson, "Planning report JSON")}
         >
           {IMPROVEMENT_PLANNING_EXPORT_DATA_CTA}
         </Button>
@@ -107,7 +119,7 @@ export function PlanningExportReadinessNote() {
               <button
                 type="button"
                 className={OPERATOR_LINK.inline}
-                onClick={() => void openLearningPlanningReportJsonInNewTab()}
+                onClick={() => runPlanningReportDownload(openLearningPlanningReportJsonInNewTab, "Planning report JSON")}
               >
                 Open JSON in browser
               </button>

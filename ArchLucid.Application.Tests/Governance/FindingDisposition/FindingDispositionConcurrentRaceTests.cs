@@ -16,6 +16,8 @@ namespace ArchLucid.Application.Tests.Governance.FindingDisposition;
 
 /// <summary>
 /// ADR 0076 — disposition current-pointer CAS: one writer succeeds; loser gets conflict without becoming current.
+/// FP-21: <see cref="RecordAsync_null_expected_after_pointer_exists_throws_conflict"/> and
+/// <see cref="RecordAsync_matching_expected_version_records_amend"/>.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -116,13 +118,65 @@ public sealed class FindingDispositionConcurrentRaceTests
         first.EventId.Should().NotBeEmpty();
     }
 
+    [Fact]
+    public async Task RecordAsync_null_expected_after_pointer_exists_throws_conflict()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        FindingDispositionEventDto first = await sut.RecordAsync(
+            CreateRequest(
+                FindingDispositionKind.Accepted,
+                "first writer",
+                tradeOffAcknowledgment: "accepting first-writer trade-off for pilot scope"),
+            Scope,
+            "alice",
+            CancellationToken.None);
+
+        Func<Task> act = async () => await sut.RecordAsync(
+            CreateRequest(
+                FindingDispositionKind.Remediated,
+                "missing expected version"),
+            Scope,
+            "bob",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArchLucid.Application.Governance.FindingDisposition.FindingDispositionConflictException>();
+        trailRepository.EventCount.Should().Be(1);
+        first.CurrentDispositionRowVersionBase64.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task RecordAsync_matching_expected_version_records_amend()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        FindingDispositionEventDto first = await sut.RecordAsync(
+            CreateRequest(
+                FindingDispositionKind.Accepted,
+                "first writer",
+                tradeOffAcknowledgment: "accepting first-writer trade-off for pilot scope"),
+            Scope,
+            "alice",
+            CancellationToken.None);
+
+        FindingDispositionEventDto second = await sut.RecordAsync(
+            CreateRequest(
+                FindingDispositionKind.Remediated,
+                "matching version amend",
+                expectedRowVersionBase64: first.CurrentDispositionRowVersionBase64),
+            Scope,
+            "carol",
+            CancellationToken.None);
+
+        second.Disposition.Should().Be(FindingDispositionKind.Remediated);
+        trailRepository.EventCount.Should().Be(2);
+    }
+
     private static FindingDispositionService CreateService(ConcurrentFindingReviewTrailRepository trailRepository)
     {
-        IFindingDispositionConcurrencyRepository concurrencyRepository =
-            new InMemoryFindingDispositionConcurrencyRepository(trailRepository);
-        FindingReviewTrailAppendService appendService = new(trailRepository, Mock.Of<IAuditService>());
-
-        return new FindingDispositionService(concurrencyRepository, trailRepository, appendService);
+        return FindingDispositionServiceTestFactory.Create(trailRepository);
     }
 
     private static RecordFindingDispositionRequest CreateRequest(

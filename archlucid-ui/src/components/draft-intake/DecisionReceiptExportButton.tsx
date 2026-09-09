@@ -1,17 +1,15 @@
 "use client";
 
-import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { Button } from "@/components/ui/button";
-import {
-  getDraftDecisionReceiptDownloadUrl,
-  getRunDecisionReceiptDownloadUrl,
-} from "@/lib/api/downloads-api";
+import { downloadRunDecisionReceiptJson } from "@/lib/api/downloads-blob-trigger-decision-receipt";
+import { downloadDraftDecisionReceiptJson } from "@/lib/api/downloads-blob-trigger-draft-decision-receipt";
 import {
   type DecisionReceiptContext,
   resolveDecisionReceiptExportBlockedReason,
   triggerDecisionReceiptDownload,
 } from "@/lib/decision-receipt-export";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { showError } from "@/lib/toast";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -21,22 +19,10 @@ export type DecisionReceiptExportButtonProps = {
   readonly manifestVersion?: string | null;
 };
 
-function resolveServerDownloadUrl(context: DecisionReceiptContext): string | null {
-  if (context.runId !== undefined && context.runId.trim().length > 0) {
-    return getRunDecisionReceiptDownloadUrl(context.runId.trim());
-  }
-
-  if (context.draftId !== undefined && context.draftId.trim().length > 0) {
-    return getDraftDecisionReceiptDownloadUrl(context.draftId.trim());
-  }
-
-  return null;
-}
-
 /** Downloads the ADR 0052 decision receipt JSON (server-audited when draft/run id is present). */
 export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonProps) {
-  const serverDownloadUrl = resolveServerDownloadUrl(props.context);
   const runId = props.context.runId?.trim() ?? "";
+  const draftId = props.context.draftId?.trim() ?? "";
   const citationBlockedReason = resolveDecisionReceiptExportBlockedReason(props.context);
   const sealedManifestBlockedReason =
     runId.length > 0
@@ -47,19 +33,31 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
       : null;
   const exportBlockedReason = citationBlockedReason ?? sealedManifestBlockedReason;
 
-  if (serverDownloadUrl !== null) {
+  if (runId.length > 0) {
     const exportBlocked = exportBlockedReason !== null;
 
     return (
       <div className="flex flex-col gap-1">
-        <Button variant="outline" size="sm" disabled={props.disabled === true || exportBlocked} asChild={!exportBlocked}>
-          {exportBlocked ? (
-            <span data-testid="decision-receipt-export">Download decision receipt (JSON)</span>
-          ) : (
-            <ExportTrackedAnchor href={serverDownloadUrl} data-testid="decision-receipt-export">
-              Download decision receipt (JSON)
-            </ExportTrackedAnchor>
-          )}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={props.disabled === true || exportBlocked}
+          data-testid="decision-receipt-export"
+          onClick={() => {
+            if (exportBlocked) {
+              return;
+            }
+
+            void downloadRunDecisionReceiptJson(runId).catch((error: unknown) => {
+              showError(
+                "Decision receipt",
+                error instanceof Error ? error.message : "Download failed.",
+              );
+            });
+          }}
+        >
+          Download decision receipt (JSON)
         </Button>
         {exportBlocked ? (
           <p
@@ -71,6 +69,28 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
           </p>
         ) : null}
       </div>
+    );
+  }
+
+  if (draftId.length > 0) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={props.disabled === true}
+        data-testid="decision-receipt-export"
+        onClick={() => {
+          void downloadDraftDecisionReceiptJson(draftId).catch((error: unknown) => {
+            showError(
+              "Decision receipt",
+              error instanceof Error ? error.message : "Download failed.",
+            );
+          });
+        }}
+      >
+        Download decision receipt (JSON)
+      </Button>
     );
   }
 

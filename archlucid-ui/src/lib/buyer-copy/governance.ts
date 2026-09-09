@@ -5,7 +5,9 @@
  */
 
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { RISK_EXCEPTIONS_EMPTY_BODY, RISK_EXCEPTIONS_PAGE_SUBTITLE } from "@/lib/risk-exceptions-page";
+import { GOVERNANCE_FINDINGS_PAGE_SUBTITLE_BUYER } from "@/lib/governance-findings-page-copy";
+import { RISK_EXCEPTIONS_EMPTY_BODY } from "@/lib/risk-exceptions-page";
+import { RISK_EXCEPTIONS_PAGE_SUBTITLE_BUYER } from "@/app/(operator)/governance/exceptions/risk-exceptions-page-copy";
 
 export const BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE =
   "Production execution remains controlled by the customer's enterprise change-management process.";
@@ -31,8 +33,7 @@ export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_AUDIT = "View audit trail";
 
 export const BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE = "Findings";
 
-export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD =
-  "Track open findings, waivers, exceptions, and approval decisions across reviews in this workspace.";
+export const BUYER_GOVERNANCE_FINDINGS_PAGE_LEAD = GOVERNANCE_FINDINGS_PAGE_SUBTITLE_BUYER;
 
 export const BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD =
   "Personal remediation queue — open findings assigned to you across reviews in this workspace.";
@@ -46,7 +47,7 @@ export const BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION = "View approval";
 
 export const BUYER_RISK_EXCEPTIONS_PAGE_TITLE = "Exceptions";
 
-export const BUYER_RISK_EXCEPTIONS_PAGE_LEAD = RISK_EXCEPTIONS_PAGE_SUBTITLE;
+export const BUYER_RISK_EXCEPTIONS_PAGE_LEAD = RISK_EXCEPTIONS_PAGE_SUBTITLE_BUYER;
 
 export const BUYER_RISK_EXCEPTIONS_EMPTY_TITLE = "No active risk exceptions";
 
