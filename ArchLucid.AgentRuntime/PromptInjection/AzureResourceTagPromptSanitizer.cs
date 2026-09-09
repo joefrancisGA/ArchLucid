@@ -75,7 +75,15 @@ public static class AzureResourceTagPromptSanitizer
 
         foreach (char ch in value)
         {
-            if (!char.IsControl(ch) || ch is '\n' or '\r' or '\t')
+            if (ch is '\n' or '\r' or '\t')
+            {
+                if (builder.Length > 0 && builder[^1] != ' ')
+                    builder.Append(' ');
+
+                continue;
+            }
+
+            if (!char.IsControl(ch))
                 builder.Append(ch);
         }
 

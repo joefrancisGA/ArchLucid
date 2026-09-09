@@ -1960,11 +1960,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 13
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — context-length guard truncation dropped TB-949 end marker in agent user prompts
+- **hunts:** 14
+- **bugs-found:** 11
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — scalar newline preserved in sanitizer enabled prompt field spoofing inside quarantine
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2004,16 +2004,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `CustomerContentPromptDelimiters.TruncatePreservingSectionBounds` drops `CUSTOMER_CONTENT_END` when truncating multi-section topology user prompts — **cheap-disproof 2026-09-08 seed hunt #1340:** architecture + task quarantine sections keep the last open section closed under char budget; regression `TruncatePreservingSectionBounds_closes_last_open_section_in_multi_quarantine_prompt`
 - [x] (valid-no-repro) `CircuitBreakingContentSafetyGuard` fail-open on inner throw skips deny-list scrub while circuit-open fail-open scrubs — **cheap-disproof 2026-09-08 seed hunt #1340 / reconfirmed:** pre-threshold inner throw returns allow without `RedactAlways`; production `AzureContentSafetyGuard` maps SDK failures via `HandleSdkFailure` rather than throwing; regression `When_inner_throws_and_fail_open_allows_without_scrub_before_circuit_threshold`
 
-- [ ] (candidate) `AgentEvidencePackage.CloudProvider` string omitted from `AgentEvidenceUntrustedInputSanitizer` — surfaced in `AgentEvidenceGroundingIndex` for evaluation grounding, not `AgentUserPromptBuilder`; promote only if a prompt composer starts rendering package `CloudProvider`
+- [x] (invalid) `AgentEvidencePackage.CloudProvider` string omitted from `AgentEvidenceUntrustedInputSanitizer` — **cheap-disproof 2026-09-09 thorough hunt #1410 / reconfirmed #1341:** package `CloudProvider` is grounding-index only; `AgentUserPromptBuilder` renders request enum, never evidence string
+- [x] (invalid) `EvidenceSummarizationService.CapEvidenceText` blind `[..cap]` truncation can split TB-949 markers — **cheap-disproof 2026-09-09 thorough hunt #1410:** locus outside zone paths; in-zone context-length truncation already uses `TruncatePreservingSectionBounds` (#1308)
+- [x] (proven) `AzureResourceTagPromptSanitizer.StripControlChars` preserved `\n`/`\r`/`\t` in sanitized scalars — embedded newline in `SystemName` broke line-oriented TB-949 architecture layout and injected a spoof `Description:` field line inside quarantine — **hit 2026-09-09 thorough hunt #1410:** collapse newline/tab runs to spaces in `StripControlChars`; regressions `SanitizeScalar_collapses_newlines_to_prevent_field_spoofing` and `SanitizeAsync_system_name_newline_does_not_spoof_description_field_in_topology_prompt`
 
-2026-09-08 seed hunt #1340 (seed-only): reseeded after #1308/#1337 hits; cheap-disproof closed policy-tag/prior-list sanitizer parity and multi-section truncation/circuit-breaker scrub candidates; 132 scoped agent-runtime-safety unit tests passed.
-
-- [x] (invalid) `AgentEvidencePackage.CloudProvider` string omitted from `AgentEvidenceUntrustedInputSanitizer` — **cheap-disproof 2026-09-08 thorough hunt #1341:** package `CloudProvider` is indexed in `AgentEvidenceGroundingIndex.FullBlob` for post-run faithfulness heuristics only; `AgentUserPromptBuilder` renders `ArchitectureRequest.CloudProvider` enum, never `evidence.CloudProvider`; regressions `TopologyUserPrompt_does_not_render_evidence_package_cloud_provider_string` and `Build_includes_evidence_package_cloud_provider_in_full_blob`
-- [x] (valid-no-repro) `ContentSafetyEnforcingAgentCompletionClient.CompleteJsonAsync` invokes inner before blocked system/user envelopes are detected — **cheap-disproof 2026-09-08 thorough hunt #1341:** guard scans system then user before inner; regressions `CompleteJsonAsync_when_system_prompt_blocked_does_not_invoke_inner` and `CompleteJsonAsync_when_user_prompt_blocked_does_not_invoke_inner`
-
-- [ ] (candidate) `EvidenceSummarizationService.CapEvidenceText` blind `[..cap]` truncation can split TB-949 markers on the summarization path before `ContextLengthGuard` fallback — locus in `ArchLucid.AgentRuntime/EvidenceSummarizationService.cs` (outside zone `paths`); promote when hunting agent-runtime package broadly or if summarization output is wired into guarded completion without delimiter-preserving truncation
-
-2026-09-08 thorough hunt #1341 (dry): cheap-disproof closed package CloudProvider sanitizer candidate (grounding-only reachability); reconfirmed completion-envelope ordering; reseeded summarization CapEvidenceText TB-949 candidate outside zone paths; 137 scoped agent-runtime-safety unit tests passed.
+2026-09-09 thorough hunt #1410 (hit): cheap-disproof closed CloudProvider and CapEvidenceText candidates; proved scalar newline field-spoofing inside customer quarantine; 130 scoped agent-runtime-safety unit tests passed.
 
 ---
 
