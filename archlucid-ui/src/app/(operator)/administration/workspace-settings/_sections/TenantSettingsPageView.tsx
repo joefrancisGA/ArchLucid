@@ -232,6 +232,7 @@ export function TenantSettingsPageView(props: Props) {
           navHref={SETTINGS_WORKSPACE_SETTINGS_PATH}
           title={OPERATOR_NAV_LINK_LABELS.workspaceSettings}
           subtitle={subtitle}
+          subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
           headingLevel="h1"
           titleTestId="tenant-settings-page-title"
           claimDiscipline={buyerPolishedShell ? TENANT_SETTINGS_CLAIM_DISCIPLINE : undefined}
