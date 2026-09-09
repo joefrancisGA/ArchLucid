@@ -66,7 +66,9 @@ public sealed class IdentityBlastRadiusFindingEngine : IFindingEngine
             traceNotes.Add(counterfactualNote);
         }
 
-        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, relatedNodeIds);
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+            graphSnapshot,
+            relatedNodeIds);
 
         return new Finding
         {
