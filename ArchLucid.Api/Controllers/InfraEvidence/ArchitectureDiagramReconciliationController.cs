@@ -7,6 +7,8 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -22,10 +24,17 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [Route("v{version:apiVersion}/architecture/runs/{runId:guid}/diagrams")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ArchitectureDiagramReconciliationController(
+public sealed partial class ArchitectureDiagramReconciliationController(
     IDiagramInfrastructureReconciliationService reconciliationService,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IDiagramInfrastructureReconciliationService _reconciliationService =
+        reconciliationService ?? throw new ArgumentNullException(nameof(reconciliationService));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("reconcile")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -49,11 +58,16 @@ public sealed class ArchitectureDiagramReconciliationController(
             return this.BadRequestProblem("SnapshotId is required.", ProblemTypes.ValidationFailed);
         }
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         try
         {
-            DiagramInfrastructureReconciliationResult result = await reconciliationService.ReconcileAsync(
+            DiagramInfrastructureReconciliationResult result = await _reconciliationService.ReconcileAsync(
                 scope,
                 runId,
                 request,
@@ -86,11 +100,16 @@ public sealed class ArchitectureDiagramReconciliationController(
             return this.BadRequestProblem("RunId and snapshotId are required.", ProblemTypes.ValidationFailed);
         }
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         try
         {
-            DiagramInfrastructureReconciliationResult? result = await reconciliationService.TryGetReconciliationAsync(
+            DiagramInfrastructureReconciliationResult? result = await _reconciliationService.TryGetReconciliationAsync(
                 scope,
                 runId,
                 snapshotId,

@@ -41,7 +41,7 @@
     ],
     "edges": [
       {
-        "edgeId": "ed0c8530ef3546aba40f2c0f2f5fcf66",
+        "edgeId": "bcf053fbff3246de971bc7035162af9e",
         "fromNodeId": "context-10000000000040008000000000000071",
         "toNodeId": "diagram-node:1",
         "edgeType": "CONTAINS",
@@ -52,7 +52,7 @@
         "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
-        "edgeId": "52bf56ff1dc147a68aad9a0d88837d97",
+        "edgeId": "84def96e59b04177921498e5135a56e5",
         "fromNodeId": "context-10000000000040008000000000000071",
         "toNodeId": "diagram-node:2",
         "edgeType": "CONTAINS",

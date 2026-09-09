@@ -33,6 +33,7 @@ export type UseExtractUploadPageClientInput = {
 export function useExtractUploadPageClient({ router, pathname, searchParams }: UseExtractUploadPageClientInput) {
   const extractUploadValidateDisclosureOpenParam = searchParams.get("extractUploadValidateDisclosureOpen");
   const extractUploadAdvancedCommandOpenParam = searchParams.get("extractUploadAdvancedCommandOpen");
+  const associateRunId = searchParams.get("runId");
   const { productLine } = useProductLine();
   const extractorScriptDownloadUrl = extractorScriptCdnUrl(productLine);
   const [validateDisclosureOpen, setValidateDisclosureOpenState] = useState(() =>
@@ -43,7 +44,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   );
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const baselineQuery = useExtractUploadBaselineQuery(productLine);
-  const upload = useExtractUploadUpload();
+  const upload = useExtractUploadUpload(associateRunId);
   const folderZip = useExtractUploadFolderZip({
     onUpload: upload.onUpload,
     clearUploadState: upload.clearUploadState,

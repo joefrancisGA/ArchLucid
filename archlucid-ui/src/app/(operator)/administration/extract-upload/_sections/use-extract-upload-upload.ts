@@ -6,7 +6,7 @@ import type { ApiProblemDetails } from "@/lib/api-problem";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
-export function useExtractUploadUpload() {
+export function useExtractUploadUpload(associateRunId?: string | null) {
   const [busy, setBusy] = useState(false);
   const [uploadError, setUploadError] = useState<{
     message: string;
@@ -22,8 +22,14 @@ export function useExtractUploadUpload() {
       const formData = new FormData();
       formData.append("file", file);
 
+      const trimmedRunId = associateRunId?.trim() ?? "";
+      const uploadPath =
+        trimmedRunId.length > 0
+          ? `/api/proxy/v1/azure-extractor/upload?runId=${encodeURIComponent(trimmedRunId)}`
+          : "/api/proxy/v1/azure-extractor/upload";
+
       const response = await fetch(
-        "/api/proxy/v1/azure-extractor/upload",
+        uploadPath,
         mergeRegistrationScopeForProxy({
           method: "POST",
           body: formData,

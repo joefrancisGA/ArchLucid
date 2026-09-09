@@ -23,6 +23,12 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(null, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             RealizedValueAttestationResponse response =
@@ -63,6 +69,12 @@ public sealed partial class GovernanceStickinessController
 
         if (tenantProblem is not null)
             return tenantProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureRegistersSealedManifestAllowedAsync(null, cancellationToken).ConfigureAwait(false);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

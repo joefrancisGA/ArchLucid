@@ -9,15 +9,15 @@ namespace ArchLucid.Decisioning.Services.Findings;
 
 public sealed class FindingsMergeAndGateStage(
     IOptions<HumanReviewFindingOptions> humanReviewOptions,
-    IInsightDensityGate insightDensityGate,
+    IOptions<InsightDensityGateOptions> insightDensityGateOptions,
     IFindingProvenanceValidator provenanceValidator,
     TimeProvider? timeProvider = null) : IFindingsMergeAndGateStage
 {
     private readonly IOptions<HumanReviewFindingOptions> _humanReviewOptions =
         humanReviewOptions ?? throw new ArgumentNullException(nameof(humanReviewOptions));
 
-    private readonly IInsightDensityGate _insightDensityGate =
-        insightDensityGate ?? throw new ArgumentNullException(nameof(insightDensityGate));
+    private readonly IOptions<InsightDensityGateOptions> _insightDensityGateOptions =
+        insightDensityGateOptions ?? throw new ArgumentNullException(nameof(insightDensityGateOptions));
 
     private readonly IFindingProvenanceValidator _provenanceValidator =
         provenanceValidator ?? throw new ArgumentNullException(nameof(provenanceValidator));
@@ -99,7 +99,17 @@ public sealed class FindingsMergeAndGateStage(
 
         FindingProvenanceEmissionApplicator.EnrichDiagramEvidenceRefs(snapshot.Findings, context.GraphSnapshot);
 
-        FindingInsightDensityGateApplicator.ApplyToFindings(snapshot.Findings, _insightDensityGate);
+        DiagramPackageCitationIndex packageDiagramCitationIndex =
+            DiagramPackageCitationIndexBuilder.FromGraphSnapshot(context.GraphSnapshot);
+
+        InsightDensityGateOptions scoringOptions =
+            InsightDensityGateScoringFactory.CloneOptions(_insightDensityGateOptions.Value);
+        scoringOptions.PackageDiagramCitationIndex = packageDiagramCitationIndex;
+
+        IInsightDensityGate scoringGate = new DeterministicInsightDensityGate(
+            Microsoft.Extensions.Options.Options.Create(scoringOptions));
+
+        FindingInsightDensityGateApplicator.ApplyToFindings(snapshot.Findings, scoringGate);
 
         FindingProvenanceEmissionApplicator.Apply(snapshot.Findings, _provenanceValidator);
 
