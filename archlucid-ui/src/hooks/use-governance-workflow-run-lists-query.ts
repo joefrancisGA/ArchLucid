@@ -8,6 +8,8 @@ import {
   listApprovalRequests,
   listPromotions,
 } from "@/lib/api/policy-governance-api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { governanceWorkflowRunReadBlockedReason } from "@/lib/governance/governance-workflow-run-read-blocked-reason";
 import { resolveGovernanceWorkflowRunLists } from "@/lib/governance/governance-workflow-run-lists-resolve";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -85,6 +87,9 @@ export function useGovernanceWorkflowRunListsQuery(
     ],
   );
 
+  const listFailure: ApiLoadFailureState | null = resolved.listFailure;
+  const blockedReason = governanceWorkflowRunReadBlockedReason(listFailure);
+
   const isPending =
     !skipLiveApi && enabled && (approvalsQuery.isPending || promotionsQuery.isPending || activationsQuery.isPending);
   const isFetching =
@@ -113,7 +118,8 @@ export function useGovernanceWorkflowRunListsQuery(
     promotions: resolved.promotions,
     activations: resolved.activations,
     showingStaticDemoGovernanceRecords: resolved.showingStaticDemoGovernanceRecords,
-    listFailure: resolved.listFailure,
+    listFailure,
+    blockedReason,
     isPending,
     isFetching,
     isFetched,

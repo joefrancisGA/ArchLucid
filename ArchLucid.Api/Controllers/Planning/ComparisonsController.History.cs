@@ -4,6 +4,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentValidation.Results;
 
@@ -37,10 +38,20 @@ public sealed partial class ComparisonsController
     [HttpGet("run/exports/{exportRecordId}/comparisons")]
     [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetExportRecordComparisonHistory(
         [FromRoute] string exportRecordId,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            exportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         IReadOnlyList<ArchLucid.Contracts.Metadata.ComparisonRecord>? records =
             await _comparisons.TryListByExportRecordIdAsync(exportRecordId, cancellationToken);
 
@@ -52,6 +63,7 @@ public sealed partial class ComparisonsController
     [HttpGet("comparisons/{comparisonRecordId}")]
     [ProducesResponseType(typeof(ComparisonRecordResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetComparisonRecord(
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
@@ -59,18 +71,38 @@ public sealed partial class ComparisonsController
         ArchLucid.Contracts.Metadata.ComparisonRecord? record =
             await _comparisons.TryGetScopedRecordAsync(comparisonRecordId, cancellationToken);
 
-        return record is null
-            ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound)
-            : Ok(new ComparisonRecordResponse { Record = record });
+        if (record is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedForComparisonRecordAsync(record, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        return Ok(new ComparisonRecordResponse { Record = record });
     }
 
     [HttpGet("comparisons/{comparisonRecordId}/summary")]
     [ProducesResponseType(typeof(ComparisonSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetComparisonSummary(
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
+        ArchLucid.Contracts.Metadata.ComparisonRecord? scopedRecord =
+            await _comparisons.TryGetScopedRecordAsync(comparisonRecordId, cancellationToken);
+
+        if (scopedRecord is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedForComparisonRecordAsync(scopedRecord, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ReplayComparisonResult? replay =
             await _comparisons.TryReplaySummaryMarkdownAsync(comparisonRecordId, cancellationToken);
 

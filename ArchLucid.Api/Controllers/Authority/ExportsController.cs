@@ -10,6 +10,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -74,8 +75,19 @@ public sealed partial class ExportsController(
     [ProducesResponseType(typeof(RunExportRecordResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> GetExportRecord([FromRoute] string exportRecordId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetExportRecord(
+        [FromRoute] string exportRecordId,
+        [FromServices] IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+            exportRecordId,
+            exportRecordRepository,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ScopedExportRecordLoadResult result = await _runExportQueryFacade.GetExportRecordAsync(exportRecordId, cancellationToken);
         return result.Outcome switch
         {
