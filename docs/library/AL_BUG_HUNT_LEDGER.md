@@ -549,7 +549,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -574,6 +574,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-09 seed hunt #1428 (hit): reseeded email-otp-auth; proved verify JWT role ignored invitation AppRole; cheap-disproved premature `EmailOtpCodeRequested` audit ordering; 21 scoped EmailOtp tests passed.
 
 2026-08-26 seed hunt #5: reseeded challenge HTTP audit path; proved duplicate `EmailOtpCodeRequested` on valid challenge requests.
+
+- [x] (valid-no-repro) `VerifyCodeAsync` accepts OTP codes with leading/trailing whitespace because only email is normalized — **cheap-disproof 2026-09-09 seed hunt #1475:** `EmailOtpCodeHasher.Hash` trims `rawCode` before hashing; whitespace-padded codes still verify against the same challenge hash.
+- [x] (invalid) `SelectWorkspace` next-step JWT uses newest membership role when challenge linked an invitation for an older workspace — **cheap-disproof 2026-09-09 seed hunt #1475:** #1428 fix routes invitation accept through `AcceptedEmailOtpInvitation` AppRole; multi-workspace `SelectWorkspace` remains explicit operator choice.
+
+2026-09-09 seed hunt #1475 (seed-only): reseeded email-otp-auth after #1428 hit; cheap-disproof closed code-trim and select-workspace role candidates; 18 scoped `EmailOtpAuthServiceTests` passed.
 
 ---
 
