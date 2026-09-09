@@ -22,3 +22,9 @@ export const ADMIN_DIAGNOSTICS_HELP_START_HERE_HELPER =
 
 export const ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD =
   "This guide explains where to check platform health and workspace readiness in ArchLucid. It is orientation help — not a live health report or an audit export from your tenant." as const;
+
+export const ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW =
+  "Use this guide when a workspace symptom points to platform health rather than a single architecture review — the signal table below explains what each probe means before you open System health." as const;
+
+export const ADMIN_DIAGNOSTICS_HELP_ORIENTATION_BOTTOM_TEST_ID =
+  "help-admin-diagnostics-orientation-bottom" as const;
