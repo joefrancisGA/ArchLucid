@@ -140,7 +140,6 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       && coverageHonestyQuery.data !== undefined
       && analysisStagesCompleteOnSummary(summaryQuery.data)
       && countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null) === 0,
-
   });
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
@@ -171,7 +170,6 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       presentation={presentation}
       listScopedRunId={listScopedRunId}
       parentArchitectureId={parentArchitectureId}
-
       meetingCaptureBlockedReason={meetingCaptureBlockedReason}
     />
   );

@@ -12,7 +12,6 @@ import { fetchManifestJsonText } from "@/lib/manifest-json-fetch";
 import { signedReviewRecordBlockedReason } from "@/lib/manifest/signed-review-record-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildSealedManifestExportJson } from "@/lib/sealed-manifest-json-export";
-
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 type CopyManifestButtonProps = {

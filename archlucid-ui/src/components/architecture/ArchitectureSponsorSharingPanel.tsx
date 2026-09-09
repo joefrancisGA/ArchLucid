@@ -18,6 +18,8 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { recordSponsorPreliminaryArchitectureShare } from "@/lib/api/architecture-sponsor-sharing-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { sponsorPreliminaryShareMutationBlockedReason } from "@/lib/pilots/sponsor-preliminary-share-mutation-blocked-reason";
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
 import {
   ARCHITECTURE_SPONSOR_AUDIT_RECORDED,
@@ -236,8 +238,8 @@ export function ArchitectureSponsorSharingPanel(
       setDialogOpen(false);
       setOverrideConfirmed(false);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Sponsor share could not be recorded.";
-      showError(message);
+      const failure = toApiLoadFailure(error);
+      showError(sponsorPreliminaryShareMutationBlockedReason(failure) ?? failure.message);
     } finally {
       setBusy(false);
     }

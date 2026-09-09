@@ -171,6 +171,11 @@ public sealed partial class PilotsController
         [FromBody] SponsorPackSentPostRequest? body,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         SponsorPackSentResult result = await _pilots.RecordSponsorPackSentAsync(
             runId,
             body?.DeliveryMethod,
@@ -203,6 +208,11 @@ public sealed partial class PilotsController
         [FromBody] SponsorPreliminarySharePostRequest? body,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         SponsorPreliminaryShareResult result = await _pilots.RecordSponsorPreliminaryShareAsync(
             runId,
             body?.ReadinessStatus,

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { createAndDownloadComparisonPdf } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { comparisonDocxMutationBlockedReason } from "@/lib/compare/comparison-docx-mutation-blocked-reason";
 import { comparisonReplayMutationBlockedReason } from "@/lib/compare/comparison-replay-mutation-blocked-reason";
 import { downloadArchitecturePackageDocx } from "@/lib/api/downloads-blob-trigger-architecture-package-docx";
 import { buildCompareVerdictSummary } from "@/lib/build-compare-verdict-summary";
@@ -79,7 +80,8 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
         includeComparisonExplanation: true,
       });
     } catch (e: unknown) {
-      setDocxError(e instanceof Error ? e.message : "Failed to download DOCX package.");
+      const failure = toApiLoadFailure(e);
+      setDocxError(comparisonDocxMutationBlockedReason(failure) ?? failure.message);
     } finally {
       setDocxDownloading(false);
     }

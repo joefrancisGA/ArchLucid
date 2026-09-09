@@ -5,6 +5,8 @@ import type { MouseEvent } from "react";
 import { ReviewPinGlyph } from "@/components/reviews/ReviewPinGlyph";
 import { Button } from "@/components/ui/button";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
+import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useReviewPinMutation } from "@/hooks/use-review-pin-mutation";
 import { cn } from "@/lib/utils";
 
 type FavoriteReviewToggleProps = {
@@ -19,15 +21,35 @@ type FavoriteReviewToggleProps = {
  * Unfilled pin = not pinned; filled pin = pinned. Persists via {@link useFavoriteReviews}.
  */
 export function FavoriteReviewToggle(props: FavoriteReviewToggleProps): React.JSX.Element {
+  const canMutate = useOperateCapability();
   const { isFavorite, toggleFavorite } = useFavoriteReviews();
+  const { pinBusyRunId, setRunPinned } = useReviewPinMutation();
   const favorited = isFavorite(props.runId);
   const label = favorited ? "Unpin architecture review" : "Pin architecture review";
   const size = props.size ?? "icon";
+  const busy = pinBusyRunId === props.runId;
 
   const onToggle = (event: MouseEvent<HTMLButtonElement>): void => {
     event.preventDefault();
     event.stopPropagation();
-    toggleFavorite({ runId: props.runId, title: props.title });
+
+    if (busy) {
+      return;
+    }
+
+    const nextPinned = !favorited;
+
+    void (async () => {
+      if (canMutate) {
+        const persisted = await setRunPinned(props.runId, nextPinned);
+
+        if (!persisted) {
+          return;
+        }
+      }
+
+      toggleFavorite({ runId: props.runId, title: props.title });
+    })();
   };
 
   switch (size) {
@@ -37,6 +59,7 @@ export function FavoriteReviewToggle(props: FavoriteReviewToggleProps): React.JS
           type="button"
           variant="outline"
           size={size}
+          disabled={busy}
           className={cn(
             "gap-1",
             favorited ? "border-al-accent-interactive text-al-accent-interactive" : "text-neutral-500",
@@ -57,6 +80,7 @@ export function FavoriteReviewToggle(props: FavoriteReviewToggleProps): React.JS
       return (
         <button
           type="button"
+          disabled={busy}
           className={cn(
             "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-neutral-400 hover:text-al-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
             favorited ? "text-al-accent-interactive" : null,

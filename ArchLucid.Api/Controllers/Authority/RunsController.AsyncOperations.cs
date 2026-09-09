@@ -57,6 +57,13 @@ public sealed partial class RunsController
         }
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureRunCreateSealedManifestAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         string actor = actorContext.GetActor();
         CreateRunIdempotencyState? idempotency = BuildAsyncCreateIdempotency(scope, idempotencyKey, request);
 

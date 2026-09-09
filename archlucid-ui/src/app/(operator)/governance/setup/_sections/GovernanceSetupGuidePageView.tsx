@@ -58,7 +58,6 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
             (buyerPolishedShell
               ? GOVERNANCE_SETUP_LOAD_ERROR
               : "Could not load approval setup status. Your policy and alert configuration may still be saved — retry to refresh progress.")
-
           }
           onRetry={() => window.location.reload()}
           retryLabel={buyerPolishedShell ? "Try again" : "Reload page"}

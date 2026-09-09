@@ -24,7 +24,6 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
   const runId = props.context.runId?.trim() ?? "";
   const draftId = props.context.draftId?.trim() ?? "";
   const citationBlockedReason = resolveDecisionReceiptExportBlockedReason(props.context);
-
   const sealedManifestBlockedReason =
     runId.length > 0
       ? runCollateralSealedManifestCopyBlockedReason({
