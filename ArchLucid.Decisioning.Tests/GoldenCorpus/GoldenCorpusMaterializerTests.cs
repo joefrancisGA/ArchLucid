@@ -429,6 +429,18 @@ public sealed class GoldenCorpusMaterializerTests
     }
 
     [Fact]
+    public async Task Record_hand_authored_case_72_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordPathEngineCaseAsync(
+            "case-72",
+            GoldenCorpusDiagramDeclarationOmissionGraphFactory.CreateDiagramDeclarationOmissionGraph(),
+            "Completeness-asserting diagram cites Key Vault declaration omitted from explicit connector set — expect **diagram-declaration-omission** (AS-042).");
+    }
+
+    [Fact]
     public async Task Record_hand_authored_cases_61_63_when_env_flag_set()
     {
         if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
