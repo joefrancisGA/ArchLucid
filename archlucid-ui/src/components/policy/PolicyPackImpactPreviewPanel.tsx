@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { simulatePolicyPackAgainstRun } from "@/lib/api/policy-governance-api";
 import { toApiLoadFailure, uiFailureFromMessage, type ApiLoadFailureState } from "@/lib/api-load-failure";
+import { policyPackSimulateBlockedReason } from "@/lib/policy/policy-pack-simulate-blocked-reason";
 import { buildPolicyPacksHrefWithReviewId } from "@/lib/policy-packs-review-handoff";
 import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
@@ -123,7 +124,12 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
       setBaselineResult(baseline);
       setStricterResult(stricter);
     } catch (error: unknown) {
-      setFailure(toApiLoadFailure(error));
+      const loadFailure = toApiLoadFailure(error);
+      setFailure(
+        policyPackSimulateBlockedReason(loadFailure) !== null
+          ? { ...loadFailure, message: policyPackSimulateBlockedReason(loadFailure) ?? loadFailure.message }
+          : loadFailure,
+      );
     } finally {
       setBusy(false);
     }

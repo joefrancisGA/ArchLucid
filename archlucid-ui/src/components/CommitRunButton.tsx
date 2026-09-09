@@ -21,8 +21,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { commitArchitectureRun, getRunSummary } from "@/lib/api";
+import { simulatePreCommitSyntheticFindings } from "@/lib/api/pre-finalize-synthetic-simulation-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
+import { preFinalizeSyntheticSimulationBlockedReason } from "@/lib/runs/pre-finalize-synthetic-simulation-blocked-reason";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
 import { readAcknowledgedAssumptionIds } from "@/lib/review-quality/review-assumption-ack-store";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -82,6 +84,7 @@ export function CommitRunButton({
   const [postCommitSummaryBlockedReason, setPostCommitSummaryBlockedReason] = useState<string | null>(null);
   const [notifySponsor, setNotifySponsor] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [preflightBusy, setPreflightBusy] = useState(false);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -127,6 +130,38 @@ export function CommitRunButton({
   useEffect(() => {
     setSuccessModalOpenState(urlFinalizeSuccess);
   }, [urlFinalizeSuccess]);
+
+  async function openFinalizeConfirm(): Promise<void> {
+    setError(null);
+    setNotifySponsor(false);
+    setPreflightBusy(true);
+
+    try {
+      await simulatePreCommitSyntheticFindings({
+        runId,
+        syntheticCount: 0,
+        syntheticSeverity: "Critical",
+      });
+      setDialogOpen(true);
+    } catch (error: unknown) {
+      const failure = toApiLoadFailure(error);
+      const blockedReason = preFinalizeSyntheticSimulationBlockedReason(failure);
+
+      if (blockedReason !== null) {
+        setError({
+          message: blockedReason,
+          problem: failure.problem,
+          correlationId: failure.correlationId,
+        });
+
+        return;
+      }
+
+      setDialogOpen(true);
+    } finally {
+      setPreflightBusy(false);
+    }
+  }
 
   async function onConfirm(): Promise<void> {
     setBusy(true);
@@ -218,13 +253,12 @@ export function CommitRunButton({
           variant={buttonVariant}
           title={FINALIZE_REPLAY_COMPARE_TOOLTIP}
           data-testid="commit-run-finalize"
+          disabled={preflightBusy}
           onClick={() => {
-            setError(null);
-            setNotifySponsor(false);
-            setDialogOpen(true);
+            void openFinalizeConfirm();
           }}
         >
-          Finalize review
+          {preflightBusy ? "Checking finalize readiness…" : "Finalize review"}
         </Button>
         <p className={cn("mt-1.5 max-w-xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Finalizes the reviewed architecture snapshot and decision traces when the pipeline snapshots are ready. Requires

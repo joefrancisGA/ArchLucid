@@ -28,7 +28,9 @@ import {
   COMMAND_PALETTE_FINDING_REMEDIATE_EVENT,
 } from "@/lib/command-palette-handler-actions";
 import { recordFindingDisposition } from "@/lib/api/governance-stickiness-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { findingDispositionKindLabel } from "@/lib/disposition-export-before-after";
+import { findingKeyboardDispositionBlockedReason } from "@/lib/findings/finding-keyboard-disposition-blocked-reason";
 import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
 import {
   buildDispositionRestoreRevisitDueUtc,
@@ -353,7 +355,11 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
       props.onApplied?.();
       router.refresh();
     } catch (err) {
-      setInlineErrorMessage(err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
+      const failure = toApiLoadFailure(err);
+      setInlineErrorMessage(
+        findingKeyboardDispositionBlockedReason(failure)
+          ?? (err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE),
+      );
     } finally {
       setBusy(false);
     }

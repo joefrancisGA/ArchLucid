@@ -24,6 +24,8 @@ import {
   writeArchitectureNewDraftRecovery,
 } from "@/lib/architecture/architecture-new-draft-recovery";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { architectureDraftAutosavePatchBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
@@ -217,8 +219,10 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           args.setSaveState("error");
 
           if (isApiRequestError(error) && error.httpStatus === 409) {
+            const failure = toApiLoadFailure(error);
             args.setConflictMessage(
-              "This architecture was updated in another session. Keep your edits or load the server copy before saving again.",
+              architectureDraftAutosavePatchBlockedReason(failure)
+                ?? "This architecture was updated in another session. Keep your edits or load the server copy before saving again.",
             );
           }
         }

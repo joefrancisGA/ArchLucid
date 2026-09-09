@@ -5,3 +5,8 @@ import { compareRunPairBlockedReason } from "@/lib/compare/compare-run-pair-bloc
 export function architectureDraftBlockedReason(failure: ApiLoadFailureState | null): string | null {
   return compareRunPairBlockedReason(failure);
 }
+
+/** Wave-65 suggestion 776: surface lifecycle/sealed-hash draft intake PATCH autosave 409 copy. */
+export function architectureDraftAutosavePatchBlockedReason(failure: ApiLoadFailureState | null): string | null {
+  return compareRunPairBlockedReason(failure);
+}
