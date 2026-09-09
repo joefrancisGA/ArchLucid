@@ -58,6 +58,8 @@ import {
 import {
   SLACK_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID,
   SLACK_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  SLACK_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  SLACK_INTEGRATION_HELP_PAGE_LEAD,
   SLACK_INTEGRATION_HELP_SKIP_LINK_LABEL,
   SLACK_INTEGRATION_HELP_SKIP_TARGET_ID,
 } from "@/lib/slack-integration-help-page-copy";
@@ -98,11 +100,15 @@ describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
     const primaryContent = screen.getByTestId("help-slack-integration-primary-content");
     const firstViewport = screen.getByTestId(SLACK_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-slack-integration-action-panel");
-    const orientationBottom = screen.getByTestId("help-slack-integration-orientation-bottom");
+    const overview = screen.getByTestId("help-slack-integration-overview");
+    const orientationBottom = screen.getByTestId(SLACK_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-slack-integration-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("help-slack-integration-intro")).toHaveTextContent(SLACK_INTEGRATION_HELP_PAGE_LEAD);
     expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).toContainElement(screen.getByTestId("help-slack-integration-intro"));
+    expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.getByTestId("help-slack-integration-workspace-readiness")).toBeInTheDocument();
@@ -112,8 +118,7 @@ describe("HelpSlackIntegrationGuideView buyer-polished shell (HSL)", () => {
     expect(
       within(actionPanel).queryByRole("link", { name: SLACK_INTEGRATION_HELP_PRIMARY_ACTION.label }),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-slack-integration-overview")).toHaveTextContent(/incoming webhook/);
-    expect(firstViewport).toContainElement(screen.getByTestId("help-slack-integration-overview"));
+    expect(overview).toHaveTextContent(/incoming webhook/);
     expect(
       screen.getByRole("heading", { level: 2, name: SLACK_INTEGRATION_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
