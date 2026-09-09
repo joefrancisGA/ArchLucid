@@ -121,10 +121,10 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-07
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-08-23 — hunt #50: greenfield compliance declared endpoints but graph merge dropped dangling edges
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -147,8 +147,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `FilterValidatedProposals` drops Cost/Compliance agent when `SanitizeProposal` strips topology but leaves `RequiredControls` — **disproved 2026-09-07 (#1199):** `ProposalIsEmpty` treats non-empty `RequiredControls` as non-empty; `continue` only runs when all topology and controls are empty; existing regression `FilterValidatedProposals_WhenInventoryExists_AllowsRequiredControlsOnlyComplianceProposal`; `validatedResults` gates graph merge only, not manifest merge.
 - [x] (valid-no-repro) `MergeEndpointAliasesInto` first-wins with two agents mapping the same endpoint key to different node ids drops second agent edges — **disproved 2026-09-07 (#1199):** validated non-topology services on inventoried graphs always take resolved-alias path (`TryClaim` fails on pre-seeded keys); conflicting declared-alias input fails `FilterValidatedProposals`; greenfield materializes nodes instead of bare declared aliases (hunt #50).
 - [x] (valid-no-repro) Claimed topology services with `materializeNodes == true` skip `AddDeclaredManifestServiceEndpointAliases` and drop gate-kept relationships — **disproved 2026-09-07 (#1199):** materialized nodes index `NodeId`, `Label`, and terraform synthetic keys via `AddGraphNodeResolutionKeys`; case-insensitive ARM normalization closes ServiceId/label mismatches; existing merge regressions cover gate/merge alias parity on non-materialize path.
-- [ ] (candidate) `ProposalIsEmpty` ignores `Warnings` — warnings-only Cost/Compliance proposal is dropped from `validatedResults` when topology and controls are empty but `Warnings` carry actionable context; hunt when a caller persists warnings-only proposals that must survive graph merge.
-- [ ] (candidate) `AgentTopologyProposalGraphMergeReference` materializes nodes only for `AgentType.Topology` while production also sets `materializeNodes` on `greenfieldGraph` — property/reference oracle may miss greenfield non-topology edge regressions not exercised by `AgentTopologyProposalGraphMergePropertyTests`.
+- [x] (valid-no-repro) `ProposalIsEmpty` ignores `Warnings` — warnings-only Cost/Compliance proposal is dropped from `validatedResults` when topology and controls are empty but `Warnings` carry actionable context — **cheap-disproof 2026-09-09 thorough hunt #1468:** graph merge gate only forwards structural overlay deltas; advisory `Warnings` are not graph mutations and authority commit surfaces warnings via separate governance paths; no caller persists warnings-only proposals into `validatedResults` for merge.
+- [x] (invalid) `AgentTopologyProposalGraphMergeReference` materializes nodes only for `AgentType.Topology` while production also sets `materializeNodes` on `greenfieldGraph` — **cheap-disproof 2026-09-09 thorough hunt #1468:** reference oracle is intentionally Topology-only; production `greenfieldGraph` path is covered by `WithMergedTopologyProposals_materializes_greenfield_edges_when_compliance_declares_endpoints_and_relationship`.
+
+2026-09-09 thorough hunt #1468 (dry): cheap-disproof closed warnings-only proposal and reference-oracle greenfield candidates; 403 scoped Application tests passed.
 
 2026-09-07 thorough hunt #1199 (dry): cheap-disproved three hunt-ready rows (controls-only gate drop, alias first-wins cross-agent conflict, claimed-service alias skip); 403 scoped tests passed; seeded warnings-only and reference-oracle greenfield candidates.
 

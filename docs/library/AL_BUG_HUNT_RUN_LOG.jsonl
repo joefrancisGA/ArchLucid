@@ -1653,3 +1653,4 @@
 {"at":"2026-09-09T17:44:30.2292526Z","zoneId":"sql-run-repository","outcome":"hit"}
 {"at":"2026-09-09T17:47:52.322966Z","zoneId":"sql-run-repository","outcome":"hit"}
 {"at":"2026-09-09T20:25:12.2125319Z","zoneId":"sql-run-repository","outcome":"seed-only"}
+{"at":"2026-09-09T20:28:42.0566625Z","zoneId":"topology-proposal-merge","outcome":"dry"}
