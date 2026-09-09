@@ -461,6 +461,30 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void SelectCommittedRunIdByGoldenManifestId_excludes_archived_runs_via_run_archival_cascade()
+    {
+        RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should().Contain("r.ArchivedUtc IS NULL");
+        RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should().NotContain("dbo.GoldenManifests",
+            "run archival cascades GoldenManifests.ArchivedUtc in the same batch; scoped lookup filters active runs only.");
+    }
+
+    [Fact]
+    public void SelectLatestCommittedRunIdByArchitectureVersionId_excludes_archived_runs_without_golden_manifest_join()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByArchitectureVersionId.Should().Contain("r.ArchivedUtc IS NULL");
+        RunRepositorySql.SelectLatestCommittedRunIdByArchitectureVersionId.Should().NotContain("dbo.GoldenManifests",
+            "version-scoped committed lookup ranks active runs; manifest archival follows run archival cascade.");
+    }
+
+    [Fact]
+    public void Update_omits_archived_filter_to_allow_archival_and_unarchive_writes()
+    {
+        RunRepositorySql.Update.Should().Contain("ArchivedUtc = @ArchivedUtc");
+        RunRepositorySql.Update.Should().NotContain("ArchivedUtc IS NULL",
+            "mutating update must be able to set ArchivedUtc during archive/unarchive batches.");
+    }
+
+    [Fact]
     public async Task InMemory_committed_run_by_golden_manifest_picks_newest_when_manifest_is_shared()
     {
         ScopeContext scope = new()

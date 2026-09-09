@@ -681,7 +681,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -737,6 +737,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RunRepositoryCommittedArchitectureReviewFlagReader` scans full scope and misses committed reviews beyond recent window — **cheap-disproof 2026-09-09 seed hunt #1443:** InMemory reader intentionally uses bounded `ListRecentInScopeAsync(take: 500)`; SQL EXISTS remains authoritative; regression `InMemory_committed_review_flag_reader_scans_bounded_recent_list_not_full_scope`.
 
 2026-09-09 seed hunt #1443 (seed-only): reseeded sql-run-repository after #1442; cheap-disproof closed keyset tie-break, bounded recent list, inclusive graph-as-of boundary, archived-manifest exclusion, and InMemory committed-review scan window; 48 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectCommittedRunIdByGoldenManifestId` omits `GoldenManifests` join and returns runs for archived manifests — **cheap-disproof 2026-09-09 seed hunt #1444:** lookup filters `r.ArchivedUtc IS NULL`; run archival cascades `GoldenManifests.ArchivedUtc` in the same batch; regression `SelectCommittedRunIdByGoldenManifestId_excludes_archived_runs_via_run_archival_cascade`.
+- [x] (valid-no-repro) `SelectLatestCommittedRunIdByArchitectureVersionId` omits golden-manifest archival filter — **cheap-disproof 2026-09-09 seed hunt #1444:** version-scoped committed lookup ranks active runs only; manifest archival follows run cascade; regression `SelectLatestCommittedRunIdByArchitectureVersionId_excludes_archived_runs_without_golden_manifest_join`.
+- [x] (valid-no-repro) `RunRepositorySql.Update` mutates soft-archived runs because WHERE omits `ArchivedUtc IS NULL` — **cheap-disproof 2026-09-09 seed hunt #1444:** update SET includes `ArchivedUtc = @ArchivedUtc` for archive/unarchive batches; regression `Update_omits_archived_filter_to_allow_archival_and_unarchive_writes`.
+- [x] (valid-no-repro) `SelectRepresentativeRunIdForArchitectureRequestInScope` picks archived reruns and breaks sealed-manifest guard — **cheap-disproof 2026-09-09 seed hunt #1444:** representative lookup is historical like existence latch; active detail reads filter archived separately; regressions `SelectRepresentativeRunIdForArchitectureRequestInScope_includes_archived_reruns_by_design` and `InMemory_representative_run_id_includes_archived_rerun_when_newest`.
+
+2026-09-09 seed hunt #1444 (seed-only): reseeded sql-run-repository after #1443; cheap-disproof closed golden-manifest join parity, architecture-version committed lookup, update archival write path, and representative archived-rerun semantics; 53 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
