@@ -2,7 +2,9 @@ using ArchLucid.Application.Diagrams;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Services;
 using ArchLucid.Core.Manifest.Sections;
@@ -95,6 +97,71 @@ public sealed class DocxExportServiceGoldenTests
         xml.Should().Contain(manifestId.ToString());
         xml.Should().Contain("Review continuity");
         xml.Should().Contain("/reviews/");
+    }
+
+    [SkippableFact]
+    public async Task ExportAsync_renders_career_export_honesty_section_when_plain_text_provided()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = new DateTime(2026, 3, 27, 12, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "golden-hash",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ManifestMetadata
+            {
+                Name = "Golden manifest",
+                Summary = "Summary",
+                Version = "1.0.0",
+                Status = "Resolved",
+            },
+        };
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(x => x.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = ["Golden plan note."] });
+
+        DocxExportService sut = new(advisor.Object, new NullDiagramImageRenderer());
+
+        DocxExportRequest request = new()
+        {
+            RunId = runId,
+            ManifestId = manifestId,
+            DocumentTitle = "Golden Architecture Export",
+            Subtitle = "Snapshot subtitle",
+            IncludeArchitectureDiagram = false,
+            CareerExportHonestyPlainText =
+                "Measurement floor: 37 catalog engines measured on this package — treat as incomplete for career use below that floor.",
+        };
+
+        DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
+
+        using MemoryStream wordStream = new(result.Content);
+        using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
+        MainDocumentPart? main = wordDoc.MainDocumentPart;
+        main.Should().NotBeNull();
+        string xml = main!.Document.OuterXml;
+
+        xml.Should().Contain("Career export honesty");
+        xml.Should().Contain("Measurement floor");
     }
 
     [SkippableFact]
@@ -552,6 +619,243 @@ public sealed class DocxExportServiceGoldenTests
         string xml = main!.Document.OuterXml;
 
         xml.Should().Contain("Cost driver for SKU");
+        xml.Should().NotContain("\u0001");
+    }
+
+    [SkippableFact]
+    public async Task ExportAsync_strips_control_chars_from_decisions_table_cells()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        const string titleWithControlChar = "Use private\u0001 endpoints";
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = new DateTime(2026, 3, 27, 12, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "golden-hash",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ManifestMetadata
+            {
+                Name = "Golden manifest",
+                Summary = "Summary",
+                Version = "1.0.0",
+                Status = "Resolved"
+            },
+            Decisions =
+            [
+                new ResolvedArchitectureDecision
+                {
+                    Category = "Network",
+                    Title = titleWithControlChar,
+                    SelectedOption = "PrivateLink",
+                    Rationale = "Isolation",
+                },
+            ],
+        };
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(x => x.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = [] });
+
+        DocxExportService sut = new(advisor.Object, new NullDiagramImageRenderer());
+
+        DocxExportRequest request = new()
+        {
+            RunId = runId,
+            ManifestId = manifestId,
+            DocumentTitle = "Golden Architecture Export",
+            Subtitle = "Snapshot subtitle",
+            IncludeArchitectureDiagram = false,
+            IncludeArtifactsAppendix = false,
+            IncludeComplianceSection = false,
+            IncludeCoverageSection = false,
+            IncludeIssuesSection = false
+        };
+
+        DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
+
+        using MemoryStream wordStream = new(result.Content);
+        using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
+        MainDocumentPart? main = wordDoc.MainDocumentPart;
+        main.Should().NotBeNull();
+        string xml = main!.Document.OuterXml;
+
+        xml.Should().Contain("Use private endpoints");
+        xml.Should().NotContain("\u0001");
+    }
+
+    [SkippableFact]
+    public async Task ExportAsync_strips_control_chars_from_unresolved_issues_table_cells()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        const string descriptionWithControlChar = "Missing control\u0001 on storage";
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = new DateTime(2026, 3, 27, 12, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "golden-hash",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ManifestMetadata
+            {
+                Name = "Golden manifest",
+                Summary = "Summary",
+                Version = "1.0.0",
+                Status = "Resolved"
+            },
+            UnresolvedIssues = new UnresolvedIssuesSection
+            {
+                Items =
+                [
+                    new ManifestIssue
+                    {
+                        IssueType = "Finding",
+                        Title = "Storage gap",
+                        Description = descriptionWithControlChar,
+                        Severity = "HIGH",
+                    },
+                ],
+            },
+        };
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(x => x.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = [] });
+
+        DocxExportService sut = new(advisor.Object, new NullDiagramImageRenderer());
+
+        DocxExportRequest request = new()
+        {
+            RunId = runId,
+            ManifestId = manifestId,
+            DocumentTitle = "Golden Architecture Export",
+            Subtitle = "Snapshot subtitle",
+            IncludeArchitectureDiagram = false,
+            IncludeArtifactsAppendix = false,
+            IncludeComplianceSection = false,
+            IncludeCoverageSection = false,
+            IncludeIssuesSection = true
+        };
+
+        DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
+
+        using MemoryStream wordStream = new(result.Content);
+        using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
+        MainDocumentPart? main = wordDoc.MainDocumentPart;
+        main.Should().NotBeNull();
+        string xml = main!.Document.OuterXml;
+
+        xml.Should().Contain("Missing control on storage");
+        xml.Should().NotContain("\u0001");
+    }
+
+    [SkippableFact]
+    public async Task ExportAsync_strips_control_chars_from_manifest_comparison_sections()
+    {
+        Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid manifestId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        const string highlightWithControlChar = "Added subnet\u0001 peering";
+
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = new DateTime(2026, 3, 27, 12, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "golden-hash",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ManifestMetadata
+            {
+                Name = "Golden manifest",
+                Summary = "Summary",
+                Version = "1.0.0",
+                Status = "Resolved"
+            },
+        };
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        advisor
+            .Setup(x => x.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = [] });
+        advisor
+            .Setup(x => x.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<ComparisonResult>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = [] });
+
+        DocxExportService sut = new(advisor.Object, new NullDiagramImageRenderer());
+
+        DocxExportRequest request = new()
+        {
+            RunId = runId,
+            ManifestId = manifestId,
+            DocumentTitle = "Golden Architecture Export",
+            Subtitle = "Snapshot subtitle",
+            IncludeArchitectureDiagram = false,
+            IncludeArtifactsAppendix = false,
+            IncludeComplianceSection = false,
+            IncludeCoverageSection = false,
+            IncludeIssuesSection = false,
+            ManifestComparison = new ComparisonResult
+            {
+                BaseRunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                TargetRunId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                SummaryHighlights = [highlightWithControlChar],
+            },
+        };
+
+        DocxExportResult result = await sut.ExportAsync(request, manifest, [], CancellationToken.None);
+
+        using MemoryStream wordStream = new(result.Content);
+        using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
+        MainDocumentPart? main = wordDoc.MainDocumentPart;
+        main.Should().NotBeNull();
+        string xml = main!.Document.OuterXml;
+
+        xml.Should().Contain("Added subnet peering");
         xml.Should().NotContain("\u0001");
     }
 }

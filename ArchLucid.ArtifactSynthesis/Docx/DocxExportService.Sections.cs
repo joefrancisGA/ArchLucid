@@ -20,7 +20,7 @@ public sealed partial class DocxExportService
         if (c.SummaryHighlights.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "—");
         else
-            WordDocumentBuilder.AddBulletList(body, c.SummaryHighlights);
+            WordDocumentBuilder.AddBulletList(body, c.SummaryHighlights.Select(SanitizeArtifactText));
 
         WordDocumentBuilder.AddHeading(body, "Decision Changes", DocxStyleIds.Heading2);
         if (c.DecisionChanges.Count == 0)
@@ -31,7 +31,8 @@ public sealed partial class DocxExportService
 
                 WordDocumentBuilder.AddBodyText(
                     body,
-                    $"{d.DecisionKey}: {FormatOptional(d.BaseValue)} → {FormatOptional(d.TargetValue)} ({d.ChangeType})");
+                    SanitizeArtifactText(
+                        $"{d.DecisionKey}: {FormatOptional(d.BaseValue)} → {FormatOptional(d.TargetValue)} ({d.ChangeType})"));
 
         WordDocumentBuilder.AddHeading(body, "Requirement Changes", DocxStyleIds.Heading2);
         if (c.RequirementChanges.Count == 0)
@@ -39,7 +40,9 @@ public sealed partial class DocxExportService
         else
 
             foreach (RequirementDelta r in c.RequirementChanges)
-                WordDocumentBuilder.AddBodyText(body, $"{r.RequirementName}: {r.ChangeType}");
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText($"{r.RequirementName}: {r.ChangeType}"));
 
         WordDocumentBuilder.AddHeading(body, "Security Posture Delta", DocxStyleIds.Heading2);
         if (c.SecurityChanges.Count == 0)
@@ -50,7 +53,8 @@ public sealed partial class DocxExportService
 
                 WordDocumentBuilder.AddBodyText(
                     body,
-                    $"{s.ControlName}: {FormatOptional(s.BaseStatus)} → {FormatOptional(s.TargetStatus)}");
+                    SanitizeArtifactText(
+                        $"{s.ControlName}: {FormatOptional(s.BaseStatus)} → {FormatOptional(s.TargetStatus)}"));
 
         WordDocumentBuilder.AddHeading(body, "Topology Changes", DocxStyleIds.Heading2);
         if (c.TopologyChanges.Count == 0)
@@ -58,7 +62,9 @@ public sealed partial class DocxExportService
         else
 
             foreach (TopologyDelta t in c.TopologyChanges)
-                WordDocumentBuilder.AddBodyText(body, $"{t.Resource} ({t.ChangeType})");
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText($"{t.Resource} ({t.ChangeType})"));
 
         WordDocumentBuilder.AddHeading(body, "Cost Delta", DocxStyleIds.Heading2);
         if (c.CostChanges.Count == 0)
@@ -69,7 +75,7 @@ public sealed partial class DocxExportService
 
                 WordDocumentBuilder.AddBodyText(
                     body,
-                    $"{FormatCost(x.BaseCost)} → {FormatCost(x.TargetCost)}");
+                    SanitizeArtifactText($"{FormatCost(x.BaseCost)} → {FormatCost(x.TargetCost)}"));
 
         WordDocumentBuilder.AddSpacer(body);
     }

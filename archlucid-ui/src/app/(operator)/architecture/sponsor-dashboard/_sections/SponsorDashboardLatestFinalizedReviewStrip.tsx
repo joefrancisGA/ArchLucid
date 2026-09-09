@@ -3,7 +3,8 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { listArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,10 @@ export type SponsorDashboardLatestFinalizedReviewStripProps = {
 export function SponsorDashboardLatestFinalizedReviewStrip(
   props: SponsorDashboardLatestFinalizedReviewStripProps,
 ): React.JSX.Element {
+  const reviewHref = resolveWorkingRunReviewLocator({
+    runId: props.runId,
+    draftRegistryEntries: listArchitectureDraftRegistryEntries(),
+  }).href;
   const title = props.reviewTitle?.trim() ?? "Latest finalized review";
 
   return (
@@ -36,7 +41,7 @@ export function SponsorDashboardLatestFinalizedReviewStrip(
       </p>
       <div className="mt-3">
         <Button type="button" variant="primary" size="sm" asChild data-testid="sponsor-dashboard-latest-finalized-review-open">
-          <Link href={reviewDetailPath(props.runId)}>Open architecture package</Link>
+          <Link href={reviewHref}>Open architecture package</Link>
         </Button>
       </div>
     </section>

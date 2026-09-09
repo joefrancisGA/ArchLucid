@@ -32,13 +32,15 @@ export type UseAskPageUrlSyncOptions = {
   readonly setLastAskReferencedDecisions: (value: readonly string[]) => void;
   readonly setLastAskReferencedArtifacts: (value: readonly string[]) => void;
   readonly threads: ConversationThread[];
+  readonly threadsHydrated: boolean;
   readonly loadMessages: (threadId: string) => Promise<void>;
+  readonly basePathname?: string;
 };
 
 export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const pathname = ASK_REVIEW_QUESTIONS_PATH;
+  const pathname = options.basePathname ?? ASK_REVIEW_QUESTIONS_PATH;
   const urlRunIdRaw = searchParams.get("runId")?.trim() ?? "";
   const urlThreadId = parseAskPageThreadIdFromSearch(searchParams.get("thread"));
   const urlCompareOpen = parseAskPageCompareOpenFromSearch(searchParams.get("compare"));
@@ -62,6 +64,7 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
     setLastAskReferencedDecisions,
     setLastAskReferencedArtifacts,
     threads,
+    threadsHydrated,
     loadMessages,
   } = options;
 
@@ -129,6 +132,20 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
     const thread = threads.find((entry) => entry.threadId === urlThreadId);
 
     if (thread === undefined) {
+      if (threadsHydrated) {
+        router.replace(
+          askPageThreadHrefFromSearch(
+            searchParams.toString(),
+            {
+              threadId: "",
+              compareOpen: false,
+            },
+            pathname,
+          ),
+          { scroll: false },
+        );
+      }
+
       return;
     }
 
@@ -158,6 +175,10 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
     urlCompareOpen,
     urlTargetRunId,
     urlThreadId,
+    pathname,
+    router,
+    searchParams,
+    threadsHydrated,
   ]);
 
   const onSelectThread = useCallback(
@@ -237,9 +258,14 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
         return;
       }
 
-      router.replace(askReviewQuestionsHref({ runId: trimmed }), { scroll: false });
+      const href =
+        pathname === ASK_REVIEW_QUESTIONS_PATH
+          ? askReviewQuestionsHref({ runId: trimmed })
+          : `${pathname}?runId=${encodeURIComponent(trimmed)}`;
+
+      router.replace(href, { scroll: false });
     },
-    [router],
+    [pathname, router],
   );
 
   const onNewConversation = useCallback(() => {
@@ -254,8 +280,9 @@ export function useAskPageUrlSync(options: UseAskPageUrlSyncOptions) {
     setTargetRunId("");
     setCompareOpen(false);
     syncThreadToUrl("", false);
-    router.replace(ASK_REVIEW_QUESTIONS_PATH, { scroll: false });
+    router.replace(pathname, { scroll: false });
   }, [
+    pathname,
     router,
     setBaseRunId,
     setCompareOpen,

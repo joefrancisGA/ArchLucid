@@ -1,3 +1,8 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { cn } from "@/lib/utils";
 import type { DemoProvenanceGraph, DemoProvenanceGraphEdge } from "@/types/demo-explain";
 import { provenanceGraphNodeTypeBuyerLabel } from "@/lib/citation-kind-buyer-label";
@@ -6,6 +11,10 @@ import {
   DEMO_EXPLAIN_EVIDENCE_TRAIL_PANEL_TITLE,
   DEMO_EXPLAIN_GRAPH_TECHNICAL_DETAILS_LABEL,
 } from "@/lib/demo-explain-page-copy";
+import {
+  demoExplainGraphTechnicalDisclosureHrefFromSearch,
+  parseDemoExplainGraphTechnicalOpenFromSearch,
+} from "@/lib/demo-explain-graph-technical-disclosure-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type Props = {
@@ -13,6 +22,36 @@ type Props = {
 };
 
 export function DemoExplainProvenanceGraphPanel(props: Props): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const demoExplainGraphTechnicalOpenParam = searchParams.get("demoExplainGraphTechnicalOpen");
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseDemoExplainGraphTechnicalOpenFromSearch(demoExplainGraphTechnicalOpenParam),
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        demoExplainGraphTechnicalDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(parseDemoExplainGraphTechnicalOpenFromSearch(demoExplainGraphTechnicalOpenParam));
+  }, [demoExplainGraphTechnicalOpenParam]);
+
   const graph = props.graph;
   const adjacencyByNode: Record<string, DemoProvenanceGraphEdge[]> = {};
 
@@ -70,7 +109,12 @@ export function DemoExplainProvenanceGraphPanel(props: Props): React.JSX.Element
             ))}
           </ol>
 
-          <details className="rounded border border-neutral-200 dark:border-neutral-800" data-testid="demo-explain-graph-technical-details">
+          <details
+            className="rounded border border-neutral-200 dark:border-neutral-800"
+            data-testid="demo-explain-graph-technical-details"
+            open={technicalDetailsOpen}
+            onToggle={(event) => setTechnicalDetailsOpen(event.currentTarget.open)}
+          >
             <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-al-text-primary">
               {DEMO_EXPLAIN_GRAPH_TECHNICAL_DETAILS_LABEL}
             </summary>

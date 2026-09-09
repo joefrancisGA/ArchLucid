@@ -16,7 +16,7 @@ import {
 } from "@/lib/architecture/architecture-draft-status";
 import {
   ARCHITECTURES_LIST_PATH,
-  startReviewFromArchitectureHref,
+  startReviewFromDraftContextHref,
 } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatAbsoluteUpdatedAtTitle, formatRelativeTime } from "@/lib/relative-time";
@@ -69,6 +69,10 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
         {previewEntries.map((entry) => {
           const canStartReview = isArchitectureDraftEligibleToStartReview(entry);
           const absoluteUpdated = formatAbsoluteUpdatedAtTitle(entry.lastUpdatedUtc);
+          const startReviewHref = startReviewFromDraftContextHref({
+            parentArchitectureId: entry.parentArchitectureId,
+            legacyDraftId: entry.draftId,
+          });
 
           return (
             <li
@@ -98,7 +102,7 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
                 {canStartReview ? (
                   <Button variant="default" size="sm" asChild>
                     <Link
-                      href={startReviewFromArchitectureHref(entry.draftId)}
+                      href={startReviewHref}
                       data-testid={`reviews-hub-resume-draft-start-${entry.draftId}`}
                     >
                       {REVIEWS_HUB_RESUME_DRAFTS_START_LABEL}
@@ -107,6 +111,7 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
                 ) : null}
                 <ArchitectureDraftResumeControl
                   draftId={entry.draftId}
+                  parentArchitectureId={entry.parentArchitectureId}
                   label={REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}
                   source="reviews-hub"
                   variant={canStartReview ? "outline" : "primary"}

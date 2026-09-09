@@ -206,8 +206,8 @@ public sealed class HostCorePackageCoverageBatch15Tests
     {
         Mock<IBackgroundJobRepository> repository = new();
         repository
-            .Setup(r => r.CountNonTerminalAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(2);
+            .Setup(r => r.TryInsertPendingJobIfUnderCapacityAsync(It.IsAny<BackgroundJobRow>(), 2, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         DurableBackgroundJobQueue queue = CreateQueue(repository, maxPendingJobs: 2);
         AnalysisReportDocxWorkUnit workUnit = CreateWorkUnit("capacity");
 
@@ -215,7 +215,78 @@ public sealed class HostCorePackageCoverageBatch15Tests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*capacity*");
+        repository.Verify(
+            r => r.TryInsertPendingJobIfUnderCapacityAsync(It.IsAny<BackgroundJobRow>(), 2, It.IsAny<CancellationToken>()),
+            Times.Once);
         repository.Verify(r => r.InsertAsync(It.IsAny<BackgroundJobRow>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DurableBackgroundJobQueue_EnqueueAsync_concurrent_at_capacity_minus_one_inserts_only_one_job()
+    {
+        const int maxPendingJobs = 2;
+        object sync = new();
+        int nonTerminalCount = 1;
+        int insertCount = 0;
+        Mock<IBackgroundJobRepository> repository = new();
+        repository
+            .Setup(r => r.TryInsertPendingJobIfUnderCapacityAsync(
+                It.IsAny<BackgroundJobRow>(),
+                maxPendingJobs,
+                It.IsAny<CancellationToken>()))
+            .Returns<BackgroundJobRow, int, CancellationToken>((_, max, _) =>
+            {
+                lock (sync)
+                {
+                    if (nonTerminalCount >= max)
+                        return Task.FromResult(false);
+
+                    nonTerminalCount++;
+                    insertCount++;
+
+                    return Task.FromResult(true);
+                }
+            });
+        Mock<IBackgroundJobQueueNotifySender> notifySender = new();
+        notifySender
+            .Setup(n => n.SendJobIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        DurableBackgroundJobQueue queue = CreateQueue(repository, notifySender, maxPendingJobs);
+
+        Task<string> first = queue.EnqueueAsync(CreateWorkUnit("a"), cancellationToken: CancellationToken.None);
+        Task<string> second = queue.EnqueueAsync(CreateWorkUnit("b"), cancellationToken: CancellationToken.None);
+
+        string firstId = await first;
+        Func<Task> secondAct = async () => await second;
+
+        firstId.Should().NotBeNullOrWhiteSpace();
+        await secondAct.Should().ThrowAsync<InvalidOperationException>().WithMessage("*capacity*");
+        insertCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task DurableBackgroundJobQueue_EnqueueAsync_marks_job_failed_when_queue_notify_fails()
+    {
+        Mock<IBackgroundJobRepository> repository = new();
+        repository
+            .Setup(r => r.TryInsertPendingJobIfUnderCapacityAsync(It.IsAny<BackgroundJobRow>(), 5, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        Mock<IBackgroundJobQueueNotifySender> notifySender = new();
+        notifySender
+            .Setup(n => n.SendJobIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("queue unavailable"));
+        DurableBackgroundJobQueue queue = CreateQueue(repository, notifySender, maxPendingJobs: 5);
+
+        Func<Task> act = async () => await queue.EnqueueAsync(CreateWorkUnit("notify-fail"), cancellationToken: CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*queue unavailable*");
+        repository.Verify(
+            r => r.MarkFailedTerminalAsync(
+                It.IsAny<string>(),
+                It.Is<string>(message => message.Contains("Queue notification failed", StringComparison.Ordinal)),
+                0,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Theory]
@@ -224,14 +295,11 @@ public sealed class HostCorePackageCoverageBatch15Tests
     public async Task DurableBackgroundJobQueue_EnqueueAsync_clamps_max_retries(int requested, int expected)
     {
         Mock<IBackgroundJobRepository> repository = new();
-        repository
-            .Setup(r => r.CountNonTerminalAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(0);
         BackgroundJobRow? inserted = null;
         repository
-            .Setup(r => r.InsertAsync(It.IsAny<BackgroundJobRow>(), It.IsAny<CancellationToken>()))
-            .Callback<BackgroundJobRow, CancellationToken>((row, _) => inserted = row)
-            .Returns(Task.CompletedTask);
+            .Setup(r => r.TryInsertPendingJobIfUnderCapacityAsync(It.IsAny<BackgroundJobRow>(), 5, It.IsAny<CancellationToken>()))
+            .Callback<BackgroundJobRow, int, CancellationToken>((row, _, _) => inserted = row)
+            .ReturnsAsync(true);
         Mock<IBackgroundJobQueueNotifySender> notifySender = new();
         notifySender
             .Setup(n => n.SendJobIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -244,6 +312,7 @@ public sealed class HostCorePackageCoverageBatch15Tests
         inserted.Should().NotBeNull();
         inserted!.MaxRetries.Should().Be(expected);
         notifySender.Verify(n => n.SendJobIdAsync(jobId, It.IsAny<CancellationToken>()), Times.Once);
+        repository.Verify(r => r.InsertAsync(It.IsAny<BackgroundJobRow>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

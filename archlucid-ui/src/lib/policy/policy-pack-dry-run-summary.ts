@@ -6,7 +6,7 @@ export type PolicyPackSimulationSummary = {
   readonly disposition: "PASS" | "WARN" | "HOLD";
 };
 
-/** Formats governance dry-run API output for operator policy-pack surfaces (assessment #15). */
+/** Formats policy dry-run API output for operator policy-pack surfaces (assessment #15). */
 export function buildPolicyPackSimulationSummary(
   result: PolicyPackDryRunResponse | null,
 ): PolicyPackSimulationSummary | null {

@@ -8,3 +8,5 @@ export const AZURE_BOARDS_HELP_SKIP_LINK_LABEL = "Skip to Azure Boards integrati
 
 export const AZURE_BOARDS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-azure-boards-header-claim-discipline" as const;
+
+export const AZURE_BOARDS_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-azure-boards-orientation-bottom" as const;

@@ -99,6 +99,7 @@ describe("DraftIntakeWhatIfBranchPanel", () => {
     await screen.findByText(/branch cap reached/i);
 
     expect(screen.getByTestId("draft-intake-what-if-submit")).toBeDisabled();
+    expect(screen.getByTestId("draft-intake-what-if-quota")).toHaveTextContent(/billable architecture package/i);
   });
 
   it("defaults to business outcome override when clarification answer override is suppressed", async () => {

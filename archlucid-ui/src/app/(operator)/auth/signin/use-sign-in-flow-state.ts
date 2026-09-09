@@ -7,6 +7,7 @@ import { evaluateAuthSignInRouting } from "@/lib/auth/auth-sign-in-routing-api";
 import { recordEmailOtpAuthAnalytics } from "@/lib/auth/email-otp-analytics";
 import { requestEmailOtpChallenge, verifyEmailOtpCode } from "@/lib/auth/email-otp-api";
 import { resolveEmailOtpPostAuthPath } from "@/lib/auth/email-otp-post-auth";
+import { restoreIdleDeskScopeAfterSignIn } from "@/lib/auth/idle-desk-restore";
 import {
   markEmailOtpResendSent,
   readEmailOtpResendCooldown,
@@ -332,6 +333,7 @@ export function useSignInFlowState({ returnUrl, invitationTokenFromQuery }: UseS
       expires_in: tokenResponse.expiresInSeconds,
       token_type: tokenResponse.tokenType,
     });
+    restoreIdleDeskScopeAfterSignIn();
 
     clearEmailOtpChallengeSession();
     setCode("");

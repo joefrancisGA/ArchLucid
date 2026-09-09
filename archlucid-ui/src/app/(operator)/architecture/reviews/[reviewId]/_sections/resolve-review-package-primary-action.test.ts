@@ -86,6 +86,21 @@ describe("resolveReviewPackagePrimaryAction", () => {
     expect(action.href).toBeNull();
   });
 
+  it("routes infeasible completed runs to decision receipt export instead of finalize (FC-33)", () => {
+    const action = resolveReviewPackagePrimaryAction({
+      ...baseInput,
+      runCompleted: true,
+      feasibilityVerdictKind: "SoftInfeasible",
+    });
+
+    expect(action.kind).toBe("export-decision-receipt");
+    expect(action.label).toBe("Export decision receipt");
+    expect(action.href).toBe(
+      "/architecture/reviews/run-abc?reviewTab=evidence#artifacts-exports",
+    );
+    expect(action.label).not.toContain("Finalize");
+  });
+
   it("aligns the primary CTA label with the decision snapshot next action", () => {
     const action = resolveReviewPackagePrimaryAction({
       ...baseInput,

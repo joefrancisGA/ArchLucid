@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpGovernanceApprovalHeaderActions } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalHeaderActions";
+import { HelpGovernanceApprovalTroubleshootingList } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalTroubleshootingList";
 import { HelpGovernanceApprovalRoleGuide } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalRoleGuide";
 import { HelpGovernanceApprovalSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalSourcesOrientationStrip";
 import { HelpGovernanceApprovalTechnicalReference } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalTechnicalReference";
@@ -119,7 +120,7 @@ function StatusTable(): React.ReactElement {
     <div className="space-y-4">
       <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="help-governance-approval-status-table">
         <table className={HELP_PAGE_LAYOUT.table}>
-          <caption className="sr-only">Governance approval statuses</caption>
+          <caption className="sr-only">Approval statuses</caption>
           <thead>
             <tr>
               <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
@@ -171,37 +172,7 @@ function StatusTable(): React.ReactElement {
 }
 
 function TroubleshootingList(): React.ReactElement {
-  return (
-    <ul className="m-0 list-none space-y-2 p-0" data-testid="help-governance-approval-troubleshooting">
-      {GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING.map((item) => (
-        <li key={item.issue}>
-          <details className={cn(DESIGN_TOKENS.surface.card, "group p-3")}>
-            <summary
-              className={cn(
-                "flex cursor-pointer list-none items-center gap-2 font-semibold text-al-text-primary marker:content-none [&::-webkit-details-marker]:hidden",
-                OPERATOR_TYPOGRAPHY.cardTitle,
-              )}
-            >
-              <DisclosureTriangleIndicator />
-              {item.issue}
-            </summary>
-            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
-              {item.resolution}
-              {item.href !== undefined && item.linkLabel !== undefined ? (
-                <>
-                  {" "}
-                  <Link href={item.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
-                    {item.linkLabel}
-                  </Link>
-                  .
-                </>
-              ) : null}
-            </p>
-          </details>
-        </li>
-      ))}
-    </ul>
-  );
+  return <HelpGovernanceApprovalTroubleshootingList />;
 }
 
 function GovernanceApprovalActionPanel(): React.ReactElement {
@@ -239,7 +210,7 @@ function GovernanceApprovalActionPanel(): React.ReactElement {
   );
 }
 
-/** Buyer-safe governance approval orientation for `/help/governance-approval`. */
+/** Buyer-safe approval orientation for `/help/governance-approval`. */
 export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGuideViewProps): React.ReactElement {
   void props.entry;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -321,7 +292,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
               aria-labelledby="governance-workflow"
               className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
             >
-              <HelpSectionHeading id="governance-workflow">Governance approval workflow</HelpSectionHeading>
+              <HelpSectionHeading id="governance-workflow">Approval workflow</HelpSectionHeading>
               <GovernanceWorkflowStepper />
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY}</p>
               <div
@@ -333,7 +304,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
               >
                 <MermaidDiagram
                   source={GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE}
-                  accessibleName="Governance approval state diagram"
+                  accessibleName="Approval state diagram"
                 />
               </div>
             </section>
@@ -431,11 +402,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
           </section>
         ) : null}
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-governance-approval-orientation-bottom">
-            <HelpGovernanceApprovalSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpGovernanceApprovalSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

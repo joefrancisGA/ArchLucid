@@ -1,6 +1,5 @@
 /** Buyer-facing copy for `/governance/alert-rules` Conditions tab (TB-936). */
 
-/** Hub tab lead (`AlertRulesHubClient` rules subtitle) owns first-viewport orientation — do not restack PAGE_LEAD here (TB-1585). */
 export const ALERT_RULES_CONDITIONS_PAGE_LEAD =
   "Define when completed architecture reviews should raise an alert in your workspace.";
 
@@ -10,6 +9,12 @@ export const ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER =
 /** Field help under Condition type — carries findings + notification-delivery honesty formerly in a stacked tab lead (TB-1585). */
 export const ALERT_RULES_RULE_TYPE_HELP =
   "Evaluates findings from completed reviews. Saving a condition does not configure external notification delivery.";
+
+/** Buyer-polished overview bridge on the Conditions tab (GLR). */
+export const ALERT_RULES_CONDITIONS_BUYER_OVERVIEW =
+  "Configured rules, create form, and notification readiness panels below explain condition thresholds and delivery prerequisites before you save alert rules." as const;
+
+export const ALERT_RULES_CONDITIONS_OVERVIEW = ALERT_RULES_RULE_TYPE_HELP;
 
 /** Canonical rules-tab label — keep aligned with {@link ALERT_RULES_SECTION_HEADING} and empty titles. */
 export const ALERT_RULES_TAB_LABEL = "Conditions";

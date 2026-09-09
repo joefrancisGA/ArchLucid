@@ -3,7 +3,7 @@ import {
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
   ALERT_RULES_FOLLOW_UPS_TITLE,
-  ALERT_RULES_SOURCES,
+  ALERT_RULES_ORIENTATION_SOURCES,
   ALERT_RULES_SOURCES_INTRO,
 } from "@/lib/alert-rules-evidence-copy";
 
@@ -15,7 +15,7 @@ export function AlertRulesClaimOrientationStrip(): React.JSX.Element {
       sourcesTestId="alert-rules-hub-sources"
       sourcesTitle={ALERT_RULES_FOLLOW_UPS_TITLE}
       sourcesIntro={ALERT_RULES_SOURCES_INTRO}
-      sources={ALERT_RULES_SOURCES}
+      sources={ALERT_RULES_ORIENTATION_SOURCES}
     />
   );
 }

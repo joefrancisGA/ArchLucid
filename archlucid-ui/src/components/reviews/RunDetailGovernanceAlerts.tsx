@@ -7,7 +7,7 @@ type RunDetailGovernanceAlertsProps = {
   readonly hasCommitBlockingFailures?: boolean;
 };
 
-/** Surfaces governance warnings and last failure before commit (TB-107). */
+/** Surfaces approval warnings and last failure before commit (TB-107). */
 export function RunDetailGovernanceAlerts(props: RunDetailGovernanceAlertsProps): React.JSX.Element | null {
   const { run } = props;
   const hasGovernanceWarnings = run.hasGovernanceWarnings === true;

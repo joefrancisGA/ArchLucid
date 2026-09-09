@@ -1,3 +1,4 @@
+import { ManifestDeliverablesArtifactsDisclosure } from "@/app/(operator)/governance/sealed-records/[manifestId]/_sections/ManifestDeliverablesArtifactsDisclosure";
 import { cn } from "@/lib/utils";
 
 import { ArtifactListTable } from "@/components/ArtifactListTable";
@@ -11,7 +12,7 @@ import {
   BUYER_MANIFEST_DOWNLOAD_PREPARING,
   BUYER_MANIFEST_NO_DELIVERABLES_YET,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { ManifestDetailBundleExportButton } from "@/components/ManifestDetailBundleExportButton";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
@@ -143,24 +144,11 @@ export function ManifestDetailDeliverablesCard(props: ManifestDetailDeliverables
         )}
 
         {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 && buyerPolishedLayout ? (
-          <details className="group rounded-md border border-neutral-200/90 bg-neutral-50/40 p-3 dark:border-neutral-800 dark:bg-neutral-950/30">
-            <summary
-              className={cn(
-                "cursor-pointer select-none text-al-text-primary outline-none marker:text-al-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]",
-                OPERATOR_DISCLOSURE_TRIGGER_CLASS,
-              )}
-            >
-              Show deliverable artifacts ({artifacts.length})
-            </summary>
-            <div className="mt-4">
-              <ArtifactListTable
-                manifestId={manifestId}
-                artifacts={artifacts}
-                sponsorMode={buyerPolishedLayout}
-                audienceSections={buyerPolishedLayout}
-              />
-            </div>
-          </details>
+          <ManifestDeliverablesArtifactsDisclosure
+            manifestId={manifestId}
+            artifacts={artifacts}
+            artifactCount={artifacts.length}
+          />
         ) : null}
         {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 && !buyerPolishedLayout ? (
           <ArtifactListTable

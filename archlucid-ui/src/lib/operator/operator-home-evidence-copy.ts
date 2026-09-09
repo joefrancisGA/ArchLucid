@@ -1,7 +1,10 @@
-import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import {
+  HUB_SECONDARY_FOLLOW_UPS_TITLES,
+  hubSecondaryFollowUpsIntro,
+} from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
-import { HUB_SECONDARY_FOLLOW_UPS_TITLES } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const OPERATOR_HOME_CANONICAL_PATH = "/";
 
@@ -10,6 +13,10 @@ export const OPERATOR_HOME_CLAIM_DISCIPLINE =
 
 export const OPERATOR_HOME_SOURCES_INTRO =
   "Use these when a completed review needs a sponsor briefing or findings triage.";
+
+export const OPERATOR_HOME_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "a committed review package needs sponsor briefing, findings triage, or architecture review navigation",
+);
 
 /** Secondary destinations after on-page create / review / resume work — not the Home hero. */
 export const OPERATOR_HOME_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.operatorHome;

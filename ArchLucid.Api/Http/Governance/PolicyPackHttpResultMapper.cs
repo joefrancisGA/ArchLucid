@@ -54,6 +54,10 @@ internal static class PolicyPackHttpResultMapper
             PolicyPackHttpOutcome.Conflict => controller.ConflictProblem(
                 "Policy pack assignment conflicted with the current governance scope.",
                 ProblemTypes.Conflict),
+            PolicyPackHttpOutcome.Forbidden => controller.ForbiddenProblemWithErrorCode(
+                "Forbidden",
+                "Organization-required policy pack assignments require tenant or workspace administrator authority.",
+                "policy_pack.organization_required_requires_tenant_admin"),
             _ => throw new InvalidOperationException($"Unexpected assign outcome: {result.Outcome}."),
         };
     }

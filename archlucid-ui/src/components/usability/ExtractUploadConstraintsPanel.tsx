@@ -1,10 +1,14 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { extractorUploadConstraints } from "@/lib/usability/extractor-upload-constraints";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 /** Up-front upload constraints for the Azure extractor settings page. */
 export function ExtractUploadConstraintsPanel() {
-  const constraints = extractorUploadConstraints();
+  const { productLine } = useLocalizedProductCopy();
+  const constraints = extractorUploadConstraints(undefined, productLine);
 
   return (
     <div
@@ -15,13 +19,15 @@ export function ExtractUploadConstraintsPanel() {
       <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         Package ZIP uploads turn Azure inventory into evidence for your review — findings and signed deliverables trace back to this trail.
       </p>
-      <dl className="m-0 mt-3 grid gap-3 sm:grid-cols-2">
+      <dl className="m-0 mt-3 grid grid-cols-1 gap-3">
         {constraints.map((row) => (
-          <div key={row.label}>
+          <div key={row.label} className="min-w-0">
             <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {row.label}
             </dt>
-            <dd className={cn("m-0 mt-0.5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{row.detail}</dd>
+            <dd className={cn("m-0 mt-0.5 min-w-0 break-words text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+              {row.detail}
+            </dd>
           </div>
         ))}
       </dl>

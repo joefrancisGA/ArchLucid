@@ -34,6 +34,8 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/governance-approval",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpGovernanceApprovalGuideView } from "@/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView";

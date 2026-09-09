@@ -4,10 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
+import { useArchitectureDeskShortcuts } from "@/hooks/useArchitectureDeskShortcuts";
 import { useRehydrateInFlightOperationsFromArchitecture } from "@/hooks/use-rehydrate-in-flight-from-architecture";
 import { ArchitectureIdentityArchiveControl } from "@/components/architecture/ArchitectureIdentityArchiveControl";
 import { ArchitectureIdentityDeskCompareAction } from "@/components/architecture/ArchitectureIdentityDeskCompareAction";
 import { ArchitectureIdentityDeskCurrentDraft } from "@/components/architecture/ArchitectureIdentityDeskCurrentDraft";
+import { ArchitectureIdentityDeskOpenQuestions } from "@/components/architecture/ArchitectureIdentityDeskOpenQuestions";
+import { ArchitectureIdentityDeskInFlightSection } from "@/components/architecture/ArchitectureIdentityDeskInFlightSection";
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
 import { ArchitectureIdentityDeskSkeleton } from "@/components/architecture/ArchitectureIdentityDeskSkeleton";
 import { ArchitectureIdentityDeskVersionsSection } from "@/components/architecture/ArchitectureIdentityDeskVersionsSection";
@@ -16,6 +19,8 @@ import { ArchitectureIdentityRenameForm } from "@/components/architecture/Archit
 import { Button } from "@/components/ui/button";
 import {
   architectureIdentityPath,
+  resolveArchitectureReviewHref,
+  startReviewFromArchitectureNestedHref,
 } from "@/lib/architecture/architecture-routes";
 import {
   ARCHITECTURE_IDENTITY_DESK_HONESTY_LINE,
@@ -25,7 +30,6 @@ import {
   architectureIdentityDeskHeadingClass,
   architectureIdentityDeskPageTitle,
 } from "@/lib/architecture/architecture-identity-desk-copy";
-import { reviewDetailPath, startReviewFromArchitectureHref } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
@@ -39,6 +43,15 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
   useRehydrateInFlightOperationsFromArchitecture(props.architectureId);
   const identity = query.data;
   const [headingOverride, setHeadingOverride] = useState<string | null>(null);
+  const startReviewHref =
+    identity !== undefined
+      ? startReviewFromArchitectureNestedHref(identity.architectureId)
+      : "";
+
+  useArchitectureDeskShortcuts({
+    startReviewHref,
+    enabled: identity !== undefined,
+  });
 
   if (query.isLoading) {
     return <ArchitectureIdentityDeskSkeleton />;
@@ -61,13 +74,6 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
     );
   }
 
-  const currentDraftId = identity.currentDraftId?.trim() ?? "";
-  const startReviewDraftId =
-    currentDraftId.length > 0
-      ? currentDraftId
-      : identity.drafts[0]?.draftId?.trim() ?? "";
-  const startReviewHref =
-    startReviewDraftId.length > 0 ? startReviewFromArchitectureHref(startReviewDraftId) : null;
   const latestSealedManifestId = identity.latestSealedManifestId?.trim() ?? "";
   const deskTitle = headingOverride ?? identity.displayName;
 
@@ -109,12 +115,21 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
         drafts={identity.drafts}
       />
 
+      <ArchitectureIdentityDeskOpenQuestions
+        architectureId={identity.architectureId}
+        currentDraftId={identity.currentDraftId}
+        latestReviewId={identity.latestReviewId}
+        drafts={identity.drafts}
+      />
+
+      <ArchitectureIdentityDeskInFlightSection architectureId={identity.architectureId} />
+
       {latestSealedManifestId.length > 0 && identity.latestReviewId !== null && identity.latestReviewId !== undefined ? (
         <p className={OPERATOR_TYPOGRAPHY.body}>
           <span className="font-medium">{ARCHITECTURE_IDENTITY_DESK_LATEST_SEAL_LABEL}:</span>
           {" "}
           <Link
-            href={reviewDetailPath(identity.latestReviewId)}
+            href={resolveArchitectureReviewHref(identity.latestReviewId, identity.architectureId)}
             className={OPERATOR_LINK.nav}
             data-testid="architecture-identity-latest-seal-link"
           >
@@ -125,14 +140,20 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
 
       <ArchitectureSealDeltaPanel architectureId={identity.architectureId} />
 
-      <ArchitectureIdentityDeskVersionsSection versions={identity.versions ?? []} />
+      <ArchitectureIdentityDeskVersionsSection
+        architectureId={identity.architectureId}
+        versions={identity.versions ?? []}
+      />
 
       <section aria-labelledby="architecture-identity-reviews-heading">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <h2 id="architecture-identity-reviews-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
             {ARCHITECTURE_IDENTITY_DESK_REVIEWS_SECTION_TITLE}
           </h2>
-          <ArchitectureIdentityDeskCompareAction reviews={identity.reviews} />
+          <ArchitectureIdentityDeskCompareAction
+            reviews={identity.reviews}
+            architectureId={identity.architectureId}
+          />
         </div>
         <ArchitectureIdentityDeskReviewsTable
           reviews={identity.reviews}

@@ -23,6 +23,15 @@ describe("buildGetArchLucidAzurePackageCommandLine", () => {
     expect(line).toContain(`-SubscriptionId '${subscriptionId}'`);
   });
 
+  it("prefills -TenantId and -SubscriptionId when both are supplied", () => {
+    const tenantId = "9fe44930-326a-4542-907d-5000c79fc027";
+    const subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    const line = buildGetArchLucidAzurePackageCommandLine({ tenantId, subscriptionId });
+
+    expect(line).toContain(`-TenantId '${tenantId}'`);
+    expect(line).toContain(`-SubscriptionId '${subscriptionId}'`);
+  });
+
   it("emits the full extractor command when quickStart is false", () => {
     const line = buildGetArchLucidAzurePackageCommandLine({ quickStart: false });
 
@@ -33,11 +42,24 @@ describe("buildGetArchLucidAzurePackageCommandLine", () => {
   });
 
   it("buildAdvancedGetArchLucidAzurePackageCommandLine matches quickStart false", () => {
+    const tenantId = "9fe44930-326a-4542-907d-5000c79fc027";
     const subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
-    const advanced = buildAdvancedGetArchLucidAzurePackageCommandLine({ subscriptionId });
+    const advanced = buildAdvancedGetArchLucidAzurePackageCommandLine({ tenantId, subscriptionId });
 
     expect(advanced).toContain("Get-ArchLucidAzurePackage.ps1");
+    expect(advanced).toContain(`-TenantId '${tenantId}'`);
     expect(advanced).toContain(`-SubscriptionId '${subscriptionId}'`);
     expect(advanced).toContain("-IncludeCost");
+  });
+
+  it("uses SecureNow script and ZIP names on the security product line", () => {
+    const quickStart = buildGetArchLucidAzurePackageCommandLine({ productLineId: "security" });
+    const advanced = buildAdvancedGetArchLucidAzurePackageCommandLine({ productLineId: "security" });
+
+    expect(quickStart).toContain("Run-SecureNowAzureExtractor.ps1");
+    expect(quickStart).not.toMatch(/\bArchLucid\b/);
+    expect(advanced).toContain("Get-SecureNowAzurePackage.ps1");
+    expect(advanced).toContain("-OutputPath '.\\securenow-azure-package.zip'");
+    expect(advanced).not.toMatch(/\bArchLucid\b/);
   });
 });
