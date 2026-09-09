@@ -135,6 +135,32 @@ public sealed class FindingProvenanceEmissionApplicatorTests
     }
 
     [Fact]
+    public void Apply_records_hold_note_when_density_already_demoted_missing_kind_a()
+    {
+        Finding finding = new()
+        {
+            FindingId = "engine-1",
+            FindingType = "TopologyGap",
+            Category = "Topology",
+            EngineType = "topology-gap",
+            Classification = FindingClassification.ChecklistCoverage,
+            Treatment = FindingTreatment.DemoteToChecklist,
+            InsightDensityScore = 40,
+            Trace = new ExplainabilityTrace
+            {
+                Notes = ["evidence:doc:manifest.json#services"],
+            },
+        };
+
+        FindingProvenanceEmissionApplicator.Apply([finding], new FindingProvenanceValidator());
+
+        finding.Classification.Should().Be(FindingClassification.ChecklistCoverage);
+        finding.Treatment.Should().Be(FindingTreatment.DemoteToChecklist);
+        finding.InsightDensityScore.Should().Be(40);
+        finding.Trace!.Notes.Should().Contain(note => note.StartsWith("provenance-hold:", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void EnrichDiagramEvidenceRefs_appends_diagram_ref_for_typed_engine_finding_on_mermaid_node()
     {
         const string evidenceItemId = "evidence-mermaid-1";
