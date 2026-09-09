@@ -106,6 +106,9 @@ public sealed class AuthSignInReturnPathGuardTests
     [Theory]
     [InlineData("/\uFF0E\uFF0E/admin")]
     [InlineData("/%EF%BC%8E%EF%BC%8E/admin")]
+    [InlineData("/signin/\u2025/other")]
+    [InlineData("/%E2%80%A5/admin")]
+    [InlineData("/signin/\u2024\u2024/other")]
     public void TryNormalize_rejects_unicode_dot_homoglyph_path_traversal_segments(string path)
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();

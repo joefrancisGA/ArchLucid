@@ -1582,3 +1582,4 @@
 {"at":"2026-09-09T03:00:32.2719585Z","zoneId":"tenant-data-export","outcome":"hit"}
 {"at":"2026-09-09T03:12:57.1442273Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
 {"at":"2026-09-09T03:20:26.3262912Z","zoneId":"core-findings-advice","outcome":"hit"}
+{"at":"2026-09-09T03:28:17.9865752Z","zoneId":"auth-return-path","outcome":"hit"}

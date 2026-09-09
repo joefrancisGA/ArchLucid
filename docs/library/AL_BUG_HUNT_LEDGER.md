@@ -568,11 +568,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 6
-- **bugs-found:** 7
+- **hunts:** 7
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — Unicode dot leader homoglyphs bypass return-path traversal checks
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -592,8 +592,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Unicode dot homoglyphs bypass ASCII `..` segment check — **hit 2026-09-07 (#1222):** fullwidth full stop (`．`, `%EF%BC%8E`) evaded `ContainsDotDotSegment`; fixed with `ContainsDotHomoglyph`; regression in `TryNormalize_rejects_unicode_dot_homoglyph_path_traversal_segments`
 - [x] (proven) Residual percent signs survive eight-pass decode cap — **hit 2026-09-07 (#1222):** deeply nested `%25` left `/path%25` accepted while UI rejects any residual `%`; fixed with `ContainsTrailingPercentAfterDecodeCap` parity; regression in `TryNormalize_rejects_residual_percent_after_decode_cap`
 - [x] (valid-no-repro) Percent-encoded backslash dot-dot chains — `/welcome%5c..%5c..%5coperator` already rejected via `%5c`/`%2e` residual checks
+- [x] (proven) Unicode dot leader homoglyphs bypass `ContainsDotHomoglyph` — **hit 2026-09-09 seed hunt #1399 (seed→hit):** ONE DOT LEADER (`․`, `%E2%80%A4`) and TWO DOT LEADER (`‥`, `%E2%80%A5`) evaded ASCII `..` and prior fullwidth/middle-dot homoglyph set; fixed by extending `IsDotHomoglyph`; regression in `TryNormalize_rejects_unicode_dot_homoglyph_path_traversal_segments`
 
-2026-09-07 thorough hunt #1176 (hit): proved dot-dot segment bypass; cheap-disproof on ninth-decode traversal and decode-only homoglyph emergence.
+2026-09-09 seed hunt #1399 (seed→hit): reseeded after #1222; proved dot-leader homoglyph traversal bypass; 35 scoped `AuthSignInReturnPathGuardTests` passed.
 
 2026-09-07 seed hunt #1222 (hit): proved Unicode dot homoglyph traversal and residual percent after decode cap; reseeded from exhausted zone.
 
