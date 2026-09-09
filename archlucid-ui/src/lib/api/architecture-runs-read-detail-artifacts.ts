@@ -47,7 +47,9 @@ export async function getRunDetail(
 
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */
 export async function getRunProvenance(runId: string): Promise<DecisionProvenanceGraph> {
-  return apiGetSealedManifestAware<DecisionProvenanceGraph>(`/v1/authority/reviews/${runId}/provenance`);
+  return apiGetSealedManifestAware<DecisionProvenanceGraph>(
+    `/v1/runs/${encodeURIComponent(runId)}/review-trail/provenance`,
+  );
 }
 
 /** Paginated agent execution traces (LLM audit rows) for a coordinator architecture run. */

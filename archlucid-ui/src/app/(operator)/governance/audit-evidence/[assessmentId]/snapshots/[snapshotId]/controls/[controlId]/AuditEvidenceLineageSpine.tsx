@@ -21,6 +21,11 @@ import {
   auditEvidenceLineageSpineTechnicalDisclosureHrefFromSearch,
   parseAuditEvidenceLineageSpineTechnicalOpenFromSearch,
 } from "@/lib/governance/audit-evidence-lineage-spine-technical-disclosure-url";
+import {
+  AUDIT_EVIDENCE_SPINE_EVIDENCE_TECHNICAL_ROW_ID_PARAM,
+  auditEvidenceSpineEvidenceTechnicalDisclosureHrefFromSearch,
+  parseAuditEvidenceSpineEvidenceTechnicalRowIdFromSearch,
+} from "@/lib/governance/audit-evidence-spine-evidence-technical-disclosure-url";
 
 type AuditEvidenceLineageSpineProps = {
   readonly lineage: AuditEvidenceLineageRecord;
@@ -63,8 +68,12 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const spineTechnicalOpenParam = searchParams.get(AUDIT_EVIDENCE_LINEAGE_SPINE_TECHNICAL_OPEN_PARAM);
+  const spineEvidenceTechnicalRowIdParam = searchParams.get(AUDIT_EVIDENCE_SPINE_EVIDENCE_TECHNICAL_ROW_ID_PARAM);
   const [spineTechnicalOpen, setSpineTechnicalOpenState] = useState(() =>
     parseAuditEvidenceLineageSpineTechnicalOpenFromSearch(spineTechnicalOpenParam),
+  );
+  const [spineEvidenceTechnicalRowId, setSpineEvidenceTechnicalRowIdState] = useState(() =>
+    parseAuditEvidenceSpineEvidenceTechnicalRowIdFromSearch(spineEvidenceTechnicalRowIdParam),
   );
 
   const syncSpineTechnicalOpenToUrl = useCallback(
@@ -85,9 +94,33 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
     [syncSpineTechnicalOpenToUrl],
   );
 
+  const syncSpineEvidenceTechnicalRowIdToUrl = useCallback(
+    (evidenceRowId: string | null) => {
+      router.replace(
+        auditEvidenceSpineEvidenceTechnicalDisclosureHrefFromSearch(searchParams.toString(), evidenceRowId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSpineEvidenceTechnicalRowId = useCallback(
+    (evidenceRowId: string | null) => {
+      setSpineEvidenceTechnicalRowIdState(evidenceRowId);
+      syncSpineEvidenceTechnicalRowIdToUrl(evidenceRowId);
+    },
+    [syncSpineEvidenceTechnicalRowIdToUrl],
+  );
+
   useEffect(() => {
     setSpineTechnicalOpenState(parseAuditEvidenceLineageSpineTechnicalOpenFromSearch(spineTechnicalOpenParam));
   }, [spineTechnicalOpenParam]);
+
+  useEffect(() => {
+    setSpineEvidenceTechnicalRowIdState(
+      parseAuditEvidenceSpineEvidenceTechnicalRowIdFromSearch(spineEvidenceTechnicalRowIdParam),
+    );
+  }, [spineEvidenceTechnicalRowIdParam]);
 
   if (!props.expanded) {
     return (
@@ -232,6 +265,10 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
                       title="Technical identifiers"
                       sectionTestId={`audit-evidence-spine-evidence-technical-${evidence.evidenceRowId}`}
                       summaryLine="Evidence row and cloud resource IDs"
+                      open={spineEvidenceTechnicalRowId === (evidence.evidenceRowId ?? "")}
+                      onToggle={(open) => {
+                        setSpineEvidenceTechnicalRowId(open ? (evidence.evidenceRowId ?? "") : null);
+                      }}
                     >
                       <TechnicalIdentifierRow label="evidenceRowId" value={evidence.evidenceRowId} />
                       <TechnicalIdentifierRow label="cloudResourceId" value={evidence.cloudResourceId} />

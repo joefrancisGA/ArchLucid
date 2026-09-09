@@ -1,5 +1,5 @@
 import type { components } from "@/lib/api-types.generated";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 export type ComparisonReplayCostEstimateResponse = components["schemas"]["ComparisonReplayCostEstimateResponse"];
 
@@ -31,17 +31,7 @@ export async function fetchArchitectureComparisonReplayCostEstimate(
 
   const suffix = qp.toString().length > 0 ? `?${qp}` : "";
 
-  const res = await fetch(
-    `/api/proxy/v1/architecture/comparisons/${encodeURIComponent(id)}/replay/cost-estimate${suffix}`,
-    mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" }),
+  return apiGetSealedManifestAware<ComparisonReplayCostEstimateResponse>(
+    `/v1/architecture/comparisons/${encodeURIComponent(id)}/replay/cost-estimate${suffix}`,
   );
-  const text = await res.text();
-
-  if (!res.ok) {
-    throw new Error(text.length > 0 ? text : `HTTP ${String(res.status)}`);
-  }
-
-  const body = JSON.parse(text) as ComparisonReplayCostEstimateResponse;
-
-  return body;
 }

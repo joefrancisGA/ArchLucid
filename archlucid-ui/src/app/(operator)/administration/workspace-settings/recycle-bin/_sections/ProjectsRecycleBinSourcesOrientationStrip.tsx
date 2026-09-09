@@ -1,4 +1,5 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   PROJECTS_RECYCLE_BIN_FOLLOW_UPS_TITLE,
   PROJECTS_RECYCLE_BIN_ORIENTATION_SOURCES_INTRO,
@@ -16,6 +17,7 @@ export function ProjectsRecycleBinSourcesOrientationStrip(): React.JSX.Element {
       sourcesTitle={PROJECTS_RECYCLE_BIN_FOLLOW_UPS_TITLE}
       sourcesIntro={PROJECTS_RECYCLE_BIN_ORIENTATION_SOURCES_INTRO}
       sources={PROJECTS_RECYCLE_BIN_SOURCES}
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary
     />
   );

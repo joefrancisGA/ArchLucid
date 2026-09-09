@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const navCommittedReviewMock = vi.hoisted(() => vi.fn(() => false));
@@ -55,10 +55,6 @@ vi.mock("@/components/operator-home/OperatorHomeCompactStartingActionsSection", 
   OperatorHomeCompactStartingActionsSection: () => <div data-testid="operator-home-start-something" />,
 }));
 
-vi.mock("@/components/operator-home/OperatorHomeBuyerChrome", () => ({
-  OperatorHomeBuyerChrome: () => <div data-testid="operator-home-buyer-chrome-strip" />,
-}));
-
 vi.mock("@/lib/operator/operator-home-refresh-context", () => ({
   OperatorHomeRefreshProvider: ({ children }: { readonly children: React.ReactNode }) => <>{children}</>,
   useOperatorHomeRefresh: () => ({
@@ -72,16 +68,24 @@ import { OperatorHomePageView } from "./OperatorHomePageView";
 import type { OperatorHomePageViewModel } from "./operator-home-page-view-model";
 import {
   BUYER_OPERATOR_HOME_PAGE_SUBTITLE,
-  OPERATOR_HOME_PAGE_SUBTITLE,
 } from "@/lib/operator/operator-home-page-copy";
 import {
+  OPERATOR_HOME_BUYER_OVERVIEW,
   OPERATOR_HOME_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID,
+  OPERATOR_HOME_ORIENTATION_BOTTOM_TEST_ID,
+  OPERATOR_HOME_PAGE_LEAD,
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
   OPERATOR_HOME_SKIP_TARGET_ID,
 } from "./operator-home-page-surface-copy";
-import { OPERATOR_HOME_CLAIM_DISCIPLINE } from "@/lib/operator/operator-home-evidence-copy";
+import {
+  OPERATOR_HOME_CLAIM_DISCIPLINE,
+  OPERATOR_HOME_FOLLOW_UPS_TITLE,
+  OPERATOR_HOME_ORIENTATION_SOURCES,
+} from "@/lib/operator/operator-home-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 function mockHomeModel(overrides?: Partial<OperatorHomePageViewModel["runsDashboard"]>): OperatorHomePageViewModel {
   return {
@@ -106,7 +110,7 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
     navCommittedReviewMock.mockReturnValue(false);
   });
 
-  it("renders skip link, contextual help, and no buyer subtitle on first-run overview", () => {
+  it("renders skip link, intro lead, overview, workspace before follow-ups on first-run overview", () => {
     render(<OperatorHomePageView model={mockHomeModel()} />);
 
     expect(screen.getByRole("link", { name: OPERATOR_HOME_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -125,23 +129,29 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
       OPERATOR_HOME_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.queryByTestId("operator-home-orientation-top")).toBeNull();
-    expect(screen.queryByTestId("operator-home-orientation-bottom")).toBeNull();
+    expect(screen.queryByTestId(OPERATOR_HOME_ORIENTATION_BOTTOM_TEST_ID)).toBeNull();
     expect(screen.queryByTestId("operator-home-page-subtitle")).not.toBeInTheDocument();
     expect(screen.queryByText(BUYER_OPERATOR_HOME_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(OPERATOR_HOME_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID);
-    const orderedLandmarks = ["operator-home-hero-section"]
-      .map((testId) => firstViewport.querySelector(`[data-testid="${testId}"]`))
-      .filter((node): node is HTMLElement => node !== null)
-      .map((node) => node.getAttribute("data-testid"));
+    const overview = screen.getByTestId("operator-home-overview");
+    const workspace = screen.getByTestId("operator-home-workspace");
 
     expect(primaryContent).toContainElement(firstViewport);
-    expect(orderedLandmarks).toEqual(["operator-home-hero-section"]);
+    expect(screen.getByTestId("operator-home-intro")).toHaveTextContent(OPERATOR_HOME_PAGE_LEAD);
+    expect(overview).toHaveTextContent(OPERATOR_HOME_BUYER_OVERVIEW);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(workspace);
+    expect(firstViewport).toContainElement(screen.getByTestId("operator-home-intro"));
+    expect(within(workspace).getByTestId("operator-home-hero-section")).toBeInTheDocument();
+
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("renders returning-home hierarchy with metrics and unfinished work before recent reviews", () => {
+  it("renders returning-home hierarchy with metrics before recent reviews and orientation follow-ups", () => {
     navCommittedReviewMock.mockReturnValue(true);
 
     render(
@@ -160,13 +170,13 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
       />,
     );
 
-    const firstViewport = screen.getByTestId(OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID);
+    const workspace = screen.getByTestId("operator-home-workspace");
     const orderedLandmarks = [
       "operator-home-workspace-metrics-strip",
       "operator-home-start-something",
       "home-block-runs-dashboard",
     ]
-      .map((testId) => firstViewport.querySelector(`[data-testid="${testId}"]`))
+      .map((testId) => workspace.querySelector(`[data-testid="${testId}"]`))
       .filter((node): node is HTMLElement => node !== null)
       .map((node) => node.getAttribute("data-testid"));
 
@@ -175,15 +185,26 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
       "operator-home-start-something",
       "home-block-runs-dashboard",
     ]);
-    expect(screen.queryByTestId("operator-home-hero-section")).toBeNull();
-    expect(screen.queryByTestId("operator-home-recommended-next-card")).toBeNull();
-    expect(screen.getByTestId("operator-home-orientation-bottom")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-buyer-chrome-strip")).toBeInTheDocument();
+    expect(within(workspace).queryByTestId("operator-home-hero-section")).toBeNull();
+    expect(within(workspace).queryByTestId("operator-home-recommended-next-card")).toBeNull();
+    expect(screen.getByTestId(OPERATOR_HOME_ORIENTATION_BOTTOM_TEST_ID)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(OPERATOR_HOME_PRIMARY_CONTENT_ID);
-    const orientationBottom = screen.getByTestId("operator-home-orientation-bottom");
+    const firstViewport = screen.getByTestId(OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("operator-home-overview");
+    const orientationBottom = screen.getByTestId(OPERATOR_HOME_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("operator-home-settings-sources");
 
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientationBottom).toContainElement(sourcesSection);
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(OPERATOR_HOME_ORIENTATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

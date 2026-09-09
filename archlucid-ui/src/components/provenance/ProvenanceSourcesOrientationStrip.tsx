@@ -2,6 +2,7 @@
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   buildProvenanceSources,
   PROVENANCE_FOLLOW_UPS_TITLE,
@@ -26,6 +27,7 @@ export function ProvenanceSourcesOrientationStrip(props: ProvenanceSourcesOrient
       sourcesTitle={PROVENANCE_FOLLOW_UPS_TITLE}
       sourcesIntro={PROVENANCE_ORIENTATION_SOURCES_INTRO}
       sources={buildProvenanceSources(props.runId, props.architectureId, { workingMode: isWorkingMode })}
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary
     />
   );

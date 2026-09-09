@@ -43,7 +43,10 @@ public static partial class DanglingDeclarationReferenceAnalyzer
                 continue;
             }
 
-            foreach (KeyValuePair<string, string> property in node.Properties)
+            IEnumerable<KeyValuePair<string, string>> properties = node.Properties
+                .OrderBy(static property => property.Key, StringComparer.Ordinal);
+
+            foreach (KeyValuePair<string, string> property in properties)
             {
                 if (danglingReferences.Count >= MaxFindings)
                 {
@@ -234,6 +237,16 @@ public static partial class DanglingDeclarationReferenceAnalyzer
         if (IsKnownReference(token, knownIdentities))
         {
             return;
+        }
+
+        foreach (DanglingDeclarationReference candidate in danglingReferences)
+        {
+            if (string.Equals(candidate.SourceNodeId, node.NodeId, StringComparison.Ordinal)
+                && string.Equals(candidate.ReferenceKind, DanglingDeclarationReferenceKind.Identity, StringComparison.Ordinal)
+                && string.Equals(candidate.ReferencedToken, token, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
         }
 
         danglingReferences.Add(

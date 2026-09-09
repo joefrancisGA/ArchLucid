@@ -18,11 +18,18 @@ public sealed partial class ArtifactExportController
     [HttpGet("runs/{runId:guid}/export/verify")]
     [ProducesResponseType(typeof(RunExportLineageVerificationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> VerifyRunExportLineage(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestHashOrConflictAsync(scope, runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunExportLineageVerificationResult? result = await runExportLineageVerifier.VerifyAsync(scope, runId, ct);
 
         if (result is null)

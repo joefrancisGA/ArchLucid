@@ -11,6 +11,8 @@ import {
 } from "@/lib/review-quality/compare-quality-delta";
 import { useCompareGovernanceDiff } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareGovernanceDiff";
 import { useCompareFindingCorrelation } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFindingCorrelation";
+import { useComparisonSearchQuery } from "@/hooks/use-comparison-search-query";
+import { useComparisonDriftDownload } from "@/hooks/use-comparison-drift-download";
 import type { CompareResultsPanelProps } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareResultsPanel";
 
 export function useCompareResultsPanel(props: CompareResultsPanelProps) {
@@ -37,6 +39,21 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [docxDownloading, setDocxDownloading] = useState(false);
   const [docxError, setDocxError] = useState<string | null>(null);
+
+  const comparisonSearchQuery = useComparisonSearchQuery({
+    query: {
+      leftRunId: leftTrim,
+      rightRunId: rightTrim,
+      comparisonType: "end-to-end",
+    },
+    enabled: leftTrim.length > 0 && rightTrim.length > 0,
+  });
+
+  const comparisonRecordId = comparisonSearchQuery.data?.records?.[0]?.comparisonRecordId ?? "";
+  const comparisonDriftDownload = useComparisonDriftDownload({ comparisonRecordId });
+  const comparisonSearchBlockedReason = comparisonSearchQuery.blockedReason;
+  const comparisonDriftBlockedReason = comparisonDriftDownload.blockedReason;
+
 
   const handleDownloadPdf = async () => {
     if (!lastComparedPair) return;
@@ -142,6 +159,9 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
     showTrustBanner,
     showVerdictSummary,
     verdictSummary,
+    comparisonSearchBlockedReason,
+    comparisonDriftBlockedReason,
+    comparisonDriftDownload,
   };
 }
 

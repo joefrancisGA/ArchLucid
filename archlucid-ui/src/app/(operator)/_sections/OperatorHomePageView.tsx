@@ -20,6 +20,7 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_HOME_SECTION_HEADING,
   OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -48,7 +49,9 @@ import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
+  OPERATOR_HOME_BUYER_OVERVIEW,
   OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID,
+  OPERATOR_HOME_PAGE_LEAD,
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
   OPERATOR_HOME_SKIP_TARGET_ID,
@@ -298,16 +301,29 @@ function OperatorHomePageBody(props: {
             id={OPERATOR_HOME_SKIP_TARGET_ID}
             data-testid={OPERATOR_HOME_FIRST_VIEWPORT_TEST_ID}
             className={cn(
-              "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="operator-home-buyer-intro">
+              <p
+                className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
+                data-testid="operator-home-intro"
+              >
+                {OPERATOR_HOME_PAGE_LEAD}
+              </p>
+            </div>
+          </div>
+          <p
+            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="operator-home-overview"
+          >
+            {OPERATOR_HOME_BUYER_OVERVIEW}
+          </p>
+          <div className="space-y-4" data-testid="operator-home-workspace">
             {workspaceSections.map((section) => renderSection(section))}
           </div>
-          {buyerChromeSection !== undefined ? (
-            <div data-testid="operator-home-orientation-bottom">
-              {renderSection(buyerChromeSection)}
-            </div>
-          ) : null}
+          {buyerChromeSection !== undefined ? renderSection(buyerChromeSection) : null}
         </>
       ) : (
         sections.map((section) => renderSection(section))

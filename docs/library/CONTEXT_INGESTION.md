@@ -154,6 +154,8 @@ After **`ContextSnapshot`** is saved, **`ArchLucid.KnowledgeGraph`** builds a ty
 
 **Declaration identity materialization (WK-08, DX-03):** When guided-intake actor JSON is absent, **`DeclarationIdentityActorMaterializer`** seeds **`Actor`** and optional **`TrustBoundary`** nodes from IaC declaration properties (K8s **`ServiceAccount`**, **`Ingress`**, LoadBalancer **`Service`**, Terraform/ARM identities, Function App managed identity, Front Door/APIM/LB edge resources). **`DeclarationIdentityEdgeMaterializer`** links each declaration actor to its source topology node. Actor security engines (**`external-exposure`**, **`trust-boundary`**, **`privileged-access`**) now fire on these declaration-seeded actors beyond the original WK-08 four-type allow-list.
 
+**Declaration identity path edges (DX-69):** **`InfrastructureDeclarationSpecialPropertyMapper`** promotes stable **`principalId`**, **`roleName`**, **`declarationTargetResourceId`**, and backend / **`connectedToNodeIds`** keys from declaration bodies when present (never guessed). **`DeclarationIdentityPathEdgeMaterializer`** emits **`RELATES_TO`** / **`APPLIES_TO`** IAM hops and external-actor **`CONNECTS_TO`** data-flow hops only when both ends already exist on the snapshot (principal, scope, backend, or depends-on target). Path engines **`identity-blast-radius`** and **`data-flow-trust-boundary`** consume this adjacency on IaC-only reviews without hand-authored golden overlays. **claimBoundary:** not a named-model beat, not SOC 2 Type II attestation, not a live customer-directory IAM graph.
+
 See **`docs/KNOWLEDGE_GRAPH.md`** for pipeline, **`EdgeType`** semantics, DI registration, persistence JSON aliases, and manifest integration.
 
 ### Declaration security signals

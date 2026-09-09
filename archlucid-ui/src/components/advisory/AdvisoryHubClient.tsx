@@ -127,7 +127,7 @@ export function AdvisoryHubClient({ initialTab, initialRunId = null }: AdvisoryH
         data-testid="advisory-scans-page-lead"
         className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
       >
-        {advisoryScansPageLead(buyerPolishedShell)}
+        {advisoryScansPageLead(buyerPolishedShell, activeTab)}
       </p>
     </OperatorPageHeader>
   );

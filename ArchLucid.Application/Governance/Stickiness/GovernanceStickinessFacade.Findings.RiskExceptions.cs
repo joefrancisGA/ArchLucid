@@ -59,6 +59,8 @@ public sealed partial class GovernanceStickinessFacade
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return [];
 
+        await EnsureRegistersSealedManifestOrThrowAsync(resolvedProjectId, ct).ConfigureAwait(false);
+
         IReadOnlyList<RiskExceptionRecord> records = await _riskExceptionService.ListActiveAsync(
             scope.TenantId,
             resolvedProjectId,
