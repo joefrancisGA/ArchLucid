@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -43,12 +44,52 @@ def _check_workflow(rel_path: str, text: str, errors: list[str]) -> None:
                 )
 
 
+def _check_pilot_overlay(root: Path, errors: list[str]) -> None:
+    rel_path = "ArchLucid.Api/appsettings.Pilot.json"
+    path = root / rel_path
+
+    if not path.is_file():
+        errors.append(f"missing {rel_path}")
+        return
+
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        errors.append(f"{rel_path}: invalid JSON ({exc})")
+        return
+
+    if not isinstance(data, dict):
+        errors.append(f"{rel_path}: expected a JSON object")
+        return
+
+    agent_execution = data.get("AgentExecution")
+    mode = agent_execution.get("Mode") if isinstance(agent_execution, dict) else None
+
+    if isinstance(mode, str) and mode.strip().lower() == "real":
+        errors.append(
+            f"{rel_path} must not set AgentExecution.Mode=Real "
+            "(local dotnet run would require Azure OpenAI; use appsettings.Real.sample.json)"
+        )
+
+    azure = data.get("AzureOpenAI") if isinstance(data.get("AzureOpenAI"), dict) else {}
+
+    for key in ("Endpoint", "DeploymentName", "EmbeddingDeploymentName", "ApiKey"):
+        value = azure.get(key)
+
+        if isinstance(value, str) and value.strip():
+            errors.append(
+                f"{rel_path} must not set AzureOpenAI.{key} "
+                "(partial Azure OpenAI fails Simulator startup)"
+            )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.parse_args(argv)
 
     root = repo_root()
     errors: list[str] = []
+    _check_pilot_overlay(root, errors)
 
     for rel_path in _WORKFLOW_PATHS:
         path = root / rel_path

@@ -1,5 +1,3 @@
-using ArchLucid.AgentRuntime;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation;
 
 using FluentAssertions;
@@ -7,11 +5,10 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchLucid.Api.Tests;
+namespace ArchLucid.Host.Core.Tests.Configuration;
 
 /// <summary>
 ///     Locks the committed Pilot overlay to scale-honest defaults so local
@@ -54,18 +51,50 @@ public sealed class PilotOverlayDoesNotForceRealAzureOpenAiTests
         string? mode = configuration["AgentExecution:Mode"];
         mode.Should().NotBeEquivalentTo("Real");
         errors.Should().NotContain(e => e.Contains("Azure OpenAI is not fully configured", StringComparison.Ordinal));
+        AssertAzureOpenAiIsNotPartiallyConfigured(configuration);
     }
 
     [Fact]
-    public void AzureOpenAiOptionsValidator_when_shipped_development_plus_pilot_overlay_succeeds()
+    public void Collect_when_real_without_azure_openai_names_simulator_escape_hatch()
     {
-        IConfiguration configuration = LoadShippedDevelopmentHostJson();
-        AzureOpenAiOptions options = new();
-        configuration.GetSection(AzureOpenAiOptions.SectionName).Bind(options);
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ArchLucid:StorageProvider"] = "InMemory",
+                    ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+                    ["AgentExecution:Mode"] = "Real",
+                })
+            .Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        ValidateOptionsResult result = new AzureOpenAiOptionsValidator().Validate(Options.DefaultName, options);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        result.Succeeded.Should().BeTrue();
+        string? msg = errors.FirstOrDefault(e => e.Contains("AZURE_OPENAI_ENDPOINT", StringComparison.Ordinal));
+        msg.Should().NotBeNull();
+        msg.Should().Contain("AZURE_OPENAI_API_KEY");
+        msg.Should().Contain("AZURE_OPENAI_DEPLOYMENT_NAME");
+        msg.Should().Contain("AgentExecution:Mode=Simulator");
+        msg.Should().Contain("appsettings.Real.sample.json");
+    }
+
+    private static void AssertAzureOpenAiIsNotPartiallyConfigured(IConfiguration configuration)
+    {
+        bool hasEndpoint = !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:Endpoint"]);
+        bool hasDeployment = !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:DeploymentName"]);
+        bool hasApiKey = !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:ApiKey"]);
+        string authenticationMode = configuration["AzureOpenAI:AuthenticationMode"]?.Trim() ?? "ApiKey";
+        bool usesManagedIdentity = string.Equals(
+            authenticationMode,
+            "ManagedIdentity",
+            StringComparison.OrdinalIgnoreCase);
+
+        if (!hasEndpoint && !hasApiKey && !hasDeployment)
+            return;
+
+        (hasEndpoint && hasDeployment && (hasApiKey || usesManagedIdentity)).Should().BeTrue(
+            "partial Azure OpenAI on the shipped Development+Pilot overlay fails AzureOpenAiOptionsValidator");
     }
 
     private static IConfiguration LoadShippedDevelopmentHostJson()
