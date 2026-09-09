@@ -56,6 +56,15 @@ public sealed class RunExportBlobPushOutboxProcessor(
         RunExportBlobPushOutboxProcessorOptions opts,
         CancellationToken cancellationToken)
     {
+        ScopeContext scopeContext = new()
+        {
+            TenantId = entry.TenantId,
+            WorkspaceId = entry.WorkspaceId,
+            ProjectId = entry.ProjectId
+        };
+
+        using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
+
         IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
         ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
         await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken).ConfigureAwait(false);
