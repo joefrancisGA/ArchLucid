@@ -35,6 +35,10 @@ import {
   advisoryScansCantFindReviewDisclosureHrefFromSearch,
   parseAdvisoryScansCantFindReviewOpenFromSearch,
 } from "@/lib/advisory/advisory-scans-cant-find-review-disclosure-url";
+import {
+  advisoryScansManualIdAdminDisclosureHrefFromSearch,
+  parseAdvisoryScansManualIdAdminOpenFromSearch,
+} from "@/lib/advisory/advisory-scans-manual-id-admin-disclosure-url";
 import type { WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 export type AdvisoryScanFormProps = {
@@ -60,8 +64,12 @@ export function AdvisoryScanForm(props: AdvisoryScanFormProps): React.JSX.Elemen
   const pathname = usePathname() ?? "/insights/advisory-scans";
   const searchParams = useSearchParams();
   const advisoryScansCantFindReviewOpenParam = searchParams.get("advisoryScansCantFindReviewOpen");
+  const advisoryScansManualIdAdminOpenParam = searchParams.get("advisoryScansManualIdAdminOpen");
   const [cantFindReviewOpen, setCantFindReviewOpenState] = useState(() =>
     parseAdvisoryScansCantFindReviewOpenFromSearch(advisoryScansCantFindReviewOpenParam),
+  );
+  const [manualIdAdminOpen, setManualIdAdminOpenState] = useState(() =>
+    parseAdvisoryScansManualIdAdminOpenFromSearch(advisoryScansManualIdAdminOpenParam),
   );
   const {
     bootstrappedRunId,
@@ -101,9 +109,31 @@ export function AdvisoryScanForm(props: AdvisoryScanFormProps): React.JSX.Elemen
     [syncCantFindReviewOpenToUrl],
   );
 
+  const syncManualIdAdminOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        advisoryScansManualIdAdminDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setManualIdAdminOpen = useCallback(
+    (open: boolean) => {
+      setManualIdAdminOpenState(open);
+      syncManualIdAdminOpenToUrl(open);
+    },
+    [syncManualIdAdminOpenToUrl],
+  );
+
   useEffect(() => {
     setCantFindReviewOpenState(parseAdvisoryScansCantFindReviewOpenFromSearch(advisoryScansCantFindReviewOpenParam));
   }, [advisoryScansCantFindReviewOpenParam]);
+
+  useEffect(() => {
+    setManualIdAdminOpenState(parseAdvisoryScansManualIdAdminOpenFromSearch(advisoryScansManualIdAdminOpenParam));
+  }, [advisoryScansManualIdAdminOpenParam]);
 
   if (!reviewSelected) {
     return <></>;
@@ -186,7 +216,14 @@ export function AdvisoryScanForm(props: AdvisoryScanFormProps): React.JSX.Elemen
               </Button>
 
               {isAdminCaller ? (
-                <details className="rounded border border-dashed border-neutral-300 p-3 dark:border-neutral-600">
+                <details
+                  className="rounded border border-dashed border-neutral-300 p-3 dark:border-neutral-600"
+                  data-testid="advisory-scans-manual-id-admin"
+                  open={manualIdAdminOpen}
+                  onToggle={(event) => {
+                    setManualIdAdminOpen(event.currentTarget.open);
+                  }}
+                >
                   <summary className="cursor-pointer font-medium text-neutral-800 dark:text-neutral-200">
                     {ADVISORY_SCANS_MANUAL_ID_ADMIN_SUMMARY}
                   </summary>
