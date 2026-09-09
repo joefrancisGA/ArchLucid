@@ -190,7 +190,9 @@ internal static class RunListQueryParameters
             ArchitectureId = architectureId,
             GoldenManifestId = goldenManifestId,
             ExcludeRunId = excludeRunId,
-            CommittedStatus = nameof(ArchitectureRunStatus.Committed)
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
         };
     }
 

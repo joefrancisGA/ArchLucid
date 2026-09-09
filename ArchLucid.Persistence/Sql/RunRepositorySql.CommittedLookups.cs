@@ -79,10 +79,10 @@ internal static partial class RunRepositorySql
                                                                    AND r.GoldenManifestId = @GoldenManifestId
                                                                    AND r.ArchivedUtc IS NULL
                                                                    AND r.RunId <> @ExcludeRunId
+                                                                   AND r.LegacyRunStatus NOT IN (@FailedStatus, @QualityRejectedStatus)
                                                                    AND (
                                                                         r.LegacyRunStatus = @CommittedStatus
                                                                         OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
-                                                                        OR r.GoldenManifestId IS NOT NULL
                                                                    )
                                                                  ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                                  """;

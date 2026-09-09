@@ -285,6 +285,7 @@ BEGIN
            OR r.LegacyRunStatus <> N'Committed')
       AND r.IsDemoWelcomeRun = 0
       AND r.IsPublicShowcase = 0
+      AND r.IsSample = 0
     ORDER BY r.CreatedUtc ASC;
 
     IF NOT EXISTS (SELECT 1 FROM #PurgeRuns)
