@@ -38,6 +38,9 @@ public static class ArchitectureInventoryObservedFactGraphBuilder
             node.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind] =
                 StructuredDiagramGraphProvenanceKinds.ObservedFact;
             node.Properties["arm.id"] = resource.AzureResourceId;
+            // Product-shaped citation keys used by FindingEvidenceRefs / AS-018 bind matching.
+            node.Properties["armResourceId"] = resource.AzureResourceId;
+            node.Properties["azureResourceId"] = resource.AzureResourceId;
             node.Properties["arm.type"] = resource.ResourceType;
             node.Properties["inventory.snapshotId"] = snapshot.Header.SnapshotId.ToString("D");
 

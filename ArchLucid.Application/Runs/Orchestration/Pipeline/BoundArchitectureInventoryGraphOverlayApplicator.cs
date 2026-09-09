@@ -75,6 +75,8 @@ public sealed class BoundArchitectureInventoryGraphOverlayApplicator(
             graphSnapshot.ContextSnapshotId);
 
         GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(graphSnapshot, overlay);
+        GraphSnapshot rebound = ArchitectureInventoryObservedFactGraphOverlayDiagramRebinder
+            .RebindLeftoverDiagramNodes(merged, overlay);
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
@@ -83,9 +85,9 @@ public sealed class BoundArchitectureInventoryGraphOverlayApplicator(
                 run.RunId,
                 run.ArchitectureId,
                 binding.SnapshotId,
-                merged.Nodes.Count - graphSnapshot.Nodes.Count);
+                rebound.Nodes.Count - graphSnapshot.Nodes.Count);
         }
 
-        return merged;
+        return rebound;
     }
 }

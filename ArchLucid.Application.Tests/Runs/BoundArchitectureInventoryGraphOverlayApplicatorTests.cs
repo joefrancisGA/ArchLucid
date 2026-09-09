@@ -74,6 +74,51 @@ public sealed class BoundArchitectureInventoryGraphOverlayApplicatorTests
     }
 
     [Fact]
+    public async Task ApplyAsync_leftoverDiagramNode_rebindsOntoInventoryObservedFact()
+    {
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            RunId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "diagram-node:sql",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay-sql-prod",
+                    SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagram,
+                    SourceId = "diagram-node:sql",
+                },
+            ],
+            Edges = [],
+        };
+        RunRecord run = CreateRun(architectureId: ArchitectureId);
+
+        BoundArchitectureInventoryGraphOverlayApplicator sut = CreateSut(
+            binding: new ArchitectureInventoryBindingRecord
+            {
+                ArchitectureId = ArchitectureId,
+                SnapshotId = SnapshotId,
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ScopeProjectId = Scope.ProjectId,
+                BoundBy = "actor@example.com",
+                BoundUtc = DateTime.UtcNow,
+            },
+            snapshot: CreateSnapshotFixture());
+
+        GraphSnapshot result = await sut.ApplyAsync(Scope, run, graph, CancellationToken.None);
+
+        result.Nodes.Should().NotContain(node => node.NodeId == "diagram-node:sql");
+        GraphNode overlayNode = result.Nodes.Should().ContainSingle(node =>
+            node.Properties.GetValueOrDefault("cloudResourceId") == CloudResourceId.ToString("D")).Subject;
+        overlayNode.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId]
+            .Should().Be("diagram-node:sql");
+    }
+
+    [Fact]
     public async Task ApplyAsync_boundButSnapshotUnreadable_skipsMergeWithoutFakingNodes()
     {
         GraphSnapshot graph = CreateBaseGraph();
