@@ -40,6 +40,10 @@ import {
   ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_HELPER,
   formatArchitectureInventoryUnboundEstateGapLine,
 } from "@/lib/architecture/architecture-inventory-estate-gap-copy";
+import {
+  formatArchitectureInventoryBoundFreshnessLine,
+  resolveArchitectureInventorySnapshotFreshnessBand,
+} from "@/lib/architecture/architecture-inventory-snapshot-freshness";
 import { resolveArchitectureInventoryBindingSnapshotId } from "@/lib/architecture/architecture-inventory-binding-validation";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -190,6 +194,12 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
   const binding = bindingQuery.data;
   const isBound = binding.isBound === true;
   const unboundEstateGapLine = formatArchitectureInventoryUnboundEstateGapLine(binding);
+  const boundFreshnessLine = isBound
+    ? formatArchitectureInventoryBoundFreshnessLine(binding.snapshotCapturedUtc)
+    : null;
+  const boundFreshnessBand = isBound
+    ? resolveArchitectureInventorySnapshotFreshnessBand(binding.snapshotCapturedUtc)
+    : null;
   const canAttach =
     selection.isValid
     && !attachMutation.isPending
@@ -225,6 +235,19 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
               ? ` · captured ${formatInfraEvidenceSnapshotCapturedLabel(binding.snapshotCapturedUtc)}`
               : null}
           </p>
+          {boundFreshnessLine !== null ? (
+            <p
+              className={cn(
+                "m-0",
+                OPERATOR_TYPOGRAPHY.helper,
+                boundFreshnessBand === "stale" ? "text-al-text-warning" : "text-al-text-secondary",
+              )}
+              data-testid="architecture-identity-desk-inventory-binding-freshness"
+              role={boundFreshnessBand === "stale" ? "alert" : undefined}
+            >
+              {boundFreshnessLine}
+            </p>
+          ) : null}
           <Button
             type="button"
             variant="outline"

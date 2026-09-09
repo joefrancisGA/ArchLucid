@@ -171,6 +171,50 @@ describe("ArchitectureIdentityDeskInventoryBindingPanel (AS-049)", () => {
     });
   });
 
+  it("shows snapshot freshness for a recently bound snapshot (AS-052)", async () => {
+    useArchitectureInventoryBindingQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        architectureId,
+        isBound: true,
+        snapshotId,
+        snapshotSubscriptionName: "Prod",
+        snapshotCapturedUtc: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      },
+      refetch: vi.fn(),
+      blockedReason: null,
+    });
+
+    renderPanel();
+
+    expect(screen.getByTestId("architecture-identity-desk-inventory-binding-freshness")).toHaveTextContent(
+      "Snapshot age:",
+    );
+  });
+
+  it("warns when the bound snapshot is stale (AS-052)", async () => {
+    useArchitectureInventoryBindingQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        architectureId,
+        isBound: true,
+        snapshotId,
+        snapshotSubscriptionName: "Prod",
+        snapshotCapturedUtc: "2026-01-01T12:00:00.000Z",
+      },
+      refetch: vi.fn(),
+      blockedReason: null,
+    });
+
+    renderPanel();
+
+    expect(screen.getByTestId("architecture-identity-desk-inventory-binding-freshness")).toHaveTextContent(
+      "may not reflect current estate",
+    );
+  });
+
   it("shows bound snapshot metadata and detach control", async () => {
     useArchitectureInventoryBindingQueryMock.mockReturnValue({
       isLoading: false,
