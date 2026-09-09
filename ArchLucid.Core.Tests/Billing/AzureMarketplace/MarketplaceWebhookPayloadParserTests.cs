@@ -249,6 +249,48 @@ public sealed class MarketplaceWebhookPayloadParserTests
             .Should().Be(nameof(TenantTier.Standard));
     }
 
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("contoso-exclude-enterprise-standard")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_excluding_enterprise_delimited_plan()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("excluding-enterprise-plan")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_except_enterprise_delimited_plan()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("except-enterprise-plan")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_minus_enterprise_delimited_plan()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("contoso-minus-enterprise-standard")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_less_enterprise_delimited_plan()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("less-enterprise-plan")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
+    [Fact]
+    public void TierStorageCodeFromPlanId_does_not_false_positive_on_lacking_enterprise_delimited_plan()
+    {
+        MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId("lacking-enterprise-plan")
+            .Should().Be(nameof(TenantTier.Standard));
+    }
+
     [Theory]
     [InlineData("contoso/enterprise/monthly")]
     [InlineData("contoso:enterprise:annual")]
