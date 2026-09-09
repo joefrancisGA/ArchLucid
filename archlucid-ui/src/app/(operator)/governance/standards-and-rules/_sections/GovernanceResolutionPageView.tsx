@@ -35,6 +35,7 @@ import {
   GOVERNANCE_STANDARDS_RULES_PRIMARY_CONTENT_ID,
   GOVERNANCE_STANDARDS_RULES_SKIP_LINK_LABEL,
 } from "@/lib/governance-standards-rules-page-copy";
+import { STANDARDS_RULES_LOAD_RETRY_LABEL } from "@/lib/standards-rules-page";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
