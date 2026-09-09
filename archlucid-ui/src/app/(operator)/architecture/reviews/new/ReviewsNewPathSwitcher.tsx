@@ -153,6 +153,10 @@ export function ReviewsNewPathSwitcher() {
       params.delete("template");
     }
 
+    if (path === "guided-intake") {
+      params.delete("intakeStep");
+    }
+
     if (path !== "guided-intake") {
       params.delete("intakeStep");
       params.delete("scopeGate");
