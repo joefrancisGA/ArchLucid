@@ -35,6 +35,19 @@ internal static partial class RunRepositoryCore
         return systemName.Trim();
     }
 
+    /// <summary>
+    ///     Normalizes authority project slugs for list and committed lookups: trim edges, collapse internal whitespace, uppercase.
+    /// </summary>
+    public static string NormalizeAuthorityProjectSlug(string authorityProjectSlug)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(authorityProjectSlug);
+
+        return string.Join(
+            ' ',
+            authorityProjectSlug.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            .ToUpperInvariant();
+    }
+
     public static void ValidateOperatorGovernanceDispositionArgs(Guid runId, string decision, string actorUserId)
     {
         if (runId == Guid.Empty)
