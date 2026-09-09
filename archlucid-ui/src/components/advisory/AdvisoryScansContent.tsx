@@ -14,6 +14,7 @@ import {
   ADVISORY_SCANS_HOW_IT_WORKS_BODY,
   ADVISORY_SCANS_HOW_IT_WORKS_TITLE,
 } from "@/lib/advisory-copy";
+import { advisoryRunReadBlockedReason } from "@/lib/advisory/advisory-run-read-blocked-reason";
 import { isExperimentalAdvisoryPanelsEnabled } from "@/lib/feature-flags";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -80,12 +81,17 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
       <AdvisoryScansToolbar content={content} />
 
       {content.failure !== null ? (
-        <div role="alert">
+        <div role="alert" className="space-y-2" data-testid="advisory-scans-bootstrap-blocked">
           <OperatorApiProblem
             problem={content.failure.problem}
             fallbackMessage={content.failure.message}
             correlationId={content.failure.correlationId}
           />
+          {content.bootstrapBlockedReason ?? advisoryRunReadBlockedReason(content.failure) ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {content.bootstrapBlockedReason ?? advisoryRunReadBlockedReason(content.failure)}
+            </p>
+          ) : null}
         </div>
       ) : null}
 
