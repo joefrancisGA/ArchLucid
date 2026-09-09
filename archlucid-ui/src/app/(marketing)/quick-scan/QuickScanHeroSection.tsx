@@ -11,6 +11,7 @@ import { QuickScanScopeDisclosure } from "@/components/marketing/quick-scan/Quic
 import { SeeItDeliverablePreview } from "@/app/(marketing)/see-it/SeeItDeliverablePreview";
 import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { MARKETING_MOTION, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { QUICK_SCAN_CLAIM_DISCIPLINE } from "@/lib/quick-scan-evidence-copy";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +32,7 @@ export function QuickScanHeroSection(): ReactElement {
             {QUICK_SCAN_PAGE_TITLE}
           </h1>
           <p
-            className={cn("mt-4 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}
+            className={cn("mt-4 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
             data-testid="quick-scan-intro"
           >
             {QUICK_SCAN_HERO_LEAD}
