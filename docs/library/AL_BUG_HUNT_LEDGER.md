@@ -597,6 +597,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1475 (seed-only): reseeded email-otp-auth after #1428 hit; cheap-disproof closed code-trim and select-workspace role candidates; 18 scoped `EmailOtpAuthServiceTests` passed.
 
+- [x] (valid-no-repro) `ResolveNextStepAsync` AcceptInvitation path hardcodes `ArchLucidRoles.Reader` while pending invitation `AppRole` may be elevated — **valid-no-repro 2026-09-09 seed hunt #1492:** AcceptInvitation JWT is bootstrap-only before explicit `PostAuthBootstrap.AcceptInvitationAsync`; membership role is applied on accept via `invitation.AppRole`; auto-accept paths already return invitation AppRole (#1428)
+
+2026-09-09 seed hunt #1492 (seed-only): reseeded email-otp-auth; cheap-disproved AcceptInvitation bootstrap JWT role candidate; 21 scoped EmailOtpAuthService tests passed.
+
+- [x] (invalid) OTP request rate limit bypass by rotating `ClientIp` while reusing the same normalized email — **invalid 2026-09-09 seed hunt #1493:** `AuthRateLimitHelper.IsEmailOtpRequestRateLimitedAsync` enforces `MaxCodeRequestsPerEmailPerHour` before IP bucket; regression `IsEmailOtpRequestRateLimitedAsync_returns_true_when_email_limit_exceeded`
+
+2026-09-09 seed hunt #1493 (seed-only): reseeded email-otp-auth; cheap-disproved ClientIp rate-limit bypass candidate; 21 scoped EmailOtpAuthService tests passed.
+
 ---
 
 ## Zone: auth-return-path
