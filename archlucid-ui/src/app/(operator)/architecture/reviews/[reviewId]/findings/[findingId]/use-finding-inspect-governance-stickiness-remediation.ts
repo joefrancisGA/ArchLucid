@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import { upsertFindingRemediationAssignment } from "@/lib/api/finding-remediation-assignment-api";
 import { validateRemediationOwnerInput } from "@/lib/findings/finding-governance-action-copy";
+import { findingRemediationAssignmentBlockedReason } from "@/lib/findings/finding-remediation-assignment-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   createFindingInspectRemediationBaseline,
   type FindingInspectRemediationBaseline,
@@ -84,7 +86,9 @@ export function useFindingInspectGovernanceStickinessRemediation({
       );
       setStatusMessage("Remediation assignment saved.");
     } catch (error) {
-      const message = resolveMutationError(error);
+      const failure = toApiLoadFailure(error);
+      const blockedReason = findingRemediationAssignmentBlockedReason(failure);
+      const message = blockedReason ?? resolveMutationError(error);
       setRemediationInlineSaveError(message);
       setErrorMessage(message);
     } finally {
