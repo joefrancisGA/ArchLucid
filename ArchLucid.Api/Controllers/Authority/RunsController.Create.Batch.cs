@@ -45,6 +45,12 @@ public sealed partial class RunsController
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureRunCreateSealedManifestAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         BatchCreateRunOrchestrationResult result = await runLifecycleCommandService.CreateRunBatchAsync(
             scope,
             requests,
