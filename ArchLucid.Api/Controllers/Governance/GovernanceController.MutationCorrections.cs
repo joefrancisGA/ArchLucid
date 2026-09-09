@@ -41,6 +41,12 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedAsync(request.RunId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         string actorUserId = actorContext.GetActor();
 
         try
