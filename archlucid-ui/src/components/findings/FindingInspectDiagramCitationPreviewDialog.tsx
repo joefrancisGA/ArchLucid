@@ -70,6 +70,7 @@ export function FindingInspectDiagramCitationPreviewDialog(
       return;
     }
 
+    const activeCitation = citation;
     let canceled = false;
 
     async function loadEvidence(): Promise<void> {
@@ -81,7 +82,7 @@ export function FindingInspectDiagramCitationPreviewDialog(
 
       try {
         const { blob, fileName: resolvedFileName, contentType: resolvedContentType } =
-          await fetchRunStoredEvidenceFileBlob(runId, citation.evidenceItemId, "inline");
+          await fetchRunStoredEvidenceFileBlob(runId, activeCitation.evidenceItemId, "inline");
 
         if (canceled) {
           return;
@@ -93,13 +94,13 @@ export function FindingInspectDiagramCitationPreviewDialog(
         setFileName(resolvedName);
 
         if (!isMermaidContentType(resolvedType, resolvedName) && !isMermaidDiagramSource(source)) {
-          setLoadError(`Open file; shape id ${citation.shapeOrEdgeId}. Highlight is available for Mermaid sources only.`);
+          setLoadError(`Open file; shape id ${activeCitation.shapeOrEdgeId}. Highlight is available for Mermaid sources only.`);
 
           return;
         }
 
         if (!isMermaidDiagramSource(source)) {
-          setLoadError(`Open file; shape id ${citation.shapeOrEdgeId}. Highlight is available for Mermaid sources only.`);
+          setLoadError(`Open file; shape id ${activeCitation.shapeOrEdgeId}. Highlight is available for Mermaid sources only.`);
 
           return;
         }
@@ -128,6 +129,8 @@ export function FindingInspectDiagramCitationPreviewDialog(
       return;
     }
 
+    const activeCitation = citation;
+    const activeMermaidSource = mermaidSource;
     let canceled = false;
 
     async function renderDiagram(): Promise<void> {
@@ -145,14 +148,14 @@ export function FindingInspectDiagramCitationPreviewDialog(
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
         });
 
-        const result = await mermaid.render(renderId, mermaidSource.trim());
+        const result = await mermaid.render(renderId, activeMermaidSource.trim());
 
         if (!canceled) {
           setSvgMarkup(prepareMermaidSvgForResponsiveLayout(result.svg));
         }
       } catch {
         if (!canceled) {
-          setLoadError(`Open file; shape id ${citation.shapeOrEdgeId}. Mermaid preview could not be rendered.`);
+          setLoadError(`Open file; shape id ${activeCitation.shapeOrEdgeId}. Mermaid preview could not be rendered.`);
         }
       }
     }
