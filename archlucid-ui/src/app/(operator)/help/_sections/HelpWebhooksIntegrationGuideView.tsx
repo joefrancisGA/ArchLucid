@@ -259,11 +259,7 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
           <HelpTopicTableOfContents headings={tocHeadings} />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-webhooks-integration-orientation-bottom">
-            <HelpWebhooksIntegrationSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpWebhooksIntegrationSourcesOrientationStrip /> : null}
       </div>
     </article>
   );
