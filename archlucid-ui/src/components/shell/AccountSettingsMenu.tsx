@@ -64,9 +64,12 @@ export function AccountSettingsMenu(): React.JSX.Element {
   const accountMenuOpenParam = searchParams.get("accountMenuOpen");
   const [open, setOpenState] = useState(() => parseAccountSettingsMenuOpenFromSearch(accountMenuOpenParam));
   const [panelStyle, setPanelStyle] = useState<CSSProperties | null>(null);
+  const openRef = useRef(open);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
+
+  openRef.current = open;
 
   const syncAccountMenuOpenToUrl = useCallback(
     (menuOpen: boolean) => {
@@ -79,15 +82,18 @@ export function AccountSettingsMenu(): React.JSX.Element {
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
-        syncAccountMenuOpenToUrl(next);
+      const current = openRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        return next;
-      });
+      setOpenState(next);
+      syncAccountMenuOpenToUrl(next);
     },
     [syncAccountMenuOpenToUrl],
   );
+
+  useEffect(() => {
+    setOpenState(parseAccountSettingsMenuOpenFromSearch(accountMenuOpenParam));
+  }, [accountMenuOpenParam]);
 
   const closeMenu = useCallback(() => {
     setOpen(false);

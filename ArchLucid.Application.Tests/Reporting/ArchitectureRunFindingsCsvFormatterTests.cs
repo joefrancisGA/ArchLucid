@@ -146,6 +146,46 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void BuildCsvContent_omits_checklist_coverage_rows()
+    {
+        ArchitectureFinding decisionGrade = new()
+        {
+            FindingId = "f-decision",
+            Severity = FindingSeverity.Warning,
+            Category = "security",
+            Message = "Rotate keys",
+            Classification = FindingClassification.DecisionGradeFinding,
+        };
+
+        ArchitectureFinding checklist = new()
+        {
+            FindingId = "f-checklist",
+            Severity = FindingSeverity.Info,
+            Category = "hygiene",
+            Message = "Generic hygiene note",
+            Classification = FindingClassification.ChecklistCoverage,
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [decisionGrade, checklist],
+        };
+
+        ArchitectureRunDetail detail = new() { Results = [result] };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
+
+        csv.Should().Contain("f-decision");
+        csv.Should().NotContain("f-checklist");
+        ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail).Should().Be(1);
+        ArchitectureRunFindingsCsvFormatter.CountOmittedChecklistCoverageFindingsInDetail(detail).Should().Be(1);
+        ArchitectureRunFindingsCsvFormatter.CollectFindingIds(detail).Should().BeEquivalentTo(["f-decision"]);
+    }
+
+    [Fact]
     public void FormatFindingStatus_maps_muted_and_active()
     {
         ArchitectureRunFindingsCsvFormatter.FormatFindingStatus(true).Should().Be("muted");

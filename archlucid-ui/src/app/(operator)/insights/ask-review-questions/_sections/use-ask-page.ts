@@ -18,10 +18,17 @@ import { formatConversationListDate, formatConversationListDatePolished } from "
 import { resolveContinueLastAskThread } from "@/lib/ask/resolve-continue-last-ask-thread";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { trySeedDemoAskConversation } from "./ask-page-demo-seed";
+import { useWorkingInsightsArchitectureBind } from "@/hooks/use-working-insights-architecture-bind";
+
 import { useAskPageStream } from "./use-ask-page-stream";
 import { useAskPageUrlSync } from "./use-ask-page-url-sync";
 
-export function useAskPage() {
+export type UseAskPageOptions = {
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string;
+};
+
+export function useAskPage(options: UseAskPageOptions = {}) {
   const [threads, setThreads] = useState<ConversationThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState("");
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
@@ -145,6 +152,8 @@ export function useAskPage() {
     setLoading,
   });
 
+  const threadsHydrated = prefetchedThreads !== undefined || threadsQueryError;
+
   const urlSync = useAskPageUrlSync({
     runId,
     selectedThreadId,
@@ -162,7 +171,9 @@ export function useAskPage() {
     setLastAskReferencedDecisions,
     setLastAskReferencedArtifacts,
     threads,
+    threadsHydrated,
     loadMessages,
+    basePathname: options.basePathname,
   });
 
   const { onSelectThread } = urlSync;
@@ -181,7 +192,11 @@ export function useAskPage() {
     }
 
     if (urlSync.urlThreadId.length > 0) {
-      return;
+      const urlThreadKnown = threads.some((thread) => thread.threadId === urlSync.urlThreadId);
+
+      if (urlThreadKnown) {
+        return;
+      }
     }
 
     const resumeThreadId = resolveContinueLastAskThread(threads)?.threadId?.trim() ?? "";
@@ -249,6 +264,11 @@ export function useAskPage() {
   ]);
 
   const showThreadHistoryPanel = threads.length > 0;
+  const architectureBind = useWorkingInsightsArchitectureBind({
+    tool: "ask",
+    urlRunId: urlSync.urlRunIdRaw,
+    pinnedArchitectureId: options.pinnedArchitectureId,
+  });
 
   return {
     buyerPolishedShell,
@@ -291,6 +311,9 @@ export function useAskPage() {
     onStarterPromptClick: stream.onStarterPromptClick,
     mergePromptLine: stream.mergePromptLine,
     onAsk: stream.onAsk,
+    architectureBindPending: architectureBind.bindPending,
+    showArchitectureDeskEmpty: architectureBind.showArchitectureDeskEmpty,
+    architectureBindResult: architectureBind.bindResult,
   };
 }
 

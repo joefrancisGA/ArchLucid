@@ -324,11 +324,7 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
           )}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-roi-summary-orientation-bottom">
-            <HelpRoiSummarySourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpRoiSummarySourcesOrientationStrip /> : null}
       </div>
     </article>
   );

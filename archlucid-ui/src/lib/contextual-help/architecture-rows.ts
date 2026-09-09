@@ -12,6 +12,7 @@ import {
   START_REVIEW_LABEL,
   WORKING_NEW_REVIEW_LABEL,
 } from "@/lib/architecture/architecture-workflow-labels";
+import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
 import type { PageContextualHelpEntry, PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -27,12 +28,12 @@ const ARCHITECTURE_HOME_WORKING_ENTRY: PageContextualHelpEntry = {
     href: ARCHITECTURES_NEW_PATH,
   },
   whereToConfigureAction: {
-    label: "Open packages",
+    label: WORKING_REVIEWS_INBOX_NAV_LABEL,
     href: REVIEWS_LIST_PATH,
   },
   taskSteps: [
     "Open an architecture identity from Architectures to resume child drafts or linked reviews.",
-    "Open an in-progress or finalized architecture package from Reviews.",
+    "Open an in-progress or finalized architecture package from Inbox when you need cross-architecture triage.",
     "Inspect sealed records and exports when you need audit-ready outputs.",
   ],
 };
@@ -52,14 +53,29 @@ const ARCHITECTURE_IDENTITIES_WORKING_ENTRY: PageContextualHelpEntry = {
 
 const ARCHITECTURE_REVIEWS_WORKING_ENTRY: PageContextualHelpEntry = {
   whatIsThisPage:
-    "Architecture packages hub — resume, inspect, and manage active and finalized architecture reviews.",
-  whatToDoNext: "Open a package, open an architecture identity, or start a new review.",
+    "Inbox — cross-architecture review jobs in this workspace. Open an architecture desk to continue work on a named system.",
+  whatToDoNext: "Open Architectures to pick a system, or open a package here when you need cross-architecture triage.",
   whyEmpty: "Summary metrics populate after you start or finalize architecture reviews.",
   whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher.",
   taskSteps: [
     "Open a recent architecture package to continue review work.",
     "Open an architecture identity when you need the parent system desk.",
     "Start a new review when you are ready to file evidence.",
+  ],
+};
+
+const ARCHITECTURE_START_WORKING_ENTRY: PageContextualHelpEntry = {
+  whatIsThisPage:
+    "Start a review — file evidence as a review job under a named architecture identity.",
+  whatToDoNext:
+    "Confirm the architecture identity, pick an intake path, complete required fields, then submit evidence.",
+  whyEmpty: "Path choices appear immediately; review results appear after you submit intake.",
+  whereToConfigurePrerequisite:
+    "Reviews use the workspace and project selected in the header switcher.",
+  taskSteps: [
+    "Open or create the architecture identity that owns this review job.",
+    "Pick quick, guided, or detailed intake for the evidence you have.",
+    "Submit intake to create the review and open the nested workspace.",
   ],
 };
 
@@ -190,6 +206,10 @@ export function resolveArchitectureContextualHelpEntry(
 
   if (prefix === "/architecture/reviews") {
     return ARCHITECTURE_REVIEWS_WORKING_ENTRY;
+  }
+
+  if (prefix === REVIEWS_NEW_PATH) {
+    return ARCHITECTURE_START_WORKING_ENTRY;
   }
 
   const row = ARCHITECTURE_CONTEXTUAL_HELP_ROWS.find((candidate) => candidate.prefix === prefix);

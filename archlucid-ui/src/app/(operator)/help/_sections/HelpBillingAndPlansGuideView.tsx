@@ -4,8 +4,10 @@ import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import {
   useCallback,
+  useEffect,
   useState,
 } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   HelpBillingCurrentPlanCard,
@@ -55,6 +57,10 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import {
+  helpBillingFaqDisclosureHrefFromSearch,
+  parseHelpBillingFaqIdFromSearch,
+} from "@/lib/help/help-billing-faq-disclosure-url";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { showError } from "@/lib/toast";
@@ -74,8 +80,12 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
-function BillingFaqItemCard(props: { readonly item: BillingHelpFaqItem }): React.ReactElement {
-  const { item } = props;
+function BillingFaqItemCard(props: {
+  readonly item: BillingHelpFaqItem;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+}): React.ReactElement {
+  const { item, open, onOpenChange } = props;
 
   return (
     <details
@@ -85,6 +95,10 @@ function BillingFaqItemCard(props: { readonly item: BillingHelpFaqItem }): React
         OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
       )}
       data-testid={`help-billing-faq-${item.id}`}
+      open={open}
+      onToggle={(event) => {
+        onOpenChange((event.currentTarget as HTMLDetailsElement).open);
+      }}
     >
       <summary
         className={cn(
@@ -107,11 +121,37 @@ function BillingFaqItemCard(props: { readonly item: BillingHelpFaqItem }): React
 /** Buyer-safe billing orientation for `/help/billing-and-plans`. */
 export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpBillingFaqIdParam = searchParams.get("helpBillingFaqId");
+  const [openFaqId, setOpenFaqIdState] = useState(() => parseHelpBillingFaqIdFromSearch(helpBillingFaqIdParam));
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
+
+  const syncOpenFaqToUrl = useCallback(
+    (faqId: string | null) => {
+      router.replace(helpBillingFaqDisclosureHrefFromSearch(searchParams.toString(), faqId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpenFaqId = useCallback(
+    (faqId: string | null) => {
+      setOpenFaqIdState(faqId ?? "");
+      syncOpenFaqToUrl(faqId);
+    },
+    [syncOpenFaqToUrl],
+  );
+
+  useEffect(() => {
+    setOpenFaqIdState(parseHelpBillingFaqIdFromSearch(helpBillingFaqIdParam));
+  }, [helpBillingFaqIdParam]);
 
   const handlePlanLoadStateChange = useCallback((state: BillingPlanDataLoadState) => {
     if (state.status === "pending") {
@@ -269,7 +309,14 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
               </p>
               <div className="space-y-3" data-testid="help-billing-faq-list">
                 {BILLING_HELP_FAQ_ITEMS.map((item) => (
-                  <BillingFaqItemCard key={item.id} item={item} />
+                  <BillingFaqItemCard
+                    key={item.id}
+                    item={item}
+                    open={openFaqId === item.id}
+                    onOpenChange={(open) => {
+                      setOpenFaqId(open ? item.id : openFaqId === item.id ? null : openFaqId);
+                    }}
+                  />
                 ))}
               </div>
             </section>
@@ -305,11 +352,7 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
           <HelpTopicTableOfContents headings={tocHeadings} />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-billing-orientation-bottom">
-            <HelpBillingAndPlansSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpBillingAndPlansSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

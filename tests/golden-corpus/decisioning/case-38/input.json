@@ -1,0 +1,79 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000038",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000038",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000038-0000-4000-8000-000000000038",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000038",
+    "runId": "20000000-0000-4000-8000-000000000038",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "actor-checkout",
+        "nodeType": "Actor",
+        "label": "checkout-func",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "kind": "Machine",
+          "trustOrigin": "Internal"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "role-contrib-kv",
+        "nodeType": "TopologyResource",
+        "label": "checkout-contributor-kv",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "terraformType": "azurerm_role_assignment",
+          "roleName": "Contributor"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "kv-pay-prod",
+        "nodeType": "TopologyResource",
+        "label": "kv-pay-prod",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "storage",
+          "topologySensitivity": "data-bearing"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": null,
+        "fromNodeId": "actor-checkout",
+        "toNodeId": "role-contrib-kv",
+        "edgeType": "RELATES_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "edgeId": null,
+        "fromNodeId": "role-contrib-kv",
+        "toNodeId": "kv-pay-prod",
+        "edgeType": "APPLIES_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

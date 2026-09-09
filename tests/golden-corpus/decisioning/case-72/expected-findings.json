@@ -1,0 +1,122 @@
+[
+  {
+    "findingId": "771343d0-212a-dc00-99b5-0014a19a9cbc",
+    "findingType": "DiagramDeclarationOmissionFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Diagram cites Key Vault \u0027payments-kv\u0027 that is not in the explicit connector set",
+    "rationale": "Diagram participant \u0027Orders API\u0027 cites \u0027payments-kv\u0027 via \u0027appSettings\u0027, but the explicit structured-diagram connector set does not include that declared resource.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "obj-payments-kv"
+    ],
+    "payloadType": "DiagramDeclarationOmissionFindingPayload",
+    "rulesApplied": [
+      "diagram-declaration-omission"
+    ],
+    "decisionsTaken": [
+      "Cited declaration exists on the graph but is omitted from diagram topology participants.",
+      "Diagram asserted completeness via named trust boundary and explicit structured-parse connectors."
+    ]
+  },
+  {
+    "findingId": "68c9e8d6-1bf3-60b0-0758-08839f1f9041",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "diagram-node:db",
+      "obj-payments-kv"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "2aed7a4d-2bd4-e575-ed54-6942b311a1e8",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "diagram-node:db",
+      "obj-payments-kv"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "26ea7597-4fe3-a1ac-18fe-b64108d9e559",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "diagram-node:db",
+      "obj-payments-kv"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "506ecf74-c1f0-662b-b326-75b2141ccc2d",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "Orders API",
+      "SQL Database",
+      "payments-kv"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "f52e97ae-ea1c-0f4b-6e83-bd2e844a5105",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "diagram-node:api",
+      "diagram-node:db",
+      "obj-payments-kv"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

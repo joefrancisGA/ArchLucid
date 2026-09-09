@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -37,9 +38,11 @@ import { REPORT_PROBLEM_HELP_SLA_SENTENCE } from "@/lib/report-problem-help-copy
 import { AdminSupportBreadcrumb } from "./AdminSupportBreadcrumb";
 import { AdminSupportBuyerChrome } from "./AdminSupportBuyerChrome";
 import {
+  ADMIN_SUPPORT_FIRST_VIEWPORT_TEST_ID,
   ADMIN_SUPPORT_PAGE_TITLE,
   ADMIN_SUPPORT_PRIMARY_CONTENT_ID,
   ADMIN_SUPPORT_SKIP_LINK_LABEL,
+  ADMIN_SUPPORT_SKIP_TARGET_ID,
   adminSupportPageSubtitle,
 } from "./admin-support-page-copy";
 import type { UseAdminSupportPageModel } from "./use-admin-support-page";
@@ -93,46 +96,25 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
 
   const downloadDisabled = model.downloading || !model.canGenerateBundle;
 
-  return (
-    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="admin-support-page">
-      <a
-        href={`#${ADMIN_SUPPORT_PRIMARY_CONTENT_ID}`}
-        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-      >
-        {ADMIN_SUPPORT_SKIP_LINK_LABEL}
-      </a>
-      <div
-        id={ADMIN_SUPPORT_PRIMARY_CONTENT_ID}
-        data-testid="admin-support-primary-content"
-        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
-      >
-        <OperatorPageHeader
-          navHref={SETTINGS_SUPPORT_PATH}
-          title={ADMIN_SUPPORT_PAGE_TITLE}
-          titleTestId="admin-support-title"
-          breadcrumb={buyerPolishedShell ? <AdminSupportBreadcrumb /> : undefined}
-          subtitle={adminSupportPageSubtitle(buyerPolishedShell)}
-          claimDiscipline={SUPPORT_WORKSPACE_CLAIM_DISCIPLINE}
-          claimDisciplineTestId="support-workspace-claim-discipline"
-        />
+  const supportWorkspaceBody = (
+    <>
+      <AdminSupportBuyerChrome />
 
-        <AdminSupportBuyerChrome />
+      {buyerPolishedShell ? null : (
+        <ReportProblemSupportWorkspaceVocabularyRail currentSurfaceId="support-workspace" />
+      )}
 
-        {buyerPolishedShell ? null : (
-          <ReportProblemSupportWorkspaceVocabularyRail currentSurfaceId="support-workspace" />
-        )}
-
-        {buyerPolishedShell ? null : (
-          <p
-            className={cn(
-              "m-0 rounded-lg border border-neutral-200 bg-neutral-50/70 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/40",
-              OPERATOR_TYPOGRAPHY.body,
-            )}
-            data-testid="admin-support-guidance"
-          >
-            {SUPPORT_PAGE_GUIDANCE}
-          </p>
-        )}
+      {buyerPolishedShell ? null : (
+        <p
+          className={cn(
+            "m-0 rounded-lg border border-neutral-200 bg-neutral-50/70 px-4 py-3 text-al-text-primary dark:border-neutral-800 dark:bg-neutral-900/40",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+          data-testid="admin-support-guidance"
+        >
+          {SUPPORT_PAGE_GUIDANCE}
+        </p>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className={OPERATOR_LAYOUT.sectionStack}>
@@ -260,20 +242,78 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
             ) : null}
 
             {model.error !== null ? (
-              <p
-                role="alert"
-                className={cn(
-                  "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
-                  OPERATOR_TYPOGRAPHY.body,
-                )}
-                data-testid="admin-support-download-error"
-              >
-                {model.error}
-              </p>
+              <>
+                <p
+                  role="alert"
+                  className={cn(
+                    "rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50",
+                    OPERATOR_TYPOGRAPHY.body,
+                  )}
+                  data-testid="admin-support-download-error"
+                >
+                  {model.error}
+                </p>
+                <FatalPageReportProblemSupportRow
+                  surfaceId="admin-support-bundle-download-failure"
+                  routePath="/administration/support"
+                  errorTitle="Support bundle download failed"
+                  errorCode="admin-support-bundle-download-error"
+                />
+              </>
             ) : null}
           </div>
         </SupportSection>
       </div>
+    </>
+  );
+
+  return (
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="admin-support-page">
+      {buyerPolishedShell ? (
+        <a
+          href={`#${ADMIN_SUPPORT_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ADMIN_SUPPORT_SKIP_LINK_LABEL}
+        </a>
+      ) : (
+        <a
+          href={`#${ADMIN_SUPPORT_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {ADMIN_SUPPORT_SKIP_LINK_LABEL}
+        </a>
+      )}
+
+      <div
+        id={ADMIN_SUPPORT_PRIMARY_CONTENT_ID}
+        data-testid="admin-support-primary-content"
+        className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+      >
+        <OperatorPageHeader
+          navHref={SETTINGS_SUPPORT_PATH}
+          title={ADMIN_SUPPORT_PAGE_TITLE}
+          titleTestId="admin-support-title"
+          breadcrumb={buyerPolishedShell ? <AdminSupportBreadcrumb /> : undefined}
+          subtitle={adminSupportPageSubtitle(buyerPolishedShell)}
+          claimDiscipline={SUPPORT_WORKSPACE_CLAIM_DISCIPLINE}
+          claimDisciplineTestId="support-workspace-claim-discipline"
+        />
+
+        {buyerPolishedShell ? (
+          <div
+            id={ADMIN_SUPPORT_SKIP_TARGET_ID}
+            data-testid={ADMIN_SUPPORT_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            {supportWorkspaceBody}
+          </div>
+        ) : (
+          supportWorkspaceBody
+        )}
       </div>
     </OperatorPageContainer>
   );

@@ -50,14 +50,14 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchLucidComparisonRow[]
   },
   {
     claim:
-      "Architects can enable **`ArchLucid:Governance:PreCommitGateEnabled`** so **architecture review finalization** consults governance findings and policy assignments **before** the commit succeeds, returning a structured problem response when blocked.",
+      "Architects can enable **`ArchLucid:Governance:PreCommitGateEnabled`** so **architecture review finalization** consults policy findings and policy assignments **before** the commit succeeds, returning a structured problem response when blocked.",
     archlucidEvidence:
       "`docs/library/PRE_COMMIT_GOVERNANCE_GATE.md` · `ArchLucid.Application/Governance/PreCommitGovernanceGate.cs` · `ArchLucid.Application.Tests/ArchitectureRunCommitPipelineIntegrationTests.cs` (gate exercised)",
     competitorBaseline:
       "Teams that depend on **post-merge pull-request review only** discover policy violations **after** the manifest is already treated as canonical — rework lands in **ITSM-only tools** as incident debt (**first-party assertion (no external citation yet)**).",
     citation: "https://csrc.nist.gov/projects/ssdf",
     narrativeParagraph:
-      "The gate is opt-in because some pilots need speed first; when flipped on, the commit path calls the same governance evaluation code paths the docs describe. Integration tests prove the blocked branch emits durable audit semantics. That is a different class of safety than a comment thread checkbox.",
+      "The gate is opt-in because some pilots need speed first; when flipped on, the commit path calls the same policy evaluation code paths the docs describe. Integration tests prove the blocked branch emits durable audit semantics. That is a different class of safety than a comment thread checkbox.",
   },
   {
     claim:

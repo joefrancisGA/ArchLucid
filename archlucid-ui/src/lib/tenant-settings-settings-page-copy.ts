@@ -11,11 +11,21 @@ export const TENANT_SETTINGS_SETTINGS_SKIP_LINK_LABEL = "Skip to workspace setti
 export const TENANT_SETTINGS_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "tenant-settings-header-claim-discipline" as const;
 
+export const TENANT_SETTINGS_SETTINGS_ORIENTATION_BOTTOM_TEST_ID = "tenant-settings-orientation-bottom" as const;
+
 export const TENANT_SETTINGS_PAGE_SUBTITLE_BUYER =
   "Review workspace scope, tenant defaults, and inherited review settings for procurement walkthroughs." as const;
 
 export const TENANT_SETTINGS_SETTINGS_PAGE_LEAD =
   "Read-only summary of organization context, cost assumptions, and governance defaults for this workspace." as const;
+
+export const TENANT_SETTINGS_SETTINGS_OVERVIEW =
+  "Organization, cost-assumption, and governance cards below reflect tenant-wide defaults for the active workspace scope." as const;
+
+/** Buyer bridge between first-viewport lead and read-only workspace cards (ATE). */
+export const TENANT_SETTINGS_SETTINGS_BUYER_OVERVIEW = TENANT_SETTINGS_SETTINGS_OVERVIEW;
+
+export const TENANT_SETTINGS_SETTINGS_WORKSPACE_TEST_ID = "tenant-settings-workspace" as const;
 
 export const TENANT_SETTINGS_SETTINGS_START_HERE_CARD_TITLE = "Start here" as const;
 

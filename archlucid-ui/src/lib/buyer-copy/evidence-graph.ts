@@ -124,6 +124,10 @@ export const BUYER_EVIDENCE_GRAPH_VIEW_EVIDENCE_CHAIN_CTA = "View evidence chain
 /** Opens the Trace table presentation (`presentation=trace`) — not a file download. */
 export const BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA = "Export trace table";
 
+/** Viewport PNG is for discussion — not a sealed attestation or signed evidence record. */
+export const EVIDENCE_GRAPH_PNG_EXPORT_DISCLAIMER =
+  "PNG export is a viewport snapshot for discussion — not a sealed attestation or signed evidence record.";
+
 export const BUYER_GRAPH_PAGE_LEAD = BUYER_EVIDENCE_TRAIL_PAGE_SUBTITLE;
 
 export const BUYER_GRAPH_LOAD_ERROR = BUYER_EVIDENCE_TRAIL_ERROR_BODY;
@@ -158,6 +162,6 @@ export const BUYER_FINDING_EVIDENCE_TRACE_LABEL = "Evidence trace";
 
 export const BUYER_FINDING_SUPPORTING_EVIDENCE_TRACE = "Supporting evidence trace";
 
-export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View governance approval";
+export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View approval";
 
-export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to governance approval";
+export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to approval";

@@ -27,6 +27,7 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 }));
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: () => false,
   useNavCallerAuthorityRank: () => 1,
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
@@ -41,11 +42,11 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/users-and-roles",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpUsersAndRolesGuideView } from "@/app/(operator)/help/_sections/HelpUsersAndRolesGuideView";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import {
   USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE,
   USERS_AND_ROLES_HELP_FOLLOW_UPS_TITLE,
@@ -59,6 +60,7 @@ import {
   USERS_AND_ROLES_HELP_SKIP_TARGET_ID,
 } from "@/lib/users-and-roles-help-page-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpUsersAndRolesGuideView buyer-polished shell (HOE)", () => {
   const entry = getProductDocumentationEntry("users-and-roles");
@@ -98,10 +100,7 @@ describe("HelpUsersAndRolesGuideView buyer-polished shell (HOE)", () => {
       screen.getByRole("heading", { level: 2, name: USERS_AND_ROLES_HELP_ACTION_PANEL_TITLE }),
     ).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(USERS_AND_ROLES_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), USERS_AND_ROLES_HELP_SOURCES, "/help/users-and-roles");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

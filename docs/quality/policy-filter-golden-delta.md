@@ -15,6 +15,8 @@ Regression instrument for `ComplianceRulePackGovernanceFilter` — not evidence 
 
 ## Declaration-security sibling (`PolicyFilteredDeclarationGoldenCorpusTests`)
 
+**Measured artifact:** [`policy-pack-toggle-compare.md`](policy-pack-toggle-compare.md) (CI-guarded; regenerate with `ARCHLUCID_RECORD_POLICY_PACK_TOGGLE_COMPARE=1`).
+
 **Graph:** one `TopologyResource` with `tf.public_network_access=enabled` and `httpsOnly=false`.
 
 | Posture | Filtered rule id | Declaration finding |

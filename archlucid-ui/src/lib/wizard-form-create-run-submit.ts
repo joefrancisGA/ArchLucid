@@ -12,7 +12,10 @@ import {
   validateCoveragePackOverrides,
 } from "@/lib/coverage-pack-overrides";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
-import { reviewPipelineOperationId } from "@/lib/operations/review-pipeline-in-flight";
+import {
+  reviewPipelineOperationId,
+  trackReviewPipelineInFlight,
+} from "@/lib/operations/review-pipeline-in-flight";
 import { persistSessionRunCoverageAcknowledgement } from "@/lib/persist-run-coverage-acknowledgement";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
@@ -110,6 +113,7 @@ export async function executeWizardFormCreateRun(
       return { ok: false, reason: "error", error: blocked !== null ? new Error(blocked) : error };
     }
 
+    trackReviewPipelineInFlight(runId);
     args.progress?.bindOperation?.(reviewPipelineOperationId(runId));
 
     trackWizardCompleted(args.wizardCompletedName);

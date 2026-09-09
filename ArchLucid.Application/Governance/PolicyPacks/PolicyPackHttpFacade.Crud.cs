@@ -84,6 +84,10 @@ public sealed partial class PolicyPackHttpFacade
                 Outcome = PolicyPackHttpOutcome.Success,
                 Assignment = assignResult.Assignment,
             },
+            PolicyPackAssignOutcome.Forbidden => new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.Forbidden,
+            },
             PolicyPackAssignOutcome.PackNotFound => new PolicyPackAssignHttpResult
             {
                 Outcome = PolicyPackHttpOutcome.ResourceNotFound,
@@ -165,9 +169,24 @@ public sealed partial class PolicyPackHttpFacade
 
         bool ok = await _workflow.TrySetAssignmentEnabledAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
 
-        return ok
-            ? PolicyPackHttpResult<bool>.Success(true)
-            : new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound };
+        PolicyPackSetAssignmentEnabledOutcome outcome =
+            await _workflow.TrySetAssignmentEnabledWithOutcomeAsync(assignmentId, isEnabled, ct).ConfigureAwait(false);
+
+        return outcome switch
+        {
+            PolicyPackSetAssignmentEnabledOutcome.Updated => PolicyPackHttpResult<bool>.Success(true),
+            PolicyPackSetAssignmentEnabledOutcome.OrganizationRequiredLock => new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Organization-required policy pack assignments cannot be disabled. Clear organization-required first.",
+            },
+            PolicyPackSetAssignmentEnabledOutcome.PlatformPackInactive => new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Policy pack assignments cannot be enabled while the platform pack is inactive in the global catalog.",
+            },
+            _ => new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound },
+        };
     }
 
     /// <inheritdoc />
@@ -184,9 +203,21 @@ public sealed partial class PolicyPackHttpFacade
         bool ok = await _workflow.TrySetAssignmentOrganizationRequiredAsync(assignmentId, isOrganizationRequired, ct)
             .ConfigureAwait(false);
 
-        return ok
-            ? PolicyPackHttpResult<bool>.Success(true)
-            : new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound };
+
+        PolicyPackSetAssignmentOrganizationRequiredOutcome outcome =
+            await _workflow.TrySetAssignmentOrganizationRequiredWithOutcomeAsync(assignmentId, isOrganizationRequired, ct)
+                .ConfigureAwait(false);
+
+        return outcome switch
+        {
+            PolicyPackSetAssignmentOrganizationRequiredOutcome.Updated => PolicyPackHttpResult<bool>.Success(true),
+            PolicyPackSetAssignmentOrganizationRequiredOutcome.PlatformPackInactive => new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.Conflict,
+                Message = "Organization-required policy pack assignments cannot be set while the platform pack is inactive in the global catalog.",
+            },
+            _ => new PolicyPackHttpResult<bool> { Outcome = PolicyPackHttpOutcome.ResourceNotFound },
+        };
     }
 
     /// <inheritdoc />

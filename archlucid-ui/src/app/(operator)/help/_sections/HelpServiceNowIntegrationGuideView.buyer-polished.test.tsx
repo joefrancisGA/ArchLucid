@@ -41,8 +41,8 @@ import {
   SERVICENOW_INTEGRATION_HELP_SKIP_LINK_LABEL,
   SERVICENOW_INTEGRATION_HELP_SKIP_TARGET_ID,
 } from "@/lib/servicenow-integration-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpServiceNowIntegrationGuideView buyer-polished shell (ESX)", () => {
   const entry = getProductDocumentationEntry("servicenow-integration");
@@ -81,10 +81,7 @@ describe("HelpServiceNowIntegrationGuideView buyer-polished shell (ESX)", () => 
     );
     expect(screen.getAllByRole("link", { name: SERVICENOW_INTEGRATION_HELP_PRIMARY_ACTION.label })).toHaveLength(2);
 
-    for (const source of SERVICENOW_INTEGRATION_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), SERVICENOW_INTEGRATION_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

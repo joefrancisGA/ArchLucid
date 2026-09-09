@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import {
   AZURE_BOARDS_TEST_CONNECTION_LABEL,
   AZURE_BOARDS_TEST_CONNECTION_LEAD,
@@ -8,6 +10,10 @@ import {
   AZURE_BOARDS_TEST_CONNECTION_TITLE,
 } from "@/lib/azure-boards-page-copy";
 import { cn } from "@/lib/utils";
+import {
+  azureBoardsConnectionTestCollapsedDisclosureHrefFromSearch,
+  parseAzureBoardsConnectionTestCollapsedOpenFromSearch,
+} from "@/lib/integrations/azure-boards-connection-test-collapsed-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { resolveAzureBoardsConnectionTestGate, resolveAzureBoardsPageComposition } from "@/lib/azure-boards-integration-present";
 
@@ -30,6 +36,38 @@ export function AzureBoardsConnectionTestSection({
   connectionTestCollapsedSummary,
   onRunConnectionTest,
 }: AzureBoardsConnectionTestSectionProps): React.ReactElement | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const azureBoardsConnectionTestCollapsedOpenParam = searchParams.get("azureBoardsConnectionTestCollapsedOpen");
+  const [collapsedOpen, setCollapsedOpenState] = useState(() =>
+    parseAzureBoardsConnectionTestCollapsedOpenFromSearch(azureBoardsConnectionTestCollapsedOpenParam),
+  );
+
+  const syncCollapsedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        azureBoardsConnectionTestCollapsedDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setCollapsedOpen = useCallback(
+    (open: boolean) => {
+      setCollapsedOpenState(open);
+      syncCollapsedOpenToUrl(open);
+    },
+    [syncCollapsedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setCollapsedOpenState(
+      parseAzureBoardsConnectionTestCollapsedOpenFromSearch(azureBoardsConnectionTestCollapsedOpenParam),
+    );
+  }, [azureBoardsConnectionTestCollapsedOpenParam]);
+
   if (pageComposition.showConnectionTest) {
     return (
       <section
@@ -70,6 +108,10 @@ export function AzureBoardsConnectionTestSection({
         id="azure-boards-test-heading"
         className="rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
         data-testid="azure-boards-connection-test-collapsed"
+        open={collapsedOpen}
+        onToggle={(event) => {
+          setCollapsedOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary
           className={cn(

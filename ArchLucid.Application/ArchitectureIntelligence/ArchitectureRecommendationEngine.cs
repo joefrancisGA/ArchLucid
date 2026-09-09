@@ -60,7 +60,7 @@ public sealed class ArchitectureRecommendationEngine : IArchitectureRecommendati
             RiskReduction = riskReduction,
             ValidationMethod = ArchitectureRecommendationProposedChange.BuildValidationMethod(finding),
             Confidence = finding.Confidence,
-            RequiresHumanApproval = string.Equals(finding.Severity, "Critical", StringComparison.OrdinalIgnoreCase),
+            RequiresHumanApproval = ArchitectureRecommendationSeverityLabel.IsCritical(finding.Severity),
             Provenance = new ClaimProvenance
             {
                 Origin = ClaimOrigin.SystemProposed,

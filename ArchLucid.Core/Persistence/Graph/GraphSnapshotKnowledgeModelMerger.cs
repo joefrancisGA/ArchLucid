@@ -14,7 +14,7 @@ public static class GraphSnapshotKnowledgeModelMerger
 
         HashSet<string> modelNodeIds = modelGraph.Nodes
             .Select(static node => node.NodeId)
-            .ToHashSet(StringComparer.Ordinal);
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<GraphNode> mergedNodes = [.. modelGraph.Nodes];
 
@@ -28,7 +28,7 @@ public static class GraphSnapshotKnowledgeModelMerger
 
         HashSet<string> edgeKeys = modelGraph.Edges
             .Select(static edge => $"{edge.FromNodeId}|{edge.ToNodeId}|{edge.EdgeType}")
-            .ToHashSet(StringComparer.Ordinal);
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<GraphEdge> mergedEdges = [.. modelGraph.Edges];
 

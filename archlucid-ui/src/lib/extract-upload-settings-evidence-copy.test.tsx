@@ -10,6 +10,7 @@ import {
   EXTRACT_UPLOAD_SETTINGS_SOURCES,
   EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO,
 } from "@/lib/extract-upload-settings-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 
 describe("extract-upload-settings-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -24,7 +25,7 @@ describe("extract-upload-settings-evidence-copy", () => {
 
     const sources = screen.getByTestId("extract-upload-settings-sources");
 
-    for (const link of EXTRACT_UPLOAD_SETTINGS_SOURCES) {
+    for (const link of filterWhereToGoNextFollowUpLinks(EXTRACT_UPLOAD_SETTINGS_SOURCES)) {
       expectFollowUpLink(within(sources), link);
     }
 
@@ -39,11 +40,10 @@ describe("extract-upload-settings-evidence-copy", () => {
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });
 
-  it("excludes Go to Reviews destination from orientation Sources", () => {
+  it("keeps Architecture reviews in orientation Sources after Go to Reviews CTA removal", () => {
     const orientationHrefs = EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES.map((source) => source.href);
 
-    expect(orientationHrefs).not.toContain("/architecture/reviews");
-    expect(EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES.length).toBeLessThan(EXTRACT_UPLOAD_SETTINGS_SOURCES.length);
-    expect(EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES.length).toBeGreaterThan(0);
+    expect(orientationHrefs).toContain("/architecture/reviews");
+    expect(EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES).toEqual(EXTRACT_UPLOAD_SETTINGS_SOURCES);
   });
 });

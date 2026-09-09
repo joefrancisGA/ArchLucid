@@ -26,9 +26,14 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
 }));
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/help/dpa-template",
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/help/dpa-template",
+    useSearchParams: () => new URLSearchParams(),
+  });
+});
 
 import { HelpDpaTemplateGuideView } from "@/app/(operator)/help/_sections/HelpDpaTemplateGuideView";
 import {
@@ -45,9 +50,9 @@ import {
   DPA_TEMPLATE_HELP_SKIP_LINK_LABEL,
   DPA_TEMPLATE_HELP_SKIP_TARGET_ID,
 } from "@/lib/dpa-template-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { resolvePublicHelpTopicPdfHref } from "@/lib/product-documentation-pdf-href";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpDpaTemplateGuideView buyer-polished shell (HDP)", () => {
   const loaded = tryLoadProductDocumentation("dpa-template");
@@ -87,10 +92,7 @@ describe("HelpDpaTemplateGuideView buyer-polished shell (HDP)", () => {
       within(actionPanel).getByRole("link", { name: DPA_TEMPLATE_HELP_PRIMARY_ACTIONS.openTrustCenter.label }),
     ).toHaveAttribute("href", DPA_TEMPLATE_HELP_PRIMARY_ACTIONS.openTrustCenter.href);
 
-    for (const source of DPA_TEMPLATE_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), DPA_TEMPLATE_HELP_SOURCES, "/help/dpa-template");
 
     const downloadLink = screen.getByTestId("help-dpa-template-download-pdf");
     expect(downloadLink).toHaveAttribute("href", resolvePublicHelpTopicPdfHref(loaded.entry.slug));

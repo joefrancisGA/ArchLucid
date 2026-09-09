@@ -28,7 +28,7 @@ function mockNextRequest(options?: {
   } as NextRequest;
 }
 
-describe("buildProxyUpstreamHeaders BFF dual-mode (LK-05 P1)", () => {
+describe("buildProxyUpstreamHeaders BFF session (LK-05 P1 / LK-06 P2)", () => {
   beforeEach(() => {
     process.env.ARCHLUCID_BFF_SESSION_SIGNING_SECRET = "proxy-header-test-secret";
   });
@@ -38,31 +38,33 @@ describe("buildProxyUpstreamHeaders BFF dual-mode (LK-05 P1)", () => {
     delete process.env.ARCHLUCID_PROXY_BEARER_TOKEN;
   });
 
-  it("prefers browser Authorization over the BFF session cookie", () => {
-    const cookieValue = createBffSessionCookieValue({
+  it("prefers the HttpOnly BFF session cookie over browser Authorization (LK-06 P2)", () => {
+    const issueResult = createBffSessionCookieValue({
       accessToken: "cookie-token",
       expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
     });
 
     const headers = buildProxyUpstreamHeaders(
       mockNextRequest({
         authorization: "Bearer header-token",
-        bffSessionCookie: cookieValue,
+        bffSessionCookie: issueResult?.sessionCookieValue ?? null,
       }),
       "v1/authority/reviews/run-1",
     );
 
-    expect(headers.get("Authorization")).toBe("Bearer header-token");
+    expect(headers.get("Authorization")).toBe("Bearer cookie-token");
   });
 
   it("forwards upstream Bearer from the HttpOnly BFF session cookie when Authorization is absent", () => {
-    const cookieValue = createBffSessionCookieValue({
+    const issueResult = createBffSessionCookieValue({
       accessToken: "cookie-token",
       expiresAtMs: Date.now() + 3_600_000,
+      workingMode: true,
     });
 
     const headers = buildProxyUpstreamHeaders(
-      mockNextRequest({ bffSessionCookie: cookieValue }),
+      mockNextRequest({ bffSessionCookie: issueResult?.sessionCookieValue ?? null }),
       "v1/authority/reviews/run-1",
     );
 

@@ -8,11 +8,27 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
 {
     private static readonly Regex NodeRegex = new(
         @"^\s*([A-Za-z0-9_]+)\[[""']([^""']+)[""']\]",
-        RegexOptions.Compiled | RegexOptions.Multiline);
+        RegexOptions.Compiled);
 
     private static readonly Regex EdgeRegex = new(
         @"^\s*([A-Za-z0-9_]+)\s*-->\s*(?:\|""?([^""|]*)""?\|\s*)?([A-Za-z0-9_]+)",
-        RegexOptions.Compiled | RegexOptions.Multiline);
+        RegexOptions.Compiled);
+
+    private static readonly Regex SubgraphStartRegex = new(
+        @"^\s*subgraph\s+([A-Za-z0-9_]+)(?:\[""([^""]*)""\])?\s*$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static readonly Regex C4ActorRegex = new(
+        @"^\s*Person\s*\(\s*([A-Za-z0-9_]+)\s*,\s*[""']([^""']+)[""']",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static readonly Regex C4SystemRegex = new(
+        @"^\s*(?:Container|System|System_Ext|Container_Ext)\s*\(\s*([A-Za-z0-9_]+)\s*,\s*[""']([^""']+)[""']",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    private static readonly Regex C4RelRegex = new(
+        @"^\s*Rel\s*\(\s*([A-Za-z0-9_]+)\s*,\s*([A-Za-z0-9_]+)\s*,\s*[""']([^""']*)[""']",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private readonly ArchitectureDiagramServiceTypeInferencer inferencer = new();
 
@@ -36,37 +52,119 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
         }
 
         Dictionary<string, ArchitectureDiagramNodeRecord> nodes = new(StringComparer.Ordinal);
+        Dictionary<string, ArchitectureDiagramSubgraphRecord> subgraphs = new(StringComparer.Ordinal);
+        string? currentSubgraphId = null;
+        int subgraphOrder = 0;
+        int edgeIndex = 0;
 
-        foreach (Match match in NodeRegex.Matches(source.Content))
+        foreach (string rawLine in source.Content.Split('\n'))
         {
-            string nodeId = match.Groups[1].Value;
-            string label = match.Groups[2].Value;
+            string line = rawLine.TrimEnd('\r');
+            string trimmed = line.Trim();
 
-            if (nodes.ContainsKey(nodeId))
+            if (trimmed.Length == 0)
             {
                 continue;
             }
 
-            ArchitectureDiagramNodeRecord node = new()
-            {
-                Id = nodeId,
-                Label = label,
-            };
+            Match subgraphMatch = SubgraphStartRegex.Match(trimmed);
 
-            this.inferencer.ApplyLabelInference(node);
-            nodes[nodeId] = node;
+            if (subgraphMatch.Success)
+            {
+                string subgraphId = subgraphMatch.Groups[1].Value;
+                string label = subgraphMatch.Groups[2].Success
+                    ? subgraphMatch.Groups[2].Value
+                    : subgraphId;
+
+                if (!subgraphs.ContainsKey(subgraphId))
+                {
+                    subgraphs[subgraphId] = new ArchitectureDiagramSubgraphRecord
+                    {
+                        Id = subgraphId,
+                        Label = label,
+                        OrderKey = subgraphOrder++,
+                    };
+                }
+
+                currentSubgraphId = subgraphId;
+
+                continue;
+            }
+
+            if (string.Equals(trimmed, "end", StringComparison.OrdinalIgnoreCase))
+            {
+                currentSubgraphId = null;
+
+                continue;
+            }
+
+            Match nodeMatch = NodeRegex.Match(line);
+
+            if (nodeMatch.Success)
+            {
+                string nodeId = nodeMatch.Groups[1].Value;
+                string label = nodeMatch.Groups[2].Value;
+
+                if (!nodes.TryGetValue(nodeId, out ArchitectureDiagramNodeRecord? node))
+                {
+                    node = new ArchitectureDiagramNodeRecord
+                    {
+                        Id = nodeId,
+                        Label = label,
+                    };
+
+                    this.inferencer.ApplyLabelInference(node);
+                    nodes[nodeId] = node;
+                }
+
+                if (!string.IsNullOrWhiteSpace(currentSubgraphId))
+                {
+                    node.SubgraphId = currentSubgraphId;
+                }
+
+                continue;
+            }
+
+            Match edgeMatch = EdgeRegex.Match(line);
+
+            if (edgeMatch.Success)
+            {
+                string fromId = edgeMatch.Groups[1].Value;
+                string edgeLabel = edgeMatch.Groups[2].Value;
+                string toId = edgeMatch.Groups[3].Value;
+
+                EnsurePlaceholderNode(nodes, fromId, currentSubgraphId);
+                EnsurePlaceholderNode(nodes, toId, currentSubgraphId);
+
+                model.Edges.Add(new ArchitectureDiagramEdgeRecord
+                {
+                    Id = $"edge-{edgeIndex++}",
+                    SourceId = fromId,
+                    TargetId = toId,
+                    Label = edgeLabel,
+                    Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+                });
+            }
         }
 
-        int edgeIndex = 0;
+        foreach (Match match in C4ActorRegex.Matches(source.Content))
+        {
+            AddC4Node(nodes, match.Groups[1].Value, match.Groups[2].Value, ArchitectureDiagramNodeKinds.User);
+        }
 
-        foreach (Match match in EdgeRegex.Matches(source.Content))
+        foreach (Match match in C4SystemRegex.Matches(source.Content))
+        {
+            AddC4Node(nodes, match.Groups[1].Value, match.Groups[2].Value, ArchitectureDiagramNodeKinds.System);
+        }
+
+        foreach (Match match in C4RelRegex.Matches(source.Content))
         {
             string fromId = match.Groups[1].Value;
-            string edgeLabel = match.Groups[2].Value;
-            string toId = match.Groups[3].Value;
+            string toId = match.Groups[2].Value;
+            string edgeLabel = match.Groups[3].Value;
 
-            EnsurePlaceholderNode(nodes, fromId);
-            EnsurePlaceholderNode(nodes, toId);
+            EnsurePlaceholderNode(nodes, fromId, subgraphId: null);
+            EnsurePlaceholderNode(nodes, toId, subgraphId: null);
 
             model.Edges.Add(new ArchitectureDiagramEdgeRecord
             {
@@ -78,6 +176,7 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
             });
         }
 
+        model.Subgraphs.AddRange(subgraphs.Values.OrderBy(subgraph => subgraph.OrderKey));
         model.Nodes.AddRange(nodes.Values.OrderBy(node => node.Id, StringComparer.Ordinal));
 
         if (model.Nodes.Count == 0)
@@ -93,7 +192,10 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
         };
     }
 
-    private void EnsurePlaceholderNode(Dictionary<string, ArchitectureDiagramNodeRecord> nodes, string nodeId)
+    private void EnsurePlaceholderNode(
+        Dictionary<string, ArchitectureDiagramNodeRecord> nodes,
+        string nodeId,
+        string? subgraphId)
     {
         if (nodes.ContainsKey(nodeId))
         {
@@ -104,9 +206,30 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
         {
             Id = nodeId,
             Label = nodeId,
+            SubgraphId = subgraphId,
         };
 
         this.inferencer.ApplyLabelInference(node);
         nodes[nodeId] = node;
+    }
+
+    private static void AddC4Node(
+        Dictionary<string, ArchitectureDiagramNodeRecord> nodes,
+        string nodeId,
+        string label,
+        string kind)
+    {
+        if (nodes.ContainsKey(nodeId))
+        {
+            return;
+        }
+
+        nodes[nodeId] = new ArchitectureDiagramNodeRecord
+        {
+            Id = nodeId,
+            Label = label,
+            Kind = kind,
+            Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+        };
     }
 }

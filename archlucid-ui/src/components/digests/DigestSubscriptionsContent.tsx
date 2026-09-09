@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
@@ -51,7 +51,7 @@ export type DigestSubscriptionsContentProps = {
  * Subscriptions tab: customer-goal delivery workflow for architecture digests (TB-926).
  */
 export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProps): ReactElement {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const refreshToken = props.refreshToken ?? 0;
   const formCardRef = useRef<HTMLDivElement | null>(null);
   const list = useDigestSubscriptionsContentList({ refreshToken });

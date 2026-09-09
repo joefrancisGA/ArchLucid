@@ -39,7 +39,7 @@ describe("DemoPreviewArtifactSections operator deep-link gating", () => {
     expect(screen.getByRole("link", { name: "View evidence graph" })).toHaveAttribute("href", expectedHref);
   });
 
-  it("routes governance approval CTA through sign-in when operator deep links are gated", () => {
+  it("routes approval CTA through sign-in when operator deep links are gated", () => {
     const approvalPath = `/governance/approval-queue?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
     const expectedHref = `/auth/signin?returnUrl=${encodeURIComponent(approvalPath)}`;
 

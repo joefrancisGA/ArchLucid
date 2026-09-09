@@ -11,7 +11,7 @@ import { RunDetailCreateHomeFindingsPanel } from "./RunDetailCreateHomeFindingsP
 describe("RunDetailCreateHomeFindingsPanel", () => {
   it("shows pre-finalize orientation copy without a duplicate Activity CTA (TB-1852)", () => {
     render(
-      <RunDetailCreateHomeFindingsPanel runId="run-findings" packageCommitted={false}>
+      <RunDetailCreateHomeFindingsPanel runId="run-findings" packageCommitted={false} buyerPolished={false}>
         <div data-testid="findings-body" />
       </RunDetailCreateHomeFindingsPanel>,
     );
@@ -25,11 +25,22 @@ describe("RunDetailCreateHomeFindingsPanel", () => {
 
   it("omits orientation after the package is committed", () => {
     render(
-      <RunDetailCreateHomeFindingsPanel runId="run-findings" packageCommitted>
+      <RunDetailCreateHomeFindingsPanel runId="run-findings" packageCommitted buyerPolished={false}>
         <div data-testid="findings-body" />
       </RunDetailCreateHomeFindingsPanel>,
     );
 
     expect(screen.queryByTestId("run-detail-create-home-findings-orientation")).not.toBeInTheDocument();
+  });
+
+  it("omits orientation in buyer-polished shells", () => {
+    render(
+      <RunDetailCreateHomeFindingsPanel runId="run-findings" packageCommitted={false} buyerPolished>
+        <div data-testid="findings-body" />
+      </RunDetailCreateHomeFindingsPanel>,
+    );
+
+    expect(screen.queryByTestId("run-detail-create-home-findings-orientation")).not.toBeInTheDocument();
+    expect(screen.getByTestId("findings-body")).toBeInTheDocument();
   });
 });

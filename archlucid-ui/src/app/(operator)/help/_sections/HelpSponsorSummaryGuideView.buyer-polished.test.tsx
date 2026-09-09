@@ -38,9 +38,9 @@ import {
   SPONSOR_REPORT_HELP_SKIP_LINK_LABEL,
   SPONSOR_REPORT_HELP_SKIP_TARGET_ID,
 } from "@/lib/sponsor/sponsor-report-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS } from "@/lib/sponsor/sponsor-report-help-guide-content";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpSponsorSummaryGuideView buyer-polished shell (EXE)", () => {
   const loaded = tryLoadProductDocumentation("sponsor-report");
@@ -79,10 +79,7 @@ describe("HelpSponsorSummaryGuideView buyer-polished shell (EXE)", () => {
       SPONSOR_SUMMARY_HELP_PRIMARY_ACTIONS.startFirstReview.href,
     );
 
-    for (const source of SPONSOR_SUMMARY_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), SPONSOR_SUMMARY_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

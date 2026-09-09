@@ -28,7 +28,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { resolveAdminUserInvitationAcceptLink } from "./settings-roles-pending-invitations";
 import { SETTINGS_ROLES_ASSIGNABLE } from "./settings-roles-page-constants";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveInviteReviewerReviewHref } from "@/lib/resolve-invite-reviewer-review-href";
 import { REVIEW_PACKAGE_LABEL } from "@/lib/usability/canonical-product-terms";
 
 type InviteFormState = {
@@ -44,9 +44,18 @@ type Props = {
   readonly onInviteSent?: (invitation: AdminUserInvitationRow) => void;
   readonly initialMessage?: string;
   readonly reviewId?: string;
+  readonly architectureId?: string;
+  readonly workingMode?: boolean;
 };
 
-export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialMessage, reviewId }: Props) {
+export function SettingsRolesInvitePanel({
+  emailInputRef,
+  onInviteSent,
+  initialMessage,
+  reviewId,
+  architectureId,
+  workingMode,
+}: Props) {
   const [form, setForm] = useState<InviteFormState>(() => ({
     ...EMPTY_FORM,
     message: initialMessage?.trim() ?? "",
@@ -55,6 +64,12 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
   const [inviteSentForReviewId, setInviteSentForReviewId] = useState<string | null>(null);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const reviewIdTrimmed = reviewId?.trim() ?? "";
+  const architectureIdTrimmed = architectureId?.trim() ?? "";
+  const inviteSuccessReviewHref = resolveInviteReviewerReviewHref({
+    workingMode: workingMode === true,
+    runId: inviteSentForReviewId,
+    architectureId: architectureIdTrimmed,
+  });
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -70,6 +85,16 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
     setSending(false);
 
     if (!result.ok) {
+      if (result.reason === "directory_user_exists") {
+        showError(
+          "Cannot invite this email",
+          result.detail
+            ?? "A directory user already exists for that address. Manage access through your identity provider or SCIM provisioning instead.",
+        );
+
+        return;
+      }
+
       showError(
         "Could not send invite",
         "The invitation service rejected the request or is unavailable. Check the email and try again.",
@@ -120,7 +145,7 @@ export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialM
             Invitation sent. Return to the architecture package when you are ready to share context with the reviewer.
           </p>
           <Button type="button" variant="outline" size="sm" className="mt-3" asChild>
-            <Link href={reviewDetailPath(inviteSentForReviewId)} data-testid="settings-roles-invite-back-to-review-package">
+            <Link href={inviteSuccessReviewHref} data-testid="settings-roles-invite-back-to-review-package">
               Back to {REVIEW_PACKAGE_LABEL.toLowerCase()}
             </Link>
           </Button>

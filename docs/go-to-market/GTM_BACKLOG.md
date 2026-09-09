@@ -8,7 +8,7 @@
 
 **Audience:** Founder and any marketing/GTM collaborators. Engineering reads this to understand which marketing tasks create or depend on technical work.
 
-**Last reviewed:** 2026-07-25
+**Last reviewed:** 2026-09-07
 
 **How this file relates to engineering work:**
 - **Technical tasks** (engineering, product) live in the issue tracker, **[`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)**, **[`docs/library/NEXT_REFACTORINGS.md`](../library/NEXT_REFACTORINGS.md)**, and related runbooks — and may be summarized in the rolling assessment under **`docs/assessments/`** per **`ASSESSMENT_INPUTS.md`**.
@@ -355,6 +355,7 @@
 | M-302 | Blind before/after grading panel (owner-executed) | P2 | **2–4 h owner** |
 | M-303 | Honest uncertainty as positioning | P2 | **30–45 m** |
 | M-304 | Benchmark integrity governance | P2 | **30–45 m** |
+| M-305 | Pricing profit re-rate (self-serve gate, destack trust, Professional expansion SKU, LLM COGS) | P0 | **2–4 h** |
 | M-103 | Optional scheduled / pre-release founder CI job | P2 | **2–3 h** |
 
 ---
@@ -787,6 +788,7 @@ These cannot be completed by coding agents alone. Track here instead of `TECH_BA
 | M-302 | **Blind before/after grading panel (owner-executed)** — recruit 2–3 experienced architects to blindly grade the golden-case before/after versions; directional credibility signal, not a statistical claim; publish method honestly (n, blinding, rubric) | Motion | P2 | Not started | Owner-executed after **TB-1988**; complements — does **not** reopen — V1.1 cohorts **M-44**/**M-90**; pairs **M-301** |
 | M-303 | **Honest uncertainty as positioning** — market "cannot determine" / insufficient-evidence review conclusions and the separated conclusion / evidence-condition / governance-disposition state machines as governance strengths in the buyer audit story ("risk accepted" never reads as pass); never spin uncertainty states as product gaps | Content | P2 | **Done** | Engineering **TB-1985**/**TB-1982**; complements **M-300** |
 | M-304 | **Benchmark integrity governance** — access-control policy for held-out case definitions, expected findings, and rubrics (development prompts must not incorporate them); public methodology statement of what is and is not measured; no benchmark performance claims from non-held-out results | Content | P2 | **Done** | Engineering **TB-1990**; pairs **M-300**/**M-301** |
+| M-305 | **Pricing profit re-rate** — apply overdue self-serve §5.3 gate; destack trust concession from Architect/Team list (keep baked into Professional/Enterprise only); Professional public bundle as 10-seat / 1-workspace expansion SKU; architecture-package overage above typical LLM COGS; wallet overage markup; tier-scaled hosted LLM caps; design-partner XOR reference + 50% aggregate floor + 90-day guided-pilot credit. Canonical numbers only in [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) | Pricing | P0 | **Done** | **Decided 2026-09-07:** see [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md) last-reviewed banner, §3.3, §4.3, §5.2; order form + ROI worked examples; `pricing.json`; no grandfathering (same as **M-200**) |
 
 **Suggested implementation order:** **G-QA-01** → **M-96** → **M-97** → **M-98** → **M-104** / **M-105** → **M-99** → **M-112** (perf triage playbook) → **M-101** → **G-QA-04** → **M-108** (**M-107**/**M-133**/**M-134**/**M-135** Done) → **TB-978** → **M-136** (with **TB-979**/**TB-980**) → **TB-981** → **M-106** (first dry-run) → ongoing **M-100** + **M-102** / **G-QA-03** + **G-QA-06** (monthly CWV) / **G-QA-07** (pre-cut); add **M-103** once the local/staging founder suite is stable. Engineering bundle cuts: **TB-933** → **TB-934** → **TB-935** (only when field CWV or First Load JS evidence says so). Showcase portfolio engineering: **TB-978** → **TB-979** → **TB-980** → **TB-981** → **TB-982**.
 
