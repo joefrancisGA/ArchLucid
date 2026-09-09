@@ -215,32 +215,4 @@ public sealed partial class RunQueryController
             ? Ok(result.Response)
             : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound);
     }
-
-    private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        if (!Guid.TryParse(runId, out Guid runGuid))
-            return null;
-
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
-
-        if (detail?.GoldenManifest is null)
-            return null;
-
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runGuid.ToString("D"),
-                manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
-
-        return null;
-    }
 }

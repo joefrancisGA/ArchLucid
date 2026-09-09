@@ -24,7 +24,7 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [Route("v{version:apiVersion}/infra-evidence/snapshots")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class InfraEvidenceSnapshotsController(
+public sealed partial class InfraEvidenceSnapshotsController(
     IInfraEvidenceDriftWorkbenchQueryService driftWorkbenchQueryService,
     IAdvisoryTerraformRepresentationService advisoryTerraformService,
     IInfraEvidenceSnapshotMermaidService snapshotMermaidService,
@@ -54,7 +54,7 @@ public sealed class InfraEvidenceSnapshotsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapSnapshotSealedManifestConflict(ex);
         }
     }
 
@@ -84,7 +84,7 @@ public sealed class InfraEvidenceSnapshotsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapSnapshotSealedManifestConflict(ex);
         }
     }
 
@@ -120,7 +120,7 @@ public sealed class InfraEvidenceSnapshotsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapSnapshotSealedManifestConflict(ex);
         }
     }
 
@@ -157,7 +157,7 @@ public sealed class InfraEvidenceSnapshotsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapSnapshotSealedManifestConflict(ex);
         }
     }
 
@@ -211,7 +211,7 @@ public sealed class InfraEvidenceSnapshotsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapSnapshotSealedManifestConflict(ex);
         }
     }
 
@@ -267,7 +267,7 @@ public sealed class InfraEvidenceSnapshotsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapSnapshotSealedManifestConflict(ex);
         }
     }
 }

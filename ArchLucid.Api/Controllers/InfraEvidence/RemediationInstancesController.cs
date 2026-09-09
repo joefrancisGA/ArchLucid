@@ -23,7 +23,7 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [Route("v{version:apiVersion}/infra-evidence/remediation-instances")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class RemediationInstancesController(
+public sealed partial class RemediationInstancesController(
     IRemediationInstanceService instanceService,
     IRemediationInstanceQueryService queryService,
     IScopeContextProvider scopeProvider,
@@ -271,9 +271,7 @@ public sealed class RemediationInstancesController(
 
         if (!result.Succeeded && IsSealedManifestConflict(result.ErrorMessage))
         {
-            return this.ConflictProblem(
-                result.ErrorMessage ?? "Remediation blocked: sealed manifest verification failed.",
-                ProblemTypes.Conflict);
+            return MapRemediationSealedManifestConflict(result.ErrorMessage);
         }
 
         if (!result.Succeeded)
@@ -283,9 +281,4 @@ public sealed class RemediationInstancesController(
 
         return Ok(result);
     }
-
-    private static bool IsSealedManifestConflict(string? message) =>
-        message?.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase) == true
-        || message?.Contains("sealed manifest", StringComparison.OrdinalIgnoreCase) == true
-        || message?.Contains("lifecycle must be Complete", StringComparison.OrdinalIgnoreCase) == true;
 }

@@ -48,7 +48,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [Route("v{version:apiVersion}/docx")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class DocxExportController(
+public sealed partial class DocxExportController(
     IAuthorityQueryService authorityQueryService,
     IRunDetailQueryService runDetailQueryService,
     IArtifactQueryService artifactQueryService,
@@ -121,20 +121,11 @@ public sealed class DocxExportController(
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
 
-        try
-        {
-            await ConsultingDocxExportSealedReceiptGuard.EnsureVerifiedOrThrowAsync(
-                runId,
-                runId.ToString("N"),
-                authorityQueryService,
-                manifestHashService,
-                scope,
-                ct);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        IActionResult? docxSealedGuardResult =
+            await EnsureArchitecturePackageDocxSealedManifestAllowedAsync(runId, scope, ct);
+
+        if (docxSealedGuardResult is not null)
+            return docxSealedGuardResult;
 
         ManifestDocument? manifest = runDetail.GoldenManifest;
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
@@ -173,19 +164,11 @@ public sealed class DocxExportController(
                 }
             }
 
-            try
-            {
-                await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                    compareWithRunId.Value.ToString("N"),
-                    scope,
-                    authorityQueryService,
-                    manifestHashService,
-                    ct);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
+            IActionResult? compareSealedGuardResult =
+                await EnsureCompareRunDocxSealedManifestAllowedAsync(compareWithRunId.Value, scope, ct);
+
+            if (compareSealedGuardResult is not null)
+                return compareSealedGuardResult;
 
             manifestComparison = comparisonService.Compare(manifest, targetDetail.GoldenManifest);
         }

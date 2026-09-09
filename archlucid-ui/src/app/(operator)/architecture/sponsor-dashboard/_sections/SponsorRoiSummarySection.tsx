@@ -33,6 +33,7 @@ import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import { showError } from "@/lib/toast";
 import { sponsorRoiBoardPackMutationBlockedReason } from "@/lib/pilots/sponsor-roi-board-pack-mutation-blocked-reason";
+import { sponsorRoiCsvExportMutationBlockedReason } from "@/lib/pilots/sponsor-roi-csv-export-mutation-blocked-reason";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
@@ -157,7 +158,10 @@ export function SponsorRoiSummarySection({
     try {
       await downloadSponsorRoiCsvExport();
     } catch (e: unknown) {
-      showError("CSV export failed", e instanceof Error ? e.message : String(e));
+      const failure = toApiLoadFailure(e);
+      const blocked = sponsorRoiCsvExportMutationBlockedReason(failure);
+
+      showError("CSV export failed", blocked ?? failure.message);
     }
   }, [scopedReviewExportBlockedReason]);
 

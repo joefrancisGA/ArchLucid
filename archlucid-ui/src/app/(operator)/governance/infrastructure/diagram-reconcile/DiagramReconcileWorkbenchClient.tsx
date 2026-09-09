@@ -24,7 +24,10 @@ import {
   ingestOperationalSecurityFindings,
   reconcileArchitectureDiagram,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
+import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
+import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
 import { diagramReconcileLoadModelBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-load-model-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   buildDiagramReconcileOperationalFindingRequestItem,
   formatDiagramReconcileExplanation,
@@ -55,7 +58,6 @@ import {
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -379,7 +381,10 @@ export function DiagramReconcileWorkbenchClient() {
           : "Structured diagram model saved for this run.",
       );
     } catch (error: unknown) {
-      showError("Diagram ingest failed", formatInfraEvidenceDiagramReconcileApiError(error));
+      const failure = toApiLoadFailure(error);
+      const blocked = diagramIngestMutationBlockedReason(failure);
+
+      showError("Diagram ingest failed", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
     } finally {
       setIngestBusy(false);
     }
@@ -399,7 +404,10 @@ export function DiagramReconcileWorkbenchClient() {
       setReconciliation(result);
       showSuccess(`Reconciliation complete — ${result.rows.length} correspondence row(s) generated.`);
     } catch (error: unknown) {
-      showError("Reconciliation failed", formatInfraEvidenceDiagramReconcileApiError(error));
+      const failure = toApiLoadFailure(error);
+      const blocked = diagramReconcileMutationBlockedReason(failure);
+
+      showError("Reconciliation failed", blocked ?? formatInfraEvidenceDiagramReconcileApiError(error));
     } finally {
       setReconcileBusy(false);
     }
