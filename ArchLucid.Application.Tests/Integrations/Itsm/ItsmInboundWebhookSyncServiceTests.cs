@@ -430,6 +430,72 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task ServiceNow_inbound_uses_incident_state_disposition_when_primary_state_maps_human_review_only()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", ServiceNowSysId1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord { TenantId = TenantA, WorkspaceId = WorkspaceA, ProjectId = ProjectA, FindingId = "f-sn-disp" });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn-disp",
+                nameof(FindingHumanReviewStatus.Pending),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+        Mock<IFindingDispositionService> dispositionService = new();
+        dispositionService
+            .Setup(s => s.ListHistoryAsync(It.IsAny<ScopeContext>(), "f-sn-disp", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<FindingDispositionEventDto>());
+        dispositionService
+            .Setup(s => s.RecordAsync(
+                It.Is<RecordFindingDispositionRequest>(r => r.Disposition == FindingDisposition.Remediated),
+                It.IsAny<ScopeContext>(),
+                "servicenow-webhook",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new FindingDispositionEventDto
+                {
+                    EventId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                    FindingId = "f-sn-disp",
+                    Disposition = FindingDisposition.Remediated,
+                    ReviewerUserId = "servicenow-webhook",
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                });
+        IntegrationsItsmInboundOptions options = new()
+        {
+            ServiceNowStateDispositionMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["6"] = nameof(FindingDisposition.Remediated)
+            }
+        };
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, options, dispositionService);
+
+        const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"1","incident_state":"6"}""";
+        using JsonDocument doc = JsonDocument.Parse(json);
+        ItsmInboundWebhookProcessResult result =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, CancellationToken.None, Encoding.UTF8.GetByteCount(json));
+
+        result.Accepted.Should().BeTrue();
+        JsonDocument payload = JsonDocument.Parse(result.DurableAuditEvent!.DataJson);
+        payload.RootElement.GetProperty("humanReviewStatus").GetString().Should().Be(nameof(FindingHumanReviewStatus.Pending));
+        payload.RootElement.GetProperty("dispositionSynced").GetBoolean().Should().BeTrue();
+        payload.RootElement.GetProperty("disposition").GetString().Should().Be(nameof(FindingDisposition.Remediated));
+        dispositionService.Verify(
+            s => s.RecordAsync(
+                It.IsAny<RecordFindingDispositionRequest>(),
+                It.IsAny<ScopeContext>(),
+                "servicenow-webhook",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ServiceNow_inbound_json_whole_number_float_state_parses_as_builtin_choice_list()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();

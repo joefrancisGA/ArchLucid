@@ -1796,11 +1796,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 12
-- **bugs-found:** 15
+- **hunts:** 13
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — sealed manifest guard ran after human-review mutation
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — ServiceNow disposition ignored incident_state when primary state mapped human review only
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1834,9 +1834,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 thorough hunt #804: proved disposition sync infrastructure failure surfaced as HTTP 500 after human-review update; fixed skip handling and restored sealed-manifest test doubles in sync service tests.
 
 - [x] (proven) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — sealed-manifest guard ran after human-review update and replay claim, so `sealed_manifest_unverified` rejected the webhook after mutating `FindingHumanReviewStatus` and consuming the replay slot — **hit 2026-09-08 seed hunt #1318:** Wave-23 fail-closed guard was ordered after `UpdateHumanReviewStatusForFindingAsync`; fixed by loading inspect + `ItsmInboundSealedManifestHashGuard` before replay claim and mutation; regression `Jira_when_sealed_manifest_unverified_does_not_mutate_human_review_or_claim_replay`.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` / `ItsmInboundExternalStatusMapper` — configured `ServiceNowStateDispositionMap` on `incident_state` is not consulted when primary `state` maps human review but disposition is unmapped (alternate path exists for human review since #717 but disposition still uses primary `effectivePayload.StatusValue` only).
+- [x] (proven) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` / `ItsmInboundExternalStatusMapper` — configured `ServiceNowStateDispositionMap` on `incident_state` was not consulted when primary `state` mapped human review but disposition was unmapped (alternate path existed for human review since #717 but disposition still used primary `effectivePayload.StatusValue` only) — **hit 2026-09-09 thorough hunt #1409:** fall back to `AlternateStatusValue` for disposition when primary status is unmapped; regression `ServiceNow_inbound_uses_incident_state_disposition_when_primary_state_maps_human_review_only`.
 
-2026-09-08 seed hunt #1318 (hit): reseeded zone after hypothesis exhaustion; proved sealed-manifest ordering gap before replay claim/human-review mutation; seeded ServiceNow disposition alternate asymmetry candidate.
+2026-09-09 thorough hunt #1409 (hit): proved ServiceNow disposition alternate asymmetry; 48 scoped ITSM inbound webhook tests passed.
 
 ---
 

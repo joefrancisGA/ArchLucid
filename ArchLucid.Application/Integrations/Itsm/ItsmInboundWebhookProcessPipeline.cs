@@ -233,12 +233,27 @@ public sealed class ItsmInboundWebhookProcessPipeline(
             FindingDisposition? mappedDisposition =
                 statusMapper.TryMapToDisposition(effectivePayload.StatusValue, options);
 
+            string dispositionStatusLabel = effectivePayload.StatusValue;
+
+            if (mappedDisposition is null
+                && !string.IsNullOrWhiteSpace(effectivePayload.AlternateStatusValue))
+            {
+                string alternateStatus = effectivePayload.AlternateStatusValue.Trim();
+                FindingDisposition? alternateDisposition = statusMapper.TryMapToDisposition(alternateStatus, options);
+
+                if (alternateDisposition is not null)
+                {
+                    mappedDisposition = alternateDisposition;
+                    dispositionStatusLabel = alternateStatus;
+                }
+            }
+
             ItsmInboundDispositionSyncResult dispositionResult =
                 await _dispositionSync
                     .TryRecordFromWebhookAsync(
                         row,
                         mappedDisposition,
-                        effectivePayload.StatusValue,
+                        dispositionStatusLabel,
                         descriptor.WebhookActorId,
                         inspect.LatestDispositionRowVersionBase64,
                         inspect.LatestDisposition,
