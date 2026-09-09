@@ -144,6 +144,7 @@ const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
 const DRIFT_CHANGES_TABLE_COLUMN_COUNT = 6;
+const SNAPSHOTS_PAGE_SIZE = 50;
 const CHANGES_PAGE_SIZE = 100;
 
 function sortDirectionForColumn(
