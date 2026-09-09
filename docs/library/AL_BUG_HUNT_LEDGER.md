@@ -8110,10 +8110,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-08
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-08 — `AuditEventChangeFeedHostedService` registered on Api role when Cosmos audit enabled
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8152,6 +8152,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `AuditEventChangeFeedHostedService` registered on Api role when Cosmos audit enabled — **hit 2026-09-08 hunt #1366 (seed→hit):** `RegisterCosmosPolyglotPersistence` lacked `hostingRole` gate; split Api+Worker deployments started change feed processors on Api replicas; fixed with Worker+Combined gate; regression in `AddArchLucidApplicationServices_Api_role_with_cosmos_audit_does_not_register_AuditEventChangeFeedHostedService`
 - [x] (invalid) `RegisterDataConsistencyReconciliation` registers budget reconciliation on Api — **cheap-disproved hunt #1367:** reconciliation hosted services are Worker+Combined gated in `DataHealthJobsCompositionModule.Reconciliation.cs`; `QuickScanBudgetReconciliationHostedService` registers via storage registrar with `HostLeaderElectionCoordinator`; regression in `AddArchLucidApplicationServices_Api_role_does_not_register_DataConsistencyReconciliationHostedService` and `AddArchLucidApplicationServices_Api_role_registers_QuickScanBudgetReconciliationHostedService`
 - [x] (valid-no-repro) Orphan-probe / required-audit-trail hosted services register on Api — **cheap-disproved hunt #1367:** `SqlOperationalSingletonsRegistrar` registers without hostingRole gate but both executors use `HostLeaderElectionCoordinator`; container-offload parity preserved via `IArchLucidJob`; regression in `AddArchLucidApplicationServices_Api_role_registers_leader_elected_orphan_probe_hosted_services`
+- [ ] (candidate) `RetrievalCompositionModule.Register` / `RegisterIndexing` — module lacks `ArchLucidHostingRole` parameter while sibling composition modules gate Worker+Combined hosted services; future retrieval background loops could register on Api without an explicit role check at the call site
+- [x] (valid-no-repro) `RetrievalCompositionModule.RegisterIndexing` — policy/platform/exemplar corpus startup indexers register on Api while `RetrievalIndexingOutboxHostedService` is Worker+Combined-only — **cheap-disproof 2026-09-09 seed hunt #1395:** startup indexers use `ILeaderElectionWorkRunner` one-shot leases (`hosted:policy-pack-corpus-startup-indexer`, etc.) cluster-wide; continuous outbox pumpers stay Worker+Combined; regression `AddArchLucidApplicationServices_Api_role_registers_leader_elected_retrieval_corpus_startup_indexers`
+
+2026-09-09 seed hunt #1395 (seed-only): reseeded after 13 commits and dry #1367; cheap-disproof closed retrieval corpus startup indexer Api-role asymmetry; seeded RetrievalCompositionModule hostingRole plumbing candidate; 1 scoped ContainerJobsOffload registration test passed.
 
 2026-09-08 thorough hunt #1367 (dry): cheap-disproved both seeded Api-role candidates; systematic scan found no new hunt-ready registration gaps after #1366 audit change-feed fix.
 
