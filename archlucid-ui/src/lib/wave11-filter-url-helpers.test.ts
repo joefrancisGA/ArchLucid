@@ -6244,6 +6244,100 @@ describe("wave78 filter url helpers", () => {
   });
 });
 
+describe("wave79 filter url helpers", () => {
+  it("dev testing quick switch, operator first-run workflow minimized, run detail workspace disclosures, role nav density, sidebar groups, collapsible json path, finding ask inline finding id, technical id disclosure key, usability feedback, draft intake reason default open params", async () => {
+    const {
+      devTestingQuickSwitchDisclosureHrefFromSearch,
+      parseDevTestingQuickSwitchOpenFromSearch,
+    } = await import("@/lib/dev-testing/dev-testing-quick-switch-disclosure-url");
+    const {
+      operatorFirstRunWorkflowMinimizedDisclosureHrefFromSearch,
+      parseOperatorFirstRunWorkflowMinimizedOpenFromSearch,
+    } = await import("@/lib/operator/operator-first-run-workflow-minimized-disclosure-url");
+    const {
+      parseRunDetailWorkspaceDisclosuresExpandedFromSearch,
+      runDetailWorkspaceDisclosuresExpandedHrefFromSearch,
+    } = await import("@/lib/runs/run-detail-workspace-disclosures-expanded-disclosure-url");
+    const {
+      parseRoleNavDensityShowFullNavOpenFromSearch,
+      roleNavDensityShowFullNavDisclosureHrefFromSearch,
+    } = await import("@/lib/sidebar-nav/role-nav-density-show-full-nav-disclosure-url");
+    const {
+      parseSidebarNavExpandedGroupsFromSearch,
+      sidebarNavExpandedGroupsDisclosureHrefFromSearch,
+    } = await import("@/lib/sidebar-nav/sidebar-nav-expanded-groups-disclosure-url");
+    const {
+      collapsibleJsonExpandPathDisclosureHrefFromSearch,
+      parseCollapsibleJsonExpandPathFromSearch,
+    } = await import("@/lib/collapsible-json-expand-path-disclosure-url");
+    const {
+      findingAskInlineFindingIdDisclosureHrefFromSearch,
+      parseFindingAskInlineFindingIdFromSearch,
+    } = await import("@/lib/findings/finding-ask-inline-disclosure-url");
+    const {
+      parseTechnicalIdDisclosureKeyFromSearch,
+      technicalIdDisclosureKeyDisclosureHrefFromSearch,
+    } = await import("@/lib/usability/technical-id-disclosure-key-disclosure-url");
+    const {
+      parseUsabilityFeedbackOpenFromSearch,
+      usabilityFeedbackDisclosureHrefFromSearch,
+    } = await import("@/lib/usability/usability-feedback-disclosure-url");
+    const {
+      draftIntakeReasonDefaultOpenDisclosureHrefFromSearch,
+      parseDraftIntakeReasonDefaultOpenFromSearch,
+    } = await import("@/lib/draft-intake/draft-intake-reason-default-open-disclosure-url");
+
+    expect(parseDevTestingQuickSwitchOpenFromSearch("1")).toBe(true);
+    expect(devTestingQuickSwitchDisclosureHrefFromSearch("", true, "/dev-testing")).toBe(
+      "/dev-testing?devTestingQuickSwitchOpen=1",
+    );
+    expect(parseOperatorFirstRunWorkflowMinimizedOpenFromSearch("true")).toBe(true);
+    expect(operatorFirstRunWorkflowMinimizedDisclosureHrefFromSearch("tab=home", true, "/operator-home")).toBe(
+      "/operator-home?tab=home&operatorFirstRunWorkflowMinimizedOpen=1",
+    );
+    expect(parseRunDetailWorkspaceDisclosuresExpandedFromSearch("all")).toBe(true);
+    expect(parseRunDetailWorkspaceDisclosuresExpandedFromSearch("none")).toBe(false);
+    expect(runDetailWorkspaceDisclosuresExpandedHrefFromSearch("view=summary", true, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?view=summary&runDetailWorkspaceDisclosuresExpanded=1",
+    );
+    expect(runDetailWorkspaceDisclosuresExpandedHrefFromSearch("view=summary", false, "/architecture/reviews/r1")).toBe(
+      "/architecture/reviews/r1?view=summary&runDetailWorkspaceDisclosuresExpanded=0",
+    );
+    expect(parseRoleNavDensityShowFullNavOpenFromSearch("1")).toBe(true);
+    expect(roleNavDensityShowFullNavDisclosureHrefFromSearch("", true, "/operator-home")).toBe(
+      "/operator-home?roleNavDensityShowFullNavOpen=1",
+    );
+    expect(parseSidebarNavExpandedGroupsFromSearch("pilot,operate-analysis")).toEqual(["pilot", "operate-analysis"]);
+    expect(
+      sidebarNavExpandedGroupsDisclosureHrefFromSearch(
+        "density=compact",
+        ["pilot", "operate-governance"],
+        "/operator-home",
+      ),
+    ).toBe("/operator-home?density=compact&sidebarNavExpandedGroups=pilot%2Coperate-governance");
+    expect(parseCollapsibleJsonExpandPathFromSearch("payload.rule.id")).toBe("payload.rule.id");
+    expect(collapsibleJsonExpandPathDisclosureHrefFromSearch("tab=inspect", "payload.rule", "/findings/f1")).toBe(
+      "/findings/f1?tab=inspect&collapsibleJsonExpandPath=payload.rule",
+    );
+    expect(parseFindingAskInlineFindingIdFromSearch("finding-42")).toBe("finding-42");
+    expect(findingAskInlineFindingIdDisclosureHrefFromSearch("", "finding-42", "/architecture/reviews/r1/findings")).toBe(
+      "/architecture/reviews/r1/findings?findingAskInlineFindingId=finding-42",
+    );
+    expect(parseTechnicalIdDisclosureKeyFromSearch("architecture-draft-list")).toBe("architecture-draft-list");
+    expect(technicalIdDisclosureKeyDisclosureHrefFromSearch("view=table", "draft-row-1", "/architecture/drafts")).toBe(
+      "/architecture/drafts?view=table&technicalIdDisclosureKey=draft-row-1",
+    );
+    expect(parseUsabilityFeedbackOpenFromSearch("true")).toBe(true);
+    expect(usabilityFeedbackDisclosureHrefFromSearch("", true, "/operator-home")).toBe(
+      "/operator-home?usabilityFeedbackOpen=1",
+    );
+    expect(parseDraftIntakeReasonDefaultOpenFromSearch("1")).toBe(true);
+    expect(draftIntakeReasonDefaultOpenDisclosureHrefFromSearch("step=reason", true, "/architecture/reviews/new")).toBe(
+      "/architecture/reviews/new?step=reason&draftIntakeReasonDefaultOpen=1",
+    );
+  });
+});
+
 describe("wave17 filter url helpers", () => {
   it("sealed records search/sort and standards evidence/enforcement params", async () => {
     const { parseSignedRecordsListSearchQuery, signedRecordsListSearchHrefFromSearch } = await import(

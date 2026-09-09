@@ -21,7 +21,8 @@ import { findingAskBlockedReason } from "@/lib/findings/finding-ask-blocked-reas
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
-  findingAskInlineDisclosureHrefFromSearch,
+  findingAskInlineFindingIdDisclosureHrefFromSearch,
+  parseFindingAskInlineFindingIdFromSearch,
   parseFindingAskInlineOpenFromSearch,
 } from "@/lib/findings/finding-ask-inline-disclosure-url";
 
@@ -47,9 +48,16 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const findingAskInlineOpenParam = searchParams.get("findingAskInlineOpen");
-  const [panelOpen, setPanelOpenState] = useState(
-    () => parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam) || props.defaultOpen === true,
-  );
+  const findingAskInlineFindingIdParam = searchParams.get("findingAskInlineFindingId");
+  const [panelOpen, setPanelOpenState] = useState(() => {
+    const findingIdFromUrl = parseFindingAskInlineFindingIdFromSearch(findingAskInlineFindingIdParam);
+
+    if (findingIdFromUrl === props.findingId) {
+      return true;
+    }
+
+    return parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam) || props.defaultOpen === true;
+  });
   const [question, setQuestion] = useState(DEFAULT_FINDING_QUESTION);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [turns, setTurns] = useState<AskTurn[]>([]);
@@ -62,11 +70,14 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
 
   const syncPanelOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(findingAskInlineDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      router.replace(
+        open
+          ? findingAskInlineFindingIdDisclosureHrefFromSearch(searchParams.toString(), props.findingId, pathname)
+          : findingAskInlineFindingIdDisclosureHrefFromSearch(searchParams.toString(), null, pathname),
+        { scroll: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname, props.findingId, router, searchParams],
   );
 
   const setPanelOpen = useCallback(
@@ -78,6 +89,20 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
   );
 
   useEffect(() => {
+    const findingIdFromUrl = parseFindingAskInlineFindingIdFromSearch(findingAskInlineFindingIdParam);
+
+    if (findingIdFromUrl === props.findingId) {
+      setPanelOpenState(true);
+
+      return;
+    }
+
+    if (findingAskInlineFindingIdParam !== null) {
+      setPanelOpenState(false);
+
+      return;
+    }
+
     if (parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam)) {
       setPanelOpenState(true);
 
@@ -93,7 +118,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
     if (props.defaultOpen === true) {
       setPanelOpenState(true);
     }
-  }, [findingAskInlineOpenParam, props.defaultOpen]);
+  }, [findingAskInlineFindingIdParam, findingAskInlineOpenParam, props.defaultOpen, props.findingId]);
 
   async function submitQuestion(): Promise<void> {
     const trimmed = question.trim();
