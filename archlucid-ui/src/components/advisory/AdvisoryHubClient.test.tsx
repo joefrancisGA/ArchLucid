@@ -13,6 +13,15 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks/useProductionDeskChrome")>();
+
+  return {
+    ...actual,
+    useProductionEvalChrome: () => false,
+  };
+});
+
 vi.mock("./AdvisoryScansContent", () => ({
   AdvisoryScansContent: (props: { initialRunId?: string | null }) => (
     <div>Scans panel{props.initialRunId ? ` (${props.initialRunId})` : ""}</div>

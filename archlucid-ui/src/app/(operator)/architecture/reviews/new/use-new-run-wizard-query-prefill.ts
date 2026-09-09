@@ -59,6 +59,8 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   const zeroConfigAppliedRef = useRef(false);
   const exampleTemplatePrefillAppliedRef = useRef(false);
   const policyPackPrefillAppliedRef = useRef(false);
+  const acceleratorPrefillAppliedRef = useRef(false);
+  const presetPrefillAppliedRef = useRef(false);
 
   useEffect(() => {
     if (deeplinkPolicyPackId === null || policyPackPrefillAppliedRef.current) {
@@ -70,7 +72,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   }, [deeplinkPolicyPackId, setValue]);
 
   useEffect(() => {
-    if (acceleratorPackId === null) {
+    if (acceleratorPackId === null || acceleratorPrefillAppliedRef.current) {
       return;
     }
 
@@ -80,6 +82,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
       return;
     }
 
+    acceleratorPrefillAppliedRef.current = true;
     reset(applyWizardPreset(buildDefaultWizardValues(), preset));
     goToStep(1);
 
@@ -89,7 +92,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
   }, [acceleratorPackId, baselineFirst, goToStep, persistWizardMode, reset]);
 
   useEffect(() => {
-    if (presetDeeplinkToken === null || presetDeeplinkPresetId === null) {
+    if (presetDeeplinkToken === null || presetDeeplinkPresetId === null || presetPrefillAppliedRef.current) {
       return;
     }
 
@@ -105,6 +108,7 @@ export function useNewRunWizardQueryPrefill(options: QueryPrefillOptions): void 
       return;
     }
 
+    presetPrefillAppliedRef.current = true;
     reset(applyWizardPreset(buildDefaultWizardValues(), presetValues));
     goToStep(1);
     persistWizardMode("full");

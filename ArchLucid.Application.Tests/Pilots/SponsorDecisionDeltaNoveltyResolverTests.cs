@@ -57,6 +57,65 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
     }
 
     [Fact]
+    public void Resolve_when_sparse_agent_results_prefers_snapshot_material_findings()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);
+        detail.Results.Add(
+            new AgentResult
+            {
+                TaskId = "t-partial",
+                RunId = "r1",
+                Findings =
+                [
+                    new ArchitectureFinding
+                    {
+                        FindingId = "agent-advisory",
+                        Severity = FindingSeverity.Info,
+                        Category = "General",
+                        Message = "partial agent output",
+                    },
+                ],
+            });
+
+        PilotRunDeltas deltas = BuildDeltas() with
+        {
+            SponsorNarrativeFindings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "snapshot-critical",
+                    Severity = FindingSeverity.Critical,
+                    Category = "Security",
+                    Message = "Rotate storage account keys from snapshot",
+                    EvidenceRefs = ["trace:trace-1"],
+                    EvaluationConfidenceScore = 82,
+                    ConfidenceLevel = FindingConfidenceLevel.High,
+                },
+                new ArchitectureFinding
+                {
+                    FindingId = "snapshot-warning",
+                    Severity = FindingSeverity.Warning,
+                    Category = "Cost",
+                    Message = "Right-size underused compute from snapshot",
+                },
+            ],
+        };
+
+        ProofPackageCompletenessResponse proof = BuildProof();
+        PilotBuyerSafeEvidenceGateResult gate = BuildGate();
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            deltas,
+            proof,
+            gate);
+
+        result.DecisionDeltaSummary.Should().Contain("Critical");
+        result.DecisionDeltaSummary.Should().Contain("Rotate storage account keys from snapshot");
+        result.DecisionDeltaSummary.Should().NotContain("partial agent output");
+    }
+
+    [Fact]
     public void Resolve_when_agent_results_empty_uses_sponsor_narrative_findings_from_deltas()
     {
         ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);

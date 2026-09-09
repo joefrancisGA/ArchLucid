@@ -2,8 +2,6 @@ using System.Text.Json;
 
 using ArchLucid.Core.Integration;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Notifications;
 
 /// <summary>
@@ -11,14 +9,10 @@ namespace ArchLucid.Notifications;
 ///     from Service Bus (replaces the direct hook call from persistence finalization).
 /// </summary>
 public sealed class AuthorityRunCompletedChatOpsIntegrationEventHandler(
-    IAuthorityRunCommittedChatOpsHook chatOpsHook,
-    ILogger<AuthorityRunCompletedChatOpsIntegrationEventHandler> logger) : IIntegrationEventHandler
+    IAuthorityRunCommittedChatOpsHook chatOpsHook) : IIntegrationEventHandler
 {
     private readonly IAuthorityRunCommittedChatOpsHook _chatOpsHook =
         chatOpsHook ?? throw new ArgumentNullException(nameof(chatOpsHook));
-
-    private readonly ILogger<AuthorityRunCompletedChatOpsIntegrationEventHandler> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
     public string EventType => IntegrationEventTypes.AuthorityRunCompletedV1;
@@ -52,23 +46,7 @@ public sealed class AuthorityRunCompletedChatOpsIntegrationEventHandler(
             Description = payload.Description,
         };
 
-        try
-        {
-            await _chatOpsHook.NotifyAsync(notice, cancellationToken);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-
-                _logger.LogWarning(
-                    ex,
-                    "Authority run completed ChatOps handler failed for RunId={RunId}.",
-                    payload.RunId);
-        }
+        await _chatOpsHook.NotifyAsync(notice, cancellationToken).ConfigureAwait(false);
     }
 
     private sealed record AuthorityRunCompletedPayload(

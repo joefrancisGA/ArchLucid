@@ -1,12 +1,15 @@
 using System.Net;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Operator;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging;
@@ -20,9 +23,10 @@ public sealed class CommitSponsorEmailNotifier(
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
     ILogger<CommitSponsorEmailNotifier> logger) : ICommitSponsorEmailNotifier
 {
-    private const string DefaultProductName = "ArchLucid";
     private const string TemplateId = "architecture-commit-sponsor";
     private readonly ITenantTrialEmailContactLookup _contactLookup = contactLookup ?? throw new ArgumentNullException(nameof(contactLookup));
 
@@ -36,6 +40,11 @@ public sealed class CommitSponsorEmailNotifier(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly ILogger<CommitSponsorEmailNotifier> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -93,12 +102,17 @@ public sealed class CommitSponsorEmailNotifier(
         to = normalizedMailbox;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
         string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? null : emailOptions.OperatorBaseUrl.Trim().TrimEnd('/');
+        Guid? architectureId = await WorkingOperatorRunArchitectureIdResolver.TryResolveFromScopeProviderAsync(
+            _runRepository,
+            _scopeContextProvider,
+            trimmedRunId,
+            cancellationToken);
         string runUrlText = operatorBase is null
-            ? $"(configure {nameof(EmailNotificationOptions.OperatorBaseUrl)}) /runs/{trimmedRunId}"
-            : $"{operatorBase}/runs/{Uri.EscapeDataString(trimmedRunId)}";
-        string runUrlHref = operatorBase is null ? "#" : $"{operatorBase}/runs/{Uri.EscapeDataString(trimmedRunId)}";
+            ? $"(configure {nameof(EmailNotificationOptions.OperatorBaseUrl)}) {WorkingOperatorReviewLinks.BuildReviewWorkspaceRelativePath(trimmedRunId, architectureId)}"
+            : WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl(operatorBase, trimmedRunId, architectureId);
+        string runUrlHref = operatorBase is null ? "#" : runUrlText;
         string safeRun = WebUtility.HtmlEncode(trimmedRunId);
         string safeProduct = WebUtility.HtmlEncode(productName);
         string safeUrlText = WebUtility.HtmlEncode(runUrlText);
@@ -128,4 +142,5 @@ public sealed class CommitSponsorEmailNotifier(
                     LogSanitizer.Sanitize(trimmedRunId)); // codeql[cs/log-forging]: run id sanitized; TenantId is Guid.
         }
     }
+
 }

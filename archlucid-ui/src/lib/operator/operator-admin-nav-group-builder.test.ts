@@ -48,6 +48,18 @@ describe("OperatorAdminNavGroupBuilder", () => {
     expect(notifications?.label).toBe("Notifications");
   });
 
+  it("publishes Extract & upload at ExecuteAuthority next to other common workspace tools", () => {
+    const links = new OperatorAdminNavGroupBuilder().build().links;
+    const extractUpload = links.find((link) => link.href === "/administration/extract-upload");
+    const notificationsIndex = links.findIndex((link) => link.href === SETTINGS_NOTIFICATIONS_PATH);
+    const extractUploadIndex = links.findIndex((link) => link.href === "/administration/extract-upload");
+
+    expect(extractUpload).toBeDefined();
+    expect(extractUpload?.label).toBe(OPERATOR_NAV_LINK_LABELS.extractUpload);
+    expect(extractUpload?.requiredAuthority).toBe("ExecuteAuthority");
+    expect(extractUploadIndex).toBe(notificationsIndex + 1);
+  });
+
   it("publishes baseline settings at AdminAuthority so ROI anchors are reachable without the hub", () => {
     const links = new OperatorAdminNavGroupBuilder().build().links;
     const baseline = links.find((link) => link.href === BASELINE_SETTINGS_CANONICAL_PATH);
@@ -57,13 +69,15 @@ describe("OperatorAdminNavGroupBuilder", () => {
     expect(baseline?.requiredAuthority).toBe("AdminAuthority");
   });
 
-  it("keeps the projects recycle bin next to its parent workspace settings route", () => {
+  it("keeps the projects recycle bin after workspace settings", () => {
     const hrefs = new OperatorAdminNavGroupBuilder().build().links.map((link) => link.href);
     const workspaceIndex = hrefs.indexOf(SETTINGS_WORKSPACE_SETTINGS_PATH);
+    const brandingIndex = hrefs.indexOf("/administration/branding");
     const recycleBinIndex = hrefs.indexOf(`${SETTINGS_WORKSPACE_SETTINGS_PATH}/recycle-bin`);
 
     expect(workspaceIndex).toBeGreaterThanOrEqual(0);
-    expect(recycleBinIndex).toBe(workspaceIndex + 1);
+    expect(brandingIndex).toBe(workspaceIndex + 1);
+    expect(recycleBinIndex).toBe(brandingIndex + 1);
   });
 
 });

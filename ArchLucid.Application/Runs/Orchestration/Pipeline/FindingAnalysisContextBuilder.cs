@@ -3,10 +3,12 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -26,6 +28,20 @@ public interface IFindingAnalysisContextBuilder
         ContextSnapshot contextSnapshot,
         ArchitectureKnowledgeModel? knowledgeModel,
         ArchitectureRequest? request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Builds analysis context for a held-check inventory second pass (DX-60).
+    ///     Skips create-time evidence pin drift verification and overrides the ingested provider pin.
+    /// </summary>
+    Task<FindingAnalysisContext> BuildForHeldCheckSecondPassAsync(
+        ScopeContext scope,
+        Guid runId,
+        ContextSnapshot contextSnapshot,
+        ArchitectureKnowledgeModel? knowledgeModel,
+        ArchitectureRequest? request,
+        HeldCheckInputCode inventoryInputCode,
+        Guid ingestedPackageId,
         CancellationToken cancellationToken = default);
 }
 
@@ -102,6 +118,7 @@ public sealed partial class FindingAnalysisContextBuilder(
             EvidencePin = primaryEvidencePin,
             EvidencePins = evidencePins,
             HasCreateTimeEvidencePinCommitment = _runEvidencePackagePinService.HasCreateTimePinCommitment(header),
+            HeldCheckLedger = new HeldCheckLedger(),
         };
     }
 }

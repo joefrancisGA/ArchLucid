@@ -2,7 +2,9 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 
 using FluentAssertions;
 
@@ -24,7 +26,12 @@ public sealed class RunsExportControllerTests
         Mock<IAuditService> auditService = new();
         Mock<IScopeContextProvider> scopeProvider = new();
 
-        RunsExportController controller = new(exportService.Object, auditService.Object, scopeProvider.Object)
+        RunsExportController controller = new(
+            exportService.Object,
+            auditService.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

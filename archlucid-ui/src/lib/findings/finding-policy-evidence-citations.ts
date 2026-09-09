@@ -2,6 +2,7 @@ import { typedPayloadLookupString } from "@/lib/findings/finding-display-from-in
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 import { normalizeEvidenceRefSnippet } from "@/lib/findings/finding-evidence-ref-snippet";
+import type { DiagramEvidenceCitation } from "@/lib/findings/diagram-evidence-citation";
 import {
   buildSourceEvidenceLinksFromEvidenceRefs,
   buildSourceEvidenceLinksFromInspectEvidence,
@@ -33,6 +34,7 @@ export type FindingEvidenceCitationLink = {
   readonly label: string;
   readonly detail: string | null;
   readonly href: string;
+  readonly diagramCitation?: DiagramEvidenceCitation | null;
 };
 
 export type FindingPolicyEvidenceCitationModel = {
@@ -191,9 +193,10 @@ export function buildFindingPolicyEvidenceCitationsFromInspect(
       }
 
       return {
-        label: findingInspectEvidenceCitationLabel(row),
+        label: sourceLink.kind === "diagramShape" ? sourceLink.label : findingInspectEvidenceCitationLabel(row),
         detail: sourceLink.detail ?? (detailParts.length > 0 ? detailParts.join(" · ") : null),
         href: sourceLink.href,
+        diagramCitation: sourceLink.diagramCitation ?? null,
       };
     })
     .filter((row) => row.label.trim().length > 0);
@@ -253,9 +256,10 @@ export function buildFindingPolicyEvidenceCitationsFromQuickDecision(
         });
 
       return {
-        label: snippet,
+        label: parsed.kind === "diagramShape" ? parsed.label : snippet,
         detail: parsed.detail,
         href: parsed.href,
+        diagramCitation: parsed.diagramCitation ?? null,
       };
     })
     .filter((row) => row.label.trim().length > 0);

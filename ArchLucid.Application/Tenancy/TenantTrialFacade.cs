@@ -167,7 +167,7 @@ public sealed class TenantTrialFacade(
         };
 
     private static bool ComputeIdentityHandoffPending(TenantRecord tenant) =>
-        string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal)
+        TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Converted)
         && tenant.EntraTenantId is null;
 
     private static double? ComputeTimeToFirstCommittedManifestTotalSeconds(TenantRecord tenant)

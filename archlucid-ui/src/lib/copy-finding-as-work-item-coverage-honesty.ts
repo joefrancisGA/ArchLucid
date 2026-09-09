@@ -2,6 +2,9 @@ import { typedPayloadLookupString } from "@/lib/findings/finding-display-from-in
 import { deriveFindingTrustLabelName } from "@/lib/findings/finding-provenance-display";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
+import { listSkippedMustQuestionKeys } from "@/lib/review-quality/list-skipped-must-question-keys";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
+
 import type { FindingWorkItemBuildInput } from "./copy-finding-as-work-item-types";
 
 export type FindingWorkItemProvenanceKind = "asserted" | "inferred";
@@ -147,6 +150,7 @@ function formatProvenanceKindLabel(kind: FindingWorkItemProvenanceKind): string 
 export function resolveFindingWorkItemCoverageHonesty(
   input: FindingWorkItemBuildInput,
   payload: FindingInspectPayload | null = null,
+  transparencyTrail: TransparencyTrail | null = null,
 ): FindingWorkItemCoverageHonesty | null {
   const typedEngineProtected = resolveTypedEngineProtected(input, payload);
   const provenanceKind = resolveAssertedVsInferredLabel(payload);
@@ -158,6 +162,12 @@ export function resolveFindingWorkItemCoverageHonesty(
 
   if (provenanceKind !== null) {
     segments.push(`Finding provenance: ${formatProvenanceKindLabel(provenanceKind)}.`);
+  }
+
+  const skippedMustKeys = listSkippedMustQuestionKeys(transparencyTrail);
+
+  if (skippedMustKeys.length > 0) {
+    segments.push(`Skipped required questions: ${skippedMustKeys.join(", ")}.`);
   }
 
   if (segments.length === 0) {
@@ -187,4 +197,20 @@ export function resolveFindingWorkItemCoverageHonestyFromInput(
   }
 
   return null;
+}
+
+/** Skipped-MUST honesty for trace-row clipboard exports when only package trail is available (FC-41). */
+export function resolveTraceRowWorkItemCoverageHonesty(
+  transparencyTrail: TransparencyTrail | null,
+): FindingWorkItemCoverageHonesty | null {
+  const skippedMustKeys = listSkippedMustQuestionKeys(transparencyTrail);
+
+  if (skippedMustKeys.length === 0) {
+    return null;
+  }
+
+  return {
+    line: `Skipped required questions: ${skippedMustKeys.join(", ")}.`,
+    typedEngineProtected: false,
+  };
 }

@@ -9,8 +9,7 @@ internal static class ArchitectureRecommendationEffortEstimate
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        string band = finding.Severity.Equals("Critical", StringComparison.OrdinalIgnoreCase)
-            || finding.Severity.Equals("High", StringComparison.OrdinalIgnoreCase)
+        string band = ArchitectureRecommendationSeverityLabel.IsCriticalOrHigh(finding.Severity)
             ? "High"
             : "Medium";
 
@@ -28,8 +27,7 @@ internal static class ArchitectureRecommendationEffortEstimate
 
         string level = finding.Dimension == QualityDimension.Security
             ? "High"
-            : finding.Severity.Equals("Critical", StringComparison.OrdinalIgnoreCase)
-                || finding.Severity.Equals("High", StringComparison.OrdinalIgnoreCase)
+            : ArchitectureRecommendationSeverityLabel.IsCriticalOrHigh(finding.Severity)
                 ? "Moderate"
                 : "Low";
 

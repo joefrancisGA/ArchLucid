@@ -404,11 +404,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
           <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-findings-orientation-bottom">
-            <HelpFindingsSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpFindingsSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

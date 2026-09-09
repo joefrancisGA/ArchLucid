@@ -1,0 +1,196 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000070",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000070",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000070-0000-4000-8000-000000000070",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000070",
+    "runId": "20000000-0000-4000-8000-000000000070",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "diagram-subgraph:corp",
+        "nodeType": "TrustBoundary",
+        "label": "Corporate network",
+        "category": null,
+        "sourceType": "structured-diagram-subgraph",
+        "sourceId": "corp",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse",
+          "structuredDiagram.provenanceKind": "DeterministicInference",
+          "structuredDiagram.inferenceConfidence": "1",
+          "structuredDiagram.subgraphId": "corp",
+          "structuredDiagram.trustBoundaryLabel": "Corporate network",
+          "trustOrigin": "Internal"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "diagram-node:api",
+        "nodeType": "TopologyResource",
+        "label": "Orders API",
+        "category": null,
+        "sourceType": "structured-diagram",
+        "sourceId": "api",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse",
+          "structuredDiagram.provenanceKind": "DeterministicInference",
+          "structuredDiagram.inferenceConfidence": "0.7",
+          "structuredDiagram.nodeKind": "system",
+          "structuredDiagram.subgraphId": "corp",
+          "structuredDiagram.subgraphLabel": "Corporate network",
+          "structuredDiagram.trustBoundaryLabel": "Corporate network",
+          "structuredDiagram.sourceEvidenceItemId": "doc-golden-70-mermaid"
+        },
+        "reasoningTrace": "Structured diagram node \u0027api\u0027 compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
+      },
+      {
+        "nodeId": "diagram-node:db",
+        "nodeType": "TopologyResource",
+        "label": "SQL Database",
+        "category": null,
+        "sourceType": "structured-diagram",
+        "sourceId": "db",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse",
+          "structuredDiagram.provenanceKind": "DeterministicInference",
+          "structuredDiagram.inferenceConfidence": "0.7",
+          "structuredDiagram.nodeKind": "system",
+          "structuredDiagram.subgraphId": "corp",
+          "structuredDiagram.subgraphLabel": "Corporate network",
+          "structuredDiagram.trustBoundaryLabel": "Corporate network",
+          "structuredDiagram.sourceEvidenceItemId": "doc-golden-70-mermaid",
+          "category": "data"
+        },
+        "reasoningTrace": "Structured diagram node \u0027db\u0027 compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
+      },
+      {
+        "nodeId": "diagram-node:user",
+        "nodeType": "Actor",
+        "label": "Internet user",
+        "category": null,
+        "sourceType": "structured-diagram",
+        "sourceId": "user",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse",
+          "structuredDiagram.provenanceKind": "DeterministicInference",
+          "structuredDiagram.inferenceConfidence": "0.7",
+          "structuredDiagram.nodeKind": "user",
+          "structuredDiagram.sourceEvidenceItemId": "doc-golden-70-mermaid",
+          "trustOrigin": "External"
+        },
+        "reasoningTrace": "Structured diagram node \u0027user\u0027 compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": "0935c9612df54136af603a0c39a2642f",
+        "fromNodeId": "context-10000000000040008000000000000070",
+        "toNodeId": "diagram-subgraph:corp",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "b9f3014f8adf47e68fca438b75982eab",
+        "fromNodeId": "context-10000000000040008000000000000070",
+        "toNodeId": "diagram-node:api",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "25d46c3ed3284f6786cab4f8c7b4a89c",
+        "fromNodeId": "context-10000000000040008000000000000070",
+        "toNodeId": "diagram-node:db",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "db209e5c09df4a73bfe48211ed986204",
+        "fromNodeId": "context-10000000000040008000000000000070",
+        "toNodeId": "diagram-node:user",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "diagram-contains:diagram-subgraph:corp-\u003Ediagram-node:api",
+        "fromNodeId": "diagram-subgraph:corp",
+        "toNodeId": "diagram-node:api",
+        "edgeType": "CONTAINS",
+        "label": null,
+        "weight": 0.7,
+        "inferenceSource": "structured-parse",
+        "properties": {
+          "structuredDiagram.provenanceKind": "DeterministicInference"
+        },
+        "reasoningTrace": "Structured diagram subgraph membership (deterministic inference; not inventory ObservedFact)."
+      },
+      {
+        "edgeId": "diagram-contains:diagram-subgraph:corp-\u003Ediagram-node:db",
+        "fromNodeId": "diagram-subgraph:corp",
+        "toNodeId": "diagram-node:db",
+        "edgeType": "CONTAINS",
+        "label": null,
+        "weight": 0.7,
+        "inferenceSource": "structured-parse",
+        "properties": {
+          "structuredDiagram.provenanceKind": "DeterministicInference"
+        },
+        "reasoningTrace": "Structured diagram subgraph membership (deterministic inference; not inventory ObservedFact)."
+      },
+      {
+        "edgeId": "diagram-edge:edge-0",
+        "fromNodeId": "diagram-node:api",
+        "toNodeId": "diagram-node:db",
+        "edgeType": "CONNECTS_TO",
+        "label": null,
+        "weight": 0.7,
+        "inferenceSource": "structured-parse",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse",
+          "structuredDiagram.provenanceKind": "DeterministicInference",
+          "structuredDiagram.inferenceConfidence": "0.7",
+          "structuredDiagram.diagramEdgeId": "edge-0",
+          "structuredDiagram.diagramOrigin": "true",
+          "structuredDiagram.diagramCitationRef": "diagram::edge-0",
+          "structuredDiagram.sourceEvidenceItemId": "doc-golden-70-mermaid"
+        },
+        "reasoningTrace": "Structured diagram edge \u0027edge-0\u0027 compiled from parsed topology (deterministic inference; not inventory ObservedFact)."
+      },
+      {
+        "edgeId": "diagram-edge:user-api-golden-70",
+        "fromNodeId": "diagram-node:user",
+        "toNodeId": "diagram-node:api",
+        "edgeType": "CONNECTS_TO",
+        "label": null,
+        "weight": 0.7,
+        "inferenceSource": "structured-parse",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse",
+          "structuredDiagram.provenanceKind": "DeterministicInference",
+          "structuredDiagram.sourceEvidenceItemId": "doc-golden-70-mermaid"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null,
+  "priorGraphFixture": null
+}

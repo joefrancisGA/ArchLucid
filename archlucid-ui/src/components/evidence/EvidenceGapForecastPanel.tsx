@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
@@ -13,6 +17,11 @@ import {
   type EvidenceGapForecastEntry,
   type EvidencePresenceFlags,
 } from "@/lib/evidence-gap-forecast";
+import {
+  EVIDENCE_GAP_FORECAST_OPEN_PARAM,
+  evidenceGapForecastDisclosureHrefFromSearch,
+  parseEvidenceGapForecastOpenFromSearch,
+} from "@/lib/evidence/evidence-gap-forecast-disclosure-url";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +44,31 @@ export type EvidenceGapForecastPanelProps = {
 
 /** TB-2177: directional forecast of thinner finding domains when evidence classes are missing. */
 export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): React.JSX.Element | null {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const evidenceGapForecastOpenParam = searchParams.get(EVIDENCE_GAP_FORECAST_OPEN_PARAM);
+  const [open, setOpenState] = useState(() => parseEvidenceGapForecastOpenFromSearch(evidenceGapForecastOpenParam));
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(evidenceGapForecastDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseEvidenceGapForecastOpenFromSearch(evidenceGapForecastOpenParam));
+  }, [evidenceGapForecastOpenParam]);
+
   const forecast = deriveEvidenceGapForecast(props.presence);
 
   if (forecast.length === 0) {
@@ -59,6 +93,8 @@ export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): 
           headingLevel={2}
           summaryLine={summaryLine}
           sectionTestId="evidence-gap-forecast-panel"
+          open={open}
+          onToggle={setOpen}
         >
           <div className="space-y-3">
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>

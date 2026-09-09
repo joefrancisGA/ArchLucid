@@ -63,6 +63,8 @@ export type PageHeadingProps = {
   titleTestId?: string;
   /** Stable Playwright anchor for the page lead / description block. */
   descriptionTestId?: string;
+  /** Optional classes for the description block; defaults to {@link OPERATOR_TYPOGRAPHY.body}. */
+  descriptionClassName?: string;
   "data-testid"?: string;
   children?: ReactNode;
 };
@@ -88,6 +90,7 @@ export function PageHeading({
   className,
   titleTestId,
   descriptionTestId,
+  descriptionClassName,
   "data-testid": dataTestId,
   children,
 }: PageHeadingProps): React.JSX.Element {
@@ -139,7 +142,10 @@ export function PageHeading({
 
         {description !== undefined && description !== null ? (
           <div
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            className={cn(
+              "m-0 text-al-text-secondary",
+              descriptionClassName ?? OPERATOR_TYPOGRAPHY.body,
+            )}
             {...(descriptionTestId !== undefined ? { "data-testid": descriptionTestId } : {})}
           >
             {description}

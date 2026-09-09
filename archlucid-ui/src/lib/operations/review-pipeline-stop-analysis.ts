@@ -6,9 +6,6 @@ export const REVIEW_PIPELINE_STOP_ANALYSIS_CTA = "Stop analysis";
 
 export const REVIEW_PIPELINE_STOP_ANALYSIS_IN_FLIGHT_CTA = "Stopping analysis…";
 
-export const REVIEW_PIPELINE_STOP_ANALYSIS_HELP =
-  "Requests cooperative cancel on the server. Analysis may take a moment to wind down — it is not an instant abort.";
-
 export const REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_HEADLINE = "Stop analysis requested";
 
 export const REVIEW_PIPELINE_STOP_ANALYSIS_REQUESTED_DETAIL =

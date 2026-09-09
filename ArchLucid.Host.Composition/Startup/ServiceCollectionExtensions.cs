@@ -166,7 +166,7 @@ public static partial class ServiceCollectionExtensions
         DataHealthJobsCompositionModule.Register(services, configuration, hostingRole);
         services.Configure<SqlConnectionHealthCheckOptions>(
             configuration.GetSection(SqlConnectionHealthCheckOptions.SectionName));
-        RegisterCosmosPolyglotPersistence(services, configuration);
+        RegisterCosmosPolyglotPersistence(services, configuration, hostingRole);
         RegisterArchLucidJobRunners(services, configuration);
         services.AddFirstTenantFunnelTelemetry(configuration);
         services.Configure<IntegrationsItsmInboundOptions>(
@@ -175,6 +175,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(IntegrationsItsmOptions.SectionName));
         services.Configure<IntegrationsItsmOutboundOptions>(
             configuration.GetSection(IntegrationsItsmOutboundOptions.SectionName));
+        services.Configure<FindingVerificationOptions>(
+            configuration.GetSection(FindingVerificationOptions.SectionName));
         services.AddSingleton<ItsmNativeIntegrationGate>();
         services.Configure<ConfluencePublishingOptions>(
             configuration.GetSection(ConfluencePublishingOptions.SectionName));
@@ -214,6 +216,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ZipEvidenceExpanderOptions.SectionName));
         services.AddSingleton<IZipEvidenceExpanderService, ZipEvidenceExpanderService>();
         services.AddScoped<IBulkEvidenceUploadService, BulkEvidenceUploadService>();
+        services.AddScoped<IRunStoredEvidenceFileCatalogService, RunStoredEvidenceFileCatalogService>();
+        services.AddScoped<IRunStoredEvidenceFileContentService, RunStoredEvidenceFileContentService>();
         services.AddSingleton<IEvidenceAddedIncrementalReReviewQueue, EvidenceAddedIncrementalReReviewQueue>();
         services.AddScoped<IEvidenceAddedIncrementalReReviewCoordinator, EvidenceAddedIncrementalReReviewCoordinator>();
         services.AddHostedService<EvidenceAddedIncrementalReReviewHostedService>();

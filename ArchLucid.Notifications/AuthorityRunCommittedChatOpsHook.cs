@@ -34,23 +34,40 @@ public sealed class AuthorityRunCommittedChatOpsHook(
             CorrelationId = notice.RunId.ToString("D"),
         };
 
+        bool slackAttempted = false;
+        bool slackSucceeded = false;
+        bool teamsAttempted = false;
+        bool teamsSucceeded = false;
+
         Task slackTask =
-            DeliverIfEnabledAsync(ChatOpsWebhookTarget.Slack,
+            DeliverIfEnabledAsync(
+                ChatOpsWebhookTarget.Slack,
                 enabled: options.SlackNotifyOnAuthorityRunCompleted,
                 rawUri: options.SlackIncomingWebhookAbsoluteUri,
                 message,
                 telemetry,
+                attempted => slackAttempted = attempted,
+                succeeded => slackSucceeded = succeeded,
                 cancellationToken);
 
         Task teamsTask =
-            DeliverIfEnabledAsync(ChatOpsWebhookTarget.Teams,
+            DeliverIfEnabledAsync(
+                ChatOpsWebhookTarget.Teams,
                 enabled: options.TeamsNotifyOnAuthorityRunCompleted,
                 rawUri: options.TeamsIncomingWebhookAbsoluteUri,
                 message,
                 telemetry,
+                attempted => teamsAttempted = attempted,
+                succeeded => teamsSucceeded = succeeded,
                 cancellationToken);
 
         await Task.WhenAll(slackTask, teamsTask).ConfigureAwait(false);
+
+        if ((slackAttempted && !slackSucceeded && (!teamsAttempted || !teamsSucceeded))
+            || (teamsAttempted && !teamsSucceeded && (!slackAttempted || !slackSucceeded)))
+        {
+            throw new InvalidOperationException("ChatOps webhook delivery failed for all enabled targets.");
+        }
     }
 
     private async Task DeliverIfEnabledAsync(
@@ -59,24 +76,30 @@ public sealed class AuthorityRunCommittedChatOpsHook(
         string? rawUri,
         ChatOpsWebhookMessage message,
         WebhookPostOptions telemetry,
+        Action<bool> markAttempted,
+        Action<bool> markSucceeded,
         CancellationToken cancellationToken)
     {
+        if (!enabled)
+            return;
+
+        string? url = rawUri?.Trim();
+
+        if (string.IsNullOrWhiteSpace(url))
+            return;
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) || uri.Scheme != Uri.UriSchemeHttps)
+            return;
+
+        markAttempted(true);
+
         try
         {
-            if (!enabled)
-                return;
-
-            string? url = rawUri?.Trim();
-
-            if (string.IsNullOrWhiteSpace(url))
-                return;
-
-            if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) || uri.Scheme != Uri.UriSchemeHttps)
-                return;
-
             await _chatOpsWebhookDeliveryService
                 .DeliverAsync(target, url, message, cancellationToken, telemetry)
                 .ConfigureAwait(false);
+
+            markSucceeded(true);
         }
         catch (OperationCanceledException)
         {
@@ -85,6 +108,7 @@ public sealed class AuthorityRunCommittedChatOpsHook(
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Authority run ChatOps {Target} webhook delivery failed.", target.ToString());
+            markSucceeded(false);
         }
     }
 

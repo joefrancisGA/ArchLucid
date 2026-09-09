@@ -1,3 +1,4 @@
+import { demoteOpenQuestionsStructuredSectionProvenance } from "@/lib/architecture/architecture-open-questions-export-honesty";
 import {
   appendEntity,
   ingestLinesIntoDraft,
@@ -249,13 +250,15 @@ export function finalizeSections(drafts: Map<ArchitectureStructuredSectionKey, M
       continue;
     }
 
-    sections.push({
-      key,
-      title: ARCHITECTURE_STRUCTURED_SECTION_TITLES[key],
-      narrativeMarkdown: narrativeMarkdown.length > 0 ? narrativeMarkdown : null,
-      entities: draft.entities,
-      provenance: draft.provenance,
-    });
+    sections.push(
+      demoteOpenQuestionsStructuredSectionProvenance({
+        key,
+        title: ARCHITECTURE_STRUCTURED_SECTION_TITLES[key],
+        narrativeMarkdown: narrativeMarkdown.length > 0 ? narrativeMarkdown : null,
+        entities: draft.entities,
+        provenance: draft.provenance,
+      }),
+    );
   }
 
   return sections;

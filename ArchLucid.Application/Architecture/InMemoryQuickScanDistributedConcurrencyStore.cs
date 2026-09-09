@@ -143,12 +143,16 @@ public sealed class InMemoryQuickScanDistributedConcurrencyStore : IQuickScanDis
     {
         lock (_sync)
         {
-            if (_leases.TryGetValue(leaseId, out LeaseRow? row)
-                && row.Status == LeaseRowStatus.Active
-                && row.ExpiresUtc > utcNow)
+            ExpireStale(utcNow);
+
+            if (!_leases.TryGetValue(leaseId, out LeaseRow? row)
+                || row.Status != LeaseRowStatus.Active
+                || row.ExpiresUtc <= utcNow)
             {
-                row.ExpiresUtc = utcNow + leaseDuration;
+                throw new InvalidOperationException("Quick Scan distributed concurrency lease is not renewable.");
             }
+
+            row.ExpiresUtc = utcNow + leaseDuration;
         }
 
         return Task.CompletedTask;

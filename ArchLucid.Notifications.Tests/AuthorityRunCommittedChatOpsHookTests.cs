@@ -1,3 +1,5 @@
+using System.Net;
+
 using ArchLucid.Notifications;
 
 using FluentAssertions;
@@ -287,7 +289,7 @@ public sealed class AuthorityRunCommittedChatOpsHookTests
     }
 
     [Fact]
-    public async Task NotifyAsync_suppresses_non_cancellation_errors_from_delivery()
+    public async Task NotifyAsync_suppresses_non_cancellation_errors_from_delivery_when_sibling_target_succeeds()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();
         delivery.Setup(d =>
@@ -345,6 +347,136 @@ public sealed class AuthorityRunCommittedChatOpsHookTests
                 It.IsAny<CancellationToken>(),
                 It.IsAny<WebhookPostOptions?>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task NotifyAsync_throws_when_every_enabled_target_delivery_fails()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        delivery.Setup(d =>
+                d.DeliverAsync(
+                    It.IsAny<ChatOpsWebhookTarget>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .ThrowsAsync(new HttpRequestException("server error"));
+
+        ChatOpsIncomingWebhooksOptions opts = new()
+        {
+            SlackNotifyOnAuthorityRunCompleted = true,
+            SlackIncomingWebhookAbsoluteUri = "https://hooks.slack.com/services/X/Y/Z",
+            TeamsNotifyOnAuthorityRunCompleted = true,
+            TeamsIncomingWebhookAbsoluteUri = "https://outlook.office.com/webhook/abc",
+        };
+
+        Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(opts);
+
+        AuthorityRunCommittedChatOpsHook sut = new(
+            delivery.Object,
+            optionsMonitor.Object,
+            Mock.Of<ILogger<AuthorityRunCommittedChatOpsHook>>());
+
+        AuthorityRunCommittedChatOpsNotice notice = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            FindingCount = 1,
+        };
+
+        Func<Task> act = async () => await sut.NotifyAsync(notice, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*ChatOps webhook delivery failed for all enabled targets*");
+    }
+
+    [Fact]
+    public async Task NotifyAsync_throws_when_only_enabled_target_delivery_fails()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        delivery.Setup(d =>
+                d.DeliverAsync(
+                    ChatOpsWebhookTarget.Slack,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .ThrowsAsync(new HttpRequestException("server error"));
+
+        ChatOpsIncomingWebhooksOptions opts = new()
+        {
+            SlackNotifyOnAuthorityRunCompleted = true,
+            SlackIncomingWebhookAbsoluteUri = "https://hooks.slack.com/services/X/Y/Z",
+        };
+
+        Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(opts);
+
+        AuthorityRunCommittedChatOpsHook sut = new(
+            delivery.Object,
+            optionsMonitor.Object,
+            Mock.Of<ILogger<AuthorityRunCommittedChatOpsHook>>());
+
+        AuthorityRunCommittedChatOpsNotice notice = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            FindingCount = 1,
+        };
+
+        Func<Task> act = async () => await sut.NotifyAsync(notice, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*ChatOps webhook delivery failed for all enabled targets*");
+    }
+
+    [Fact]
+    public async Task NotifyAsync_throws_when_all_enabled_targets_return_http_400()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        delivery.Setup(d =>
+                d.DeliverAsync(
+                    It.IsAny<ChatOpsWebhookTarget>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .ThrowsAsync(new HttpRequestException("client error", inner: null, statusCode: HttpStatusCode.BadRequest));
+
+        ChatOpsIncomingWebhooksOptions opts = new()
+        {
+            SlackNotifyOnAuthorityRunCompleted = true,
+            SlackIncomingWebhookAbsoluteUri = "https://hooks.slack.com/services/X/Y/Z",
+            TeamsNotifyOnAuthorityRunCompleted = true,
+            TeamsIncomingWebhookAbsoluteUri = "https://outlook.office.com/webhook/abc",
+        };
+
+        Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(opts);
+
+        AuthorityRunCommittedChatOpsHook sut = new(
+            delivery.Object,
+            optionsMonitor.Object,
+            Mock.Of<ILogger<AuthorityRunCommittedChatOpsHook>>());
+
+        AuthorityRunCommittedChatOpsNotice notice = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            FindingCount = 1,
+        };
+
+        Func<Task> act = async () => await sut.NotifyAsync(notice, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*ChatOps webhook delivery failed for all enabled targets*");
     }
 
     [Fact]

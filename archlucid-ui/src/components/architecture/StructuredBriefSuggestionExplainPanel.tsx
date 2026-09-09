@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useId, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useId, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,10 @@ import {
   getStructuredBriefSuggestionExplainCache,
   setStructuredBriefSuggestionExplainCache,
 } from "@/lib/architecture/structured-brief-suggestion-explain-cache";
+import {
+  parseStructuredBriefSuggestionExplainKeyFromSearch,
+  structuredBriefSuggestionExplainDisclosureHrefFromSearch,
+} from "@/lib/architecture/structured-brief-suggestion-explain-disclosure-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_EXPLAIN_SUGGESTION_BUTTON,
@@ -29,6 +34,7 @@ type StructuredBriefSuggestionExplainPanelProps = {
   readonly suggestionKind: StructuredBriefSuggestionKind;
   readonly suggestionText: string;
   readonly sourceText: string;
+  readonly explainKey: string;
   readonly disabled?: boolean;
   readonly testId?: string;
 };
@@ -41,7 +47,16 @@ export function StructuredBriefSuggestionExplainPanel(
   props: StructuredBriefSuggestionExplainPanelProps,
 ): React.JSX.Element {
   const panelId = useId();
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const structuredBriefSuggestionExplainKeyParam = searchParams.get("structuredBriefSuggestionExplainKey");
+  const explainKey = props.explainKey.trim();
+  const [open, setOpenState] = useState(
+    () =>
+      explainKey.length > 0 &&
+      parseStructuredBriefSuggestionExplainKeyFromSearch(structuredBriefSuggestionExplainKeyParam) === explainKey,
+  );
   const [loading, setLoading] = useState(false);
   const [explanation, setExplanation] = useState<string | null>(null);
   const [error, setError] = useState<{
@@ -49,6 +64,34 @@ export function StructuredBriefSuggestionExplainPanel(
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
+
+  const syncOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      router.replace(
+        structuredBriefSuggestionExplainDisclosureHrefFromSearch(
+          searchParams.toString(),
+          nextOpen ? explainKey : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [explainKey, pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (nextOpen: boolean) => {
+      setOpenState(nextOpen);
+      syncOpenToUrl(nextOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    const fromUrl = parseStructuredBriefSuggestionExplainKeyFromSearch(structuredBriefSuggestionExplainKeyParam);
+
+    setOpenState(explainKey.length > 0 && fromUrl === explainKey);
+  }, [explainKey, structuredBriefSuggestionExplainKeyParam]);
 
   const loadExplanation = useCallback(async (): Promise<void> => {
     const cacheKey = await buildStructuredBriefSuggestionExplainCacheKey({

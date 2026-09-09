@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { QuickScanClient } from "@/app/(marketing)/quick-scan/QuickScanClient";
 import {
   QUICK_SCAN_LAST_REVIEWED_LABEL,
-  QUICK_SCAN_PRIMARY_CONTENT_ID,
+  QUICK_SCAN_SKIP_TARGET_ID,
 } from "@/app/(marketing)/quick-scan/quick-scan-page-content";
 
 vi.mock("@/lib/quick-scan/quick-scan-telemetry", () => ({
@@ -49,7 +49,7 @@ describe("QuickScanClient", () => {
     expect(screen.queryByTestId("quick-scan-hero-meta")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Skip to quick scan content/i })).toHaveAttribute(
       "href",
-      `#${QUICK_SCAN_PRIMARY_CONTENT_ID}`,
+      `#${QUICK_SCAN_SKIP_TARGET_ID}`,
     );
     expect(screen.getByTestId("quick-scan-page-meta")).toHaveTextContent(QUICK_SCAN_LAST_REVIEWED_LABEL);
     expect(screen.getByTestId("quick-scan-scope-disclosure")).toBeInTheDocument();

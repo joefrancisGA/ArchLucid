@@ -82,6 +82,14 @@ export function GovernanceFindingsQueueResultsSection(
               Hide generic findings (density score below {INSIGHT_DENSITY_GENERIC_THRESHOLD}) — advisory only
             </label>
           ) : null}
+          {props.architectureScopeHonesty.line !== null ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="governance-findings-architecture-scope-honesty"
+            >
+              {props.architectureScopeHonesty.line}
+            </p>
+          ) : null}
           {props.hiddenFilterHonesty.hasHidden ? (
             <FindingsHiddenFilterHonestyBand
               honesty={props.hiddenFilterHonesty}

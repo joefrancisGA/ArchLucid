@@ -12,6 +12,10 @@ import {
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  defaultRiskExceptionRenewOpenedExpiryUtc,
+  riskExceptionRenewHasUnsavedEdits,
+} from "@/lib/risk-exception-renew-unsaved";
 import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import {
@@ -29,6 +33,10 @@ import {
   resolveRiskExceptionsRenewSteps,
 } from "@/lib/risk-exceptions-renew-checklist";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 
 import {
   matchesRiskExceptionRunScope,
@@ -53,6 +61,8 @@ export type UseRiskExceptionsClientResult = {
   readonly setRenewExpiresAtUtc: React.Dispatch<React.SetStateAction<string>>;
   readonly renewRationale: string;
   readonly setRenewRationale: React.Dispatch<React.SetStateAction<string>>;
+  readonly hasUnsavedRenewEdits: boolean;
+  readonly documentGuards: ReturnType<typeof useLivelihoodDocumentGuards>;
   readonly pendingRevoke: RiskExceptionRecord | null;
   readonly setPendingRevoke: React.Dispatch<React.SetStateAction<RiskExceptionRecord | null>>;
   readonly loading: boolean;
@@ -87,6 +97,7 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [renewingId, setRenewingId] = useState<string | null>(null);
   const [renewExpiresAtUtc, setRenewExpiresAtUtc] = useState(defaultRiskExceptionExpiresAtUtc());
+  const [renewOpenedExpiryUtc, setRenewOpenedExpiryUtc] = useState(defaultRiskExceptionRenewOpenedExpiryUtc());
   const [renewRationale, setRenewRationale] = useState("");
   const [pendingRevoke, setPendingRevoke] = useState<RiskExceptionRecord | null>(null);
   const [loading, setLoading] = useState(true);
@@ -111,6 +122,19 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
     (value: React.SetStateAction<string | null>) => {
       setRenewingId((current) => {
         const next = typeof value === "function" ? value(current) : value;
+
+        if (next !== null && next !== current) {
+          const openedExpiry = defaultRiskExceptionRenewOpenedExpiryUtc();
+          setRenewExpiresAtUtc(openedExpiry);
+          setRenewOpenedExpiryUtc(openedExpiry);
+          setRenewRationale("");
+        }
+
+        if (next === null) {
+          setRenewOpenedExpiryUtc(defaultRiskExceptionRenewOpenedExpiryUtc());
+          setRenewRationale("");
+        }
+
         syncRenewRevokeToUrl(next, pendingRevoke?.riskExceptionId ?? null);
 
         return next;
@@ -140,8 +164,10 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
       const exists = records.some((record) => record.riskExceptionId === urlRenewId);
 
       if (exists) {
+        const openedExpiry = defaultRiskExceptionRenewOpenedExpiryUtc();
         setRenewingId(urlRenewId);
-        setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
+        setRenewExpiresAtUtc(openedExpiry);
+        setRenewOpenedExpiryUtc(openedExpiry);
         setRenewRationale("");
       }
     }
@@ -319,9 +345,15 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
 
   const onStartRenew = useCallback((riskExceptionId: string) => {
     setRenewingIdWithUrl(riskExceptionId);
-    setRenewExpiresAtUtc(defaultRiskExceptionExpiresAtUtc());
-    setRenewRationale("");
   }, [setRenewingIdWithUrl]);
+
+  const hasUnsavedRenewEdits = riskExceptionRenewHasUnsavedEdits(
+    renewingId,
+    renewExpiresAtUtc,
+    renewRationale,
+    renewOpenedExpiryUtc,
+  );
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedRenewEdits });
 
   return {
     scopedRunId,
@@ -339,6 +371,8 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
     setRenewExpiresAtUtc,
     renewRationale,
     setRenewRationale,
+    hasUnsavedRenewEdits,
+    documentGuards,
     pendingRevoke,
     setPendingRevoke: setPendingRevokeWithUrl,
     loading,

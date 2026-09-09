@@ -14,6 +14,10 @@ public sealed partial class RoiController
 {
     private async Task<IActionResult?> EnsureSponsorRoiSealedManifestReadAllowedAsync(
         CancellationToken cancellationToken)
+        => await EnsureSponsorRoiBoardPackSealedManifestReadAllowedAsync(cancellationToken);
+
+    private async Task<IActionResult?> EnsureSponsorRoiBoardPackSealedManifestReadAllowedAsync(
+        CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
