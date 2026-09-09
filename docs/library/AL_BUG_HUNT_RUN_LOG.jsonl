@@ -1613,3 +1613,5 @@
 {"at":"2026-09-09T06:29:11.8710595Z","zoneId":"host-core-coordination","outcome":"hit"}
 {"at":"2026-09-09T06:34:50.6740443Z","zoneId":"host-core-coordination","outcome":"seed-only"}
 {"at":"2026-09-09T06:40:16.8520959Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
+{"at":"2026-09-09T06:45:00Z","zoneId":"ui-runs-list","outcome":"hit"}
+{"at":"2026-09-09T06:44:50.1984945Z","zoneId":"ui-runs-list","outcome":"hit"}

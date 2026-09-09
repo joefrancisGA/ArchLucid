@@ -1241,11 +1241,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1258,8 +1258,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Buyer featured cards (`showBuyerPackageCards`) rendered `RunsListBuyerFeaturedCard` without row activation while the docked inspector stayed visible — **hit 2026-09-08 seed hunt #1355:** card shell click/keyboard now routes through `activateBuyerFeaturedCard` with the same link/checkbox guards as the work-queue table; regression `buyer-polished: card layout opens inspector preview when the card shell is activated`.
 - [x] (proven) Escape on the filter search field cleared filter text but bubbled to the window inspector-close handler — **hit 2026-09-08 seed hunt #1355:** filter `onKeyDown` now calls `stopPropagation` when clearing on Escape; regression `Escape in the filter field clears the query without closing an open inspector`.
 - [x] (valid-no-repro) `runsListFilterOpen` URL-synced `<details>` branch — `buyerCollapseFilters` (`buyerPolished && totalCount <= 1`) matches the outer hide-filters gate, so the disclosure element is unreachable and deep links have no mount target in current UX.
+- [x] (invalid) Buyer featured card footer CTA Space/Enter bubbles to card-shell keyboard handler and opens the inspector — **cheap-disproof 2026-09-09 seed hunt #1427:** `shouldIgnoreRunsListRowActivation` already ignores `<a>` targets; Button `asChild` renders the explore Link as an anchor; regression `buyer-polished: Space on the featured card CTA does not open the inspector`.
+- [x] (proven) Space on the baseline menu `<summary>` bubbled to `activateRowKeyboard` and opened the inspector while toggling More — **hit 2026-09-09 seed hunt #1427:** extracted shared `shouldIgnoreRunsListRowActivation` (also ignores `button` and `summary`) for work-queue keyboard, buyer card shell, and `onRowActivate`; regression `does not open inspector when Space activates the baseline menu summary`.
 
 2026-09-08 seed hunt #1355 (hit): reseeded ui-runs-list; proved buyer card inspector activation gap and filter Escape inspector-dismiss leak; cheap-disproved runsListFilterOpen disclosure reachability; 16 scoped `RunsListClient` tests passed.
+
+2026-09-09 seed hunt #1427 (hit): reseeded ui-runs-list; cheap-disproved buyer card CTA keyboard double-activation; proved baseline menu summary Space opens inspector; 18 scoped `RunsListClient` tests passed.
 
 ---
 
