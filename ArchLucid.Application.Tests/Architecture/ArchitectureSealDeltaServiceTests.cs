@@ -121,7 +121,8 @@ public sealed class ArchitectureSealDeltaServiceTests
             manifestRepository.Object,
             draftRepository.Object,
             projector,
-            runRepository.Object);
+            runRepository.Object,
+            Mock.Of<IManifestHashService>());
 
         ArchitectureSealDeltaResponse? result = await sut.GetSealDeltaAsync(Scope, architectureId);
 
@@ -154,7 +155,8 @@ public sealed class ArchitectureSealDeltaServiceTests
             Mock.Of<IGoldenManifestRepository>(),
             Mock.Of<IDraftRequestRepository>(),
             new DraftRequestProjector(),
-            Mock.Of<IRunRepository>());
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IManifestHashService>());
 
         ArchitectureSealDeltaResponse? result = await sut.GetSealDeltaAsync(Scope, architectureId);
 

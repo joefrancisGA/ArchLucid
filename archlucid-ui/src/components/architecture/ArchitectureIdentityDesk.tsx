@@ -47,7 +47,13 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
   if (query.isError || identity === undefined) {
     return (
       <div className="space-y-3" data-testid="architecture-identity-desk-error">
-        <p className={OPERATOR_TYPOGRAPHY.body}>Could not load this architecture.</p>
+        {query.blockedReason !== null ? (
+          <p className={OPERATOR_TYPOGRAPHY.body} data-testid="architecture-identity-desk-blocked-reason">
+            {query.blockedReason}
+          </p>
+        ) : (
+          <p className={OPERATOR_TYPOGRAPHY.body}>Could not load this architecture.</p>
+        )}
         <Button type="button" variant="outline" size="sm" onClick={() => void query.refetch()}>
           Retry
         </Button>

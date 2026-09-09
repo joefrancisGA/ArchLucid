@@ -9,7 +9,7 @@ import {
 } from "@/lib/api/governance-stickiness-api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { governanceStickinessSummaryBlockedReason } from "@/lib/governance/governance-stickiness-summary-blocked-reason";
+import { reviewsAwaitingActionBlockedReason } from "@/lib/governance/governance-stickiness-register-blocked-reason";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
@@ -32,7 +32,7 @@ export function useGovernanceReviewsAwaitingActionQuery() {
   });
 
   const failure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
-  const blockedReason = governanceStickinessSummaryBlockedReason(failure);
+  const blockedReason = reviewsAwaitingActionBlockedReason(failure);
 
   return {
     items: query.data?.items ?? EMPTY_ITEMS,
