@@ -295,10 +295,10 @@ internal static class RunListQueryParameters
         Math.Clamp(take <= 0 ? fallbackWhenUnset : take, 1, MaxUnpagedTake);
 
     private static string NormalizeAuthorityProjectSlug(string authorityProjectSlug) =>
-        NormalizeProjectSlug(authorityProjectSlug);
+        RunRepositoryCore.NormalizeAuthorityProjectSlug(authorityProjectSlug);
 
     private static string NormalizeProjectSlug(string projectSlug) =>
-        projectSlug.Trim().ToUpperInvariant();
+        RunRepositoryCore.NormalizeAuthorityProjectSlug(projectSlug);
 
     private static string NormalizeArchitectureRequestId(string architectureRequestId) =>
         RunRepositoryCore.NormalizeArchitectureRequestId(architectureRequestId);
