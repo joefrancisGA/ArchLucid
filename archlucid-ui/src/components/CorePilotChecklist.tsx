@@ -32,7 +32,7 @@ import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-r
 
 import { isCorePilotStepOptional, corePilotStepStatusTag } from "@/lib/core-pilot-step-status";
 
-import { resolveCorePilotStepPresentation } from "@/lib/core-pilot-step-presentation";
+import { resolveCorePilotStepPresentation, CORE_PILOT_AZURE_INVENTORY_STEP_INDEX } from "@/lib/core-pilot-step-presentation";
 
 import { useCorePilotCommitPresentationContext } from "@/lib/use-core-pilot-commit-presentation-context";
 
@@ -291,7 +291,13 @@ export function CorePilotChecklist(props: CorePilotChecklistProps = {}) {
 
                     onClick={() => {
 
-                      writeCorePilotOptionalStepSkipped(index, true);
+                      writeCorePilotOptionalStepSkipped(
+                        index,
+                        true,
+                        index === CORE_PILOT_AZURE_INVENTORY_STEP_INDEX
+                          ? { runId: commitPresentationContext.latestRunId }
+                          : undefined,
+                      );
 
                     }}
 

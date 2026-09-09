@@ -10,6 +10,7 @@ import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPac
 import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDetailPreFinalizeGateHonestyStrip";
 import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
+import { FirstReviewAzureInventoryZipPromptStrip } from "@/components/reviews/FirstReviewAzureInventoryZipPromptStrip";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
 import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
@@ -21,6 +22,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-det
 export type RunDetailReviewPackageStampViewportProps = {
   readonly hasGoldenManifest: boolean;
   readonly runId: string;
+  readonly architectureRequestId?: string | null;
   readonly manifestVersion?: string | null;
   readonly suppressMeasurementDenominator?: boolean;
   readonly pipelineTerminalFailure?: boolean;
@@ -41,6 +43,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
   readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
   readonly pixelDiagramNotVerifiableSources?: readonly PixelDiagramNotVerifiableSource[];
+  readonly azureInventoryEvidencePresent?: boolean;
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
   readonly preCommitGateEnabled?: boolean | null;
@@ -141,6 +144,14 @@ export function RunDetailReviewPackageStampViewport(
           />
         </>
       ) : null}
+      <FirstReviewAzureInventoryZipPromptStrip
+        runId={props.runId}
+        architectureRequestId={props.architectureRequestId}
+        manifestFinalized={false}
+        azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
+        heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+        proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
+      />
       <RunDetailCareerArtifactHonestyStrip
         artifactKind="finalize"
         runId={props.runId}
