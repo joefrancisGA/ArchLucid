@@ -34,6 +34,7 @@ describe("product-line catalog", () => {
     expect(hrefs).not.toContain("/governance/infrastructure/drift");
     expect(hrefs).not.toContain("/governance/infrastructure/extract-upload");
     expect(hrefs).not.toContain("/governance/remediation-factory");
+    expect(hrefs).not.toContain("/governance/remediation-patterns");
     expect(hrefs).toContain("/administration/workspace-settings/recycle-bin");
     expect(hrefs).toContain("/integrations/azure-boards");
     expect(hrefs).toContain("/integrations/slack");
@@ -132,7 +133,9 @@ describe("product-line catalog", () => {
     ).toBe(false);
     expect(isPathAllowedForProductLine("/governance/infrastructure/extract-upload", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/governance/remediation-factory", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/governance/remediation-patterns", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/governance/remediation-factory", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/governance/remediation-patterns", "security")).toBe(true);
   });
 
   it("allows nested infrastructure resource hubs in the Security product", () => {

@@ -43,7 +43,7 @@ export const PRODUCT_LINE_NAV_ASSIGNMENTS: Readonly<Record<string, ProductLineAs
 
   // Operational-security factory (still parked under Approval nav today).
   "/governance/remediation-factory": "security",
-  "/governance/remediation-patterns": "both",
+  "/governance/remediation-patterns": "security",
   "/governance/audit-evidence": "both",
 
   // Inventory collection and outbound remediation bridges.
