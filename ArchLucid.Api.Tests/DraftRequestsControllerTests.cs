@@ -6,8 +6,12 @@ using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -52,7 +56,10 @@ public sealed class DraftRequestsControllerTests
             _service.Object,
             _reasoning.Object,
             _decisionReceipt.Object,
-            _audit.Object)
+            _audit.Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
