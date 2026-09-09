@@ -7,7 +7,9 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => evalChromeMock.enabled,
 }));
 
-import { ArchitectureCreatedEvidenceBuyerChrome } from "@/components/architecture/ArchitectureCreatedEvidenceBuyerChrome";
+import { ARCHITECTURE_CREATED_EVIDENCE_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/architecture/architecture-created-evidence-sources";
+
+import { ArchitectureCreatedEvidenceBuyerChrome } from "./ArchitectureCreatedEvidenceBuyerChrome";
 
 describe("ArchitectureCreatedEvidenceBuyerChrome", () => {
   it("renders Sources orientation in Guided eval chrome", () => {
@@ -15,7 +17,7 @@ describe("ArchitectureCreatedEvidenceBuyerChrome", () => {
 
     render(<ArchitectureCreatedEvidenceBuyerChrome />);
 
-    expect(screen.getByTestId("architecture-evidence-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId(ARCHITECTURE_CREATED_EVIDENCE_ORIENTATION_BOTTOM_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("architecture-evidence-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-evidence-claim-discipline")).not.toBeInTheDocument();
   });

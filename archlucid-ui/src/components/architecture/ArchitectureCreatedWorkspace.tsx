@@ -66,6 +66,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   ARCHITECTURE_CREATED_EVIDENCE_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_EVIDENCE_FIRST_VIEWPORT_TEST_ID,
+  ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW,
   ARCHITECTURE_CREATED_EVIDENCE_PAGE_LEAD,
   ARCHITECTURE_CREATED_EVIDENCE_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_EVIDENCE_SKIP_LINK_LABEL,
@@ -557,6 +558,12 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                     {ARCHITECTURE_CREATED_EVIDENCE_BUYER_START_HERE_HELPER}
                   </p>
                 </section>
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  data-testid="architecture-created-evidence-overview"
+                >
+                  {ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW}
+                </p>
               </div>
             ) : null}
             {buyerPolishedShell ? null : (
