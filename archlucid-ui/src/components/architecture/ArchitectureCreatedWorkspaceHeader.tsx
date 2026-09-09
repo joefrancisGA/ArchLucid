@@ -114,7 +114,7 @@ export function ArchitectureCreatedWorkspaceHeader(
         ) : null}
         {showFindingsClaimDiscipline ? (
           <p
-            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", HELP_PAGE_LAYOUT.readingBody)}
             data-testid={ARCHITECTURE_CREATED_FINDINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           >
             {ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE}
