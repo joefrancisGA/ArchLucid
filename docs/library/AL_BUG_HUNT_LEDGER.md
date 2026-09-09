@@ -121,9 +121,9 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-09-09
 - **last-bug:** 2026-08-23 — hunt #50: greenfield compliance declared endpoints but graph merge dropped dangling edges
 - **related-pd-tb:** none
@@ -153,6 +153,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-09 thorough hunt #1468 (dry): cheap-disproof closed warnings-only proposal and reference-oracle greenfield candidates; 403 scoped Application tests passed.
 
 2026-09-07 thorough hunt #1199 (dry): cheap-disproved three hunt-ready rows (controls-only gate drop, alias first-wins cross-agent conflict, claimed-service alias skip); 403 scoped tests passed; seeded warnings-only and reference-oracle greenfield candidates.
+
+- [x] (valid-no-repro) Duplicate identical `ManifestRelationship` rows map to multiple `GraphEdge` instances with the same `EdgeId` — **cheap-disproof 2026-09-09 seed hunt #1472:** `AgentTopologyProposalGraphMerge` dedupes via `seenDirectedEdgeKeys` on directed `(from,to,type)` before appending mapped edges.
+- [x] (valid-no-repro) `BuildEndpointResolutionIndex` `TryAdd` on `endpointAliases` lets a declared alias override an inventoried graph node resolution key — **cheap-disproof 2026-09-09 seed hunt #1472:** alias dictionary is merged after graph nodes; conflicting declared aliases fail `FilterValidatedProposals`; hunt #1199 closed cross-agent first-wins materialize path.
+
+2026-09-09 seed hunt #1472 (seed-only): reseeded topology-proposal-merge after #1468 dry; cheap-disproof closed duplicate-edge and alias-override candidates; 403 scoped topology merge tests passed.
 
 ---
 
