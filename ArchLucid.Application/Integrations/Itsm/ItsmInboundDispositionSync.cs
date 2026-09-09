@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Integrations.Itsm;
 
-/// <summary>Records finding dispositions from inbound ITSM webhooks when configured (TB-396).</summary>
+/// <summary>Records finding dispositions from inbound ITSM webhooks when configured (TB-396 / ADR 0076 CAS).</summary>
 public sealed class ItsmInboundDispositionSync(
     IFindingDispositionService dispositionService,
     ILogger<ItsmInboundDispositionSync> logger)
@@ -26,10 +26,15 @@ public sealed class ItsmInboundDispositionSync(
         FindingDisposition? mappedDisposition,
         string externalStatusLabel,
         string integrationActor,
+        string? currentDispositionRowVersionBase64,
+        FindingDisposition? inspectLatestDisposition,
         CancellationToken cancellationToken)
     {
         if (mappedDisposition is null)
             return ItsmInboundDispositionSyncResult.Skipped("disposition_unmapped");
+
+        if (inspectLatestDisposition == mappedDisposition)
+            return ItsmInboundDispositionSyncResult.Skipped("disposition_unchanged", mappedDisposition);
 
         ScopeContext scope = new()
         {
@@ -40,23 +45,27 @@ public sealed class ItsmInboundDispositionSync(
 
         try
         {
-            IReadOnlyList<FindingDispositionEventDto> history =
-                await _dispositionService
-                    .ListHistoryAsync(scope, row.FindingId, cancellationToken)
-                    .ConfigureAwait(false);
+            if (inspectLatestDisposition is null)
+            {
+                IReadOnlyList<FindingDispositionEventDto> history =
+                    await _dispositionService
+                        .ListHistoryAsync(scope, row.FindingId, cancellationToken)
+                        .ConfigureAwait(false);
 
-            FindingDispositionEventDto? latestEvent = history
-                .OrderByDescending(static e => e.OccurredAtUtc)
-                .FirstOrDefault();
+                FindingDispositionEventDto? latestEvent = history
+                    .OrderByDescending(static e => e.OccurredAtUtc)
+                    .FirstOrDefault();
 
-            if (latestEvent?.Disposition == mappedDisposition)
-                return ItsmInboundDispositionSyncResult.Skipped("disposition_unchanged", mappedDisposition);
+                if (latestEvent?.Disposition == mappedDisposition)
+                    return ItsmInboundDispositionSyncResult.Skipped("disposition_unchanged", mappedDisposition);
+            }
 
             RecordFindingDispositionRequest request = new()
             {
                 FindingId = row.FindingId,
                 Disposition = mappedDisposition.Value,
                 Rationale = $"{InboundSyncRationalePrefix}: external status '{externalStatusLabel.Trim()}'.",
+                ExpectedCurrentDispositionRowVersionBase64 = currentDispositionRowVersionBase64,
             };
 
             FindingDispositionEventDto recorded =
@@ -65,6 +74,17 @@ public sealed class ItsmInboundDispositionSync(
                     .ConfigureAwait(false);
 
             return ItsmInboundDispositionSyncResult.FromRecorded(recorded.Disposition, recorded.EventId);
+        }
+        catch (FindingDispositionConflictException ex)
+        {
+            _logger.LogWarning(
+                "ITSM inbound disposition sync conflict for tenant {TenantId} finding {FindingId}: current disposition {CurrentDisposition} held by {ReviewerUserId}.",
+                row.TenantId,
+                row.FindingId,
+                ex.CurrentDisposition.Disposition,
+                ex.CurrentDisposition.ReviewerUserId);
+
+            return ItsmInboundDispositionSyncResult.Conflict(mappedDisposition.Value, ex.CurrentDisposition);
         }
         catch (ArgumentException ex)
         {
@@ -95,11 +115,18 @@ public sealed record ItsmInboundDispositionSyncResult(
     bool WasRecorded,
     FindingDisposition? Disposition,
     Guid? DispositionEventId,
-    string? SkipReason)
+    string? SkipReason,
+    bool IsDispositionConflict,
+    FindingDispositionConflictDetail? ConflictDetail)
 {
     public static ItsmInboundDispositionSyncResult Skipped(string reason, FindingDisposition? disposition = null) =>
-        new(false, disposition, null, reason);
+        new(false, disposition, null, reason, false, null);
 
     public static ItsmInboundDispositionSyncResult FromRecorded(FindingDisposition disposition, Guid eventId) =>
-        new(true, disposition, eventId, null);
+        new(true, disposition, eventId, null, false, null);
+
+    public static ItsmInboundDispositionSyncResult Conflict(
+        FindingDisposition attemptedDisposition,
+        FindingDispositionConflictDetail conflictDetail) =>
+        new(false, attemptedDisposition, null, "disposition_conflict", true, conflictDetail);
 }

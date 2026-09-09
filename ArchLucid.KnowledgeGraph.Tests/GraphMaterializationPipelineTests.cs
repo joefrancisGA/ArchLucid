@@ -20,7 +20,7 @@ public sealed class GraphMaterializationPipelineTests
     [Fact]
     public void CreateDefaultPipeline_RegistersExpectedStageOrder()
     {
-        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new Mock<IGraphNodeFactory>().Object);
+        GraphMaterializationPipeline pipeline = GraphMaterializationTestHelpers.CreateDefaultPipeline(new Mock<IGraphNodeFactory>().Object);
 
         pipeline.Stages.Select(stage => stage.Name).Should().Equal(GraphMaterializationStages.DefaultStageOrder);
     }
@@ -41,13 +41,13 @@ public sealed class GraphMaterializationPipelineTests
 
         List<GraphNode> nodes = [CreateContextNode(snapshot)];
         GraphMaterializationContext context = new(snapshot, nodes);
-        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new Mock<IGraphNodeFactory>(MockBehavior.Strict).Object);
+        GraphMaterializationPipeline pipeline = GraphMaterializationTestHelpers.CreateDefaultPipeline(new Mock<IGraphNodeFactory>(MockBehavior.Strict).Object);
         GraphMaterializationPipelineOptions options = new() { StopAfterStageName = "request-actors" };
 
         GraphMaterializationRunResult result = await pipeline.RunAsync(context, CancellationToken.None, options);
 
-        result.StageOutcomes.Should().HaveCount(3);
-        result.StageOutcomes[2].StageName.Should().Be("request-actors");
+        result.StageOutcomes.Should().HaveCount(4);
+        result.StageOutcomes[3].StageName.Should().Be("request-actors");
         result.TotalElapsedMilliseconds.Should().BeGreaterThanOrEqualTo(0);
     }
 
@@ -67,7 +67,7 @@ public sealed class GraphMaterializationPipelineTests
 
         List<GraphNode> nodes = [CreateContextNode(snapshot)];
         GraphMaterializationContext context = new(snapshot, nodes);
-        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new Mock<IGraphNodeFactory>(MockBehavior.Strict).Object);
+        GraphMaterializationPipeline pipeline = GraphMaterializationTestHelpers.CreateDefaultPipeline(new Mock<IGraphNodeFactory>(MockBehavior.Strict).Object);
 
         await pipeline.RunAsync(context, CancellationToken.None);
 
@@ -101,7 +101,7 @@ public sealed class GraphMaterializationPipelineTests
 
         List<GraphNode> nodes = [CreateContextNode(snapshot)];
         GraphMaterializationContext context = new(snapshot, nodes);
-        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new GraphNodeFactory());
+        GraphMaterializationPipeline pipeline = GraphMaterializationTestHelpers.CreateDefaultPipeline(new GraphNodeFactory());
 
         await pipeline.RunAsync(context, CancellationToken.None);
 
@@ -118,7 +118,9 @@ public sealed class GraphMaterializationPipelineTests
             .Setup(e => e.InferEdges(It.IsAny<ContextSnapshot>(), It.IsAny<IReadOnlyList<GraphNode>>()))
             .Returns([]);
 
-        DefaultGraphBuilder sut = new(new Mock<IGraphNodeFactory>().Object, edgeInferer.Object);
+        DefaultGraphBuilder sut = GraphMaterializationTestHelpers.CreateDefaultGraphBuilder(
+            new Mock<IGraphNodeFactory>().Object,
+            edgeInferer.Object);
         ContextSnapshot snapshot = new()
         {
             SnapshotId = Guid.NewGuid(),

@@ -5,6 +5,11 @@ import {
   SLACK_INTEGRATION_HELP_SOURCES,
 } from "@/lib/slack-integration-help-evidence-copy";
 import {
+  SLACK_INTEGRATION_HELP_BUYER_OVERVIEW,
+  SLACK_INTEGRATION_HELP_PAGE_LEAD,
+  SLACK_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER,
+} from "@/lib/slack-integration-help-page-copy";
+import {
   SLACK_INTEGRATION_HELP_GUIDE_HEADINGS,
   SLACK_INTEGRATION_HELP_NEGATION_DRIFT_MARKERS,
   SLACK_INTEGRATION_HELP_OVERVIEW,
@@ -41,6 +46,13 @@ describe("slack integration help drift guard", () => {
 
   it("keeps overview distinct from the page subtitle", () => {
     expect(SLACK_INTEGRATION_HELP_OVERVIEW).not.toBe(SLACK_INTEGRATION_HELP_PAGE_SUBTITLE);
+  });
+
+  it("keeps buyer shell copy distinct from operator overview and subtitle", () => {
+    expect(SLACK_INTEGRATION_HELP_PAGE_LEAD).not.toBe(SLACK_INTEGRATION_HELP_OVERVIEW);
+    expect(SLACK_INTEGRATION_HELP_BUYER_OVERVIEW).not.toBe(SLACK_INTEGRATION_HELP_OVERVIEW);
+    expect(SLACK_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER).not.toBe(SLACK_INTEGRATION_HELP_PAGE_SUBTITLE);
+    expect(SLACK_INTEGRATION_HELP_PAGE_LEAD).not.toBe(SLACK_INTEGRATION_HELP_BUYER_OVERVIEW);
   });
 
   it("lists five guide headings so the topic rail renders at xl", () => {

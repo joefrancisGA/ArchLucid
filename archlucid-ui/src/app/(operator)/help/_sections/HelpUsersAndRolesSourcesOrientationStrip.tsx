@@ -1,23 +1,30 @@
-import {
-  EvidenceOrientationClaimAndSourcesStrip,
-} from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+"use client";
+
+import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
 import {
   USERS_AND_ROLES_HELP_FOLLOW_UPS_TITLE,
   USERS_AND_ROLES_HELP_SOURCES,
   USERS_AND_ROLES_HELP_SOURCES_INTRO,
 } from "@/lib/users-and-roles-help-evidence-copy";
+import { USERS_AND_ROLES_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/users-and-roles-help-page-copy";
+import {
+  helpUsersAndRolesSourcesDisclosureHrefFromSearch,
+  parseHelpUsersAndRolesSourcesOpenFromSearch,
+} from "@/lib/help/help-users-and-roles-sources-disclosure-url";
 
-/** Sources-only follow-ups for `/help/users-and-roles` buyer-polished shell (HOE). */
+/** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open. */
 export function HelpUsersAndRolesSourcesOrientationStrip(): React.JSX.Element {
   return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="users-and-roles-help"
+    <UrlSyncedSourcesCollapsibleStrip
+      surfaceId="help-users-and-roles-sources"
+      searchParamKey="helpUsersAndRolesSourcesOpen"
+      parseOpenFromSearch={parseHelpUsersAndRolesSourcesOpenFromSearch}
+      disclosureHrefFromSearch={helpUsersAndRolesSourcesDisclosureHrefFromSearch}
+      sectionTestId={USERS_AND_ROLES_HELP_ORIENTATION_BOTTOM_TEST_ID}
+      title={USERS_AND_ROLES_HELP_FOLLOW_UPS_TITLE}
+      intro={USERS_AND_ROLES_HELP_SOURCES_INTRO}
+      links={USERS_AND_ROLES_HELP_SOURCES}
       sourcesTestId="help-users-and-roles-sources"
-      sourcesTitle={USERS_AND_ROLES_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={USERS_AND_ROLES_HELP_SOURCES_INTRO}
-      sources={USERS_AND_ROLES_HELP_SOURCES}
-      sourcesHeadingId="where-to-go-next"
-      hubSecondary
     />
   );
 }

@@ -56,6 +56,19 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/insights/evidence-graph")).toBeNull();
   });
 
+  it("routeViewExplanationForPathname covers ask and reviews hub (instrument primer)", () => {
+    expect(routeViewExplanationForPathname("/insights/ask-review-questions")?.title).toBe("Ask review questions");
+    expect(routeViewExplanationForPathname("/architecture/reviews")?.title).toBe("Reviews");
+    expect(routeViewExplanationForPathname("/architecture/reviews/run-1")).toBeNull();
+    expect(routeViewExplanationForPathname("/insights/search-review-evidence")?.title).toBe("Search review evidence");
+    expect(routeViewExplanationForPathname("/insights/patterns")?.title).toBe("Pattern library");
+    expect(routeViewExplanationForPathname("/help")?.title).toBe("Help");
+    expect(routeViewExplanationForPathname("/administration/security-trust")?.title).toBe("Security & trust");
+    expect(routeViewExplanationForPathname("/integrations/cloud-connections")?.title).toBe("Cloud connections");
+    expect(routeViewExplanationForPathname("/architecture/first-review-guide")?.title).toBe("First review guide");
+    expect(routeViewExplanationForPathname("/insights/sponsor-report")?.title).toBe("Sponsor report");
+  });
+
   it("routeViewExplanationForPathname covers alerts hubs (TB-2216)", () => {
     expect(routeViewExplanationForPathname("/governance/alerts")?.title).toBe("Alerts");
     expect(routeViewExplanationForPathname("/alerts")?.title).toBe("Alerts");
@@ -65,7 +78,7 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/governance")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/policy-packs")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/standards-and-rules")).toBeNull();
-    // Risk exceptions own layer guidance plus the governance approval banner, so no shell banner.
+    // Risk exceptions own layer guidance plus the approval banner, so no shell banner.
     expect(routeViewExplanationForPathname("/governance/exceptions")).toBeNull();
     expect(routeViewExplanationForPathname("/governance/findings")).toBeNull();
   });

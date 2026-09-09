@@ -2,6 +2,8 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
+
 import {
 
   AUTHENTICATION_SIGN_IN_HELP_SSO_SETUP_LINK,
@@ -46,6 +48,10 @@ export const AUTHENTICATION_SIGN_IN_HELP_CLAIM_HEADING_ID =
 export const AUTHENTICATION_SIGN_IN_HELP_SOURCES_INTRO =
 
   "Use these follow-ups when sign-in vocabulary turns into roles, SSO setup, or identity provider configuration.";
+
+export const AUTHENTICATION_SIGN_IN_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "sign-in vocabulary turns into roles, SSO setup, or identity provider configuration",
+);
 
 
 

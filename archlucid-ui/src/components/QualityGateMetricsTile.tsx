@@ -10,6 +10,7 @@ import {
   dispositionLabel,
   type OperatorAiQualitySnapshotDisposition,
 } from "@/lib/operator/operator-ai-quality-snapshot";
+import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 function formatMetric(value: number | null | undefined, digits: number): string {
   if (value === null || value === undefined || !Number.isFinite(value)) {
@@ -19,10 +20,14 @@ function formatMetric(value: number | null | undefined, digits: number): string 
   return value.toFixed(digits);
 }
 
-function dispositionStatusKind(disposition: OperatorAiQualitySnapshotDisposition): EnterpriseStatusKind {
+function resolveQualityGateStatusKind(
+  disposition: OperatorAiQualitySnapshotDisposition,
+  surface: QualityGateMetricsTileProps["surface"],
+): EnterpriseStatusKind {
   switch (disposition) {
     case "PASS":
-      return "ready";
+      // FC-46: sponsor dashboard must not map offline retrieval PASS to workflow Ready.
+      return surface === "sponsor" ? "neutral" : "ready";
     case "WARN":
       return "needs-attention";
     case "NOT_GENERATED":
@@ -54,9 +59,17 @@ export function QualityGateMetricsTile({ surface = "operator" }: QualityGateMetr
             {executiveSurface ? "Evidence retrieval quality" : "AI quality metrics"}
           </h2>
           {snapshot !== null && snapshot !== undefined ? (
-            <StatusTag kind={dispositionStatusKind(snapshot.disposition)} label={dispositionLabel(snapshot.disposition)} />
+            <StatusTag
+              kind={resolveQualityGateStatusKind(snapshot.disposition, surface)}
+              label={dispositionLabel(snapshot.disposition)}
+            />
           ) : null}
         </div>
+        {executiveSurface ? (
+          <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            {BUYER_SPONSOR_SUMMARY_VOCABULARY.sqlBackupRegionVerificationMetric.platformScopeNote}
+          </p>
+        ) : null}
       </CardHeader>
       <CardContent className={cn("grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <div>

@@ -3,8 +3,14 @@ import {
   type DeskContinuityDto,
 } from "@/lib/api/user-preferences-types";
 import { readCachedUserPreferencesForMutators, setUserDeskContinuity } from "@/lib/api/user-preferences";
+import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
+import {
+  ARCHITECTURE_DRAFT_QUERY_PARAM,
+  REVIEWS_LIST_PATH,
+} from "@/lib/architecture/architecture-routes";
 
 export type DeskContinuityPatch = {
+  readonly lastOpenArchitectureId?: string | null;
   readonly lastOpenReviewId?: string | null;
   readonly lastOpenDraftId?: string | null;
   readonly lastVisitWatermarkUtc?: string | null;
@@ -21,6 +27,10 @@ export function mergeDeskContinuity(
   patch: DeskContinuityPatch,
 ): DeskContinuityDto {
   return {
+    lastOpenArchitectureId:
+      patch.lastOpenArchitectureId !== undefined
+        ? normalizeOptionalId(patch.lastOpenArchitectureId)
+        : normalizeOptionalId(current.lastOpenArchitectureId),
     lastOpenReviewId:
       patch.lastOpenReviewId !== undefined
         ? normalizeOptionalId(patch.lastOpenReviewId)
@@ -33,6 +43,29 @@ export function mergeDeskContinuity(
       patch.lastVisitWatermarkUtc !== undefined
         ? normalizeOptionalId(patch.lastVisitWatermarkUtc)
         : normalizeOptionalId(current.lastVisitWatermarkUtc),
+  };
+}
+
+/** Read-model backfill when legacy prefs stored only a review id (AO-48). */
+export function applyReadBackfillDeskContinuity(
+  continuity: DeskContinuityDto,
+  architectureIdFromReviewLookup: string | null | undefined,
+): DeskContinuityDto {
+  const existingArchitectureId = normalizeOptionalId(continuity.lastOpenArchitectureId);
+
+  if (existingArchitectureId !== null) {
+    return continuity;
+  }
+
+  const backfilledArchitectureId = normalizeOptionalId(architectureIdFromReviewLookup);
+
+  if (backfilledArchitectureId === null) {
+    return continuity;
+  }
+
+  return {
+    ...continuity,
+    lastOpenArchitectureId: backfilledArchitectureId,
   };
 }
 
@@ -55,7 +88,13 @@ export async function persistDeskContinuityPatch(patch: DeskContinuityPatch): Pr
 
 export function extractReviewIdFromPathname(pathname: string): string | null {
   const path = pathname.split("?")[0] ?? "";
-  const match = /^\/architecture\/reviews\/([^/]+)$/u.exec(path);
+  const nestedRoute = parseArchitectureNestedRoute(path);
+
+  if (nestedRoute?.childKind === "reviews" && nestedRoute.childId !== undefined) {
+    return nestedRoute.childId;
+  }
+
+  const match = new RegExp(`^${REVIEWS_LIST_PATH}/([^/]+)$`, "u").exec(path);
 
   if (match === null) {
     return null;
@@ -68,24 +107,28 @@ export function extractReviewIdFromPathname(pathname: string): string | null {
 
 export function extractArchitectureDraftIdFromPathname(pathname: string): string | null {
   const path = pathname.split("?")[0] ?? "";
-  const prefix = "/architecture/architectures/";
+  const nestedRoute = parseArchitectureNestedRoute(path);
 
-  if (!path.startsWith(prefix)) {
-    return null;
+  if (nestedRoute?.childKind === "drafts" && nestedRoute.childId !== undefined) {
+    return nestedRoute.childId;
   }
 
-  const remainder = path.slice(prefix.length).trim();
-
-  if (remainder.length === 0 || remainder === "new") {
-    return null;
+  if (nestedRoute?.childKind === undefined && nestedRoute !== null) {
+    return nestedRoute.architectureId;
   }
 
-  return remainder;
+  return null;
 }
 
 const LAST_OPEN_ARCHITECTURE_ID_STORAGE_KEY = "archlucid.lastOpenArchitectureId.v1";
 
 export function readCachedLastOpenArchitectureId(): string | null {
+  const fromDeskContinuity = normalizeOptionalId(readCachedDeskContinuity().lastOpenArchitectureId);
+
+  if (fromDeskContinuity !== null) {
+    return fromDeskContinuity;
+  }
+
   if (typeof window === "undefined") {
     return null;
   }
@@ -118,22 +161,29 @@ export function writeCachedLastOpenArchitectureId(architectureId: string | null)
   }
 }
 
-/** Identity desk segment when pathname is `/architecture/architectures/{architectureId}` without `?draft=`. */
+/** Identity desk segment and nested architecture jobs (ADR 0077 / AO-16). */
 export function extractArchitectureIdentityIdFromPathname(
   pathname: string,
   search: string,
 ): string | null {
-  const segment = extractArchitectureDraftIdFromPathname(pathname);
+  const path = pathname.split("?")[0] ?? "";
+  const nestedRoute = parseArchitectureNestedRoute(path);
 
-  if (segment === null) {
-    return null;
+  if (nestedRoute !== null) {
+    if (nestedRoute.childKind !== undefined) {
+      return nestedRoute.architectureId;
+    }
+
+    const draftFromQuery = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get(
+      ARCHITECTURE_DRAFT_QUERY_PARAM,
+    )?.trim() ?? "";
+
+    if (draftFromQuery.length > 0) {
+      return null;
+    }
+
+    return nestedRoute.architectureId;
   }
 
-  const draftFromQuery = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get("draft")?.trim() ?? "";
-
-  if (draftFromQuery.length > 0) {
-    return null;
-  }
-
-  return segment;
+  return null;
 }

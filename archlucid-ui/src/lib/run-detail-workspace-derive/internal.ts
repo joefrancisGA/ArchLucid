@@ -49,7 +49,7 @@ const PRODUCT_BRAND_NAME = "ArchLucid";
 
 
 
-export function runAnalysisComplete(run: RunDetail["run"]): boolean {
+export function runAnalysisComplete(run: RunDetail["run"] | RunSummary): boolean {
   const completedUtc = run.completedUtc?.trim() ?? "";
 
   if (completedUtc.length > 0) {

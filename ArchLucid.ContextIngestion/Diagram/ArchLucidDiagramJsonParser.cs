@@ -42,6 +42,13 @@ public sealed class ArchLucidDiagramJsonParser : IDiagramSourceParser
                 return new DiagramParseResult { Warnings = warnings };
             }
 
+            if (!ArchitectureDiagramModelValidator.TryValidate(model, out string? validationFailure))
+            {
+                warnings.Add(validationFailure ?? "Structured diagram model validation failed.");
+
+                return new DiagramParseResult { Warnings = warnings };
+            }
+
             return new DiagramParseResult { Model = model, Warnings = warnings };
         }
         catch (JsonException ex)

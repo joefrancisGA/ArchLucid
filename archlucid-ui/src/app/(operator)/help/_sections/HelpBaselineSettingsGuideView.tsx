@@ -35,11 +35,15 @@ import {
   BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/baseline-settings-help-evidence-copy";
 import {
+  BASELINE_SETTINGS_HELP_BUYER_OVERVIEW,
   BASELINE_SETTINGS_HELP_FIRST_VIEWPORT_TEST_ID,
   BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  BASELINE_SETTINGS_HELP_PAGE_LEAD,
+  BASELINE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER,
   BASELINE_SETTINGS_HELP_PRIMARY_CONTENT_ID,
   BASELINE_SETTINGS_HELP_SKIP_LINK_LABEL,
   BASELINE_SETTINGS_HELP_SKIP_TARGET_ID,
+  BASELINE_SETTINGS_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/baseline-settings-help-page-copy";
 import { BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER } from "@/lib/baseline-settings-present";
 import {
@@ -103,6 +107,10 @@ function BaselineSettingsStartHerePanel(props: { readonly buyerPolishedShell: bo
   );
 }
 
+function baselineSettingsHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? BASELINE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER : BASELINE_SETTINGS_HELP_PAGE_SUBTITLE;
+}
+
 /** Operator baseline settings orientation for `/help/baseline-settings`. */
 export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideViewProps): React.ReactElement {
   const { entry } = props;
@@ -151,13 +159,13 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
           <HelpTopicGuidePageHeader
             title={BASELINE_SETTINGS_HELP_PAGE_TITLE}
             titleTestId="help-baseline-settings-page-title"
-            subtitle={BASELINE_SETTINGS_HELP_PAGE_SUBTITLE}
+            subtitle={baselineSettingsHelpPageSubtitle(buyerPolishedShell)}
+            subtitleClassName={cn("max-w-3xl", HELP_PAGE_LAYOUT.readingBody)}
             navHref={BASELINE_SETTINGS_HELP_CANONICAL_PATH}
             headingLevel="h1"
             claimDiscipline={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE}
             claimDisciplineTestId={BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
             metadata={buyerHeaderMetadata}
-            actions={<HelpBaselineSettingsHeaderActions />}
           />
         ) : (
           <HelpTopicGuidePageHeader
@@ -178,19 +186,31 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
             id={BASELINE_SETTINGS_HELP_SKIP_TARGET_ID}
             data-testid={BASELINE_SETTINGS_HELP_FIRST_VIEWPORT_TEST_ID}
             className={cn(
-              "scroll-mt-24 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="help-baseline-settings-buyer-intro">
+              <p className={readingBodyClass} data-testid="help-baseline-settings-intro">
+                {BASELINE_SETTINGS_HELP_PAGE_LEAD}
+              </p>
+            </div>
             <BaselineSettingsStartHerePanel buyerPolishedShell={buyerPolishedShell} />
-            <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
-              {BASELINE_SETTINGS_HELP_OVERVIEW}
-            </p>
           </div>
         ) : null}
 
-        <div className={contentGridClass}>
-          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+        {buyerPolishedShell ? (
+          <p className={readingBodyClass} data-testid="help-baseline-settings-overview">
+            {BASELINE_SETTINGS_HELP_BUYER_OVERVIEW}
+          </p>
+        ) : null}
+
+        <section
+          className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+          data-testid={buyerPolishedShell ? BASELINE_SETTINGS_HELP_WORKSPACE_TEST_ID : undefined}
+        >
+          <div className={buyerPolishedShell ? "min-w-0 space-y-4" : contentGridClass}>
+            <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? (
               <BaselineSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             ) : null}
@@ -261,14 +281,11 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={tocHeadings} />
-        </div>
-
-        {buyerPolishedShell ? (
-          <div data-testid="help-baseline-settings-orientation-bottom">
-            <HelpBaselineSettingsSourcesOrientationStrip />
+          {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}
           </div>
-        ) : null}
+        </section>
+
+        {buyerPolishedShell ? <HelpBaselineSettingsSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

@@ -5,6 +5,7 @@ export type DraftRequestDocument = {
   freeTextIntent: string;
   systemName?: string;
   businessOutcome?: string;
+  openQuestions?: string;
   actorSet: ActorSet;
   parentDraftId?: string;
   questionAnswers?: Record<string, string>;

@@ -1,4 +1,5 @@
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
@@ -15,9 +16,14 @@ export const CLOUD_PROVIDER_CONNECTION_PATHS: Record<CloudProviderConnectionKey,
 export const CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE =
   "Cloud provider connection pages configure read-only federated inventory collection — not a full audit export. Open Cloud connections or Connection status for connector health.";
 
+export const CLOUD_PROVIDER_CONNECTION_FOLLOW_UPS_TITLE = "Where to go next" as const;
+
 export const CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO =
   "Use these follow-ups when federation setup, connection health, or provider help needs attention before treating inventory as authoritative.";
 
+export const CLOUD_PROVIDER_CONNECTION_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "federation setup turns into connection health, provider help, or cloud connections hub",
+);
 
 const PROVIDER_HELP_SLUG: Record<CloudProviderConnectionKey, string> = {
   aws: "cloud-connections-aws",

@@ -11,7 +11,7 @@ import {
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import type { FindingConfidenceLevel } from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
@@ -161,7 +161,7 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
 
   if (evidenceCount === 0) {
     if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(payload.findingId)) {
-      if (isBuyerPolishedOperatorShellEnv()) {
+      if (resolveProductionEvalChromeFromStorage()) {
         if (ruleLabel !== null && ruleLabel.trim().length > 0) {
           return `Evidence linked to ${ruleLabel} — see evidence trail and finalized review record.`;
         }
@@ -205,7 +205,7 @@ export function fallbackStatus(payload: FindingInspectPayload | null, findingId:
     const status = findingInspectPrimaryLabels(payload).statusLabel;
 
     if (status !== null && status.trim().length > 0) {
-      if (isBuyerPolishedOperatorShellEnv() && status.toLowerCase() === "triaged") {
+      if (resolveProductionEvalChromeFromStorage() && status.toLowerCase() === "triaged") {
         return "Accepted with monitoring";
       }
 
@@ -228,7 +228,7 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
   if (payload !== null) {
     const severity = findingInspectPrimaryLabels(payload).severityLabel;
 
-    if (isBuyerPolishedOperatorShellEnv()) {
+    if (resolveProductionEvalChromeFromStorage()) {
       return buyerFindingSeverityDisplayLabel(severity, payload.findingId ?? findingId);
     }
 
@@ -242,7 +242,7 @@ export function fallbackSeverity(payload: FindingInspectPayload | null, findingI
   }
 
   if (isPhiMinimizationFindingId(findingId)) {
-    return isBuyerPolishedOperatorShellEnv() ? "High" : "High severity";
+    return resolveProductionEvalChromeFromStorage() ? "High" : "High severity";
   }
 
   return "Severity pending";
@@ -324,7 +324,7 @@ export function validationRequirement(payload: FindingInspectPayload | null, fin
     return phiMinimizationApprovalNarrative();
   }
 
-  if (isBuyerPolishedOperatorShellEnv()) {
+  if (resolveProductionEvalChromeFromStorage()) {
     return "Recorded in the approval workflow with evidence trail linkage.";
   }
 
@@ -333,7 +333,7 @@ export function validationRequirement(payload: FindingInspectPayload | null, fin
 
 /** Buyer-polished fallback when inspect payload has not loaded yet. */
 export function findingDetailLeadFallback(findingId: string): string {
-  if (isPhiMinimizationFindingId(findingId) && isBuyerPolishedOperatorShellEnv()) {
+  if (isPhiMinimizationFindingId(findingId) && resolveProductionEvalChromeFromStorage()) {
     return "Residual risk record for the finalized Claims Intake review.";
   }
 

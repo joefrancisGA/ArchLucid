@@ -17,7 +17,7 @@ public static class GraphSnapshotPagination
         int total = allNodes.Count;
         int skip = PaginationDefaults.ToSkip(safePage, safeSize);
         List<GraphNode> slice = allNodes.Skip(skip).Take(safeSize).ToList();
-        HashSet<string> ids = slice.Select(static n => n.NodeId).ToHashSet(StringComparer.Ordinal);
+        HashSet<string> ids = slice.Select(static n => n.NodeId).ToHashSet(StringComparer.OrdinalIgnoreCase);
         List<GraphEdge> edges = snapshot.Edges
             .Where(e => ids.Contains(e.FromNodeId) && ids.Contains(e.ToNodeId))
             .ToList();

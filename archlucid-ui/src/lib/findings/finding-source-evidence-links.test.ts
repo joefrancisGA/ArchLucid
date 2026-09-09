@@ -50,6 +50,20 @@ describe("finding-source-evidence-links", () => {
     expect(link?.href).toContain(`/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}#manifest-decisions`);
   });
 
+  it("parses diagram evidence refs into diagram shape links", () => {
+    const link = parseEvidenceRefToSourceLink("diagram:evidence-mermaid-1:api", {
+      runId: "run-1",
+      findingId: "finding-1",
+    });
+
+    expect(link?.kind).toBe("diagramShape");
+    expect(link?.diagramCitation).toEqual({
+      evidenceItemId: "evidence-mermaid-1",
+      shapeOrEdgeId: "api",
+    });
+    expect(link?.label).toBe("Open diagram shape api");
+  });
+
   it("buildSourceEvidenceLinksFromInspectEvidence honors artifact section anchors", () => {
     const link = buildSourceEvidenceLinksFromInspectEvidence(
       { runId: "run-other", findingId: "finding-x" },

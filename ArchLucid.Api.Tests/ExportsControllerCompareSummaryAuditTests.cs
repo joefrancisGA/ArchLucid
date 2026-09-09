@@ -8,9 +8,11 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -79,6 +81,7 @@ public sealed class ExportsControllerCompareSummaryAuditTests
             leftId,
             rightId,
             new PersistComparisonRequest { Persist = true },
+            runExports.Object,
             CancellationToken.None);
 
         result.Should().BeOfType<OkObjectResult>();
@@ -139,6 +142,7 @@ public sealed class ExportsControllerCompareSummaryAuditTests
             leftId,
             rightId,
             new PersistComparisonRequest { Persist = false },
+            runExports.Object,
             CancellationToken.None);
 
         result.Should().BeOfType<OkObjectResult>();
@@ -153,17 +157,33 @@ public sealed class ExportsControllerCompareSummaryAuditTests
         IComparisonAuditService comparisonAudit,
         IExportRecordDiffService diffService,
         IExportRecordDiffSummaryFormatter formatter,
-        IAuditService audit) =>
-        new(new RunExportQueryFacade(
-            runDetails,
-            runExports,
-            comparisonAudit,
-            Mock.Of<IExportReplayService>(),
-            diffService,
-            formatter,
-            audit,
-            Mock.Of<IRunExportLineageVerifier>(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
-            Mock.Of<IScopeContextProvider>()));
+        IAuditService audit)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        IAuthorityQueryService authorityQuery = SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun();
+        IManifestHashService manifestHashService = SealedManifestHashTestSupport.CreateManifestHashService();
+        Mock<IRunExportLineageVerifier> lineageVerifier = new();
+        lineageVerifier
+            .Setup(v => v.VerifyAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportLineageVerificationResult { Status = RunExportLineageVerificationStatus.Match });
+
+        return new ExportsController(
+            new RunExportQueryFacade(
+                runDetails,
+                runExports,
+                comparisonAudit,
+                Mock.Of<IExportReplayService>(),
+                diffService,
+                formatter,
+                audit,
+                lineageVerifier.Object,
+                authorityQuery,
+                manifestHashService,
+                scopeProvider.Object),
+            authorityQuery,
+            scopeProvider.Object,
+            manifestHashService);
+    }
 }

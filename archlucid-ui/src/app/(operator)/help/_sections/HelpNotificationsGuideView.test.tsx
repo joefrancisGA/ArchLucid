@@ -124,5 +124,9 @@ describe("HelpNotificationsGuideView", () => {
     )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
+
+    expect(
+      screen.queryAllByRole("link", { name: NOTIFICATIONS_HELP_CLAIM_DISCIPLINE_HEADING }),
+    ).toHaveLength(0);
   });
 });

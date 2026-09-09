@@ -179,7 +179,7 @@ function HelpAlertsGuideBody(props: { readonly readingBodyClass: string }): Reac
   );
 }
 
-/** Buyer-safe governance alerts orientation for `/help/alerts`. */
+/** Buyer-safe approval alerts orientation for `/help/alerts`. */
 export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -259,11 +259,7 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
           <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy={!buyerPolishedShell} />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-alerts-orientation-bottom">
-            <HelpAlertsSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpAlertsSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

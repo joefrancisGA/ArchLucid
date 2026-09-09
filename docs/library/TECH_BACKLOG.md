@@ -1949,7 +1949,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-882 | ~~Automated nav-authority/label-consistency guard — CI check that `NavLinkItem.requiredAuthority` matches controller primary GET policy; heading/label snapshot tests~~ **Done 2026-08-23** — `scripts/ci/check_nav_authority_controller_parity.py` + manifest/exemptions; Vitest `nav-authority-controller-parity.test.ts`; see `## TB-882` below | Correctness P2 ? **V1** | M |
 | TB-883 | RAG-V2 live-model Graph-RAG ablation signal ? capture optional `retrievalHits` on `*.real.json` exemplars; Phase B faithfulness script reports Graph-RAG ? vs all-on by filtering `KnowledgeGraphNodeNeighbor`; see `## TB-883` below | AI/Agent readiness P2 ? **V1**; **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); revisit after G-REAL-06 | M |
 | TB-884 | ~~Policy-pack attribution signal ? read-side `% of findings attributable to assigned policy-pack rules` over `RulesApplied` + pack rule sets; CI/script summary~~ **Done 2026-08-24** ? `PolicyPackAttributionSignalCalculator` + `scripts/ci/policy_pack_attribution_signal.py`; eval-corpus fixtures; see `## TB-884` below | Differentiability P2 ? **V1** | M |
-| TB-885 | Policy-pack compounding-evidence ledger ? dry-run older vs newer pack versions against same historical run; JSON+MD ledger of incremental catches; see `## TB-885` below | Differentiability P2 ? **V1**; **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); revisit after G-REAL-06 | L |
+| TB-885 | Policy-pack compounding-evidence ledger — dry-run older vs newer pack versions against same historical run; JSON+MD ledger of incremental catches; see `## TB-885` below | Differentiability P2 — **Done** (2026-09-07, DX-18) | L |
 | TB-886 | Surface tamper-evident manifest-verify endpoint in buyer-facing material ? demo/script for `GET /v1/artifacts/runs/{runId}/export/verify` (TB-307); ADR 0040 application-layer hash lineage (not WORM); see `## TB-886` below | Differentiability P3 ? **V1** (docs); **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); low-cost enough for pilot packet if owner wants sooner | S |
 | TB-686 | **Done** (2026-08-17) â€” structure-aware retrieval chunking behind `Retrieval:Chunking:Strategy=Semantic`; `StructureAwareTextChunker` + fingerprint wiring; default Simple pending TB-595 ablation lift; see `## TB-686` below | Cutting-edge AI P2 ? **V1**; owner promoted from V2 2026-07-19; IR ~98% so ship gated behind TB-595 ablation; found during AI quality/cost/speed review 2026-07-07 | L |
 | TB-560 | ~~Dynamic-import `CommandPalette` from operator shell top bar ??? defer `cmdk` + ~617-line palette chunk until shortcut/open; `next/dynamic({ ssr: false })` + loading placeholder~~ ? **Done** (2026-07-03) | Performance P1 ? **V1.1** | S |
@@ -23738,28 +23738,23 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 ---
 
-## TB-885 ? Policy-pack compounding-evidence ledger (P2)
+## TB-885 — Policy-pack compounding-evidence ledger (P2)
 
-**Window:** V1 ? **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3). Revisit after G-REAL-06. Not Cursor-shippable while held.
+**Window:** V1 — **Done** (2026-09-07, DX-18).
 
-**Why:** `IPolicyPackChangeLogRepository` has append-only version history, but nothing diffs older vs newer pack versions against a historical run to show incremental catches ? "compounds over time" remains narrative.
+**Why:** `IPolicyPackChangeLogRepository` has append-only version history, but nothing diffs older vs newer pack versions against a historical run to show incremental catches — "compounds over time" remains narrative.
 
-**Approach:**
+**Shipped:**
 
-1. Reuse dry-run evaluation (`POST .../policy-packs/{id}/dry-run`) for older (change-log) vs current pack version against the same historical run id.
-2. Emit JSON+MD ledger: rule-set delta, findings newer catches that older missed, gate-outcome change.
-3. Script-driven (`policy_pack_compounding_evidence_ledger.py` / `.ps1`); no cron required.
+1. `PolicyPackCompoundingEvidenceLedgerBuilder` + change-log version pair selector dry-runs older vs newer pack content on one historical run via `PolicyPackGovernanceDryRunService` and `PolicyPackBeforeAfterDiffComposer`.
+2. JSON+MD ledger under `docs/quality/policy-pack-compounding-evidence-ledger.{json,md}`; fixture `tests/fixtures/policy-compounding-ledger/compounding-ledger-fixture.json`.
+3. Script-driven CI guard: `scripts/ci/write_policy_pack_compounding_evidence_ledger.py`, `check_policy_pack_compounding_evidence_ledger.py`.
 
-**Acceptance:**
+**Acceptance (met):**
 
-- At least one pack with 2+ versions + one historical run produces a concrete ledger (empty incremental catch is valid).
+- One pack with 2+ versions + one historical run produces a concrete ledger (`PolicyPackCompoundingEvidenceLedgerTests`).
 - Cites finding/rule ids; no mutation of packs, assignments, or findings snapshots.
-
-**Affected files:** ledger generator + tests; optional change-log query extension; CI/demo script.
-
-**Refs:** `IPolicyPackChangeLogRepository`, `POLICY_PACK_DELTA_DEMO_SCRIPT.md` Phase C, `LATEST_GPT55.md` ?13/?17.
-
-**Size estimate:** L.
+- claimBoundary: internal differentiability instrument — not a buyer compounding rate.
 
 ---
 
@@ -25079,7 +25074,7 @@ Adoption friction P0 (**TB-926**): refine ONLY `/digests?tab=subscriptions` into
 6. Permissions: `useOperateCapability`, nav `requiredAuthority`, controller `[Authorize]` policies for alert-rule mutations.
 7. Sample/demo/static mode: whether `/governance/alert-rules` is reachable without sign-in; expected read-only posture (`demo-ui-env`, operator shell gates, `OperatorRoleGate`).
 8. Internal operations nav: `showSystemAdministrationNav`, `operator-system-admin-nav-group-builder.ts`, direct URL authorization tests.
-9. Existing tests: `AlertRulesContent` tests, `operate-authority-ui-shaping.test.tsx`, Playwright accessibility/live-api specs touching alerts.
+9. Existing tests: `AlertRulesContent` tests, `operate-authority-ui-shaping-*.test.tsx` shards (`hub`, `alerts-inbox`, `alerts-rules`, `governance`, `policy-packs`), Playwright accessibility/live-api specs touching alerts.
 
 **Approach (16 themes):**
 
@@ -47105,21 +47100,32 @@ Operators must read three intros before reaching the Trust Center link list.
 
 ---
 
-## TB-2033 ? Finding verification loop ? data model + linked artifact (P2)
+## TB-2033 — Finding verification loop — data model + linked artifact (P2)
 
-**Window:** V1.1 ? Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
+**Window:** V1.1 — Proof-of-prediction ([ADR 0062](../architecture/adrs/0062-finding-verification-loop.md)).
 
-**Status:** Open.
+**Status:** **Done** (2026-09-07, DX-19 slice 1).
 
-**Source:** Principal-architect "proof of what?" critique (2026-08-03); ADR 0062 Proposed.
+**Source:** Principal-architect "proof of what?" critique (2026-08-03); ADR 0062 Accepted 2026-09-07.
 
 **Why:** Verification results must attach to sealed packages without mutating them (ADR 0039/0045 immutability is load-bearing). A dedicated append-only report artifact with its own hash and audit events is the prerequisite for every later slice.
 
-**Scope:** `FindingVerificationReports` + `FindingVerificationResults` tables (per-tenant catalogs, single-DDL-file convention), `IFindingVerificationReportRepository` (Dapper), new typed `AuditEventTypes` constants (`FindingVerificationStarted`, `FindingVerificationCompleted`) with CI count guard update, architecture test asserting verification writes never touch `GoldenManifest` rows.
+**Shipped:**
 
-**Depends on:** ADR 0062 owner ratification.
+1. `FindingVerificationReports` + `FindingVerificationResults` tables (migration **373** + `ArchLucid.sql`).
+2. `IAppendOnlyFindingVerificationReportRepository` (SQL + in-memory), `IFindingVerificationService`, `FindingVerificationSlice1Scorer` (all findings → `NotVerifiable` until TB-2034).
+3. Operator API `POST /v1/runs/{runId}/finding-verification`; audit events `FindingVerificationStarted` / `FindingVerificationCompleted`.
+4. Architecture test asserting verification writes never touch `GoldenManifests` rows.
 
-**Out of scope:** Scoring logic, exports, UI.
+**Acceptance (met):**
+
+- POST writes append-only report artifact linked to sealed package manifest hash.
+- Sealed package / `ManifestHash` unchanged by construction.
+- Cross-tenant isolation returns 404 (`FindingVerificationServiceTests`, `FindingVerificationEndpointTests`).
+
+**Depends on:** ADR 0062 owner ratification (met 2026-09-07).
+
+**Out of scope:** Scoring logic (TB-2034), exports (TB-2035), UI, scorecard metric (TB-2036), claim-copy unlock (TB-2037).
 
 **Size estimate:** M.
 

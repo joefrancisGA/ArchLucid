@@ -17,6 +17,8 @@ import {
 export type SignedRecordArtifactPageHeaderProps = {
   readonly subtitle: string;
   readonly breadcrumb?: ReactNode;
+  readonly claimDiscipline?: string;
+  readonly claimDisciplineTestId?: string;
   readonly refreshing?: boolean;
   readonly onRefresh?: () => void;
   readonly lastRefreshedAt?: Date | null;
@@ -37,6 +39,8 @@ export function SignedRecordArtifactPageHeader(props: SignedRecordArtifactPageHe
       titleTestId="signed-record-artifact-page-title"
       subtitle={props.subtitle}
       breadcrumb={props.breadcrumb}
+      claimDiscipline={props.claimDiscipline}
+      claimDisciplineTestId={props.claimDisciplineTestId}
       actions={
         props.onRefresh !== undefined ? (
           <div className="flex flex-wrap items-center gap-2" data-testid="signed-record-artifact-header-actions">

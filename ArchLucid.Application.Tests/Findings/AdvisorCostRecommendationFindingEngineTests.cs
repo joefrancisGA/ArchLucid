@@ -57,6 +57,37 @@ public sealed class AdvisorCostRecommendationFindingEngineTests
         findings[0].EngineType.Should().Be("advisor-cost-recommendation");
         findings[0].Payload.Should().BeOfType<AdvisorCostRecommendationFindingPayload>();
         ((AdvisorCostRecommendationFindingPayload)findings[0].Payload!).EstimatedAnnualSavingsUsd.Should().Be(500m);
+        findings[0].EvidenceRefs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_when_resourceMetadata_has_arm_id()
+    {
+        const string advisorCostJson =
+            """
+            {
+              "recommendations": [
+                {
+                  "id": "rec-1",
+                  "category": "Cost",
+                  "description": "Right-size underutilized VM",
+                  "annualSavingsAmount": 500,
+                  "resourceMetadata": {
+                    "resourceId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-demo/providers/Microsoft.Compute/virtualMachines/vm-demo"
+                  }
+                }
+              ]
+            }
+            """;
+
+        (AdvisorCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage(advisorCostJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].EvidenceRefs.Should().ContainSingle()
+            .Which.Should().Contain("/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-demo/");
     }
 
     [Fact]

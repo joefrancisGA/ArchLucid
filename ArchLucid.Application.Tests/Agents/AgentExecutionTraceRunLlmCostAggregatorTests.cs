@@ -153,6 +153,60 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         estimator.Verify(e => e.EstimateUsd(200, 50, 500, "o1-preview"), Times.Once);
     }
 
+    [Fact]
+    public void Compute_ReasoningTokensOnlyTrace_ExposesCombinedOutputTokensForRunDetailParity()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(0, 0, 300, "o1-preview"))
+            .Returns(0.90m);
+
+        List<AgentExecutionTrace> traces =
+        [
+            new()
+            {
+                ModelDeploymentName = "o1-preview",
+                InputTokenCount = null,
+                OutputTokenCount = null,
+                ReasoningTokenCount = 300,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.CompletionTokens.Should().Be(0);
+        summary.ReasoningTokens.Should().Be(300);
+        summary.CombinedOutputTokens.Should().Be(300);
+    }
+
+    [Fact]
+    public void Compute_WithReasoningAndCompletionTokens_CombinedOutputTokensIncludeBoth()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(200, 50, 500, "o1-preview"))
+            .Returns(3.75m);
+
+        List<AgentExecutionTrace> traces =
+        [
+            new()
+            {
+                ModelDeploymentName = "o1-preview",
+                InputTokenCount = 200,
+                OutputTokenCount = 50,
+                ReasoningTokenCount = 500,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.CompletionTokens.Should().Be(50);
+        summary.ReasoningTokens.Should().Be(500);
+        summary.CombinedOutputTokens.Should().Be(550);
+    }
+
     /// <summary>TB-196: A trace with reasoning tokens only (no prompt/completion) still contributes to cost.</summary>
     [Fact]
     public void Compute_ReasoningTokensOnlyTrace_StillAccumulatesCost()

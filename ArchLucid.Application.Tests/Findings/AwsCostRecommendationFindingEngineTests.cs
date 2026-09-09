@@ -61,6 +61,34 @@ public sealed class AwsCostRecommendationFindingEngineTests
         payload.EstimatedAnnualSavingsUsd.Should().Be(480m);
         payload.ExtractorArtifactFileName.Should().Be("advisor-cost.json");
         findings[0].Trace.RulesApplied.Should().Contain("extractor-aws-cost-json");
+        findings[0].EvidenceRefs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_when_row_has_aws_arn()
+    {
+        const string costJson =
+            """
+            {
+              "recommendations": [
+                {
+                  "id": "aws-rec-1",
+                  "finding": "Idle EBS volume",
+                  "estimatedMonthlySavings": 40,
+                  "arn": "arn:aws:ec2:us-east-1:123456789012:volume/vol-abc"
+                }
+              ]
+            }
+            """;
+
+        (AwsCostRecommendationFindingEngine sut, FindingAnalysisContext context) =
+            CreateSut(CreatePackage("advisor-cost.json", costJson));
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), context, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].EvidenceRefs.Should().ContainSingle()
+            .Which.Should().StartWith("aws:arn:");
     }
 
     [Fact]

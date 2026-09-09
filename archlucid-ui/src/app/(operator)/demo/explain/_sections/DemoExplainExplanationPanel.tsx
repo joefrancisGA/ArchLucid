@@ -1,3 +1,8 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { cn } from "@/lib/utils";
 import type { CitationReference, RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
@@ -8,6 +13,10 @@ import {
   DEMO_EXPLAIN_EXPLANATION_TECHNICAL_DETAILS_LABEL,
   DEMO_EXPLAIN_RISK_POSTURE_PREFIX,
 } from "@/lib/demo-explain-page-copy";
+import {
+  demoExplainExplanationTechnicalDisclosureHrefFromSearch,
+  parseDemoExplainExplanationTechnicalOpenFromSearch,
+} from "@/lib/demo-explain-explanation-technical-disclosure-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type Props = {
@@ -15,6 +24,38 @@ type Props = {
 };
 
 export function DemoExplainExplanationPanel(props: Props): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const demoExplainExplanationTechnicalOpenParam = searchParams.get("demoExplainExplanationTechnicalOpen");
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseDemoExplainExplanationTechnicalOpenFromSearch(demoExplainExplanationTechnicalOpenParam),
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        demoExplainExplanationTechnicalDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(
+      parseDemoExplainExplanationTechnicalOpenFromSearch(demoExplainExplanationTechnicalOpenParam),
+    );
+  }, [demoExplainExplanationTechnicalOpenParam]);
+
   const summary = props.summary;
   const themes = summary.themeSummaries ?? [];
   const citations: ReadonlyArray<CitationReference> = summary.citations ?? [];
@@ -91,7 +132,12 @@ export function DemoExplainExplanationPanel(props: Props): React.JSX.Element {
 
       {(deterministicFallbackUsed ||
         (summary.faithfulnessSupportRatio !== null && summary.faithfulnessSupportRatio !== undefined)) ? (
-        <details className="rounded border border-neutral-200 dark:border-neutral-800" data-testid="demo-explain-explanation-technical-details">
+        <details
+          className="rounded border border-neutral-200 dark:border-neutral-800"
+          data-testid="demo-explain-explanation-technical-details"
+          open={technicalDetailsOpen}
+          onToggle={(event) => setTechnicalDetailsOpen(event.currentTarget.open)}
+        >
           <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-al-text-primary">
             {DEMO_EXPLAIN_EXPLANATION_TECHNICAL_DETAILS_LABEL}
           </summary>

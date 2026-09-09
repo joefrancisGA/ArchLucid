@@ -5,6 +5,8 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/enterprise-onboarding",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({

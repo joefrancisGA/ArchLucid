@@ -43,4 +43,22 @@ describe("useCompareFormUrlSync", () => {
     });
     expect(runCompareForPair).toHaveBeenCalledTimes(2);
   });
+
+  it("clears picker run ids when compare URL params are removed", () => {
+    useSearchParamsMock.mockReturnValue(new URLSearchParams("priorRunId=run-a&laterRunId=run-b"));
+
+    const { rerender } = renderHook(() =>
+      useCompareFormUrlSync({ setLeftRunId, setRightRunId, runCompareForPair }),
+    );
+
+    expect(setLeftRunId).toHaveBeenCalledWith("run-a");
+    expect(setRightRunId).toHaveBeenCalledWith("run-b");
+
+    vi.clearAllMocks();
+    useSearchParamsMock.mockReturnValue(new URLSearchParams());
+    rerender();
+
+    expect(setLeftRunId).toHaveBeenCalledWith("");
+    expect(setRightRunId).toHaveBeenCalledWith("");
+  });
 });
