@@ -11,11 +11,13 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Configuration;
@@ -34,7 +36,9 @@ public sealed class SponsorReviewPacketBuilder(
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IFindingReviewTrailRepository findingReviewTrailRepository,
-    IConfiguration configuration) : ISponsorReviewPacketBuilder
+    IConfiguration configuration,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : ISponsorReviewPacketBuilder
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -67,6 +71,12 @@ public sealed class SponsorReviewPacketBuilder(
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
 
     public async Task<string?> BuildMarkdownAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -129,7 +139,9 @@ public sealed class SponsorReviewPacketBuilder(
             scope,
             workingDesk: true,
             _configuration,
-            cancellationToken);
+            cancellationToken,
+            _runRepository,
+            _architectureInventoryBindingRepository);
 
         IReadOnlyList<FindingArchitectRestatementExportRow> architectRestatements =
             await FindingArchitectRestatementExportMaterialLoader.LoadForRunAsync(

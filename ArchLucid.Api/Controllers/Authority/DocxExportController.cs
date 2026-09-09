@@ -18,12 +18,14 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
@@ -67,7 +69,9 @@ public sealed class DocxExportController(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IConfiguration configuration,
     IAuditService auditService,
-    ILogger<DocxExportController> logger)
+    ILogger<DocxExportController> logger,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository)
     : ControllerBase
 {
     private readonly IAuthorityQueryService _authorityQueryService =
@@ -87,6 +91,12 @@ public sealed class DocxExportController(
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
 
     /// <summary>Streams a DOCX architecture package for <paramref name="runId" />.</summary>
     /// <param name="runId">Primary run (must have golden manifest).</param>
@@ -243,7 +253,9 @@ public sealed class DocxExportController(
                 scope,
                 workingDesk: true,
                 _configuration,
-                ct);
+                ct,
+                _runRepository,
+                _architectureInventoryBindingRepository);
             TransparencyTrail? transparencyTrail = careerExportHonesty.CoverageContext.Verdict?.TransparencyTrail;
             CareerArtifactCompletenessInput careerArtifactInput = CareerArtifactCompletenessInputMapper.MapForExport(
                 careerExportHonesty,

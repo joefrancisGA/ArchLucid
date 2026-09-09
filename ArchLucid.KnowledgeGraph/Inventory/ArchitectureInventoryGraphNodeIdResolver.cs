@@ -11,6 +11,6 @@ internal static class ArchitectureInventoryGraphNodeIdResolver
 
         byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(azureResourceId));
 
-        return "n_" + Convert.ToHexString(hash.AsSpan(0, 16)).ToLowerInvariant();
+        return "n_" + Convert.ToHexString(hash.AsSpan(0, 8)).ToLowerInvariant();
     }
 }
