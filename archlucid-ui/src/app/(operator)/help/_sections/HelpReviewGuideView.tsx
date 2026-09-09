@@ -31,6 +31,7 @@ import {
   prepareReviewGuideHelpBodyMarkdown,
 } from "@/lib/review-guide-help-guide-content";
 import {
+  REVIEW_GUIDE_HELP_BUYER_OVERVIEW,
   REVIEW_GUIDE_HELP_FIRST_VIEWPORT_TEST_ID,
   REVIEW_GUIDE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   REVIEW_GUIDE_HELP_PAGE_LEAD,
@@ -180,11 +181,22 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
         </div>
       ) : null}
 
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="help-review-guide-overview"
+        >
+          {REVIEW_GUIDE_HELP_BUYER_OVERVIEW}
+        </p>
+      ) : null}
+
       <div className={contentGridClass}>
         <div className="min-w-0 space-y-6">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-review-guide-overview">
-            {REVIEW_GUIDE_HELP_OVERVIEW}
-          </p>
+          {!buyerPolishedShell ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-review-guide-overview">
+              {REVIEW_GUIDE_HELP_OVERVIEW}
+            </p>
+          ) : null}
 
           <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-review-guide-content">
             <MarketingAccessibilityMarkdownFragment

@@ -129,14 +129,26 @@ export function GovernanceResolutionPageView(props: Props) {
         ) : null}
 
         {m.failure !== null ? (
-          <OperatorSectionLoadFailure
-            message={GOVERNANCE_STANDARDS_RULES_LOAD_ERROR}
-            retrying={m.loading}
-            testId="standards-rules-load-failure"
-            onRetry={() => {
-              void m.load();
-            }}
-          />
+          <div className="mb-4 space-y-3" role="alert" data-testid="standards-rules-load-failure">
+            {m.blockedReason !== null ? (
+              <p className="m-0 text-sm text-al-text-secondary" data-testid="standards-rules-blocked-reason">
+                {m.blockedReason}
+              </p>
+            ) : null}
+            <OperatorApiProblem failure={m.failure} />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              data-testid="standards-rules-load-retry"
+              disabled={m.loading}
+              onClick={() => {
+                void m.load();
+              }}
+            >
+              {STANDARDS_RULES_LOAD_RETRY_LABEL}
+            </Button>
+          </div>
         ) : null}
 
         {m.failure === null ? (
@@ -299,7 +311,12 @@ export function GovernanceResolutionPageView(props: Props) {
         </>
       )}
       {m.failure !== null ? (
-        <div role="alert">
+        <div role="alert" data-testid="standards-rules-load-failure">
+          {m.blockedReason !== null ? (
+            <p className="m-0 mb-2 text-sm text-al-text-secondary" data-testid="standards-rules-blocked-reason">
+              {m.blockedReason}
+            </p>
+          ) : null}
           <OperatorApiProblem
             problem={m.failure.problem}
             fallbackMessage={m.failure.message}

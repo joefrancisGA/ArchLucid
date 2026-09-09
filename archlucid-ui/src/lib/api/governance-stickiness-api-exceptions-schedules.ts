@@ -1,5 +1,6 @@
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
+import type { components } from "@/lib/openapi-schemas";
 import {
   type ArchitectureReviewRecurrenceSchedule,
   type PreviewRecurrenceScheduleRunsResponse,
@@ -7,6 +8,8 @@ import {
   type UpsertRealizedValueAttestationRequest,
   governanceStickinessBase,
 } from "./governance-stickiness-api-types";
+
+export type RealizedValueAttestationResponse = components["schemas"]["RealizedValueAttestationResponse"];
 
 export async function createRiskException(body: {
   findingId: string;
@@ -66,6 +69,12 @@ export async function previewRecurrenceScheduleRuns(body: {
 export async function listArchitectureReviewRecurrenceSchedules(): Promise<ArchitectureReviewRecurrenceSchedule[]> {
   return apiGetSealedManifestAware<ArchitectureReviewRecurrenceSchedule[]>(
     `${governanceStickinessBase()}/recurrence-schedules`,
+  );
+}
+
+export async function getRealizedValueAttestation(): Promise<RealizedValueAttestationResponse> {
+  return apiGetSealedManifestAware<RealizedValueAttestationResponse>(
+    `${governanceStickinessBase()}/realized-value/attestation`,
   );
 }
 

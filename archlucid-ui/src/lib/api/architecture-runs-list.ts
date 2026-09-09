@@ -1,11 +1,11 @@
 import type { RunSummary } from "@/types/authority";
 import type { PagedResponse } from "@/types/pagination";
 
-import { apiGet } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 /** Lists recent runs for a project (GET /v1/authority/projects/{id}/reviews). */
 export async function listRunsByProject(projectId: string, take = 20): Promise<RunSummary[]> {
-  return apiGet<RunSummary[]>(
+  return apiGetSealedManifestAware<RunSummary[]>(
     `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?take=${take}`,
   );
 }
@@ -38,7 +38,7 @@ export async function listRunsByProjectPaged(
   q.set("take", String(pageSize));
   q.set("cursor", options?.cursor ?? "");
 
-  return apiGet<PagedResponse<RunSummary>>(
+  return apiGetSealedManifestAware<PagedResponse<RunSummary>>(
     `/v1/authority/projects/${encodeURIComponent(projectId)}/reviews?${q}`,
     options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
   );
@@ -61,7 +61,7 @@ export async function listRunsInScopePaged(
   q.set("take", String(pageSize));
   q.set("cursor", options?.cursor ?? "");
 
-  return apiGet<PagedResponse<RunSummary>>(
+  return apiGetSealedManifestAware<PagedResponse<RunSummary>>(
     `/v1/authority/reviews?${q}`,
     options?.scopeHeaders !== undefined ? { scopeHeaders: options.scopeHeaders } : undefined,
   );

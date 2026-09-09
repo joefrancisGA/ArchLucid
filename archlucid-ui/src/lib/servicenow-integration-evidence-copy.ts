@@ -1,4 +1,5 @@
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
@@ -14,6 +15,10 @@ export const SERVICENOW_INTEGRATION_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SERVICENOW_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when connection health, readiness checks, or related work-item integrations need attention.";
+
+export const SERVICENOW_INTEGRATION_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "connection health turns into readiness checks, related integrations, or audit follow-up",
+);
 
 /** Operator Sources — no self-href to `/integrations/servicenow`. */
 export const SERVICENOW_INTEGRATION_SOURCES: readonly EvidenceSourceLink[] = [

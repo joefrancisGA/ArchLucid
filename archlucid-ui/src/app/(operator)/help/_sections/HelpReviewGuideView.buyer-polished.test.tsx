@@ -31,6 +31,7 @@ import {
   REVIEW_GUIDE_HELP_PRIMARY_ACTIONS,
 } from "@/lib/review-guide-help-guide-content";
 import {
+  REVIEW_GUIDE_HELP_BUYER_OVERVIEW,
   REVIEW_GUIDE_HELP_FIRST_VIEWPORT_TEST_ID,
   REVIEW_GUIDE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   REVIEW_GUIDE_HELP_ORIENTATION_BOTTOM_TEST_ID,
@@ -75,6 +76,11 @@ describe("HelpReviewGuideView buyer-polished shell (HR)", () => {
     expect(screen.getByRole("heading", { level: 2, name: REVIEW_GUIDE_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-review-guide-page-title")).toHaveTextContent(REVIEW_GUIDE_HELP_PAGE_TITLE);
 
+    expect(screen.getByTestId("help-review-guide-intro")).toHaveTextContent(REVIEW_GUIDE_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-review-guide-overview")).toHaveTextContent(
+      REVIEW_GUIDE_HELP_BUYER_OVERVIEW,
+    );
+
     const primaryContent = screen.getByTestId(REVIEW_GUIDE_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(REVIEW_GUIDE_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-review-guide-action-panel");
@@ -95,6 +101,7 @@ describe("HelpReviewGuideView buyer-polished shell (HR)", () => {
     expect(primaryContent).toContainElement(content);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(content) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(content.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sourcesSection = screen.getByTestId("help-review-guide-sources");

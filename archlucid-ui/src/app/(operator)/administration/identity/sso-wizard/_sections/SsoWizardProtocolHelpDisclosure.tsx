@@ -7,9 +7,9 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { cn } from "@/lib/utils";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  parseSsoWizardProtocolHelpOpenFromSearch,
-  ssoWizardProtocolHelpDisclosureHrefFromSearch,
-} from "@/lib/administration/sso-wizard-protocol-help-disclosure-url";
+  parseSsoProtocolHelpOpenFromSearch,
+  ssoProtocolHelpDisclosureHrefFromSearch,
+} from "@/lib/administration/sso-protocol-help-disclosure-url";
 import {
   SSO_WIZARD_PROTOCOL_HELP_BODY,
   SSO_WIZARD_PROTOCOL_HELP_SUMMARY,
@@ -20,12 +20,12 @@ export function SsoWizardProtocolHelpDisclosure(): React.JSX.Element {
   const router = useRouter();
   const pathname = usePathname() ?? SSO_WIZARD_CANONICAL_PATH;
   const searchParams = useSearchParams();
-  const ssoWizardProtocolHelpOpenParam = searchParams.get("ssoWizardProtocolHelpOpen");
-  const [open, setOpenState] = useState(() => parseSsoWizardProtocolHelpOpenFromSearch(ssoWizardProtocolHelpOpenParam));
+  const ssoProtocolHelpOpenParam = searchParams.get("ssoProtocolHelpOpen");
+  const [open, setOpenState] = useState(() => parseSsoProtocolHelpOpenFromSearch(ssoProtocolHelpOpenParam));
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
-      router.replace(ssoWizardProtocolHelpDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
+      router.replace(ssoProtocolHelpDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname), {
         scroll: false,
       });
     },
@@ -41,8 +41,8 @@ export function SsoWizardProtocolHelpDisclosure(): React.JSX.Element {
   );
 
   useEffect(() => {
-    setOpenState(parseSsoWizardProtocolHelpOpenFromSearch(ssoWizardProtocolHelpOpenParam));
-  }, [ssoWizardProtocolHelpOpenParam]);
+    setOpenState(parseSsoProtocolHelpOpenFromSearch(ssoProtocolHelpOpenParam));
+  }, [ssoProtocolHelpOpenParam]);
 
   return (
     <details

@@ -54,9 +54,10 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
       {model.bundleLoadFailed === true ? (
         <OperatorSectionLoadFailure
           message={
-            buyerPolishedShell
+            model.blockedReason ??
+            (buyerPolishedShell
               ? GOVERNANCE_SETUP_LOAD_ERROR
-              : "Could not load approval setup status. Your policy and alert configuration may still be saved — retry to refresh progress."
+              : "Could not load approval setup status. Your policy and alert configuration may still be saved — retry to refresh progress.")
           }
           onRetry={() => window.location.reload()}
           retryLabel={buyerPolishedShell ? "Try again" : "Reload page"}

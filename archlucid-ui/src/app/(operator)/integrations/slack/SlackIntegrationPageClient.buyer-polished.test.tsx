@@ -62,8 +62,11 @@ vi.mock("@/lib/toast", () => ({
 
 import { SlackIntegrationPageClient } from "@/app/(operator)/integrations/slack/_sections/SlackIntegrationPageClient";
 import {
+  SLACK_INTEGRATION_BUYER_OVERVIEW,
   SLACK_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
   SLACK_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  SLACK_INTEGRATION_ORIENTATION_BOTTOM_TEST_ID,
+  SLACK_INTEGRATION_PAGE_LEAD,
   SLACK_INTEGRATION_PAGE_SUBTITLE_BUYER,
   SLACK_INTEGRATION_PRIMARY_CONTENT_ID,
   SLACK_INTEGRATION_SKIP_LINK_LABEL,
@@ -118,13 +121,17 @@ describe("SlackIntegrationPageClient buyer-polished shell (ISN)", () => {
 
     const primaryContent = screen.getByTestId(SLACK_INTEGRATION_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(SLACK_INTEGRATION_FIRST_VIEWPORT_TEST_ID);
+    const overview = screen.getByTestId("slack-integration-overview");
     const pageLayout = screen.getByTestId("slack-page-layout");
-    const orientationBottom = screen.getByTestId("slack-integration-orientation-bottom");
+    const orientationBottom = screen.getByTestId(SLACK_INTEGRATION_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("slack-integration-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(screen.getByTestId("slack-integration-intro")).toHaveTextContent(SLACK_INTEGRATION_PAGE_LEAD);
+    expect(screen.getByTestId("slack-integration-overview")).toHaveTextContent(SLACK_INTEGRATION_BUYER_OVERVIEW);
+    expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(pageLayout);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport).toContainElement(pageLayout);
     expect(orientationBottom).toContainElement(sourcesSection);
 
     for (const source of filterWhereToGoNextFollowUpLinks(SLACK_INTEGRATION_SOURCES)) {
@@ -132,6 +139,8 @@ describe("SlackIntegrationPageClient buyer-polished shell (ISN)", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(pageLayout) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(pageLayout.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

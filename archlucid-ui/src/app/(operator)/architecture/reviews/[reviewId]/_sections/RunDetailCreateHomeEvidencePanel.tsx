@@ -51,14 +51,16 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
 
   return (
     <div className="space-y-4" data-testid="run-detail-create-home-evidence">
-      <div
-        className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
-        data-testid="run-detail-create-home-evidence-orientation"
-      >
-        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          {RUN_DETAIL_CREATE_HOME_EVIDENCE_ORIENTATION_LEAD}
-        </p>
-      </div>
+      {!props.buyerPolished ? (
+        <div
+          className="rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
+          data-testid="run-detail-create-home-evidence-orientation"
+        >
+          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+            {RUN_DETAIL_CREATE_HOME_EVIDENCE_ORIENTATION_LEAD}
+          </p>
+        </div>
+      ) : null}
       <RunDetailEvidenceScopeHeader
         packageName={props.packageName}
         reviewDateLabel={props.reviewDateLabel}

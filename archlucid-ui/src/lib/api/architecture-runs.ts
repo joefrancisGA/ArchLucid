@@ -28,6 +28,8 @@ export {
 
 export {
   compareRunsEndToEnd,
+  compareAgentResults,
+  compareAgentResultsSummary,
   compareRuns,
   compareGoldenManifestRuns,
   explainComparisonRuns,

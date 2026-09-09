@@ -50,6 +50,11 @@ export const ARCHITECTURE_CREATED_EVIDENCE_PAGE_LEAD =
 export const ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW =
   "Capture panels below list uploaded files, linked citations, and diagram cross-links for this draft scope.";
 
+/** Buyer bridge between first-viewport lead and evidence capture workspace (REE). */
+export const ARCHITECTURE_CREATED_EVIDENCE_BUYER_OVERVIEW = ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW;
+
+export const ARCHITECTURE_CREATED_EVIDENCE_WORKSPACE_TEST_ID = "architecture-created-evidence-workspace" as const;
+
 export const ARCHITECTURE_CREATED_EVIDENCE_START_HERE_CARD_TITLE = "Start here" as const;
 
 export const ARCHITECTURE_CREATED_EVIDENCE_BUYER_START_HERE_HELPER =

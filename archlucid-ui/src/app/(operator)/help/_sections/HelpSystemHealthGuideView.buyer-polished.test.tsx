@@ -28,6 +28,7 @@ import {
   SYSTEM_HEALTH_HELP_READINESS_HELPER,
 } from "@/lib/system-health-help-guide-content";
 import {
+  SYSTEM_HEALTH_HELP_BUYER_OVERVIEW,
   SYSTEM_HEALTH_HELP_FIRST_VIEWPORT_TEST_ID,
   SYSTEM_HEALTH_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   SYSTEM_HEALTH_HELP_ORIENTATION_BOTTOM_TEST_ID,
@@ -68,10 +69,16 @@ describe("HelpSystemHealthGuideView buyer-polished shell (HEY)", () => {
     expect(screen.getByRole("heading", { level: 2, name: SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-system-health-page-title")).toHaveTextContent(SYSTEM_HEALTH_HELP_PAGE_TITLE);
 
+    expect(screen.getByTestId("help-system-health-intro")).toHaveTextContent(SYSTEM_HEALTH_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-system-health-overview")).toHaveTextContent(
+      SYSTEM_HEALTH_HELP_BUYER_OVERVIEW,
+    );
+
     const primaryContent = screen.getByTestId(SYSTEM_HEALTH_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(SYSTEM_HEALTH_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-system-health-action-panel");
     const overview = screen.getByTestId("help-system-health-overview");
+    const tileItems = screen.getByTestId("help-system-health-tile-items");
     const orientationBottom = screen.getByTestId(SYSTEM_HEALTH_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primaryContent).toContainElement(firstViewport);
@@ -87,9 +94,11 @@ describe("HelpSystemHealthGuideView buyer-polished shell (HEY)", () => {
       SYSTEM_HEALTH_HELP_START_HERE_HELPER,
     );
     expect(primaryContent).toContainElement(overview);
+    expect(primaryContent).toContainElement(tileItems);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(tileItems) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(tileItems.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sourcesSection = screen.getByTestId("help-system-health-sources");
 

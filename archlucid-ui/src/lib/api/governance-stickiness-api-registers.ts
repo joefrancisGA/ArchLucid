@@ -1,5 +1,4 @@
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiGet } from "./http";
 import {
   type ArchitectureDecisionRegisterFilters,
   type ArchitectureDecisionRegisterResponse,

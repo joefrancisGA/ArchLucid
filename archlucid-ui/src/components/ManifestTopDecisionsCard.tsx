@@ -15,6 +15,11 @@ import {
   parseManifestTopDecisionsAreaKeyFromSearch,
 } from "@/lib/manifests/manifest-top-decisions-area-disclosure-url";
 import {
+  MANIFEST_TOP_DECISIONS_SHOW_ALL_OPEN_PARAM,
+  manifestTopDecisionsShowAllDisclosureHrefFromSearch,
+  parseManifestTopDecisionsShowAllOpenFromSearch,
+} from "@/lib/manifests/manifest-top-decisions-show-all-disclosure-url";
+import {
   SHOWCASE_STATIC_DEMO_DECISION_ITEMS,
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -44,8 +49,12 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const manifestTopDecisionsAreaKeyParam = searchParams.get(MANIFEST_TOP_DECISIONS_AREA_KEY_PARAM);
+  const manifestTopDecisionsShowAllOpenParam = searchParams.get(MANIFEST_TOP_DECISIONS_SHOW_ALL_OPEN_PARAM);
   const [openAreaKey, setOpenAreaKeyState] = useState(() =>
     parseManifestTopDecisionsAreaKeyFromSearch(manifestTopDecisionsAreaKeyParam),
+  );
+  const [showAllOpen, setShowAllOpenState] = useState(() =>
+    parseManifestTopDecisionsShowAllOpenFromSearch(manifestTopDecisionsShowAllOpenParam),
   );
   const syncOpenAreaKeyToUrl = useCallback(
     (areaKey: string | null) => {
@@ -63,12 +72,32 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
     },
     [syncOpenAreaKeyToUrl],
   );
+  const syncShowAllOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        manifestTopDecisionsShowAllDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setShowAllOpen = useCallback(
+    (open: boolean) => {
+      setShowAllOpenState(open);
+      syncShowAllOpenToUrl(open);
+    },
+    [syncShowAllOpenToUrl],
+  );
   const { summary, buyerPolishedLayout } = props;
   const buyer = buyerPolishedLayout ?? false;
 
   useEffect(() => {
     setOpenAreaKeyState(parseManifestTopDecisionsAreaKeyFromSearch(manifestTopDecisionsAreaKeyParam));
   }, [manifestTopDecisionsAreaKeyParam]);
+
+  useEffect(() => {
+    setShowAllOpenState(parseManifestTopDecisionsShowAllOpenFromSearch(manifestTopDecisionsShowAllOpenParam));
+  }, [manifestTopDecisionsShowAllOpenParam]);
 
   if (!isShowcaseManifest(summary)) {
     if (summary.decisionCount <= 0) {
@@ -211,7 +240,14 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
         </ul>
 
         {remainder.length > 0 ? (
-          <details className="rounded-md border border-neutral-200 dark:border-neutral-700">
+          <details
+            className="rounded-md border border-neutral-200 dark:border-neutral-700"
+            data-testid="manifest-top-decisions-show-all"
+            open={showAllOpen}
+            onToggle={(event) => {
+              setShowAllOpen(event.currentTarget.open);
+            }}
+          >
             <summary className={cn("cursor-pointer px-3 py-2 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
               Show all decisions ({SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES.length} total)
             </summary>

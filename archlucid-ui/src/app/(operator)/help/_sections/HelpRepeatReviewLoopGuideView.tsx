@@ -51,6 +51,7 @@ import {
   REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX_TEST_ID,
 } from "@/lib/compare-repeat-review-help-ia-dual";
 import {
+  REPEAT_REVIEW_LOOP_HELP_BUYER_OVERVIEW,
   REPEAT_REVIEW_LOOP_HELP_FIRST_VIEWPORT_TEST_ID,
   REPEAT_REVIEW_LOOP_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD,
@@ -233,15 +234,26 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
         </>
       )}
 
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="help-repeat-review-loop-overview"
+        >
+          {REPEAT_REVIEW_LOOP_HELP_BUYER_OVERVIEW}
+        </p>
+      ) : null}
+
       <HelpRepeatReviewLoopWorkflowStepper />
 
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           {buyerPolishedShell ? null : <RepeatReviewLoopHelpEvidenceOrientationStrip />}
 
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-repeat-review-loop-overview">
-            {REPEAT_REVIEW_LOOP_HELP_OVERVIEW}
-          </p>
+          {!buyerPolishedShell ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-repeat-review-loop-overview">
+              {REPEAT_REVIEW_LOOP_HELP_OVERVIEW}
+            </p>
+          ) : null}
 
           <div
             className={cn(

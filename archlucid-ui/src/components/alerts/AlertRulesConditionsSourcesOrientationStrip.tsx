@@ -1,4 +1,5 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   ALERT_RULES_CONDITIONS_FOLLOW_UPS_TITLE,
   ALERT_RULES_CONDITIONS_ORIENTATION_BOTTOM_TEST_ID,
@@ -16,6 +17,7 @@ export function AlertRulesConditionsSourcesOrientationStrip(): React.JSX.Element
       sourcesTitle={ALERT_RULES_CONDITIONS_FOLLOW_UPS_TITLE}
       sourcesIntro={ALERT_RULES_CONDITIONS_ORIENTATION_SOURCES_INTRO}
       sources={ALERT_RULES_CONDITIONS_ORIENTATION_SOURCES}
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary
     />
   );

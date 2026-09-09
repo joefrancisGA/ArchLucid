@@ -3,7 +3,8 @@ import type {
   ArchitectureIdentityListPage,
 } from "@/types/architecture-identity";
 
-import { apiGet, apiPatchJson } from "./http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPatchJson } from "./http";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
@@ -30,7 +31,7 @@ export async function listArchitectureIdentities(params?: {
   const query = search.toString();
   const path = query.length > 0 ? `${ARCHITECTURES_BASE}?${query}` : ARCHITECTURES_BASE;
 
-  return apiGet<ArchitectureIdentityListPage>(path, params?.scopeHeaders !== undefined
+  return apiGetSealedManifestAware<ArchitectureIdentityListPage>(path, params?.scopeHeaders !== undefined
     ? { scopeHeaders: params.scopeHeaders }
     : undefined);
 }
@@ -39,7 +40,7 @@ export async function getArchitectureIdentity(
   architectureId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ArchitectureIdentityDetail> {
-  return apiGet<ArchitectureIdentityDetail>(
+  return apiGetSealedManifestAware<ArchitectureIdentityDetail>(
     `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
     options,
   );
