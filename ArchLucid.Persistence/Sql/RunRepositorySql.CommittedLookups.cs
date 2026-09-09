@@ -104,7 +104,7 @@ internal static partial class RunRepositorySql
                                                              FROM dbo.Runs r WITH (NOLOCK)
                                                              WHERE r.TenantId = @TenantId
                                                                AND r.WorkspaceId = @WorkspaceId
-                                                               AND r.ScopeProjectId = @ScopeProjectId
+                                                               AND ScopeProjectId = @ScopeProjectId
                                                                AND r.ArchitectureId = @ArchitectureId
                                                                AND r.ArchivedUtc IS NULL
                                                              ORDER BY r.CreatedUtc DESC, r.RunId DESC;

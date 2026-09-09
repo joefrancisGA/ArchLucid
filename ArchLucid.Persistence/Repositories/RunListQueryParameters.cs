@@ -291,7 +291,7 @@ internal static class RunListQueryParameters
         {
             scope.TenantId,
             scope.WorkspaceId,
-            NormalizedSystemName = systemName.Trim().ToUpperInvariant(),
+            NormalizedSystemName = RunRepositoryCore.NormalizeWorkspaceSystemName(systemName),
             ExcludeRunId = excludeRunId,
             FailedStatus = nameof(ArchitectureRunStatus.Failed),
             QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
@@ -311,5 +311,5 @@ internal static class RunListQueryParameters
         RunRepositoryCore.NormalizeAuthorityProjectSlug(projectSlug);
 
     private static string NormalizeArchitectureRequestId(string architectureRequestId) =>
-        architectureRequestId.Trim().ToUpperInvariant();
+        RunRepositoryCore.NormalizeArchitectureRequestId(architectureRequestId);
 }
