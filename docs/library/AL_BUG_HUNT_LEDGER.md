@@ -7591,10 +7591,10 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-09-08
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7616,6 +7616,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (invalid) `ArchitectureRunStatusTransitionTable.TryParseStatus` coerces whitespace-only `LegacyRunStatus` to `Created` while `ResolveFromRunHeader` returns `NotStarted` — **disproved 2026-09-07 (#1272):** SQL `CK_Runs_LegacyRunStatus` enum-name allowlist blocks whitespace-only persisted values; list/export uses `ResolveFromRunHeader` only (`TryParseStatus_coerces_whitespace_only_legacy_status_to_created`, `ResolveFromRunHeader_whitespace_only_legacy_status_returns_not_started_for_in_memory_rows_only`)
 - [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — JSON object with array-valued `failureClass` token (`{"failureClass":["PipelineDeadLetter"]}`) returns not dead-lettered because `TryReadNonEmptyTextToken` rejects non-string tokens — **disproved 2026-09-08 (#1304):** `AgentExecutionFailureSummaryJson.Serialize`, `AuthorityPipelineDeadLetterRunMarker.BuildFailureReasonJson`, and pipeline writers emit string `failureClass` only; conservative reader behavior (`IsDeadLettered_returns_false_for_array_valued_failure_class_token`, `Serialize_emits_string_failure_class_not_array`)
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Retrying` legacy status with non-empty `ContextSnapshotId` returns `InProgress` from active-status branch before progress-marker checks — **disproved 2026-09-08 (#1304):** `FailedRunRetryAdmission` retains stale snapshots by design; both legacy-status and progress-marker branches yield `InProgress`, matching `RunOperationProjector` Running; detail uses stage-based `AuthorityRunLifecyclePhaseResolver` outside zone paths (#1202); no list/export wrong outcome (`ResolveFromRunHeader_retrying_with_stale_context_snapshot_returns_in_progress`)
+
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — `failureClass` with internal whitespace (`Pipeline  DeadLetter`) fails exact match against `AgentExecutionFailureClasses.PipelineDeadLetter` — **cheap-disproof 2026-09-09 seed hunt #1473:** writers emit canonical class strings only; conservative reader fails closed; regression `IsDeadLettered_returns_false_for_internal_whitespace_in_failure_class_token`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — committed run with golden manifest and pipeline dead-letter JSON surfaces `Complete` because `IsCommittedWithGoldenManifest` runs before dead-letter check — **cheap-disproof 2026-09-09 seed hunt #1473:** dead-letter branch precedes Complete; regression `ResolveFromRunHeader_dead_lettered_committed_run_returns_failed_not_complete`.
+
+2026-09-09 seed hunt #1473 (seed-only): reseeded core-authority-runs; cheap-disproof closed internal-whitespace failureClass and dead-letter vs Complete ordering candidates; 27 scoped Core unit tests passed.
 
 2026-09-08 thorough hunt #1304 (dry): cheap-disproof closed both reseeded candidates from #1272; 25 scoped unit tests passed; no new hunt-ready rows.
 

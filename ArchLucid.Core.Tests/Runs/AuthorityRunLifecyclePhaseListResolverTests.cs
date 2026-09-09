@@ -207,4 +207,20 @@ public sealed class AuthorityRunLifecyclePhaseListResolverTests
         AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
             .Should().Be(AuthorityRunLifecyclePhase.InProgress);
     }
+
+    [Fact]
+    public void ResolveFromRunHeader_dead_lettered_committed_run_returns_failed_not_complete()
+    {
+        RunRecord header = new()
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa05"),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            GoldenManifestId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            LastFailureReason = """{"schemaVersion":1,"failureClass":"PipelineDeadLetter"}""",
+        };
+
+        // Dead-letter detection runs before committed+manifest Complete branch so operators still see Failed on list surfaces.
+        AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(header)
+            .Should().Be(AuthorityRunLifecyclePhase.Failed);
+    }
 }

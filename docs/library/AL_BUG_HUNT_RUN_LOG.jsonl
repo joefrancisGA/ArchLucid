@@ -1659,3 +1659,4 @@
 {"at":"2026-09-09T20:40:45.9658724Z","zoneId":"finding-disposition","outcome":"hit"}
 {"at":"2026-09-09T20:43:48.7419514Z","zoneId":"alert-simulation","outcome":"seed-only"}
 {"at":"2026-09-09T20:48:51.6262528Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
+{"at":"2026-09-09T20:53:19.4386878Z","zoneId":"core-authority-runs","outcome":"seed-only"}
