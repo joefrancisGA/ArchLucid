@@ -148,4 +148,61 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         $sites.Count | Should -Be 1
         $sites[0].Port | Should -Be 3000
     }
+
+    It 'creates .env.local from .env.example when missing' {
+        $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("al-start-env-{0}" -f [guid]::NewGuid().ToString('N'))
+        $envExample = Join-Path $tempRoot '.env.example'
+        $envLocal = Join-Path $tempRoot '.env.local'
+
+        New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
+        Set-Content -LiteralPath $envExample -Value @(
+            'ARCHLUCID_API_BASE_URL=http://localhost:5128'
+            'NEXT_PUBLIC_ARCHLUCID_API_BASE_URL=http://localhost:5128'
+        ) -Encoding UTF8
+
+        $created = Ensure-EnvLocalFromExample -EnvLocalPath $envLocal -EnvExamplePath $envExample -ApiPort 5128
+
+        $created | Should -Be $true
+        Test-Path -LiteralPath $envLocal | Should -Be $true
+        (Get-Content -LiteralPath $envLocal -Raw) | Should -Match 'ARCHLUCID_API_BASE_URL=http://localhost:5128'
+
+        Remove-Item -LiteralPath $tempRoot -Recurse -Force
+    }
+
+    It 'does not overwrite an existing .env.local' {
+        $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("al-start-env-{0}" -f [guid]::NewGuid().ToString('N'))
+        $envExample = Join-Path $tempRoot '.env.example'
+        $envLocal = Join-Path $tempRoot '.env.local'
+
+        New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
+        Set-Content -LiteralPath $envExample -Value 'ARCHLUCID_API_BASE_URL=http://localhost:5128' -Encoding UTF8
+        Set-Content -LiteralPath $envLocal -Value 'ARCHLUCID_API_BASE_URL=http://localhost:5999' -Encoding UTF8
+
+        $created = Ensure-EnvLocalFromExample -EnvLocalPath $envLocal -EnvExamplePath $envExample -ApiPort 5128
+
+        $created | Should -Be $false
+        (Get-Content -LiteralPath $envLocal -Raw) | Should -Match 'localhost:5999'
+
+        Remove-Item -LiteralPath $tempRoot -Recurse -Force
+    }
+
+    It 'rewrites API base URL ports when -ApiPort differs from .env.example' {
+        $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("al-start-env-{0}" -f [guid]::NewGuid().ToString('N'))
+        $envExample = Join-Path $tempRoot '.env.example'
+        $envLocal = Join-Path $tempRoot '.env.local'
+
+        New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
+        Set-Content -LiteralPath $envExample -Value @(
+            'ARCHLUCID_API_BASE_URL=http://localhost:5128'
+            'NEXT_PUBLIC_ARCHLUCID_API_BASE_URL=http://localhost:5128'
+        ) -Encoding UTF8
+
+        $created = Ensure-EnvLocalFromExample -EnvLocalPath $envLocal -EnvExamplePath $envExample -ApiPort 5000
+
+        $created | Should -Be $true
+        (Get-Content -LiteralPath $envLocal -Raw) | Should -Match 'ARCHLUCID_API_BASE_URL=http://localhost:5000'
+        (Get-Content -LiteralPath $envLocal -Raw) | Should -Match 'NEXT_PUBLIC_ARCHLUCID_API_BASE_URL=http://localhost:5000'
+
+        Remove-Item -LiteralPath $tempRoot -Recurse -Force
+    }
 }

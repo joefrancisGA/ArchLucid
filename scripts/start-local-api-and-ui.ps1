@@ -17,6 +17,7 @@
 # Prerequisites:
 #   - .NET SDK (see global.json), Node.js 22+, `npm ci` in archlucid-ui
 #   - SQL reachable (e.g. dotnet run --project ArchLucid.Cli -- dev up)
+#   - On first run, copies archlucid-ui/.env.example to .env.local when missing (does not overwrite).
 #
 # Usage:
 #   .\scripts\start-local-api-and-ui.ps1
@@ -229,6 +230,17 @@ if (-not $SkipPreflight) {
 
     if (-not (Test-Path $UiNodeModules)) {
         Write-StageError -Stage "preflight" -Message "archlucid-ui/node_modules missing. Run: npm ci (in archlucid-ui)."
+    }
+
+    $envLocalCreated = Ensure-EnvLocalFromExample `
+        -EnvLocalPath $EnvLocalPath `
+        -EnvExamplePath $EnvExamplePath `
+        -ApiPort $ApiPort
+
+    if ($envLocalCreated) {
+        Write-Host (
+            "Created archlucid-ui/.env.local from .env.example (ARCHLUCID_API_BASE_URL=http://localhost:{0})." -f $ApiPort
+        ) -ForegroundColor Green
     }
 
     Assert-EnvLocalApiPortAlignment
