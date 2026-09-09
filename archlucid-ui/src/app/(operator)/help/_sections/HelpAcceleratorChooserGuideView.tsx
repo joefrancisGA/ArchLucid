@@ -278,6 +278,7 @@ export function HelpAcceleratorChooserGuideView(
         title={ACCELERATOR_CHOOSER_HELP_PAGE_TITLE}
         titleTestId="help-accelerator-chooser-page-title"
         subtitle={ACCELERATOR_CHOOSER_HELP_PAGE_SUBTITLE}
+        subtitleClassName={buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : undefined}
         navHref={ACCELERATOR_CHOOSER_HELP_PATH}
         claimDiscipline={buyerPolishedShell ? ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE : undefined}
         claimDisciplineTestId={
