@@ -168,6 +168,8 @@ export function useFindingInspectGovernanceStickiness(
     dispositionBaseline: dispositions.dispositionBaseline,
     waiverBaseline: waivers.waiverBaseline,
     dispositionHistoryAsOfUtc: dispositions.dispositionHistoryAsOfUtc,
+    dispositionHistoryFailure: dispositions.dispositionHistoryFailure,
+    dispositionHistoryBlockedReason: dispositions.dispositionHistoryBlockedReason,
     refreshDispositionHistory: dispositions.refreshDispositionHistory,
   };
 }

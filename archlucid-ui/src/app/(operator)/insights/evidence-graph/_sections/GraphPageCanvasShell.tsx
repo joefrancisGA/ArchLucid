@@ -31,6 +31,7 @@ export function GraphPageCanvasShell(props: GraphPageCanvasShellProps): React.JS
             void vm.performGraphLoad();
           }}
           graphEndpointHint={vm.graphEndpointHint}
+          graphMode={vm.mode}
         />
       ) : null}
       {!vm.buyerPolishedShell && vm.showReviewPickerBeforeCanvas ? (

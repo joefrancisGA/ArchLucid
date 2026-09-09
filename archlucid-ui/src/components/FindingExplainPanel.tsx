@@ -20,6 +20,7 @@ import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetr
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-blocked-reason";
+import { findingEvidenceChainBlockedReason } from "@/lib/explain/finding-evidence-chain-blocked-reason";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { resolveFindingOptionalArtifactUnavailableCopy } from "@/lib/findings/finding-optional-artifact-copy";
 import {
@@ -58,6 +59,8 @@ export function FindingExplainPanel({
   const sampleReview = isShowcaseStaticDemoRunId(runId.trim());
   const [audit, setAudit] = useState<FindingLlmAudit | null>(null);
   const [evidenceChain, setEvidenceChain] = useState<FindingEvidenceChain | null>(null);
+  const [evidenceChainFailure, setEvidenceChainFailure] = useState<ApiLoadFailureState | null>(null);
+  const [evidenceChainBlockedReason, setEvidenceChainBlockedReason] = useState<string | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [loading, setLoading] = useState(false);
   const [feedbackBusy, setFeedbackBusy] = useState(false);
@@ -100,6 +103,8 @@ export function FindingExplainPanel({
     setFailure(null);
     setFeedbackNote(null);
     setEvidenceChain(null);
+    setEvidenceChainFailure(null);
+    setEvidenceChainBlockedReason(null);
 
     try {
       const a = await getFindingLlmAudit(runId, findingId.trim());
@@ -109,7 +114,10 @@ export function FindingExplainPanel({
       try {
         const chain = await getFindingEvidenceChain(runId, findingId.trim());
         setEvidenceChain(chain);
-      } catch {
+      } catch (chainError: unknown) {
+        const chainFailure = toApiLoadFailure(chainError);
+        setEvidenceChainFailure(chainFailure);
+        setEvidenceChainBlockedReason(findingEvidenceChainBlockedReason(chainFailure));
         setEvidenceChain(null);
       }
     } catch (err) {
@@ -150,6 +158,16 @@ export function FindingExplainPanel({
         Redacted prompts and model output are under <strong className="font-medium">Technical audit details</strong> below.
         Pair with deterministic explainability (&quot;View trace&quot;) on the review explanation table when available.
       </p>
+
+      {evidenceChainBlockedReason ? (
+        <p
+          role="alert"
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="finding-evidence-chain-blocked-reason"
+        >
+          {evidenceChainBlockedReason}
+        </p>
+      ) : null}
 
       {!loading && failure === null && evidenceChain !== null ? (
         <section aria-labelledby="finding-evidence-chain-heading" className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 space-y-2 p-3">

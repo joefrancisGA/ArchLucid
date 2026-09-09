@@ -19,6 +19,7 @@ import {
 } from "@/lib/findings/finding-inspect-governance-panel-url";
 
 import { FindingInspectDispositionControls } from "./FindingInspectDispositionControls";
+import { FindingInspectDispositionBlockedCallout } from "./FindingInspectDispositionBlockedCallout";
 import { FindingInspectStickinessSummary } from "./FindingInspectStickinessSummary";
 import {
   useFindingInspectGovernanceStickiness,
@@ -117,6 +118,10 @@ export function FindingInspectGovernanceStickinessPanel(
 
   return (
     <div className={cn(OPERATOR_LAYOUT.sectionStack, "rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
+      <FindingInspectDispositionBlockedCallout
+        blockedReason={stickiness.dispositionHistoryBlockedReason}
+        failure={stickiness.dispositionHistoryFailure}
+      />
       <FindingInspectStickinessSummary
         recentDispositionActors={stickiness.recentDispositionActors}
         dispositionHistoryAsOfUtc={stickiness.dispositionHistoryAsOfUtc}

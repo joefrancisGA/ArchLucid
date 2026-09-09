@@ -27,6 +27,7 @@ import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/desig
 import { cn } from "@/lib/utils";
 
 import { ArchitectureIntelligencePickReviewBeforeAnalysisStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePickReviewBeforeAnalysisStrip";
+import { ArchitectureIntelligenceRunModelGuardCallout } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceRunModelGuardCallout";
 import { ArchitectureIntelligenceNextReviewFooterClient } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
@@ -144,6 +145,10 @@ export function ArchitectureIntelligencePageClient() {
             Open review
           </Link>
         </p>
+      ) : null}
+
+      {activeRunId && !loadingInboundContext ? (
+        <ArchitectureIntelligenceRunModelGuardCallout runId={activeRunId} />
       ) : null}
 
       {showIntakeForm ? (

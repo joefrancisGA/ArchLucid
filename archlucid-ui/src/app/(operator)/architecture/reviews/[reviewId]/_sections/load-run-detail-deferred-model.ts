@@ -69,7 +69,7 @@ export async function loadRunDetailBelowFoldPipelineModel(
 ): Promise<
   Pick<
     RunDetailBelowFoldDeferredModel,
-    "pipelineTimelineForUi" | "pipelineTimelineAllForPackageChanges" | "pipelineTimelineFailure" | "stageTimelineForUi"
+    "pipelineTimelineForUi" | "pipelineTimelineAllForPackageChanges" | "pipelineTimelineFailure" | "pipelineTimelinesBundleBlockedReason" | "stageTimelineForUi"
   >
 > {
   return loadPipelineTimelineSections(context);
@@ -192,7 +192,7 @@ async function loadPipelineTimelineSections(
 ): Promise<
   Pick<
     RunDetailBelowFoldDeferredModel,
-    "pipelineTimelineForUi" | "pipelineTimelineAllForPackageChanges" | "pipelineTimelineFailure" | "stageTimelineForUi"
+    "pipelineTimelineForUi" | "pipelineTimelineAllForPackageChanges" | "pipelineTimelineFailure" | "pipelineTimelinesBundleBlockedReason" | "stageTimelineForUi"
   >
 > {
   return loadRunDetailPipelineTimelineCached(
