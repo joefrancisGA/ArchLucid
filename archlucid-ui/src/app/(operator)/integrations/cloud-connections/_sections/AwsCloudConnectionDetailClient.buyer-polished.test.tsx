@@ -54,6 +54,7 @@ import {
   AWS_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
   AWS_CLOUD_CONNECTION_SKIP_LINK_LABEL,
   AWS_CLOUD_CONNECTION_SKIP_TARGET_ID,
+  AWS_CLOUD_CONNECTION_WORKSPACE_TEST_ID,
 } from "./aws-cloud-connection-page-copy";
 import {
   CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
@@ -88,17 +89,20 @@ describe("AwsCloudConnectionDetailClient buyer-polished shell (INC)", () => {
     const firstViewport = screen.getByTestId(AWS_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("aws-cloud-connection-action-panel");
     const overview = screen.getByTestId("aws-cloud-connection-overview");
-    const workspace = screen.getByTestId("cloud-provider-detail-aws");
+    const workspace = screen.getByTestId(AWS_CLOUD_CONNECTION_WORKSPACE_TEST_ID);
+    const providerDetail = screen.getByTestId("cloud-provider-detail-aws");
     const orientationBottom = screen.getByTestId(AWS_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("cloud-connections-aws-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(screen.getByTestId("aws-cloud-connection-intro")).toHaveTextContent(AWS_CLOUD_CONNECTION_PAGE_LEAD);
+    expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).not.toContainElement(overview);
     expect(screen.getByTestId("aws-cloud-connection-overview")).toHaveTextContent(AWS_CLOUD_CONNECTION_BUYER_OVERVIEW);
     expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(providerDetail);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport).toContainElement(actionPanel);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.queryByRole("heading", { level: 2, name: "Overview" })).not.toBeInTheDocument();
 
