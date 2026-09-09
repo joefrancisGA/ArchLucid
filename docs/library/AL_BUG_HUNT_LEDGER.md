@@ -7484,11 +7484,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 2
-- **bugs-found:** 3
+- **hunts:** 3
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — GCP catalog region-blind and preemptible SKU selection
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — standalone `Hour` / `hours` Azure retail UOM rejected while quantity-prefixed forms matched
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7499,8 +7499,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — `nextPageToken` pagination ignored — **hit 2026-09-07 hunt #1186 (seed→hit):** single-page SKU list fetch returned null when the matching machine type lived on a later catalog page; live GCP probe fell back to illustrative pricing; fixed with `pageToken` loop until match or exhaustion; regression in `TryGetComputeEngineMonthlyUsdAsync_follows_next_page_token`
 - [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — region-blind first machine-type match may price europe-west1 nodes with us-central1 SKUs — **hit 2026-09-07 hunt #1260:** catalog probe ignored `InfrastructureCostQueryNode.ArmRegion` and returned the first matching machine-type SKU; fixed with `DescriptionMatchesRegion` filtering, full-page scan when region is required, and region-aware cache keys; regression `TryGetCatalogMonthlyUsdAsync_prefers_matching_region_over_first_catalog_sku`; wired through `GcpCloudBillingCatalogStructuredLookup`.
 - [x] (proven) `GcpCatalogHttpClient.TryFetchComputeHourlyUsdAsync` — preemptible SKU returned before on-demand when array order lists preemptible first — **hit 2026-09-07 hunt #1260:** on-demand sizing used the first hourly SKU including preemptible descriptions; fixed by rejecting preemptible descriptions in `GcpSkuPricingParser`; regression `TryGetComputeEngineMonthlyUsdAsync_skips_preemptible_sku_when_on_demand_is_later`.
-- [ ] (candidate) `AzureRetailPricesCatalogClient.IsHourMeter` — standalone `Hour` / `hours` UOM may be rejected while quantity-prefixed forms pass
-- [ ] (candidate) `ManifestInfrastructureCostNodes.FromTerraformResourceRows` — null `SkuOrTier` blocks live AWS/GCP probe for terraform-sourced nodes
+- [x] (proven) `AzureRetailPricesCatalogClient.IsHourMeter` — standalone `Hour` / `hours` UOM may be rejected while quantity-prefixed forms pass — **hit 2026-09-09 hunt #1415:** bare `"Hour"` / `"hours"` failed `LooksLikeConsumptionUsd` / `TryMonthlyUsdFromRow` while `"1 Hour"` and `"10 Hours"` already matched via bounded tokens; fixed with standalone `hour` / `hours` synonyms; regressions `TryMonthlyUsdFromRow_accepts_standalone_hour_unit_of_measure_synonyms` and `LooksLikeConsumptionUsd_accepts_standalone_hour_unit_of_measure_synonyms`.
+- [x] (valid-no-repro) `ManifestInfrastructureCostNodes.FromTerraformResourceRows` — null `SkuOrTier` blocks live AWS/GCP probe for terraform-sourced nodes — **2026-09-09 hunt #1415:** `TerraformInfrastructureCostResourceRow` carries only display name, terraform type, and region (no instance-type/sku source); mapper correctly leaves `SkuOrTier` null; live-probe guards are intentional until row schema carries SKU; regression documents contract in `FromTerraformResourceRows_maps_available_row_fields_only`.
+
+2026-09-09 thorough hunt #1415 (hit): proved standalone Azure retail `Hour`/`hours` UOM gap; cheap-disproved terraform null-SKU probe candidate as missing input schema rather than mapper defect; 119 scoped Costing unit tests passed.
 
 2026-09-07 seed hunt #1186 (hit): seeded zone from split catalog; proved GCP billing catalog pagination gap on live pricing probe.
 
