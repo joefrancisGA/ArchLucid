@@ -566,11 +566,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 11
-- **bugs-found:** 7
+- **hunts:** 12
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — verify JWT role ignored invitation/membership AppRole
+- **last-bug:** 2026-09-09 — AcceptInvitation verify JWT hardcoded Reader instead of pending invitation AppRole
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -597,9 +597,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1475 (seed-only): reseeded email-otp-auth after #1428 hit; cheap-disproof closed code-trim and select-workspace role candidates; 18 scoped `EmailOtpAuthServiceTests` passed.
 
-- [x] (valid-no-repro) `ResolveNextStepAsync` AcceptInvitation path hardcodes `ArchLucidRoles.Reader` while pending invitation `AppRole` may be elevated — **valid-no-repro 2026-09-09 seed hunt #1492:** AcceptInvitation JWT is bootstrap-only before explicit `PostAuthBootstrap.AcceptInvitationAsync`; membership role is applied on accept via `invitation.AppRole`; auto-accept paths already return invitation AppRole (#1428)
+- [x] (proven) `ResolveNextStepAsync` AcceptInvitation path hardcodes `ArchLucidRoles.Reader` while pending invitation `AppRole` may be elevated — **hit 2026-09-09 #1495 (seed→hit):** #1492 misclassified as valid-no-repro; pending invitations without token returned `AcceptInvitation` with Reader while `AppRole` was `WorkspaceAdmin`; fixed with `ResolveMembershipRole(linked.AppRole)` / `first.AppRole`; regression in `VerifyCodeAsync_returns_pending_invitation_app_role_for_accept_invitation_next_step`
 
-2026-09-09 seed hunt #1492 (seed-only): reseeded email-otp-auth; cheap-disproved AcceptInvitation bootstrap JWT role candidate; 21 scoped EmailOtpAuthService tests passed.
+2026-09-09 hunt #1495 (hit): proved AcceptInvitation verify JWT ignored pending invitation AppRole; 19 scoped EmailOtpAuthService tests passed.
 
 - [x] (invalid) OTP request rate limit bypass by rotating `ClientIp` while reusing the same normalized email — **invalid 2026-09-09 seed hunt #1493:** `AuthRateLimitHelper.IsEmailOtpRequestRateLimitedAsync` enforces `MaxCodeRequestsPerEmailPerHour` before IP bucket; regression `IsEmailOtpRequestRateLimitedAsync_returns_true_when_email_limit_exceeded`
 
@@ -670,6 +670,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 seed hunt #1222 (hit): proved Unicode dot homoglyph traversal and residual percent after decode cap; reseeded from exhausted zone.
 
 ---
+
+- [x] (valid-no-repro) Semicolon-delimited path segments (`/signin/..;/evil`) bypass dot-segment check — **valid-no-repro 2026-09-09 seed hunt #1495:** `ContainsDotDotSegment` compares whole segments; `..;` is not `..`
+
+2026-09-09 seed hunt #1495 (seed-only): reseeded auth-return-path; cheap-disproved semicolon segment bypass; 41 scoped AuthSignInReturnPathGuard tests passed.
 
 ## Zone: tenant-erasure
 

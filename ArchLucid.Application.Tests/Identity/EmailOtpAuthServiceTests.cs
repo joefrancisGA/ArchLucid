@@ -1113,6 +1113,60 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task VerifyCodeAsync_returns_pending_invitation_app_role_for_accept_invitation_next_step()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        DateTimeOffset expiresUtc = DateTimeOffset.UtcNow.AddDays(7);
+        byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash("unused-invite-token");
+
+        await invitations.SeedPendingForTestsAsync(
+            new UserInvitationRecord
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                Email = "admin-invited@example.com",
+                AppRole = ArchLucidRoles.WorkspaceAdmin,
+                InvitedByActorId = "admin",
+                Status = UserInvitationStatus.Pending,
+                CreatedUtc = expiresUtc.AddDays(-1),
+                ExpiresUtc = expiresUtc
+            },
+            tokenHash);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "admin-invited@example.com" },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = challenge.Id,
+                Code = RecoverCodeForTests(challenge)
+            },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(EmailOtpAuthNextStep.AcceptInvitation, verified.NextStep);
+        Assert.Equal(ArchLucidRoles.WorkspaceAdmin, verified.Role);
+        Assert.Equal(workspaceId, verified.WorkspaceId);
+    }
+
+    [Fact]
     public async Task VerifyCodeAsync_reuses_existing_email_code_identity()
     {
         FakeTimeProvider clock = new(DateTimeOffset.UtcNow);

@@ -245,7 +245,7 @@ public sealed partial class EmailOtpVerifyFlow
                     linked.TenantId,
                     linked.WorkspaceId,
                     linked.Id,
-                    ArchLucidRoles.Reader);
+                    ResolveMembershipRole(linked.AppRole));
             }
         }
 
@@ -261,7 +261,7 @@ public sealed partial class EmailOtpVerifyFlow
                 first.TenantId,
                 first.WorkspaceId,
                 first.Id,
-                ArchLucidRoles.Reader);
+                ResolveMembershipRole(first.AppRole));
         }
 
         return (EmailOtpAuthNextStep.CreateWorkspace, null, null, null, ArchLucidRoles.Reader);
