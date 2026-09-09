@@ -9,6 +9,7 @@ import { BILLING_AND_PLANS_HELP_ROUTE_METADATA } from "@/lib/billing-and-plans-h
 import { SPONSOR_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/sponsor/sponsor-report-help-route-metadata";
 import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings/findings-help-route-metadata";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
+import { GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ROUTE_METADATA } from "@/lib/governance/governance-infrastructure-drift-help-route-metadata";
 import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance/governance-approval-help-route-metadata";
 import { CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA } from "@/lib/configuration-reference-help-route-metadata";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA } from "@/lib/data-handling-tenant-isolation-help-route-metadata";
@@ -80,6 +81,10 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "findings") {
     return FINDINGS_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "governance-infrastructure-drift") {
+    return GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ROUTE_METADATA;
   }
 
   if (entry.slug === "governance-approval") {
