@@ -9,7 +9,6 @@ import { PackagePrintButton } from "@/components/reviews/PackagePrintButton";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkingBackLocator } from "@/hooks/use-working-back-locator";
-import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
