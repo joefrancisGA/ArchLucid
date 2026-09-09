@@ -1,5 +1,6 @@
 import { getManifestSummary } from "@/lib/api";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
+import { governanceSealedManifestBlockedReason } from "@/lib/governance/governance-sealed-manifest-blocked-reason";
 import { coerceManifestSummary } from "@/lib/operator/operator-response-guards";
 import { tryStaticDemoManifestSummary } from "@/lib/operator/operator-static-demo";
 import { resolveGoldenManifestIdForRun } from "@/lib/resolve-golden-manifest-id-for-run";
@@ -36,6 +37,14 @@ async function fetchManifestSummaryForListRow(manifestId: string): Promise<{
     return { summary: coercedSummary.value, failure: null };
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
+
+    if (failure.httpStatus === 409) {
+      const blockedReason = governanceSealedManifestBlockedReason(failure);
+
+      if (blockedReason !== null) {
+        return { summary: null, failure: "summary-unavailable" };
+      }
+    }
 
     if (isApiNotFoundFailure(failure)) {
       return { summary: null, failure: "not-found" };

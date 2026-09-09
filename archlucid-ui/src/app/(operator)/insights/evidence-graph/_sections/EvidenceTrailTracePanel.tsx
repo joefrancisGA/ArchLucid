@@ -7,6 +7,7 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { EvidenceTrailBuyerTraceTable } from "@/app/(operator)/insights/evidence-graph/_sections/EvidenceTrailBuyerTraceTable";
 import { getRunExplanationSummary } from "@/lib/api/architecture-runs";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
+import { explainRunBlockedReason } from "@/lib/explain/explain-run-blocked-reason";
 import { tryStaticDemoExplanationSummary } from "@/lib/operator/operator-static-demo";
 import { resolveFindingTraceRowsFromSummary } from "@/lib/quick-decision-summary-derive";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -81,6 +82,8 @@ export function EvidenceTrailTracePanel(props: EvidenceTrailTracePanelProps) {
   }
 
   if (failure !== null && rows.length === 0) {
+    const blockedReason = explainRunBlockedReason(failure);
+
     return (
       <div
         className={cn(
@@ -88,11 +91,12 @@ export function EvidenceTrailTracePanel(props: EvidenceTrailTracePanelProps) {
           OPERATOR_TYPOGRAPHY.body,
         )}
         role="status"
+        data-testid="evidence-trail-trace-blocked"
       >
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Trace table unavailable</p>
         <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-          Explainability metadata could not be loaded for this review. Try graph view or open the review
-          directly.
+          {blockedReason
+            ?? "Explainability metadata could not be loaded for this review. Try graph view or open the review directly."}
         </p>
         {onOpenGraphView !== undefined ? (
           <button
