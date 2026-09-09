@@ -23,6 +23,7 @@ using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -60,6 +61,7 @@ public sealed partial class RunsController(
     IFindingFeedbackRepository findingFeedbackRepository,
     FindingInstrumentationAuditSupport findingInstrumentationAudit,
     IRunRepository runRepository,
+    IManifestHashService manifestHashService,
     ILogger<RunsController> logger)
     : ControllerBase
 {
@@ -74,6 +76,9 @@ public sealed partial class RunsController(
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     [IdempotencyFilter]
     [HttpPost("review/{runId}/result")]

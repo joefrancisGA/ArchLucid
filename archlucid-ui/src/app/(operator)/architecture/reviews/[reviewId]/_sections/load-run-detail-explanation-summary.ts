@@ -1,12 +1,14 @@
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { getRunExplanationSummary } from "@/lib/api";
+import { explainRunBlockedReason } from "@/lib/explain/explain-run-blocked-reason";
 import { tryStaticDemoExplanationSummary } from "@/lib/operator/operator-static-demo";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 export type RunDetailExplanationLoadResult = {
   readonly summary: RunExplanationSummary | null;
   readonly failure: ApiLoadFailureState | null;
+  readonly blockedReason: string | null;
 };
 
 /** Loads aggregate explanation summary for run detail (deferred off first-screen SSR). */
@@ -17,14 +19,16 @@ export async function loadRunDetailExplanationSummary(
   try {
     const summary = await getRunExplanationSummary(runId, options);
 
-    return { summary, failure: null };
+    return { summary, failure: null, blockedReason: null };
   } catch (e) {
     const staticExplanation = tryStaticDemoExplanationSummary(runId);
 
     if (staticExplanation !== null) {
-      return { summary: staticExplanation, failure: null };
+      return { summary: staticExplanation, failure: null, blockedReason: null };
     }
 
-    return { summary: null, failure: toApiLoadFailure(e) };
+    const failure = toApiLoadFailure(e);
+
+    return { summary: null, failure, blockedReason: explainRunBlockedReason(failure) };
   }
 }
