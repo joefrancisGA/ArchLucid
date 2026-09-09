@@ -10,6 +10,7 @@ import { AlertRulesPickReviewBeforeCreatingStrip } from "@/components/alerts/Ale
 import { AlertRulesNextReviewFooterClient } from "@/components/alerts/AlertRulesNextReviewFooterClient";
 import { AlertRulesTable } from "@/components/alerts/AlertRulesTable";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AlertRuleLivePreviewPanel } from "@/components/alerts/AlertRuleLivePreviewPanel";
 import { AlertRuleNotificationReadinessPanel } from "@/components/alerts/AlertRuleNotificationReadinessPanel";
 import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
@@ -21,8 +22,8 @@ import { useAlertRulesContentCreate } from "@/components/alerts/use-alert-rules-
 import { useAlertRulesContentPreview } from "@/components/alerts/use-alert-rules-content-preview";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
+  ALERT_RULES_CONDITIONS_BUYER_OVERVIEW,
   ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER,
-  ALERT_RULES_CONDITIONS_OVERVIEW,
   ALERT_RULES_CONDITIONS_PAGE_LEAD,
   ALERT_RULES_CREATE_BUTTON_LABEL,
   ALERT_RULES_SAMPLE_MODE_BANNER,
@@ -74,7 +75,7 @@ export function AlertRulesContent() {
   ) : null;
 
   return (
-    <div className="min-w-0">
+    <OperatorPageContainer variant="workflow" className="py-4" data-testid="alert-rules-conditions-content">
       {list.sampleModeBlocked ? (
         <div
           role="status"
@@ -114,7 +115,7 @@ export function AlertRulesContent() {
           className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="alert-rules-conditions-overview"
         >
-          {ALERT_RULES_CONDITIONS_OVERVIEW}
+          {ALERT_RULES_CONDITIONS_BUYER_OVERVIEW}
         </p>
       ) : null}
 
@@ -138,12 +139,14 @@ export function AlertRulesContent() {
         </div>
       ) : null}
 
-      {!list.scopedRunFilterActive ? (
+      {!buyerPolishedShell && !list.scopedRunFilterActive ? (
         <AlertRulesPickReviewBeforeCreatingStrip
           selectedReviewId=""
           onSelectReview={list.onPickReviewForCreating}
         />
-      ) : (
+      ) : null}
+
+      {list.scopedRunFilterActive ? (
         <p
           className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="alert-rules-run-scope-banner"
@@ -162,8 +165,9 @@ export function AlertRulesContent() {
             Open review
           </Link>
         </p>
-      )}
+      ) : null}
 
+      <section className="min-w-0" data-testid="alert-rules-conditions-existing">
       <div
         className={cn(
           "grid",
@@ -233,6 +237,7 @@ export function AlertRulesContent() {
           </div>
         ) : null}
       </div>
+      </section>
 
       <AlertRuleSimulateModal
         rule={list.simulateForRule}
@@ -254,6 +259,6 @@ export function AlertRulesContent() {
         onConfirmLeave={create.documentGuards.confirmLeave}
         onCancelLeave={create.documentGuards.cancelLeave}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }
