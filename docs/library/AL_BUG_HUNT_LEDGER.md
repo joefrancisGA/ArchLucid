@@ -2251,11 +2251,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 12
-- **bugs-found:** 16
+- **hunts:** 13
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — tradeoff acknowledgment substring-matched `unacceptable`; admin ingress matched `block ssh` inside `unblock ssh`
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — decisioning substring heuristics: nosql/sql datastore labels, non-contributor role tokens, bare cluster SKU/RPO heuristic, tradeoff budget token in budgetary prose
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2284,12 +2284,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DeclarationPremiseConflictClassifier.ContainsAnyPhrase` — leading `"No {phrase}"` prohibitive intent false-matched affirmative conflict phrases — **hit 2026-09-07 hunt #1287:** `IsPhraseNegated` covered `"No requirement to …"` / `"Do not …"` but not bare leading `"no"` before `"private network"`; fixed with word-bounded `"no"` negation suffix; regression in `Classify_does_not_fire_private_network_conflict_for_prohibitive_no_private_network_phrase`.
 - [x] (proven) `TradeoffAcknowledgmentResolver.AcceptsSacrifice` — negated acceptance text false-matched acknowledgment tokens — **hit 2026-09-08 (#1329):** `"unacceptable"` substring-matched `"accept"`; fixed with rejection phrases and whole-token acceptance matching; regression in `ResolveAcknowledgmentAnswerKey_returns_null_when_answer_contains_unacceptable` and `DetectAsync_does_not_acknowledge_tradeoff_when_l0_answer_is_unacceptable`.
 - [x] (proven) `DeclarationPremiseConflictClassifier.AdminIngressIntentMatches` — `"block ssh"` matched inside `"unblock ssh"` — **hit 2026-09-08 (#1329):** prefix negation for embedded block phrases; regression in `Classify_does_not_fire_admin_ingress_conflict_for_unblock_ssh_phrase`.
-- [ ] (candidate) `TradeoffRequirementConflictDetector.DetectConflict` — bare substring tokens (`sla`, `pci`, `mfa`, `budget`) in requirement prose false-trigger conflicting tradeoffs.
-- [ ] (candidate) `IdentityRegulatedDatastoreClassifier.IsDatastoreNode` — `"sql"` substring matches inside `"nosql"` labels and false-classifies Cosmos/NoSQL nodes as SQL datastores.
-- [ ] (candidate) `IdentityBlastRadiusRoleNames.IsWriteAdminRole` — `"Contributor"`/`"Owner"` substring tokens match inside deny-list role names such as `"Non-Contributor Access Reviewer"`.
-- [ ] (candidate) `RequirementSkuTierAnalyzer` / `DrRpoTopologyAnalyzer` — `"cluster"` topology heuristic treats AKS/app cluster nodes as datastores for SKU/RPO gap findings.
+- [x] (proven) `TradeoffRequirementConflictDetector.DetectConflict` — bare substring tokens (`sla`, `pci`, `mfa`, `budget`) in requirement prose false-trigger conflicting tradeoffs — **hit 2026-09-09 hunt #1414:** `"budgetary"` matched `"budget"` when Cost was sacrificed; fixed with standalone-word pattern matching via `DecisioningTextTokenMatcher`; regression `DetectConflict_does_not_false_positive_on_budgetary_requirement_when_cost_sacrificed`.
+- [x] (proven) `IdentityRegulatedDatastoreClassifier.IsDatastoreNode` — `"sql"` substring matches inside `"nosql"` labels and false-classifies Cosmos/NoSQL nodes as SQL datastores — **hit 2026-09-09 hunt #1414:** standalone-word `sql` matching; regression `IsDatastoreNode_does_not_false_positive_on_nosql_label`.
+- [x] (proven) `IdentityBlastRadiusRoleNames.IsWriteAdminRole` — `"Contributor"`/`"Owner"` substring tokens match inside deny-list role names such as `"Non-Contributor Access Reviewer"` — **hit 2026-09-09 hunt #1414:** non-prefix negation before role tokens; regressions `IsWriteAdminRole_does_not_match_non_contributor_deny_list_role` and `IsWriteAdminRole_does_not_match_non_owner_deny_list_role`.
+- [x] (proven) `RequirementSkuTierAnalyzer` / `DrRpoTopologyAnalyzer` — `"cluster"` topology heuristic treats AKS/app cluster nodes as datastores for SKU/RPO gap findings — **hit 2026-09-09 hunt #1414:** bare `cluster` now requires co-occurring datastore keywords; shared `TopologyDatastoreLabelHeuristic`; regressions `IsSkuRpoDatastoreTopologyNode_does_not_treat_aks_cluster_as_datastore` and `IsSkuRpoDatastoreTopologyNode_still_matches_sql_failover_cluster`.
 
-2026-09-08 seed hunt #1329 (hit): reseeded decisioning; proved tradeoff acknowledgment negation gap and admin-ingress unblock prefix false match; seeded tradeoff requirement, identity blast-radius, and topology cluster heuristic candidates.
+2026-09-09 thorough hunt #1414 (hit): proved four seeded substring-heuristic false positives in decisioning (tradeoff budget token, nosql/sql datastore label, non-contributor role token, bare cluster SKU/RPO heuristic); consolidated label matching in `TopologyDatastoreLabelHeuristic` + `DecisioningTextTokenMatcher`.
 
 2026-09-07 thorough hunt #1287 (hit): proved bare `"No …"` negation gap on private-network premise conflict matching.
 
