@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button";
 import { useReRunReviewInFlightProgress } from "@/hooks/use-re-run-review-in-flight-progress";
 import { executeArchitectureRunAsync } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { reviewExecuteMutationBlockedReason } from "@/lib/runs/review-execute-mutation-blocked-reason";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import type { ButtonProps } from "@/components/ui/button";
 import { awaitMinimumVisibleDuration } from "@/lib/await-minimum-visible-duration";
@@ -281,17 +283,21 @@ export function ReRunReviewButton(props: ReRunReviewButtonProps): React.JSX.Elem
       activeAttemptRef.current = null;
       setOutcome(null);
 
+      const failure = toApiLoadFailure(e);
+      const blocked = reviewExecuteMutationBlockedReason(failure);
+      const message = blocked ?? (e instanceof Error ? e.message : "Re-run failed.");
+
       if (isApiRequestError(e)) {
         setError({
-          message: e.message,
+          message,
           problem: e.problem,
           correlationId: e.correlationId,
         });
       } else {
         setError({
-          message: e instanceof Error ? e.message : "Re-run failed.",
-          problem: null,
-          correlationId: null,
+          message,
+          problem: failure.problem,
+          correlationId: failure.correlationId,
         });
       }
     } finally {
