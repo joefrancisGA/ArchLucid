@@ -6,6 +6,8 @@ import {
   revokeRiskException,
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
 import { validateRemediationOwnerInput } from "@/lib/findings/finding-governance-action-copy";
 import {
   EMPTY_FINDING_INSPECT_WAIVER_BASELINE,
@@ -92,7 +94,10 @@ export function useFindingInspectGovernanceStickinessWaivers({
       setWaiverBaseline(captureWaiverBaseline());
       await reload();
     } catch (error: unknown) {
-      setErrorMessage(resolveMutationError(error));
+      const failure = toApiLoadFailure(error);
+      setErrorMessage(
+        riskExceptionMutationBlockedReason(failure) ?? resolveMutationError(error),
+      );
     } finally {
       setBusyAction(null);
     }
@@ -112,7 +117,10 @@ export function useFindingInspectGovernanceStickinessWaivers({
       setStatusMessage("Waiver revoked.");
       await reload();
     } catch (error: unknown) {
-      setErrorMessage(resolveMutationError(error));
+      const failure = toApiLoadFailure(error);
+      setErrorMessage(
+        riskExceptionMutationBlockedReason(failure) ?? resolveMutationError(error),
+      );
     } finally {
       setBusyAction(null);
     }

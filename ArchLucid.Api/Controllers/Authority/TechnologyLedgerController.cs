@@ -88,6 +88,7 @@ public sealed class TechnologyLedgerController(
     [ProducesResponseType(typeof(PatchTechnologyLedgerEntryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PatchTechnologyLedgerEntry(
         [FromRoute] Guid runId,
         [FromRoute] string entryId,
@@ -100,6 +101,13 @@ public sealed class TechnologyLedgerController(
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             PatchTechnologyLedgerEntryCommand command = new()
             {
                 Status = request.Status,
@@ -147,6 +155,10 @@ public sealed class TechnologyLedgerController(
             };
 
             return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (RunNotFoundException ex)
         {

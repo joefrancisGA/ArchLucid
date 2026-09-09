@@ -19,11 +19,10 @@ import {
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
 import { getTechnologyLedger, patchTechnologyLedgerEntry } from "@/lib/api/technology-ledger";
-import { isApiRequestError } from "@/lib/api-request-error";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { technologyLedgerBlockedReason } from "@/lib/runs/technology-ledger-blocked-reason";
+import { technologyLedgerMutationBlockedReason } from "@/lib/runs/technology-ledger-mutation-blocked-reason";
 import { tryStaticDemoTechnologyLedger } from "@/lib/operator/operator-static-demo-technology-ledger";
 import {
   technologyLedgerProviderLabel,
@@ -188,17 +187,13 @@ export function TechnologyBaselinePanel({
       );
       await loadLedger();
     } catch (error: unknown) {
-      if (isApiRequestError(error)) {
-        setActionError({
-          message: error.message,
-          correlationId: error.correlationId,
-        });
-      } else {
-        setActionError({
-          message: error instanceof Error ? error.message : "Update failed.",
-          correlationId: null,
-        });
-      }
+      const failure = toApiLoadFailure(error);
+      const blocked = technologyLedgerMutationBlockedReason(failure);
+
+      setActionError({
+        message: blocked ?? failure.message,
+        correlationId: failure.correlationId,
+      });
     } finally {
       setActionEntryId(null);
     }

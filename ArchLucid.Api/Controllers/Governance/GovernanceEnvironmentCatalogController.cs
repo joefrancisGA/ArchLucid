@@ -97,6 +97,7 @@ public sealed partial class GovernanceEnvironmentCatalogController(
     [ProducesResponseType(typeof(GovernanceEnvironmentCatalog), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Replace(
         [FromBody] ReplaceGovernanceEnvironmentCatalogRequest? request,
         CancellationToken cancellationToken = default)
@@ -118,6 +119,12 @@ public sealed partial class GovernanceEnvironmentCatalogController(
 
         if (scopeProblem is not null)
             return scopeProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceScopeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         GovernanceEnvironmentCatalog existingCatalog = await _catalogService
             .GetCatalogAsync(cancellationToken)

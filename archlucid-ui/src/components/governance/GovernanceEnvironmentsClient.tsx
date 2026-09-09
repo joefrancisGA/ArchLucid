@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { replaceGovernanceEnvironmentCatalog } from "@/lib/api/policy-governance-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governanceEnvironmentCatalogMutationBlockedReason } from "@/lib/governance/governance-environment-catalog-mutation-blocked-reason";
 import {
   GOVERNANCE_ENVIRONMENTS_PAGE_SUBTITLE,
   GOVERNANCE_ENVIRONMENTS_PAGE_TITLE,
@@ -84,7 +86,9 @@ export default function GovernanceEnvironmentsClient() {
       showSuccess("Approval environments saved.");
     },
     onError: (error: unknown) => {
-      showError(error instanceof Error ? error.message : "Could not save approval environments.");
+      const failure = toApiLoadFailure(error);
+      const blocked = governanceEnvironmentCatalogMutationBlockedReason(failure);
+      showError(blocked ?? failure.message);
     },
   });
 

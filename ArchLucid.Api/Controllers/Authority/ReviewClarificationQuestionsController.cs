@@ -93,6 +93,10 @@ public sealed class ReviewClarificationQuestionsController(
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
@@ -100,6 +104,7 @@ public sealed class ReviewClarificationQuestionsController(
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ApplyKnowledgeModelClarificationAnswersResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ApplyKnowledgeModelClarificationAnswers(
         [FromRoute] Guid runId,
         [FromBody] ApplyKnowledgeModelClarificationAnswersRequest? request,
@@ -117,6 +122,12 @@ public sealed class ReviewClarificationQuestionsController(
         }
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
