@@ -118,6 +118,7 @@ import {
   COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID,
   COMPARE_TWO_REVIEWS_SKIP_LINK_LABEL,
   COMPARE_TWO_REVIEWS_SKIP_TARGET_ID,
+  COMPARE_TWO_REVIEWS_WORKSPACE_TEST_ID,
 } from "@/lib/compare-two-reviews-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -147,22 +148,23 @@ describe("CompareForm buyer-polished shell (CXX)", () => {
     const firstViewport = screen.getByTestId(COMPARE_TWO_REVIEWS_FIRST_VIEWPORT_TEST_ID);
     const dimensionsPreview = screen.getByTestId("compare-dimensions-preview");
     const overview = screen.getByTestId("compare-two-reviews-overview");
-    const workspace = screen.getByTestId("compare-workspace");
+    const workspace = screen.getByTestId(COMPARE_TWO_REVIEWS_WORKSPACE_TEST_ID);
     const orientationBottom = screen.getByTestId(COMPARE_TWO_REVIEWS_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("compare-two-reviews-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(screen.getByTestId("compare-two-reviews-intro")).toHaveTextContent(COMPARE_PAGE_LEAD);
     expect(firstViewport).toContainElement(dimensionsPreview);
+    expect(firstViewport).not.toContainElement(overview);
     expect(screen.getByTestId("compare-two-reviews-start-here-helper")).toHaveTextContent(COMPARE_START_HERE_HELPER);
     expect(screen.getByTestId("compare-two-reviews-overview")).toHaveTextContent(COMPARE_BUYER_OVERVIEW);
     expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(workspace);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(orientationBottom).toContainElement(sourcesSection);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    const sourcesSection = screen.getByTestId("compare-two-reviews-sources");
 
     for (const source of filterWhereToGoNextFollowUpLinks(COMPARE_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);

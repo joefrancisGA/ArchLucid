@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { OperatorLoadingNotice, OperatorMalformedCallout } from "@/components/operator/OperatorShellMessage";
 import { GraphBuyerEvidenceTrailError } from "@/app/(operator)/insights/evidence-graph/_sections/GraphBuyerEvidenceTrailError";
+import { GraphPageProvenanceAliasGuardCallout } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageProvenanceAliasGuardCallout";
 import { BUYER_GRAPH_LOAD_ERROR } from "@/lib/buyer/buyer-polish-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -13,6 +14,7 @@ export type GraphFetchStatusAlertsProps = {
   runId?: string;
   onRetry?: () => void;
   graphEndpointHint?: string;
+  graphMode?: string;
 };
 
 export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
@@ -24,6 +26,7 @@ export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
     runId = "",
     onRetry,
     graphEndpointHint,
+    graphMode = "provenance-full",
   } = props;
 
   return (
@@ -40,7 +43,9 @@ export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
       )}
 
       {loadFailure !== null ? (
-        <GraphBuyerEvidenceTrailError
+        <>
+          <GraphPageProvenanceAliasGuardCallout loadFailure={loadFailure} mode={graphMode} />
+          <GraphBuyerEvidenceTrailError
           failure={loadFailure}
           runId={runId}
           loading={loading}
@@ -48,6 +53,7 @@ export function GraphFetchStatusAlerts(props: GraphFetchStatusAlertsProps) {
           graphEndpointHint={graphEndpointHint}
           operatorShell={!buyerPolishedShell}
         />
+        </>
       ) : null}
 
       {malformedMessage && (

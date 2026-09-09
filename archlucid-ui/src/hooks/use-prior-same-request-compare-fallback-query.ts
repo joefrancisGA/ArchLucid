@@ -7,6 +7,9 @@ import {
   listRunsInScopePaged,
   shouldListReviewsAcrossProjectSlugs,
 } from "@/lib/api/architecture-runs";
+import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
@@ -42,9 +45,18 @@ export function usePriorSameRequestCompareFallbackQuery(
 ) {
   const trimmed = runId.trim();
 
-  return createOperatorQueryHook<PriorSameRequestCompareFallbackResult>({
+  const query = createOperatorQueryHook<PriorSameRequestCompareFallbackResult>({
     queryKey: operatorQueryKeys.priorSameRequestCompareFallback(trimmed),
     queryFn: () => fetchPriorSameRequestCompareFallback(trimmed),
     enabled: (options?.enabled ?? true) && trimmed.length > 0,
   });
+
+  const failure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
+  const blockedReason = runSummaryBlockedReason(failure);
+
+  return {
+    ...query,
+    failure,
+    blockedReason,
+  };
 }

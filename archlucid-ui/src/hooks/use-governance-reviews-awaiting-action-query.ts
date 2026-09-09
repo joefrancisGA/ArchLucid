@@ -10,6 +10,7 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { reviewsAwaitingActionBlockedReason } from "@/lib/governance/governance-stickiness-register-blocked-reason";
+import { governanceStickinessSummaryBlockedReason } from "@/lib/governance/governance-stickiness-summary-blocked-reason";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
@@ -32,7 +33,8 @@ export function useGovernanceReviewsAwaitingActionQuery() {
   });
 
   const failure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
-  const blockedReason = reviewsAwaitingActionBlockedReason(failure);
+  const blockedReason =
+    governanceStickinessSummaryBlockedReason(failure) ?? reviewsAwaitingActionBlockedReason(failure);
 
   return {
     items: query.data?.items ?? EMPTY_ITEMS,
@@ -44,6 +46,7 @@ export function useGovernanceReviewsAwaitingActionQuery() {
           : "Failed to load reviews awaiting action."
         : null),
     blockedReason,
+    failure,
     isLoading: query.isPending,
   };
 }

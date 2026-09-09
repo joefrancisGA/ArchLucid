@@ -4,6 +4,7 @@ import { useId, useMemo, useState } from "react";
 
 import { useFindingLlmAuditQuery } from "@/hooks/use-finding-llm-audit-query";
 import { useFindingProvenanceQuery } from "@/hooks/use-finding-provenance-query";
+import { FindingInspectLlmAuditBlockedCallout } from "@/components/findings/FindingInspectLlmAuditBlockedCallout";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { buildFindingRawContextBlocks } from "@/lib/build-finding-raw-context-blocks";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -43,7 +44,7 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
   const provenanceQuery = useFindingProvenanceQuery(runId, trimmedFindingId, { enabled });
   const llmAuditQuery = useFindingLlmAuditQuery(runId, trimmedFindingId, { enabled });
   const loading = enabled && (provenanceQuery.isPending || llmAuditQuery.isPending);
-  const failure: ApiLoadFailureState | null = useMemo(
+  const provenanceFailure: ApiLoadFailureState | null = useMemo(
     () => (provenanceQuery.isError ? toApiLoadFailure(provenanceQuery.error) : null),
     [provenanceQuery.error, provenanceQuery.isError],
   );
@@ -95,21 +96,25 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
             </ul>
           ) : null}
 
-          {!loading && failure !== null ? (
+          {!loading && provenanceFailure !== null ? (
             <OperatorApiProblem
-              problem={failure.problem}
-              fallbackMessage={failure.message}
-              correlationId={failure.correlationId}
+              problem={provenanceFailure.problem}
+              fallbackMessage={provenanceFailure.message}
+              correlationId={provenanceFailure.correlationId}
             />
           ) : null}
 
-          {!loading && failure === null && blocks.length === 0 ? (
+          {!loading && llmAuditQuery.failure !== null ? (
+            <FindingInspectLlmAuditBlockedCallout failure={llmAuditQuery.failure} />
+          ) : null}
+
+          {!loading && provenanceFailure === null && llmAuditQuery.failure === null && blocks.length === 0 ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
               No raw context blocks are available for this finding yet.
             </p>
           ) : null}
 
-          {!loading && failure === null && blocks.length > 0 ? (
+          {!loading && provenanceFailure === null && llmAuditQuery.failure === null && blocks.length > 0 ? (
             <ol className="m-0 list-none space-y-4 p-0">
               {blocks.map((block) => (
                 <li key={block.id} className={cn("space-y-2", blockBorderClass(block.kind))}>

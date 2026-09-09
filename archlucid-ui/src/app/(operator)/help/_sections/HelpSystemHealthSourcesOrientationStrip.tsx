@@ -1,4 +1,5 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE,
   SYSTEM_HEALTH_HELP_ORIENTATION_SOURCES_INTRO,
@@ -17,6 +18,7 @@ export function HelpSystemHealthSourcesOrientationStrip(): React.JSX.Element {
       sourcesIntro={SYSTEM_HEALTH_HELP_ORIENTATION_SOURCES_INTRO}
       sources={SYSTEM_HEALTH_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary
     />
   );

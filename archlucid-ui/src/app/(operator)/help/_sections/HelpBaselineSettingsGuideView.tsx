@@ -43,6 +43,7 @@ import {
   BASELINE_SETTINGS_HELP_PRIMARY_CONTENT_ID,
   BASELINE_SETTINGS_HELP_SKIP_LINK_LABEL,
   BASELINE_SETTINGS_HELP_SKIP_TARGET_ID,
+  BASELINE_SETTINGS_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/baseline-settings-help-page-copy";
 import { BASELINE_SAVED_CANNOT_BE_REMOVED_HELPER } from "@/lib/baseline-settings-present";
 import {
@@ -165,7 +166,6 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
             claimDiscipline={BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE}
             claimDisciplineTestId={BASELINE_SETTINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
             metadata={buyerHeaderMetadata}
-            actions={<HelpBaselineSettingsHeaderActions />}
           />
         ) : (
           <HelpTopicGuidePageHeader
@@ -205,8 +205,12 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
           </p>
         ) : null}
 
-        <div className={buyerPolishedShell ? "min-w-0 space-y-4" : contentGridClass}>
-          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+        <section
+          className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+          data-testid={buyerPolishedShell ? BASELINE_SETTINGS_HELP_WORKSPACE_TEST_ID : undefined}
+        >
+          <div className={buyerPolishedShell ? "min-w-0 space-y-4" : contentGridClass}>
+            <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? (
               <BaselineSettingsHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             ) : null}
@@ -278,7 +282,8 @@ export function HelpBaselineSettingsGuideView(props: HelpBaselineSettingsGuideVi
           </div>
 
           {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}
-        </div>
+          </div>
+        </section>
 
         {buyerPolishedShell ? <HelpBaselineSettingsSourcesOrientationStrip /> : null}
       </div>

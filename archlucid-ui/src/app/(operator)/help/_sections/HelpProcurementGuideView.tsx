@@ -37,6 +37,7 @@ import {
   PROCUREMENT_HELP_SKIP_LINK_LABEL,
   PROCUREMENT_HELP_SKIP_TARGET_ID,
   PROCUREMENT_HELP_START_HERE_HELPER,
+  PROCUREMENT_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/procurement-help-page-copy";
 import {
   PROCUREMENT_HELP_JOB_MATRIX,
@@ -173,10 +174,7 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
       )}
 
       {buyerPolishedShell ? (
-        <p
-          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="help-procurement-overview"
-        >
+        <p className={readingBodyClass} data-testid="help-procurement-overview">
           {PROCUREMENT_HELP_BUYER_OVERVIEW}
         </p>
       ) : null}
@@ -185,8 +183,12 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
         <HelpTopicExportClaimDiscipline claimDiscipline={PROCUREMENT_HELP_CLAIM_DISCIPLINE} />
       )}
 
-      <div className={contentGridClass}>
-        <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
+      <section
+        className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+        data-testid={buyerPolishedShell ? PROCUREMENT_HELP_WORKSPACE_TEST_ID : undefined}
+      >
+        <div className={contentGridClass}>
+          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")}>
           <div className={HELP_PAGE_LAYOUT.contentColumn} data-testid="help-procurement-faq-content">
             <MarketingAccessibilityMarkdownFragment
               markdownBody={bodyMarkdown}
@@ -232,8 +234,9 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
           {buyerPolishedShell ? null : <ProcurementHelpEvidenceOrientationStrip />}
         </div>
 
-        {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
-      </div>
+          {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
+        </div>
+      </section>
 
       {buyerPolishedShell ? <HelpProcurementSourcesOrientationStrip /> : null}
     </>

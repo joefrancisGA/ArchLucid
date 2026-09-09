@@ -50,6 +50,7 @@ import {
   JIRA_INTEGRATION_HELP_SKIP_LINK_LABEL,
   JIRA_INTEGRATION_HELP_SKIP_TARGET_ID,
   JIRA_INTEGRATION_HELP_START_HERE_HELPER,
+  JIRA_INTEGRATION_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/jira-integration-help-page-copy";
 import { JIRA_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/jira-integration-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -183,8 +184,12 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
           </p>
         ) : null}
 
-        <div className={contentGridClass}>
-          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+        <section
+          className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+          data-testid={buyerPolishedShell ? JIRA_INTEGRATION_HELP_WORKSPACE_TEST_ID : undefined}
+        >
+          <div className={contentGridClass}>
+            <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? (
               <JiraIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             ) : null}
@@ -249,8 +254,9 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
             </section>
           </div>
 
-          {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
-        </div>
+            {showSectionNav ? <HelpTopicTableOfContents headings={guideHeadings} /> : null}
+          </div>
+        </section>
 
         {buyerPolishedShell ? <HelpJiraIntegrationSourcesOrientationStrip /> : null}
       </div>

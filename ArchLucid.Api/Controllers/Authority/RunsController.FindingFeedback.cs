@@ -21,6 +21,7 @@ public sealed partial class RunsController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostFindingFeedbackAsync(
         string findingId,
         [FromBody] ArchitectureFindingFeedbackPostRequest? request,
@@ -60,6 +61,12 @@ public sealed partial class RunsController
                 $"Finding '{trimmedFindingId}' was not found on run '{request.RunId}'.",
                 ProblemTypes.ResourceNotFound);
         }
+
+        IActionResult? sealedGuardResult =
+            await EnsureRunSealedManifestReadAllowedAsync(request.RunId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         short score = request.IsHelpful ? (short)1 : (short)-1;
 

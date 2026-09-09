@@ -26,6 +26,7 @@ import {
   AUTHENTICATION_SIGN_IN_HELP_SKIP_LINK_LABEL,
   AUTHENTICATION_SIGN_IN_HELP_SKIP_TARGET_ID,
   AUTHENTICATION_SIGN_IN_HELP_START_HERE_HELPER,
+  AUTHENTICATION_SIGN_IN_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/authentication-sign-in-help-page-copy";
 import { splitAuthenticationSignInHelpMarkdown } from "@/lib/authentication-sign-in-help-guide-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -148,14 +149,15 @@ export function HelpAuthenticationSignInGuideView(
       )}
 
       {buyerPolishedShell ? (
-        <p
-          className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="help-authentication-sign-in-overview"
-        >
+        <p className={readingBodyClass} data-testid="help-authentication-sign-in-overview">
           {AUTHENTICATION_SIGN_IN_HELP_BUYER_OVERVIEW}
         </p>
       ) : null}
 
+      <section
+        className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+        data-testid={buyerPolishedShell ? AUTHENTICATION_SIGN_IN_HELP_WORKSPACE_TEST_ID : undefined}
+      >
       <div className={contentGridClass}>
         <div className={cn("min-w-0 space-y-4", HELP_PAGE_LAYOUT.contentColumn)}>
           <div data-testid="help-authentication-sign-in-first-viewport" className="space-y-4">
@@ -178,6 +180,7 @@ export function HelpAuthenticationSignInGuideView(
 
         {showSectionNav ? <HelpTopicTableOfContents headings={headings} enableScrollSpy /> : null}
       </div>
+      </section>
 
       {buyerPolishedShell ? <HelpAuthenticationSignInSourcesOrientationStrip /> : null}
     </>

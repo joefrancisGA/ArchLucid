@@ -54,7 +54,6 @@ export function useCompareResultsPanel(props: CompareResultsPanelProps) {
   const comparisonSearchBlockedReason = comparisonSearchQuery.blockedReason;
   const comparisonDriftBlockedReason = comparisonDriftDownload.blockedReason;
 
-
   const handleDownloadPdf = async () => {
     if (!lastComparedPair) return;
     setPdfDownloading(true);
