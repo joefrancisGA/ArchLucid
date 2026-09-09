@@ -33,6 +33,7 @@ import {
   ADMIN_DIAGNOSTICS_HELP_SKIP_TARGET_ID,
   ADMIN_DIAGNOSTICS_HELP_START_HERE_CARD_TITLE,
   ADMIN_DIAGNOSTICS_HELP_START_HERE_HELPER,
+  ADMIN_DIAGNOSTICS_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/admin-diagnostics-help-page-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -198,13 +199,17 @@ export function HelpAdminDiagnosticsGuideView(
 
         {buyerPolishedShell ? (
           <p
-            className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            className={cn("m-0 max-w-3xl text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
             data-testid="help-admin-diagnostics-overview"
           >
             {ADMIN_DIAGNOSTICS_HELP_BUYER_OVERVIEW}
           </p>
         ) : null}
 
+        <section
+          className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+          data-testid={buyerPolishedShell ? ADMIN_DIAGNOSTICS_HELP_WORKSPACE_TEST_ID : undefined}
+        >
         <div className={contentGridClass}>
           <div className={cn("min-w-0 space-y-6", "max-w-[42rem] lg:max-w-none")}>
             <div
@@ -228,6 +233,7 @@ export function HelpAdminDiagnosticsGuideView(
 
           {showSectionNav ? <HelpTopicTableOfContents headings={headings} /> : null}
         </div>
+        </section>
 
         {buyerPolishedShell ? <HelpAdminDiagnosticsSourcesOrientationStrip /> : null}
       </div>

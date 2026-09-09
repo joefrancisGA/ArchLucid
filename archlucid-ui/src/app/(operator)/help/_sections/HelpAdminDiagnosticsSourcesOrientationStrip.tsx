@@ -5,6 +5,7 @@ import {
   ADMIN_DIAGNOSTICS_HELP_SOURCES,
 } from "@/lib/admin-diagnostics-help-evidence-copy";
 import { ADMIN_DIAGNOSTICS_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/admin-diagnostics-help-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 /** Sources-only follow-ups for `/help/admin-diagnostics` buyer-polished shell (HAE). */
 export function HelpAdminDiagnosticsSourcesOrientationStrip(): React.JSX.Element {
@@ -18,6 +19,7 @@ export function HelpAdminDiagnosticsSourcesOrientationStrip(): React.JSX.Element
       sources={ADMIN_DIAGNOSTICS_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
       hubSecondary
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
 }
