@@ -987,6 +987,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1439 (seed-only): reseeded finding-disposition after #1400 hit; cheap-disproof closed control-char, short preview override, max-length boundary, and ListHistory read-path candidates; 23 scoped FindingDispositionValidation tests passed.
 
+- [x] (proven) `FindingDispositionValidation.Validate` for `Accepted` — trade-off acknowledgment of only zero-width/format characters satisfies `Trim().Length >= MinimumRationaleLength` — **hit 2026-09-09 seed hunt #1470 (seed→hit):** extended `HasSubstantiveText` guard to rationale, trade-off acknowledgment, and evidence request text; regression `Validate_accepted_rejects_zero_width_space_only_trade_off_acknowledgment`.
+
+2026-09-09 seed hunt #1470 (seed→hit): reseeded finding-disposition; proved invisible trade-off acknowledgment bypass; 24 scoped `FindingDispositionValidationTests` passed.
+
 ---
 
 ## Zone: review-recurrence
