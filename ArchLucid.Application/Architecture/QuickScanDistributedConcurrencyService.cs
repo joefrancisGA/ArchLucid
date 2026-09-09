@@ -214,7 +214,14 @@ public sealed class QuickScanDistributedConcurrencyService(
         {
             _logger.LogError(ex, "Quick Scan distributed concurrency abandon failed; retrying once.");
 
-            await _store.AbandonQueueEntryAsync(queueEntryId, CancellationToken.None).ConfigureAwait(false);
+            try
+            {
+                await _store.AbandonQueueEntryAsync(queueEntryId, CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception retryEx)
+            {
+                _logger.LogError(retryEx, "Quick Scan distributed concurrency abandon retry failed.");
+            }
         }
     }
 }

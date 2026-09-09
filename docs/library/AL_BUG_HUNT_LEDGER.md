@@ -10149,11 +10149,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — promote store-error abandon retry; silent renewal no-op on expired lease
+- **last-bug:** 2026-09-09 — abandon cleanup swallow; renewal interval clamp + immediate renew
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10169,7 +10169,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `InMemoryQuickScanDistributedConcurrencyStore.RenewLeaseAsync` / `usp_QuickScanConcurrency_RenewLease` — renewal no-ops when `ExpiresUtc <= @UtcNow` without error so the renewal loop keeps running while the SQL lease row expires (same over-capacity shape as #1403 when `LeaseRenewalIntervalSeconds` ≥ `LeaseDurationSeconds` or renewal is delayed past TTL) — **hit 2026-09-09 thorough hunt #1405:** throw when the lease row is missing/expired instead of silently succeeding; SQL `@@ROWCOUNT` guard; regression `ExecutionCancellationToken_is_cancelled_when_renewal_noops_after_lease_expires`
 - [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — promote store-error path calls `AbandonQueueEntryAsync` without swallowing abandon failures, so a transient abandon error could leave the queue row pinned until `QueueExpiresUtc` — **hit 2026-09-09 thorough hunt #1405:** retry abandon once on cleanup paths (promote error, cancel, queue timeout); regression `WaitForAdmissionAsync_abandons_queue_entry_when_promote_store_error_and_abandon_retries`
 - [x] (proven) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` — `_released` was set before `ReleaseLeaseAsync` and renewal CTS was disposed on the first attempt, so a transient release failure pinned the slot until lease TTL and a retry dispose faulted on the disposed CTS — **hit 2026-09-09 seed hunt #1404:** stop renewal once, release with `CancellationToken.None`, set `_released` only after store release succeeds; regression `DisposeAsync_can_retry_release_when_store_throws`
+- [x] (proven) `QuickScanDistributedConcurrencyService.AbandonQueueEntryForCleanupAsync` — when both abandon attempts failed, promote store-error cleanup threw instead of returning `StoreUnavailable` and cancel cleanup replaced `OperationCanceledException` with the abandon fault — **hit 2026-09-09 seed hunt #1406:** swallow abandon retry failures after logging; regressions `WaitForAdmissionAsync_returns_store_unavailable_when_promote_and_abandon_both_fail` and `WaitForAdmissionAsync_still_throws_operation_canceled_when_abandon_cleanup_fails`
+- [x] (proven) `QuickScanDistributedConcurrencyLeaseRenewal` — renewal loop waited for the first timer tick and used the raw configured interval, so when `LeaseRenewalIntervalSeconds` exceeded `LeaseDurationSeconds` the lease expired before the first renewal attempt (over-capacity window until #1405 throw/cancel) — **hit 2026-09-09 seed hunt #1406:** renew immediately then on interval with interval clamped to `min(configured, leaseDuration - 1)` (run-execute pattern); regression `ExecutionCancellationToken_stays_active_when_renewal_interval_is_clamped_before_lease_expires`
 
+2026-09-09 seed hunt #1406 (hit): reseeded abandon best-effort and renewal scheduling paths; proved cleanup failures must not replace caller outcomes and renewal must run before lease TTL; 16 scoped tests passed.
 2026-09-09 thorough hunt #1405 (hit): proved silent renewal no-op and promote-error abandon retry; 14 scoped tests passed.
 2026-09-09 seed hunt #1403 (hit): reseeded renewal-failure execute-cancel path; proved renewal loss must cancel in-flight scan before lease TTL frees peer admission; 11 scoped tests passed.
 2026-09-09 thorough hunt #1402 (hit): proved renewal failure skipped lease release on dispose; cheap-disproved admit partial-queue candidate; 9 scoped tests passed.

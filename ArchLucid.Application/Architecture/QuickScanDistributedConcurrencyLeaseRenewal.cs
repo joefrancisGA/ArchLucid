@@ -16,15 +16,19 @@ internal static class QuickScanDistributedConcurrencyLeaseRenewal
         CancellationTokenSource executeCancellationSource)
     {
         QuickScanSafetyConcurrencyLimits limits = safetyOptions.CurrentValue.Concurrency;
-        TimeSpan renewalInterval = TimeSpan.FromSeconds(limits.LeaseRenewalIntervalSeconds);
-        TimeSpan leaseDuration = TimeSpan.FromSeconds(limits.LeaseDurationSeconds);
+        int leaseDurationSeconds = limits.LeaseDurationSeconds;
+        int renewalIntervalSeconds = Math.Min(
+            limits.LeaseRenewalIntervalSeconds,
+            Math.Max(1, leaseDurationSeconds - 1));
+        TimeSpan renewalInterval = TimeSpan.FromSeconds(renewalIntervalSeconds);
+        TimeSpan leaseDuration = TimeSpan.FromSeconds(leaseDurationSeconds);
         CancellationToken cancellationToken = executeCancellationSource.Token;
 
         using PeriodicTimer timer = new(renewalInterval);
 
         try
         {
-            while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
+            do
             {
 
                 try
@@ -42,6 +46,7 @@ internal static class QuickScanDistributedConcurrencyLeaseRenewal
                     break;
                 }
             }
+            while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false));
         }
         catch (OperationCanceledException)
         {
