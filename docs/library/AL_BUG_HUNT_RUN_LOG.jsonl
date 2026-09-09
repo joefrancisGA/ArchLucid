@@ -1597,3 +1597,4 @@
 {"at":"2026-09-09T04:49:08.3909635Z","zoneId":"agent-runtime-safety","outcome":"hit"}
 {"at":"2026-09-09T04:56:45.9526663Z","zoneId":"artifact-synthesis","outcome":"hit"}
 {"at":"2026-09-09T05:05:16.9233775Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
+{"at":"2026-09-09T05:13:33.7489711Z","zoneId":"decisioning","outcome":"hit"}
