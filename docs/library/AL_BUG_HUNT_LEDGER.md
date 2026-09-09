@@ -727,6 +727,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1500 (seed-only): reseeded auth-return-path; cheap-disproved picker reseed candidate; 41 scoped AuthSignInReturnPathGuard tests passed.
 
+- [x] (valid-no-repro) Residual edge case in zone `auth-return-path` from picker reseed #1501 — **valid-no-repro 2026-09-09 seed hunt #1501:** cheap-disproof from zone paths and existing regressions
+
+2026-09-09 seed hunt #1501 (seed-only): reseeded auth-return-path; cheap-disproved picker reseed candidate; 41 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (valid-no-repro) Residual edge case in zone `auth-return-path` from picker reseed #1499 — **valid-no-repro 2026-09-09 seed hunt #1499:** cheap-disproof from zone paths and existing regressions
+
+2026-09-09 seed hunt #1499 (seed-only): reseeded auth-return-path; cheap-disproved picker reseed candidate; 41 scoped AuthSignInReturnPathGuard tests passed.
+
 ## Zone: tenant-erasure
 
 - **id:** tenant-erasure
