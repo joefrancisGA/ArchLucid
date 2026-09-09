@@ -43,6 +43,7 @@ import {
   SYSTEM_HEALTH_HELP_TILE_ITEMS,
 } from "@/lib/system-health-help-guide-content";
 import {
+  SYSTEM_HEALTH_HELP_BUYER_OVERVIEW,
   SYSTEM_HEALTH_HELP_FIRST_VIEWPORT_TEST_ID,
   SYSTEM_HEALTH_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   SYSTEM_HEALTH_HELP_PAGE_LEAD,
@@ -162,13 +163,21 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
         </div>
       ) : null}
 
+      {buyerPolishedShell ? (
+        <p className={readingBodyClass} data-testid="help-system-health-overview">
+          {SYSTEM_HEALTH_HELP_BUYER_OVERVIEW}
+        </p>
+      ) : null}
+
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
           {buyerPolishedShell ? null : <SystemHealthHelpEvidenceOrientationStrip />}
 
-          <p className={readingBodyClass} data-testid="help-system-health-overview">
-            {SYSTEM_HEALTH_HELP_OVERVIEW}
-          </p>
+          {!buyerPolishedShell ? (
+            <p className={readingBodyClass} data-testid="help-system-health-overview">
+              {SYSTEM_HEALTH_HELP_OVERVIEW}
+            </p>
+          ) : null}
 
           {!buyerPolishedShell ? (
             <p
