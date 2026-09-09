@@ -408,6 +408,18 @@ public static class GovernanceStickinessHttpMapper
         if (optionalRevisitValidation is not null)
             return optionalRevisitValidation;
 
+        GovernanceHttpValidation? previewOverrideValidation =
+            ValidateOptionalDispositionTextMaxLength(request.PreviewOverrideReason, "previewOverrideReason");
+
+        if (previewOverrideValidation is not null)
+            return previewOverrideValidation;
+
+        GovernanceHttpValidation? architectRestatementValidation =
+            ValidateOptionalDispositionTextMaxLength(request.ArchitectRestatement, "architectRestatement");
+
+        if (architectRestatementValidation is not null)
+            return architectRestatementValidation;
+
         return null;
     }
 

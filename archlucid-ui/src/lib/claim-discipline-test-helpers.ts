@@ -2,6 +2,7 @@ import type { Screen } from "@testing-library/react";
 import { expect } from "vitest";
 
 import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import type { EvidenceOrientationLink, EvidenceSourceLink } from "@/lib/evidence-surface-copy";
@@ -70,19 +71,27 @@ export function expectFollowUpLink(
   expect(region.getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
 }
 
-/** Links rendered under a Where to go next strip — mirrors production admin/internal filtering. */
+/** Links rendered under a Where to go next strip — mirrors production admin/internal + job-context filtering. */
 export function whereToGoNextFollowUpLinksForTests(
   links: readonly FollowUpLinkLike[],
+  pathname?: string,
 ): readonly FollowUpLinkLike[] {
-  return filterWhereToGoNextFollowUpLinks(links);
+  const adminFiltered = filterWhereToGoNextFollowUpLinks(links);
+
+  if (pathname === undefined) {
+    return adminFiltered;
+  }
+
+  return filterOrientationSourcesForJobContext(adminFiltered, pathname);
 }
 
 /** Assert every follow-up link that survives Where to go next filtering in a scoped region. */
 export function expectWhereToGoNextFollowUpLinks(
   region: Pick<Screen, "getByRole">,
   links: readonly FollowUpLinkLike[],
+  pathname?: string,
 ): void {
-  for (const link of whereToGoNextFollowUpLinksForTests(links)) {
+  for (const link of whereToGoNextFollowUpLinksForTests(links, pathname)) {
     expectFollowUpLink(region, link);
   }
 }

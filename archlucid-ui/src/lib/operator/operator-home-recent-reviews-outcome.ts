@@ -2,9 +2,10 @@ import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboa
 import {
   deriveRunsDashboardTabCounts,
   type RunsDashboardTabCounts,
-} from "@/components/operator-home/runs-dashboard-helpers";
+} from "@/lib/operator/run-home-status";
 import { formatOperatorHomeGovernanceApprovalWarningCount } from "@/lib/operator/operator-home-governance-approval-warning-copy";
 import { OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN } from "@/lib/metric-count-presentation";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { isShowcaseSampleOfAnyKind } from "@/lib/demo-run-canonical";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
@@ -17,8 +18,10 @@ export type FormatOperatorHomeRecentReviewsOutcomeOptions = {
   readonly visibleCount?: number;
   /** Total tenant rows in the recent preview pool (before featured cap). */
   readonly recentTotalCount?: number;
-  /** Governance approval queue pressure from attention summary. */
+  /** Approval queue pressure from attention summary. */
   readonly awaitingApprovalCount?: number;
+  /** Omit awaiting-approval segment when the lead card already surfaces that count (P1-6). */
+  readonly suppressAwaitingApprovalCount?: boolean;
 };
 
 /**
@@ -41,7 +44,11 @@ export function formatOperatorHomeRecentReviewsOutcome(
   parts.push(`${total} review${total === 1 ? "" : "s"}`);
 
   if (metrics.reviewPackagesCommitted > 0) {
-    parts.push(`${metrics.reviewPackagesCommitted} finalized`);
+    const sealedNoun =
+      metrics.reviewPackagesCommitted === 1
+        ? OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.singular
+        : OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.plural;
+    parts.push(`${metrics.reviewPackagesCommitted} ${sealedNoun}`);
   }
 
   if (metrics.reviewPackagesActive > 0) {
@@ -56,7 +63,7 @@ export function formatOperatorHomeRecentReviewsOutcome(
 
   const awaitingApprovalCount = options?.awaitingApprovalCount ?? 0;
 
-  if (awaitingApprovalCount > 0) {
+  if (awaitingApprovalCount > 0 && options?.suppressAwaitingApprovalCount !== true) {
     parts.push(
       `${awaitingApprovalCount} awaiting approval`,
     );
@@ -112,9 +119,14 @@ export function buildOperatorHomeRecentReviewsOutcomeParts(
   });
 
   if (metrics.reviewPackagesCommitted > 0) {
+    const sealedNoun =
+      metrics.reviewPackagesCommitted === 1
+        ? OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.singular
+        : OPERATOR_HOME_SEALED_REVIEW_RECORD_NOUN.plural;
+
     parts.push({
-      key: "finalized",
-      text: `${metrics.reviewPackagesCommitted} finalized`,
+      key: "sealed-records",
+      text: `${metrics.reviewPackagesCommitted} ${sealedNoun}`,
       hrefKind: "all-reviews",
     });
   }
@@ -145,7 +157,7 @@ export function buildOperatorHomeRecentReviewsOutcomeParts(
 
   const awaitingApprovalCount = options?.awaitingApprovalCount ?? 0;
 
-  if (awaitingApprovalCount > 0) {
+  if (awaitingApprovalCount > 0 && options?.suppressAwaitingApprovalCount !== true) {
     parts.push({
       key: "awaiting-approval",
       text: `${awaitingApprovalCount} awaiting approval`,
@@ -207,23 +219,59 @@ export type DeriveHomePreviewTabCountsInput = {
   readonly previewItems: readonly RunSummary[];
   /** When the buyer proof card already names the showcase sample, omit that row from tab counts. */
   readonly excludeShowcaseRunId?: string | undefined;
+  readonly awaitingApprovalRunIds?: readonly string[];
+  /** Workspace-wide awaiting-approval count when preview rows have not loaded queue membership yet. */
+  readonly awaitingApprovalCount?: number;
 };
+
+function countAwaitingApprovalPreviewRuns(
+  items: readonly RunSummary[],
+  awaitingApprovalRunIds: readonly string[] | undefined,
+): number {
+  if (awaitingApprovalRunIds === undefined || awaitingApprovalRunIds.length === 0) {
+    return 0;
+  }
+
+  const awaitingIds = new Set(awaitingApprovalRunIds);
+
+  return items.filter((run) => {
+    const runId = run.runId?.trim() ?? "";
+
+    return runId.length > 0 && awaitingIds.has(runId);
+  }).length;
+}
 
 /**
  * Tab counts for the home recent-reviews preview — uses deduped preview rows and caps the
  * Recent tab at the featured limit so labels read `Recent (2 of N)` instead of a silent cap.
  */
 export function deriveHomePreviewTabCounts(input: DeriveHomePreviewTabCountsInput): HomePreviewTabCounts {
+  const activePreviewItems = input.previewItems.filter((run) => run.isArchived !== true);
   const listItems =
     input.excludeShowcaseRunId !== undefined
-      ? input.previewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
-      : input.previewItems;
+      ? activePreviewItems.filter((run) => run.runId !== input.excludeShowcaseRunId)
+      : activePreviewItems;
   const baseCounts = deriveRunsDashboardTabCounts(listItems);
+  const awaitingApprovalRunIds = input.awaitingApprovalRunIds;
+  const previewAwaitingApproval = countAwaitingApprovalPreviewRuns(listItems, awaitingApprovalRunIds);
+  const workspaceAwaitingApproval = input.awaitingApprovalCount ?? 0;
+
+  let awaitingApproval = previewAwaitingApproval;
+
+  if (
+    previewAwaitingApproval === 0
+    && awaitingApprovalRunIds !== undefined
+    && awaitingApprovalRunIds.length > 0
+  ) {
+    // Queue membership loaded but preview rows omit queue members — align tab label with workspace summary.
+    awaitingApproval = workspaceAwaitingApproval;
+  }
   const recentTotalCount = listItems.length;
   const recentVisibleCount = Math.min(listItems.length, OPERATOR_HOME_RECENT_FEATURED_LIMIT);
 
   return {
     ...baseCounts,
+    "awaiting-approval": awaitingApproval,
     all: recentVisibleCount,
     recentVisibleCount,
     recentTotalCount,

@@ -25,14 +25,20 @@ public sealed class LlmBackedArchitectureRecommendationEngine : IAsyncArchitectu
         ArgumentNullException.ThrowIfNull(findings);
         ArgumentNullException.ThrowIfNull(declaredPriorities);
 
+        IReadOnlyList<ArchitectureRecommendation> heuristicRecommendations =
+            _heuristicEngine.BuildRecommendations(model, findings, declaredPriorities);
+
         IReadOnlyList<ArchitectureRecommendation>? llmRecommendations =
             await _gateway.DraftRecommendationsAsync(model, findings, declaredPriorities, cancellationToken);
 
-        if (llmRecommendations is { Count: > 0 })
+        if (llmRecommendations is not { Count: > 0 })
         {
-            return llmRecommendations;
+            return heuristicRecommendations;
         }
 
-        return _heuristicEngine.BuildRecommendations(model, findings, declaredPriorities);
+        return ArchitectureRecommendationLlmHeuristicMerger.Merge(
+            heuristicRecommendations,
+            llmRecommendations,
+            findings);
     }
 }

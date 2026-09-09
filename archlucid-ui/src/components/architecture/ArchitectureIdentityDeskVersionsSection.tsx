@@ -14,12 +14,13 @@ import {
   ARCHITECTURE_IDENTITY_DESK_VERSIONS_HONESTY,
   ARCHITECTURE_IDENTITY_DESK_VERSIONS_SECTION_TITLE,
 } from "@/lib/architecture/architecture-identity-desk-copy";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatInventoryUpdatedAtCell } from "@/lib/relative-time";
 import type { ArchitectureIdentityVersionSummary } from "@/types/architecture-identity";
 
 type ArchitectureIdentityDeskVersionsSectionProps = {
+  readonly architectureId: string;
   readonly versions: readonly ArchitectureIdentityVersionSummary[];
 };
 
@@ -64,7 +65,10 @@ export function ArchitectureIdentityDeskVersionsSection(
                   <EnterpriseTableCell>{formatInventoryUpdatedAtCell(version.createdUtc).display}</EnterpriseTableCell>
                   <EnterpriseTableCell>
                     {linkedReviewId.length > 0 ? (
-                      <Link href={reviewDetailPath(linkedReviewId)} className={OPERATOR_LINK.nav}>
+                      <Link
+                        href={resolveArchitectureReviewHref(linkedReviewId, props.architectureId)}
+                        className={OPERATOR_LINK.nav}
+                      >
                         Open review
                       </Link>
                     ) : (

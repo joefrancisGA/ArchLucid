@@ -40,7 +40,7 @@ public sealed class RunDetailLlmCostEnrichmentSlice(
             TokenCounts = new RunLlmTokenCountsDto
             {
                 Prompt = summary.PromptTokens,
-                Completion = summary.CompletionTokens,
+                Completion = summary.CombinedOutputTokens,
             },
         };
     }

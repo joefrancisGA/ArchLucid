@@ -1,0 +1,73 @@
+[
+  {
+    "findingId": "de90d8b4-8334-c211-a5d6-f1d5923c7706",
+    "findingType": "ExternalExposureFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "External actor \u0027anonymous_client\u0027 lacks an explicit trust boundary",
+    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
+    "relatedNodeIds": [
+      "external-actor-1"
+    ],
+    "payloadType": "ExternalExposureFindingPayload",
+    "rulesApplied": [
+      "external-exposure-trust-boundary"
+    ],
+    "decisionsTaken": [
+      "External-facing actor present without matching TrustBoundary node."
+    ]
+  },
+  {
+    "findingId": "8d8594f9-ec67-6248-30a5-6e6a58d4acee",
+    "findingType": "PrivilegedAccessFinding",
+    "category": "Security",
+    "severity": "Info",
+    "title": "Review privileged access for internal human actor \u0027architect\u0027",
+    "rationale": "Internal human actors typically require explicit privileged-access and session controls in the target architecture.",
+    "relatedNodeIds": [
+      "intake-human-1"
+    ],
+    "payloadType": "PrivilegedAccessFindingPayload",
+    "rulesApplied": [
+      "privileged-access-internal-human"
+    ],
+    "decisionsTaken": [
+      "Internal human actor requires privileged-access verification."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  },
+  {
+    "findingId": "c871e12e-a619-6934-ebba-881caa6bf95d",
+    "findingType": "TrustBoundaryFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Mixed internal and external actors without trust-boundary segmentation",
+    "rationale": "When both internal and external actors interact with the system, an explicit trust-boundary model is required to verify cross-boundary data flows.",
+    "relatedNodeIds": [
+      "external-actor-1",
+      "intake-human-1"
+    ],
+    "payloadType": "TrustBoundaryFindingPayload",
+    "rulesApplied": [
+      "trust-boundary-cross-origin"
+    ],
+    "decisionsTaken": [
+      "Detected internal and external actors with no TrustBoundary nodes."
+    ]
+  }
+]

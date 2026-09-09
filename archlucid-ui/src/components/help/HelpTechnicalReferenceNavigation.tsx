@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 
 import { HelpTopicSectionCopyLink } from "@/components/help/HelpTopicSectionCopyLink";
 import { cn } from "@/lib/utils";
@@ -9,6 +11,16 @@ import {
   flattenHelpMarkdownHeadingGroups,
   type HelpMarkdownHeadingGroup,
 } from "@/lib/help/help-markdown-heading-groups";
+import {
+  HELP_TECHNICAL_REFERENCE_GROUP_KEY_PARAM,
+  helpTechnicalReferenceGroupDisclosureHrefFromSearch,
+  parseHelpTechnicalReferenceGroupKeyFromSearch,
+} from "@/lib/help/help-technical-reference-group-disclosure-url";
+import {
+  HELP_TECHNICAL_REFERENCE_MOBILE_OPEN_PARAM,
+  helpTechnicalReferenceMobileDisclosureHrefFromSearch,
+  parseHelpTechnicalReferenceMobileOpenFromSearch,
+} from "@/lib/help/help-technical-reference-mobile-disclosure-url";
 import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
 
 export type HelpTechnicalReferenceNavigationProps = {
@@ -52,18 +64,26 @@ function shouldDefaultOpenGroup(groupIndex: number, group: HelpMarkdownHeadingGr
 function ReferenceNavigationGroups(props: {
   readonly groups: readonly HelpMarkdownHeadingGroup[];
   readonly activeId: string;
+  readonly openGroupKey: string;
+  readonly onGroupKeyOpenChange: (groupKey: string | null) => void;
 }): React.JSX.Element {
   return (
     <div className="space-y-2" data-testid="help-technical-reference-toc-groups">
       {props.groups.map((group, index) => {
         const defaultOpen = shouldDefaultOpenGroup(index, group, props.activeId);
         const sectionIsActive = props.activeId.length > 0 && props.activeId === group.section.id;
+        const groupOpen =
+          props.openGroupKey === group.section.id ||
+          (props.openGroupKey.length === 0 && defaultOpen);
 
         return (
           <details
             key={group.section.id}
-            className={cn(HELP_PAGE_TOC.referenceGroup, defaultOpen ? HELP_PAGE_TOC.referenceGroupOpen : "")}
-            open={defaultOpen}
+            className={cn(HELP_PAGE_TOC.referenceGroup, groupOpen ? HELP_PAGE_TOC.referenceGroupOpen : "")}
+            open={groupOpen}
+            onToggle={(event) =>
+              props.onGroupKeyOpenChange(event.currentTarget.open ? group.section.id : null)
+            }
             data-testid={`help-technical-reference-group-${group.section.id}`}
           >
             <summary className={HELP_PAGE_TOC.referenceGroupSummary}>
@@ -116,9 +136,63 @@ function ReferenceNavigationGroups(props: {
 
 /** Hierarchical reference navigation with in-page search for long technical help topics. */
 export function HelpTechnicalReferenceNavigation(props: HelpTechnicalReferenceNavigationProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpTechnicalReferenceGroupKeyParam = searchParams.get(HELP_TECHNICAL_REFERENCE_GROUP_KEY_PARAM);
+  const helpTechnicalReferenceMobileParam = searchParams.get(HELP_TECHNICAL_REFERENCE_MOBILE_OPEN_PARAM);
+  const [openGroupKey, setOpenGroupKeyState] = useState(() =>
+    parseHelpTechnicalReferenceGroupKeyFromSearch(helpTechnicalReferenceGroupKeyParam),
+  );
+  const [helpTechnicalReferenceMobileOpen, setHelpTechnicalReferenceMobileOpenState] = useState(() =>
+    parseHelpTechnicalReferenceMobileOpenFromSearch(helpTechnicalReferenceMobileParam),
+  );
+  const syncOpenGroupKeyToUrl = useCallback(
+    (groupKey: string | null) => {
+      router.replace(
+        helpTechnicalReferenceGroupDisclosureHrefFromSearch(searchParams.toString(), groupKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenGroupKey = useCallback(
+    (groupKey: string | null) => {
+      setOpenGroupKeyState(groupKey ?? "");
+      syncOpenGroupKeyToUrl(groupKey);
+    },
+    [syncOpenGroupKeyToUrl],
+  );
+  const syncHelpTechnicalReferenceMobileOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        helpTechnicalReferenceMobileDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setHelpTechnicalReferenceMobileOpen = useCallback(
+    (open: boolean) => {
+      setHelpTechnicalReferenceMobileOpenState(open);
+      syncHelpTechnicalReferenceMobileOpenToUrl(open);
+    },
+    [syncHelpTechnicalReferenceMobileOpenToUrl],
+  );
   const navigationTopicLabel = props.navigationTopicLabel ?? "CLI reference";
   const [activeId, setActiveId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    setOpenGroupKeyState(parseHelpTechnicalReferenceGroupKeyFromSearch(helpTechnicalReferenceGroupKeyParam));
+  }, [helpTechnicalReferenceGroupKeyParam]);
+
+  useEffect(() => {
+    setHelpTechnicalReferenceMobileOpenState(
+      parseHelpTechnicalReferenceMobileOpenFromSearch(helpTechnicalReferenceMobileParam),
+    );
+  }, [helpTechnicalReferenceMobileParam]);
+
   const filtered = useMemo(
     () => filterHelpMarkdownHeadingGroups(props.groups, searchQuery),
     [props.groups, searchQuery],
@@ -199,12 +273,21 @@ export function HelpTechnicalReferenceNavigation(props: HelpTechnicalReferenceNa
         No sections match &ldquo;{searchQuery.trim()}&rdquo;. Clear the filter to restore the full index.
       </p>
     ) : (
-      <ReferenceNavigationGroups groups={filtered.groups} activeId={activeId} />
+      <ReferenceNavigationGroups
+        groups={filtered.groups}
+        activeId={activeId}
+        openGroupKey={openGroupKey}
+        onGroupKeyOpenChange={setOpenGroupKey}
+      />
     );
 
   return (
     <>
-      <details className="mb-4 rounded-md border border-neutral-200 bg-al-surface-raised p-3 lg:hidden dark:border-neutral-800">
+      <details
+        className="mb-4 rounded-md border border-neutral-200 bg-al-surface-raised p-3 lg:hidden dark:border-neutral-800"
+        open={helpTechnicalReferenceMobileOpen}
+        onToggle={(event) => setHelpTechnicalReferenceMobileOpen(event.currentTarget.open)}
+      >
         <summary className={cn("cursor-pointer font-semibold", HELP_PAGE_TOC.heading)}>Reference index</summary>
         <div className="mt-3 space-y-3" data-testid="help-technical-reference-toc-mobile">
           <label className="block">

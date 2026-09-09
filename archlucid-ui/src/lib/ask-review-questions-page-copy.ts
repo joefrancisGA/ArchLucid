@@ -8,3 +8,5 @@ export const ASK_REVIEW_QUESTIONS_SKIP_LINK_LABEL = "Skip to ask workspace" as c
 
 export const ASK_REVIEW_QUESTIONS_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "ask-review-questions-header-claim-discipline" as const;
+
+export const ASK_REVIEW_QUESTIONS_ORIENTATION_BOTTOM_TEST_ID = "ask-review-questions-orientation-bottom" as const;

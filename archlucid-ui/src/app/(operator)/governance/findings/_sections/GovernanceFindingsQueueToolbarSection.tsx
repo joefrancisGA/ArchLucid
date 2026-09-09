@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { GovernanceFindingsArchitectureScopeChips } from "@/components/governance/findings/GovernanceFindingsArchitectureScopeChips";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
 import { GovernanceFindingsRegisterFilterCompact } from "@/components/governance/findings/GovernanceFindingsRegisterFilterCompact";
@@ -108,6 +109,15 @@ export function GovernanceFindingsQueueToolbarSection(
         <div className="flex flex-wrap items-center gap-2" data-testid="governance-findings-queue-toolbar-search-row">
           <GovernanceFindingsQueueSearchField />
         </div>
+      ) : null}
+
+      {props.isWorkingMode && !props.isAssignedToMe ? (
+        <GovernanceFindingsArchitectureScopeChips
+          pathname={pathname}
+          currentSearch={searchParams.toString()}
+          scopedArchitectureId={props.scopedArchitectureId}
+          lastOpenArchitectureId={props.lastOpenArchitectureId}
+        />
       ) : null}
 
       {props.compactRegisterFilterVisible ? (

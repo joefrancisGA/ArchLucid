@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { ServiceNowIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { ServiceNowIntegrationSourcesOrientationStrip } from "./ServiceNowIntegrationSourcesOrientationStrip";
 import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -18,7 +19,13 @@ import {
   type TenantItsmOutboundSettingsResponse,
 } from "@/lib/api/itsm-outbound-api";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import {
   SERVICENOW_CONNECTION_STATUS_HEADING,
@@ -27,6 +34,14 @@ import {
   SERVICENOW_LOADING_MESSAGE,
   SERVICENOW_SAVE_SUCCESS,
 } from "@/lib/servicenow-integration-page-copy";
+import {
+  SERVICENOW_INTEGRATION_BUYER_OVERVIEW,
+  SERVICENOW_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
+  SERVICENOW_INTEGRATION_PAGE_LEAD,
+  SERVICENOW_INTEGRATION_PRIMARY_CONTENT_ID,
+  SERVICENOW_INTEGRATION_SKIP_LINK_LABEL,
+  SERVICENOW_INTEGRATION_SKIP_TARGET_ID,
+} from "@/lib/servicenow-integration-shell-page-copy";
 import {
   formatServiceNowAuthMethod,
   isServiceNowCredentialsReady,
@@ -70,6 +85,34 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     setSnowAutoCmdb(loaded?.serviceNowAutoCreateCmdbCi ?? false);
   }, []);
 
+  const onPageLoaded = useCallback(
+    (loaded: {
+      readonly health: { readonly failed: boolean; readonly errorMessage: string | null };
+      readonly settings: { readonly failed: boolean; readonly errorMessage: string | null };
+      readonly connection: { readonly failed: boolean; readonly errorMessage: string | null };
+    }) => {
+    setZoneLoadSlices([
+      {
+        id: "health",
+        label: "ServiceNow health",
+        failed: loaded.health.failed,
+        errorMessage: loaded.health.errorMessage ?? null,
+      },
+      {
+        id: "settings",
+        label: "ServiceNow settings",
+        failed: loaded.settings.failed,
+        errorMessage: loaded.settings.errorMessage ?? null,
+      },
+      {
+        id: "connection",
+        label: "ServiceNow connection",
+        failed: loaded.connection.failed,
+        errorMessage: loaded.connection.errorMessage ?? null,
+      },
+    ]);
+  }, []);
+
   const {
     health,
     settings,
@@ -86,28 +129,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     providerId: "servicenow",
     buildPageLoadResult: buildServiceNowPageLoadResult,
     applySettings,
-    onPageLoaded: (loaded) => {
-      setZoneLoadSlices([
-        {
-          id: "health",
-          label: "ServiceNow health",
-          failed: loaded.health.failed,
-          errorMessage: loaded.health.errorMessage ?? null,
-        },
-        {
-          id: "settings",
-          label: "ServiceNow settings",
-          failed: loaded.settings.failed,
-          errorMessage: loaded.settings.errorMessage ?? null,
-        },
-        {
-          id: "connection",
-          label: "ServiceNow connection",
-          failed: loaded.connection.failed,
-          errorMessage: loaded.connection.errorMessage ?? null,
-        },
-      ]);
-    },
+    onPageLoaded,
   });
 
   useEffect(() => {
@@ -226,110 +248,174 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   const authMethod = formatServiceNowAuthMethod(connection?.authMode);
   const credentialStatus = resolveServiceNowCredentialStatusLabel(settings, connection, credentialsReady);
   const connectionLabel = connection?.label?.trim();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+  const hasUnsavedSettingsEdits =
+    settings !== null
+    && !settingsLoadFailed
+    && snowAutoCmdb !== (settings.serviceNowAutoCreateCmdbCi ?? false);
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedSettingsEdits });
+
+  const workspaceBody =
+    isLoading && health === null && settings === null ? (
+      <OperatorLoadingNotice>{SERVICENOW_LOADING_MESSAGE}</OperatorLoadingNotice>
+    ) : (
+      <div
+        className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)}
+        data-testid="servicenow-page-layout"
+        data-operator-side-rail-kind="none"
+      >
+        <div className="min-w-0 space-y-4" data-testid="servicenow-page-main">
+          {integrationZoneRecoveries.length > 0 ? (
+            <div className="space-y-3" data-testid="servicenow-zone-recoveries">
+              {integrationZoneRecoveries.map((recovery) => (
+                <IntegrationZoneRecoveryCard key={recovery.zoneId} recovery={recovery} />
+              ))}
+            </div>
+          ) : null}
+
+          <section aria-labelledby="servicenow-status-heading" className="space-y-3" data-testid="servicenow-connection-status">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 id="servicenow-status-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+                {SERVICENOW_CONNECTION_STATUS_HEADING}
+              </h2>
+              <StatusTag kind={itsmConnectionStatusTagKind(connectionStatus.status)} label={connectionStatus.label} />
+            </div>
+            <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} role="status">
+              {connectionStatus.explanation}
+            </p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <span className="font-medium text-al-text-primary">Next step:</span> {connectionStatus.nextAction}
+            </p>
+          </section>
+
+          {pageComposition.showNotConfiguredNextStep ? (
+            <ItsmNotConfiguredNextStep
+              product="servicenow"
+              productTitle={SERVICENOW_INTEGRATION_PAGE_TITLE}
+              canConfigureAdmin={canConfigureAdmin}
+            />
+          ) : null}
+
+          <ServiceNowConnectionSettingsPanel
+            instanceUrl={instanceUrl}
+            authMethod={authMethod}
+            credentialStatus={credentialStatus}
+            connectionLabel={connectionLabel}
+            credentialsReady={credentialsReady}
+          />
+
+          <ServiceNowIncidentSettingsPanel
+            pageComposition={pageComposition}
+            canMutate={canMutate}
+            incidentSettingsEditable={incidentSettingsEditable}
+            settingsLoadFailed={settingsLoadFailed}
+            settings={settings}
+            snowAutoCmdb={snowAutoCmdb}
+            onSnowAutoCmdbChange={setSnowAutoCmdb}
+            saveError={saveError}
+            saveSuccess={saveSuccess}
+            isSaving={isSaving}
+            isTesting={isTesting}
+            onSaveSettings={() => void saveSettings()}
+            onRefresh={() => void refresh()}
+          />
+
+          <ServiceNowConnectionTestPanel
+            pageComposition={pageComposition}
+            testGate={testGate}
+            testError={testError}
+            isTesting={isTesting}
+            onRunConnectionTest={() => void runConnectionTest()}
+          />
+        </div>
+
+        <ServiceNowIntegrationAside
+          status={connectionStatus}
+          credentialsReady={credentialsReady}
+          destinationConfigured={nativeEnabled}
+          connectionVerified={probe?.reachable === true}
+          lastTestAt={lastTestAt}
+          lastTestSummary={lastTestSummary}
+          lastTestSuccess={lastTestSuccess}
+          showOperatorNotes={showOperatorNotes}
+          nativeEnabled={nativeEnabled}
+        />
+      </div>
+    );
 
   return (
+    <>
     <OperatorPageContainer
       variant="workflow"
       className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="integrations-servicenow-page"
     >
-      <ServiceNowIntegrationPageHeader
-        connectionStatus={connectionStatus}
-        refreshing={isLoading}
-        refreshDisabled={isLoading || isSaving || isTesting}
-        lastCheckedAt={lastCheckedAt}
-        onRefresh={() => void refresh()}
-      />
-
-      <ItsmConnectorProviderChooserRail currentProviderId="servicenow" />
-      <ServiceNowIntegrationEvidenceOrientationStrip />
-
-      {isLoading && health === null && settings === null ? (
-        <OperatorLoadingNotice>{SERVICENOW_LOADING_MESSAGE}</OperatorLoadingNotice>
-      ) : (
-        <div
-          className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)}
-          data-testid="servicenow-page-layout"
-          data-operator-side-rail-kind="none"
+      {buyerPolishedShell ? (
+        <a
+          href={`#${SERVICENOW_INTEGRATION_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
         >
-          <div className="min-w-0 space-y-4" data-testid="servicenow-page-main">
-            {integrationZoneRecoveries.length > 0 ? (
-              <div className="space-y-3" data-testid="servicenow-zone-recoveries">
-                {integrationZoneRecoveries.map((recovery) => (
-                  <IntegrationZoneRecoveryCard key={recovery.zoneId} recovery={recovery} />
-                ))}
+          {SERVICENOW_INTEGRATION_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <div
+        id={buyerPolishedShell ? SERVICENOW_INTEGRATION_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? SERVICENOW_INTEGRATION_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell && "scroll-mt-24", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
+      >
+        <ServiceNowIntegrationPageHeader
+          connectionStatus={connectionStatus}
+          refreshing={isLoading}
+          refreshDisabled={isLoading || isSaving || isTesting}
+          lastCheckedAt={lastCheckedAt}
+          onRefresh={() => void refresh()}
+        />
+
+        {!buyerPolishedShell ? (
+          <>
+            <ItsmConnectorProviderChooserRail currentProviderId="servicenow" />
+            <ServiceNowIntegrationEvidenceOrientationStrip />
+          </>
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <>
+            <div
+              id={SERVICENOW_INTEGRATION_SKIP_TARGET_ID}
+              data-testid={SERVICENOW_INTEGRATION_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+            >
+              <div className="space-y-4" data-testid="servicenow-integration-buyer-intro">
+                <p className={readingBodyClass} data-testid="servicenow-integration-intro">
+                  {SERVICENOW_INTEGRATION_PAGE_LEAD}
+                </p>
               </div>
-            ) : null}
+            </div>
+            <p
+              className={readingBodyClass}
+              data-testid="servicenow-integration-overview"
+            >
+              {SERVICENOW_INTEGRATION_BUYER_OVERVIEW}
+            </p>
+          </>
+        ) : null}
 
-            <section aria-labelledby="servicenow-status-heading" className="space-y-3" data-testid="servicenow-connection-status">
-              <div className="flex flex-wrap items-center gap-3">
-                <h2 id="servicenow-status-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                  {SERVICENOW_CONNECTION_STATUS_HEADING}
-                </h2>
-                <StatusTag kind={itsmConnectionStatusTagKind(connectionStatus.status)} label={connectionStatus.label} />
-              </div>
-              <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} role="status">
-                {connectionStatus.explanation}
-              </p>
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                <span className="font-medium text-al-text-primary">Next step:</span> {connectionStatus.nextAction}
-              </p>
-            </section>
+        {workspaceBody}
 
-            {pageComposition.showNotConfiguredNextStep ? (
-              <ItsmNotConfiguredNextStep
-                product="servicenow"
-                productTitle={SERVICENOW_INTEGRATION_PAGE_TITLE}
-                canConfigureAdmin={canConfigureAdmin}
-              />
-            ) : null}
-
-            <ServiceNowConnectionSettingsPanel
-              instanceUrl={instanceUrl}
-              authMethod={authMethod}
-              credentialStatus={credentialStatus}
-              connectionLabel={connectionLabel}
-              credentialsReady={credentialsReady}
-            />
-
-            <ServiceNowIncidentSettingsPanel
-              pageComposition={pageComposition}
-              canMutate={canMutate}
-              incidentSettingsEditable={incidentSettingsEditable}
-              settingsLoadFailed={settingsLoadFailed}
-              settings={settings}
-              snowAutoCmdb={snowAutoCmdb}
-              onSnowAutoCmdbChange={setSnowAutoCmdb}
-              saveError={saveError}
-              saveSuccess={saveSuccess}
-              isSaving={isSaving}
-              isTesting={isTesting}
-              onSaveSettings={() => void saveSettings()}
-              onRefresh={() => void refresh()}
-            />
-
-            <ServiceNowConnectionTestPanel
-              pageComposition={pageComposition}
-              testGate={testGate}
-              testError={testError}
-              isTesting={isTesting}
-              onRunConnectionTest={() => void runConnectionTest()}
-            />
-          </div>
-
-          <ServiceNowIntegrationAside
-            status={connectionStatus}
-            credentialsReady={credentialsReady}
-            destinationConfigured={nativeEnabled}
-            connectionVerified={probe?.reachable === true}
-            lastTestAt={lastTestAt}
-            lastTestSummary={lastTestSummary}
-            lastTestSuccess={lastTestSuccess}
-            showOperatorNotes={showOperatorNotes}
-            nativeEnabled={nativeEnabled}
-          />
-        </div>
-      )}
+        {buyerPolishedShell ? <ServiceNowIntegrationSourcesOrientationStrip /> : null}
+      </div>
     </OperatorPageContainer>
+    <LivelihoodDocumentGuardDialog
+      open={documentGuards.dialogOpen}
+      message={documentGuards.dialogMessage}
+      onConfirmLeave={documentGuards.confirmLeave}
+      onCancelLeave={documentGuards.cancelLeave}
+    />
+    </>
   );
 }

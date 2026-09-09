@@ -9,20 +9,15 @@ import {
   FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY,
 } from "@/lib/first-week-route-guidance";
 
-const buyerPolishedMock = vi.hoisted(() => ({ on: false }));
+const evalChromeMock = vi.hoisted(() => ({ on: true }));
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: () => buyerPolishedMock.on,
-  };
-});
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.on,
+}));
 
 describe("FirstWeekRouteGuidance", () => {
   afterEach(() => {
-    buyerPolishedMock.on = false;
+    evalChromeMock.on = true;
     localStorage.clear();
   });
 
@@ -45,11 +40,20 @@ describe("FirstWeekRouteGuidance", () => {
   });
 
   it("renders buyer-polished in-progress guidance without a competing finalize CTA (BDA-001)", () => {
-    buyerPolishedMock.on = true;
+    evalChromeMock.on = true;
     render(<FirstWeekRouteGuidance variant="review-detail-in-progress" />);
 
     expect(screen.queryByRole("link", { name: "Finalize review" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Finalize this review" })).not.toBeInTheDocument();
+    expect(screen.getByText(/stay on this page/i)).toBeInTheDocument();
+  });
+
+  it("Working in-progress guidance does not use stay-on-page babysit copy (WS-10)", () => {
+    evalChromeMock.on = false;
+    render(<FirstWeekRouteGuidance variant="review-detail-in-progress" />);
+
+    expect(screen.queryByText(/stay on this page/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/activity/i)).toBeInTheDocument();
   });
 
   it("renders committed review detail guidance collapsed without external AI product names", () => {

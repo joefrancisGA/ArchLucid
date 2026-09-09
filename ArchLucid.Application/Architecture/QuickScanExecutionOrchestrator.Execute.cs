@@ -24,27 +24,33 @@ public sealed partial class QuickScanExecutionOrchestrator
         if (state.TerminalResult is not null)
             return state.TerminalResult;
 
-        await _budgetAndConcurrencyStage.ExecuteAsync(state, cancellationToken).ConfigureAwait(false);
-
-        if (state.TerminalResult is not null)
-            return state.TerminalResult;
-
         try
         {
-            await _scanInvokeStage.ExecuteAsync(state, cancellationToken).ConfigureAwait(false);
+            await _budgetAndConcurrencyStage.ExecuteAsync(state, cancellationToken).ConfigureAwait(false);
 
-            if (state.TerminalResult is not null && state.TerminalResult.Succeeded)
+            if (state.TerminalResult is not null)
+                return state.TerminalResult;
+
+            CancellationToken scanCancellationToken =
+                state.ConcurrencyAdmission?.ExecutionCancellationToken ?? cancellationToken;
+
+            try
             {
-                await _usageAndAuditStage.RecordSuccessAsync(state, cancellationToken).ConfigureAwait(false);
+                await _scanInvokeStage.ExecuteAsync(state, scanCancellationToken).ConfigureAwait(false);
+
+                if (state.TerminalResult is not null && state.TerminalResult.Succeeded)
+                {
+                    await _usageAndAuditStage.RecordSuccessAsync(state, scanCancellationToken).ConfigureAwait(false);
+                }
+
+                return state.TerminalResult ?? QuickScanExecutionResult.ExecutionFailed();
             }
+            catch (Exception)
+            {
+                await _usageAndAuditStage.RecordExecutionFailureAsync(state, scanCancellationToken).ConfigureAwait(false);
 
-            return state.TerminalResult ?? QuickScanExecutionResult.ExecutionFailed();
-        }
-        catch (Exception)
-        {
-            await _usageAndAuditStage.RecordExecutionFailureAsync(state, cancellationToken).ConfigureAwait(false);
-
-            return QuickScanExecutionResult.ExecutionFailed();
+                return QuickScanExecutionResult.ExecutionFailed();
+            }
         }
         finally
         {

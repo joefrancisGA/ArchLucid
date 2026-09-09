@@ -11,10 +11,11 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
     private readonly IQuickScanDistributedConcurrencyStore? _store;
     private readonly IQuickScanTelemetry? _telemetry;
     private readonly QuickScanGuardContext? _telemetryContext;
-    private readonly CancellationTokenSource? _renewalCancellation;
+    private readonly CancellationTokenSource? _executeCancellationSource;
     private readonly Task? _renewalTask;
     private Guid? _leaseId;
     private bool _released;
+    private bool _renewalStopped;
 
     private QuickScanDistributedConcurrencyAdmissionResult(
         bool allowed,
@@ -23,7 +24,7 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
         IQuickScanDistributedConcurrencyStore? store,
         IQuickScanTelemetry? telemetry,
         QuickScanGuardContext? telemetryContext,
-        CancellationTokenSource? renewalCancellation,
+        CancellationTokenSource? executeCancellationSource,
         Task? renewalTask)
     {
         Allowed = allowed;
@@ -32,7 +33,7 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
         _store = store;
         _telemetry = telemetry;
         _telemetryContext = telemetryContext;
-        _renewalCancellation = renewalCancellation;
+        _executeCancellationSource = executeCancellationSource;
         _renewalTask = renewalTask;
     }
 
@@ -41,6 +42,10 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
     public QuickScanConcurrencyRejectionReason? RejectionReason { get; }
 
     public Guid? LeaseId => _leaseId;
+
+    /// <summary>Linked execute token cancelled when distributed lease renewal fails.</summary>
+    public CancellationToken ExecutionCancellationToken =>
+        _executeCancellationSource?.Token ?? CancellationToken.None;
 
     public static QuickScanDistributedConcurrencyAdmissionResult Permit(
         Guid leaseId,
@@ -51,14 +56,15 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
         TimeProvider timeProvider,
         CancellationToken executionCancellationToken)
     {
-        CancellationTokenSource renewalCancellation = CancellationTokenSource.CreateLinkedTokenSource(executionCancellationToken);
+        CancellationTokenSource executeCancellationSource =
+            CancellationTokenSource.CreateLinkedTokenSource(executionCancellationToken);
 
         Task renewalTask = QuickScanDistributedConcurrencyLeaseRenewal.RunLoopAsync(
             leaseId,
             store,
             safetyOptions,
             timeProvider,
-            renewalCancellation.Token);
+            executeCancellationSource);
 
         return new QuickScanDistributedConcurrencyAdmissionResult(
             true,
@@ -67,7 +73,7 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
             store,
             telemetry,
             telemetryContext,
-            renewalCancellation,
+            executeCancellationSource,
             renewalTask);
     }
 
@@ -81,36 +87,52 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
-        if (_renewalCancellation is not null)
-        {
-            await _renewalCancellation.CancelAsync().ConfigureAwait(false);
-
-            if (_renewalTask is not null)
-            {
-                try
-                {
-                    await _renewalTask.ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                }
-            }
-
-            _renewalCancellation.Dispose();
-        }
+        await StopRenewalLoopAsync().ConfigureAwait(false);
 
         if (_released || !_leaseId.HasValue || _store is null)
         {
             return;
         }
 
-        _released = true;
+        await _store.ReleaseLeaseAsync(_leaseId.Value, CancellationToken.None).ConfigureAwait(false);
 
-        await _store.ReleaseLeaseAsync(_leaseId.Value).ConfigureAwait(false);
+        _released = true;
 
         if (_telemetry is not null && _telemetryContext is not null)
         {
             _telemetry.RecordConcurrencyLeaseReleased(_telemetryContext);
         }
+    }
+
+    private async Task StopRenewalLoopAsync()
+    {
+        if (_renewalStopped || _executeCancellationSource is null)
+        {
+            return;
+        }
+
+        _renewalStopped = true;
+
+        if (!_executeCancellationSource.IsCancellationRequested)
+        {
+            await _executeCancellationSource.CancelAsync().ConfigureAwait(false);
+        }
+
+        if (_renewalTask is not null)
+        {
+            try
+            {
+                await _renewalTask.ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception)
+            {
+                // Renewal can stop when the store rejects RenewLeaseAsync; release must still run.
+            }
+        }
+
+        _executeCancellationSource.Dispose();
     }
 }

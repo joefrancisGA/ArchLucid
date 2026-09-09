@@ -3,10 +3,10 @@
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { LayerContextStrip } from "@/components/LayerContextStrip";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { resolveBuyerGoldenJourneyNav } from "@/lib/buyer/buyer-golden-journey-nav";
 import { buyerPolishedRouteOrientation } from "@/lib/buyer/buyer-polished-route-orientation";
 import { resolveBuyerOperateBackLink } from "@/lib/buyer/buyer-polished-operate-back-link";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getLayerForRoute } from "@/lib/getLayerForRoute";
 
 /** Buyer-polished shell: layer orientation + golden-journey stepper on curated diligence routes. */
@@ -14,8 +14,9 @@ export function BuyerGoldenJourneyLayerContextStrip(): React.JSX.Element | null 
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const searchRunId = searchParams.get("runId")?.trim() ?? "";
+  const evalChromeShell = useProductionEvalChrome();
 
-  if (!isBuyerPolishedOperatorShellEnv()) {
+  if (!evalChromeShell) {
     return null;
   }
 

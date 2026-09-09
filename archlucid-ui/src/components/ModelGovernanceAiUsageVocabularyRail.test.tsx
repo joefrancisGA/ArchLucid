@@ -11,7 +11,7 @@ import {
 } from "@/lib/vocabulary/model-governance-ai-usage-vocabulary";
 
 describe("ModelGovernanceAiUsageVocabularyRail (TB-2286)", () => {
-  it("renders compact strip on model governance with peer link to AI usage", () => {
+  it("renders compact strip on model policy with peer link to AI usage", () => {
     render(<ModelGovernanceAiUsageVocabularyRail currentSurfaceId="model-governance" />);
 
     const strip = screen.getByTestId("model-governance-ai-usage-vocabulary");
@@ -24,7 +24,7 @@ describe("ModelGovernanceAiUsageVocabularyRail (TB-2286)", () => {
     expect(peer).toHaveAttribute("href", MODEL_GOVERNANCE_AI_USAGE_USAGE_LINK.href);
   });
 
-  it("renders compact strip on AI usage with peer link to model governance", () => {
+  it("renders compact strip on AI usage with peer link to model policy", () => {
     render(<ModelGovernanceAiUsageVocabularyRail currentSurfaceId="ai-usage" />);
 
     expect(screen.getByTestId("model-governance-ai-usage-vocabulary")).toHaveAttribute(

@@ -87,6 +87,7 @@ export async function patchDraftRequest(
     focusedPilotModeEnabled?: boolean;
     workflowIntent?: "create-architecture" | "start-review";
     structuredBrief?: DraftRequestDocument["structuredBrief"];
+    openQuestions?: string;
     expectedUpdatedUtc?: string;
     forceOverwrite?: boolean;
   },

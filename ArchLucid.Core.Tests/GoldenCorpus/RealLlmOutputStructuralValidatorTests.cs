@@ -525,7 +525,7 @@ public sealed class RealLlmOutputStructuralValidatorTests
     }
 
     [Fact]
-    public void ValidateAgentResultStructure_accepts_boolean_agentType()
+    public void ValidateAgentResultStructure_rejects_boolean_agentType()
     {
         const string json = """
             {
@@ -558,11 +558,11 @@ public sealed class RealLlmOutputStructuralValidatorTests
         RealLlmStructuralValidationResult result =
             RealLlmOutputStructuralValidator.ValidateAgentResultStructure("Topology", json);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
-    public void ValidateAgentResultStructure_accepts_string_encoded_boolean_agentType()
+    public void ValidateAgentResultStructure_rejects_string_encoded_boolean_agentType()
     {
         const string json = """
             {
@@ -595,11 +595,11 @@ public sealed class RealLlmOutputStructuralValidatorTests
         RealLlmStructuralValidationResult result =
             RealLlmOutputStructuralValidator.ValidateAgentResultStructure("Topology", json);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
-    public void ValidateAgentResultStructure_accepts_string_encoded_boolean_agentType_parameter()
+    public void ValidateAgentResultStructure_rejects_string_encoded_boolean_agentType_parameter()
     {
         const string json = """
             {
@@ -632,11 +632,11 @@ public sealed class RealLlmOutputStructuralValidatorTests
         RealLlmStructuralValidationResult result =
             RealLlmOutputStructuralValidator.ValidateAgentResultStructure("True", json);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]
-    public void ValidateAgentResultStructure_accepts_on_synonym_agentType()
+    public void ValidateAgentResultStructure_rejects_on_synonym_agentType()
     {
         const string json = """
             {
@@ -669,7 +669,7 @@ public sealed class RealLlmOutputStructuralValidatorTests
         RealLlmStructuralValidationResult result =
             RealLlmOutputStructuralValidator.ValidateAgentResultStructure("Topology", json);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
     }
 
     [Fact]

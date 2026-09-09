@@ -205,7 +205,7 @@ public sealed class ComparisonsControllerTests
         ComparisonsController controller = CreateController();
 
         IActionResult action =
-            await controller.GetExportRecordComparisonHistory(ExportId, CancellationToken.None);
+            await controller.GetExportRecordComparisonHistory(ExportId, Mock.Of<IRunExportRecordRepository>(), CancellationToken.None);
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
@@ -229,7 +229,7 @@ public sealed class ComparisonsControllerTests
             runExportRecordRepository: exports.Object);
 
         IActionResult action =
-            await controller.GetExportRecordComparisonHistory(ExportId, CancellationToken.None);
+            await controller.GetExportRecordComparisonHistory(ExportId, exports.Object, CancellationToken.None);
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
@@ -317,6 +317,7 @@ public sealed class ComparisonsControllerTests
 
         IActionResult action = await controller.SearchComparisonRecords(
             new ComparisonHistoryQuery { SortDir = "sideways" },
+            Mock.Of<IRunExportRecordRepository>(),
             CancellationToken.None);
 
         ObjectResult badRequest = action.Should().BeOfType<ObjectResult>().Subject;
@@ -360,6 +361,7 @@ public sealed class ComparisonsControllerTests
 
         IActionResult action = await controller.SearchComparisonRecords(
             new ComparisonHistoryQuery { Cursor = string.Empty },
+            Mock.Of<IRunExportRecordRepository>(),
             CancellationToken.None);
 
         action.Should().BeOfType<OkObjectResult>();

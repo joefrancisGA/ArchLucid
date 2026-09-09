@@ -5,7 +5,7 @@ import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-nav
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
@@ -19,7 +19,7 @@ export function governanceFindingManifestRecordHref(runId: string, manifestId: s
     return signedRecordDetailPath(manifestId);
   }
 
-  return reviewDetailPath(runId);
+  return resolveWorkingRunReviewLocator({ runId }).href;
 }
 
 export function governanceQueueGraphEvidenceHref(row: GovernanceFindingQueueRow): string | null {

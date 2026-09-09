@@ -71,7 +71,7 @@ ArchLucid should **lead adoption and monetization with AI initiative readiness**
 
 ### Commercial and validation posture [E]
 
-- **Pricing (list):** Architect $99/mo, Team $499/mo (repriced 2026-07-29, M-200), Professional $1,799/mo, Enterprise $60K–$250K/yr.
+- **Pricing (list):** Current list, bundles, and LLM bands live only in [`docs/go-to-market/PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md) (**M-305**, 2026-09-07). Architect remains the discretionary self-serve SKU; Team is above typical CTO discretionary thresholds.
 - **Market validation:** zero published customers, zero real-mode pilots (G-REAL-06 not started), GTM Stage 0.
 - **Assessment headline readiness:** 76.32%; sponsor purchase probability 25–40% (no live pilot cohort).
 - **Positioning guardrail:** do not headline as standalone "AI governance platform" (`POSITIONING.md` §7).
@@ -101,7 +101,7 @@ ArchLucid should **lead adoption and monetization with AI initiative readiness**
 2. **Incumbents own program-level governance; architect workbench is open** — no MQ vendor produces evidence-linked design analysis of a specific proposal or converts intake into a full architecture review in a self-serve motion.
 3. **~70% of the wedge workflow exists** — intake, findings, dispositions, exports, audit chain are shipped.
 4. **Volume driver is regulation-independent** — proposal flood persists regardless of EU AI Act deferral.
-5. **Price list matches bottom-up motion** — $99–$499 under typical CTO discretionary thresholds [I].
+5. **Price list matches bottom-up motion** — Architect list is still under typical CTO discretionary thresholds; Team is a manager-approval SKU after **M-305** ([`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md)) [I].
 
 ### Against [E/I]
 
@@ -269,8 +269,8 @@ ArchLucid owns the **decision record about the design**; runtime artifacts flow 
 ## Packaging and monetization [O]
 
 - AI readiness **inside core product** — no edition or module SKU.
-- **Entry:** Architect $99 / Team $499 (self-serve motion ends where SSO, security review, or >~$10K/yr begins).
-- **Expansion:** Professional $1,799 → Enterprise $60–250K/yr.
+- **Entry:** Architect (self-serve) then Team — self-serve motion ends where SSO, security review, or manager-approval thresholds begin. Current list: [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md).
+- **Expansion:** Professional public bundle → Enterprise annual contract (same source).
 - Deep AI packs: post-validation only; or custom pack authoring service ($9.5K–$100K, existing).
 
 ---
@@ -292,7 +292,7 @@ Accumulating value, not lock-in:
 | H1 Pain (architect interviews) | ≥50% describe AI-proposal intake as top-3 workload |
 | H2 Behavior (beta) | ≥40% run ≥3 proposals through workflow |
 | H3 Artifact value | ≥30% send RFI/memo to real stakeholder |
-| H4 Buying motion | ≥3 architects would show trial report to CTO; ≥1 verbal willingness at ≥$99/mo |
+| H4 Buying motion | ≥3 architects would show trial report to CTO; ≥1 verbal willingness at Architect list (see [`PRICING_PHILOSOPHY.md`](../go-to-market/PRICING_PHILOSOPHY.md)) |
 | H5 Fast path | ≥25% reach Ready / Ready with conditions within two sessions |
 
 | Gate | Condition |

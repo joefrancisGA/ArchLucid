@@ -50,7 +50,9 @@ export function ProvenancePageWorkspaceFilters({
 
         {viewMode === "graph" ? (
           <FilterChipGroup aria-label="Provenance graph category filters" className="flex flex-wrap gap-1.5" data-testid="provenance-graph-filters">
-            {filterOptions.map((option) => {
+            {filterOptions
+              .filter((option) => (filterCounts.get(option.id) ?? 0) > 0)
+              .map((option) => {
               const active = activeFilters.has(option.id);
               const count = filterCounts.get(option.id) ?? 0;
               const zeroCount = count === 0;

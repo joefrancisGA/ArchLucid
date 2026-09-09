@@ -27,9 +27,8 @@ import {
   ADVISORY_SCANS_HELP_SKIP_LINK_LABEL,
   ADVISORY_SCANS_HELP_SKIP_TARGET_ID,
 } from "@/lib/advisory-scans-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpAdvisoryScansGuideView buyer-polished shell (HAD)", () => {
   const entry = getProductDocumentationEntry("advisory-scans");
@@ -68,10 +67,7 @@ describe("HelpAdvisoryScansGuideView buyer-polished shell (HAD)", () => {
       ADVISORY_SCANS_HELP_PRIMARY_ACTION.href,
     );
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ADVISORY_SCANS_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), ADVISORY_SCANS_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

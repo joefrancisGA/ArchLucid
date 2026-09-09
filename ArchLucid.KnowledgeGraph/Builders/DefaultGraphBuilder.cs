@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Diagram;
 using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Mapping;
@@ -10,7 +11,8 @@ namespace ArchLucid.KnowledgeGraph.Builders;
 
 public class DefaultGraphBuilder(
     IGraphNodeFactory nodeFactory,
-    IGraphEdgeInferer edgeInferer)
+    IGraphEdgeInferer edgeInferer,
+    StructuredDiagramGraphMerger structuredDiagramGraphMerger)
     : IGraphBuilder
 {
     public async Task<GraphBuildResult> BuildAsync(
@@ -25,16 +27,25 @@ public class DefaultGraphBuilder(
         nodes.Add(CreateContextNode(contextSnapshot));
 
         GraphMaterializationContext materializationContext = new(contextSnapshot, nodes);
-        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(nodeFactory);
+        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(
+            nodeFactory,
+            structuredDiagramGraphMerger);
 
         await pipeline.RunAsync(materializationContext, ct).ConfigureAwait(false);
 
         IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(contextSnapshot, nodes);
+        List<GraphEdge> edges = inferredEdges.Count == 0 ? [] : [.. inferredEdges];
+
+        if (materializationContext.Edges.Count > 0)
+        {
+            edges.AddRange(materializationContext.Edges);
+            edges = GraphEdgeInferenceHelpers.Deduplicate(edges);
+        }
 
         GraphBuildResult result = new()
         {
             Nodes = nodes,
-            Edges = inferredEdges.Count == 0 ? [] : [.. inferredEdges]
+            Edges = edges,
         };
 
         return result;

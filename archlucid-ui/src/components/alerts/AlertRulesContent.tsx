@@ -10,6 +10,7 @@ import { AlertRulesPickReviewBeforeCreatingStrip } from "@/components/alerts/Ale
 import { AlertRulesNextReviewFooterClient } from "@/components/alerts/AlertRulesNextReviewFooterClient";
 import { AlertRulesTable } from "@/components/alerts/AlertRulesTable";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AlertRuleLivePreviewPanel } from "@/components/alerts/AlertRuleLivePreviewPanel";
 import { AlertRuleNotificationReadinessPanel } from "@/components/alerts/AlertRuleNotificationReadinessPanel";
 import { AlertRuleSimulateModal } from "@/components/alerts/AlertRuleSimulateModal";
@@ -19,8 +20,9 @@ import { LivelihoodDocumentGuardDialog } from "@/hooks/use-livelihood-document-g
 import { useAlertRulesContentList } from "@/components/alerts/use-alert-rules-content-list";
 import { useAlertRulesContentCreate } from "@/components/alerts/use-alert-rules-content-create";
 import { useAlertRulesContentPreview } from "@/components/alerts/use-alert-rules-content-preview";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
+  ALERT_RULES_CONDITIONS_BUYER_OVERVIEW,
   ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER,
   ALERT_RULES_CONDITIONS_PAGE_LEAD,
   ALERT_RULES_CREATE_BUTTON_LABEL,
@@ -31,13 +33,17 @@ import {
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
+  OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { ALERT_RULES_CONDITIONS_WORKSPACE_TEST_ID } from "@/lib/alert-rules-conditions-evidence-copy";
 import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND } from "@/lib/operator/operator-live-preview-readiness-rail";
 
 export function AlertRulesContent() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
   const list = useAlertRulesContentList();
   const create = useAlertRulesContentCreate({
     canEdit: list.canEdit,
@@ -73,7 +79,7 @@ export function AlertRulesContent() {
   ) : null;
 
   return (
-    <div className="min-w-0">
+    <OperatorPageContainer variant="workflow" className="py-4" data-testid="alert-rules-conditions-content">
       {list.sampleModeBlocked ? (
         <div
           role="status"
@@ -93,10 +99,7 @@ export function AlertRulesContent() {
           className="mb-4 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
           data-testid="alert-rules-conditions-first-viewport"
         >
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="alert-rules-conditions-intro"
-          >
+          <p className={readingBodyClass} data-testid="alert-rules-conditions-intro">
             {ALERT_RULES_CONDITIONS_PAGE_LEAD}
           </p>
           <p
@@ -108,6 +111,16 @@ export function AlertRulesContent() {
         </div>
       ) : null}
 
+      {buyerPolishedShell ? (
+        <p className={cn(readingBodyClass, "mb-4")} data-testid="alert-rules-conditions-overview">
+          {ALERT_RULES_CONDITIONS_BUYER_OVERVIEW}
+        </p>
+      ) : null}
+
+      <section
+        className={buyerPolishedShell ? cn("min-w-0 space-y-4", OPERATOR_LAYOUT.sectionStack) : "min-w-0 space-y-4"}
+        data-testid={buyerPolishedShell ? ALERT_RULES_CONDITIONS_WORKSPACE_TEST_ID : undefined}
+      >
       <div
         id={list.statusRegionId}
         role="status"
@@ -128,12 +141,14 @@ export function AlertRulesContent() {
         </div>
       ) : null}
 
-      {!list.scopedRunFilterActive ? (
+      {!buyerPolishedShell && !list.scopedRunFilterActive ? (
         <AlertRulesPickReviewBeforeCreatingStrip
           selectedReviewId=""
           onSelectReview={list.onPickReviewForCreating}
         />
-      ) : (
+      ) : null}
+
+      {list.scopedRunFilterActive ? (
         <p
           className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="alert-rules-run-scope-banner"
@@ -152,8 +167,9 @@ export function AlertRulesContent() {
             Open review
           </Link>
         </p>
-      )}
+      ) : null}
 
+      <section className="min-w-0" data-testid="alert-rules-conditions-existing">
       <div
         className={cn(
           "grid",
@@ -223,6 +239,7 @@ export function AlertRulesContent() {
           </div>
         ) : null}
       </div>
+      </section>
 
       <AlertRuleSimulateModal
         rule={list.simulateForRule}
@@ -237,6 +254,8 @@ export function AlertRulesContent() {
       {list.scopedRunFilterActive ? (
         <AlertRulesNextReviewFooterClient runId={list.scopedRunId} />
       ) : null}
+      </section>
+
       <AlertRulesBuyerChrome />
       <LivelihoodDocumentGuardDialog
         open={create.documentGuards.dialogOpen}
@@ -244,6 +263,6 @@ export function AlertRulesContent() {
         onConfirmLeave={create.documentGuards.confirmLeave}
         onCancelLeave={create.documentGuards.cancelLeave}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

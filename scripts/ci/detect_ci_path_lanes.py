@@ -222,6 +222,23 @@ def detect_ci_path_lanes(
     """Classify lanes for the current CI event."""
     root_path = root or repo_root()
 
+    if event_name == "merge_group":
+        return {
+            "schema": "archlucid.ci-path-lanes.v1",
+            "generatedUtc": datetime.now(timezone.utc).isoformat(),
+            "baseRef": base_ref,
+            "eventName": event_name,
+            "run_openapi": True,
+            "run_dotnet": True,
+            "run_terraform": True,
+            "force_all": True,
+            "reason": "merge_group_semantic_conflict_guard",
+            "changedPaths": [],
+            "matched_openapi": [],
+            "matched_dotnet": [],
+            "matched_terraform": [],
+        }
+
     if event_name != "pull_request":
         return {
             "schema": "archlucid.ci-path-lanes.v1",

@@ -1,12 +1,15 @@
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Feasibility;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -110,6 +113,31 @@ public sealed class DecisionReceiptService(
             return new DecisionReceiptRunBuildResult
             {
                 Outcome = DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete,
+            };
+        }
+
+        CareerArtifactCompletenessResult careerArtifactResult = new CareerArtifactCompletenessValidator().Evaluate(
+            CareerArtifactCompletenessInputMapper.MapForExport(
+                new CareerExportCoverageHonestyInput(
+                    new SponsorReviewCoverageHonestyContext(
+                        RunId: runId.ToString("N"),
+                        Verdict: verdict,
+                        AnalysisStagesComplete: true,
+                        ActorNodeCount: 0),
+                    EnginesSucceeded: InsightDensityMeasurementFloorPresenter.CareerExportMeasurementFloorMinEngines,
+                    WorkingDesk: true,
+                    ClassificationCounts: null),
+                verdict?.TransparencyTrail));
+
+        if (!careerArtifactResult.CanRender)
+        {
+            CareerArtifactBlockReason primaryBlock = careerArtifactResult.BlockReasons[0];
+
+            return new DecisionReceiptRunBuildResult
+            {
+                Outcome = DecisionReceiptRunBuildOutcome.CareerArtifactBlocked,
+                BlockReasonCode = primaryBlock.Code,
+                BlockReason = primaryBlock.Message,
             };
         }
 

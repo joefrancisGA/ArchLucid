@@ -27,11 +27,12 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/help/webhooks-integration",
+  usePathname: (): string => "/help/webhooks-integration",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: (): URLSearchParams => new URLSearchParams(),
 }));
 
 import { HelpWebhooksIntegrationGuideView } from "@/app/(operator)/help/_sections/HelpWebhooksIntegrationGuideView";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import {
   WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE,
   WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE,
@@ -48,8 +49,8 @@ import {
   WEBHOOKS_INTEGRATION_HELP_SKIP_LINK_LABEL,
   WEBHOOKS_INTEGRATION_HELP_SKIP_TARGET_ID,
 } from "@/lib/webhooks-integration-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpWebhooksIntegrationGuideView buyer-polished shell (HEW)", () => {
   const entry = getProductDocumentationEntry("webhooks-integration");
@@ -96,10 +97,7 @@ describe("HelpWebhooksIntegrationGuideView buyer-polished shell (HEW)", () => {
       screen.getByRole("heading", { level: 2, name: WEBHOOKS_INTEGRATION_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(WEBHOOKS_INTEGRATION_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), WEBHOOKS_INTEGRATION_HELP_SOURCES, "/help/webhooks-integration");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
