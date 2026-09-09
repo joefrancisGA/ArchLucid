@@ -1057,11 +1057,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 8
-- **bugs-found:** 8
+- **hunts:** 9
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — ISO/FedRAMP/NIST framework markers skipped human review
+- **last-bug:** 2026-09-08 — SOX/GLBA/LGPD/data-protection framework markers skipped human review
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1080,6 +1080,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `RequiresHumanReview` / `HumanReviewRegulatoryMarkers` — shorthand `PCI:`, standalone `PHI`, and `personal data` prose never trigger human review while `pci-dss`/`pii`/`hipaa` did — **hit 2026-09-08 seed hunt #1310:** inspect-classify gap after #1335; short regulatory prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending centralized marker set; regressions in `DifficultyBasedExtractionRouterExtendedRegulatoryMarkersTests`
 - [x] (proven) `RequiresHumanReview` — framework markers (`ISO 27001`, `FedRAMP`, `NIST`) absent from `HumanReviewRegulatoryMarkers` — **hit 2026-09-08 thorough hunt #1350:** short ISO/FedRAMP/NIST prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending centralized marker set with `iso 27001`, `fedramp`, and `nist`; regressions in `Classify_returns_human_review_for_extended_regulatory_markers_without_compliance_keyword` and `Extract_does_not_stamp_fedramp_prose_directly_established`
+- [x] (proven) `RequiresHumanReview` / `HumanReviewRegulatoryMarkers` — financial and privacy framework markers (`SOX`, `GLBA`, `LGPD`, `data protection`) absent from centralized marker set — **hit 2026-09-08 seed hunt #1379:** short SOX/GLBA/LGPD/data-protection prose classified `ClearExtraction` / `DirectlyEstablished`; fixed by extending marker set with `sox`, `glba`, `lgpd`, and `data protection`; regressions in `Classify_returns_human_review_for_extended_regulatory_markers_without_compliance_keyword` and `Extract_does_not_stamp_sox_prose_directly_established`
+- [ ] (candidate) `InferLifecycleScopeForIndex` — lifecycle synonyms (`present state`, `future state`) not recognized while `current state`/`target state`/`as-is`/`to-be` are — seeded 2026-09-08 seed hunt #1379 after financial/privacy marker hit
+
+2026-09-08 seed hunt #1379 (hit): reseeded extraction-router; proved SOX/GLBA/LGPD/data-protection human-review bypass; seeded present/future lifecycle synonym candidate; 33 scoped DifficultyBasedExtractionRouter tests passed.
 
 2026-09-08 thorough hunt #1350 (hit): proved ISO/FedRAMP/NIST framework marker human-review bypass; 28 scoped DifficultyBasedExtractionRouter tests passed.
 
@@ -7372,11 +7376,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 6
-- **bugs-found:** 4
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — `no-enterprise-*` / `never-enterprise-*` marketplace planId false-positive Enterprise tier
+- **hunts:** 10
+- **bugs-found:** 6
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — Enterprise 1-seat LLM plan shortcut; exclude/minus negation marketplace tier gaps
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7393,6 +7397,18 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `anti-enterprise-*` / `without-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 hunt #1319:** #1315 guarded `non`/`not` only; `contoso-anti-enterprise-standard` and `without-enterprise-plan` still matched delimiter-bounded `enterprise`; fixed with shared `IsEnterpriseNegationToken`; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_anti_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_without_enterprise_delimited_plan`
 - [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `no-enterprise-*` / `never-enterprise-*` / `sans-enterprise-*` plan id false-positive Enterprise tier — **hit 2026-09-08 seed hunt #1320:** #1319 guarded `non`/`not`/`anti`/`without` only; `contoso-no-enterprise-standard`, `never-enterprise-plan`, and `sans-enterprise-plan` still matched delimiter-bounded `enterprise`; extended `IsEnterpriseNegationToken` with `no`, `never`, and `sans`; regressions `TierStorageCodeFromPlanId_does_not_false_positive_on_no_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_never_enterprise_delimited_plan`, `TierStorageCodeFromPlanId_does_not_false_positive_on_sans_enterprise_delimited_plan`
 - [x] (valid-no-repro) `AuthEmailDomainNormalizer.TryNormalize` — IPv4 literal domains (`127.0.0.1`, `8.8.8.8`) pass `IsValidDomain` and can be proposed into tenant sign-in domain registry despite lacking public DNS ownership semantics — **cheap-disproof 2026-09-08 (#1321):** `AuthSignInRoutingEvaluator` requires `VerificationStatus.Verified` and `IsEnforcementActive` before SSO enforcement; unverified proposed rows (including IPv4 literal shape) do not affect live sign-in routing (`EvaluateAsync_allows_email_code_for_unverified_ipv4_literal_domain_registry_row`, existing `EvaluateAsync_blocks_unverified_domain_enforcement`); DNS TXT verification gate prevents verified enforcement without zone control; normalizer acceptance documented (`TryNormalize_accepts_ipv4_literal_domain_shape`)
+- [x] (proven) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` / `IsEnterpriseNegationToken` — `exclude-*` / `excluding-*` / `excluded-*` and extended negation adverbs (`minus`, `un`, `de`, `ex`, `pseudo`, `semi`, `sub`, `micro`, `less`, `lacking`, `omit`, `outside`, `except`) delimited plan ids false-positive Enterprise tier — **hit 2026-09-09 seed hunt #1382:** #1320 guarded `non`/`not`/`no`/`never`/`anti`/`without`/`sans` only; negation-adverb prefixes still matched delimiter-bounded `enterprise`; fixed with `exclud` stem guard plus extended negation adverb tokens; regressions in `TierStorageCodeFromPlanId_does_not_false_positive_on_exclude_enterprise_delimited_plan` and `TierStorageCodeFromPlanId_does_not_false_positive_on_extended_enterprise_negation_adverbs`
+- [x] (proven) `LlmMonthlySpendPlanId.FromCommercialPackaging` — one-seat subscription shortcut returns `architect` before Enterprise label null path — **hit 2026-09-09 seed hunts #1381/#1390:** Enterprise commercial label with 1-seat/1-workspace subscription mapped to Architect spend plan instead of null; reachable via `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync`; fixed by returning null for Enterprise label before Architect shortcut; regression `FromCommercialPackaging_returns_null_for_enterprise_with_one_seat_subscription`
+- [ ] (candidate) `MarketplacePlanIdMapper.TierStorageCodeFromPlanId` — delimited `devoid-enterprise-*` / `bare-enterprise-*` / `free-enterprise-*` plan id may still false-positive Enterprise tier after minus/less/lacking sweep — **seeded 2026-09-09 seed hunt #1390**
+- [ ] (candidate) `LlmMonthlySpendPlanId.FromCommercialPackaging` — Professional commercial label paired with 1-seat subscription may inherit Architect shortcut before Professional branch when callers pass mismatched resolver inputs — **seeded 2026-09-09 seed hunt #1390**
+
+2026-09-09 seed hunt #1380 (hit): reseeded Identity/Billing/Budgeting after #1321 dry; proved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate.
+
+2026-09-09 seed hunt #1381 (hit): reseeded Identity/Billing/Budgeting; proved Enterprise one-seat Architect spend-plan mapping; 9 scoped LlmMonthlySpendPlanId/CommercialTenant tests passed.
+
+2026-09-09 seed hunt #1382 (hit): reseeded Identity/Billing/Budgeting; reproved exclude/extended negation-adverb enterprise tier false-positive; seeded Enterprise one-seat Architect spend-plan candidate; 52 scoped MarketplaceWebhookPayloadParser/CommercialTenant tests passed.
+
+2026-09-09 seed hunt #1390 (hit): reseeded Identity/Billing/Budgeting after dry #1321; reproved Enterprise LLM plan shortcut bleed and marketplace negation-token gaps; seeded devoid/bare/free negation and Professional-label shortcut pairing candidates; 47 scoped CommercialTenant-related unit tests passed.
 
 2026-09-08 thorough hunt #1321 (dry): cheap-disproved IPv4 literal domain candidate; added routing + normalizer regression tests; no open hypotheses remain — reseed on next seed hunt.
 
@@ -10154,10 +10170,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunOwnedCoreAsync` — selective prep used the validation-time `ArchitectureRun` snapshot; if the run committed after validation but before delete, forced-task results were deleted before `ExecuteRunCoreAsync` reloaded and threw — **hit 2026-09-08 (#1326):** reload run + re-check committed/authority-pipeline gates before destructive prep; regression in `ExecuteSelectiveRunAsync_does_not_delete_results_when_run_becomes_committed_before_prep`.
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — heartbeat renewal does not consult `IWorkerHostDrainGate.IsDraining` (unlike `AcquireAsync`) — **cheap-disproof 2026-09-08 (#1327):** in-flight execute may keep renewing until scope dispose; drain boundary is `ReleaseAllHeldByThisInstanceAsync` (TB-961), not blocking renew; regression in `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease`.
 - [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — validation and task planning finished before `AcquireAsync`; if the run committed in that window selective still claimed the SQL lease and only failed on the prep reload — **hit 2026-09-08 (#1327):** reload committed/authority gates before acquire via `EnsureSelectiveExecuteStillEligibleAsync`; regression in `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_run_becomes_committed_before_acquire`.
-- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ExecuteRunCoreAsync` run reload; a vanished/deleted run id still held the SQL lease until `finally` release (no mutations, admission-before-validation ordering per TB-943) — **hit 2026-09-09 (#1392):** `AcquireAsync` ran before `TryGetArchitectureRunAsync`; not-found execute briefly blocked peer acquire; fixed via `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync`; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_not_found`.
-- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ThrowIfAuthorityPipelineCompleteAsync` while selective execute re-checked authority completion before acquire (#1327); authority-complete runs held SQL lease until refused execute released it — **hit 2026-09-09 (#1392):** same pre-acquire eligibility guard; regression `ExecuteRunAsync_does_not_acquire_ownership_when_authority_pipeline_is_complete`.
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ExecuteRunCoreAsync` run reload; a vanished/deleted run id still held the SQL lease until `finally` release (no mutations, admission-before-validation ordering per TB-943) — **hit 2026-09-09 (#1391):** `AcquireAsync` ran before `TryGetArchitectureRunAsync`; not-found execute briefly blocked peer acquire; fixed with `EnsureExecuteRunExistsAsync` before ownership acquire; regression `ExecuteRunAsync_does_not_acquire_ownership_when_run_not_found`.
+- [x] (proven) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership acquire preceded `ThrowIfAuthorityPipelineCompleteAsync` while selective execute re-checked authority completion before acquire (#1327); authority-complete runs held SQL lease until refused execute released it — **hit 2026-09-09 (#1392):** extended pre-acquire eligibility guard to authority-pipeline completion; regression `ExecuteRunAsync_does_not_acquire_ownership_when_authority_pipeline_is_complete`.
 
 2026-09-09 thorough hunt #1392 (hit): proved full execute must validate run existence and authority-pipeline completion before ownership acquire; 41 scoped ownership/orchestrator tests passed.
+
+2026-09-09 thorough hunt #1391 (hit): proved full execute must validate run existence before ownership acquire; mirrors selective eligibility guard.
 2026-09-08 seed hunt #1326 (hit): reseeded selective stale-status paths; proved committed transition after validation must block prep mutations.
 2026-09-08 thorough hunt #1325 (hit): proved selective execute prep ran before ownership acquire; fixed lease ordering to match full execute.
 2026-09-08 seed hunt #1324 (hit): reseeded renewal-scope failure modes; proved unexpected renewal errors must cancel linked execute.
@@ -10252,11 +10270,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 3
-- **bugs-found:** 4
+- **hunts:** 4
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — architecture package inspect checklist ignored detail snapshot findings when explanation count deferred
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — policy callout and review-package summary omitted deferred-explanation finding counts
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10269,7 +10287,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - [x] (proven) `useReviewDetailWorkspaceTabs` — legacy `archTab=` deep links ignored on initial hydration (popstate path only) — **hit 2026-09-07 (#1196):** initial tab resolution read only `reviewTab`; fixed via `resolveReviewWorkspaceTabFromSearchParams` and `resolveReviewDetailTabFromLocation` on first paint (`hydrates legacy archTab deep links on initial visit`, `maps legacy archTab params when reviewTab is absent`)
 - [x] (valid-no-repro) `deriveRunDetailWorkspaceStatus` Approved without operator decision when manifest gate Passed — intentional gate semantics per `run-detail-governance-cta-visibility.test.ts`; governance CTA hidden when manifest status is Committed
 - [x] (proven) `RunDetailPageViewCommitted` / `resolveRunDetailReviewPackageInspectSteps` — inspect checklist keyed on deferred `findingCountDisplay` only while tab badge already falls back to detail snapshot triage counts — **hit 2026-09-08 hunt #1301 (seed→hit):** create-home inspect checklist kept findings step incomplete when `explanationSummary` null but `quickDecisionFindings` already had triage-visible rows; fixed via `resolveRunDetailFindingsReviewed` shared with tab badge fallback; regressions in `run-detail-findings-tab-badge-count.test.ts` and `run-detail-review-package-inspect-checklist.test.ts`
-- [ ] (candidate) `RunDetailPageViewCommitted` / tabbed workspace deferred surfaces — `RunDetailPolicyPackImpactCalloutDeferred` and review-package summary props still pass raw `findingCountDisplay` without detail snapshot fallback when explanation deferred
+- [x] (proven) `RunDetailPageViewCommitted` / tabbed workspace deferred surfaces — `RunDetailPolicyPackImpactCalloutDeferred` and review-package summary props passed raw `findingCountDisplay` without detail snapshot fallback when explanation deferred — **hit 2026-09-09 hunts #1387/#1389:** tab badge and inspect checklist already used `resolveRunDetailFindingsTabBadgeCount`; policy callout, review-package section, and sample summary still showed null/` — ` counts until explanation loaded; fixed via shared `resolveRunDetailDeferredSurfaceFindingCount` in `RunDetailPageViewCommitted`, `resolveRunDetailTabbedWorkspace`, and `RunDetailPageViewShell`; regression in `run-detail-findings-tab-badge-count.test.ts`
+
+2026-09-09 thorough hunt #1387 (hit): proved deferred-surface finding count parity gap; 20 scoped review-detail unit tests passed.
+
+2026-09-09 thorough hunt #1389 (hit): reproved deferred-surface finding count parity gap; 20 scoped review-detail unit tests passed.
 
 2026-09-08 seed hunt #1301 (hit): reseeded ui-review-detail-workspace; proved inspect checklist deferred-explanation findings gap; seeded policy callout/review-package summary count parity candidate.
 
