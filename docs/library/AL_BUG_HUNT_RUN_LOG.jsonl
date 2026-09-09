@@ -1668,3 +1668,4 @@
 {"at":"2026-09-09T21:04:04.7313273Z","zoneId":"architecture-recommendation","outcome":"dry"}
 {"at":"2026-09-09T21:05:11.817644Z","zoneId":"ui-auth-proxy","outcome":"seed-only"}
 {"at":"2026-09-09T21:09:11.4377122Z","zoneId":"storage-vs-data-category","outcome":"seed-only"}
+{"at":"2026-09-09T21:11:20.0914618Z","zoneId":"weekly-digest-email","outcome":"seed-only"}

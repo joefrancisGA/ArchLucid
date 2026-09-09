@@ -1097,7 +1097,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -1117,6 +1117,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` used raw `isoWeekIdempotencyKey` in ledger prefix without trim/whitespace guard — **hit 2026-09-08 seed hunt #1338:** padded keys like `" 2026-W22 "` bypassed the same-week ledger scope and sent duplicate Sponsor reports; fixed by rejecting whitespace-only keys and trimming before `weekly-sponsor-report:{tenant}:{isoWeek}` idempotency; regression in `WeeklySponsorReportEmailDispatcher_padded_iso_week_idempotency_key_does_not_duplicate_weekly_send`
 - [x] (invalid) `WeeklySponsorReportEmailDispatcher` pre-renders templates before `MultiRecipientEmailDispatch` validates recipient mailboxes via `IdentityEmailNormalizer` — **cheap-disproof 2026-09-09 hunt #1431:** invalid-only lists pay render cost but produce no send/ledger wrong outcome; dispatcher returns false when all mailboxes fail normalization
 - [x] (proven) `WeeklySponsorSummaryEmailDispatcher` shared unpadded ISO-week idempotency behavior — **hit 2026-09-09 hunt #1431:** padded keys like `" 2026-W23 "` bypassed weekly ledger scope and sent duplicate sponsor summary emails; fixed with trim/whitespace guard parity to #1338 report dispatcher; regression `WeeklySponsorSummaryEmailDispatcher_padded_iso_week_idempotency_key_does_not_duplicate_weekly_send`
+
+- [x] (invalid) `WeeklyExecutiveSummaryEmailDispatcher` — executive digest path lacks ISO-week trim guard parity with sponsor dispatchers — **invalid 2026-09-09 seed hunt #1479:** executive digest uses per-recipient unsubscribe ledger keys, not shared `weekly-sponsor-report:{tenant}:{isoWeek}` prefix; sponsor trim fixes (#1338/#1431) already cover the ISO-week idempotency class in this zone
+
+2026-09-09 seed hunt #1479 (seed-only): reseeded weekly-digest-email; cheap-disproved executive-digest ISO-week parity candidate; 18 scoped WeeklyExecutiveSummaryJob tests passed.
 
 2026-09-09 thorough hunt #1431 (hit): cheap-disproved invalid-recipient pre-render candidate; proved sibling summary dispatcher ISO week padding duplicate-send gap; 18 scoped DigestEmailDispatcherIdempotency tests passed.
 
