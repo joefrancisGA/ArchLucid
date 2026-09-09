@@ -7,6 +7,8 @@ import {
   resolveFindingMergeConflict,
   type FindingMergeConflictResolutionAction,
 } from "@/lib/governance/finding-merge-conflict-api";
+import { findingMergeConflictBlockedReason } from "@/lib/findings/finding-merge-conflict-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { showError, showSuccess } from "@/lib/toast";
@@ -30,9 +32,11 @@ export function FindingMergeConflictResolvePanel(
         showSuccess("Merge conflict resolved.");
         window.location.reload();
       } catch (error) {
+        const failure = toApiLoadFailure(error);
+        const blockedReason = findingMergeConflictBlockedReason(failure);
         showError(
           "Merge conflict",
-          error instanceof Error ? error.message : "Resolution failed.",
+          blockedReason ?? (error instanceof Error ? error.message : "Resolution failed."),
         );
       } finally {
         setBusy(false);

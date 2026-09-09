@@ -263,7 +263,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                 </div>
 
                 <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                  className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
                   data-testid="provenance-overview"
                 >
                   {PROVENANCE_BUYER_OVERVIEW}

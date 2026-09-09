@@ -36,6 +36,7 @@ import {
   AWS_CLOUD_CONNECTION_SKIP_TARGET_ID,
   AWS_CLOUD_CONNECTION_START_HERE_CARD_TITLE,
   AWS_CLOUD_CONNECTION_START_HERE_LEAD,
+  AWS_CLOUD_CONNECTION_WORKSPACE_TEST_ID,
   awsCloudConnectionPageOverview,
 } from "./aws-cloud-connection-page-copy";
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
@@ -213,16 +214,18 @@ export function AwsCloudConnectionDetailClient() {
                 </div>
                 <AwsCloudConnectionStartHerePanel />
               </div>
-              <p
-                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="aws-cloud-connection-overview"
-              >
+              <p className={readingBodyClass} data-testid="aws-cloud-connection-overview">
                 {AWS_CLOUD_CONNECTION_BUYER_OVERVIEW}
               </p>
             </>
           ) : null}
 
-          <AwsCloudConnectionDetailBody />
+          <section
+            className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+            data-testid={buyerPolishedShell ? AWS_CLOUD_CONNECTION_WORKSPACE_TEST_ID : undefined}
+          >
+            <AwsCloudConnectionDetailBody />
+          </section>
 
           {buyerPolishedShell ? <AwsCloudConnectionSourcesOrientationStrip /> : null}
         </div>

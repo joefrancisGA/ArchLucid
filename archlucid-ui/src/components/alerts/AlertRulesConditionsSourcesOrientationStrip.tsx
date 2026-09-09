@@ -17,6 +17,7 @@ export function AlertRulesConditionsSourcesOrientationStrip(): React.JSX.Element
       sourcesTitle={ALERT_RULES_CONDITIONS_FOLLOW_UPS_TITLE}
       sourcesIntro={ALERT_RULES_CONDITIONS_ORIENTATION_SOURCES_INTRO}
       sources={ALERT_RULES_CONDITIONS_ORIENTATION_SOURCES}
+      sourcesHeadingId="where-to-go-next"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary
     />

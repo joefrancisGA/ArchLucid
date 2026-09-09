@@ -352,11 +352,7 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
           <HelpTopicTableOfContents headings={tocHeadings} />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-billing-orientation-bottom">
-            <HelpBillingAndPlansSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpBillingAndPlansSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

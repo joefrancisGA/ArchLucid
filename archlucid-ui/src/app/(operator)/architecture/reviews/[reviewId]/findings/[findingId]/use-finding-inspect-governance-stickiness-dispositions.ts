@@ -13,8 +13,10 @@ import {
 } from "@/lib/api/governance-stickiness-api";
 import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { findingDispositionsBlockedReason } from "@/lib/governance/finding-dispositions-blocked-reason";
 import { useResumePendingLivelihoodMutation } from "@/hooks/use-resume-pending-livelihood-mutation";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
@@ -117,6 +119,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
     EMPTY_FINDING_INSPECT_DISPOSITION_BASELINE,
   );
   const [dispositionHistoryAsOfUtc, setDispositionHistoryAsOfUtc] = useState<string | null>(null);
+  const [dispositionHistoryFailure, setDispositionHistoryFailure] = useState<ApiLoadFailureState | null>(null);
+  const [dispositionHistoryBlockedReason, setDispositionHistoryBlockedReason] = useState<string | null>(null);
   const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
     null,
   );
@@ -133,18 +137,29 @@ export function useFindingInspectGovernanceStickinessDispositions({
   }
 
   const reload = useCallback(async (): Promise<FindingDispositionEvent[]> => {
-    const [dispositions, waivers] = await Promise.all([
-      listFindingDispositions(findingId),
-      listRiskExceptions(),
-    ]);
+    setDispositionHistoryFailure(null);
+    setDispositionHistoryBlockedReason(null);
 
-    setHistory(dispositions);
-    setActiveWaiver(
-      waivers.find((w) => w.findingId === findingId && w.status === "Active") ?? null,
-    );
-    setDispositionHistoryAsOfUtc(new Date().toISOString());
+    try {
+      const [dispositions, waivers] = await Promise.all([
+        listFindingDispositions(findingId),
+        listRiskExceptions(),
+      ]);
 
-    return dispositions;
+      setHistory(dispositions);
+      setActiveWaiver(
+        waivers.find((w) => w.findingId === findingId && w.status === "Active") ?? null,
+      );
+      setDispositionHistoryAsOfUtc(new Date().toISOString());
+
+      return dispositions;
+    } catch (error: unknown) {
+      const failure = toApiLoadFailure(error);
+      setDispositionHistoryFailure(failure);
+      setDispositionHistoryBlockedReason(findingDispositionsBlockedReason(failure));
+
+      throw error;
+    }
   }, [findingId, setActiveWaiver]);
 
   useEffect(() => {
@@ -453,6 +468,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
     dispositionInlineSaveError,
     dispositionBaseline,
     dispositionHistoryAsOfUtc,
+    dispositionHistoryFailure,
+    dispositionHistoryBlockedReason,
     refreshDispositionHistory: reload,
     expectedCurrentDispositionRowVersionBase64,
     dispositionConflict,

@@ -28,6 +28,8 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/security-trust",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpSecurityTrustGuideView } from "@/app/(operator)/help/_sections/HelpSecurityTrustGuideView";

@@ -18,8 +18,11 @@ ESI intentionally kept the authority context MIME allowlist narrow (`text/plain`
 |--------------|---------|-------------------|-------|
 | `text/plain` | Non-empty UTF-8 prose / line-oriented requirements | **Supported** — `PlainTextContextDocumentParser` | shipped |
 | `text/markdown` | Non-empty UTF-8 markdown | **Supported** — same parser | shipped |
-| `application/vnd.archlucid.diagram+json` | JSON matching **`ArchitectureDiagramModelRecord`** (nodes, edges, subgraphs/swimlanes, trust-boundary labels, `extractionMethod`, optional `sourceEvidenceItemId`) | **Allowlisted** — structured diagram parser ships AS-006+; until then connector may warn-skip | AS-006 / AS-013 |
+| `application/vnd.archlucid.diagram+json` | JSON matching **`ArchitectureDiagramModelRecord`** (nodes, edges, subgraphs/swimlanes, trust-boundary labels, `extractionMethod`, optional `sourceEvidenceItemId`) | **Supported** — `ArchLucidDiagramJsonContextDocumentParser` (AS-012); pixel stubs remain NotVerifiable (AS-004) | shipped |
 | `text/vnd.mermaid` | Raw Mermaid flowchart / C4 source (`.mmd`, mermaid-looking `text/plain`) | **Supported** — `MermaidContextDocumentParser` (AS-007) | shipped |
+| `application/vnd.archlucid.diagram+svg` | Sanitized SVG diagram source (`.svg`); raw `image/svg+xml` remains forbidden on authority | **Supported** — `SvgContextDocumentParser` (AS-008) | shipped |
+| `application/vnd.jgraph.mxfile` | Uncompressed draw.io / diagrams.net `mxfile` XML (`.drawio`) | **Supported** — `DrawIoContextDocumentParser` (AS-009); compressed pages warn when not extracted | shipped |
+| `application/vnd.ms-visio.drawing.main+xml` | Visio `.vsdx` Open Packaging zip posted as base64 (legacy `.vsd` unsupported) | **Supported** — `VsdxContextDocumentParser` (AS-010) | shipped |
 
 Canonical C# list: **`ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes.All`**.  
 Canonical TS list: **`SUPPORTED_CONTEXT_DOCUMENT_CONTENT_TYPES`** in `archlucid-ui/src/lib/architecture-spine/supported-context-document-content-types.ts`.

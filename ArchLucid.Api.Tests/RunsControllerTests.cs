@@ -12,6 +12,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Query;
+using ArchLucid.TestSupport.SealedManifest;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Operations;
 using ArchLucid.Contracts.Agents;
@@ -20,6 +21,7 @@ using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Feedback;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -322,7 +324,7 @@ public sealed class RunsControllerTests
 
         RunsController controller = CreateController();
 
-        IActionResult action = await controller.GetRequest("missing", requests.Object, CancellationToken.None);
+        IActionResult action = await controller.GetRequest("missing", requests.Object, Mock.Of<IManifestHashService>(), CancellationToken.None);
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
@@ -348,7 +350,7 @@ public sealed class RunsControllerTests
 
         RunsController controller = CreateController(runRepository: runs.Object);
 
-        IActionResult action = await controller.GetRequest("REQ-100", requests.Object, CancellationToken.None);
+        IActionResult action = await controller.GetRequest("REQ-100", requests.Object, Mock.Of<IManifestHashService>(), CancellationToken.None);
 
         OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
         ok.Value.Should().BeSameAs(request);
@@ -374,7 +376,7 @@ public sealed class RunsControllerTests
 
         RunsController controller = CreateController(runRepository: runs.Object);
 
-        IActionResult action = await controller.GetRequest("REQ-100", requests.Object, CancellationToken.None);
+        IActionResult action = await controller.GetRequest("REQ-100", requests.Object, Mock.Of<IManifestHashService>(), CancellationToken.None);
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
@@ -769,10 +771,13 @@ public sealed class RunsControllerTests
             scopeProvider.Object,
             actor.Object,
             auditService ?? Mock.Of<IAuditService>(),
-            Mock.Of<IAuthorityQueryService>(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             Mock.Of<IFindingFeedbackRepository>(),
-            Mock.Of<FindingInstrumentationAuditSupport>(),
+            new FindingInstrumentationAuditSupport(
+                auditService ?? Mock.Of<IAuditService>(),
+                NullLogger<FindingInstrumentationAuditSupport>.Instance),
             runRepository ?? Mock.Of<IRunRepository>(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<RunsController>.Instance)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }

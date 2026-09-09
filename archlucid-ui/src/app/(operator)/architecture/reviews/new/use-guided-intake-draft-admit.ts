@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   admitDraftRequest,
   answerDraftQuestion,
@@ -15,6 +16,7 @@ import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
 } from "@/lib/architecture/architecture-draft-registry";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
 import {
   CREATE_ARCHITECTURE_INTENT,
   START_REVIEW_INTENT,
@@ -35,6 +37,17 @@ type Options = {
     document: { requiredMustQuestionKeys?: string[] } | undefined,
   ) => void;
 };
+
+function resolveIntakeMutationSubmitError(error: unknown): unknown {
+  const failure = toApiLoadFailure(error);
+  const blocked = architectureDraftIntakeMutationBlockedReason(failure);
+
+  if (blocked !== null) {
+    return new Error(blocked);
+  }
+
+  return error;
+}
 
 export function useGuidedIntakeDraftAdmit(options: Options) {
   const {
@@ -108,7 +121,7 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
       applyAdmittedRequiredMustQuestionKeysFromDocument(admittedDraft.document);
       upsertArchitectureDraftRegistryEntry(buildArchitectureDraftRegistryEntry(admittedDraft));
     } catch (error) {
-      core.setSubmitError(error);
+      core.setSubmitError(resolveIntakeMutationSubmitError(error));
     } finally {
       core.setBusy(false);
     }
@@ -162,7 +175,7 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
       core.setSavedLocallyQuestionKeys(new Set());
       setStep(2);
     } catch (error) {
-      core.setSubmitError(error);
+      core.setSubmitError(resolveIntakeMutationSubmitError(error));
     } finally {
       core.setBusy(false);
     }
@@ -207,7 +220,7 @@ export function useGuidedIntakeDraftAdmit(options: Options) {
         });
         await refreshQuestions(core.draftId);
       } catch (error) {
-        core.setSubmitError(error);
+        core.setSubmitError(resolveIntakeMutationSubmitError(error));
       } finally {
         core.setBusy(false);
       }

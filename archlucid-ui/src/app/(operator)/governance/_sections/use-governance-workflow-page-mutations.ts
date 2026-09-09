@@ -81,6 +81,7 @@ export function useGovernanceWorkflowPageMutations() {
 
   const listsLoading = runListsPending || (runListsFetching && !runListsFetched);
   const activeReviewDisplayTitle = reviewContextQuery.data?.displayTitle ?? null;
+  const reviewContextBlockedReason = reviewContextQuery.blockedReason;
 
   const mutations = useGovernanceWorkflowMutations({
     canMutateWorkflow,
@@ -333,8 +334,11 @@ export function useGovernanceWorkflowPageMutations() {
     activations,
     showingStaticDemoGovernanceRecords,
     listFailure,
+    runListsBlockedReason: runListsQuery.blockedReason,
     listsLoading,
     activeReviewDisplayTitle,
+    reviewContextBlockedReason,
+    reviewContextFailure: reviewContextQuery.failure,
     mutations: mutationsWithUrl,
     submitBusy: mutations.submitBusy,
     submitApprovalComplete: mutations.submitApprovalComplete,

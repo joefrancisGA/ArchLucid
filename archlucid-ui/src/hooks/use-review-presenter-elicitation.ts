@@ -7,6 +7,10 @@ import {
   answerDraftQuestion,
   getDraftQuestions,
 } from "@/lib/api/draft-intake-api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { architectureDraftQuestionsBlockedReason } from "@/lib/architecture/architecture-draft-list-blocked-reason";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
 import { reasonDraftRequest } from "@/lib/api/draft-intake-api-lifecycle";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { DraftElicitationQuestion } from "@/types/draft-intake-workflow";
@@ -33,6 +37,8 @@ export type UseReviewPresenterElicitationResult = {
   readonly confirm: () => Promise<void>;
   readonly reject: () => Promise<void>;
   readonly askAnother: () => Promise<void>;
+  readonly questionsBlockedReason: string | null;
+  readonly questionsFailure: ApiLoadFailureState | null;
 };
 
 function selectPrimaryPendingQuestion(
@@ -114,6 +120,15 @@ export function useReviewPresenterElicitation(
       try {
         await action();
         await invalidate();
+      } catch (error: unknown) {
+        const failure = toApiLoadFailure(error);
+        const blocked = architectureDraftIntakeMutationBlockedReason(failure);
+
+        if (blocked !== null) {
+          throw new Error(blocked);
+        }
+
+        throw error;
       } finally {
         setBusy(false);
       }
@@ -140,6 +155,8 @@ export function useReviewPresenterElicitation(
   const title = primaryQuestion?.prompt ?? "Ready to finalize";
 
   const effectiveTrail = transparencyTrail;
+  const questionsFailure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
+  const questionsBlockedReason = architectureDraftQuestionsBlockedReason(questionsFailure);
 
   return {
     primaryQuestion,
@@ -152,6 +169,8 @@ export function useReviewPresenterElicitation(
     confirm,
     reject,
     askAnother,
+    questionsBlockedReason,
+    questionsFailure,
   };
 }
 

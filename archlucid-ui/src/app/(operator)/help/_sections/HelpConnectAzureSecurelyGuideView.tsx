@@ -396,9 +396,7 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
             <HelpTopicTableOfContents headings={CONNECT_AZURE_SECURELY_TOC_HEADINGS} enableScrollSpy />
           </div>
 
-          <div data-testid="help-connect-azure-securely-orientation-bottom">
-            <HelpConnectAzureSecurelySourcesOrientationStrip />
-          </div>
+          <HelpConnectAzureSecurelySourcesOrientationStrip />
         </div>
       ) : (
         <>

@@ -12,6 +12,8 @@ export const PROCUREMENT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 
 export const PROCUREMENT_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-procurement-orientation-bottom" as const;
 
+export const PROCUREMENT_HELP_WORKSPACE_TEST_ID = "help-procurement-workspace" as const;
+
 export const PROCUREMENT_HELP_PAGE_SUBTITLE_BUYER =
   "Find buyer-safe answers for InfoSec questionnaires and procurement diligence, then open assurance surfaces or contract templates." as const;
 

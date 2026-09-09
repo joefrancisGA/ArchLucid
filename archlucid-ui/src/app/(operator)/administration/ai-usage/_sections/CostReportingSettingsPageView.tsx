@@ -166,6 +166,7 @@ export function CostReportingSettingsPageView(props: Props) {
           navHref={AI_USAGE_SETTINGS_PATH}
           title={OPERATOR_NAV_LINK_LABELS.aiUsage}
           description={aiUsageSettingsPageDescription(buyerPolishedShell)}
+          descriptionClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
           claimDiscipline={AI_USAGE_SETTINGS_CLAIM_DISCIPLINE}
           claimDisciplineTestId={AI_USAGE_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           metadata={
@@ -330,7 +331,7 @@ export function CostReportingSettingsPageView(props: Props) {
         )}
 
         <div data-testid="ai-usage-settings-orientation-bottom">
-          <AiUsageSettingsEvidenceOrientationStrip />
+          <AiUsageSettingsEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
         </div>
       </div>
     </OperatorPageContainer>

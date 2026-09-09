@@ -1,9 +1,15 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -26,8 +32,23 @@ namespace ArchLucid.Api.Controllers.Planning;
 [Route("v{version:apiVersion}/compare")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ComparisonController(ICompareRunsApplicationFacade compareRunsFacade) : ControllerBase
+public sealed partial class ComparisonController(
+    ICompareRunsApplicationFacade compareRunsFacade,
+    IAuthorityQueryService authorityQueryService,
+    IScopeContextProvider scopeContextProvider,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly ICompareRunsApplicationFacade _compareRunsFacade =
+        compareRunsFacade ?? throw new ArgumentNullException(nameof(compareRunsFacade));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     /// <summary>Structured <see cref="ManifestDocument" /> delta between two runs (base → target).</summary>
     /// <param name="baseRunId">Earlier or baseline run.</param>
     /// <param name="targetRunId">Later or candidate run.</param>
@@ -46,7 +67,13 @@ public sealed class ComparisonController(ICompareRunsApplicationFacade compareRu
         [FromQuery] Guid targetRunId,
         CancellationToken ct = default)
     {
-        ManifestCompareLoadResult result = await compareRunsFacade.CompareManifestsAsync(baseRunId, targetRunId, ct);
+        IActionResult? sealedGuardResult =
+            await EnsureCompareRunsSealedManifestReadAllowedAsync(baseRunId, targetRunId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ManifestCompareLoadResult result = await _compareRunsFacade.CompareManifestsAsync(baseRunId, targetRunId, ct);
 
         return result.Outcome switch
         {

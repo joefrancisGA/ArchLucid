@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { ApiRequestError } from "@/lib/api-request-error";
+
 const apiHoisted = vi.hoisted(() => ({
   getRunSummary: vi.fn(),
   getRunDetail: vi.fn(),
@@ -39,6 +41,20 @@ describe("loadGovernanceReviewContext", () => {
       displayTitle: null,
       manifestVersion: null,
     });
+  });
+
+  it("fail-closes on sealed-manifest 409 from run summary", async () => {
+    const conflict = new ApiRequestError("Sealed manifest required", {
+      httpStatus: 409,
+      problem: { detail: "Sealed manifest hash verification failed." },
+      correlationId: null,
+    });
+    apiHoisted.getRunSummary.mockRejectedValue(conflict);
+    apiHoisted.getRunDetail.mockResolvedValue({
+      data: { run: { currentManifestVersion: "3.4.1" } },
+    });
+
+    await expect(loadGovernanceReviewContext("run-1")).rejects.toBe(conflict);
   });
 
   it("uses static showcase context for customer-intake-modernization without API calls", async () => {

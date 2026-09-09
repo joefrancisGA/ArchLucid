@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.KnowledgeGraph.Diagram;
 
 namespace ArchLucid.ContextIngestion.Mapping;
 
@@ -9,7 +10,7 @@ namespace ArchLucid.ContextIngestion.Mapping;
 /// </summary>
 public static class ArchitectureDiagramCanonicalObjectMapper
 {
-    public const string StructuredDiagramSourceType = "StructuredDiagram";
+    public const string StructuredDiagramSourceType = StructuredDiagramCanonicalSourceTypes.StructuredDiagram;
 
     public static IReadOnlyList<CanonicalObject> Map(
         ArchitectureDiagramModelRecord model,

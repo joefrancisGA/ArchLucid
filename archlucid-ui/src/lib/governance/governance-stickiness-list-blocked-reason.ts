@@ -10,7 +10,6 @@ export function riskExceptionsBlockedReason(failure: ApiLoadFailureState | null)
 export function recurrenceSchedulesBlockedReason(failure: ApiLoadFailureState | null): string | null {
   return compareRunPairBlockedReason(failure);
 }
-}
 
 /** Wave-59 suggestion 698: surface lifecycle/sealed-hash realized-value attestation read 409 copy. */
 export function realizedValueAttestationBlockedReason(failure: ApiLoadFailureState | null): string | null {

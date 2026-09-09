@@ -11,10 +11,12 @@ import {
   revokeRiskException,
   type RiskExceptionRecord,
 } from "@/lib/api/governance-stickiness-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   defaultRiskExceptionRenewOpenedExpiryUtc,
   riskExceptionRenewHasUnsavedEdits,
 } from "@/lib/risk-exception-renew-unsaved";
+import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import {
   parseRiskExceptionRenewIdFromSearch,
@@ -285,7 +287,11 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
         syncRenewRevokeToUrl(null, pendingRevoke?.riskExceptionId ?? null);
         await reload();
       } catch (error: unknown) {
-        setLoadError(error instanceof Error ? error.message : "Failed to renew risk exception.");
+        const failure = toApiLoadFailure(error);
+        setLoadError(
+          riskExceptionMutationBlockedReason(failure)
+            ?? (error instanceof Error ? error.message : "Failed to renew risk exception."),
+        );
       } finally {
         setBusyId(null);
       }
@@ -309,7 +315,11 @@ export function useRiskExceptionsClient(): UseRiskExceptionsClientResult {
         syncRenewRevokeToUrl(renewingId, null);
         await reload();
       } catch (error: unknown) {
-        setLoadError(error instanceof Error ? error.message : "Failed to revoke risk exception.");
+        const failure = toApiLoadFailure(error);
+        setLoadError(
+          riskExceptionMutationBlockedReason(failure)
+            ?? (error instanceof Error ? error.message : "Failed to revoke risk exception."),
+        );
       } finally {
         setBusyId(null);
       }

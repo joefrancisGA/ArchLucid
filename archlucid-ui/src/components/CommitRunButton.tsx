@@ -21,11 +21,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { commitArchitectureRun, getRunSummary } from "@/lib/api";
+import { simulatePreCommitSyntheticFindings } from "@/lib/api/pre-finalize-synthetic-simulation-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
+import { preFinalizeSyntheticSimulationBlockedReason } from "@/lib/runs/pre-finalize-synthetic-simulation-blocked-reason";
+import { reviewFinalizeMutationBlockedReason } from "@/lib/runs/review-finalize-mutation-blocked-reason";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
-import { resolveFinalizeSuccessDeskHref } from "@/lib/architecture/finalize-success-desk-href";
-import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
 import { readAcknowledgedAssumptionIds } from "@/lib/review-quality/review-assumption-ack-store";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -61,8 +62,6 @@ export type CommitRunButtonProps = {
   commitBlockedReason?: string | null;
   /** Demote to outline when another surface owns the page's single primary CTA (TB-618). */
   buttonVariant?: "primary" | "outline";
-  /** Parent architecture identity for Working finalize return navigation (AO-35). */
-  parentArchitectureId?: string | null;
 };
 
 /**
@@ -73,12 +72,10 @@ export function CommitRunButton({
   disabled,
   commitBlockedReason = null,
   buttonVariant = "primary",
-  parentArchitectureId = null,
 }: CommitRunButtonProps) {
   const { isWorkingMode } = useWorkspaceMode();
   const router = useRouter();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
-  const resolvedArchitectureId = resolveReviewWorkspaceArchitectureId(parentArchitectureId, pathname);
   const searchParams = useSearchParams();
   const urlFinalizeConfirm = parseReviewFinalizeConfirmOpenFromSearch(searchParams.get("finalizeConfirm"));
   const urlFinalizeSuccess = parseReviewFinalizeSuccessOpenFromSearch(searchParams.get("finalizeSuccess"));
@@ -88,6 +85,7 @@ export function CommitRunButton({
   const [postCommitSummaryBlockedReason, setPostCommitSummaryBlockedReason] = useState<string | null>(null);
   const [notifySponsor, setNotifySponsor] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [preflightBusy, setPreflightBusy] = useState(false);
   const [error, setError] = useState<{
     message: string;
     problem: ApiProblemDetails | null;
@@ -134,6 +132,38 @@ export function CommitRunButton({
     setSuccessModalOpenState(urlFinalizeSuccess);
   }, [urlFinalizeSuccess]);
 
+  async function openFinalizeConfirm(): Promise<void> {
+    setError(null);
+    setNotifySponsor(false);
+    setPreflightBusy(true);
+
+    try {
+      await simulatePreCommitSyntheticFindings({
+        runId,
+        syntheticCount: 0,
+        syntheticSeverity: "Critical",
+      });
+      setDialogOpen(true);
+    } catch (error: unknown) {
+      const failure = toApiLoadFailure(error);
+      const blockedReason = preFinalizeSyntheticSimulationBlockedReason(failure);
+
+      if (blockedReason !== null) {
+        setError({
+          message: blockedReason,
+          problem: failure.problem,
+          correlationId: failure.correlationId,
+        });
+
+        return;
+      }
+
+      setDialogOpen(true);
+    } finally {
+      setPreflightBusy(false);
+    }
+  }
+
   async function onConfirm(): Promise<void> {
     setBusy(true);
     setError(null);
@@ -150,13 +180,7 @@ export function CommitRunButton({
       syncArchitectureDraftRegistryForFinalizedReview(runId);
       await Promise.all([invalidateOperatorHomeRunsCaches(), invalidateTenantTrialStatusCache()]);
       setDialogOpen(false);
-
-      if (isWorkingMode && resolvedArchitectureId !== null) {
-        router.push(resolveFinalizeSuccessDeskHref(resolvedArchitectureId, runId));
-
-        return;
-      }
-
+      
       try {
         const summary = await getRunSummary(runId);
         setFindingsCount(summary.findingCount ?? null);
@@ -168,15 +192,18 @@ export function CommitRunButton({
       setSuccessModalOpen(true);
       syncFinalizeModalsToUrl(false, true);
     } catch (e: unknown) {
+      const failure = toApiLoadFailure(e);
+      const blocked = reviewFinalizeMutationBlockedReason(failure);
+
       if (isApiRequestError(e)) {
         setError({
-          message: e.message,
+          message: blocked ?? e.message,
           problem: e.problem,
           correlationId: e.correlationId,
         });
       } else {
         setError({
-          message: e instanceof Error ? e.message : "Finalization failed.",
+          message: blocked ?? (e instanceof Error ? e.message : "Finalization failed."),
           problem: null,
           correlationId: null,
         });
@@ -230,13 +257,12 @@ export function CommitRunButton({
           variant={buttonVariant}
           title={FINALIZE_REPLAY_COMPARE_TOOLTIP}
           data-testid="commit-run-finalize"
+          disabled={preflightBusy}
           onClick={() => {
-            setError(null);
-            setNotifySponsor(false);
-            setDialogOpen(true);
+            void openFinalizeConfirm();
           }}
         >
-          Finalize review
+          {preflightBusy ? "Checking finalize readiness…" : "Finalize review"}
         </Button>
         <p className={cn("mt-1.5 max-w-xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           Finalizes the reviewed architecture snapshot and decision traces when the pipeline snapshots are ready. Requires

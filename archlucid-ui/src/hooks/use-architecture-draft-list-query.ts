@@ -3,6 +3,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { listDraftRequests } from "@/lib/api/draft-intake-api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { architectureDraftListBlockedReason } from "@/lib/architecture/architecture-draft-list-blocked-reason";
 import { mapDraftSummariesToRegistryEntries } from "@/lib/architecture/architecture-draft-summary-mapper";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { getOperatorScopeQueryKeySnapshot } from "@/lib/operator/operator-scope-query-key";
@@ -12,7 +15,7 @@ import { OPERATOR_QUERY_GC_MS, OPERATOR_QUERY_STALE_MS } from "@/lib/query/opera
 export function useArchitectureDraftListQuery(options?: { readonly enabled?: boolean }) {
   const scopeKey = getOperatorScopeQueryKeySnapshot();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: operatorQueryKeys.architectureDraftList(scopeKey),
     queryFn: async () => {
       const page = await listDraftRequests({ mine: true, page: 1, pageSize: 200 });
@@ -23,6 +26,15 @@ export function useArchitectureDraftListQuery(options?: { readonly enabled?: boo
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
   });
+
+  const failure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
+  const blockedReason = architectureDraftListBlockedReason(failure);
+
+  return {
+    ...query,
+    failure,
+    blockedReason,
+  };
 }
 
 /** Invalidates the server-backed draft inventory after create, patch, abandon, or submit. */

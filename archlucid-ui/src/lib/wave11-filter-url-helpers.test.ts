@@ -6606,6 +6606,458 @@ describe("wave83 filter url helpers", () => {
   });
 });
 
+describe("wave84 filter url helpers", () => {
+  it("aws/azure/gcp cloud connection, jira/servicenow/slack integration, help cloud connections/connect azure/jira/webhooks sources params", async () => {
+    const {
+      awsCloudConnectionSourcesDisclosureHrefFromSearch,
+      parseAwsCloudConnectionSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/aws-cloud-connection-sources-disclosure-url");
+    const {
+      azureCloudConnectionSourcesDisclosureHrefFromSearch,
+      parseAzureCloudConnectionSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/azure-cloud-connection-sources-disclosure-url");
+    const {
+      gcpCloudConnectionSourcesDisclosureHrefFromSearch,
+      parseGcpCloudConnectionSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/gcp-cloud-connection-sources-disclosure-url");
+    const {
+      jiraIntegrationSourcesDisclosureHrefFromSearch,
+      parseJiraIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/jira-integration-sources-disclosure-url");
+    const {
+      parseServicenowIntegrationSourcesOpenFromSearch,
+      servicenowIntegrationSourcesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/servicenow-integration-sources-disclosure-url");
+    const {
+      parseSlackIntegrationSourcesOpenFromSearch,
+      slackIntegrationSourcesDisclosureHrefFromSearch,
+    } = await import("@/lib/integrations/slack-integration-sources-disclosure-url");
+    const {
+      helpCloudConnectionsSourcesDisclosureHrefFromSearch,
+      parseHelpCloudConnectionsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-cloud-connections-sources-disclosure-url");
+    const {
+      helpConnectAzureSecurelySourcesDisclosureHrefFromSearch,
+      parseHelpConnectAzureSecurelySourcesOpenFromSearch,
+    } = await import("@/lib/help/help-connect-azure-securely-sources-disclosure-url");
+    const {
+      helpJiraIntegrationSourcesDisclosureHrefFromSearch,
+      parseHelpJiraIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-jira-integration-sources-disclosure-url");
+    const {
+      helpWebhooksIntegrationSourcesDisclosureHrefFromSearch,
+      parseHelpWebhooksIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-webhooks-integration-sources-disclosure-url");
+
+    expect(parseAwsCloudConnectionSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      awsCloudConnectionSourcesDisclosureHrefFromSearch("", true, "/integrations/cloud-connections/aws"),
+    ).toBe("/integrations/cloud-connections/aws?awsCloudConnectionSourcesOpen=1");
+    expect(parseAzureCloudConnectionSourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      azureCloudConnectionSourcesDisclosureHrefFromSearch("tab=status", true, "/integrations/cloud-connections/azure"),
+    ).toBe("/integrations/cloud-connections/azure?tab=status&azureCloudConnectionSourcesOpen=1");
+    expect(parseGcpCloudConnectionSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      gcpCloudConnectionSourcesDisclosureHrefFromSearch("", true, "/integrations/cloud-connections/gcp"),
+    ).toBe("/integrations/cloud-connections/gcp?gcpCloudConnectionSourcesOpen=1");
+    expect(parseJiraIntegrationSourcesOpenFromSearch("true")).toBe(true);
+    expect(jiraIntegrationSourcesDisclosureHrefFromSearch("", true, "/integrations/jira")).toBe(
+      "/integrations/jira?jiraIntegrationSourcesOpen=1",
+    );
+    expect(parseServicenowIntegrationSourcesOpenFromSearch("1")).toBe(true);
+    expect(servicenowIntegrationSourcesDisclosureHrefFromSearch("", true, "/integrations/servicenow")).toBe(
+      "/integrations/servicenow?servicenowIntegrationSourcesOpen=1",
+    );
+    expect(parseSlackIntegrationSourcesOpenFromSearch("true")).toBe(true);
+    expect(slackIntegrationSourcesDisclosureHrefFromSearch("view=channels", true, "/integrations/slack")).toBe(
+      "/integrations/slack?view=channels&slackIntegrationSourcesOpen=1",
+    );
+    expect(parseHelpCloudConnectionsSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpCloudConnectionsSourcesDisclosureHrefFromSearch("", true, "/help/cloud-connections")).toBe(
+      "/help/cloud-connections?helpCloudConnectionsSourcesOpen=1",
+    );
+    expect(parseHelpConnectAzureSecurelySourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      helpConnectAzureSecurelySourcesDisclosureHrefFromSearch("", true, "/help/cloud-connections/azure"),
+    ).toBe("/help/cloud-connections/azure?helpConnectAzureSecurelySourcesOpen=1");
+    expect(parseHelpJiraIntegrationSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpJiraIntegrationSourcesDisclosureHrefFromSearch("", true, "/help/jira-integration")).toBe(
+      "/help/jira-integration?helpJiraIntegrationSourcesOpen=1",
+    );
+    expect(parseHelpWebhooksIntegrationSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpWebhooksIntegrationSourcesDisclosureHrefFromSearch("", true, "/help/webhooks-integration")).toBe(
+      "/help/webhooks-integration?helpWebhooksIntegrationSourcesOpen=1",
+    );
+  });
+});
+
+describe("wave85 filter url helpers", () => {
+  it("help authentication sign-in, core pilot, admin diagnostics, ai usage, procurement, system health, repeat review loop, review guide, alerts, audit trail sources params", async () => {
+    const {
+      helpAuthenticationSignInSourcesDisclosureHrefFromSearch,
+      parseHelpAuthenticationSignInSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-authentication-sign-in-sources-disclosure-url");
+    const {
+      helpCorePilotSourcesDisclosureHrefFromSearch,
+      parseHelpCorePilotSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-core-pilot-sources-disclosure-url");
+    const {
+      helpAdminDiagnosticsSourcesDisclosureHrefFromSearch,
+      parseHelpAdminDiagnosticsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-admin-diagnostics-sources-disclosure-url");
+    const {
+      helpAiUsageSourcesDisclosureHrefFromSearch,
+      parseHelpAiUsageSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-ai-usage-sources-disclosure-url");
+    const {
+      helpProcurementSourcesDisclosureHrefFromSearch,
+      parseHelpProcurementSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-procurement-sources-disclosure-url");
+    const {
+      helpSystemHealthSourcesDisclosureHrefFromSearch,
+      parseHelpSystemHealthSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-system-health-sources-disclosure-url");
+    const {
+      helpRepeatReviewLoopSourcesDisclosureHrefFromSearch,
+      parseHelpRepeatReviewLoopSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-repeat-review-loop-sources-disclosure-url");
+    const {
+      helpReviewGuideSourcesDisclosureHrefFromSearch,
+      parseHelpReviewGuideSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-review-guide-sources-disclosure-url");
+    const {
+      helpAlertsSourcesDisclosureHrefFromSearch,
+      parseHelpAlertsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-alerts-sources-disclosure-url");
+    const {
+      helpAuditTrailSourcesDisclosureHrefFromSearch,
+      parseHelpAuditTrailSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-audit-trail-sources-disclosure-url");
+
+    expect(parseHelpAuthenticationSignInSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      helpAuthenticationSignInSourcesDisclosureHrefFromSearch("", true, "/help/authentication-sign-in"),
+    ).toBe("/help/authentication-sign-in?helpAuthenticationSignInSourcesOpen=1");
+    expect(parseHelpCorePilotSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpCorePilotSourcesDisclosureHrefFromSearch("", true, "/help/first-architecture-review")).toBe(
+      "/help/first-architecture-review?helpCorePilotSourcesOpen=1",
+    );
+    expect(parseHelpAdminDiagnosticsSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpAdminDiagnosticsSourcesDisclosureHrefFromSearch("", true, "/help/admin-diagnostics")).toBe(
+      "/help/admin-diagnostics?helpAdminDiagnosticsSourcesOpen=1",
+    );
+    expect(parseHelpAiUsageSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpAiUsageSourcesDisclosureHrefFromSearch("tab=usage", true, "/help/ai-usage")).toBe(
+      "/help/ai-usage?tab=usage&helpAiUsageSourcesOpen=1",
+    );
+    expect(parseHelpProcurementSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpProcurementSourcesDisclosureHrefFromSearch("", true, "/help/procurement")).toBe(
+      "/help/procurement?helpProcurementSourcesOpen=1",
+    );
+    expect(parseHelpSystemHealthSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpSystemHealthSourcesDisclosureHrefFromSearch("", true, "/help/system-health")).toBe(
+      "/help/system-health?helpSystemHealthSourcesOpen=1",
+    );
+    expect(parseHelpRepeatReviewLoopSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpRepeatReviewLoopSourcesDisclosureHrefFromSearch("", true, "/help/repeat-review-loop")).toBe(
+      "/help/repeat-review-loop?helpRepeatReviewLoopSourcesOpen=1",
+    );
+    expect(parseHelpReviewGuideSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpReviewGuideSourcesDisclosureHrefFromSearch("", true, "/help/review-guide")).toBe(
+      "/help/review-guide?helpReviewGuideSourcesOpen=1",
+    );
+    expect(parseHelpAlertsSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpAlertsSourcesDisclosureHrefFromSearch("", true, "/help/alerts")).toBe(
+      "/help/alerts?helpAlertsSourcesOpen=1",
+    );
+    expect(parseHelpAuditTrailSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpAuditTrailSourcesDisclosureHrefFromSearch("", true, "/help/audit-trail")).toBe(
+      "/help/audit-trail?helpAuditTrailSourcesOpen=1",
+    );
+  });
+});
+
+describe("wave86 filter url helpers", () => {
+  it("help notifications, findings, billing and plans, governance approval, decision register, scope, security trust, users and roles, advisory scans, azure boards sources params", async () => {
+    const {
+      helpNotificationsSourcesDisclosureHrefFromSearch,
+      parseHelpNotificationsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-notifications-sources-disclosure-url");
+    const {
+      helpFindingsSourcesDisclosureHrefFromSearch,
+      parseHelpFindingsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-findings-sources-disclosure-url");
+    const {
+      helpBillingAndPlansSourcesDisclosureHrefFromSearch,
+      parseHelpBillingAndPlansSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-billing-and-plans-sources-disclosure-url");
+    const {
+      helpGovernanceApprovalSourcesDisclosureHrefFromSearch,
+      parseHelpGovernanceApprovalSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-governance-approval-sources-disclosure-url");
+    const {
+      helpDecisionRegisterSourcesDisclosureHrefFromSearch,
+      parseHelpDecisionRegisterSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-decision-register-sources-disclosure-url");
+    const {
+      helpScopeSourcesDisclosureHrefFromSearch,
+      parseHelpScopeSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-scope-sources-disclosure-url");
+    const {
+      helpSecurityTrustSourcesDisclosureHrefFromSearch,
+      parseHelpSecurityTrustSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-security-trust-sources-disclosure-url");
+    const {
+      helpUsersAndRolesSourcesDisclosureHrefFromSearch,
+      parseHelpUsersAndRolesSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-users-and-roles-sources-disclosure-url");
+    const {
+      helpAdvisoryScansSourcesDisclosureHrefFromSearch,
+      parseHelpAdvisoryScansSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-advisory-scans-sources-disclosure-url");
+    const {
+      helpAzureBoardsSourcesDisclosureHrefFromSearch,
+      parseHelpAzureBoardsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-azure-boards-sources-disclosure-url");
+
+    expect(parseHelpNotificationsSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpNotificationsSourcesDisclosureHrefFromSearch("", true, "/help/notifications")).toBe(
+      "/help/notifications?helpNotificationsSourcesOpen=1",
+    );
+    expect(parseHelpFindingsSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpFindingsSourcesDisclosureHrefFromSearch("tab=open", true, "/help/findings")).toBe(
+      "/help/findings?tab=open&helpFindingsSourcesOpen=1",
+    );
+    expect(parseHelpBillingAndPlansSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpBillingAndPlansSourcesDisclosureHrefFromSearch("", true, "/help/billing-and-plans")).toBe(
+      "/help/billing-and-plans?helpBillingAndPlansSourcesOpen=1",
+    );
+    expect(parseHelpGovernanceApprovalSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpGovernanceApprovalSourcesDisclosureHrefFromSearch("", true, "/help/governance-approval")).toBe(
+      "/help/governance-approval?helpGovernanceApprovalSourcesOpen=1",
+    );
+    expect(parseHelpDecisionRegisterSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpDecisionRegisterSourcesDisclosureHrefFromSearch("", true, "/help/decision-register")).toBe(
+      "/help/decision-register?helpDecisionRegisterSourcesOpen=1",
+    );
+    expect(parseHelpScopeSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpScopeSourcesDisclosureHrefFromSearch("", true, "/help/scope")).toBe(
+      "/help/scope?helpScopeSourcesOpen=1",
+    );
+    expect(parseHelpSecurityTrustSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpSecurityTrustSourcesDisclosureHrefFromSearch("", true, "/help/security-trust")).toBe(
+      "/help/security-trust?helpSecurityTrustSourcesOpen=1",
+    );
+    expect(parseHelpUsersAndRolesSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpUsersAndRolesSourcesDisclosureHrefFromSearch("", true, "/help/users-and-roles")).toBe(
+      "/help/users-and-roles?helpUsersAndRolesSourcesOpen=1",
+    );
+    expect(parseHelpAdvisoryScansSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpAdvisoryScansSourcesDisclosureHrefFromSearch("", true, "/help/advisory-scans")).toBe(
+      "/help/advisory-scans?helpAdvisoryScansSourcesOpen=1",
+    );
+    expect(parseHelpAzureBoardsSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpAzureBoardsSourcesDisclosureHrefFromSearch("", true, "/help/azure-boards")).toBe(
+      "/help/azure-boards?helpAzureBoardsSourcesOpen=1",
+    );
+  });
+});
+
+describe("wave87 filter url helpers", () => {
+  it("help report a problem, roi summary, model governance, architecture scorecard, caiq sig response, accelerator chooser, approval queue, approval lineage, ask review questions, alert rules conditions sources params", async () => {
+    const {
+      helpReportAProblemSourcesDisclosureHrefFromSearch,
+      parseHelpReportAProblemSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-report-a-problem-sources-disclosure-url");
+    const {
+      helpRoiSummarySourcesDisclosureHrefFromSearch,
+      parseHelpRoiSummarySourcesOpenFromSearch,
+    } = await import("@/lib/help/help-roi-summary-sources-disclosure-url");
+    const {
+      helpModelGovernanceSourcesDisclosureHrefFromSearch,
+      parseHelpModelGovernanceSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-model-governance-sources-disclosure-url");
+    const {
+      helpArchitectureScorecardSourcesDisclosureHrefFromSearch,
+      parseHelpArchitectureScorecardSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-architecture-scorecard-sources-disclosure-url");
+    const {
+      helpCaiqSigResponseSourcesDisclosureHrefFromSearch,
+      parseHelpCaiqSigResponseSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-caiq-sig-response-sources-disclosure-url");
+    const {
+      helpAcceleratorChooserSourcesDisclosureHrefFromSearch,
+      parseHelpAcceleratorChooserSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-accelerator-chooser-sources-disclosure-url");
+    const {
+      approvalQueueSourcesDisclosureHrefFromSearch,
+      parseApprovalQueueSourcesOpenFromSearch,
+    } = await import("@/lib/governance/approval-queue-sources-disclosure-url");
+    const {
+      approvalLineageSourcesDisclosureHrefFromSearch,
+      parseApprovalLineageSourcesOpenFromSearch,
+    } = await import("@/lib/governance/approval-lineage-sources-disclosure-url");
+    const {
+      askReviewQuestionsSourcesDisclosureHrefFromSearch,
+      parseAskReviewQuestionsSourcesOpenFromSearch,
+    } = await import("@/lib/insights/ask-review-questions-sources-disclosure-url");
+    const {
+      alertRulesConditionsSourcesDisclosureHrefFromSearch,
+      parseAlertRulesConditionsSourcesOpenFromSearch,
+    } = await import("@/lib/alerts/alert-rules-conditions-sources-disclosure-url");
+
+    expect(parseHelpReportAProblemSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpReportAProblemSourcesDisclosureHrefFromSearch("", true, "/help/report-a-problem")).toBe(
+      "/help/report-a-problem?helpReportAProblemSourcesOpen=1",
+    );
+    expect(parseHelpRoiSummarySourcesOpenFromSearch("true")).toBe(true);
+    expect(helpRoiSummarySourcesDisclosureHrefFromSearch("", true, "/help/roi-summary")).toBe(
+      "/help/roi-summary?helpRoiSummarySourcesOpen=1",
+    );
+    expect(parseHelpModelGovernanceSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpModelGovernanceSourcesDisclosureHrefFromSearch("", true, "/help/model-governance")).toBe(
+      "/help/model-governance?helpModelGovernanceSourcesOpen=1",
+    );
+    expect(parseHelpArchitectureScorecardSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpArchitectureScorecardSourcesDisclosureHrefFromSearch("", true, "/help/architecture-scorecard")).toBe(
+      "/help/architecture-scorecard?helpArchitectureScorecardSourcesOpen=1",
+    );
+    expect(parseHelpCaiqSigResponseSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpCaiqSigResponseSourcesDisclosureHrefFromSearch("", true, "/help/caiq-sig-response")).toBe(
+      "/help/caiq-sig-response?helpCaiqSigResponseSourcesOpen=1",
+    );
+    expect(parseHelpAcceleratorChooserSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpAcceleratorChooserSourcesDisclosureHrefFromSearch("", true, "/help/accelerator-chooser")).toBe(
+      "/help/accelerator-chooser?helpAcceleratorChooserSourcesOpen=1",
+    );
+    expect(parseApprovalQueueSourcesOpenFromSearch("1")).toBe(true);
+    expect(approvalQueueSourcesDisclosureHrefFromSearch("", true, "/governance/approval-queue")).toBe(
+      "/governance/approval-queue?approvalQueueSourcesOpen=1",
+    );
+    expect(parseApprovalLineageSourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      approvalLineageSourcesDisclosureHrefFromSearch("", true, "/governance/approval-requests/a1/lineage"),
+    ).toBe("/governance/approval-requests/a1/lineage?approvalLineageSourcesOpen=1");
+    expect(parseAskReviewQuestionsSourcesOpenFromSearch("1")).toBe(true);
+    expect(askReviewQuestionsSourcesDisclosureHrefFromSearch("runId=demo", true, "/insights/ask-review-questions")).toBe(
+      "/insights/ask-review-questions?runId=demo&askReviewQuestionsSourcesOpen=1",
+    );
+    expect(parseAlertRulesConditionsSourcesOpenFromSearch("true")).toBe(true);
+    expect(alertRulesConditionsSourcesDisclosureHrefFromSearch("tab=rules", true, "/governance/alert-rules")).toBe(
+      "/governance/alert-rules?tab=rules&alertRulesConditionsSourcesOpen=1",
+    );
+  });
+});
+
+describe("wave88 filter url helpers", () => {
+  it("slack, servicenow, jira integrations, aws/azure/gcp cloud connections, help webhooks, cloud connections, jira integration, connect azure securely sources params", async () => {
+    const {
+      slackIntegrationSourcesDisclosureHrefFromSearch,
+      parseSlackIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/slack-integration-sources-disclosure-url");
+    const {
+      servicenowIntegrationSourcesDisclosureHrefFromSearch,
+      parseServicenowIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/servicenow-integration-sources-disclosure-url");
+    const {
+      jiraIntegrationSourcesDisclosureHrefFromSearch,
+      parseJiraIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/jira-integration-sources-disclosure-url");
+    const {
+      awsCloudConnectionSourcesDisclosureHrefFromSearch,
+      parseAwsCloudConnectionSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/aws-cloud-connection-sources-disclosure-url");
+    const {
+      azureCloudConnectionSourcesDisclosureHrefFromSearch,
+      parseAzureCloudConnectionSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/azure-cloud-connection-sources-disclosure-url");
+    const {
+      gcpCloudConnectionSourcesDisclosureHrefFromSearch,
+      parseGcpCloudConnectionSourcesOpenFromSearch,
+    } = await import("@/lib/integrations/gcp-cloud-connection-sources-disclosure-url");
+    const {
+      helpWebhooksIntegrationSourcesDisclosureHrefFromSearch,
+      parseHelpWebhooksIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-webhooks-integration-sources-disclosure-url");
+    const {
+      helpCloudConnectionsSourcesDisclosureHrefFromSearch,
+      parseHelpCloudConnectionsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-cloud-connections-sources-disclosure-url");
+    const {
+      helpJiraIntegrationSourcesDisclosureHrefFromSearch,
+      parseHelpJiraIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-jira-integration-sources-disclosure-url");
+    const {
+      helpConnectAzureSecurelySourcesDisclosureHrefFromSearch,
+      parseHelpConnectAzureSecurelySourcesOpenFromSearch,
+    } = await import("@/lib/help/help-connect-azure-securely-sources-disclosure-url");
+
+    expect(parseSlackIntegrationSourcesOpenFromSearch("1")).toBe(true);
+    expect(slackIntegrationSourcesDisclosureHrefFromSearch("", true, "/integrations/slack")).toBe(
+      "/integrations/slack?slackIntegrationSourcesOpen=1",
+    );
+    expect(parseServicenowIntegrationSourcesOpenFromSearch("true")).toBe(true);
+    expect(servicenowIntegrationSourcesDisclosureHrefFromSearch("", true, "/integrations/servicenow")).toBe(
+      "/integrations/servicenow?servicenowIntegrationSourcesOpen=1",
+    );
+    expect(parseJiraIntegrationSourcesOpenFromSearch("1")).toBe(true);
+    expect(jiraIntegrationSourcesDisclosureHrefFromSearch("", true, "/integrations/jira")).toBe(
+      "/integrations/jira?jiraIntegrationSourcesOpen=1",
+    );
+    expect(parseAwsCloudConnectionSourcesOpenFromSearch("true")).toBe(true);
+    expect(awsCloudConnectionSourcesDisclosureHrefFromSearch("", true, "/integrations/cloud-connections/aws")).toBe(
+      "/integrations/cloud-connections/aws?awsCloudConnectionSourcesOpen=1",
+    );
+    expect(parseAzureCloudConnectionSourcesOpenFromSearch("1")).toBe(true);
+    expect(azureCloudConnectionSourcesDisclosureHrefFromSearch("", true, "/integrations/cloud-connections/azure")).toBe(
+      "/integrations/cloud-connections/azure?azureCloudConnectionSourcesOpen=1",
+    );
+    expect(parseGcpCloudConnectionSourcesOpenFromSearch("true")).toBe(true);
+    expect(gcpCloudConnectionSourcesDisclosureHrefFromSearch("", true, "/integrations/cloud-connections/gcp")).toBe(
+      "/integrations/cloud-connections/gcp?gcpCloudConnectionSourcesOpen=1",
+    );
+    expect(parseHelpWebhooksIntegrationSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpWebhooksIntegrationSourcesDisclosureHrefFromSearch("", true, "/help/webhooks-integration")).toBe(
+      "/help/webhooks-integration?helpWebhooksIntegrationSourcesOpen=1",
+    );
+    expect(parseHelpCloudConnectionsSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpCloudConnectionsSourcesDisclosureHrefFromSearch("", true, "/help/cloud-connections")).toBe(
+      "/help/cloud-connections?helpCloudConnectionsSourcesOpen=1",
+    );
+    expect(parseHelpJiraIntegrationSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpJiraIntegrationSourcesDisclosureHrefFromSearch("", true, "/help/jira-integration")).toBe(
+      "/help/jira-integration?helpJiraIntegrationSourcesOpen=1",
+    );
+    expect(parseHelpConnectAzureSecurelySourcesOpenFromSearch("true")).toBe(true);
+    expect(helpConnectAzureSecurelySourcesDisclosureHrefFromSearch("", true, "/help/cloud-connections/azure")).toBe(
+      "/help/cloud-connections/azure?helpConnectAzureSecurelySourcesOpen=1",
+    );
+  });
+});
+
+describe("wave89 filter url helpers", () => {
+  it("help topic catchall and quick scan sources params", async () => {
+    const {
+      helpTopicCatchallSourcesDisclosureHrefFromSearch,
+      parseHelpTopicCatchallSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-topic-catchall-sources-disclosure-url");
+    const {
+      quickScanSourcesDisclosureHrefFromSearch,
+      parseQuickScanSourcesOpenFromSearch,
+    } = await import("@/lib/marketing/quick-scan-sources-disclosure-url");
+
+    expect(parseHelpTopicCatchallSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      helpTopicCatchallSourcesDisclosureHrefFromSearch("", true, "/help/engineering-troubleshooting"),
+    ).toBe("/help/engineering-troubleshooting?helpTopicCatchallSourcesOpen=1");
+    expect(parseQuickScanSourcesOpenFromSearch("true")).toBe(true);
+    expect(quickScanSourcesDisclosureHrefFromSearch("", true, "/quick-scan")).toBe(
+      "/quick-scan?quickScanSourcesOpen=1",
+    );
+  });
+});
+
 describe("wave79 filter url helpers", () => {
   it("dev testing quick switch, operator first-run workflow minimized, run detail workspace disclosures, role nav density, sidebar groups, collapsible json path, finding ask inline finding id, technical id disclosure key, usability feedback, draft intake reason default open params", async () => {
     const {

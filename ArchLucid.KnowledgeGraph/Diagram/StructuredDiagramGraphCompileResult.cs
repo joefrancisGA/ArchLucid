@@ -15,4 +15,10 @@ public sealed class StructuredDiagramGraphCompileResult
         get;
         init;
     } = [];
+
+    public IReadOnlyList<StructuredDiagramCanonicalBinding> CanonicalBindings
+    {
+        get;
+        init;
+    } = [];
 }

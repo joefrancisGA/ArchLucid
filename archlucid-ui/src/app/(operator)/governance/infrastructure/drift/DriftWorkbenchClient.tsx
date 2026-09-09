@@ -112,26 +112,28 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_CHANGE_TYPE_FILTER_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_FILTER_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatInfraEvidenceDiffLabel,
   formatInfraEvidenceScopeFreshnessLine,
   formatInfraEvidenceSnapshotLabel,
 } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
-import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { cn } from "@/lib/utils";
 import { showError } from "@/lib/toast";
 
 import { DriftBreadcrumb } from "./DriftBreadcrumb";
 import { DriftChangeDetail } from "./DriftChangeDetail";
-import { DriftChangeResourceCell } from "./DriftChangeResourceCell";
+import { DriftChangeResourceCells } from "./DriftChangeResourceCell";
 import { DriftClaimOrientationStrip } from "./DriftClaimOrientationStrip";
 import { DriftSnapshotIdentifiers } from "./DriftSnapshotIdentifiers";
 
@@ -141,6 +143,7 @@ const cnCard =
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
+const DRIFT_CHANGES_TABLE_COLUMN_COUNT = 6;
 const SNAPSHOTS_PAGE_SIZE = 50;
 const CHANGES_PAGE_SIZE = 100;
 
@@ -649,7 +652,7 @@ export function DriftWorkbenchClient() {
     if (loadingChanges) {
       return (
         <EnterpriseTableRow>
-          <EnterpriseTableCell colSpan={4}>Loading changes…</EnterpriseTableCell>
+          <EnterpriseTableCell colSpan={DRIFT_CHANGES_TABLE_COLUMN_COUNT}>Loading changes…</EnterpriseTableCell>
         </EnterpriseTableRow>
       );
     }
@@ -657,7 +660,7 @@ export function DriftWorkbenchClient() {
     if (selectedDiffId.length === 0) {
       return (
         <EnterpriseTableRow>
-          <EnterpriseTableCell colSpan={4}>
+          <EnterpriseTableCell colSpan={DRIFT_CHANGES_TABLE_COLUMN_COUNT}>
             <EnterpriseCompactEmptyState
               title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE}
               description={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_BODY}
@@ -670,7 +673,7 @@ export function DriftWorkbenchClient() {
 
     return (
       <EnterpriseTableRow>
-        <EnterpriseTableCell colSpan={4}>
+        <EnterpriseTableCell colSpan={DRIFT_CHANGES_TABLE_COLUMN_COUNT}>
           <EnterpriseCompactEmptyState
             title={GOVERNANCE_INFRASTRUCTURE_DRIFT_EMPTY_CHANGES_TITLE}
             description={
@@ -724,7 +727,7 @@ export function DriftWorkbenchClient() {
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DRIFT_PRIMARY_CONTENT_ID}
-        className={cn("mx-auto flex w-full max-w-6xl flex-col gap-4 scroll-mt-24")}
+        className={cn("flex w-full flex-col gap-4 scroll-mt-24")}
         data-testid="infra-drift-primary-content"
       >
         <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-drift-selection-announcer" />
@@ -930,10 +933,6 @@ export function DriftWorkbenchClient() {
             </div>
           </div>
 
-          <p className={cn("m-0 max-w-3xl text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}
-          </p>
-
           {selectedSnapshotId.length > 0 ? (
             <DriftSnapshotIdentifiers
               snapshotId={selectedSnapshotId}
@@ -960,7 +959,7 @@ export function DriftWorkbenchClient() {
 
           <div className="grid gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-800 md:grid-cols-3" aria-label="Drift table filters">
             <label className="grid gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL}</span>
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL}</span>
               <select
                 className={cnField}
                 data-testid="infra-drift-risk-filter"
@@ -979,7 +978,7 @@ export function DriftWorkbenchClient() {
               </select>
             </label>
             <label className="grid gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
                 {GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_CHANGE_TYPE_FILTER_LABEL}
               </span>
               <select
@@ -1000,7 +999,7 @@ export function DriftWorkbenchClient() {
               </select>
             </label>
             <label className="grid gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
                 {GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_FILTER_LABEL}
               </span>
               <Input
@@ -1047,7 +1046,9 @@ export function DriftWorkbenchClient() {
         <EnterpriseTable ariaLabel="Inventory drift changes">
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>
-              {renderSortableHeader("resource", "Resource")}
+              {renderSortableHeader("resource", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_COLUMN_LABEL)}
+              {renderSortableHeader("resourceGroup", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_GROUP_COLUMN_LABEL)}
+              {renderSortableHeader("resourceType", GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_TYPE_COLUMN_LABEL)}
               {renderSortableHeader("change", "Change")}
               {renderSortableHeader("property", "Property")}
               {renderSortableHeader("risk", "Risk")}
@@ -1072,7 +1073,7 @@ export function DriftWorkbenchClient() {
                   }
                 }}
               >
-                <DriftChangeResourceCell azureResourceId={row.azureResourceId} />
+                <DriftChangeResourceCells azureResourceId={row.azureResourceId} />
                 <EnterpriseTableCell>
                   <StatusTag
                     kind={resolveInfraEvidenceChangeTypeStatusKind(row.changeType)}

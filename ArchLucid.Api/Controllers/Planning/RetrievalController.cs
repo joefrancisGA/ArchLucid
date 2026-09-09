@@ -1,9 +1,12 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Retrieval;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -26,9 +29,11 @@ namespace ArchLucid.Api.Controllers.Planning;
 [Route("v{version:apiVersion}/retrieval")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class RetrievalController(
+public sealed partial class RetrievalController(
     IRetrievalQueryService retrievalQueryService,
-    IScopeContextProvider scopeProvider)
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService)
     : ControllerBase
 {
     /// <summary>Runs a vector search for query string <paramref name="q" />.</summary>
@@ -41,6 +46,7 @@ public sealed class RetrievalController(
     [HttpGet("search")]
     [ProducesResponseType(typeof(IReadOnlyList<RetrievalHit>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Search(
         [FromQuery] string q,
         [FromQuery] Guid? runId = null,
@@ -53,7 +59,12 @@ public sealed class RetrievalController(
                 "Query parameter 'q' is required.",
                 ProblemTypes.ValidationFailed);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = await EnsureRunScopedRetrievalSealedManifestReadAllowedAsync(runId, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
         IReadOnlyList<RetrievalHit> result = await retrievalQueryService.SearchAsync(
             new RetrievalQuery

@@ -11,6 +11,7 @@ import {
 } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { AlertRulesHubTabId } from "@/lib/alerts-hub-tab";
 import type { AlertRulesConfigChange } from "@/lib/alert-rules-config-change";
 import { ALERT_RULES_CONFIG_NEVER_CONFIGURED_LABEL } from "@/lib/alert-rule-conditions-copy";
@@ -165,6 +166,7 @@ export function AlertRulesPageHeader(props: AlertRulesPageHeaderProps): React.JS
       title={ALERTS_CONFIGURATION_PAGE_TITLE}
       titleTestId="alert-rules-page-title"
       subtitle={props.subtitle}
+      subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       claimDiscipline={ALERT_RULES_CLAIM_DISCIPLINE}
       claimDisciplineTestId="alert-rules-hub-claim-discipline"
       actions={

@@ -11,6 +11,7 @@ import {
   GOVERNANCE_WORKFLOW_REVIEWED_BY_REQUIRED,
   governanceWorkflowActivateSuccessMessage,
 } from "@/lib/governance/governance-mutation-outcome-copy";
+import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/governance-workflow-mutation-blocked-reason";
 import {
   GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE,
   GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST,
@@ -53,6 +54,7 @@ export type UseGovernanceWorkflowMutationsResult = {
   readonly setMutationCorrectionMutationId: (value: GovernanceMutationReversibilityId | null) => void;
   readonly mutationErrorMessage: string | null;
   readonly mutationErrorIsConcurrencyConflict: boolean;
+  readonly mutationBlockedReason: string | null;
   readonly setMutationErrorMessage: (message: string | null) => void;
   readonly submitBusy: boolean;
   readonly submitApprovalComplete: boolean;
@@ -101,18 +103,22 @@ export function useGovernanceWorkflowMutations(
     useState<GovernanceMutationReversibilityId | null>(null);
   const [mutationErrorMessage, setMutationErrorMessage] = useState<string | null>(null);
   const [mutationErrorIsConcurrencyConflict, setMutationErrorIsConcurrencyConflict] = useState(false);
+  const [mutationBlockedReason, setMutationBlockedReason] = useState<string | null>(null);
 
   function reportMutationFailure(error: unknown): void {
     const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowMutationBlockedReason(failure);
 
-    setMutationErrorMessage(failure.message);
+    setMutationErrorMessage(blockedReason ?? failure.message);
     setMutationErrorIsConcurrencyConflict(failure.httpStatus === 409);
+    setMutationBlockedReason(blockedReason);
     setMutationSuccessMessage(null);
   }
 
   function clearMutationFailure(): void {
     setMutationErrorMessage(null);
     setMutationErrorIsConcurrencyConflict(false);
+    setMutationBlockedReason(null);
   }
 
   const [submitBusy, setSubmitBusy] = useState(false);
@@ -367,6 +373,7 @@ export function useGovernanceWorkflowMutations(
     setMutationCorrectionMutationId,
     mutationErrorMessage,
     mutationErrorIsConcurrencyConflict,
+    mutationBlockedReason,
     setMutationErrorMessage,
     submitBusy,
     submitApprovalComplete,

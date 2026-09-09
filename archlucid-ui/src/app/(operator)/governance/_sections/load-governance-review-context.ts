@@ -1,5 +1,7 @@
 import { getRunDetail, getRunSummary } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { governanceReviewContextBlockedReason } from "@/lib/governance/governance-review-context-blocked-reason";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE } from "@/lib/showcase-static-demo";
 
@@ -8,9 +10,17 @@ export type GovernanceReviewContextLoad = {
   readonly manifestVersion: string | null;
 };
 
+function rethrowWhenSealedManifestBlocked(reason: unknown): void {
+  const failure = toApiLoadFailure(reason);
+
+  if (governanceReviewContextBlockedReason(failure) !== null) {
+    throw reason;
+  }
+}
+
 /**
  * Loads buyer-facing review title + current signed-record version for approval-queue scoping.
- * Failures are soft — callers keep GUID / empty version fallbacks.
+ * Sealed-manifest 409 responses fail closed; other partial failures keep GUID / empty version fallbacks.
  */
 export async function loadGovernanceReviewContext(runId: string): Promise<GovernanceReviewContextLoad> {
   const trimmed = runId.trim();
@@ -35,6 +45,8 @@ export async function loadGovernanceReviewContext(runId: string): Promise<Govern
 
   if (summaryResult.status === "fulfilled") {
     displayTitle = buyerFacingReviewTitleFromSummary(summaryResult.value);
+  } else {
+    rethrowWhenSealedManifestBlocked(summaryResult.reason);
   }
 
   let manifestVersion: string | null = null;
@@ -45,6 +57,8 @@ export async function loadGovernanceReviewContext(runId: string): Promise<Govern
     if (version.length > 0) {
       manifestVersion = version;
     }
+  } else {
+    rethrowWhenSealedManifestBlocked(detailResult.reason);
   }
 
   return { displayTitle, manifestVersion };

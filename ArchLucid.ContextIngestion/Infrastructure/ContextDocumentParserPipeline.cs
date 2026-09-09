@@ -26,7 +26,11 @@ public static class ContextDocumentParserPipeline
 
         return
         [
+            services.GetRequiredService<ArchLucidDiagramJsonContextDocumentParser>(),
             services.GetRequiredService<MermaidContextDocumentParser>(),
+            services.GetRequiredService<SvgContextDocumentParser>(),
+            services.GetRequiredService<DrawIoContextDocumentParser>(),
+            services.GetRequiredService<VsdxContextDocumentParser>(),
             services.GetRequiredService<PlainTextContextDocumentParser>()
             // Future specialized parsers: insert here in explicit precedence order.
         ];

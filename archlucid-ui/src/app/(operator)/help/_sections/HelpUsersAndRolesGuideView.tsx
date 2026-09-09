@@ -322,11 +322,7 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
           <HelpTopicTableOfContents headings={USERS_AND_ROLES_GUIDE_HEADINGS} enableScrollSpy />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-users-and-roles-orientation-bottom">
-            <HelpUsersAndRolesSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpUsersAndRolesSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

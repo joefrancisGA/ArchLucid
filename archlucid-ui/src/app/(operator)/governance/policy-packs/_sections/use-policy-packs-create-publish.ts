@@ -10,6 +10,7 @@ import {
   createPolicyPack,
   publishPolicyPackVersion,
 } from "@/lib/api";
+import { policyPackMutationBlockedReason } from "@/lib/policy/policy-pack-mutation-blocked-reason";
 import { usePolicyPackVersionDetailQuery } from "@/hooks/use-policy-pack-version-detail-query";
 import { usePolicyPackVersionsQuery } from "@/hooks/use-policy-pack-versions-query";
 import { policyPackPublishSuccessMessage } from "@/lib/governance/governance-mutation-outcome-copy";
@@ -325,8 +326,10 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
       // Do not rely only on useEffect(packs): it only runs when selectedPackId is empty, and E2E/CI can race renders.
       setSelectedPackId(created.policyPackId);
     } catch (e) {
-      const message = toApiLoadFailure(e).message;
-      deps.setFailure(toApiLoadFailure(e));
+      const failure = toApiLoadFailure(e);
+      const blocked = policyPackMutationBlockedReason(failure);
+      const message = blocked ?? failure.message;
+      deps.setFailure(blocked !== null ? { ...failure, message: blocked } : failure);
       setCreateInlineSaveError(message);
     } finally {
       deps.setLoading(false);
@@ -377,8 +380,10 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
       setPublishSuccessMessage(policyPackPublishSuccessMessage(publishVersion));
     } catch (e) {
       setPublishSuccessMessage(null);
-      const message = toApiLoadFailure(e).message;
-      deps.setFailure(toApiLoadFailure(e));
+      const failure = toApiLoadFailure(e);
+      const blocked = policyPackMutationBlockedReason(failure);
+      const message = blocked ?? failure.message;
+      deps.setFailure(blocked !== null ? { ...failure, message: blocked } : failure);
       setPublishInlineSaveError(message);
       return;
     } finally {

@@ -47,6 +47,7 @@ import {
   SLACK_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
   SLACK_INTEGRATION_HELP_SKIP_LINK_LABEL,
   SLACK_INTEGRATION_HELP_SKIP_TARGET_ID,
+  SLACK_INTEGRATION_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/slack-integration-help-page-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
 import { cn } from "@/lib/utils";
@@ -145,13 +146,12 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
             title={SLACK_INTEGRATION_HELP_PAGE_TITLE}
             titleTestId="help-slack-integration-page-title"
             subtitle={slackIntegrationHelpPageSubtitle(buyerPolishedShell)}
-            subtitleClassName="max-w-3xl"
+            subtitleClassName={cn("max-w-3xl", HELP_PAGE_LAYOUT.readingBody)}
             navHref={SLACK_INTEGRATION_HELP_CANONICAL_PATH}
             headingLevel="h1"
             claimDiscipline={SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE}
             claimDisciplineTestId={SLACK_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
             metadata={buyerHeaderMetadata}
-            actions={<HelpSlackIntegrationHeaderActions />}
           />
         ) : (
           <HelpTopicGuidePageHeader
@@ -191,8 +191,12 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
           </p>
         ) : null}
 
-        <div className={buyerPolishedShell ? "min-w-0 space-y-4" : contentGridClass}>
-          <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
+        <section
+          className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+          data-testid={buyerPolishedShell ? SLACK_INTEGRATION_HELP_WORKSPACE_TEST_ID : undefined}
+        >
+          <div className={buyerPolishedShell ? "min-w-0 space-y-4" : contentGridClass}>
+            <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-4")}>
             {!buyerPolishedShell ? (
               <SlackIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             ) : null}
@@ -258,7 +262,8 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
           </div>
 
           {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}
-        </div>
+          </div>
+        </section>
 
         {buyerPolishedShell ? <HelpSlackIntegrationSourcesOrientationStrip /> : null}
       </div>

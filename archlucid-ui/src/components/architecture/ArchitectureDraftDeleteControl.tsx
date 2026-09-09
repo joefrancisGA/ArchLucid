@@ -8,6 +8,8 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { abandonDraftRequest } from "@/lib/api/draft-intake-api";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isApiRequestError } from "@/lib/api-request-error";
 import {
   ARCHITECTURE_DRAFT_DELETE_CONFIRM_ACTION_LABEL,
@@ -131,7 +133,12 @@ export function ArchitectureDraftDeleteControl(props: ArchitectureDraftDeleteCon
 
       toast.error(
         ARCHITECTURE_DRAFT_DELETE_FAILURE_MESSAGE,
-        isApiRequestError(error) ? { description: error.message } : undefined,
+        isApiRequestError(error)
+          ? {
+              description:
+                architectureDraftIntakeMutationBlockedReason(toApiLoadFailure(error)) ?? error.message,
+            }
+          : undefined,
       );
     } finally {
       setBusy(false);

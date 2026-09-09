@@ -44,4 +44,29 @@ public sealed partial class RunsController
 
         return null;
     }
+
+    private async Task<IActionResult?> EnsureRunSealedManifestReadAllowedAsync(
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, runId, cancellationToken);
+
+        if (detail?.GoldenManifest is null)
+            return null;
+
+        try
+        {
+            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                detail.GoldenManifest,
+                runId.ToString("D"),
+                _manifestHashService);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
+    }
 }

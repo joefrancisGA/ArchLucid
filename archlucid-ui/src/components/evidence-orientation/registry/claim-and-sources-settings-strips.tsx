@@ -166,6 +166,7 @@ export function ExtractUploadSettingsEvidenceOrientationStrip(
       sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -250,7 +251,9 @@ export function OperatorBillingSettingsEvidenceOrientationStrip(): React.JSX.Ele
   );
 }
 
-export function PreferencesSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function PreferencesSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="preferences-settings"
@@ -258,6 +261,8 @@ export function PreferencesSettingsEvidenceOrientationStrip(): React.JSX.Element
       sourcesIntro={PREFERENCES_SETTINGS_SOURCES_INTRO}
       sources={PREFERENCES_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -277,7 +282,9 @@ export function NotificationPreferenceCenterEvidenceOrientationStrip(): React.JS
   );
 }
 
-export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function RoleMappingSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="role-mapping-settings"
@@ -285,6 +292,8 @@ export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element
       sourcesIntro={ROLE_MAPPING_SETTINGS_SOURCES_INTRO}
       sources={ROLE_MAPPING_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -335,7 +344,9 @@ export function ModelGovernanceSettingsEvidenceOrientationStrip(
   );
 }
 
-export function AiUsageSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function AiUsageSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="ai-usage-settings"
@@ -343,6 +354,8 @@ export function AiUsageSettingsEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={AI_USAGE_SETTINGS_SOURCES_INTRO}
       sources={AI_USAGE_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -360,7 +373,7 @@ export function IdentityProvidersSettingsEvidenceOrientationStrip(): React.JSX.E
 }
 
 export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
-  props: { readonly sources?: readonly EvidenceOrientationLink[] } = {},
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
 ): React.JSX.Element {
   const sources = props.sources ?? IDENTITY_PROVIDERS_OIDC_SOURCES;
 
@@ -372,13 +385,15 @@ export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
       sourcesIntro={IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
 
-export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(props: {
-  readonly sources?: readonly EvidenceOrientationLink[];
-} = {}): React.JSX.Element {
+export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
   const sources = props.sources ?? IDENTITY_PROVIDERS_SAML_SOURCES;
 
   return (
@@ -389,6 +404,8 @@ export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(props: {
       sourcesIntro={IDENTITY_PROVIDERS_SAML_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -478,6 +495,7 @@ export function ApiKeysSettingsEvidenceOrientationStrip(
       sources={API_KEYS_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }

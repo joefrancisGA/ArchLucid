@@ -3,6 +3,8 @@
 import { useCallback } from "react";
 
 import { getDraftRequest, submitDraftRequest } from "@/lib/api/draft-intake-api";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   buildArchitectureDraftRegistryEntry,
   upsertArchitectureDraftRegistryEntry,
@@ -98,7 +100,9 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
         ),
       );
     } catch (error) {
-      core.setSubmitError(error);
+      const failure = toApiLoadFailure(error);
+      const blocked = architectureDraftIntakeMutationBlockedReason(failure);
+      core.setSubmitError(blocked !== null ? new Error(blocked) : error);
     } finally {
       core.setBusy(false);
     }

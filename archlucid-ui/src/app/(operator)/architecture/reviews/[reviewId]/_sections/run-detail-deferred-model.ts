@@ -17,6 +17,7 @@ export type RunDetailBelowFoldDeferredModel = {
   /** Unfiltered pipeline feed for TB-2200 post-finalize package changes. */
   readonly pipelineTimelineAllForPackageChanges: PipelineTimelineItem[] | null;
   readonly pipelineTimelineFailure: ApiLoadFailureState | null;
+  readonly pipelineTimelinesBundleBlockedReason: string | null;
   readonly stageTimelineForUi: StageTimelineSummary[];
   readonly canShowCompareReviewButton: boolean;
   readonly architectureGraphTemporalMinUtc: string;

@@ -1,6 +1,5 @@
-import {
-  EvidenceOrientationClaimAndSourcesStrip,
-} from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   APPROVAL_LINEAGE_FOLLOW_UPS_TITLE,
   APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID,
@@ -14,10 +13,12 @@ export function GovernanceApprovalLineageSourcesOrientationStrip(): React.JSX.El
     <EvidenceOrientationClaimAndSourcesStrip
       slug="approval-lineage"
       stripTestId={APPROVAL_LINEAGE_ORIENTATION_BOTTOM_TEST_ID}
+      sourcesTestId="approval-lineage-sources"
       sourcesTitle={APPROVAL_LINEAGE_FOLLOW_UPS_TITLE}
       sourcesIntro={APPROVAL_LINEAGE_SOURCES_INTRO}
       sources={APPROVAL_LINEAGE_SOURCES}
-      sourcesTestId="approval-lineage-sources"
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
       hubSecondary
     />
   );

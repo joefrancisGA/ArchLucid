@@ -44,6 +44,7 @@ import {
   ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL,
   ACCELERATOR_CHOOSER_HELP_SKIP_TARGET_ID,
   ACCELERATOR_CHOOSER_HELP_START_HERE_CARD_TITLE,
+  ACCELERATOR_CHOOSER_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/accelerator-chooser-help-page-copy";
 import {
   ACCELERATOR_GREENFIELD_PACK_ID,
@@ -277,6 +278,7 @@ export function HelpAcceleratorChooserGuideView(
         title={ACCELERATOR_CHOOSER_HELP_PAGE_TITLE}
         titleTestId="help-accelerator-chooser-page-title"
         subtitle={ACCELERATOR_CHOOSER_HELP_PAGE_SUBTITLE}
+        subtitleClassName={buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : undefined}
         navHref={ACCELERATOR_CHOOSER_HELP_PATH}
         claimDiscipline={buyerPolishedShell ? ACCELERATOR_CHOOSER_HELP_CLAIM_DISCIPLINE : undefined}
         claimDisciplineTestId={
@@ -318,19 +320,23 @@ export function HelpAcceleratorChooserGuideView(
                 </p>
               </div>
               <AcceleratorChooserStartHerePanel />
-              <p
-                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                data-testid="help-accelerator-chooser-overview"
-              >
-                {ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW}
-              </p>
             </div>
+          ) : null}
+
+          {buyerPolishedShell ? (
+            <p className={readingBodyClass} data-testid="help-accelerator-chooser-overview">
+              {ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW}
+            </p>
           ) : null}
 
           {buyerPolishedShell ? null : (
             <HelpAcceleratorChooserPrerequisitePanel presentation={presentation} />
           )}
 
+          <section
+            className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : undefined}
+            data-testid={buyerPolishedShell ? ACCELERATOR_CHOOSER_HELP_WORKSPACE_TEST_ID : undefined}
+          >
           <section
             aria-labelledby="help-accelerator-chooser-packs-heading"
             data-testid="help-accelerator-chooser-packs"
@@ -397,6 +403,7 @@ export function HelpAcceleratorChooserGuideView(
                 </li>
               ))}
             </ol>
+          </section>
           </section>
 
           {buyerPolishedShell ? null : (

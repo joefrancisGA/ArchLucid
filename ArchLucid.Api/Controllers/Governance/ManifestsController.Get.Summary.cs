@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -14,6 +15,7 @@ public sealed partial class ManifestsController
     [HttpGet("manifest/{manifestVersion}/summary")]
     [ProducesResponseType(typeof(ManifestMarkdownDocumentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetManifestSummary(
         [FromRoute] string manifestVersion,
         [FromQuery] string? format = "markdown",
@@ -49,7 +51,16 @@ public sealed partial class ManifestsController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        GoldenManifest? manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest;
+
+        try
+        {
+            manifest = await GetManifestInScopeAsync(manifestVersion, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return GoldenManifestReadConflictProblem(ex);
+        }
 
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
@@ -129,6 +140,7 @@ public sealed partial class ManifestsController
     [HttpGet("manifest/{manifestVersion}/summary/evidence")]
     [ProducesResponseType(typeof(ManifestMarkdownDocumentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetManifestSummaryEvidence(
         [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
@@ -143,8 +155,17 @@ public sealed partial class ManifestsController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) =
-            await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest;
+        AgentEvidencePackage? evidence;
+
+        try
+        {
+            (manifest, evidence) = await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return GoldenManifestReadConflictProblem(ex);
+        }
 
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);

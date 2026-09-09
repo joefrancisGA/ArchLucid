@@ -21,9 +21,17 @@ public sealed partial class DraftRequestsController
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadDraftDecisionReceipt(Guid draftId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         DecisionReceiptDocument? receipt =
             await _decisionReceiptService.BuildForDraftAsync(scope, draftId, cancellationToken);
 
@@ -51,9 +59,16 @@ public sealed partial class DraftRequestsController
     [ProducesResponseType(typeof(DraftBranchQuotaResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetDraftBranchQuota(Guid draftId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
@@ -78,6 +93,7 @@ public sealed partial class DraftRequestsController
     [ProducesResponseType(typeof(BranchDraftResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> BranchDraft(
         Guid draftId,
         [FromBody] BranchDraftRequest? body,
@@ -88,6 +104,12 @@ public sealed partial class DraftRequestsController
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         string actorUserId = _actorContext.GetActorId();
+
+        IActionResult? sealedGuardResult =
+            await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

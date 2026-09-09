@@ -37,7 +37,6 @@ import {
   parseInfraEvidenceWorkbenchQueryValue,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { cn } from "@/lib/utils";
 
 export function TerraformWorkbenchClient() {
@@ -317,7 +316,6 @@ export function TerraformWorkbenchClient() {
               </pre>
             </div>
           ) : null}
-          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.helper)}>{TERRAFORM_ADVISORY_EXPORT_DISCLAIMER}</p>
           {copyMessage != null ? (
             <p className={cn("m-0 mt-2 text-sm text-muted-foreground", OPERATOR_TYPOGRAPHY.helper)} role="status">
               {copyMessage}

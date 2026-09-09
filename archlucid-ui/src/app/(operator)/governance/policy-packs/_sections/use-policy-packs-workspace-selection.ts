@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { listPolicyPackWorkspaceSelection, setPolicyPackAssignmentEnabled, setPolicyPackAssignmentOrganizationRequired } from "@/lib/api";
+import { policyPackMutationBlockedReason } from "@/lib/policy/policy-pack-mutation-blocked-reason";
 import type { PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
 
 export type PolicyPacksWorkspaceSelectionControls = {
@@ -57,7 +58,9 @@ export function usePolicyPacksWorkspaceSelection(
         await setPolicyPackAssignmentEnabled(assignmentId, nextEnabled);
         await controls.load();
       } catch (e) {
-        controls.setFailure(toApiLoadFailure(e));
+        const failure = toApiLoadFailure(e);
+        const blocked = policyPackMutationBlockedReason(failure);
+        controls.setFailure(blocked !== null ? { ...failure, message: blocked } : failure);
       } finally {
         setTogglingAssignmentId(null);
       }
@@ -78,7 +81,9 @@ export function usePolicyPacksWorkspaceSelection(
         await setPolicyPackAssignmentOrganizationRequired(assignmentId, nextOrganizationRequired);
         await controls.load();
       } catch (e) {
-        controls.setFailure(toApiLoadFailure(e));
+        const failure = toApiLoadFailure(e);
+        const blocked = policyPackMutationBlockedReason(failure);
+        controls.setFailure(blocked !== null ? { ...failure, message: blocked } : failure);
       } finally {
         setTogglingOrganizationRequiredAssignmentId(null);
       }

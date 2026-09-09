@@ -10,6 +10,7 @@ import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
+import { PriorSameRequestCompareFallbackBlockedCallout } from "@/components/compare/PriorSameRequestCompareFallbackBlockedCallout";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { SHOW_ALL_DESTINATIONS } from "@/lib/nav-disclosure-copy";
 
@@ -30,7 +31,7 @@ export function PostCommitAdvancedAnalysisHint({
   runId,
   embeddedInCollapsible = false,
 }: PostCommitAdvancedAnalysisHintProps) {
-  const { compareWithPriorHref } = usePriorSameRequestCompareHref(runId, LOOKBACK);
+  const { compareWithPriorHref, compareFallbackFailure } = usePriorSameRequestCompareHref(runId, LOOKBACK);
 
   const encoded = encodeURIComponent(runId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -89,6 +90,11 @@ export function PostCommitAdvancedAnalysisHint({
               Prior item is the most recent other finalization for the same request (recent activity window).
             </span>
           ) : null}
+        </div>
+      ) : null}
+      {compareWithPriorHref === null && compareFallbackFailure !== null ? (
+        <div className="mt-3">
+          <PriorSameRequestCompareFallbackBlockedCallout failure={compareFallbackFailure} />
         </div>
       ) : null}
       <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.body)}>
