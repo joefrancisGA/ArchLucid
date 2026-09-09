@@ -13,6 +13,9 @@ export const HELP_TOPIC_CATCHALL_FIRST_VIEWPORT_TEST_ID = "help-topic-catchall-f
 export const HELP_TOPIC_CATCHALL_PAGE_LEAD =
   "Read curated product guidance for help topics that do not yet have a specialty guide page.";
 
+export const HELP_TOPIC_CATCHALL_OVERVIEW =
+  "The topic body below renders registry markdown for this slug until a specialty guide owns the route.";
+
 export const HELP_TOPIC_CATCHALL_START_HERE_CARD_TITLE = "Start here" as const;
 
 export const HELP_TOPIC_CATCHALL_BUYER_START_HERE_HELPER =
