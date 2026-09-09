@@ -6,16 +6,22 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Roi;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -198,9 +204,21 @@ public sealed class RoiControllerTests
                 Mock.Of<IManifestHashService>(),
                 Mock.Of<ITenantRepository>(),
                 Mock.Of<IScimUserRepository>(),
-                RoiControllerTestSupport.CreateRunCollector(scopeProvider.Object))
+                CreateRunCollector(scopeProvider.Object))
             {
                 ControllerContext = new ControllerContext { HttpContext = httpContext }
             };
     }
+
+    private static SponsorRoiRunCollector CreateRunCollector(IScopeContextProvider scopeProvider) =>
+        new(
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<ITenantEstimatedUsdSavingsResolver>(),
+            scopeProvider,
+            Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IRiskExceptionService>(),
+            Mock.Of<IFindingsSnapshotRepository>(),
+            Mock.Of<ITenantCostSettingsRepository>(),
+            Options.Create(new ValueReportComputationOptions()),
+            NullLogger<SponsorRoiRunCollector>.Instance);
 }
