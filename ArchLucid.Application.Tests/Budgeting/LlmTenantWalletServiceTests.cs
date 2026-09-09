@@ -78,6 +78,41 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task UpdateWalletAsync_allows_enabling_auto_replenish_when_monthly_cap_already_persisted()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        LlmTenantWalletService service = CreateService(repository);
+
+        await repository.GetOrCreateAsync(tenantId, CancellationToken.None);
+        LlmTenantWalletStateReadModel? seeded = await repository.UpdateSettingsAsync(
+            new LlmTenantWalletUpdateSettingsRequest
+            {
+                TenantId = tenantId,
+                MonthlyCapUsd = 100m,
+                StripeCustomerId = "cus_test",
+                StripePaymentMethodId = "pm_test",
+            },
+            CancellationToken.None);
+
+        seeded.Should().NotBeNull();
+        byte[] rowVersion = seeded!.RowVersion;
+
+        LlmTenantWalletView? updated = await service.UpdateWalletAsync(
+            tenantId,
+            new LlmTenantWalletUpdateCommand
+            {
+                AutoReplenishEnabled = true,
+                ExpectedRowVersion = rowVersion,
+            },
+            CancellationToken.None);
+
+        updated.Should().NotBeNull("partial wallet PUT must not require resubmitting an already-valid monthly cap");
+        updated!.AutoReplenishEnabled.Should().BeTrue();
+        updated.MonthlyCapUsd.Should().Be(100m);
+    }
+
+    [SkippableFact]
     public async Task TryAutoRefillAsync_returns_false_when_monthly_cap_would_be_exceeded()
     {
         InMemoryLlmTenantWalletRepository repository = new();

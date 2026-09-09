@@ -76,6 +76,7 @@ public sealed partial class DraftRequestsController(
     [HttpPost]
     [ProducesResponseType(typeof(DraftRequestResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateDraft([FromBody] CreateDraftRequest? body, CancellationToken cancellationToken)
     {
         if (body is null)
@@ -83,6 +84,12 @@ public sealed partial class DraftRequestsController(
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         string actorUserId = _actorContext.GetActorId();
+
+        IActionResult? sealedGuardResult =
+            await EnsureDraftIntakeSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

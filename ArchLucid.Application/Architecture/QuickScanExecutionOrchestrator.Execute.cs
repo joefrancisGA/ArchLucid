@@ -31,20 +31,23 @@ public sealed partial class QuickScanExecutionOrchestrator
             if (state.TerminalResult is not null)
                 return state.TerminalResult;
 
+            CancellationToken scanCancellationToken =
+                state.ConcurrencyAdmission?.ExecutionCancellationToken ?? cancellationToken;
+
             try
             {
-                await _scanInvokeStage.ExecuteAsync(state, cancellationToken).ConfigureAwait(false);
+                await _scanInvokeStage.ExecuteAsync(state, scanCancellationToken).ConfigureAwait(false);
 
                 if (state.TerminalResult is not null && state.TerminalResult.Succeeded)
                 {
-                    await _usageAndAuditStage.RecordSuccessAsync(state, cancellationToken).ConfigureAwait(false);
+                    await _usageAndAuditStage.RecordSuccessAsync(state, scanCancellationToken).ConfigureAwait(false);
                 }
 
                 return state.TerminalResult ?? QuickScanExecutionResult.ExecutionFailed();
             }
             catch (Exception)
             {
-                await _usageAndAuditStage.RecordExecutionFailureAsync(state, cancellationToken).ConfigureAwait(false);
+                await _usageAndAuditStage.RecordExecutionFailureAsync(state, scanCancellationToken).ConfigureAwait(false);
 
                 return QuickScanExecutionResult.ExecutionFailed();
             }

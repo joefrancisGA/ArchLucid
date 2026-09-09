@@ -3,6 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureIntelligencePageClient } from "./ArchitectureIntelligencePageClient";
 
+function okJsonFetchResponse(body: unknown): Response {
+  return new Response(JSON.stringify(body), { status: 200 });
+}
+
 const searchParamsGet = vi.fn<(key: string) => string | null>(() => null);
 
 function stubProductContextFetch(runId: string, content: string): void {
@@ -13,9 +17,7 @@ function stubProductContextFetch(runId: string, content: string): void {
       const method = init?.method ?? "GET";
 
       if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
-        return {
-          ok: true,
-          json: async () => ({
+        return okJsonFetchResponse(({
             runId,
             sourceTexts: [
               {
@@ -24,15 +26,11 @@ function stubProductContextFetch(runId: string, content: string): void {
                 content,
               },
             ],
-          }),
-          text: async () => "",
-        };
+          }));
       }
 
       if (method === "POST" && url.includes("/architecture-intelligence/run")) {
-        return {
-          ok: true,
-          json: async () => ({
+        return okJsonFetchResponse(({
             runId,
             model: { elements: [] },
             specialistReviews: [
@@ -49,16 +47,10 @@ function stubProductContextFetch(runId: string, content: string): void {
             ],
             recommendations: [],
             mustNotFailViolations: [],
-          }),
-          text: async () => "",
-        };
+          }));
       }
 
-      return {
-        ok: true,
-        json: async () => ({}),
-        text: async () => "",
-      };
+      return okJsonFetchResponse(({}));
     }),
   );
 }
@@ -181,9 +173,7 @@ describe("ArchitectureIntelligencePageClient", () => {
         const url = String(input);
 
         if (url.includes("/product-runs/") && url.includes("/source-context")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
               sourceTexts: [
                 {
@@ -192,16 +182,10 @@ describe("ArchitectureIntelligencePageClient", () => {
                   content: "Hydrated product architecture description.",
                 },
               ],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
-        return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
-        };
+        return okJsonFetchResponse(({}));
       }),
     );
 
@@ -234,21 +218,13 @@ describe("ArchitectureIntelligencePageClient", () => {
         const url = String(input);
 
         if (url.includes("/product-runs/") && url.includes("/source-context")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
               sourceTexts: [],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
-        return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
-        };
+        return okJsonFetchResponse(({}));
       }),
     );
 
@@ -284,20 +260,14 @@ describe("ArchitectureIntelligencePageClient", () => {
         const method = init?.method ?? "GET";
 
         if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: "ffffffff-ffff-ffff-ffff-ffffffffffff",
               sourceTexts: [],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
         if (method === "GET" && url.includes("/architecture-intelligence/golden-fixture")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               sourceTexts: [
                 {
                   fileName: "architecture-description.txt",
@@ -305,16 +275,10 @@ describe("ArchitectureIntelligencePageClient", () => {
                   content: "Golden fixture architecture description.",
                 },
               ],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
-        return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
-        };
+        return okJsonFetchResponse(({}));
       }),
     );
 
@@ -363,9 +327,7 @@ describe("ArchitectureIntelligencePageClient", () => {
         const method = init?.method ?? "GET";
 
         if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
               sourceTexts: [
                 {
@@ -374,15 +336,11 @@ describe("ArchitectureIntelligencePageClient", () => {
                   content: "Architecture for review A.",
                 },
               ],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
         if (method === "POST" && url.includes("/architecture-intelligence/run")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
               model: { elements: [] },
               specialistReviews: [
@@ -399,15 +357,11 @@ describe("ArchitectureIntelligencePageClient", () => {
               ],
               recommendations: [],
               mustNotFailViolations: [],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
         if (method === "GET" && url.includes("/architecture-intelligence/golden-fixture")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               sourceTexts: [
                 {
                   fileName: "architecture-description.txt",
@@ -415,16 +369,10 @@ describe("ArchitectureIntelligencePageClient", () => {
                   content: "Golden fixture architecture description.",
                 },
               ],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
-        return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
-        };
+        return okJsonFetchResponse(({}));
       }),
     );
 
@@ -454,6 +402,75 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.queryByText("Finding before fixture load")).not.toBeInTheDocument();
   });
 
+  it("clears publish-to-product toggle when golden fixture replaces hydrated intake", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Architecture for review A.",
+                },
+              ],
+            }));
+        }
+
+        if (url.includes("/architecture-intelligence/golden-fixture")) {
+          return okJsonFetchResponse(({
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Golden fixture architecture description.",
+                },
+              ],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-publish-toggle"));
+    expect(screen.getByTestId("architecture-intelligence-publish-toggle")).toBeChecked();
+
+    fireEvent.click(screen.getByRole("button", { name: "Load golden fixture" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Golden fixture architecture description.",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-publish-toggle")).not.toBeChecked();
+  });
+
   it("clears declared priorities when deep-linked review switches to one without priorities", async () => {
     let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 
@@ -476,9 +493,7 @@ describe("ArchitectureIntelligencePageClient", () => {
 
         if (url.includes("/product-runs/") && url.includes("/source-context")) {
           if (currentRunId === "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") {
-            return {
-              ok: true,
-              json: async () => ({
+            return okJsonFetchResponse(({
                 runId: currentRunId,
                 sourceTexts: [
                   {
@@ -488,14 +503,10 @@ describe("ArchitectureIntelligencePageClient", () => {
                   },
                 ],
                 declaredPriorities: ["security", "reliability"],
-              }),
-              text: async () => "",
-            };
+              }));
           }
 
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: currentRunId,
               sourceTexts: [
                 {
@@ -505,16 +516,10 @@ describe("ArchitectureIntelligencePageClient", () => {
                 },
               ],
               declaredPriorities: [],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
-        return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
-        };
+        return okJsonFetchResponse(({}));
       }),
     );
 
@@ -555,9 +560,7 @@ describe("ArchitectureIntelligencePageClient", () => {
         const url = String(input);
 
         if (url.includes("/product-runs/") && url.includes("/source-context")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
               sourceTexts: [
                 {
@@ -567,16 +570,10 @@ describe("ArchitectureIntelligencePageClient", () => {
                 },
               ],
               declaredPriorities: ["security"],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
-        return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
-        };
+        return okJsonFetchResponse(({}));
       }),
     );
 
@@ -681,9 +678,7 @@ describe("ArchitectureIntelligencePageClient", () => {
         const method = init?.method ?? "GET";
 
         if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: currentRunId,
               sourceTexts: [
                 {
@@ -692,17 +687,13 @@ describe("ArchitectureIntelligencePageClient", () => {
                   content: currentRunId.startsWith("a") ? "Architecture for review A." : "Architecture for review B.",
                 },
               ],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
         if (method === "POST" && url.includes("/architecture-intelligence/run")) {
           await runPostGate;
 
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
               model: { elements: [] },
               specialistReviews: [
@@ -719,16 +710,10 @@ describe("ArchitectureIntelligencePageClient", () => {
               ],
               recommendations: [],
               mustNotFailViolations: [],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
-        return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
-        };
+        return okJsonFetchResponse(({}));
       }),
     );
 
@@ -781,9 +766,7 @@ describe("ArchitectureIntelligencePageClient", () => {
         const url = String(input);
 
         if (url.includes("/product-runs/") && url.includes("/source-context")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: currentRunId,
               sourceTexts: [
                 {
@@ -792,16 +775,10 @@ describe("ArchitectureIntelligencePageClient", () => {
                   content: `Architecture for review ${currentRunId.slice(0, 1).toUpperCase()}.`,
                 },
               ],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
-        return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
-        };
+        return okJsonFetchResponse(({}));
       }),
     );
 
@@ -848,9 +825,7 @@ describe("ArchitectureIntelligencePageClient", () => {
         const method = init?.method ?? "GET";
 
         if (method === "POST" && url.includes("/architecture-intelligence/run")) {
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId: "freeform-run",
               model: { elements: [] },
               specialistReviews: [
@@ -867,16 +842,10 @@ describe("ArchitectureIntelligencePageClient", () => {
               ],
               recommendations: [],
               mustNotFailViolations: [],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
-        return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
-        };
+        return okJsonFetchResponse(({}));
       }),
     );
 
@@ -944,9 +913,7 @@ describe("ArchitectureIntelligencePageClient", () => {
               ? "Architecture intake for tenant A."
               : "Architecture intake for tenant B.";
 
-          return {
-            ok: true,
-            json: async () => ({
+          return okJsonFetchResponse(({
               runId,
               sourceTexts: [
                 {
@@ -955,16 +922,10 @@ describe("ArchitectureIntelligencePageClient", () => {
                   content,
                 },
               ],
-            }),
-            text: async () => "",
-          };
+            }));
         }
 
-        return {
-          ok: true,
-          json: async () => ({}),
-          text: async () => "",
-        };
+        return okJsonFetchResponse(({}));
       }),
     );
 

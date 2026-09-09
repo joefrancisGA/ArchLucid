@@ -53,6 +53,7 @@ export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
   readonly listScopedRunId?: string | null;
   readonly parentArchitectureId?: string | null;
+
   readonly meetingCaptureBlockedReason?: string | null;
 };
 

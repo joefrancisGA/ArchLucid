@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
@@ -64,6 +65,7 @@ public sealed class InternalArchitectureTraceForensicsController(
 
         if (!Guid.TryParse(runId, out Guid runGuid))
             return this.BadRequestProblem("runId must be a GUID.", ProblemTypes.ValidationFailed);
+
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 

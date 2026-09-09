@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
@@ -81,14 +82,23 @@ public sealed class SponsorReviewPacketBuilder(
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (Guid.TryParse(runId.Trim(), out Guid runGuid))
         {
+            await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId.Trim(),
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+
             await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
                 runGuid,
                 runId.Trim(),
                 _authorityQueryService,
                 _manifestHashService,
-                _scopeContextProvider.GetCurrentScope(),
+                scope,
                 cancellationToken);
         }
 
@@ -111,7 +121,6 @@ public sealed class SponsorReviewPacketBuilder(
         string? activeTrialExportNotice = await ActiveTrialExportNoticeResolver
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
             detail,
             _authorityQueryService,

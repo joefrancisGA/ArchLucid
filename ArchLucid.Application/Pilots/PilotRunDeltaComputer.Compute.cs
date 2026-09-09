@@ -41,8 +41,7 @@ public sealed partial class PilotRunDeltaComputer
                 IReadOnlyList<KeyValuePair<string, int>> snapshotFindings =
                     AggregateFindingsBySeverity(snapshotFindingsList);
 
-                if (SumFindingCounts(agentFindings) == 0
-                    || SumFindingCounts(snapshotFindings) > SumFindingCounts(agentFindings))
+                if (ShouldPreferSnapshotFindings(agentFindings, snapshotFindings, detail, snapshotFindingsList))
                 {
                     findings = snapshotFindings;
                     findingsFromSnapshot = true;
@@ -171,6 +170,52 @@ public sealed partial class PilotRunDeltaComputer
             .OrderByDescending(static p => p.Value)
             .ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static bool ShouldPreferSnapshotFindings(
+        IReadOnlyList<KeyValuePair<string, int>> agentFindings,
+        IReadOnlyList<KeyValuePair<string, int>> snapshotFindings,
+        ArchitectureRunDetail detail,
+        IReadOnlyList<Finding> snapshotFindingsList)
+    {
+        int agentTotal = SumFindingCounts(agentFindings);
+        int snapshotTotal = SumFindingCounts(snapshotFindings);
+
+        if (agentTotal == 0)
+        {
+            return snapshotTotal > 0;
+        }
+
+        if (snapshotTotal > agentTotal)
+        {
+            return true;
+        }
+
+        if (snapshotTotal < agentTotal)
+        {
+            return false;
+        }
+
+        return ResolveMaxSeverityRank(snapshotFindingsList) > ResolveMaxSeverityRank(detail);
+    }
+
+    private static int ResolveMaxSeverityRank(ArchitectureRunDetail detail)
+    {
+        return detail.Results
+            .SelectMany(static r => r.Findings)
+            .Where(static f => !f.IsMuted)
+            .Select(static f => (int)f.Severity)
+            .DefaultIfEmpty(0)
+            .Max();
+    }
+
+    private static int ResolveMaxSeverityRank(IReadOnlyList<Finding> findings)
+    {
+        return findings
+            .Where(static f => !f.IsMuted)
+            .Select(static f => (int)f.Severity)
+            .DefaultIfEmpty(0)
+            .Max();
     }
 
     private static int SumFindingCounts(IReadOnlyList<KeyValuePair<string, int>> findingsBySeverity)

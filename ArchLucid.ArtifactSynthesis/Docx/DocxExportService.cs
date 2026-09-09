@@ -149,9 +149,15 @@ public sealed partial class DocxExportService(
             WordDocumentBuilder.AddHeading(body, "Requirements Coverage");
             List<(string Name, string Status, string Mandatory)> reqRows = [];
             foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
-                reqRows.Add((item.RequirementName, item.CoverageStatus, item.IsMandatory ? "Yes" : "No"));
+                reqRows.Add((
+                    SanitizeArtifactText(item.RequirementName),
+                    SanitizeArtifactText(item.CoverageStatus),
+                    item.IsMandatory ? "Yes" : "No"));
             foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
-                reqRows.Add((item.RequirementName, item.CoverageStatus, item.IsMandatory ? "Yes" : "No"));
+                reqRows.Add((
+                    SanitizeArtifactText(item.RequirementName),
+                    SanitizeArtifactText(item.CoverageStatus),
+                    item.IsMandatory ? "Yes" : "No"));
 
             if (reqRows.Count == 0)
                 WordDocumentBuilder.AddBodyText(body, "No requirements were recorded.");

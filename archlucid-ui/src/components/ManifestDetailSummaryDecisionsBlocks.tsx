@@ -31,6 +31,7 @@ import {
   manifestSummaryBundleDownloadDisclosureHrefFromSearch,
   parseManifestSummaryBundleDownloadOpenFromSearch,
 } from "@/lib/governance/manifest-summary-bundle-download-disclosure-url";
+
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
@@ -219,6 +220,7 @@ export function ManifestDetailSummaryBundleDownload({
   const [bundleOpen, setBundleOpenState] = useState(() =>
     parseManifestSummaryBundleDownloadOpenFromSearch(manifestSummaryBundleDownloadOpenParam),
   );
+
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId: summary.runId.trim(),
     manifestVersion: summary.manifestId.trim(),
@@ -249,6 +251,7 @@ export function ManifestDetailSummaryBundleDownload({
   useEffect(() => {
     setBundleOpenState(parseManifestSummaryBundleDownloadOpenFromSearch(manifestSummaryBundleDownloadOpenParam));
   }, [manifestSummaryBundleDownloadOpenParam]);
+
 
   return (
     <details

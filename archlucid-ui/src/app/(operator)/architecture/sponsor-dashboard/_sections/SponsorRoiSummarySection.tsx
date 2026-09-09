@@ -307,6 +307,7 @@ export function SponsorRoiSummarySection({
             testId="exec-roi-board-pack-verify-recovery"
           />
         ) : null}
+
         {scopedRoiFreshness.length > 0 ? (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

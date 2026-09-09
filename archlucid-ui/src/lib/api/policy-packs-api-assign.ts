@@ -4,7 +4,7 @@ import type {
   PolicyPackAssignment,
   PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
-import { apiGet, apiPostJson, apiPutJson, apiPutNoContent } from "./http";
+import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
 
 /** Assigns a specific policy pack version to the current scope (project/workspace/tenant). */
 export async function assignPolicyPack(
@@ -20,6 +20,14 @@ export async function assignPolicyPack(
 /** Lists workspace policy packs with assignment ids for tenant opt-in/opt-out. */
 export async function listPolicyPackWorkspaceSelection(): Promise<PolicyPackWorkspaceSelectionItem[]> {
   return apiGet(`/${ApiV1Routes.policyPacks}/workspace-selection`);
+}
+
+/** Marks one policy pack assignment archived for the current tenant (row retained for audit). */
+export async function archivePolicyPackAssignment(assignmentId: string): Promise<void> {
+  await apiPostNoContent(
+    `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/archive`,
+    {},
+  );
 }
 
 /** Enables or disables one policy pack assignment for the current workspace. */

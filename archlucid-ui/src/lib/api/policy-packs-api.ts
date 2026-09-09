@@ -20,6 +20,7 @@ export {
 } from "./policy-packs-api-mutate";
 
 export {
+  archivePolicyPackAssignment,
   assignPolicyPack,
   listPolicyPackWorkspaceSelection,
   setPlatformBundledPolicyPackActivation,

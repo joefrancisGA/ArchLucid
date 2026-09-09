@@ -9,6 +9,7 @@ import { CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE } from "@/lib/cloud-provider
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
 export type CloudConnectionsProviderHeaderProps = {
@@ -33,6 +34,9 @@ export function CloudConnectionsProviderHeader(props: CloudConnectionsProviderHe
       title={providerLabel}
       titleTestId={`cloud-connection-${providerLabel.toLowerCase()}-page-title`}
       subtitle={resolvedOverview}
+      subtitleClassName={
+        buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+      }
       claimDiscipline={buyerPolishedShell ? CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE : undefined}
       claimDisciplineTestId={buyerPolishedShell ? headerClaimDisciplineTestId : undefined}
       statusBadge={statusBadge}

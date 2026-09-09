@@ -1255,6 +1255,13 @@ public static partial class GenericArchitectureAdvicePatterns
 
     public static bool HasConcreteEvidenceCitation(IReadOnlyList<string> evidenceRefs)
     {
+        return HasConcreteEvidenceCitation(evidenceRefs, packageDiagramCitationIndex: null);
+    }
+
+    public static bool HasConcreteEvidenceCitation(
+        IReadOnlyList<string> evidenceRefs,
+        DiagramPackageCitationIndex? packageDiagramCitationIndex)
+    {
         if (evidenceRefs.Count == 0)
             return false;
 
@@ -1268,7 +1275,7 @@ public static partial class GenericArchitectureAdvicePatterns
             if (IsGenericEvidenceRef(trimmed))
                 continue;
 
-            if (IsResolvableEvidenceRef(trimmed))
+            if (IsResolvableEvidenceRef(trimmed, packageDiagramCitationIndex))
                 return true;
         }
 
@@ -1314,8 +1321,13 @@ public static partial class GenericArchitectureAdvicePatterns
         return false;
     }
 
-    private static bool IsResolvableEvidenceRef(string trimmed)
+    private static bool IsResolvableEvidenceRef(
+        string trimmed,
+        DiagramPackageCitationIndex? packageDiagramCitationIndex)
     {
+        if (trimmed.StartsWith(DiagramEvidenceCitationRefs.Prefix, StringComparison.OrdinalIgnoreCase))
+            return DiagramEvidenceCitationRefs.IsPackageResolvable(trimmed, packageDiagramCitationIndex);
+
         if (trimmed.StartsWith("doc:", StringComparison.OrdinalIgnoreCase))
             return FindingEvidenceRefs.HasLineAnchoredDocRef(trimmed);
 
@@ -1418,7 +1430,7 @@ public static partial class GenericArchitectureAdvicePatterns
         RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     private static partial Regex UnderSpecifiedFindingPattern();
 
-    [GeneratedRegex(@"\b(conflicts? with|contradicts?|violate[ds]? (?:the |a |an )?constraints?)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled)]
+    [GeneratedRegex(@"\b(conflicts? with|contradicts?|violat(?:e[ds]?|ing) (?:the |a |an )?constraints?)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled)]
     private static partial Regex ConflictFindingPattern();
 
     [GeneratedRegex(

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import { useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -123,12 +124,12 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   }
 
   const presentation = buildPackagePrintPresentation(summaryQuery.data, {
+    meetingCaptureEntries:
+      meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
     coverageHonestyLine:
       workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
         ? coverageHonestyLine
         : null,
-    meetingCaptureEntries:
-      meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
     transparencyTrail:
       workingDesk && coverageHonestyQuery.data !== undefined
         ? coverageHonestyQuery.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null
@@ -138,6 +139,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       && coverageHonestyQuery.data !== undefined
       && analysisStagesCompleteOnSummary(summaryQuery.data)
       && countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null) === 0,
+
   });
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,
@@ -157,6 +159,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
         <Button type="button" variant="secondary" asChild>
           <Link href={printBackHref} data-testid="package-print-blocked-back">
             {PACKAGE_PRINT_BACK_LABEL}
+
           </Link>
         </Button>
       </div>
@@ -168,6 +171,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       presentation={presentation}
       listScopedRunId={listScopedRunId}
       parentArchitectureId={parentArchitectureId}
+
       meetingCaptureBlockedReason={meetingCaptureBlockedReason}
     />
   );

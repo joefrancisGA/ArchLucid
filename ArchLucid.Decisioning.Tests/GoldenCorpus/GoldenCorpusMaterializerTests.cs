@@ -403,6 +403,32 @@ public sealed class GoldenCorpusMaterializerTests
     }
 
     [Fact]
+    public async Task Record_hand_authored_case_70_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-70",
+            await GoldenCorpusMermaidTopologyGraphFactory.CreateCase70MermaidTrustBoundaryTopologyGraphAsync(),
+            null,
+            "Mermaid flowchart with Corporate network trust-boundary subgraph and two systems, parsed through DefaultGraphBuilder — expect diagram topology nodes with **RelatedNodeIds** on scope engines (AS-034).");
+    }
+
+    [Fact]
+    public async Task Record_hand_authored_case_71_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        await RecordIngestDeclarationCaseAsync(
+            "case-71",
+            await GoldenCorpusVsdxTopologyGraphFactory.CreateCase71VsdxTopologyGraphAsync(),
+            null,
+            "Visio vsdx with two labeled shapes and a connect plus one unlabeled shape, parsed through DefaultGraphBuilder — expect diagram topology nodes with **RelatedNodeIds** and no resource for the unlabeled shape (AS-035 / R5).");
+    }
+
+    [Fact]
     public async Task Record_hand_authored_cases_61_63_when_env_flag_set()
     {
         if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))

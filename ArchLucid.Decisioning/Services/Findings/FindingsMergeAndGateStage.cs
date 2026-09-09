@@ -97,6 +97,8 @@ public sealed class FindingsMergeAndGateStage(
         foreach (Finding finding in snapshot.Findings)
             FindingEnforcementTierClassifier.ApplyToFinding(finding);
 
+        FindingProvenanceEmissionApplicator.EnrichDiagramEvidenceRefs(snapshot.Findings, context.GraphSnapshot);
+
         FindingInsightDensityGateApplicator.ApplyToFindings(snapshot.Findings, _insightDensityGate);
 
         FindingProvenanceEmissionApplicator.Apply(snapshot.Findings, _provenanceValidator);

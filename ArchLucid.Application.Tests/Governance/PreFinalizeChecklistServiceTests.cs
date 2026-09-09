@@ -668,6 +668,136 @@ public sealed class PreFinalizeChecklistServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_marks_error_findings_when_technology_consistency_supplemental_would_block_gate()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runKey,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-checklist-tech-consistency",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = "[]",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository snapshots = new();
+        await snapshots.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runKey,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings = [],
+            },
+            CancellationToken.None);
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Microsoft Azure",
+                ProviderFamily = CloudProvider.Azure,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.PrimaryDatastore,
+                TechnologyName = "Amazon RDS",
+                ProviderFamily = CloudProvider.Aws,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        IFindingReviewTrailRepository trail =
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateEmptyFindingReviewTrailRepository();
+
+        PreCommitGovernanceGate gate = new(
+            Options.Create(new PreCommitGovernanceGateOptions
+            {
+                PreCommitGateEnabled = true,
+                PreCommitGateThreshold = "Error",
+            }),
+            scopeProvider.Object,
+            runs,
+            snapshots,
+            new InMemoryPolicyPackAssignmentRepository(),
+            new PassthroughSchemaValidationService(),
+            Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = false }),
+            ledgerRepository,
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions
+            {
+                Enabled = true,
+                Mode = TechnologyConsistencyFindingEngineMode.Enforcing,
+            }),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            trail);
+
+        PreFinalizeChecklistService sut = new(
+            scopeProvider.Object,
+            runs,
+            Mock.Of<IArchitectureRequestRepository>(),
+            snapshots,
+            ledgerRepository,
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions
+            {
+                Enabled = true,
+                Mode = TechnologyConsistencyFindingEngineMode.Enforcing,
+            }),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            gate,
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            new PreFinalizeExecuteBaselineDriftEvaluator(
+                Mock.Of<IEffectiveGovernanceResolver>(),
+                new EffectiveGovernanceSnapshotBuilder(),
+                Mock.Of<IPolicyPackAssignmentRepository>(),
+                Mock.Of<IPolicyPackRepository>(),
+                Mock.Of<IPolicyPackVersionRepository>()),
+            trail);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "open-error-findings"
+            && item.Status == PreFinalizeChecklistItemStatus.Advisory
+            && item.Count > 0,
+            "checklist severity counts must include supplemental findings like the live pre-commit gate");
+        result.Items.Should().Contain(item =>
+            item.ItemId == "pre-commit-gate"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking);
+    }
+
+    [Fact]
     public async Task BuildAsync_allows_finalize_when_critical_finding_is_remediated_and_pre_commit_gate_matches()
     {
         Guid runKey = Guid.NewGuid();
@@ -776,6 +906,8 @@ public sealed class PreFinalizeChecklistServiceTests
             Mock.Of<IArchitectureRequestRepository>(),
             snapshots,
             new InMemoryTechnologyLedgerRepository(),
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
             new FindingEvidenceLinkageFindingEngine(),
             Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
             gate,
@@ -852,6 +984,8 @@ public sealed class PreFinalizeChecklistServiceTests
             architectureRequestRepository ?? Mock.Of<IArchitectureRequestRepository>(),
             findingsSnapshotRepository ?? Mock.Of<IFindingsSnapshotRepository>(),
             ledger ?? ledgerMock.Object,
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
             linkageEngine ?? linkageMock.Object,
             Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = true }),
             gate ?? gateMock.Object,

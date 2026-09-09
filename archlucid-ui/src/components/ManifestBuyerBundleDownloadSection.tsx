@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Button } from "@/components/ui/button";
@@ -98,8 +98,6 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
       });
   }, [downloadsDisabled, manifestId]);
 
-  const action = bundleDownloadCopyAndAction(blockedHintId, downloadsDisabled, busy, onDownload);
-
   const syncBundleOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(
@@ -121,6 +119,8 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
   useEffect(() => {
     setBundleOpenState(parseManifestBuyerBundleDownloadOpenFromSearch(manifestBuyerBundleDownloadOpenParam));
   }, [manifestBuyerBundleDownloadOpenParam]);
+
+  const action = bundleDownloadCopyAndAction(blockedHintId, downloadsDisabled, busy, onDownload);
 
   if (expanded === true) {
     return (

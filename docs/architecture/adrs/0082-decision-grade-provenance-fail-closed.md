@@ -23,7 +23,7 @@ Today:
 
 **Dual pipeline (ADR 0068):** typed engines and LLM agents remain separate kernels. This ADR does **not** merge streams, unseal records, or change insight-density demotion (ADR 0070).
 
-**Related (not rewritten):** ADR 0039 (sealed immutability), ADR 0070 (density demotion), ADR 0073 (trail finalize gate), ADR 0076 (disposition 409), ADR 0078 (career artifact honesty), ADR 0080 (Working seat), `FindingFactory`, `FindingsOrchestrator`, `AgentResultParser`, `AgentOutputQualityGate`, `FindingClaimCoverageEvaluator`.
+**Related (not rewritten):** ADR 0039 (sealed immutability), ADR 0070 (density demotion), ADR 0073 (trail finalize gate), ADR 0076 (disposition 409), ADR 0078 (career artifact honesty), ADR 0080 (Working seat), ADR 0084 (`diagram:` package citations — AS-022; concrete for Kind B demotion, not TB-1228 faithfulness), `FindingFactory`, `FindingsOrchestrator`, `AgentResultParser`, `AgentOutputQualityGate`, `FindingClaimCoverageEvaluator`.
 
 ## Decision
 

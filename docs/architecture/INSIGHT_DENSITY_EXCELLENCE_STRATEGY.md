@@ -1,10 +1,22 @@
 > **Scope:** Internal engineering strategy for raising **Decision-Changing Insight Density** (assessment pillar 1, weight 13). Not buyer-facing copy.
 > **Spine:** [`START_HERE.md`](../START_HERE.md) · **Pillar definition:** [`../assessments/ASSESSMENT_PROMPT_SERIES.md`](../assessments/ASSESSMENT_PROMPT_SERIES.md) · **Gate behavior:** [`adrs/0070-insight-density-controls-typed-engines.md`](adrs/0070-insight-density-controls-typed-engines.md) · **Miss clause:** [`../quality/INSIGHT_DENSITY_MISS_CLAUSE.md`](../quality/INSIGHT_DENSITY_MISS_CLAUSE.md)
-> **Related prompts (shipped / ready):** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) (**DX-01–DX-16 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-17–DX-28 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) (**DX-29–DX-35 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md) (**DX-36–DX-41 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md) (**DX-42–DX-46 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md) (**DX-47–DX-50 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md) (**DX-51–DX-56 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md) (**DX-58–DX-62 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md) (**DX-63–DX-68 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md) (**DX-69–DX-72 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md) (**DX-73–DX-76 shipped** — do not re-run) · [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) · [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) · [`POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`](POLICY_PACK_MOAT_COMPOSER_PROMPTS.md)
+> **Related prompts (shipped / ready):** [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS.md) (**DX-01–DX-16 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX21.md) (**DX-17–DX-28 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX29.md) (**DX-29–DX-35 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX36.md) (**DX-36–DX-41 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX42.md) (**DX-42–DX-46 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX47.md) (**DX-47–DX-50 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md) (**DX-51–DX-56 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md) (**DX-58–DX-62 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md) (**DX-63–DX-68 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md) (**DX-69–DX-72 shipped** — do not re-run) · [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md) (**DX-73–DX-76 shipped** — do not re-run) · [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) · [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) · [`POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`](POLICY_PACK_MOAT_COMPOSER_PROMPTS.md) · [`V8_QUALITY_ROI_COMPOSER_PROMPTS.md`](V8_QUALITY_ROI_COMPOSER_PROMPTS.md) (**QR-01–QR-05 ready** — Correctness/Runtime ROI, not DX-77)
 
 # Insight density — excellence strategy
 
-**Created:** 2026-09-06 · **Status:** Owner-facing strategy note. **DX-01–DX-76 shipped** (2026-09-09, `#2530`). No further Cursor Composer prompt pack is checked in after DX-76. Still owner-gated: live frontier corpus **G-REAL-06**, `EnableProseAssumptionExtraction` default-on, Graph-RAG live ablation **TB-883**, live extractor-as-default (product/GTM). **DX-57** already made ranking priors and the insight generator effective-on in Real mode. **DX-59** already raised `DemotionThreshold` to 65.
+**Created:** 2026-09-06 · **Status:** Owner-facing strategy note. **DX-01–DX-76 shipped** (2026-09-09, `#2530`). **No DX-77.** Post-v8 assessment credit ROI is **Correctness / Runtime**, not another density generation pack — [`V8_QUALITY_ROI_COMPOSER_PROMPTS.md`](V8_QUALITY_ROI_COMPOSER_PROMPTS.md) (**QR-01–QR-05**).
+
+### Owner decisions (2026-09-09)
+
+| Decision | Owner call | Engineering status |
+|----------|------------|-------------------|
+| Azure inventory extractors default-on for first review | **Yes — Azure first** | **Next batch** — intake/product wiring (hosted pull + upload prompt); AWS/GCP deferred |
+| `EnableProseAssumptionExtraction` default-on | **Yes** | **Shipped** — Real-mode effective-on with tenant opt-out (`Findings.InsightDensityProseAssumptionExtraction.Enabled`) |
+| Graph-RAG live ablation **TB-883** | **Yes — budget cap TBD** | Blocked on monthly AOAI ceiling + tenant cohort |
+| Next engineering priority | **PP-01** | **Core shipped** (Aug 2026); follow-up is ga-starter catalog extension (see `docs/quality/pp01-ga-starter-catalog-extension-scoping.md`) |
+| Live frontier corpus **G-REAL-06** | *(deferred)* | Unchanged — needs frozen architectures + human sampling |
+
+Still owner-gated until the rows above close: **TB-883** (budget), **G-REAL-06** (corpus), **Azure extractor first-review default** (product shape: hard gate vs soft prompt still open). **DX-57** already made ranking priors and the insight generator effective-on in Real mode. **DX-59** already raised `DemotionThreshold` to 65.
 
 ## Executive summary
 
@@ -96,7 +108,7 @@ Do **not** add a 40th engine that only re-reads `GraphSnapshot` ([`../quality/HO
 
 ### Workstream 1 — New information sources (density win)
 
-These are the only changes that can move the pillar from ~66 toward 90+.
+These are the only changes that can move the pillar from **70** (v8 assessment, 2026-09-09) toward 90+.
 
 #### A. Always-on live estate (not optional inventory)
 
@@ -259,6 +271,7 @@ Items 1–2 do not raise the numerator; they stop overstating it. Items 3–6 ar
 | [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md) | **DX-63–DX-68** shipped (2026-09-08) |
 | [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md) | **DX-69–DX-72** shipped (2026-09-09) |
 | [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md) | **DX-73–DX-76** shipped `#2530` (2026-09-09) |
+| [`V8_QUALITY_ROI_COMPOSER_PROMPTS.md`](V8_QUALITY_ROI_COMPOSER_PROMPTS.md) | **QR-01–QR-05 ready** — Correctness/Runtime ROI after v8; **not** DX-77 |
 | [`INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS.md) | Shipped ID-01–07; subtractive + first generative batch |
 | [`INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md`](INSIGHT_DENSITY_COMPOSER_PROMPTS_ID08.md) | Shipped ID-08–10; ID-11 honesty |
 | [`POLICY_PACK_MOAT_COMPOSER_PROMPTS.md`](POLICY_PACK_MOAT_COMPOSER_PROMPTS.md) | PP-01 ready |
@@ -266,5 +279,5 @@ Items 1–2 do not raise the numerator; they stop overstating it. Items 3–6 ar
 | [`adrs/0070-insight-density-controls-typed-engines.md`](adrs/0070-insight-density-controls-typed-engines.md) | Production gate |
 | [`adrs/0062-finding-verification-loop.md`](adrs/0062-finding-verification-loop.md) | Proof-of-prediction (V1.1) |
 | [`adrs/0057-graph-rag-community-summarization-scope-decision.md`](adrs/0057-graph-rag-community-summarization-scope-decision.md) | Community summarization options |
-| [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) | §7.1 pillar score (~66); assessment may lag ADR 0070 |
+| [`../assessments/LATEST_GPT55.md`](../assessments/LATEST_GPT55.md) | §7.1 pillar score **70** (v8, 2026-09-09; post-DX-76, ADR 0070 reflected); still the largest weighted deficiency — validation, not mechanism, is the remaining lever |
 | [`../library/FINDING_ENGINE_OUTPUT_REFERENCE.md`](../library/FINDING_ENGINE_OUTPUT_REFERENCE.md) | Engine catalog |
