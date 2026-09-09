@@ -27,12 +27,51 @@ internal static partial class RunRepositoryCore
         return architectureRequestId.Trim();
     }
 
+    /// <summary>
+    ///     Normalizes architecture request ids for scope seeks: trim edges, collapse internal whitespace, uppercase.
+    /// </summary>
+    public static string NormalizeArchitectureRequestId(string architectureRequestId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(architectureRequestId);
+
+        return string.Join(
+            ' ',
+            architectureRequestId.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            .ToUpperInvariant();
+    }
+
     public static string RequireSystemName(string systemName)
     {
         if (string.IsNullOrWhiteSpace(systemName))
             throw new ArgumentException("System name is required.", nameof(systemName));
 
         return systemName.Trim();
+    }
+
+    /// <summary>
+    ///     Normalizes workspace system names for collision checks: trim edges, collapse internal whitespace, uppercase.
+    /// </summary>
+    public static string NormalizeWorkspaceSystemName(string systemName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(systemName);
+
+        return string.Join(
+            ' ',
+            systemName.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            .ToUpperInvariant();
+    }
+
+    /// <summary>
+    ///     Normalizes authority project slugs for list and committed lookups: trim edges, collapse internal whitespace, uppercase.
+    /// </summary>
+    public static string NormalizeAuthorityProjectSlug(string authorityProjectSlug)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(authorityProjectSlug);
+
+        return string.Join(
+            ' ',
+            authorityProjectSlug.Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+            .ToUpperInvariant();
     }
 
     public static void ValidateOperatorGovernanceDispositionArgs(Guid runId, string decision, string actorUserId)

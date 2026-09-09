@@ -129,7 +129,9 @@ internal static class RunListQueryParameters
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
             NormalizedAuthorityProjectSlug = NormalizeAuthorityProjectSlug(authorityProjectSlug),
-            CommittedStatus = nameof(ArchitectureRunStatus.Committed)
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
         };
     }
 
@@ -150,7 +152,9 @@ internal static class RunListQueryParameters
             NormalizedAuthorityProjectSlug = NormalizeAuthorityProjectSlug(authorityProjectSlug),
             CurrentRunId = currentRunId,
             CurrentCreatedUtc = DateTime.SpecifyKind(currentCreatedUtc, DateTimeKind.Utc),
-            CommittedStatus = nameof(ArchitectureRunStatus.Committed)
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
         };
     }
 
@@ -170,7 +174,9 @@ internal static class RunListQueryParameters
             ArchitectureId = architectureId,
             CurrentRunId = currentRunId,
             CurrentCreatedUtc = DateTime.SpecifyKind(currentCreatedUtc, DateTimeKind.Utc),
-            CommittedStatus = nameof(ArchitectureRunStatus.Committed)
+            CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
         };
     }
 
@@ -235,6 +241,8 @@ internal static class RunListQueryParameters
             ScopeProjectId = scope.ProjectId,
             ArchitectureVersionId = architectureVersionId,
             CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+            FailedStatus = nameof(ArchitectureRunStatus.Failed),
+            QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
         };
     }
 
@@ -283,7 +291,7 @@ internal static class RunListQueryParameters
         {
             scope.TenantId,
             scope.WorkspaceId,
-            NormalizedSystemName = systemName.Trim().ToUpperInvariant(),
+            NormalizedSystemName = RunRepositoryCore.NormalizeWorkspaceSystemName(systemName),
             ExcludeRunId = excludeRunId,
             FailedStatus = nameof(ArchitectureRunStatus.Failed),
             QualityRejectedStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected),
@@ -297,11 +305,11 @@ internal static class RunListQueryParameters
         Math.Clamp(take <= 0 ? fallbackWhenUnset : take, 1, MaxUnpagedTake);
 
     private static string NormalizeAuthorityProjectSlug(string authorityProjectSlug) =>
-        NormalizeProjectSlug(authorityProjectSlug);
+        RunRepositoryCore.NormalizeAuthorityProjectSlug(authorityProjectSlug);
 
     private static string NormalizeProjectSlug(string projectSlug) =>
-        projectSlug.Trim().ToUpperInvariant();
+        RunRepositoryCore.NormalizeAuthorityProjectSlug(projectSlug);
 
     private static string NormalizeArchitectureRequestId(string architectureRequestId) =>
-        architectureRequestId.Trim().ToUpperInvariant();
+        RunRepositoryCore.NormalizeArchitectureRequestId(architectureRequestId);
 }
