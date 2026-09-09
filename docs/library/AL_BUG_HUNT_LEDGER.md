@@ -1508,7 +1508,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -1535,6 +1535,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) First deep-link to a review with empty product source context clears freeform `architectureDescription` typed before `runId` appears — **hit 2026-09-09 seed hunt #1449:** hydration effect unconditionally assigned `hydratedDescriptionFromQuery` even when prior `inboundRunId` was empty and the operator had pasted intake; fixed by preserving non-empty freeform text on the first empty hydration; regression in `preserves freeform architecture description when workspace auto-pick deep-links to empty intake`
 
 2026-09-09 seed hunt #1449 (seed→hit): reseeded first deep-link hydration paths; proved freeform description wipe on empty product context; 15 scoped `ArchitectureIntelligencePageClient` tests passed.
+
+- [x] (valid-no-repro) `loadGoldenFixture` leaves stale golden-test results when replacing hydrated intake — **cheap-disproof 2026-09-09 seed hunt #1452:** fixture load calls `setRunState(null)` alongside reasoning reset; regression `clears golden test results when golden fixture replaces hydrated intake`.
+- [x] (valid-no-repro) Deep-linked `runId` switch leaves stale golden-test results — **cheap-disproof 2026-09-09 seed hunt #1452:** inbound-run reset clears `runState`; regression `clears golden test results when inbound runId switches to another review`.
+- [x] (valid-no-repro) Deep-linked `runId` switch leaves stale interview answers from prior reasoning pass — **cheap-disproof 2026-09-09 seed hunt #1452:** inbound-run reset clears `runState` and `interviewAnswers`; regression `clears interview answers when deep-linked review switches to another review`.
+- [x] (valid-no-repro) In-flight `continueWithAnswers` applies stale results after deep-linked `runId` switch — **cheap-disproof 2026-09-09 seed hunt #1452:** `actionGenerationRef` invalidation on inbound run change plus stale guards mirror proven reasoning fix #1342; regression `ignores stale continue results when inbound runId switches before continue completes`.
+- [x] (valid-no-repro) In-flight `publishRun` applies stale results after deep-linked `runId` switch — **cheap-disproof 2026-09-09 seed hunt #1452:** same generation invalidation and stale guards as reasoning/continue; regression `ignores stale publish results when inbound runId switches before publish completes`.
+- [x] (valid-no-repro) Deep-linked review switch to empty intake should preserve operator-edited description from prior review — **cheap-disproof 2026-09-09 seed hunt #1452:** new review scope intentionally hydrates empty intake (distinct from first empty deep-link preserve in #1449); regression `clears hydrated description when deep-linked review switches to empty intake`.
+
+2026-09-09 seed hunt #1452 (seed-only): reseeded ui-architecture-intelligence after #1449; cheap-disproof closed golden-result carryover, interview-answer carryover, continue/publish stale races, and cross-review empty-intake description preserve; 21 scoped `ArchitectureIntelligencePageClient` tests passed (1 pre-existing buyer-polished retry test still failing).
 
 2026-09-09 seed hunt #1397 (seed→hit): reseeded intake replacement paths after #1344; proved publish-toggle carryover on golden fixture load; cheap-disproof closed in-flight golden-test stale candidate; aligned fetch mocks with `apiGet` text parsing; 14 scoped `ArchitectureIntelligencePageClient` tests passed.
 

@@ -1005,6 +1005,580 @@ describe("ArchitectureIntelligencePageClient", () => {
 
     expect(screen.queryByDisplayValue("Architecture intake for tenant A.")).not.toBeInTheDocument();
   });
+
+  it("clears golden test results when golden fixture replaces hydrated intake", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Architecture for review A.",
+                },
+              ],
+            }));
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/golden-test")) {
+          return okJsonFetchResponse(({
+              passed: true,
+              plantedDefectRecall: 1,
+              falsePositiveCount: 0,
+              mutationChangedFindings: false,
+              beforeCounts: { High: 1 },
+              afterCounts: { High: 1 },
+              notes: "Golden test marker before fixture load",
+            }));
+        }
+
+        if (method === "GET" && url.includes("/architecture-intelligence/golden-fixture")) {
+          return okJsonFetchResponse(({
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: "Golden fixture architecture description.",
+                },
+              ],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-golden-test-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-golden-results")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-golden-notes")).toHaveTextContent(
+      "Golden test marker before fixture load",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Load golden fixture" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Golden fixture architecture description.",
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-golden-results")).not.toBeInTheDocument();
+    expect(screen.queryByText("Golden test marker before fixture load")).not.toBeInTheDocument();
+  });
+
+  it("clears golden test results when inbound runId switches to another review", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: currentRunId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: currentRunId.startsWith("a") ? "Architecture for review A." : "Architecture for review B.",
+                },
+              ],
+            }));
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/golden-test")) {
+          return okJsonFetchResponse(({
+              passed: true,
+              plantedDefectRecall: 1,
+              falsePositiveCount: 0,
+              mutationChangedFindings: false,
+              beforeCounts: { High: 1 },
+              afterCounts: { High: 1 },
+              notes: "Golden test marker from review A",
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-golden-test-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-golden-notes")).toHaveTextContent(
+        "Golden test marker from review A",
+      );
+    });
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-golden-results")).not.toBeInTheDocument();
+    expect(screen.queryByText("Golden test marker from review A")).not.toBeInTheDocument();
+  });
+
+  it("clears interview answers when deep-linked review switches to another review", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: currentRunId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: currentRunId.startsWith("a") ? "Architecture for review A." : "Architecture for review B.",
+                },
+              ],
+            }));
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse(({
+              runId: currentRunId,
+              model: { elements: [] },
+              specialistReviews: [],
+              recommendations: [],
+              mustNotFailViolations: [],
+              interview: {
+                framingQuestions: [
+                  {
+                    questionId: "scope-clarification",
+                    prompt: "What is the blast radius for this change?",
+                  },
+                ],
+                evidenceDrivenQuestions: [],
+              },
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-interview-scope-clarification")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-interview-scope-clarification"), {
+      target: { value: "Single region only." },
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-interview-scope-clarification")).toHaveValue(
+      "Single region only.",
+    );
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-intelligence-interview-scope-clarification")).not.toBeInTheDocument();
+  });
+
+  it("ignores stale continue results when inbound runId switches before continue completes", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let resolveContinuePost: (() => void) | null = null;
+    const continuePostGate = new Promise<void>((resolve) => {
+      resolveContinuePost = resolve;
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: currentRunId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: currentRunId.startsWith("a") ? "Architecture for review A." : "Architecture for review B.",
+                },
+              ],
+            }));
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse(({
+              runId: currentRunId,
+              model: { elements: [] },
+              specialistReviews: [
+                {
+                  findings: [
+                    {
+                      findingId: "initial-finding",
+                      title: "Initial finding",
+                      severity: "High",
+                      conclusion: "Visible before continue",
+                    },
+                  ],
+                },
+              ],
+              recommendations: [],
+              mustNotFailViolations: [],
+              interview: {
+                framingQuestions: [
+                  {
+                    questionId: "scope-clarification",
+                    prompt: "What is the blast radius for this change?",
+                  },
+                ],
+                evidenceDrivenQuestions: [],
+              },
+            }));
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/runs/") && url.includes("/continue")) {
+          await continuePostGate;
+
+          return okJsonFetchResponse(({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              model: { elements: [] },
+              specialistReviews: [
+                {
+                  findings: [
+                    {
+                      findingId: "stale-continue-finding",
+                      title: "Stale continue finding",
+                      severity: "High",
+                      conclusion: "Must not appear after run switch",
+                    },
+                  ],
+                },
+              ],
+              recommendations: [],
+              mustNotFailViolations: [],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Initial finding")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-resubmit-answers"));
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    resolveContinuePost?.();
+
+    await waitFor(() => {
+      expect(screen.queryByText("Stale continue finding")).not.toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+  });
+
+  it("ignores stale publish results when inbound runId switches before publish completes", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let resolvePublishPost: (() => void) | null = null;
+    const publishPostGate = new Promise<void>((resolve) => {
+      resolvePublishPost = resolve;
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: currentRunId,
+              sourceTexts: [
+                {
+                  fileName: "architecture-description.txt",
+                  contentType: "text/plain",
+                  content: currentRunId.startsWith("a") ? "Architecture for review A." : "Architecture for review B.",
+                },
+              ],
+            }));
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse(({
+              runId: currentRunId,
+              model: { elements: [] },
+              specialistReviews: [
+                {
+                  findings: [
+                    {
+                      findingId: "initial-finding",
+                      title: "Initial finding",
+                      severity: "High",
+                      conclusion: "Visible before publish",
+                    },
+                  ],
+                },
+              ],
+              recommendations: [],
+              mustNotFailViolations: [],
+            }));
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/runs/") && url.includes("/publish")) {
+          await publishPostGate;
+
+          return okJsonFetchResponse(({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              model: { elements: [] },
+              specialistReviews: [
+                {
+                  findings: [
+                    {
+                      findingId: "stale-publish-finding",
+                      title: "Stale publish finding",
+                      severity: "High",
+                      conclusion: "Must not appear after run switch",
+                    },
+                  ],
+                },
+              ],
+              recommendations: [],
+              mustNotFailViolations: [],
+              publishedToProduct: true,
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Initial finding")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-publish-button"));
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    resolvePublishPost?.();
+
+    await waitFor(() => {
+      expect(screen.queryByText("Stale publish finding")).not.toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+  });
+
+  it("clears hydrated description when deep-linked review switches to empty intake", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: currentRunId,
+              sourceTexts: currentRunId.startsWith("a")
+                ? [
+                    {
+                      fileName: "architecture-description.txt",
+                      contentType: "text/plain",
+                      content: "Architecture for review A.",
+                    },
+                  ]
+                : [],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Operator edits while scoped to review A." },
+    });
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+        "Load failed or empty",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue("");
+  });
 });
 
 describe("ArchitectureIntelligenceProductRoundTrip", () => {
