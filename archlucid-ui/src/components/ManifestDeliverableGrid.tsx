@@ -25,6 +25,7 @@ import { isCtoDemoPackEnv } from "@/lib/cto-demo-presenter-pack";
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
+import { architecturePackageDocxMutationBlockedReason } from "@/lib/runs/architecture-package-docx-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError, showSuccess } from "@/lib/toast";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
@@ -159,7 +160,10 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
 
                 void downloadArchitecturePackageDocx(runIdTrimmed)
                   .catch((error: unknown) => {
-                    showError("Architecture package DOCX", error instanceof Error ? error.message : "Download failed.");
+                    const failure = toApiLoadFailure(error);
+                    const blocked = architecturePackageDocxMutationBlockedReason(failure);
+
+                    showError("Architecture package DOCX", blocked ?? failure.message);
                   })
                   .finally(() => {
                     setDocxBusy(false);

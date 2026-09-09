@@ -63,7 +63,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
     reviewId: presentation.runId,
     reviewTab: "review-package",
   });
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const scopedListRunId = (listScopedRunId ?? "").trim();
   const listScopedRunFilterActive = scopedListRunId.length > 0;
   const packagePrintInspectSteps = resolvePackagePrintInspectSteps({

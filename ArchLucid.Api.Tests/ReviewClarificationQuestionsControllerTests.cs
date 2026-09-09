@@ -145,7 +145,6 @@ public sealed class ReviewClarificationQuestionsControllerTests
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>())
-
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

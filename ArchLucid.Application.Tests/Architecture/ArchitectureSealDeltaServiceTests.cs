@@ -129,7 +129,6 @@ public sealed class ArchitectureSealDeltaServiceTests
             runRepository.Object,
             manifestHashService);
 
-
         ArchitectureSealDeltaResponse? result = await sut.GetSealDeltaAsync(Scope, architectureId);
 
         result.Should().NotBeNull();

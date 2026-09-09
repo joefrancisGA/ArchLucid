@@ -94,7 +94,6 @@ public sealed class RunSummaryOnePagerExportServiceTests
             CreateEmptyFindingReviewTrailRepository(),
             configuration);
 
-
         RunSummaryOnePagerExportResult result = await sut.GenerateMarkdownAsync(runId, CancellationToken.None);
         string markdown = System.Text.Encoding.UTF8.GetString(result.Content);
 
@@ -245,7 +244,6 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IFindingReviewTrailRepository>(),
             Mock.Of<IConfiguration>());
-
 
         Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
 

@@ -44,6 +44,11 @@ public sealed partial class AnalysisReportsController
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
+        IActionResult? sealedGuardResult = await EnsureRunAnalysisSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             ArchitectureAnalysisReport
@@ -112,6 +117,11 @@ public sealed partial class AnalysisReportsController
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
+        IActionResult? sealedGuardResult = await EnsureRunAnalysisSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             ArchitectureAnalysisReport
@@ -156,6 +166,11 @@ public sealed partial class AnalysisReportsController
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
+        IActionResult? sealedGuardResult = await EnsureRunAnalysisSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             ArchitectureAnalysisReport
@@ -196,6 +211,11 @@ public sealed partial class AnalysisReportsController
         if (runDetail.Error is not null)
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
+
+        IActionResult? sealedGuardResult = await EnsureRunAnalysisSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {
@@ -241,6 +261,11 @@ public sealed partial class AnalysisReportsController
         if (runDetail.Error is not null)
             return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
+
+        IActionResult? sealedGuardResult = await EnsureRunAnalysisSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

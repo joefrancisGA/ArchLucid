@@ -22,6 +22,11 @@ public sealed partial class PilotsController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetExecutiveReviewPacket(string runId, CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             string? markdown = await _pilots.TryBuildExecutiveReviewPacketMarkdownAsync(runId, cancellationToken);
@@ -49,6 +54,11 @@ public sealed partial class PilotsController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetSponsorProofPackZip(string runId, CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
 
         try
@@ -87,6 +97,11 @@ public sealed partial class PilotsController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetFirstValueReport(string runId, CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
 
         try

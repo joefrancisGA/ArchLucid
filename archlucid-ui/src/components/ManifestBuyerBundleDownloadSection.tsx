@@ -29,6 +29,7 @@ export type ManifestBuyerBundleDownloadSectionProps = {
 };
 
 function bundleDownloadCopyAndAction(
+  manifestId: string,
   blockedHintId: string,
   downloadsDisabled: boolean,
   busy: boolean,
@@ -120,7 +121,7 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
     setBundleOpenState(parseManifestBuyerBundleDownloadOpenFromSearch(manifestBuyerBundleDownloadOpenParam));
   }, [manifestBuyerBundleDownloadOpenParam]);
 
-  const action = bundleDownloadCopyAndAction(blockedHintId, downloadsDisabled, busy, onDownload);
+  const action = bundleDownloadCopyAndAction(manifestId, blockedHintId, downloadsDisabled, busy, onDownload);
 
   if (expanded === true) {
     return (

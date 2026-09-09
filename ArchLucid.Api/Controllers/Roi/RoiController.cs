@@ -14,7 +14,9 @@ using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Auth.Services;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -32,12 +34,14 @@ namespace ArchLucid.Api.Controllers.Roi;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class RoiController(
+public sealed partial class RoiController(
     ISponsorRoiSummaryService sponsorRoiSummaryService,
     ISponsorRoiBoardPackExporter boardPackExporter,
     IAuditService auditService,
     IScopeContextProvider scopeProvider,
-    IComplianceDriftTrendService complianceDriftTrendService) : ControllerBase
+    IComplianceDriftTrendService complianceDriftTrendService,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
     private readonly ISponsorRoiSummaryService _sponsorRoiSummaryService =
         sponsorRoiSummaryService ?? throw new ArgumentNullException(nameof(sponsorRoiSummaryService));
@@ -53,6 +57,12 @@ public sealed class RoiController(
 
     private readonly IComplianceDriftTrendService _complianceDriftTrendService =
         complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <summary>Sponsor dashboard bundle: ROI summary and 30-day compliance drift trend (daily buckets).</summary>
     [HttpGet("sponsor-dashboard-bundle")]
@@ -135,6 +145,11 @@ public sealed class RoiController(
     {
         if (!TryParseBoardPackFormat(format, out SponsorRoiBoardPackFormat parsedFormat))
             return this.BadRequestProblem("format must be md or pdf.", ProblemTypes.ValidationFailed);
+
+        IActionResult? sealedGuardResult = await EnsureSponsorRoiBoardPackSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         string? traceId = Activity.Current?.TraceId.ToString();
 

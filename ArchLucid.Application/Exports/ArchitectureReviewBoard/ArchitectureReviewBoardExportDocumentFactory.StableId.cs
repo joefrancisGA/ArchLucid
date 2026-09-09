@@ -49,7 +49,6 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             careerExportHonestyPlainText: careerExportHonestyPlainText,
             architectRestatementMarkdown: architectRestatementMarkdown);
 
-
     /// <summary>Selects top High/Critical findings for the one-pager LLM prompt.</summary>
     public static IReadOnlyList<ArchitectureFinding> SelectRunSummaryTopFindings(ArchitectureRunDetail detail, int maxCount)
         => RunSummaryOnePagerDocumentFactory.SelectTopHighCriticalFindings(detail, maxCount);
