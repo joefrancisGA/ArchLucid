@@ -4,7 +4,7 @@
 
 # Insight density — excellence Composer prompt set (DX-69–DX-72)
 
-**Created:** 2026-09-08 · **Status:** **DX-69–DX-72 shipped / implemented (`#2447`) — do not re-run.** Next set: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md) (**DX-73–DX-76**).
+**Created:** 2026-09-08 · **Status:** **DX-69–DX-72 shipped / implemented (`#2447`) — do not re-run.** **DX-73–DX-76 shipped (`#2530`) — do not re-run.** See [`INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md) for owner-gated next levers.
 
 DX-01–DX-50 closed engine, ingest, and citation holes. DX-51–DX-62 added fusion, held-checks, Real-mode ranking, threshold **65**, and judge budget. **DX-63–DX-68** added corroboration scoring, `topology-security-drift`, hop-count impact witness, `NotVerifiable` held-check asks, gate-vs-human calibration, and IE-12 exceptions into `open-commitment`. Latest golden case after this set is **`case-65`**. Harness registers **42** engines including `topology-security-drift`.
 
@@ -323,4 +323,4 @@ Still owner-gated (not Cursor-default):
 | Graph-RAG live ablation **TB-883** | ADR 0057 buyer-claim gate |
 | `PreferHighHumanAcceptResidual` default-on | DX-67 flag; needs calibration table volume |
 
-Do **not** follow this set with another coverage engine or another fusion `EngineType`. Remaining Cursor-implementable path-feed work is **DX-73–DX-76** ([`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md)).
+Do **not** follow this set with another coverage engine or another fusion `EngineType`. Declaration path-feed work through **DX-76** is shipped ([`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md), `#2530`).
