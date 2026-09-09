@@ -35,7 +35,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-            The golden corpus harness registers **42** engines; **0** appear in this table (≥1 finding across case-01..case-70). **53** built-in product engines are absent from this corpus-derived slice.
+            The golden corpus harness registers **42** engines; **0** appear in this table (≥1 finding across case-01..case-71). **53** built-in product engines are absent from this corpus-derived slice.
             `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
             `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
@@ -64,7 +64,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-            The golden corpus harness registers **42** engines; **1** appear in this table (≥1 finding across case-01..case-70). **52** built-in product engines are absent from this corpus-derived slice.
+            The golden corpus harness registers **42** engines; **1** appear in this table (≥1 finding across case-01..case-71). **52** built-in product engines are absent from this corpus-derived slice.
             `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
             `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
