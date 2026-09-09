@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
 
 import {
@@ -14,6 +16,10 @@ import { DESIGN_TOKENS, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/d
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import { shouldOfferQuickScanSample } from "@/lib/quick-scan/quick-scan-capacity-state";
 import { QUICK_SCAN_RECEIVE_ITEMS } from "@/lib/quick-scan/quick-scan-constants";
+import {
+  parseQuickScanPrivacyDisclosureOpenFromSearch,
+  quickScanPrivacyDisclosureHrefFromSearch,
+} from "@/lib/quick-scan/quick-scan-privacy-disclosure-url";
 import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +30,34 @@ type QuickScanWorkspaceSectionProps = {
 /** Primary Quick Scan workspace — form, privacy disclosure, and demonstration limits rail. */
 export function QuickScanWorkspaceSection(props: QuickScanWorkspaceSectionProps): ReactElement {
   const { client } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/quick-scan";
+  const searchParams = useSearchParams();
+  const quickScanPrivacyDisclosureOpenParam = searchParams.get("quickScanPrivacyDisclosureOpen");
+  const [privacyDisclosureOpen, setPrivacyDisclosureOpenState] = useState(() =>
+    parseQuickScanPrivacyDisclosureOpenFromSearch(quickScanPrivacyDisclosureOpenParam),
+  );
+
+  const syncPrivacyDisclosureOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(quickScanPrivacyDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPrivacyDisclosureOpen = useCallback(
+    (open: boolean) => {
+      setPrivacyDisclosureOpenState(open);
+      syncPrivacyDisclosureOpenToUrl(open);
+    },
+    [syncPrivacyDisclosureOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPrivacyDisclosureOpenState(parseQuickScanPrivacyDisclosureOpenFromSearch(quickScanPrivacyDisclosureOpenParam));
+  }, [quickScanPrivacyDisclosureOpenParam]);
 
   return (
     <div
@@ -102,7 +136,14 @@ export function QuickScanWorkspaceSection(props: QuickScanWorkspaceSectionProps)
           ) : null}
         </form>
 
-        <details className={TRUST_CENTER_PUBLIC_LAYOUT.vocabularyDisclosure} data-testid="quick-scan-privacy-disclosure">
+        <details
+          className={TRUST_CENTER_PUBLIC_LAYOUT.vocabularyDisclosure}
+          data-testid="quick-scan-privacy-disclosure"
+          open={privacyDisclosureOpen}
+          onToggle={(event) => {
+            setPrivacyDisclosureOpen(event.currentTarget.open);
+          }}
+        >
           <summary className={TRUST_CENTER_PUBLIC_LAYOUT.vocabularySummary}>Privacy and data handling</summary>
           <div className={TRUST_CENTER_PUBLIC_LAYOUT.vocabularyBody}>
             <p className={cn("m-0 text-al-text-secondary", TRUST_CENTER_PUBLIC_LAYOUT.vocabularyIntro)}>

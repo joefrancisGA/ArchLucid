@@ -18,6 +18,8 @@ export function DriftChangeDetail(props: {
   readonly selectedChange: InfraEvidenceDiffChange;
   readonly changeDrawerRef: Ref<HTMLElement | null>;
   readonly hubHref: string | null;
+  readonly changeIdentifiersOpen: boolean;
+  readonly onChangeIdentifiersToggle: (open: boolean) => void;
 }): React.JSX.Element {
   const resourceDisplay = formatAzureResourceDisplay(props.selectedChange.azureResourceId);
   const azureResourceId = props.selectedChange.azureResourceId?.trim() ?? "";
@@ -66,6 +68,8 @@ export function DriftChangeDetail(props: {
         title={GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_IDENTIFIERS_TITLE}
         sectionTestId="infra-drift-change-identifiers"
         className="mb-0 mt-3"
+        open={props.changeIdentifiersOpen}
+        onToggle={props.onChangeIdentifiersToggle}
       >
         <div className="grid gap-2">
           <DriftIdentifierRow
