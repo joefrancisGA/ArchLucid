@@ -4589,6 +4589,10 @@ export interface components {
             traceConfidenceLabel: string;
         };
         FindingTreatment: number;
+        FindingUnmuteRequest: {
+            /** Format: uuid */
+            runId?: string;
+        };
         FindingVerificationReportResponse: {
             /** Format: date-time */
             createdUtc: string;
