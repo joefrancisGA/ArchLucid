@@ -144,6 +144,8 @@ export function useCompareFormDiffSubmit(options: {
     continueLastPair: fetch.continueLastPair,
     leftPickedSummary: fetch.leftPickedSummary as RunSummary | null,
     rightPickedSummary: fetch.rightPickedSummary as RunSummary | null,
+    leftSummaryBlockedReason: fetch.leftSummaryBlockedReason,
+    rightSummaryBlockedReason: fetch.rightSummaryBlockedReason,
     setLeftPickedSummary: fetch.setLeftPickedSummary,
     setRightPickedSummary: fetch.setRightPickedSummary,
     runCompareForPair,

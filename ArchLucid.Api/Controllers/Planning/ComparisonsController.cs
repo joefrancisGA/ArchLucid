@@ -3,10 +3,15 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Services;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -34,9 +39,14 @@ public sealed partial class ComparisonsController(
     IComparisonReplayApiService comparisonReplayApiService,
     IValidator<ComparisonHistoryQuery> comparisonHistoryQueryValidator,
     IValidator<ApiReplayComparisonRequest> replayComparisonRequestValidator,
-    IValidator<BatchReplayComparisonRequest> batchReplayComparisonRequestValidator)
+    IValidator<BatchReplayComparisonRequest> batchReplayComparisonRequestValidator,
+    IAuthorityQueryService authorityQueryService,
+    IScopeContextProvider scopeContextProvider,
+    IManifestHashService manifestHashService)
     : ControllerBase
 {
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     private readonly IComparisonsApplicationService _comparisons =
         comparisons ?? throw new ArgumentNullException(nameof(comparisons));
 

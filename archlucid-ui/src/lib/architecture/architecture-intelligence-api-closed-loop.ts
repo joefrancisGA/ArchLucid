@@ -6,7 +6,10 @@ import type {
   ClosedLoopReasoningResult,
   ClosedLoopReasoningSourceText,
 } from "@/lib/architecture/architecture-intelligence-api-types";
+import type { components } from "@/lib/openapi-schemas";
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
+
+type ArchitectureKnowledgeModel = components["schemas"]["ArchitectureKnowledgeModel"];
 
 const DEFAULT_ARCHITECTURE_FILE_NAME = "architecture-description.txt";
 const DEFAULT_CONTENT_TYPE = "text/plain";
@@ -16,6 +19,14 @@ export async function fetchArchitectureIntelligenceProductSourceContext(
 ): Promise<ArchitectureIntelligenceProductSourceContext> {
   return apiGetSealedManifestAware<ArchitectureIntelligenceProductSourceContext>(
     `/v1/architecture-intelligence/product-runs/${encodeURIComponent(runId)}/source-context`,
+  );
+}
+
+export async function fetchArchitectureIntelligenceRunModel(
+  runId: string,
+): Promise<ArchitectureKnowledgeModel> {
+  return apiGetSealedManifestAware<ArchitectureKnowledgeModel>(
+    `/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}`,
   );
 }
 

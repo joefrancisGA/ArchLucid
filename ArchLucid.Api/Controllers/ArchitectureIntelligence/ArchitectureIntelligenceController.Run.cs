@@ -1,10 +1,13 @@
 using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -154,6 +157,7 @@ public sealed partial class ArchitectureIntelligenceController
     [HttpGet("runs/{runId}")]
     [ProducesResponseType(typeof(ArchitectureKnowledgeModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunModelAsync(
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
@@ -161,15 +165,31 @@ public sealed partial class ArchitectureIntelligenceController
         if (string.IsNullOrWhiteSpace(runId))
             return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
 
+        if (!Guid.TryParse(runId, out Guid parsedRunId))
+            return this.BadRequestProblem("RunId must be a GUID.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, parsedRunId, cancellationToken);
+
+        if (detail?.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    parsedRunId.ToString("D"),
+                    _manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
         if (_knowledgeModelAccess is null)
             return this.NotFoundProblem(
                 "Architecture intelligence persistence is not configured.",
                 ProblemTypes.ResourceNotFound);
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        if (!Guid.TryParse(runId, out Guid parsedRunId))
-            return this.BadRequestProblem("RunId must be a GUID.", ProblemTypes.ValidationFailed);
 
         ArchitectureKnowledgeModel? model = await _knowledgeModelAccess.GetForRunAsync(
             scope,

@@ -22,6 +22,7 @@ public sealed partial class RunQueryController
     [ProducesResponseType(typeof(RunFindingsListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status304NotModified)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListRunFindings(
         [FromRoute] string runId,
         [FromQuery] string? orderBy,
@@ -31,6 +32,11 @@ public sealed partial class RunQueryController
         [FromQuery] Guid? cursorFindingRecordId,
         CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         RunFindingsListQueryResult result = await runFindingsQueryService.ListRunFindingsAsync(
             runId,
             orderBy,
