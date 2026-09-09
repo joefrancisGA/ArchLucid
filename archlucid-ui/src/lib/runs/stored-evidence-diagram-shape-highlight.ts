@@ -1,15 +1,15 @@
-const HIGHLIGHT_CLASS = "stored-evidence-mermaid-shape-highlight";
+export const STORED_EVIDENCE_DIAGRAM_SHAPE_HIGHLIGHT_CLASS = "stored-evidence-diagram-shape-highlight";
 
 const HIGHLIGHT_STYLE = `
-.${HIGHLIGHT_CLASS} * {
+.${STORED_EVIDENCE_DIAGRAM_SHAPE_HIGHLIGHT_CLASS} * {
   stroke: rgb(37, 99, 235) !important;
   stroke-width: 3px !important;
 }
-.${HIGHLIGHT_CLASS} rect,
-.${HIGHLIGHT_CLASS} circle,
-.${HIGHLIGHT_CLASS} polygon,
-.${HIGHLIGHT_CLASS} path,
-.${HIGHLIGHT_CLASS} ellipse {
+.${STORED_EVIDENCE_DIAGRAM_SHAPE_HIGHLIGHT_CLASS} rect,
+.${STORED_EVIDENCE_DIAGRAM_SHAPE_HIGHLIGHT_CLASS} circle,
+.${STORED_EVIDENCE_DIAGRAM_SHAPE_HIGHLIGHT_CLASS} polygon,
+.${STORED_EVIDENCE_DIAGRAM_SHAPE_HIGHLIGHT_CLASS} path,
+.${STORED_EVIDENCE_DIAGRAM_SHAPE_HIGHLIGHT_CLASS} ellipse {
   filter: drop-shadow(0 0 4px rgba(37, 99, 235, 0.55));
 }
 `;
@@ -22,7 +22,7 @@ function ensureHighlightStyle(): void {
   }
 
   const style = document.createElement("style");
-  style.setAttribute("data-testid", "stored-evidence-mermaid-shape-highlight-style");
+  style.setAttribute("data-testid", "stored-evidence-diagram-shape-highlight-style");
   style.textContent = HIGHLIGHT_STYLE;
   document.head.appendChild(style);
   highlightStyleInjected = true;
@@ -51,20 +51,23 @@ function nodeMatchesShapeId(node: Element, shapeId: string): boolean {
   return normalizeShapeToken(title).includes(normalizedShapeId);
 }
 
-/** Applies a visible outline to mermaid SVG nodes that match the cited diagram shape id. */
-export function applyStoredEvidenceMermaidShapeHighlight(
+/** Applies a visible outline to SVG diagram nodes that match the cited shape id (AS-025). */
+export function applyStoredEvidenceDiagramShapeHighlight(
   svg: SVGSVGElement,
   shapeOrEdgeId: string,
 ): boolean {
   ensureHighlightStyle();
 
-  const matches = Array.from(svg.querySelectorAll("g.node, g.edgeLabel, g.cluster")).filter((node) =>
+  const matches = Array.from(svg.querySelectorAll("g.node, g.edgeLabel, g.cluster, [id]")).filter((node) =>
     nodeMatchesShapeId(node, shapeOrEdgeId),
   );
 
   for (const node of matches) {
-    node.classList.add(HIGHLIGHT_CLASS);
+    node.classList.add(STORED_EVIDENCE_DIAGRAM_SHAPE_HIGHLIGHT_CLASS);
   }
 
   return matches.length > 0;
 }
+
+/** @deprecated Use applyStoredEvidenceDiagramShapeHighlight. */
+export const applyStoredEvidenceMermaidShapeHighlight = applyStoredEvidenceDiagramShapeHighlight;
