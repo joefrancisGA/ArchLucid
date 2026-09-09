@@ -1,5 +1,7 @@
 using ArchLucid.ContextIngestion;
+using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Mapping;
+using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Context;
@@ -84,6 +86,69 @@ public sealed class StructuredDiagramAuthorityPipelineGraphTests
         apiNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
             .Should().NotBe(StructuredDiagramGraphProvenanceKinds.ObservedFact);
         apiNode.Properties[StructuredDiagramGraphPropertyKeys.InferenceConfidence].Should().Be("0.7");
+    }
+
+    [Fact]
+    public async Task BuildAsync_MermaidLabelWithTerraformAddress_BindsToParsedDeclarationNode()
+    {
+        SimpleTerraformDeclarationParser terraformParser = new();
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "database.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-as043",
+            Content = """
+                      resource "azurerm_mssql_server" "pay_sql" {
+                        name = "pay-sql-prod"
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> declarationObjects =
+            await terraformParser.ParseAsync(declaration, CancellationToken.None);
+
+        const string mermaid = """
+            flowchart LR
+                sql["azurerm_mssql_server.pay_sql"]
+            """;
+
+        MermaidContextDocumentParser mermaidParser = new();
+        ContextDocumentReference diagramDocument = new()
+        {
+            DocumentId = "doc-mermaid-tf-bind",
+            Name = "topology.mmd",
+            ContentType = SupportedContextDocumentContentTypes.Mermaid,
+            Content = mermaid,
+        };
+
+        IReadOnlyList<CanonicalObject> diagramObjects =
+            await mermaidParser.ParseAsync(diagramDocument, CancellationToken.None);
+
+        DefaultGraphBuilder builder = GraphMaterializationTestHelpers.CreateDefaultGraphBuilder(
+            new GraphNodeFactory(),
+            new DefaultGraphEdgeInferer());
+
+        CanonicalObject sqlDeclaration = declarationObjects.Single(obj =>
+            string.Equals(obj.Name, "pay_sql", StringComparison.OrdinalIgnoreCase));
+
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.Parse("eeeeeeee-ffff-0000-1111-222222222222"),
+            RunId = Guid.Parse("44444444-5555-6666-7777-888888888888"),
+            ProjectId = "project-tf-bind",
+            CanonicalObjects = [sqlDeclaration, .. diagramObjects],
+        };
+
+        GraphBuildResult result = await builder.BuildAsync(snapshot, CancellationToken.None);
+
+        string declarationNodeId = $"obj-{sqlDeclaration.ObjectId}";
+        result.Nodes.Should().Contain(node => node.NodeId == declarationNodeId);
+        result.Nodes.Should().NotContain(node => node.NodeId == "diagram-node:sql");
+
+        GraphNode boundNode = result.Nodes.Single(node => node.NodeId == declarationNodeId);
+        boundNode.Properties[StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId].Should().Be("sql");
+        boundNode.Properties[StructuredDiagramGraphPropertyKeys.ProvenanceKind]
+            .Should().Be(StructuredDiagramGraphProvenanceKinds.ObservedFact);
     }
 
     [Fact]
