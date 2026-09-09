@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CORE_PILOT_AZURE_INVENTORY_STEP_INDEX,
   CORE_PILOT_FINAL_STEP_INDEX,
   resolveCorePilotStepPresentation,
   resolveFirstRunWizardMode,
@@ -13,16 +14,29 @@ describe("resolveCorePilotStepPresentation", () => {
     const presentation = resolveCorePilotStepPresentation(0, {
       hasCommittedManifest: false,
       latestCommittedRunId: null,
+      latestRunId: null,
     });
 
     expect(presentation.label).toBe("Start or open review");
     expect(presentation.href).toBe("/architecture/reviews/new");
   });
 
+  it("links Azure inventory step to extract upload with runId when available", () => {
+    const presentation = resolveCorePilotStepPresentation(CORE_PILOT_AZURE_INVENTORY_STEP_INDEX, {
+      hasCommittedManifest: false,
+      latestCommittedRunId: null,
+      latestRunId: "run-azure",
+    });
+
+    expect(presentation.label).toBe("Upload Azure inventory ZIP");
+    expect(presentation.href).toBe("/administration/extract-upload?runId=run-azure");
+  });
+
   it("links final step to sample review when tenant has no committed package", () => {
     const presentation = resolveCorePilotStepPresentation(CORE_PILOT_FINAL_STEP_INDEX, {
       hasCommittedManifest: false,
       latestCommittedRunId: null,
+      latestRunId: null,
     });
 
     expect(presentation.label).toBe("Open sample finalized review");
@@ -34,6 +48,7 @@ describe("resolveCorePilotStepPresentation", () => {
     const presentation = resolveCorePilotStepPresentation(CORE_PILOT_FINAL_STEP_INDEX, {
       hasCommittedManifest: true,
       latestCommittedRunId: runId,
+      latestRunId: runId,
     });
 
     expect(presentation.label).toBe("Open finalized review");

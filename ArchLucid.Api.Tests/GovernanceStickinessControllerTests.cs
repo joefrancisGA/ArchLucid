@@ -234,7 +234,11 @@ public sealed class GovernanceStickinessControllerTests
                 tenantRepository ?? TenantExistsRepository(),
                 nextRun.Object,
                 CreateAuthorityQueryService(),
-                CreateManifestHashService())
+                CreateManifestHashService(),
+                Mock.Of<IRunDetailQueryService>(),
+                riskExceptionService.Object,
+                findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
+                recurrenceRepository.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -272,7 +276,11 @@ public sealed class GovernanceStickinessControllerTests
                 tenantRepository ?? TenantExistsRepository(),
                 Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
                 CreateAuthorityQueryService(),
-                CreateManifestHashService())
+                CreateManifestHashService(),
+                Mock.Of<IRunDetailQueryService>(),
+                Mock.Of<IRiskExceptionService>(),
+                Mock.Of<IFindingInspectReadRepository>(),
+                Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>())
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -314,7 +322,11 @@ public sealed class GovernanceStickinessControllerTests
             tenants.Object,
             Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
             CreateAuthorityQueryService(),
-            CreateManifestHashService())
+            CreateManifestHashService(),
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IRiskExceptionService>(),
+            Mock.Of<IFindingInspectReadRepository>(),
+            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

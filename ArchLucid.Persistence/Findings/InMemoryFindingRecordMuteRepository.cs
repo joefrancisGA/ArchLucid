@@ -30,4 +30,15 @@ public sealed class InMemoryFindingRecordMuteRepository : IFindingRecordMuteRepo
         ArgumentNullException.ThrowIfNull(scope);
         return Task.FromResult(false);
     }
+
+    public Task<bool> TryUnmuteAsync(
+        Guid runId,
+        string findingId,
+        ScopeContext scope,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(scope);
+        return Task.FromResult(false);
+    }
 }

@@ -7,6 +7,8 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -22,10 +24,17 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [Route("v{version:apiVersion}/architecture/runs/{runId:guid}/diagrams")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ArchitectureDiagramVisionIngestController(
+public sealed partial class ArchitectureDiagramVisionIngestController(
     IVisionDiagramIngestService ingestService,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IVisionDiagramIngestService _ingestService =
+        ingestService ?? throw new ArgumentNullException(nameof(ingestService));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("vision-ingest")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
@@ -50,11 +59,16 @@ public sealed class ArchitectureDiagramVisionIngestController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         try
         {
-            VisionDiagramIngestResult result = await ingestService.IngestAsync(
+            VisionDiagramIngestResult result = await _ingestService.IngestAsync(
                 scope,
                 runId,
                 request,

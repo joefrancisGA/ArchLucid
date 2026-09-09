@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { dryRunPolicyPack } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { policyPackDryRunMutationBlockedReason } from "@/lib/policy/policy-pack-dry-run-mutation-blocked-reason";
 import {
   buildPolicyPackSimulationSummary,
   type PolicyPackSimulationSummary,
@@ -148,7 +149,9 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
       setResult(response);
     } catch (e) {
       const failure = toApiLoadFailure(e);
-      setErrorMessage(failure.message);
+      const blocked = policyPackDryRunMutationBlockedReason(failure);
+
+      setErrorMessage(blocked ?? failure.message);
     } finally {
       setBusy(false);
     }

@@ -29,6 +29,41 @@ public sealed class FindingDiagramEvidenceRefsTests
     }
 
     [Fact]
+    public void CollectFromNodeIds_appends_diagram_citation_for_terraform_bound_declaration_node()
+    {
+        const string EvidenceItemId = "doc-mermaid-tf-bind";
+
+        GraphSnapshot graphSnapshot = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "obj-pay-sql",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "pay_sql",
+                    SourceType = "InfrastructureDeclaration",
+                    SourceId = "decl-as043",
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["terraformType"] = "azurerm_mssql_server",
+                        [StructuredDiagramGraphPropertyKeys.BoundDiagramNodeId] = "sql",
+                        [StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId] = EvidenceItemId,
+                    },
+                },
+            ],
+        };
+
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(
+            graphSnapshot,
+            ["obj-pay-sql"]);
+
+        evidenceRefs.Should().ContainSingle()
+            .Which.Should().Be(DiagramEvidenceCitationRefs.Format(EvidenceItemId, "sql"));
+    }
+
+    [Fact]
     public void CollectFromNodeIds_appends_diagram_citation_for_bound_inventory_node()
     {
         GraphSnapshot graphSnapshot = new()

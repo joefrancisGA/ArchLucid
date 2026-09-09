@@ -4,7 +4,7 @@
 
 **Audience:** Founder / principal architect deciding whether to fund full framework rule coverage in the merged file catalog.
 
-**Status:** Option **B** pilot slice **shipped** (2026-08-28) — twelve previously unbacked declaration-mapped ids added to `ga-starter-compliance.rules.json` (`soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021`). Full Option A (~144 rules) remains deferred.
+**Status:** Option **B** pilot slice **shipped** (2026-08-28) — twelve previously unbacked declaration-mapped ids added to `ga-starter-compliance.rules.json` (`soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021`). **QR-12 (2026-09-09)** extended the HIPAA clinical boundary slice (`hipaa-011`..`hipaa-025`) and wired `hipaa-architecture.json` keys so the pack emits declaration themes at **P1**. Full Option A (~144 rules) remains deferred.
 
 ## Problem statement
 

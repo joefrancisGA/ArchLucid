@@ -31,6 +31,7 @@ public sealed partial class PilotsController(
     IPilotsApplicationService pilots,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
+    IRunDetailQueryService runDetailQueryService,
     IManifestHashService manifestHashService) : ControllerBase
 {
     private readonly IPilotsApplicationService _pilots =
@@ -41,6 +42,9 @@ public sealed partial class PilotsController(
 
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));

@@ -2,12 +2,15 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -26,9 +29,11 @@ namespace ArchLucid.Api.Controllers.Findings;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class FindingMuteController(
+public sealed partial class FindingMuteController(
     IFindingRecordMuteRepository findingRecordMuteRepository,
     IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService,
     IAuditService auditService) : ControllerBase
 {
     private readonly IFindingRecordMuteRepository _findingRecordMuteRepository =
@@ -45,6 +50,7 @@ public sealed class FindingMuteController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PostMuteAsync(string findingId, [FromBody] FindingMuteRequest? request,
         CancellationToken ct = default)
     {
@@ -74,6 +80,13 @@ public sealed class FindingMuteController(
 
         if (expiresAtUtc is not null && expiresAtUtc <= TimeProvider.System.GetUtcNow())
             return this.BadRequestProblem("ExpiresAtUtc must be in the future.", ProblemTypes.ValidationFailed);
+
+        IActionResult? sealedGuardResult = await EnsureFindingMuteRunSealedManifestAllowedAsync(
+            request.RunId,
+            ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 

@@ -27,6 +27,7 @@ public sealed partial class AnalysisReportsController
     [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadConsultingDocxAsync(
         [FromRoute] string runId,
         [FromBody] ConsultingDocxExportRequest? request,
@@ -40,6 +41,11 @@ public sealed partial class AnalysisReportsController
 
         if (loaded.Error is not null)
             return loaded.Error;
+
+        IActionResult? sealedGuardResult = await EnsureRunAnalysisSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         ConsultingDocxWorkUnit workUnit = new(
             ConsultingDocxJobPayloadMapper.ToPayload(runId, request),

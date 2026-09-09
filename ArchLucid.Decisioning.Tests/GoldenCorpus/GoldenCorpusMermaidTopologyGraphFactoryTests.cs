@@ -34,6 +34,8 @@ public sealed class GoldenCorpusMermaidTopologyGraphFactoryTests
         GraphNode apiNode = graph.Nodes.Single(node => node.NodeId == "diagram-node:api");
         apiNode.Properties[StructuredDiagramGraphPropertyKeys.TrustBoundaryLabel]
             .Should().Be("Corporate network");
+        apiNode.Properties[StructuredDiagramGraphPropertyKeys.SourceEvidenceItemId]
+            .Should().Be(GoldenCorpusMermaidTopologyGraphFactory.Case70DocumentId);
 
         graph.Edges.Should().Contain(edge =>
             edge.FromNodeId == "diagram-node:api"
@@ -41,6 +43,10 @@ public sealed class GoldenCorpusMermaidTopologyGraphFactoryTests
 
         graph.Edges.Should().Contain(edge =>
             edge.FromNodeId == "diagram-subgraph:corp"
+            && edge.ToNodeId == "diagram-node:api");
+
+        graph.Edges.Should().Contain(edge =>
+            edge.FromNodeId == "diagram-node:user"
             && edge.ToNodeId == "diagram-node:api");
     }
 }
