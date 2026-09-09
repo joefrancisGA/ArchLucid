@@ -21,12 +21,18 @@ public static class SupportedContextDocumentContentTypes
     /// </summary>
     public const string Mermaid = "text/vnd.mermaid";
 
+    /// <summary>
+    ///     Sanitized SVG diagram source for server-side structured parse (AS-008). Raw <c>image/svg+xml</c> remains forbidden.
+    /// </summary>
+    public const string StructuredDiagramSvg = "application/vnd.archlucid.diagram+svg";
+
     public static readonly IReadOnlyList<string> All =
     [
         "text/plain",
         "text/markdown",
         StructuredDiagramJson,
         Mermaid,
+        StructuredDiagramSvg,
     ];
 
     public static bool IsSupported(string? contentType)
@@ -51,6 +57,12 @@ public static class SupportedContextDocumentContentTypes
     {
         return !string.IsNullOrWhiteSpace(contentType)
                && string.Equals(contentType.Trim(), Mermaid, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsStructuredDiagramSvgContentType(string? contentType)
+    {
+        return !string.IsNullOrWhiteSpace(contentType)
+               && string.Equals(contentType.Trim(), StructuredDiagramSvg, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

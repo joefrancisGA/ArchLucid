@@ -20,6 +20,7 @@ ESI intentionally kept the authority context MIME allowlist narrow (`text/plain`
 | `text/markdown` | Non-empty UTF-8 markdown | **Supported** — same parser | shipped |
 | `application/vnd.archlucid.diagram+json` | JSON matching **`ArchitectureDiagramModelRecord`** (nodes, edges, subgraphs/swimlanes, trust-boundary labels, `extractionMethod`, optional `sourceEvidenceItemId`) | **Allowlisted** — structured diagram parser ships AS-006+; until then connector may warn-skip | AS-006 / AS-013 |
 | `text/vnd.mermaid` | Raw Mermaid flowchart / C4 source (`.mmd`, mermaid-looking `text/plain`) | **Supported** — `MermaidContextDocumentParser` (AS-007) | shipped |
+| `application/vnd.archlucid.diagram+svg` | Sanitized SVG diagram source (`.svg`); raw `image/svg+xml` remains forbidden on authority | **Supported** — `SvgContextDocumentParser` (AS-008) | shipped |
 
 Canonical C# list: **`ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes.All`**.  
 Canonical TS list: **`SUPPORTED_CONTEXT_DOCUMENT_CONTENT_TYPES`** in `archlucid-ui/src/lib/architecture-spine/supported-context-document-content-types.ts`.

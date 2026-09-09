@@ -89,8 +89,10 @@ internal static class ContextIngestionCompositionRegistrar
         });
         services.AddSingleton<PlainTextContextDocumentParser>();
         services.AddSingleton<MermaidContextDocumentParser>();
+        services.AddSingleton<SvgContextDocumentParser>();
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<PlainTextContextDocumentParser>());
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<MermaidContextDocumentParser>());
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<SvgContextDocumentParser>());
         services.AddSingleton<IReadOnlyList<IContextDocumentParser>>(static sp =>
             ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers(sp));
 

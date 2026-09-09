@@ -10,11 +10,15 @@ export const STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE =
 
 export const MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE = "text/vnd.mermaid";
 
+export const STRUCTURED_DIAGRAM_SVG_CONTEXT_CONTENT_TYPE =
+  "application/vnd.archlucid.diagram+svg";
+
 export const SUPPORTED_CONTEXT_DOCUMENT_CONTENT_TYPES = [
   "text/plain",
   "text/markdown",
   STRUCTURED_DIAGRAM_CONTEXT_CONTENT_TYPE,
   MERMAID_CONTEXT_DOCUMENT_CONTENT_TYPE,
+  STRUCTURED_DIAGRAM_SVG_CONTEXT_CONTENT_TYPE,
 ] as const;
 
 export type SupportedContextDocumentContentType =
