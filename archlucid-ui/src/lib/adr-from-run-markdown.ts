@@ -60,7 +60,16 @@ function bulletBlock(lines: readonly string[]): string {
 }
 
 /** MADR-inspired markdown (Title, Status, Context, Decision, Consequences). */
-export function buildMadrMarkdownFromRun(input: AdrGeneratorRunInput): string {
+export type BuildMadrMarkdownFromRunOptions = {
+  /** Shared PC-01 / PC-13 honesty block prepended when Working career exports include ADR markdown. */
+  readonly careerExportHonestyMarkdown?: string | null;
+};
+
+/** MADR-inspired markdown (Title, Status, Context, Decision, Consequences). */
+export function buildMadrMarkdownFromRun(
+  input: AdrGeneratorRunInput,
+  options?: BuildMadrMarkdownFromRunOptions,
+): string {
   const titleLine = input.reviewTitle.trim().length > 0 ? input.reviewTitle.trim() : `Architecture review ${input.runId}`;
   const status = adrStatusFromManifestLabel(input.manifestStatusLabel);
   const dateLine = isoDateOnly(input.createdUtc);
@@ -135,10 +144,26 @@ export function buildMadrMarkdownFromRun(input: AdrGeneratorRunInput): string {
             const trustLine = formatFindingTrustExportLine(f);
             const trustBullet =
               trustLine !== null ? `\n- **Trust label:** ${trustLine}` : "";
+            const provenanceKind = f.provenanceKind ?? "Unknown";
 
-            return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
+            return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
           })
           .join("\n");
+
+  const findingProvenanceSection =
+    input.findings.length === 0
+      ? ""
+      : [
+          "## Finding provenance",
+          "",
+          "| Finding | Provenance |",
+          "| --- | --- |",
+          ...input.findings.map(
+            (finding) =>
+              `| \`${finding.findingId}\` — ${finding.title.trim()} | ${finding.provenanceKind ?? "Unknown"} |`,
+          ),
+          "",
+        ].join("\n");
 
   const decisionDrivers = exp !== null ? exp.keyDrivers : [];
   const decisionFromDrivers =
@@ -193,7 +218,14 @@ export function buildMadrMarkdownFromRun(input: AdrGeneratorRunInput): string {
       ? `\n**Explanation provenance (aggregate):** ${exp.provenanceLine}\n`
       : "";
 
-  return `# ADR: ${titleLine}
+  const honestyPrefix =
+    options?.careerExportHonestyMarkdown !== null
+    && options?.careerExportHonestyMarkdown !== undefined
+    && options.careerExportHonestyMarkdown.trim().length > 0
+      ? `${options.careerExportHonestyMarkdown.trim()}\n\n`
+      : "";
+
+  return `${honestyPrefix}# ADR: ${titleLine}
 
 ## Status
 
@@ -220,7 +252,7 @@ ${themes}
 ### Findings (prioritized snapshot)
 
 ${findingsSection}
-
+${findingProvenanceSection}
 ## Decision
 
 ${decisionFromDrivers}

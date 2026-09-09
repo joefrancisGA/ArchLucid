@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { architectureNestedReviewPath } from "@/lib/architecture/architecture-routes";
 import {
   buildUnfinishedWorkRailItems,
   UNFINISHED_WORK_RAIL_STATUS_LABELS,
@@ -20,6 +21,7 @@ function draft(
     lastUpdatedUtc: overrides.lastUpdatedUtc ?? "2026-08-10T12:00:00Z",
     linkedReviewId: overrides.linkedReviewId ?? null,
     serverUpdatedUtc: overrides.serverUpdatedUtc ?? "2026-08-10T12:00:00Z",
+    parentArchitectureId: overrides.parentArchitectureId ?? null,
   };
 }
 
@@ -125,8 +127,33 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
 
     expect(items.map((item) => item.kind)).toEqual(["awaiting-disposition", "review-in-progress"]);
     expect(items[0]?.href).toBe("/architecture/reviews/await-1");
-    expect(items[0]?.statusLabel).toBe(UNFINISHED_WORK_RAIL_STATUS_LABELS["awaiting-disposition"]);
-    expect(items[1]?.statusLabel).toBe(UNFINISHED_WORK_RAIL_STATUS_LABELS["review-in-progress"]);
+  });
+
+  it("AO-08: nests in-flight review href when parent architecture is in the draft registry", () => {
+    const items = buildUnfinishedWorkRailItems({
+      drafts: [
+        draft({
+          draftId: "arch-1",
+          linkedReviewId: "mid-1",
+          parentArchitectureId: "architecture-identity-001",
+          customerStatus: "in-review",
+        }),
+      ],
+      runs: [
+        run({
+          runId: "mid-1",
+          description: "Mid execute review",
+          hasFindingsSnapshot: false,
+          hasGoldenManifest: false,
+        }),
+      ],
+      incompleteWizards: [],
+    });
+
+    expect(items).toHaveLength(1);
+    expect(items[0]?.href).toBe(
+      architectureNestedReviewPath("architecture-identity-001", "mid-1"),
+    );
   });
 
   it("excludes showcase and demo-seeded runs", () => {

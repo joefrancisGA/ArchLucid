@@ -1,13 +1,20 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Configuration;
 
 using Moq;
 
@@ -256,6 +263,86 @@ public sealed class ExportReplayServiceReplayAsyncTests
             Times.Never);
     }
 
+    [SkippableFact]
+    public async Task ReplayAsync_sample_workspace_run_throws_career_blocked_before_regenerating_docx()
+    {
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+        Guid runGuid = Guid.Parse(runId);
+
+        ExportReplayService sut = CreateSut(
+            out Mock<IRunExportRecordRepository> repo,
+            out Mock<IArchitectureAnalysisService> analysis,
+            out Mock<IArchitectureAnalysisDocxExportService> standardDocx,
+            out Mock<IArchitectureAnalysisConsultingDocxExportService> consultingDocx,
+            out _,
+            out Mock<IAuthorityQueryService> authority,
+            out ArchLucid.Decisioning.Services.ManifestHashService manifestHashService,
+            out Mock<IRunDetailQueryService> runDetails);
+
+        RunExportRecord record = BaseRecord("analysis-report-docx");
+        record.RunId = runId;
+        record.AnalysisRequestJson = JsonSerializer.Serialize(MinimalPersistedRequest(), PersistJsonOptions);
+        repo.Setup(r => r.GetByIdAsync(record.ExportRecordId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        ManifestDocument goldenManifest =
+            ArchLucid.Application.Tests.Exports.SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(
+                authority,
+                runGuid,
+                manifestHashService);
+        ArchLucid.Application.Tests.Exports.SealedExportReceiptTestSupport.ConfigureSampleRunExportDetail(
+            authority,
+            runGuid,
+            goldenManifest);
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new ArchLucid.Persistence.Models.RunRecord
+                {
+                    RunId = runGuid,
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                    GoldenManifestId = goldenManifest.ManifestId,
+                },
+                GoldenManifest = goldenManifest,
+            });
+
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun
+                {
+                    RunId = runId,
+                    Status = ArchitectureRunStatus.Committed,
+                },
+                Manifest = new GoldenManifest { RunId = runId, SystemName = "Sample" },
+                HasBrokenManifestReference = false,
+                AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
+            });
+
+        Func<Task> act = async () =>
+            await sut.ReplayAsync(new ReplayExportRequest { ExportRecordId = record.ExportRecordId });
+
+        CareerArtifactExportBlockedException exception =
+            (await act.Should().ThrowAsync<CareerArtifactExportBlockedException>()).Which;
+
+        exception.BlockReasonCode.Should().Be(CareerArtifactCompletenessValidator.SampleWorkspaceExportCode);
+        analysis.Verify(
+            a => a.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        standardDocx.Verify(
+            s => s.GenerateDocxAsync(It.IsAny<ArchitectureAnalysisReport>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        consultingDocx.Verify(
+            c => c.GenerateDocxAsync(
+                It.IsAny<ArchitectureAnalysisReport>(),
+                It.IsAny<ConsultingDocxExportBranding?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static ExportReplayService CreateSut(
         out Mock<IRunExportRecordRepository> repo,
         out Mock<IArchitectureAnalysisService> analysis,
@@ -269,15 +356,76 @@ public sealed class ExportReplayServiceReplayAsyncTests
         consultingDocx = new Mock<IArchitectureAnalysisConsultingDocxExportService>();
         audit = new Mock<IRunExportAuditService>();
 
+        Mock<IAuthorityQueryService> authority = new();
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IRunDetailQueryService> runDetails = new();
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        IConfiguration configuration =
+            ArchLucid.Application.Tests.Exports.SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration();
+
         return new ExportReplayService(
             repo.Object,
             analysis.Object,
             standardDocx.Object,
             consultingDocx.Object,
             audit.Object,
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
-            Mock.Of<IScopeContextProvider>());
+            authority.Object,
+            manifestHashService,
+            scopeProvider.Object,
+            runDetails.Object,
+            Mock.Of<ArchLucid.Core.Persistence.Ports.IGraphSnapshotRepository>(),
+            ArchLucid.Application.Tests.Exports.SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
+            configuration);
+    }
+
+    private static ExportReplayService CreateSut(
+        out Mock<IRunExportRecordRepository> repo,
+        out Mock<IArchitectureAnalysisService> analysis,
+        out Mock<IArchitectureAnalysisDocxExportService> standardDocx,
+        out Mock<IArchitectureAnalysisConsultingDocxExportService> consultingDocx,
+        out Mock<IRunExportAuditService> audit,
+        out Mock<IAuthorityQueryService> authority,
+        out ArchLucid.Decisioning.Services.ManifestHashService manifestHashService,
+        out Mock<IRunDetailQueryService> runDetails)
+    {
+        repo = new Mock<IRunExportRecordRepository>();
+        analysis = new Mock<IArchitectureAnalysisService>();
+        standardDocx = new Mock<IArchitectureAnalysisDocxExportService>();
+        consultingDocx = new Mock<IArchitectureAnalysisConsultingDocxExportService>();
+        audit = new Mock<IRunExportAuditService>();
+        authority = new Mock<IAuthorityQueryService>();
+        manifestHashService = new ArchLucid.Decisioning.Services.ManifestHashService();
+        runDetails = new Mock<IRunDetailQueryService>();
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{PreCommitGovernanceGateOptions.SectionPath}:{nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled)}"] = "true",
+                [$"{AgentOutputQualityGateOptions.SectionPath}:{nameof(AgentOutputQualityGateOptions.Mode)}"] =
+                    AgentOutputQualityGateMode.WarnOnly.ToString(),
+                ["AgentExecution:Mode"] = "Simulator",
+            })
+            .Build();
+
+        return new ExportReplayService(
+            repo.Object,
+            analysis.Object,
+            standardDocx.Object,
+            consultingDocx.Object,
+            audit.Object,
+            authority.Object,
+            manifestHashService,
+            scopeProvider.Object,
+            runDetails.Object,
+            Mock.Of<ArchLucid.Core.Persistence.Ports.IGraphSnapshotRepository>(),
+            ArchLucid.Application.Tests.Exports.SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
+            configuration);
     }
 
     private static RunExportRecord BaseRecord(string exportType)

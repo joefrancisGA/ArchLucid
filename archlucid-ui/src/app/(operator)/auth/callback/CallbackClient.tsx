@@ -29,6 +29,7 @@ import {
   humanizeAuthorizeCallbackError,
 } from "@/lib/oidc/oauth-callback-messages";
 import { consumePkceState, persistTokenResponse, consumePostSignInReturnUrl } from "@/lib/oidc/session";
+import { restoreIdleDeskScopeAfterSignIn } from "@/lib/auth/idle-desk-restore";
 import { clearFrictionlessTrialSessionForAuthenticatedOperator } from "@/lib/operator/operator-frictionless-trial-session-cleanup";
 import { readInvitationToken } from "@/lib/auth/email-otp-session";
 import { clearLastRegistrationPayload } from "@/lib/registration-session";
@@ -167,6 +168,7 @@ export function CallbackClient() {
         clearLastRegistrationPayload();
         persistTokenResponse(tokens);
         clearFrictionlessTrialSessionForAuthenticatedOperator();
+        restoreIdleDeskScopeAfterSignIn();
 
         const returnUrl = consumePostSignInReturnUrl();
         const invitationToken = readInvitationToken();

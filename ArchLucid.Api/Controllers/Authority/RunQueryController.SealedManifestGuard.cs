@@ -11,15 +11,6 @@ namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class RunQueryController
 {
-    private readonly IAuthorityQueryService _authorityQueryService =
-        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
-
-    private readonly IScopeContextProvider _scopeProvider =
-        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-
-    private readonly IManifestHashService _manifestHashService =
-        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
-
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedAsync(
         string runId,
         CancellationToken cancellationToken)
@@ -27,8 +18,8 @@ public sealed partial class RunQueryController
         if (!Guid.TryParse(runId, out Guid runGuid))
             return null;
 
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
 
         if (detail?.GoldenManifest is null)
             return null;
@@ -38,7 +29,7 @@ public sealed partial class RunQueryController
             SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
                 detail.GoldenManifest,
                 runGuid.ToString("D"),
-                _manifestHashService);
+                manifestHashService);
         }
         catch (ConflictException ex)
         {

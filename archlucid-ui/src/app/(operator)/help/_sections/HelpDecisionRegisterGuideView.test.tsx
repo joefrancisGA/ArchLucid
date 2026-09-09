@@ -87,7 +87,7 @@ describe("HelpDecisionRegisterGuideView", () => {
       expect(within(tileItems).getByText(item.label)).toBeInTheDocument();
     }
 
-    expect(screen.queryByText("Governance approval")).not.toBeInTheDocument();
+    expect(screen.queryByText("Approval")).not.toBeInTheDocument();
 
     const fieldExamples = screen.getByTestId("help-decision-register-field-examples");
 

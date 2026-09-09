@@ -12,6 +12,9 @@ describe("invite-reviewer-flow review handoff", () => {
     expect(buildInviteReviewerHref("run-abc")).toBe(
       `${INVITE_REVIEWER_PATH}?${INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM}=run-abc`,
     );
+    expect(buildInviteReviewerHref("run-abc", "architecture-identity-001")).toBe(
+      `${INVITE_REVIEWER_PATH}?${INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM}=run-abc&architectureId=architecture-identity-001`,
+    );
     expect(buildInviteReviewerHref()).toBe(INVITE_REVIEWER_PATH);
   });
 

@@ -40,22 +40,63 @@ public sealed partial class FindingAnalysisContextBuilder
             }
         }
 
-        if (currentVersion.VersionNumber <= 1)
-            return null;
+        if (currentVersion.VersionNumber > 1)
+        {
+            ArchitectureVersionRecord? predecessor = await _architectureVersionRepository
+                .GetByArchitectureIdAndVersionNumberAsync(
+                    scope,
+                    currentVersion.ArchitectureId,
+                    currentVersion.VersionNumber - 1,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-        ArchitectureVersionRecord? predecessor = await _architectureVersionRepository
-            .GetByArchitectureIdAndVersionNumberAsync(
-                scope,
-                currentVersion.ArchitectureId,
-                currentVersion.VersionNumber - 1,
-                cancellationToken)
+            if (predecessor is not null)
+            {
+                Guid? versionLatticePriorRunId = await _runRepository
+                    .GetLatestCommittedRunIdByArchitectureVersionIdAsync(
+                        scope,
+                        predecessor.ArchitectureVersionId,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (versionLatticePriorRunId is Guid parsedVersionLatticePriorRunId
+                    && parsedVersionLatticePriorRunId != Guid.Empty)
+                {
+                    Persistence.Models.RunRecord? versionLatticePriorHeader = await _runRepository
+                        .GetByIdAsync(scope, parsedVersionLatticePriorRunId, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    if (versionLatticePriorHeader is not null)
+                    {
+                        return BuildPriorSnapshots(versionLatticePriorHeader, parsedVersionLatticePriorRunId);
+                    }
+                }
+            }
+        }
+
+        return await TryResolvePriorFromArchitectureCommittedRunsAsync(scope, header, cancellationToken)
             .ConfigureAwait(false);
+    }
 
-        if (predecessor is null)
+    /// <summary>
+    ///     AS-053 / QR-14: second review on the same architecture without a version bump still loads the
+    ///     latest committed sealed graph for that architecture identity (ADR 0074).
+    /// </summary>
+    private async Task<PriorReviewSnapshots?> TryResolvePriorFromArchitectureCommittedRunsAsync(
+        ScopeContext scope,
+        Persistence.Models.RunRecord? header,
+        CancellationToken cancellationToken)
+    {
+        if (header?.ArchitectureId is not Guid architectureId || architectureId == Guid.Empty)
             return null;
 
         Guid? priorRunId = await _runRepository
-            .GetLatestCommittedRunIdByArchitectureVersionIdAsync(scope, predecessor.ArchitectureVersionId, cancellationToken)
+            .GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
+                scope,
+                architectureId,
+                header.RunId,
+                header.CreatedUtc,
+                cancellationToken)
             .ConfigureAwait(false);
 
         if (priorRunId is not Guid parsedPriorRunId || parsedPriorRunId == Guid.Empty)

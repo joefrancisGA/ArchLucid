@@ -355,4 +355,83 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
 
         reasons.Should().BeEmpty();
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_task_id_differs_only_by_outer_whitespace_chains_retries()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime sharedUtc = new(2026, 10, 1, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededRejected = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = " task-1 ",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace acceptedRetry = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededRejected, acceptedRetry]);
+
+        reasons.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime sharedUtc = new(2026, 10, 2, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededRejected = new()
+        {
+            TraceId = "trace-z-rejected",
+            TaskId = " task-1 ",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace accepted = new()
+        {
+            TraceId = "trace-a-accepted",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededRejected, accepted]);
+
+        reasons.Should().BeEmpty(
+            "duplicate same-attempt rows from whitespace TaskId upsert drift must not block commit when an accepted trace exists");
+    }
 }

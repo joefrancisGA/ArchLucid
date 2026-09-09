@@ -32,7 +32,7 @@ public sealed class ArchitectureFindingAskController(
 
     // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{findingId:guid}/ask")]
-    [MutatingAuditExcluded("Conversation persistence in IAskService handles auditing-related writes.")]
+    [MutatingAuditExcluded("Finding ask durable audit is emitted by IAskService after conversation persist.")]
     [ProducesResponseType(typeof(AskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

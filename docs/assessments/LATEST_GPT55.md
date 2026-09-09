@@ -1,111 +1,72 @@
-﻿# ArchLucid Strategic Release and Market Readiness Assessment (v7)
+﻿# ArchLucid Strategic Release and Market Readiness Assessment (v9)
 
-**Pass date:** 2026-08-27, **17:05–17:20 UTC (v7)**. **Computed fresh** — no carry-forward, no score deltas, no rescore ratchet. The v6 pass (14:35–15:05 UTC) is superseded by this document and is **not** canonical. v6 is archived at [`../archive/assessments/LATEST_GPT55-2026-08-27-v6-superseded.md`](../archive/assessments/LATEST_GPT55-2026-08-27-v6-superseded.md).
+**Pass date:** 2026-09-09, **19:20–19:45 UTC (v9)**. **Computed fresh** — no carry-forward, no score deltas, no rescore ratchet. The v8 pass is superseded by this document and is **not** canonical. v8 is archived at [`../archive/assessments/LATEST_GPT55-2026-09-09-v8-superseded.md`](../archive/assessments/LATEST_GPT55-2026-09-09-v8-superseded.md).
 
-## v7 pass note — corset is green; the required-check list still is not
+## v9 pass note — the v8 trunk defects closed; a new emission-gate break replaced them
 
-v6 prescribed a sequence: green the three broken push-corset jobs, confirm one all-green trunk run, then require those jobs on the existing ruleset. **The first two steps landed.** The third did not.
+This pass was requested after the **QR-01–QR-04** quality-ROI pack and **AS-024 / AS-034** diagram spine work landed on `master`. The v8 three-job red (Decisioning.Tests CS7036, `typed-engine-protected` guard, OpenAPI snapshot) is **closed on trunk**. `ci.yml` now has a `merge_group:` trigger and a draft merge-queue ruleset JSON. `LatestGoldenCorpusCaseNumber` is **70** (mermaid trust-boundary case `#2640`).
 
-### What closed since v6 (runtime, not claims)
+What replaced the old red: the newest **completed** push corset ([34392453288](https://github.com/joefrancisGA/ArchLucid/actions/runs/34392453288), 19:00 UTC) **Failed 10 / Passed 394** in `ArchLucid.Decisioning.Tests` — `FindingsOrchestratorTests` snapshots with **empty `Findings`**, plus `HasKindBProvenance_allows_resolvable_doc_ref` expecting `doc:manifest.json#services` to count as Kind B after DX-70 line-anchor tightening. The QR-04 merge run ([34393999344](https://github.com/joefrancisGA/ArchLucid/actions/runs/34393999344)) was still in progress at inspection; gitleaks, UI typecheck, and **beta-readiness guards were already green**.
 
-| v6 Tier 1 item | Disposition | Evidence this pass |
-|---|---|---|
-| **1** Release build `AV0029`/`AV0030` | **Closed** | `dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Release` → **0 Error(s)**. Suppressions in `.editorconfig` + `ArchLucid.Api.csproj` `NoWarn` (single `/openapi/v1.json` retained). |
-| **2** Gate 5 UI typecheck | **Closed** | Clean `npx tsc --noEmit -p tsconfig.build.json` **exit 0**; `npx tsc --noEmit -p tsconfig.json` **exit 0**; `npm run typecheck` **exit 0**. `ArchitectureDraftDeleteControl` accepts `ArchitectureDraftCustomerStatus` including `"review-linked"`. `@tanstack/query-core` is a single **5.102.7** resolution (`npm ls` shows one version, overridden). |
-| **3** Terraform validate / azurerm 5.x | **Closed as prescribed** | `infra/terraform{,-private,-edge}/versions.tf` pin `>= 3.100.0, < 5.0.0`; lock files pin **azurerm 4.81.0**. Local `terraform validate` on those three roots: **Success**. |
-| **4** Add corset jobs to `required_status_checks` | **Open — now unblocked** | Ruleset **`Golden cohort real-LLM gate`** (id `21654724`) still has **exactly one** required context: `cohort-real-llm-gate`. |
+**QR-05** (`security-baseline` `EvidenceRefs`) is **not on `master`** (draft `#2641`). The distribution table is still a **case-69** record. Gate 1 is still **UNKNOWN**. **G4 HOLD — 0 of 3**.
 
-### Trunk health, measured
+**Prompt:** [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#strategic-release-and-market-readiness-v3). **Reasoning engine:** Grok 4.6 as a Cursor cloud agent, code-grounded desk review; **no live Azure OpenAI call was made during this pass**; no subagents were used for the assessment itself.
 
-| Measurement | v6 (14:35 UTC) | v7 (17:20 UTC) |
-|---|---|---|
-| Newest completed push corset on `master` | 37–40 consecutive **failure** | **2 consecutive success**: [33094679717](https://github.com/joefrancisGA/ArchLucid/actions/runs/33094679717) (`#572`, 16:43) then [33096646218](https://github.com/joefrancisGA/ArchLucid/actions/runs/33096646218) (`#574` copy merge, 17:05) — all three jobs `success` on both |
-| Last 100 `ui-typecheck-on-push.yml` on `master` | 57 fail · 20 success · 20 cancelled · 3 running | **63 fail · 21 success · 15 cancelled · 1 queued** — the second success is this pass's copy-only merge; the first success after the six-hour outage is `#572` |
-| Last green before the outage | 08:26:45 | still 08:26:45 as the previous green; the outage window is now closed at 16:43 |
-| Gate 5 (`tsconfig.build.json`) | FAIL | **PASS** (stale incremental cache can still report the old `TS2322`; a clean `tsc` is the measurement) |
-| `dotnet build ArchLucid.Api -c Release` | 3 Error(s) | **0 Error(s)** |
-| Direct push to `master` | Rejected (`cohort-real-llm-gate` expected) | Unchanged — protection still `active`, `current_user_can_bypass: never` |
-| Required status checks | 1 of ~40 (`cohort-real-llm-gate`) | **Unchanged** |
-
-### The scar that proves the remaining #1
-
-PR **#567** (this cycle's v6 assessment + corset fixes) merged **conflict markers** into `AgentExecutionCompositionModule.cs`. The first post-merge corset ([33093031795](https://github.com/joefrancisGA/ArchLucid/actions/runs/33093031795)) failed with **CS8300**. Hotfix **#572** landed ~20 minutes later and is the first green corset after the outage.
-
-That is not a new class of defect. It is **v6 weakness #1 executing in production**: only `cohort-real-llm-gate` was required, so an unbuildable merge reached `master`. Requiring the three corset jobs would have refused #567 until the markers were gone.
-
-**Prompt:** [`ASSESSMENT_PROMPT_SERIES.md`](ASSESSMENT_PROMPT_SERIES.md#strategic-release-and-market-readiness-v3). **Reasoning engine:** Claude Opus 5 / Cursor Grok 4.6, simulator-aware; **no live Azure OpenAI call was made during this pass**.
-
-**Source materials inspected this pass:** GitHub rulesets API (`/rules/branches/master`, rulesets `21654724` / `15216586`), `ui-typecheck-on-push.yml`, `golden-cohort-nightly.yml`, `ci.yml`, `dependabot.yml`, `.editorconfig`, `ArchLucid.Api.csproj`, `archlucid-ui/package.json` + lockfile, `ArchitectureDraftDeleteControl.tsx`, `infra/terraform{,-private,-edge}/versions.tf` + `.terraform.lock.hcl`, `DeclarationSignalPolicyGate.cs` + `DeclarationSignalPolicyPrefixFamily.cs`, `DeterministicInsightDensityGate.cs:87`, `GoldenCorpusHarness.CreateEngines`, `BuiltInFindingEngineTypeCatalog`, `gh run list` / `gh run view` / `git log --first-parent` + `/commits/{sha}/pulls`.
+**Source materials inspected this pass:** `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, `docs/go-to-market/trust-center.md` (boundary), `docs/go-to-market/GTM_BACKLOG.md`, `docs/go-to-market/CLAIM_READINESS_STATUS.md`, `docs/library/TECH_BACKLOG.md` (open-count header + P1 block + TB-883/885/599/603), `.cursor/rules/Assessment-Scope-V1_1.mdc`, `docs/quality/insight-density-engine-distribution.md`, `docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`, `docs/quality/pp01-ga-starter-catalog-extension-scoping.md`, `DeterministicInsightDensityGate.cs`, `DeclarationSignalPolicyKeyMap.cs`, `AgentArchitectureFindingProvenanceValidator.cs`, `FindingProvenanceEmissionApplicator.cs`, `AgentArchitectureFindingEmissionGate.cs`, `GoldenCorpusHarnessEngineRegistration.cs` (`LatestGoldenCorpusCaseNumber = 70` on `origin/master`), `.github/workflows/ci.yml` (`merge_group`), `.github/rulesets/golden-cohort-gate-merge-queue.json`, `.github/BRANCH_PROTECTION.md`, `gh run list` / `gh run view` on `ui-typecheck-on-push.yml` and `ci.yml`, `git log origin/master`.
 
 ## Executed this pass (runtime evidence, not doc claims)
 
 | # | Command / observation | Result |
 |---|---|---|
-| 1 | `gh api repos/…/rules/branches/master` | **Protection ACTIVE** — `required_status_checks` = **one** entry, `cohort-real-llm-gate`; plus `deletion`, `non_fast_forward`, `copilot_code_review`; bypass `never` |
-| 2 | `gh run list --workflow ui-typecheck-on-push.yml --branch master --limit 100` | **63 failure · 21 success · 15 cancelled**; newest **completed** is **success**; **2 consecutive** green (33094679717, 33096646218) |
-| 3 | `gh run view 33096646218` | All three jobs **success**: gitleaks, `.NET: push corset`, `Operator UI: typecheck (blocking)` |
-| 4 | `npx tsc --noEmit -p tsconfig.build.json` after deleting `tsconfig.tsbuildinfo` | **exit 0** — Gate 5 **PASS**. A dirty incremental cache still reported the v6 `TS2322`; clean `tsc` is the measurement |
-| 5 | `npx tsc --noEmit -p tsconfig.json` / `npm run typecheck` | **exit 0** |
-| 6 | `dotnet build ArchLucid.Api/ArchLucid.Api.csproj -c Release` | **Build succeeded. 0 Warning(s). 0 Error(s).** |
-| 7 | `npm ls @tanstack/query-core` | **Single version 5.102.7** (overridden). `react-query@5.102.2` is flagged `invalid` vs `^5.102.7` but does not nest a second `query-core` |
-| 8 | `terraform validate` in `infra/terraform`, `terraform-private`, `terraform-edge` | **Success** on all three after lock refresh to azurerm **4.81.0** |
-| 9 | `git log --first-parent origin/master` + `/commits/{sha}/pulls` | Last **15** first-parent commits are **all PR-attributed** (including “Merge branch …” titles: #574, #562, #557, #561, #558) |
-| 10 | `gh pr view 574` | Merged with **0 failing** checks in the rollup (contrast v6's #556 with 27 fails) |
-| 11 | `gh run list --workflow CodeQL --limit 15` | Recent **completed** runs **success** (per-SHA concurrency from `6e43a095e4` is holding); several in_progress on current PRs |
-| 12 | `DeclarationSignalPolicyPrefixFamily.DeclarationRelevantPrefixes` | **soc2, gdpr, hipaa, iso27001, pci, zta, cis-az, cis-aws, cis-gcp, sec-base, aks, eks, gke** — v6's “only `cis-az-*` and `sec-base-028`” fail-open claim is **stale** |
-| 13 | `.github/dependabot.yml` | **github-actions** is grouped; **nuget / npm / terraform are not**; no `ignore` for `version-update:semver-major` |
-| 14 | `docs/engineering/AGENTS.md` | **No** “Debug success is not evidence” statement; v6 item 6(a) still open |
-| 15 | `assessment-score-guard.yml` | `python3 -m pytest` with **no `pip install pytest`** — this is why `check-score` failed on #567 (exit 1, `No module named pytest`), not an arithmetic mismatch |
+| 1 | `git log origin/master -15 --oneline` | QR-04 + OpenAPI **#2638** (`bfef871c17`); AS-034 case-70 **#2640**; AS-024 **#2633**; QR-02 **#2619**. QR-05 **not** in this log. |
+| 2 | `git show origin/master:.github/workflows/ci.yml` \| merge_group | Present: `merge_group:` trigger; `cancel-in-progress` false on merge_group; fast-core never path-skips on that event. |
+| 3 | `git show origin/master:…/GoldenCorpusHarnessEngineRegistration.cs` | `LatestGoldenCorpusCaseNumber = 70`. Distribution markdown header still says **case-01..case-69**. |
+| 4 | `gh run list --workflow ui-typecheck-on-push.yml --branch master --limit 8` | Newest completed **failure** [34392453288](https://github.com/joefrancisGA/ArchLucid/actions/runs/34392453288). QR-04 push [34393999344](https://github.com/joefrancisGA/ArchLucid/actions/runs/34393999344) **in progress** (gitleaks ✓, UI typecheck ✓, beta-readiness guards ✓; push corset / OpenAPI / jwt-bearer still running). |
+| 5 | `gh run view 34392453288 --log-failed` | Decisioning.Tests **10 failed / 394 passed**. Pattern: `snapshot.Findings` empty (`effectful-1`, `good-payload`, promote-anchored, payload-conflict, withheld-band, partial-failure, dedupe). Provenance hold test expected `provenance-hold:` but notes were `evidence:doc:manifest.json#services`. Kind B test: `HasKindBProvenance` false for `doc:manifest.json#services`. |
+| 6 | `gh run list --workflow ci.yml --branch master --limit 8` | Still **8/8 failure/cancelled** (last full dispatch 2026-08-28). No new full-matrix measurement this pass. |
+| 7 | `docs/quality/insight-density-engine-distribution.md` | **23** engines, **47** findings, bands 65/67/72/82/100, `WouldDemoteAt65Count = 0`. `security-baseline` 10/47 at 65 with `No evidence = 10`. Path engines at 72 with `No evidence` on every row. Header not yet case-70. |
+| 8 | `CLAIM_READINESS_STATUS.md` | **G4 HOLD — 0 of 3**. G1/G2/G5/G6 PASS (mechanism). |
+| 9 | `DeclarationSignalPolicyKeyMap.IsThemeEnabled` | Still **exact-id**. Prefix family is vocabulary only (PP-01 Option B catalog slice shipped 2026-08-28; prefix enablement **rejected**). |
+| 10 | `InsightDensityGateEffectiveOptionsMerger` | Real-mode: judge, engine-finding judge, insight generator, novelty/verification preference, **prose-assumption extraction** effective-on unless tenant opts out. |
+| 11 | `.github/rulesets/golden-cohort-gate-merge-queue.json` | Draft only (`enforcement: evaluate`). **Live ruleset still has no `merge_queue` rule** (owner apply). |
+| 12 | `TECH_BACKLOG.md` header | **25** unique open TB rows (P0 0 · P1 2 · P2 15 · P3 8). **TB-885 Done**. **TB-883** still budget-blocked. |
 
-**Verified counts this pass:** **39** engines in `BuiltInFindingEngineTypeCatalog`; **14** engines in `GoldenCorpusHarness.CreateEngines()`; `typed-engine-protected` still at `DeterministicInsightDensityGate.cs:87`.
-
-**Landed on `master` between v6 and this pass:** corset fixes (AV suppressions, review-linked status, tanstack override, azurerm `< 5.0` + lock files) via **#567**; DI baseline router / schema-remediation client via **#569/#570**; conflict-marker hotfix **#572**; copy-only **#574**.
-
-## v7.1 post-pass note — process batch landed (no scorecard rescore)
-
-**Pass addendum:** 2026-08-27, **~20:30 UTC**. v7 scorecard numbers are unchanged; this section records what shipped after the v7 write-up.
-
-| Item | Disposition | Evidence |
-|---|---|---|
-| Ruleset corset required checks (#578 + owner apply) | **Closed (owner)** | `.github/rulesets/golden-cohort-gate-required-check.json` lists four contexts; owner confirmed live ruleset updated |
-| Dependabot groups + `semver-major` ignore (#580) | **Closed** | `.github/dependabot.yml` groups nuget/npm/terraform; `ignore` on major bumps |
-| Verification blind spots (#582) | **Closed** | `docs/engineering/AGENTS.md` Release corset note; `assert_single_npm_dependency_version.py` after `npm ci` in blocking typecheck lanes |
-| `assessment-score-guard` pytest | **Closed (this batch)** | `pip install pytest` before score consistency tests |
-| npm peer hygiene (`legacy-peer-deps` removal) | **Closed (this batch)** | Removed `archlucid-ui/.npmrc`; `overrides.openapi-typescript.typescript = $typescript`; aligned `@tanstack/*` to **5.102.7**; clean `npm ci` + `npm run typecheck` exit 0 |
-
-**New #1 human task:** **Gate 1** (one observed staging first review), then **G-REAL-06**.
+**Verified counts this pass:** **53** catalog engines; **42** harness engines; **70** golden cases on trunk (distribution table still recorded through **69**); **0** real-mode pilot runs; **0** live merge-queue rule.
 
 ---
 
 ## 0. Tasks For Human
 
-Sourced from open `GTM_BACKLOG.md` rows. Excludes GTM V1.1 items **#2/#3/#5/#6** (**M-90**/**M-44**/**M-91**/**M-92**) per standing exclusion rule. Owner assurance programs **G-REAL-05** / **G-ASSURANCE-02** appear here only because they are human-executed; they do **not** reduce `(A)`.
+Sourced from open `GTM_BACKLOG.md` rows plus owner-decision items. Excludes GTM V1.1 items **#2/#3/#5/#6** (**M-90**/**M-44**/**M-91**/**M-92**). **G-REAL-05** / **G-ASSURANCE-02** omitted from `(A)` (they do not reduce the headline).
 
 | # | Task | Why ranked here | Engine-assistable? | Recommended engine |
 |---|------|-----------------|--------------------|--------------------|
-| 1 | **Gate 1** — one observed end-to-end first review on staging | Closes the last **UNKNOWN** numbered ship gate. Demo surface is buildable; no observed create→execute→commit→manifest run exists. See ship-gate discussion in session notes; CLI: `archlucid pilot ship-gate-evidence --run-id <guid>`. | Partial — Opus can triage failures | **Owner + Opus** |
-| 2 | **G-REAL-06** — three real-mode pilot runs | Largest commercial uncertainty. Unblocked. `scripts/Run-GReal06ProofRuns.ps1`. | Partial | **Opus** |
-| 3 | **G-REAL-07** — proof packets + `PROOF_PACKET_RUN_LOG` | Depends on #2. | Partial | **Sonnet** |
-| 4 | **M-39** — apply proof-packet checklist, ≥3 G4 rows | Depends on #3. | Partial | **Sonnet** |
-| 5 | **M-07** — polished operator screenshots | Unblocked — Gate 5 PASS. | Partial | **Composer** |
-| 6 | **M-09** — landing owner sign-off + deploy | Gated on #5. | Partial | **Sonnet** |
-| 7 | **M-16** — demo video | Depends on #5; run **G-REAL-09** before recording. | Partial | **Sonnet** |
+| 1 | **Enable GitHub merge queue** on `master` using `.github/rulesets/golden-cohort-gate-merge-queue.json` (or UI equivalent) | YAML + draft JSON shipped (`#2638`). Live ruleset still evaluates PR-branch SHAs. Today's empty-Findings break is the same class of two-PR semantic conflict. | Partial — JSON already drafted | **N/A — owner apply** |
+| 2 | **Gate 1** — one observed end-to-end first review on staging (`archlucid pilot ship-gate-evidence --run-id <guid>`) | Only **UNKNOWN** numbered ship gate. | Partial | **Owner + Opus** |
+| 3 | **G-REAL-06** — three real-mode pilot runs, **two pack configurations on the same input** (CIS-Azure vs SOC 2) | Largest commercial uncertainty; the only way density moves from mechanism to proof. | Partial | **Opus** |
+| 4 | **Owner shape: Azure inventory as first-review default** (soft prompt vs hard gate vs wizard step; pilot-tenant scope) | Owner said **Yes — Azure first** (2026-09-09) without intake shape. Largest remaining first-review density lever. | Yes — once shaped | **Composer** for the soft-prompt slice (QR-10) |
+| 5 | **G-REAL-07** — proof packets + run-log rows | Depends on #3. | Partial | **Composer** |
+| 6 | **M-39** — apply proof-packet checklist, ≥3 G4 rows | Depends on #5. | Partial | **Composer** |
+| 7 | **TB-883 monthly AOAI cap + tenant cohort** | Approved with budget **TBD**. | Yes — plan is agent-draftable | **Composer** |
+| 8 | **M-07** — polished operator screenshots | Unblocked on UI typecheck. | Partial | **Composer** |
+| 9 | **M-16** — demo video (run **G-REAL-09** first) | Depends on #8. | Partial | **Composer** |
+| 10 | **G-COMMERCE-01 / M-94** — invoice/SOW commercial readiness | Independent of analysis. | No | N/A — human only |
 
-**Shipped since v7 (do not re-open):** ruleset corset required checks; Dependabot grouping; AGENTS.md + query-core CI assert; assessment-score-guard pytest; npm peer override (removed `legacy-peer-deps`).
+**Shipped this cycle — do not re-open:** QR-01 (`DefaultGraphBuilder` 3-arg); QR-02 (`typed-engine-scored` guard); QR-03 (OpenAPI Wave 68 snapshot + RoiController 403 schema); QR-04 (`merge_group` + ruleset *draft*); AS-024 inspect→diagram highlight; AS-034 case-70 mermaid; DX-51–DX-76; ADR 0070; PP-01 Option B catalog slice; prose-assumption Real-mode default-on.
 
 ---
 
 ## 1. Title & Headline
 
-**ArchLucid Assessment – (A) Headline Readiness: 77.50% (v7)**
-
-**Up from v6's 73.97%.** The recovery is the toolchain v6 said to green, not a product-capability gain. Gate 5 is **PASS**. The ship-gate override does **not** bind. The honest headline is the weighted average with a **process** ship-risk attached: the checks that just went green are still not required.
-
-**What genuinely improved.** Correctness **68 → 80**, Time-to-Value **68 → 74**, Runtime **66 → 75**, Adoption Friction **72 → 86**, Comprehension **75 → 77**. Those five moves are the same three closed defects counted where they belong: Release build, UI typecheck, azurerm pin — plus two consecutive green trunk corset runs.
-
-**What did not improve, and that is the story.** Governed Review Integrity holds at **88**. Insight Density holds at **66**. Differentiability holds at **81**. The required-check list is still one LLM-budget job. Dependabot is still ungrouped. The local loop still does not force Release or clean-install. **v6's #1 is still #1; it is now cheap to close instead of blocked on a red trunk.**
+**ArchLucid Assessment – (A) Headline Readiness: 77.26%**
 
 Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_1.mdc`: SOC 2 CPA attestation, third-party pen-test publication, signed design partner, owner-output GTM assets/cohorts, public extension SDK, MCP absence in V1, third-party plugin marketplace, assistive-technology participant testing, and sales-engineer-led LLM onboarding.
+
+**The headline is not ship-blocked by a numbered gate.** Gate 5 remains **PASS** (UI typecheck green on the in-progress QR-04 run). The attached process risk is a **new** Decisioning.Tests failure cluster on the findings orchestrator / Kind B citation contract — not the v8 compile/OpenAPI/guard trio.
+
+**What genuinely improved.** Trunk compiles `Decisioning.Tests`. The required advisory-surface guard matches ADR 0070. OpenAPI Wave 68 metadata is snapshotted. Merge-queue *wiring* exists. Case-70 puts a mermaid trust-boundary on the golden harness. Real-mode prose-assumption extraction is effective-on.
+
+**What did not improve.** No observed first review. No G4 row. Distribution table not re-recorded through case-70. `security-baseline` still emits ten uncited findings at the demotion threshold. Path engines still score 72 with `No evidence` on every row. Full `ci.yml` matrix still unmeasured-green.
 
 ---
 
@@ -113,47 +74,52 @@ Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_
 
 | # | Quality | Score | Weight | Weighted contribution | Weighted deficiency signal |
 |---|---------|------:|-------:|----------------------:|---------------------------:|
-| 1 | Decision-Changing Insight Density | 66 | 13 | 8.58 | **442** |
-| 2 | Differentiability / Defensibility vs Frontier AI | 81 | 13 | 10.53 | 247 |
+| 1 | Decision-Changing Insight Density | 70 | 13 | 9.10 | **390** |
+| 2 | Differentiability / Defensibility vs Frontier AI | 83 | 13 | 10.79 | 221 |
 | 3 | Governed Review Integrity | 88 | 13 | 11.44 | 156 |
-| 4 | Correctness & Evidence Integrity | 80 | 12 | 9.60 | 240 |
-| 5 | AI / Agent Readiness | 74 | 10 | 7.40 | **260** |
-| 6 | Time-to-Value | 74 | 10 | 7.40 | **260** |
+| 4 | Correctness & Evidence Integrity | 73 | 12 | 8.76 | **324** |
+| 5 | AI / Agent Readiness | 76 | 10 | 7.60 | 240 |
+| 6 | Time-to-Value | 73 | 10 | 7.30 | **270** |
 | 7 | Proof-of-ROI Readiness | 76 | 9 | 6.84 | 216 |
-| 8 | Sponsor / Operator Comprehension | 77 | 8 | 6.16 | 184 |
-| 9 | Runtime & First-Review Reliability | 75 | 7 | 5.25 | 175 |
-| 10 | Adoption Friction | 86 | 5 | 4.30 | 70 |
-| | **(A) Headline readiness** | | **100** | **77.50%** | |
+| 8 | Sponsor / Operator Comprehension | 78 | 8 | 6.24 | 176 |
+| 9 | Runtime & First-Review Reliability | 72 | 7 | 5.04 | 196 |
+| 10 | Adoption Friction | 83 | 5 | 4.15 | 85 |
+| | **(A) Headline readiness** | | **100** | **77.26%** | |
 
-**Ranked by weighted deficiency:** Insight Density (442) · AI/Agent Readiness (260) · Time-to-Value (260) · Differentiability (247) · Correctness (240) · Proof-of-ROI (216) · Comprehension (184) · Runtime (175) · Governed Review Integrity (156) · Adoption Friction (70).
+Sum(score × weight) = 910 + 1079 + 1144 + 876 + 760 + 730 + 684 + 624 + 504 + 415 = **7726** → **(A) = 77.26%**.
 
-**Total remaining deficiency signal: 2,250** (v6 was 2,603; v5.1 was 2,180). Toolchain recovered most of the v6 spike; **v7 is still 70 points worse than v5.1** because Runtime (75 vs 79) and Correctness (80 vs 84) do not get full restoration after an eight-hour red trunk and a merge that landed conflict markers.
+**Ranked by weighted deficiency:** Insight Density (390) · Correctness (324) · Time-to-Value (270) · AI/Agent Readiness (240) · Differentiability (221) · Proof-of-ROI (216) · Runtime (196) · Comprehension (176) · Governed Review Integrity (156) · Adoption Friction (85).
 
-**Scoring rationale for every change.**
+**Total remaining deficiency signal: 2,274.**
 
-| Quality | v6 | v7 | Why exactly this much |
-|---|---:|---:|---|
-| Correctness & Evidence Integrity | 68 | **80** | Release build green; Gate 5 green on clean `tsc`; query-core deduped; azurerm pinned and validated locally; two green corset runs. Not 84 (v5.1): the full `ci.yml` matrix is still path-skipped on PRs; Dependabot is still ungrouped; #567 landed CS8300 on trunk; last-100 corset is still 63/21 fail/success |
-| Time-to-Value | 68 | **74** | Demo surface typechecks and the API compiles in Release again — the v6 −7 for an unbuildable operator UI reverses. Still capped by **Gate 1 UNKNOWN** (no observed create → execute → commit). Not 75: durability of the green corset is two runs, not a week |
-| Runtime & First-Review Reliability | 66 | **75** | Two consecutive all-green trunk corsets after 8 hours of red. Not 79 (v5.1's “first green” score): last-100 is still majority-red, and the jobs are still not required, so the next Dependabot batch can repeat v6 |
-| Adoption Friction | 72 | **86** | Fresh-clone first commands work: typecheck exit 0, Release API build 0 errors, single `query-core`. Not 88: `legacy-peer-deps=true` remains; `react-query@5.102.2` vs `^5.102.7` is `npm ls` “invalid” even though types unify |
-| Sponsor / Operator Comprehension | 75 | **77** | `"review-linked"` is now a first-class `ArchitectureDraftCustomerStatus` on the delete control — the v6 modelling gap on a sponsor-visible list is closed. No new narrative content, hence +2 not more |
-| Governed Review Integrity | 88 | **88** | Protection still works and is still pointed at the wrong check. Holding, not raising: #567's conflict-marker merge is evidence the gate remains unqualified |
-| Insight Density / Differentiability / AI / Proof-of-ROI | 66 / 81 / 74 / 76 | **unchanged** | No engine, corpus, judge-flag, or pilot evidence moved |
+**Scoring rationale.**
+
+| Quality | Score | Why exactly this much |
+|---|---:|---|
+| Decision-Changing Insight Density | **70** | Mechanism unchanged and still the largest deficiency: 42/53 engines, ADR 0070 scoring, path engines on IaC-only input, Real-mode judge/generator on. Not higher: **zero real-mode runs**; frontier delta still synthetic; `security-baseline` 10/47 at 65 with no evidence; path engines at 72 with no evidence; distribution **not** re-recorded through case-70; QR-05 unmerged. |
+| Differentiability / Defensibility | **83** | Policy-pack declaration gating is real (`PolicyFilteredDeclarationGoldenCorpusTests` already asserts CIS-Azure vs SOC 2 rows differ on one graph). Not higher: that compare is a unit test, not a recorded buyer artifact; `IsThemeEnabled` remains exact-id (prefix enablement correctly rejected). |
+| Governed Review Integrity | **88** | Product rubric (policy → evidence → finding → decision → audit) is strong. Repo gate has `merge_group` YAML. Holding: live merge queue not applied; required corset still red on a new cluster. |
+| Correctness & Evidence Integrity | **73** | v8's compile / OpenAPI / guard defects are closed. New: 10 Suite=Core orchestrator tests empty `Findings`; Kind B heading-fragment citation no longer matches DX-70. Citation contract and sealed-manifest guards remain intact. One point above the prior band because the golden corpus can compile; not 80 because trunk still cannot re-prove Decisioning.Tests. |
+| AI / Agent Readiness | **76** | Real-mode defaults include prose-assumption extraction. Eval corpus still synthetic; TB-883 budget-blocked. |
+| Time-to-Value | **73** | Declaration-only path findings exist; mermaid can enter the graph (case-70). **Gate 1 UNKNOWN.** Azure-extractor default still unshaped. |
+| Proof-of-ROI Readiness | **76** | Mechanism complete (disposition-aware sponsor summary, Simulator-forbid). **0 of 3** G4 rows. |
+| Sponsor / Operator Comprehension | **78** | Buyer-polish batches continued (Jira/Azure/GCP Sources strips). Narrative still rests on synthetic output. |
+| Runtime & First-Review Reliability | **72** | merge_group wired; guards green on the in-progress QR-04 run; completed corset still red; full `ci.yml` matrix 8/8 red in the last-dispatch window; Gate 1 unobserved. |
+| Adoption Friction | **83** | Full-solution `dotnet build` of Decisioning.Tests compiles. Extractor-default still opt-in. |
 
 ---
 
 ## 3. Diagnostic Scores (non-headline)
 
-**Decision Advantage Score: 65/100.** Unchanged. Toolchain recovery does not change what a finding tells an architect. `typed-engine-protected` still promotes every engine finding without using the computed score.
+**Decision Advantage Score: 68/100.** Same band: graph-derived path findings exist; none has changed a decision a real architect made.
 
-**Frontier-AI Survival Probability (12 months): 55–70%, moderate confidence.** Unchanged mechanism story. Container is buildable again; analytical floor is not.
+**Frontier-AI Survival Probability (12 months): 58–72%, moderate confidence.** Reference class: governed-workflow tools whose analysis layer is model-agnostic. Upward: mermaid/diagram now compiles into the graph (AS-034) so the kernel is slightly less “document-only.” Downward: still no live bake-off.
 
-**30-Day Voluntary Usage Probability: 36–51%, low-moderate confidence.** Restored to the v5.1 band: a developer cloning the repo can typecheck and Release-build without hitting a wall. Still capped by Gate 1 UNKNOWN.
+**30-Day Voluntary Usage Probability: 36–51%, low-moderate confidence.** Unchanged. A principal architect still has no reason to return until a first review shows them something they did not know.
 
-**Sponsor Purchase Probability: 28–43%, low confidence.** Demo surface exists again. **Zero G-REAL-06 pilots still dominates.**
+**Sponsor Purchase Probability: 28–43%, low confidence.** **Zero G-REAL-06 pilots still dominates.**
 
-**Reconciliation with §2.** Headline **77.50%** sits **12.5 points** above Decision Advantage (65) and far above the purchase band (28–43%). v6's gap was 9 points because the headline had fallen; v7's gap widened again because the container recovered and the analysis did not. Do not read 77.50% as 77.50% of the way to a sale.
+**Reconciliation with §2.** Headline **77.26%** sits ~9 points above Decision Advantage (68). Read it as “the mechanism is mostly built, the proof is absent, and trunk just swapped one test-corset break for another.”
 
 ---
 
@@ -161,260 +127,294 @@ Readiness excludes deferred items per `V1_DEFERRED.md` and `Assessment-Scope-V1_
 
 | # | Gate | Verdict | Evidence | Fastest resolution |
 |---|------|---------|----------|--------------------|
-| 1 | First review completes create → execute → commit → manifest + ≥1 artifact | **UNKNOWN** | Not executed here. | Staging `ship-gate-evidence` with SQL API. |
-| 2 | No hallucinated or uncited policy/evidence citations | **PASS (mechanism)** | Emission gate + citation integrity evaluator unchanged. | Upgrade after gate 1 live. |
-| 3 | Sponsor summary / ROI coherent and not misleading | **PASS (mechanism)** | TB-603 Done; disposition-aware headline. | As above. |
-| 4 | Export / package generation works | **PASS (mechanism)** | Suite=Core coverage exists; live ZIP not run here. | Optional staging probe. |
-| 5 | Architect workspace does not break during first-review / demo path | **PASS** | Clean `tsc -p tsconfig.build.json` exit 0; `npm run typecheck` exit 0; CI `Operator UI: typecheck (blocking)` **success** on the last two `master` corsets. | Keep it green by requiring the job (human task 1). |
-| 6 | Auth + tenant isolation on pilot path | **PASS (mechanism)** | ADR 0037, scope guard, ship-gate negative probes. | As gate 1. |
+| 1 | First review completes create → execute → commit → manifest + ≥1 artifact | **UNKNOWN** | Not executed here. | Staging `ship-gate-evidence` (human task #2). |
+| 2 | No hallucinated or uncited policy/evidence citations | **PASS (mechanism)** | Emission gate + DX-70 line-anchor tightening. The Kind B *test* is now stricter than its fixture — that is a test/contract bug, not a hallucination hole. | Upgrade after Gate 1 live. |
+| 3 | Sponsor summary / ROI coherent and not misleading | **PASS (mechanism)** | Disposition-aware headline; Simulator-forbid. | As above. |
+| 4 | Export / package generation works | **PASS (mechanism)** | Suite=Core coverage; live ZIP not run here. | Optional staging probe. |
+| 5 | Architect workspace does not break during first-review / demo path | **PASS** | `Operator UI: typecheck (blocking)` success on 34393999344. | Keep green. |
+| 6 | Auth + tenant isolation on pilot path | **PASS (mechanism)** | ADR 0037, scope guard unchanged. | As Gate 1. |
 
-**Gate 5 is PASS, so the headline is not ship-blocked by UI compile.** Gate 1 remains **UNKNOWN** and still needs a live staging run. The process risk is that Gate 5 can flip FAIL again the next time an ungated merge lands — #567 already demonstrated that with CS8300.
+**No numbered gate FAILs.** Attached process risk: **Decisioning.Tests Suite=Core is red** on the newest completed trunk run.
 
 ---
 
 ## 5. Sponsor Summary
 
-**(A) Overall headline readiness — 77.50% (v7). Gate 5 PASS.**
+**(A) Overall headline readiness — 77.26% (v9). Gate 5 PASS; Gate 1 UNKNOWN.**
 
-ArchLucid remains a governed architecture-review system with **39 deterministic engines**, tenant-filtered compliance, declaration gating, optional expectation extras, sealed manifests, and database-per-tenant isolation. This pass proved the **v6 outage is closed on trunk**: two consecutive push-corset runs on `master` are all-green (gitleaks + Release fast-core Core/Decisioning + UI typecheck). A clean clone typechecks. `ArchLucid.Api` compiles in Release.
+ArchLucid is a governed architecture-review system with **53** deterministic finding engines, tenant-filtered compliance packs spanning CIS (Azure/AWS/GCP), SOC 2, GDPR, HIPAA, ISO 27001, PCI and ZTA, sealed manifests, database-per-tenant isolation, and first-party Jira / ServiceNow / Confluence / Slack / Teams connectors. Diagrams are no longer a dead upload: mermaid compiles into the golden harness (case-70) and finding inspect can jump to a cited shape (AS-024). Typed-engine findings are scored and demotable (ADR 0070). In Real mode the LLM judge, insight generator, and prose-assumption extractor run by default under spend caps.
 
-**What v7 actually bought.** The three defects that made a fresh clone unusable for six hours are gone. That restores Time-to-Value and Adoption to near-v5.1 levels and unblocks G-REAL-06 / M-07 which v6 had re-blocked.
+**What v9 did not buy.** No architect outside the repository has run a real-mode review. The density table still describes a case-69 world. Ten of forty-seven corpus findings sit at the demotion threshold with no evidence. And the findings orchestrator tests on trunk currently return **empty `Findings` collections** — the product's proof harness for emission just broke in a new place.
 
-**What v7 did not buy.** The ruleset still requires `cohort-real-llm-gate` and nothing else. PR #567 merged conflict markers onto `master` under that rule. Dependabot is still free to land ungrouped majors. Insight density is still subtractive. No sponsor has seen a real-mode review. **The product is a well-engineered container whose analysis and whose merge gate have not moved.**
+**(B) Procurement / market realism (weight 0 in `(A)`).** Honest trust posture: self-assessment, templates, owner pen test; no CPA SOC 2 and no published third-party pen test. Sales-led motion; live commerce is V1.1 owner-only.
 
-**(B) Procurement / market realism (weight 0 in `(A)`).** Same honest trust posture — self-assessment, templates, owner pen test — without CPA SOC 2 or third-party pen-test publication.
+**Commercial picture.** Compelling as a demo of governed, policy-driven, evidence-linked findings; unproven as a decision-changer because no G4 row exists.
+
+**Enterprise picture.** Trust mechanisms ahead of proof. Hesitation will be “show me one real run,” not architecture.
+
+**Engineering picture.** Product invariants are robust. Trunk process improved (merge_group YAML, compile fixed) and immediately found the next semantic conflict (AS-024 × DX-70 Kind B / orchestrator hold).
+
+**Frontier-AI picture.** Becoming more valuable **in mechanism** as diagrams join the graph the model does not author — **if** a real run ever shows it.
 
 ---
 
 ## 6. Deferred Scope Uncertainty
 
-Same as v4/v6: V1.1 webhooks/MCP/commerce un-hold; V2 CPA/pen-test programs and substrate shifts. Graph-RAG community summarization still deferred pending **G-REAL-06** signal.
+V1.1: CloudEvents webhooks, MCP membrane, multi-region, commerce un-hold. V2: CPA SOC 2 / third-party pen-test *publication*, automated tenant-erasure, Redis-as-default, DTF / Container Apps Jobs. Graph-RAG community summarization remains behind `EnableCommunitySummarization=false`; **TB-883** ablation is owner-approved and budget-blocked.
 
 ---
 
 ## 7. Weighted Quality Assessment (detail)
 
-### 7.1 Decision-Changing Insight Density — 66 · weight 13 · contribution 8.58 · deficiency 442
+### 7.1 Decision-Changing Insight Density — 70 · weight 13 · contribution 9.10 · deficiency 390
 
-Unchanged. `typed-engine-protected` still promotes every engine finding without using the computed score (`DeterministicInsightDensityGate.cs:87`). No deep judgment engines added. Frontier corpus still synthetic. Golden harness still **14/39**.
+**What is true.** ADR 0070 scores typed engines. 42 harness engines; 23 emit on the recorded corpus. Path engines fire on Azure/AWS/GCP IaC. Case-70 exists on trunk (mermaid trust-boundary) but is **absent from the recorded table**.
 
-**Classification:** V1 residual + validation. **Affects outcomes 1, 3, 5.**
+**What is not.** Proof. `WouldDemoteAt65Count = 0`. Ten `security-baseline` findings survive on a +5 severity bonus with no evidence. Path engines at 72 have `No evidence` on every finding. QR-05 (honest `EvidenceRefs`) is still a draft PR.
 
-### 7.2 Correctness & Evidence Integrity — 80 · weight 12 · contribution 9.60 · deficiency 240 *(v6: 68)*
+**Classification:** V1 mechanism largely complete; **validation required**. **Affects outcomes 1, 3, 5.**
 
-Release API build is green. Gate 5 is green on a clean `tsc`. Push corset Core/Decisioning jobs succeeded twice on trunk. query-core is single-version. azurerm is pinned below 5.0 with refreshed lock files; three roots `terraform validate` locally.
+### 7.2 Correctness & Evidence Integrity — 73 · weight 12 · contribution 8.76 · deficiency 324
 
-**Still deduct:** heavy `ci.yml` lanes still path-skip on typical PRs; last-100 corset is 63 failure / 21 success; #567 landed uncompilable C# on `master`; Dependabot majors still ungated; OpenAPI snapshot remains a separate fail-fast job that is **not** in the push corset.
+v8's three trunk defects closed. New Suite=Core red: orchestrator tests see empty `Findings` (likely provenance-hold moving uncited mocks into checklist / emission gate dropping Kind B heading fragments). `HasKindBProvenance` now correctly rejects `doc:…#services` under DX-70; the unit test was not updated.
 
 **Classification:** V1. **Affects outcomes 1, 2, 4.**
 
-### 7.3 Time-to-Value — 74 · weight 10 · contribution 7.40 · deficiency 260 *(v6: 68)*
+### 7.3 Time-to-Value — 73 · weight 10 · contribution 7.30 · deficiency 270
 
-The operator demo surface compiles again. That is a precondition for a first review, not evidence of one. **Gate 1 is still UNKNOWN.**
+Declaration-only reviews yield path findings. Mermaid can enter the graph. Gate 1 UNKNOWN. Azure extractor default still unshaped after an owner “Yes — Azure first.”
 
 **Classification:** V1 residual + validation. **Affects outcomes 1, 3.**
 
-### 7.4 Differentiability / Defensibility vs Frontier AI — 81 · weight 13 · contribution 10.53 · deficiency 247
+### 7.4 AI / Agent Readiness — 76 · weight 10 · contribution 7.60 · deficiency 240
 
-**Re-derived, score holds.** v6 wrote that only `cis-az-*` and `sec-base-028` counted as declaration vocabulary. That is **false on current `master`:** `DeclarationSignalPolicyPrefixFamily` includes soc2, gdpr, hipaa, iso27001, pci, zta, cis-az/aws/gcp, sec-base, aks, eks, gke. A SOC 2 tenant **no longer fail-opens**.
-
-**Remaining moat gap:** `ShouldEmitTheme` still uses `IsThemeEnabled`, which matches **exact mapped rule ids** (mostly `cis-az-*` / `sec-base-028`), not prefixes. A SOC 2-only pack therefore fail-**closes** declaration themes (vocabulary=true, no mapped key → no emit). Buyer toggle “SOC 2 vs CIS Azure” still does not move declaration rows for SOC 2. That is narrower than v6's fail-open claim and still a demo-shaped hole. PP-01 remains the spec.
-
-**Classification:** V1 mechanism; content residual. **Affects outcomes 1, 2, 5.**
-
-### 7.5 AI / Agent Readiness — 74 · weight 10 · contribution 7.40 · deficiency 260
-
-Unchanged. Simulator default; judge flags default false; eval corpus synthetic; no live pilot signal.
+Real-mode effective-on for judge, generator, ranking priors, prose-assumption extraction. Synthetic eval; TB-883 blocked.
 
 **Classification:** V1 mechanism complete; validation required. **Affects outcomes 1, 5.**
 
-### 7.6 Runtime & First-Review Reliability — 75 · weight 7 · contribution 5.25 · deficiency 175 *(v6: 66)*
+### 7.5 Differentiability / Defensibility vs Frontier AI — 83 · weight 13 · contribution 10.79 · deficiency 221
 
-Two consecutive all-green trunk corsets. Gitleaks green. CodeQL completed-success on recent runs (per-SHA group holding).
+Pack-filtered declaration findings already differ on a fixed graph in Suite=Core. Buyer-visible recorded compare still missing.
 
-**Still deduct:** jobs are not required; last-100 is still mostly red (the outage dominates the window); Gate 1 unobserved.
+**Classification:** V1 mechanism; demo residual. **Affects outcomes 1, 2, 5.**
 
-**Classification:** V1. **Affects outcomes 2, 3.**
+### 7.6 Proof-of-ROI Readiness — 76 · weight 9 · contribution 6.84 · deficiency 216
 
-### 7.7 Proof-of-ROI Readiness — 76 · weight 9 · contribution 6.84 · deficiency 216
+Mechanism complete; G4 HOLD 0/3. **Affects outcomes 3, 4.**
 
-Unchanged. Mechanism complete; zero real pilot deltas.
+### 7.7 Runtime & First-Review Reliability — 72 · weight 7 · contribution 5.04 · deficiency 196
 
-**Classification:** V1 residual + validation. **Affects outcomes 3, 4.**
+merge_group exists; live queue does not. Newest completed corset red on 10 tests. Full matrix stale-red. **Affects outcomes 2, 3.**
 
-### 7.8 Governed Review Integrity — 88 · weight 13 · contribution 11.44 · deficiency 156
+### 7.8 Sponsor / Operator Comprehension — 78 · weight 8 · contribution 6.24 · deficiency 176
 
-Unchanged on purpose. Mandatory PRs + Copilot review on push are real. The required check still does not measure review *correctness*. #567 is the exhibit.
+Help/operator polish continued. No sponsor has read a real-mode summary. **Affects outcomes 2, 4.**
 
-**Classification:** V1. **Affects outcomes 2, 4, 5.**
+### 7.9 Governed Review Integrity — 88 · weight 13 · contribution 11.44 · deficiency 156
 
-### 7.9 Sponsor / Operator Comprehension — 77 · weight 8 · contribution 6.16 · deficiency 184 *(v6: 75)*
+Product rubric strong. Repo gate still weaker than the review gate until merge queue is applied. **Affects outcomes 2, 4, 5.**
 
-`review-linked` is now in the delete-control union. Sponsor narrative quality still rests on synthetic corpus output; no sponsor has read a real-mode ROI summary.
+### 7.10 Adoption Friction — 83 · weight 5 · contribution 4.15 · deficiency 85
 
-**Classification:** V1. **Affects outcomes 2, 4.**
-
-### 7.10 Adoption Friction — 86 · weight 5 · contribution 4.30 · deficiency 70 *(v6: 72)*
-
-`npm run typecheck` and `dotnet build -c Release` succeed from this tree. `legacy-peer-deps=true` remains a documented workaround. `npm ls` still reports `@tanstack/react-query@5.102.2` invalid vs `^5.102.7`.
-
-**Classification:** V1 residual. **Affects outcomes 2, 3.**
+Decisioning.Tests compiles. Extractor still opt-in. **Affects outcomes 2, 3.**
 
 ---
 
 ## 8. Top 10 Weaknesses
 
-**v7 re-ranked.** v6 items 1–3 in §17 are **closed with runtime evidence**. Weakness **#1 is the same sentence as v6**, with the sequencing excuse removed. Insight density returns to being the largest *weighted* deficiency now that Correctness fell back from 384 to 240.
+1. **`FindingsOrchestratorTests` on trunk return empty `Findings`.** Newest completed push corset: 10 Suite=Core failures after AS-024. Either provenance-hold moved uncited mocks into checklist (tests stale) or emission now drops typed findings that should remain. **Process + correctness; V1 blocker for re-proving Decisioning.**
+2. **Kind B provenance test disagrees with DX-70.** `doc:manifest.json#services` is a heading fragment; `HasConcreteEvidenceCitation` requires `#L` + a digit. The validator is honest; the test is not. **Design/process.**
+3. **Insight density is still mechanism-rich and proof-free.** Zero real-mode runs; synthetic frontier fixtures; `WouldDemoteAt65Count = 0`; 10/47 findings at threshold with no evidence. **Largest weighted deficiency (390). Validation.**
+4. **Distribution markdown is stale relative to case-70.** Harness constant is 70; table header still case-69. Measurement honesty gap. **Process.**
+5. **Live merge queue is not applied.** `merge_group` YAML + draft JSON shipped; GitHub still evaluates PR-branch SHAs. **Owner.**
+6. **Gate 1 remains UNKNOWN.** Unchanged. **Validation.**
+7. **Zero G-REAL-06 pilots.** Unchanged. **Market.**
+8. **Live Azure inventory is still opt-in** after an unshaped owner “Yes.” **Blocked on user input** (soft-prompt slice is executable).
+9. **Path engines score 72 with `No evidence` on every row** (`identity-blast-radius`, `data-flow-trust-boundary`, `segmentation-semantics`). They collect property-bag refs; corpus nodes still lack ARM/ARN/diagram citations. Case-70 mermaid is the cheapest place to attach `diagram:` refs. **Design.**
+10. **Full `ci.yml` matrix has not been green in the inspected window (8/8).** Unchanged measurement. **Process.**
 
-1. **The enforced gate is still decoupled from the signal that detects breakage.** **Still #1, and it is now a two-minute edit with no sequencing risk.** Ruleset `21654724` still requires only `cohort-real-llm-gate`. The three jobs that went green twice on trunk are not required. Exhibit this pass: **#567 merged CS8300 conflict markers** onto `master`; corset failed; #572 fixed it 20 minutes later. Add exactly: `Security: gitleaks (secret scan)`, `.NET: push corset (build + fast core Core/Decisioning)`, `Operator UI: typecheck (blocking)`. Process uncertainty.
-2. **Insight density still subtractive.** Unchanged architectural ceiling — `typed-engine-protected` still discards the computed density score at `DeterministicInsightDensityGate.cs:87`. **Largest weighted deficiency at 442.** Design uncertainty.
-3. **Unbatched Dependabot still lands major-version bumps as many PRs.** v6's proximate cause is **unfixed**. `dependabot.yml` groups only `github-actions`. nuget/npm/terraform have no `groups` and no `semver-major` ignore. Item 1 would at least refuse a red merge; it would not prevent the batch. Process uncertainty.
-4. **Zero completed real-mode pilots (G-REAL-06).** Unblocked: demo surface typechecks. Still zero runs. Market uncertainty.
-5. **Two verification blind spots are still open.** (a) **Release:** nothing in `AGENTS.md` states Debug success is not evidence; agents still default Debug. (b) **Clean install:** no CI assertion that `npm ls @tanstack/query-core` is a single version. The outage's invisibility classes were not closed — only the instances were. Process uncertainty.
-6. **Gate 1 remains UNKNOWN — no observed end-to-end first review.** Unchanged; needs a live staging run. Validation uncertainty.
-7. **Heavy `ci.yml` lanes still `skipping` on typical PRs.** Path-lane gating still excludes Vitest, Playwright, axe, Lighthouse, ZAP, Schemathesis, SaaS Terraform script suite from most PRs. Largest remaining unmeasured correctness surface. Process uncertainty.
-8. **Declaration *themes* still key off exact CIS/sec-base ids, so buyer-common packs emit nothing.** **Restated from v6 after re-deriving the code.** Prefix family membership now prevents fail-open, but `IsThemeEnabled` does not treat `soc2-001` as enabling a theme. SOC 2 vs CIS Azure still will not move declaration rows for SOC 2. PP-01. Design uncertainty.
-9. **`legacy-peer-deps=true` still masks resolution conflicts.** query-core is currently unified by an `overrides` pin, which is the right local fix, but peer enforcement is still globally off. `react-query@5.102.2` vs `^5.102.7` is already `invalid` in `npm ls`. Design uncertainty.
-10. **Remaining engine-depth debt.** Bundled packs still lack expectation extras by default; golden corpus **14/39**; actor-dependent engines stay silent on IaC-only reviews. Grouped because none moved. Design uncertainty.
-
-**Removed from the v6 list because genuinely fixed this cycle:** Release-build AV0029/AV0030 as a trunk outage; Gate 5 `review-linked` / duplicate `query-core` as a trunk outage; azurerm 5.2.0 admission on the three public/private/edge roots. **Do not treat those as standing weaknesses.** The *classes* (ungated Dependabot, Release-blind local loop) remain as #3 and #5.
+**Removed because genuinely fixed this cycle:** Decisioning.Tests CS7036; `typed-engine-protected` guard drift; OpenAPI Wave 68 snapshot red; missing `merge_group` trigger (YAML only).
 
 ---
 
 ## 9. Frontier-AI Analysis
 
-Same commodity/durable table as v4 with updates: declaration prefix-family membership is now real (fail-open closed); theme enablement is still CIS-mapped. Approval workflow with SoD remains corset-proven for the Decisioning slice.
+| Capability | 12-month trajectory | Reason |
+|---|---|---|
+| Generic architecture critique | **Commodity now** | Any frontier model with pasted standards. |
+| Declaration-derived path findings from IaC | **Durable → more valuable** | Graph the model does not author. |
+| Diagram-compiled topology (mermaid / structured diagram) | **More valuable** | New this cycle: engines can cite shapes; a better model improves prose on a kernel it still cannot invent. |
+| Policy-pack-driven theme enablement | **Durable** | Customer policy state is not in the model's context unless pasted every time. |
+| Sealed manifest + audit | **Durable** | Organizational, not analytical. |
+| Golden corpus as proof | **Neutral** | Regression safety, not advantage. |
 
-**Final verdict:** Container is buildable again. Analytical floor and pilot proof still lag. **The one cheap durable move left is requiring the corset.** Against a frontier model, “our tests pass” is not the claim; “our tests are required” is.
+**Hard-to-reproduce-via-prompting:** policy state, tenant-filtered vocabulary, sealed evidence, declaration gating, diagram→graph compile, audit. **Easy soon:** any single finding's prose.
+
+**Leverage bet:** better models raise judge/generator/prose-assumption quality at ~zero ArchLucid engineering cost while deterministic engines and compiled diagrams guarantee the floor. Unproven.
+
+**Displacement timeline:** one model release commoditizes finding prose; none commoditizes the customer's pack version or the sealed record.
+
+**Final verdict:** ArchLucid is becoming more valuable faster than frontier AI is becoming capable **in mechanism**, and not at all **in evidence**. Survival probability is in §3.
 
 ---
 
 ## 10. Policy-Aware Governance Test
 
-1. **Do policy packs drive behavior?** **Yes, for mapped CIS/sec-base keys, with green corset tests.** Buyer-common prefixes now *count as vocabulary* (no fail-open) but **do not enable themes**. Empty rule set fails closed — correctly and as documented.
-2.–7. Same as v4 with corset evidence on declaration gating and governance SoD.
+1. **Do policy packs drive behavior?** **Yes.** `PolicyFilteredDeclarationGoldenCorpusTests` already shows SOC 2 vs CIS-Azure emitting different declaration rows on one graph.
+2. **Trace input → evidence → policy → recommendation → decision → audit?** Yes for typed-engine and declaration findings when citations resolve. Heading-fragment `doc:` refs no longer count (DX-70) — correct.
+3. **Would frontier-AI-alone reproduce it consistently?** Not the traceability, tenant-filtered vocabulary, or sealed manifest.
+4. **AI-generated vs governed infrastructure?** Prose is AI; edges, policy keys, manifests, audit, diagram compile are infrastructure.
+5. **Proof the moat is real:** record the already-passing pack-toggle test as a buyer-visible artifact. **Now possible, still unrecorded.**
+6. **Fastest validation:** G-REAL-06 run 1–2 with two packs.
+7. **Demo behavior that makes it obvious:** side-by-side CIS-Azure vs SOC 2 on the same upload.
 
 ---
 
 ## 11. Principal Architect Dismissal Test
 
-Operational dismissal (won't compile / won't typecheck) is **off the table again** as of two green corsets. Analytical dismissal is unchanged: checklist-shaped output, `typed-engine-protected`, Decision Advantage 65.
+"I need this" trigger: upload AWS Terraform and get a named blast-radius + CIS-AWS rule without connecting an account — exists. "I did not think of that" is still unmeasured.
+
+Most likely dismissal trigger: **"Show me a real run."** Likelihood **0.6–0.75**. Second trigger: **"Your own tests don't keep findings."** A clone that runs Decisioning.Tests hits 10 empty-snapshot failures on the last completed trunk corset.
+
+Would they believe it beats "Claude + a good prompt + my standards pasted in"? **On mechanism, plausibly yes; on evidence, not yet.**
 
 ---
 
 ## 12. Founder Delusion Check
 
-**v6's delusion** was “one ruleset checkbox fixes trunk.” The checkbox was applied to the wrong check.
+**Strongest assumption with weakest evidence:** that 42 harness engines and a case-69 table constitute density gains. They constitute *coverage*. Case-70 exists and is not in the table.
 
-**v7's delusion risk** is “two green corsets means the problem is over.” The last-100 window is still 63 failures. #567 merged broken C#. Dependabot is unmodified. **Two photographs of green are not a gate.**
+**Looks differentiated, is commodity:** finding prose.
 
-**Six-month freeze prescription:** require the three corset jobs **today**; group Dependabot and ignore majors; execute Gate 1 once; **G-REAL-06**; measure the full `ci.yml` matrix once; stop scoring assessments as a substitute for those five.
+**Looks ordinary, may be the moat:** `DeclarationSignalPolicyKeyMap` + mermaid→graph compile.
+
+**Months-burning distraction:** DX-77; another 40-engine coverage pack; AS-076+ Career/Rehearsal chrome before Gate 1.
+
+**Six-month freeze prescription:** fix orchestrator/Kind B today; apply merge queue; re-record distribution through case-70; run Gate 1; run G-REAL-06 with two packs; stop re-scoring.
+
+**Most dangerous attractive distraction:** starting AS-076–AS-100 (Career vs Rehearsal / sharing) while Suite=Core is red.
+
+**Most boring real moat:** sealed manifest + pack version on the audit row.
 
 ---
 
 ## 13. Competitive Reality Check & Moat Assessment
 
-Moat regression evidence in the corset slice is intact. Weakest link is again **“the corset can complete green and still not be required.”** Buyer-obvious demo remains the §10.7 policy toggle; SOC 2 vs CIS Azure still will not move declaration rows until PP-01.
+Current moat: policy-state-driven declaration gating, sealed evidence, governed workflow, diagram compile into the graph. Potential moat: path findings + diagram citations that improve with model quality. Weakest moat assumption: buyers will believe the mechanism without a run. Illusory moat: engine count. Boring-but-durable: audit + manifest. What makes it obvious: recorded pack-toggle compare.
 
 ---
 
 ## 14. Adoption & Monetization
 
-Blocker #1 is down to **one owner setting** (require the three jobs). **M-07** screenshots are unblocked (Gate 5 PASS). **G-REAL-06** is unblocked. Neither has been executed.
+**30-day usage:** strongest positive — declaration-only path findings plus mermaid ingest; strongest negative — nothing shown to a real architect. **Sponsor purchase:** blocker is G4 HOLD. **Why buy instead of more frontier licenses:** the license does not know the pack version, cannot seal evidence, and cannot tell you what changed since last quarter.
+
+**Top monetization blockers:** (1) no real-mode proof row; (2) Gate 1 unobserved; (3) no recorded pack-toggle demo; (4) trunk Suite=Core red for technical buyers who clone; (5) G-COMMERCE-01; (6) no sponsor has read a real ROI summary.
+
+**Top enterprise adoption blockers:** (1) live inventory opt-in; (2) extractor permission story per cloud; (3) procurement trust posture `(B)`; (4) no pilot references; (5) operator onboarding without founder; (6) merge-queue not live (internal credibility).
 
 ---
 
 ## 15. Most Important Truth
 
-**v6 asked for a sequence. The repo did the hard part and stopped before the cheap part.**
+**The v8 trunk defects were real and they are gone — and trunk is still red, because the diagram spine tightened citations faster than the orchestrator tests.**
 
-Items 1–3 landed. Two consecutive `master` corsets are all-green. Gate 5 PASS. Release API build 0 errors. azurerm is back on 4.x. Direct pushes are still impossible. **The remaining #1 is adding three strings to a ruleset that already exists** — the step v6 forbade until the corset was green, which it now is.
-
-The exhibit that this still matters is not hypothetical: **#567 merged conflict markers onto trunk** because `cohort-real-llm-gate` does not compile C#. The fix was a 20-minute hotfix PR. Requiring `.NET: push corset` would have made that merge impossible.
-
-Everything else on this document — insight density, pilots, Gate 1, Dependabot grouping — is still true and still slower. **Do the ruleset edit first.** Then group the bots. Then run one real review.
+Compile, OpenAPI, and the ADR 0070 guard shipped. What the corset now proves is that `doc:#services` is not evidence and that mock findings vanish from `Findings`. **Fix emission vs hold vs DX-70 in one PR, apply the merge queue, then run one real review with two packs.** Nothing else in this document moves the weakest quality.
 
 ---
 
 # === DIVIDER: DIAGNOSIS ABOVE / PRESCRIPTION BELOW ===
 
+---
+
 ## 16. Stop Doing List
 
-**Top 3 not worth doing before V1:** more policy-pack rules without expectation extras; Graph-RAG community summarization; synthetic eval expansion.
+**Not worth doing before V1:** DX-77; AS-076–AS-100 Career/Rehearsal chrome; Graph-RAG community default flip before TB-883 has a budget; prefix-family `IsThemeEnabled` (PP-01 already rejected it).
 
-**Top 3 diminishing returns:** UI route polish across open backlog rows; coverage-shaped engines; compliance rule count expansion.
+**Diminishing returns:** more engines without evidence refs; UI polish on routes no pilot has seen; more claim-honesty guards while Suite=Core is red.
 
-**Top 3 founder behaviors:** scoring another assessment before requiring the corset; treating two green runs as a gate; commissioning typecheck remediation while Dependabot can reintroduce it.
+**Founder behaviors that delay validation:** re-scoring before the orchestrator is green; approving Azure-extractor-default without picking soft/hard/wizard; treating a green PR check as a green trunk until merge queue is live.
 
-**Stop doing this next:** **leaving `required_status_checks` at `cohort-real-llm-gate` now that the corset is green.** v6's sequencing warning applied then; it does not apply now.
+**Enterprise-important but not V1-adoption:** MCP; CloudEvents webhooks; multi-region.
 
-**Top 3 enterprise-important but not V1-adoption:** MCP; CloudEvents webhooks; multi-region active/active.
+---
 
 ## 17. Top Improvement Opportunities
 
-**Shipped this cycle — do not re-open:** v6 Tier 1 items **1–3** (AV0029/AV0030 suppressions, Gate 5 `review-linked` + query-core override, azurerm `< 5.0` + lock refresh); #572 conflict-marker hotfix; #569/#570 DI baseline router / schema-remediation client.
-
-**Shipped earlier — do not re-open:** push corset itself; v5.1 Gate 5 typecheck batch; `.npmrc` `legacy-peer-deps`; CodeQL per-SHA concurrency; direct-push closure via ruleset `21654724`.
+**Shipped this cycle — do not re-open:** QR-01–QR-04; AS-024; AS-034 case-70 (harness bump only); DX-51–DX-76; PP-01 Option B slice; prose-assumption Real-mode default.
 
 ### Tier 1 — Must Fix / Must Validate
 
-> **Sequencing update.** v6 forbade requiring the corset while it was red. **That block is lifted.** Items **1 and 2** below may proceed immediately. Do not wait for another assessment pass.
+**1. Restore Decisioning.Tests orchestrator emission (empty `Findings`).**
+Tier 1 · Why: Suite=Core red on trunk; technical buyers who clone cannot re-prove findings. · Affected: Correctness, Runtime. · Evidence: run 34392453288, 10 failures, empty `Findings`. · Design 4 / Market 0 · **V1.** Cursor prompt: **QR-06**.
 
-**1. Add the three corset jobs to the existing ruleset's `required_status_checks`.**
-Tier 1 · **Owner-only, two minutes, highest leverage.** · Evidence the corset is require-able: runs [33094679717](https://github.com/joefrancisGA/ArchLucid/actions/runs/33094679717) and [33096646218](https://github.com/joefrancisGA/ArchLucid/actions/runs/33096646218), both all-green. Evidence it is needed: #567 merged CS8300. · **Add exactly:** `Security: gitleaks (secret scan)`, `.NET: push corset (build + fast core Core/Decisioning)`, `Operator UI: typecheck (blocking)`. · **Classification: V1 (process).**
+**2. Align Kind B unit fixture with DX-70 line-anchored `doc:` refs.**
+Tier 1 · Why: same corset job; heading fragment `#services` is not concrete. · Affected: Correctness. · Evidence: `HasKindBProvenance_allows_resolvable_doc_ref`. · Design 2 / Market 0 · **V1.** Same PR as item 1 (**QR-06**).
 
-**2. Constrain Dependabot — group updates and gate major bumps.**
-Tier 1 · Still open from v6. · In `.github/dependabot.yml`: `groups` per nuget/npm/terraform; `ignore` `update-types: ["version-update:semver-major"]`. · Pairs with item 1. · **Classification: V1 (process).**
+**3. Re-record insight-density distribution through case-70.**
+Tier 1 · Why: harness is 70; table still case-69. · Affected: Insight Density (honesty), Correctness. · Evidence: `LatestGoldenCorpusCaseNumber = 70` vs markdown header. · Design 2 / Market 0 · **V1.** **QR-07**. After item 1 is green.
 
-**3. Close the two verification blind spots.**
-Tier 1 · Still open from v6. · (a) Document in `AGENTS.md` that **Debug success is not evidence**; point at `scripts/ci/run_push_corset_dotnet.sh`. (b) CI assertion: `npm ls @tanstack/query-core` must resolve one version. · **Classification: V1.**
+**4. Enable merge queue (owner) — YAML already shipped.**
+Tier 1 · **Owner.** Draft JSON in `.github/rulesets/golden-cohort-gate-merge-queue.json`. · Design 6 / Market 0.
 
-**4. Execute Gate 1 — one observed end-to-end first review.**
-Tier 1 · Unchanged. Staging run, run id + manifest hash. · **Classification: validation.**
+**5. Execute Gate 1, then G-REAL-06 with two pack configurations.**
+Tier 1 · **Validation.** Market 9 / Design 2.
 
-**5. Execute G-REAL-06 / G-REAL-07 / M-39.**
-Tier 1 · **Unblocked.** Orchestrator: `scripts/Run-GReal06ProofRuns.ps1`. · **Classification: validation.**
+### Tier 2 — High Leverage (Composer prompts QR-08–QR-15)
 
-**6. Measure the full `ci.yml` matrix once on a trunk commit.**
-Tier 1 · `workflow_dispatch` full-matrix on `master`; decide whether path gating should be relaxed for trunk. · **Classification: V1.**
+**6. Land QR-05 and extend evidence-ref honesty to the other 65-band engines** (`declaration-security-baseline`, `topology-security-drift`). **QR-08.**
 
-**7. Per-version OpenAPI follow-up (tracked, not blocking).**
-Tier 1-adjacent · v6 chose suppress `AV0029`/`AV0030` to keep `/openapi/v1.json`. The design question (one document per API version) is still open. Do **not** reopen as a trunk-health item. · **Classification: V1.1 design.**
+**7. Attach `diagram:` citations from case-70 mermaid onto path engines** so 72-band rows can clear `no-concrete-evidence` when a shape exists. **QR-09.**
 
-### Tier 2 — High Leverage
+**8. Azure extractor first-review *soft* default** (prompt + skip, not hard gate) — executable portion of the unshaped owner “Yes.” **QR-10.**
 
-**8.** Triage pre-existing help Vitest failures. **9.** Policy-toggle demo artifact (SOC 2 vs CIS Azure — blocked on PP-01 for declaration rows). **10.** Seed overlay `advisoryDefaults`. **11.** Extend golden harness past 14 engines + inject governance loader. **12.** Replace `legacy-peer-deps=true` with a targeted `overrides` entry for `openapi-typescript`. **13.** Align `@tanstack/react-query` to `5.102.7` so `npm ls` is clean. **14.** M-07 screenshots (unblocked). **15.** Install pytest in `assessment-score-guard.yml` (this pass includes that one-liner so assessment PRs stop failing `check-score` for a missing module).
+**9. Record the pack-toggle compare as a checked-in quality artifact** (the unit test already passes). **QR-11.**
+
+**10. Next ga-starter framework slice** (HIPAA or ISO remainder — PP-01 Option B). **QR-12.**
+
+**11. Triage the full `ci.yml` matrix on one trunk commit.** **QR-13.**
+
+**12. Working default: load prior sealed graph so topology-security-drift can fire on review two** (AS-053 leftover). **QR-14.**
+
+**13. Bind existing Terraform/ARM graph nodes to diagram labels** (AS-043 leftover). **QR-15.**
+
+Cursor prompts for items 1–3 and 6–13: [`../architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md`](../architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md) (**QR-06–QR-15**).
 
 ### Tier 3 — Hold
 
-Deep engine category, frontier transcripts, density-on-engines owner decision (`typed-engine-protected`).
+TB-883 ablation (budget-blocked); frontier capture with real transcripts (after G-REAL-06); per-version OpenAPI document; DX-77; AS-076+ Career/Rehearsal; prefix-family theme enablement.
+
+---
 
 ## 18. Prompt Batching Guidance
 
-**First — owner, no engine:** item 1 (require the three corset jobs). The corset is green. This cannot deadlock the repo on current `master`.
+**First — Composer, one PR:** QR-06 (orchestrator + Kind B). Merge nothing else until the push corset is green. **Composer-safe** if findings merely moved to `ChecklistCoverage`; **strong-model** if production engines also vanish.
 
-**Second — Composer, ~20 minutes:** item 2 (Dependabot groups + major ignore) and item 3 (AGENTS.md Release note + `npm ls` assertion). Do these in the same PR if the owner has not yet done item 1; they do not require a ruleset.
+**Second — Composer:** QR-07 (re-record case-70) then QR-08 (QR-05 + remaining 65-band engines).
 
-**Third — owner + Opus:** items 4 and 5 (Gate 1, then G-REAL-06). Gate 1 first.
+**Third — Composer:** QR-09 (diagram citations on path engines) in parallel with QR-11 (pack-toggle artifact).
 
-**Fourth — Sonnet:** item 6 (`workflow_dispatch` full `ci.yml`).
+**Fourth — owner + Composer:** apply merge queue; Gate 1; then QR-10 (Azure soft default) once the owner confirms soft vs hard vs wizard — default the prompt to **soft**.
 
-**Do not commission another typecheck remediation batch.** The remaining type issues are process (require the job, constrain bots, see Release locally).
+**Fifth:** QR-12 / QR-13 / QR-14 / QR-15 after the corset is green. Do not batch QR-13 (full matrix) with emission-semantic changes.
+
+---
 
 ## 19. Model Usage Guidance
 
-Same as v4. Route PP-01 (declaration theme enablement for prefix-family packs) to **Opus** on a feature branch; it changes finding emission. Do not batch it with toolchain process fixes.
+Composer for QR-06 (if hold-vs-test), QR-07, QR-08, QR-11, QR-13 docs/triage, QR-14/QR-15 mechanical bind. Stronger reasoning if QR-06 reveals production engines dropping Decision-grade rows. Owner for merge queue, Gate 1, G-REAL-06. No assessment re-run until QR-06 is green on trunk.
+
+---
 
 ## 20. Pending Questions For Later
 
-**Blocks V1:** item 1 (require corset — **unblocked**), item 4 (Gate 1), item 6 (full matrix); **G-REAL-06**; **G-COMMERCE-01**. **No longer blocking:** v6 items 1–3 (Release AV, Gate 5, azurerm pin).
+**Blocks V1:** QR-06; merge-queue apply; Gate 1; G-REAL-06; G-COMMERCE-01.
 
-**Requires founder decision:** (a) organizational repeatability positioning; (b) `typed-engine-protected`; (c) finding stream of record; (d) overlay seeding; (e) whether PP-01 should make prefix-family packs enable themes, not merely count as vocabulary; (f) **resolved as a path, unapplied as a check list:** branch protection exists; corset jobs are still not in it; (g) hold `legacy-peer-deps` vs targeted override; (h) accept Actions spend for `queue: max` if CodeQL pending-eviction returns.
+**Requires founder decision:** (a) apply merge queue now; (b) Azure-extractor default shape if not accepting the soft-prompt default in QR-10; (c) TB-883 monthly cap; (d) merge `#2641` (QR-05) vs wait for QR-08; (e) HIPAA vs ISO for the next ga-starter slice.
+
+**Requires customer validation:** everything in §7.1's "what is not."
 
 ---
 
 # Appendix A — Author Signal (qualitative, NON-HEADLINE)
 
-v7 is the pass where the repo **did the engineering v6 asked for and left the checkbox**. That ratio is the taste failure this time: not “refactor without typecheck,” but **“fix trunk and do not latch the gate.”** Two green corsets in thirty minutes is the right recovery. Merging conflict markers through a budget-only required check is the same class of error as v4's missing import, wearing process clothing.
-
-The most useful thing an engine can do now is stop remediating the last outage and say plainly: **require the three jobs.**
+v9 is the pass where the repo finally compiled the golden corpus and then immediately demonstrated why merge queue exists: AS-024 tightened citations; DX-70 already required line anchors; orchestrator tests still believed heading fragments were Kind B; `Findings` went empty. That is principal-architect taste on the citation contract and a process failure on the test contract. The useful next move is small: **make Suite=Core mean “findings still emit,” then run one real review.**

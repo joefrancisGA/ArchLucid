@@ -21,6 +21,7 @@ export type {
 
 export {
   NOTIFICATION_PREFERENCE_CHANNELS,
+  resolveNotificationPreferenceChannels,
   statusHintForNotificationChannel,
 } from "./notification-preference-center-channels";
 export type { NotificationPreferenceChannel } from "./notification-preference-center-channels";

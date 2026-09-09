@@ -27,7 +27,7 @@ function readUiSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("help working desk copy guard (WA-04)", () => {
+describe("help working desk copy guard (AO-42 / WA-04)", () => {
   it("keeps Working desk quick-start copy free of first-session lead markers", () => {
     for (const copy of [
       HELP_WORKING_DESK_QUICK_START_TITLE,

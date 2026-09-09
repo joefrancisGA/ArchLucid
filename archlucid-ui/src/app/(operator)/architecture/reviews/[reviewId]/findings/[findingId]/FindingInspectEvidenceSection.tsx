@@ -1,16 +1,31 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 
-import type { ReactElement } from "react";
-
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { FindingInspectDiagramCitationPreviewDialog } from "@/components/findings/FindingInspectDiagramCitationPreviewDialog";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { DiagramEvidenceCitation } from "@/lib/findings/diagram-evidence-citation";
+import {
+  FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM,
+  findingInspectEvidenceCitationDisclosureHrefFromSearch,
+  parseFindingInspectEvidenceCitationArtifactIdFromSearch,
+} from "@/lib/findings/finding-inspect-evidence-citation-disclosure-url";
+import {
+  FINDING_INSPECT_DIAGRAM_CITATION_PREVIEW_PARAM,
+  findingInspectDiagramCitationPreviewHrefFromSearch,
+  parseDiagramCitationPreviewParam,
+} from "@/lib/findings/finding-inspect-diagram-citation-preview-url";
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
 import type { FindingInspectEvidence } from "@/types/finding-inspect";
 
 import { FindingInspectPolicyRuleCallout } from "./FindingInspectPolicyRuleCallout";
 
 export type FindingInspectEvidenceSectionProps = {
+  readonly runId: string;
   readonly demoFillGaps: boolean;
   readonly reviewContextHref: string;
   readonly reviewContextLabel: string;
@@ -48,6 +63,16 @@ function evidenceLinkLabel(row: FindingInspectEvidence, fallbackLabel: string): 
   }
 
   return fallbackLabel;
+}
+
+function evidenceCitationSlug(row: FindingInspectEvidence, idx: number): string {
+  const artifact = row.artifactId?.trim() ?? "";
+
+  if (artifact.length > 0) {
+    return artifact;
+  }
+
+  return `row-${idx}`;
 }
 
 function EvidenceExcerptBody({ text }: { readonly text: string }): ReactElement {
@@ -89,7 +114,15 @@ function EvidenceCitationList(props: {
   readonly reviewContextHref: string;
   readonly reviewContextLabel: string;
   readonly buyerPolishedShell: boolean;
-  readonly citationEvidence?: readonly { readonly label: string; readonly href: string }[];
+  readonly citationEvidence?: readonly {
+    readonly label: string;
+    readonly href: string;
+    readonly diagramCitation?: DiagramEvidenceCitation | null;
+  }[];
+  readonly openCitationArtifactId: string;
+  readonly onCitationOpenChange: (artifactId: string | null) => void;
+  readonly pathname: string;
+  readonly searchParamsString: string;
 }): ReactElement {
   const { evidence, reviewContextHref, reviewContextLabel, buyerPolishedShell } = props;
 
@@ -105,8 +138,18 @@ function EvidenceCitationList(props: {
         const excerpt = row.excerpt?.trim() ?? "";
         const title = evidenceCitationTitle(row);
         const citationRow = props.citationEvidence?.[idx];
-        const href = citationRow?.href ?? reviewContextHref;
+        const diagramCitation = citationRow?.diagramCitation ?? null;
+        const href =
+          diagramCitation !== null
+            ? findingInspectDiagramCitationPreviewHrefFromSearch(
+                props.searchParamsString,
+                diagramCitation,
+                props.pathname,
+              )
+            : (citationRow?.href ?? reviewContextHref);
         const linkLabel = citationRow?.label ?? evidenceLinkLabel(row, reviewContextLabel);
+        const citationSlug = evidenceCitationSlug(row, idx);
+        const citationOpen = props.openCitationArtifactId === citationSlug;
 
         return (
           <li
@@ -116,7 +159,14 @@ function EvidenceCitationList(props: {
             <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{title}</p>
             {excerpt.length > 0 && excerpt !== title ? <EvidenceExcerptBody text={excerpt} /> : null}
             {buyerPolishedShell && (row.lineRange || row.artifactId) ? (
-              <details className="mt-2">
+              <details
+                className="mt-2"
+                open={citationOpen}
+                onToggle={(event) => {
+                  const nextOpen = event.currentTarget.open;
+                  props.onCitationOpenChange(nextOpen ? citationSlug : null);
+                }}
+              >
                 <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                   View technical citation
                 </summary>
@@ -138,7 +188,13 @@ function EvidenceCitationList(props: {
               </>
             )}
             <div className="mt-2">
-              <Link href={href} className={OPERATOR_LINK.optional} data-testid="finding-source-evidence-link">
+              <Link
+                href={href}
+                className={OPERATOR_LINK.optional}
+                data-testid={
+                  diagramCitation !== null ? "finding-diagram-citation-link" : "finding-source-evidence-link"
+                }
+              >
                 {linkLabel}
               </Link>
             </div>
@@ -151,18 +207,84 @@ function EvidenceCitationList(props: {
 
 /** Customer policy rule plus architecture evidence citations for finding inspect surfaces. */
 export function FindingInspectEvidenceSection({
+  runId,
   demoFillGaps,
   reviewContextHref,
   reviewContextLabel,
   evidence,
   citationModel = null,
 }: FindingInspectEvidenceSectionProps): ReactElement {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams.toString();
+  const diagramCitationPreviewParam = searchParams.get(FINDING_INSPECT_DIAGRAM_CITATION_PREVIEW_PARAM);
+  const findingInspectEvidenceCitationArtifactIdParam = searchParams.get(
+    FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM,
+  );
+  const [openCitationArtifactId, setOpenCitationArtifactIdState] = useState(() =>
+    parseFindingInspectEvidenceCitationArtifactIdFromSearch(findingInspectEvidenceCitationArtifactIdParam),
+  );
+  const [diagramPreviewCitation, setDiagramPreviewCitationState] = useState<DiagramEvidenceCitation | null>(() =>
+    parseDiagramCitationPreviewParam(diagramCitationPreviewParam),
+  );
+  const syncDiagramCitationPreviewToUrl = useCallback(
+    (citation: DiagramEvidenceCitation | null) => {
+      router.replace(
+        findingInspectDiagramCitationPreviewHrefFromSearch(searchParamsString, citation, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParamsString],
+  );
+  const setDiagramPreviewCitation = useCallback(
+    (citation: DiagramEvidenceCitation | null) => {
+      setDiagramPreviewCitationState(citation);
+      syncDiagramCitationPreviewToUrl(citation);
+    },
+    [syncDiagramCitationPreviewToUrl],
+  );
+  const syncOpenCitationArtifactIdToUrl = useCallback(
+    (artifactId: string | null) => {
+      router.replace(
+        findingInspectEvidenceCitationDisclosureHrefFromSearch(searchParams.toString(), artifactId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenCitationArtifactId = useCallback(
+    (artifactId: string | null) => {
+      setOpenCitationArtifactIdState(artifactId ?? "");
+      syncOpenCitationArtifactIdToUrl(artifactId);
+    },
+    [syncOpenCitationArtifactIdToUrl],
+  );
+  useEffect(() => {
+    setOpenCitationArtifactIdState(
+      parseFindingInspectEvidenceCitationArtifactIdFromSearch(findingInspectEvidenceCitationArtifactIdParam),
+    );
+  }, [findingInspectEvidenceCitationArtifactIdParam]);
+  useEffect(() => {
+    setDiagramPreviewCitationState(parseDiagramCitationPreviewParam(diagramCitationPreviewParam));
+  }, [diagramCitationPreviewParam]);
+  const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
   const policy = citationModel?.policy ?? null;
   const pack = citationModel?.pack ?? null;
   const hasPolicyContext = policy !== null;
   const sectionTitle = hasPolicyContext ? "Customer policy & evidence" : "Evidence citations";
   const evidenceHeading = hasPolicyContext ? "Supporting architecture evidence" : null;
+  const citationListProps = {
+    evidence,
+    reviewContextHref,
+    reviewContextLabel,
+    buyerPolishedShell,
+    citationEvidence: citationModel?.evidence,
+    openCitationArtifactId,
+    onCitationOpenChange: setOpenCitationArtifactId,
+    pathname,
+    searchParamsString,
+  };
 
   return (
     <section
@@ -186,23 +308,22 @@ export function FindingInspectEvidenceSection({
         demoFillGaps ? (
           <DemoEvidenceScaffold reviewContextHref={reviewContextHref} />
         ) : (
-          <EvidenceCitationList
-            evidence={evidence}
-            reviewContextHref={reviewContextHref}
-            reviewContextLabel={reviewContextLabel}
-            buyerPolishedShell={buyerPolishedShell}
-            citationEvidence={citationModel?.evidence}
-          />
+          <EvidenceCitationList {...citationListProps} />
         )
       ) : (
-        <EvidenceCitationList
-          evidence={evidence}
-          reviewContextHref={reviewContextHref}
-          reviewContextLabel={reviewContextLabel}
-          buyerPolishedShell={buyerPolishedShell}
-          citationEvidence={citationModel?.evidence}
-        />
+        <EvidenceCitationList {...citationListProps} />
       )}
+
+      <FindingInspectDiagramCitationPreviewDialog
+        runId={runId}
+        citation={diagramPreviewCitation}
+        open={diagramPreviewCitation !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDiagramPreviewCitation(null);
+          }
+        }}
+      />
     </section>
   );
 }

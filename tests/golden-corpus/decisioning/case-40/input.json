@@ -1,0 +1,77 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000040",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000040",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000040-0000-4000-8000-000000000040",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000040",
+    "runId": "20000000-0000-4000-8000-000000000040",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "req-dr-1",
+        "nodeType": "Requirement",
+        "label": "Payment DR",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "text": "Payment SQL must meet RPO 15 min."
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "svc-checkout",
+        "nodeType": "TopologyResource",
+        "label": "checkout-api",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "compute"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "sql-pay-prod",
+        "nodeType": "TopologyResource",
+        "label": "sql-pay-prod",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "data",
+          "terraformType": "azurerm_mssql_database"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": null,
+        "fromNodeId": "req-dr-1",
+        "toNodeId": "svc-checkout",
+        "edgeType": "RELATES_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "edgeId": null,
+        "fromNodeId": "svc-checkout",
+        "toNodeId": "sql-pay-prod",
+        "edgeType": "DEPENDS_ON",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

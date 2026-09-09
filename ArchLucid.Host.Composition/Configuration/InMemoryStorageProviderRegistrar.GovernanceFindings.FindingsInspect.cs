@@ -4,6 +4,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Feedback;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.GoToMarket;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
@@ -55,7 +56,12 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IWeeklyArchitectureCriticalFindingSummaryRepository,
             InMemoryWeeklyArchitectureCriticalFindingSummaryRepository>();
         services.AddSingleton<IFindingFeedbackRepository, InMemoryFindingFeedbackRepository>();
+        services.AddSingleton<IFindingInsightSignalRepository>(static sp =>
+            new InMemoryFindingInsightSignalRepository(sp.GetRequiredService<IAuthorityQueryService>()));
+        services.AddSingleton<IAppendOnlyFindingVerificationReportRepository, InMemoryFindingVerificationReportRepository>();
         services.AddSingleton<IFindingReviewTrailRepository, NoOpFindingReviewTrailRepository>();
+        // Demo host only — NoOpFindingDispositionConcurrencyRepository is not ADR 0076 CAS.
+        services.AddSingleton<IFindingDispositionConcurrencyRepository, NoOpFindingDispositionConcurrencyRepository>();
         services.AddSingleton<IRiskExceptionRepository, NoOpRiskExceptionRepository>();
         services.AddSingleton<IArchitectureRiskRegisterQuery, NoOpArchitectureRiskRegisterQuery>();
         services.AddSingleton<IArchitecturePostureReader, NoOpArchitecturePostureReader>();
@@ -70,7 +76,9 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IAzureInventoryDriftApprovalRepository, NoOpAzureInventoryDriftApprovalRepository>();
         services.AddSingleton<IAzureInventoryDiffNarrativeRepository, NoOpAzureInventoryDiffNarrativeRepository>();
         services.AddSingleton<IAdvisoryTerraformRepresentationRepository, NoOpAdvisoryTerraformRepresentationRepository>();
-        services.AddSingleton<ICloudResourceIdentityDirectory, NoOpCloudResourceIdentityDirectory>();
+        services.AddSingleton<InMemoryCloudResourceIdentityDirectory>();
+        services.AddSingleton<ICloudResourceIdentityDirectory>(static sp =>
+            sp.GetRequiredService<InMemoryCloudResourceIdentityDirectory>());
         services.AddSingleton<IAuditFrameworkRepository, NoOpAuditFrameworkRepository>();
         services.AddSingleton<IAuditEvidenceRequirementRepository, NoOpAuditEvidenceRequirementRepository>();
         services.AddSingleton<IAuditControlEvaluationRepository, NoOpAuditControlEvaluationRepository>();

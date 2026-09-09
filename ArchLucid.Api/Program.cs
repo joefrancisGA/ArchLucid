@@ -41,15 +41,18 @@ public partial class Program
 
         // Configuration layering (lowest → highest for the same key):
         // 1. WebApplication defaults — appsettings.json (pilot-minimal product defaults) then appsettings.{Environment}.json
-        // 2. Optional appsettings.Pilot.json — connection strings + scale-honest pilot profile (TB-2082)
+        // 2. Optional appsettings.Pilot.json — scale-honest pilot profile (TB-2082); skipped in Development so local appsettings.Development.json is not clobbered
         // 3. Optional appsettings.Advanced.json / appsettings.SaaS.json — feature-grouped tuning (QuickScan, DR fallback, retrieval, workers)
         // 4. AddEnvironmentVariables() — deployment/CI overrides beat Pilot/Advanced/SaaS overlays
         // 5. In-memory bridges — AzureOpenAiEnvironmentConfigurationBridge, ArchitectureRunCreationConfigurationBridge
         // See docs/library/CONFIGURATION_REFERENCE.md and docs/architecture/architecture_diagrams/archlucid-config-precedence.mmd.
-        builder.Configuration.AddJsonFile(
-            Path.Combine(builder.Environment.ContentRootPath, "appsettings.Pilot.json"),
-            optional: true,
-            reloadOnChange: true);
+        if (!builder.Environment.IsDevelopment())
+        {
+            builder.Configuration.AddJsonFile(
+                Path.Combine(builder.Environment.ContentRootPath, "appsettings.Pilot.json"),
+                optional: true,
+                reloadOnChange: true);
+        }
 
         builder.Configuration.AddJsonFile(
             Path.Combine(builder.Environment.ContentRootPath, "appsettings.Advanced.json"),

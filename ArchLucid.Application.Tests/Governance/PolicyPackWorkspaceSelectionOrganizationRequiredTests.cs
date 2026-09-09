@@ -111,16 +111,129 @@ public sealed class PolicyPackWorkspaceSelectionOrganizationRequiredTests
                     CurrentVersion = "1.0.0",
                 });
 
+        Mock<IPlatformBundledPolicyPackAvailability> platformAvailability = new();
+        platformAvailability
+            .Setup(s => s.IsGloballyActiveAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<bool>(true));
+
         PolicyPackWorkspaceSelectionService sut = new(
             packs.Object,
             assignments.Object,
-            Mock.Of<IPlatformBundledPolicyPackAvailability>(),
+            platformAvailability.Object,
             Mock.Of<IPolicyPackResolverCacheInvalidator>());
 
         bool ok = await sut.TrySetAssignmentOrganizationRequiredAsync(CallerScope, assignmentId, true, CancellationToken.None);
 
         ok.Should().BeTrue();
         assignment.IsOrganizationRequired.Should().BeTrue();
+        assignment.IsEnabled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task TrySetAssignmentOrganizationRequired_returns_false_when_enabling_inactive_pack()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        PolicyPackAssignment assignment = new()
+        {
+            AssignmentId = assignmentId,
+            TenantId = CallerScope.TenantId,
+            WorkspaceId = CallerScope.WorkspaceId,
+            ProjectId = CallerScope.ProjectId,
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0.0",
+            IsEnabled = false,
+            IsOrganizationRequired = false,
+        };
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(assignment);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPack
+                {
+                    PolicyPackId = packId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    Name = "inactive-pack",
+                    CurrentVersion = "1.0.0",
+                });
+
+        Mock<IPlatformBundledPolicyPackAvailability> platformAvailability = new();
+        platformAvailability
+            .Setup(s => s.IsGloballyActiveAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<bool>(false));
+
+        PolicyPackWorkspaceSelectionService sut = new(
+            packs.Object,
+            assignments.Object,
+            platformAvailability.Object,
+            Mock.Of<IPolicyPackResolverCacheInvalidator>());
+
+        bool ok = await sut.TrySetAssignmentOrganizationRequiredAsync(CallerScope, assignmentId, true, CancellationToken.None);
+
+        ok.Should().BeFalse();
+        assignment.IsOrganizationRequired.Should().BeFalse();
+        assignment.IsEnabled.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task TrySetAssignmentOrganizationRequired_returns_false_when_setting_org_required_on_enabled_inactive_platform_pack()
+    {
+        Guid assignmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid packId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        PolicyPackAssignment assignment = new()
+        {
+            AssignmentId = assignmentId,
+            TenantId = CallerScope.TenantId,
+            WorkspaceId = CallerScope.WorkspaceId,
+            ProjectId = CallerScope.ProjectId,
+            PolicyPackId = packId,
+            PolicyPackVersion = "1.0.0",
+            IsEnabled = true,
+            IsOrganizationRequired = false,
+        };
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.GetByTenantAndAssignmentIdAsync(CallerScope.TenantId, assignmentId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(assignment);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PolicyPack
+                {
+                    PolicyPackId = packId,
+                    TenantId = CallerScope.TenantId,
+                    WorkspaceId = CallerScope.WorkspaceId,
+                    ProjectId = CallerScope.ProjectId,
+                    Name = "inactive-pack",
+                    CurrentVersion = "1.0.0",
+                });
+
+        Mock<IPlatformBundledPolicyPackAvailability> platformAvailability = new();
+        platformAvailability
+            .Setup(s => s.IsGloballyActiveAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<bool>(false));
+
+        PolicyPackWorkspaceSelectionService sut = new(
+            packs.Object,
+            assignments.Object,
+            platformAvailability.Object,
+            Mock.Of<IPolicyPackResolverCacheInvalidator>());
+
+        bool ok = await sut.TrySetAssignmentOrganizationRequiredAsync(CallerScope, assignmentId, true, CancellationToken.None);
+
+        ok.Should().BeFalse();
+        assignment.IsOrganizationRequired.Should().BeFalse();
         assignment.IsEnabled.Should().BeTrue();
     }
 }

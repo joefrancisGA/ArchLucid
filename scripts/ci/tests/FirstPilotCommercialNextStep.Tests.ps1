@@ -1,8 +1,10 @@
 #requires -Version 5.1
+# Run: Invoke-Pester -Strict -EnableExit -Path 'scripts/ci/tests/FirstPilotCommercialNextStep.Tests.ps1'
 
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = Split-Path -Parent (Split-Path -Parent $here)
-. (Join-Path $repoRoot 'FirstPilotCommercialNextStep.ps1')
+BeforeAll {
+    $scriptsRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+    . (Join-Path $scriptsRoot 'FirstPilotCommercialNextStep.ps1')
+}
 
 Describe 'Resolve-CommercialNextStepRecommendation' {
     It 'returns Deferred buyer requirement when sponsor disposition is DEFERRED_SCOPE' {
@@ -15,7 +17,7 @@ Describe 'Resolve-CommercialNextStepRecommendation' {
             -CommittedEvidenceDisposition 'PASS' `
             -DeferredScopeReasons @('SOC2 CPA')
 
-        $result.action | Should Be 'Deferred buyer requirement'
+        $result.action | Should -Be 'Deferred buyer requirement'
     }
 
     It 'returns Evidence Pack when block count is positive' {
@@ -28,12 +30,12 @@ Describe 'Resolve-CommercialNextStepRecommendation' {
             -CommittedEvidenceDisposition 'BLOCK' `
             -DeferredScopeReasons ([string[]]@())
 
-        $result.action | Should Be 'Evidence Pack'
+        $result.action | Should -Be 'Evidence Pack'
     }
 
     It 'returns ARB Report when annual ready' {
         $result = Resolve-CommercialNextStepRecommendation `
-            -SponsorPacketDisposition 'SEND' `
+            -SponsorPacketDisposition 'READY' `
             -BlockCount 0 `
             -RoiSponsorSafe $true `
             -RoiBasisStatus 'buyer-provided' `
@@ -41,6 +43,6 @@ Describe 'Resolve-CommercialNextStepRecommendation' {
             -CommittedEvidenceDisposition 'PASS' `
             -DeferredScopeReasons ([string[]]@())
 
-        $result.action | Should Be 'ARB Report'
+        $result.action | Should -Be 'ARB Report'
     }
 }

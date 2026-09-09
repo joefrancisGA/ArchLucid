@@ -36,6 +36,7 @@ public sealed partial class ArchitecturesController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext,
     IArchitectureIdentityService architectureIdentityService,
+    IArchitectureInventoryBindingService architectureInventoryBindingService,
     IArchitectureSealDeltaService architectureSealDeltaService,
     IAuditService auditService,
     IRunRepository runRepository,
@@ -67,6 +68,9 @@ public sealed partial class ArchitecturesController(
 
     private readonly IArchitectureIdentityService _architectureIdentityService =
         architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
+
+    private readonly IArchitectureInventoryBindingService _architectureInventoryBindingService =
+        architectureInventoryBindingService ?? throw new ArgumentNullException(nameof(architectureInventoryBindingService));
 
     private readonly IArchitectureSealDeltaService _architectureSealDeltaService =
         architectureSealDeltaService ?? throw new ArgumentNullException(nameof(architectureSealDeltaService));

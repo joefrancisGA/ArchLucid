@@ -1,8 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -12,9 +12,21 @@ import { Button } from "@/components/ui/button";
 import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 import { GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  APPROVAL_LINEAGE_BUYER_OVERVIEW,
+  APPROVAL_LINEAGE_BUYER_START_HERE_HELPER,
+  APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID,
+  APPROVAL_LINEAGE_PAGE_LEAD,
+  APPROVAL_LINEAGE_PRIMARY_CONTENT_ID,
+  APPROVAL_LINEAGE_SKIP_LINK_LABEL,
+  APPROVAL_LINEAGE_START_HERE_CARD_TITLE,
+  APPROVAL_LINEAGE_WORKSPACE_TEST_ID,
+} from "@/lib/approval-lineage-evidence-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
+import { GovernanceApprovalLineageBuyerChrome } from "./GovernanceApprovalLineageBuyerChrome";
 import { GovernanceApprovalLineageNextRequestFooterClient } from "./GovernanceApprovalLineageNextRequestFooterClient";
 import { GovernanceApprovalQueueNextReviewFooterClient } from "@/app/(operator)/governance/_sections/GovernanceApprovalQueueNextReviewFooterClient";
 import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-approval-lineage-page";
@@ -111,34 +123,104 @@ export function GovernanceApprovalLineagePageView({
 
   const scopedRunId = data.approvalRequest.runId.trim();
   const reviewPackageHref = `/architecture/reviews/${encodeURIComponent(scopedRunId)}`;
+  const WorkspaceShell = buyerPolishedShell ? "section" : "div";
 
   return (
     <>
-      {scopedRunId.length > 0 ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="approval-lineage-run-scope-banner"
+      {buyerPolishedShell ? (
+        <a
+          href={`#${APPROVAL_LINEAGE_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
         >
-          {"Approval lineage for review "}
-          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
-          {" · "}
-          <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_APPROVAL_QUEUE_PATH}>
-            Clear review scope
-          </Link>
-          {" · "}
-          <Link className={OPERATOR_LINK.inline} href={reviewPackageHref}>
-            Open review
-          </Link>
+          {APPROVAL_LINEAGE_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <main
+        id={buyerPolishedShell ? APPROVAL_LINEAGE_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell ? "scroll-mt-24 space-y-4" : "space-y-4")}
+        data-testid={buyerPolishedShell ? "approval-lineage-primary-content" : undefined}
+      >
+        {buyerPolishedShell ? (
+          <div
+            data-testid={APPROVAL_LINEAGE_FIRST_VIEWPORT_TEST_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            <p
+              className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="approval-lineage-intro"
+            >
+              {APPROVAL_LINEAGE_PAGE_LEAD}
+            </p>
+            <section
+              className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+              data-testid="approval-lineage-start-here-panel"
+              aria-labelledby="approval-lineage-start-here-heading"
+            >
+              <h2
+                id="approval-lineage-start-here-heading"
+                className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+              >
+                {APPROVAL_LINEAGE_START_HERE_CARD_TITLE}
+              </h2>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="approval-lineage-buyer-start-here-helper"
+            >
+              {APPROVAL_LINEAGE_BUYER_START_HERE_HELPER}
+            </p>
+          </section>
+        </div>
+      ) : null}
+
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+          data-testid="approval-lineage-overview"
+        >
+          {APPROVAL_LINEAGE_BUYER_OVERVIEW}
         </p>
       ) : null}
-      <GovernanceApprovalLineageDetailContent data={data} findingsQueueRunId={findingsQueueRunId} />
-      <GovernanceApprovalLineageNextRequestFooterClient
-        runId={data.run?.runId ?? data.approvalRequest.runId}
-        currentApprovalRequestId={model.approvalRequestId}
-      />
-      <GovernanceApprovalQueueNextReviewFooterClient
-        runId={data.run?.runId ?? data.approvalRequest.runId}
-      />
+
+      <WorkspaceShell
+        className={buyerPolishedShell ? cn("min-w-0", OPERATOR_LAYOUT.sectionStack) : "space-y-4"}
+        data-testid={buyerPolishedShell ? APPROVAL_LINEAGE_WORKSPACE_TEST_ID : undefined}
+      >
+        {scopedRunId.length > 0 ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="approval-lineage-run-scope-banner"
+          >
+            {"Approval lineage for review "}
+            <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_APPROVAL_QUEUE_PATH}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={reviewPackageHref}>
+              Open review
+            </Link>
+          </p>
+        ) : null}
+        <GovernanceApprovalLineageDetailContent
+          data={data}
+          findingsQueueRunId={findingsQueueRunId}
+          buyerPolishedShell={buyerPolishedShell}
+        />
+        <GovernanceApprovalLineageNextRequestFooterClient
+          runId={data.run?.runId ?? data.approvalRequest.runId}
+          currentApprovalRequestId={model.approvalRequestId}
+        />
+        <GovernanceApprovalQueueNextReviewFooterClient
+          runId={data.run?.runId ?? data.approvalRequest.runId}
+        />
+        {buyerPolishedShell ? <GovernanceApprovalLineageBuyerChrome /> : null}
+      </WorkspaceShell>
+      </main>
     </>
   );
 }

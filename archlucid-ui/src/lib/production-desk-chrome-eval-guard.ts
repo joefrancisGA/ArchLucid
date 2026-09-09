@@ -3,9 +3,13 @@ import { join } from "node:path";
 
 import { findSurfaceMarkerViolations } from "@/lib/error-recovery-contract-guard";
 import {
+  PRODUCTION_DESK_CHROME_EVAL_ARCHITECTURE_REVIEWS_GRANDFATHER_BASELINE,
+  PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_COUNT_BASELINE,
+  PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_DOCUMENTED_EXCEPTIONS,
   PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS,
   PRODUCTION_DESK_CHROME_EVAL_MIGRATED_SURFACES,
   PRODUCTION_DESK_CHROME_RESOLVER_MARKERS,
+  isArchitectureOrReviewEvalGrandfatherPath,
 } from "@/lib/production-desk-chrome-eval-inventory";
 
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx"]);
@@ -171,6 +175,40 @@ export function findProductionDeskChromeEvalGuardViolations(uiRoot: string): Pro
         relativePath: grandfatheredPath,
         message:
           "Grandfathered path no longer uses isBuyerPolishedOperatorShellEnv() — remove from PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS.",
+      });
+    }
+  }
+
+  return violations;
+}
+
+export function findProductionDeskChromeEvalGrandfatherShrinkViolations(): ProductionDeskChromeEvalGuardViolation[] {
+  const violations: ProductionDeskChromeEvalGuardViolation[] = [];
+  const grandfathered = [...PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS];
+  const architectureReviewsBaseline = new Set<string>(
+    PRODUCTION_DESK_CHROME_EVAL_ARCHITECTURE_REVIEWS_GRANDFATHER_BASELINE,
+  );
+  const maxAllowedCount =
+    PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_COUNT_BASELINE + PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_DOCUMENTED_EXCEPTIONS.length;
+
+  if (grandfathered.length > maxAllowedCount) {
+    violations.push({
+      relativePath: "PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS",
+      message:
+        `Grandfather inventory grew to ${grandfathered.length} rows (baseline ${PRODUCTION_DESK_CHROME_EVAL_GRANDFATHER_COUNT_BASELINE}) — migrate to useProductionEvalChrome and remove rows, or add a documented admin exception per WORKING_SEAT_EVAL_LEAK_INVENTORY.md.`,
+    });
+  }
+
+  for (const relativePath of grandfathered) {
+    if (!isArchitectureOrReviewEvalGrandfatherPath(relativePath)) {
+      continue;
+    }
+
+    if (!architectureReviewsBaseline.has(relativePath)) {
+      violations.push({
+        relativePath,
+        message:
+          "Architecture / review path joined PRODUCTION_DESK_CHROME_EVAL_GRANDFATHERED_PATHS — forbidden (WS-08). Use useProductionEvalChrome / resolveProductionEvalChrome and keep this list shrink-only.",
       });
     }
   }

@@ -16,6 +16,7 @@ import {
 import { resolveAuthDomainsCurrentWorkspaceLabel } from "@/lib/auth-domains-page-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { identityProviderCustomerStatusPresentation } from "@/lib/identity-provider-probe-status-presentation";
 import {
   IDENTITY_PROVIDERS_ACTION_REFRESHING,
@@ -86,6 +87,7 @@ export function IdentityProvidersSettingsPageHeader(
       title={pageTitle}
       titleTestId="identity-providers-page-title"
       subtitle={props.subtitle}
+      subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       claimDiscipline={props.claimDiscipline}
       claimDisciplineTestId={props.claimDisciplineTestId}
       breadcrumb={props.breadcrumb}

@@ -9,4 +9,7 @@ export const ARCHITECTURE_SCORECARD_HELP_SKIP_LINK_LABEL = "Skip to architecture
 export const ARCHITECTURE_SCORECARD_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-architecture-scorecard-header-claim-discipline" as const;
 
+export const ARCHITECTURE_SCORECARD_HELP_ORIENTATION_BOTTOM_TEST_ID =
+  "help-architecture-scorecard-orientation-bottom" as const;
+
 export const ARCHITECTURE_SCORECARD_HELP_FIRST_VIEWPORT_ACTION_TITLE = "Start here" as const;

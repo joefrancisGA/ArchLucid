@@ -29,7 +29,7 @@ export type WorkspaceHealthSlaStats = {
 };
 
 /**
- * SLA posture from governance dashboard lists — UI-only aggregation; server remains authoritative.
+ * SLA posture from approval dashboard lists — UI-only aggregation; server remains authoritative.
  */
 export function computeWorkspaceHealthSlaStats(
   pendingApprovals: GovernanceApprovalWithSla[],

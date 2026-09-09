@@ -1,3 +1,5 @@
+import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
+
 export type CloudResourceExplorerWorkQueue =
   | "all"
   | "open-findings"
@@ -82,4 +84,37 @@ export function resolveResourceHubTabFromExplorerWorkQueue(
     default:
       return undefined;
   }
+}
+
+export function formatResourceHubTabActionLabelFromExplorerWorkQueue(
+  workQueue: CloudResourceExplorerWorkQueue,
+): string | null {
+  const tab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+
+  if (tab == null) {
+    return null;
+  }
+
+  switch (tab) {
+    case "findings":
+      return "Findings";
+    case "remediation":
+      return "Remediation";
+    case "drift":
+      return "Drift";
+    default:
+      return null;
+  }
+}
+
+export function formatResourceHubTabViewLabelFromExplorerWorkQueue(
+  workQueue: CloudResourceExplorerWorkQueue,
+): string | null {
+  const tab = resolveResourceHubTabFromExplorerWorkQueue(workQueue);
+
+  if (tab == null) {
+    return null;
+  }
+
+  return formatResourceHubTabViewLabel(tab);
 }

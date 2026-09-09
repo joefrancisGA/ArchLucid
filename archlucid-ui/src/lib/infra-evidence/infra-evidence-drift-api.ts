@@ -5,7 +5,6 @@ import { infraEvidenceDriftMutationBlockedReason } from "@/lib/infra-evidence/in
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import {
   ensureOidcBearerReady,
-  getBearerToken,
   isBrowser,
   throwApiRequestError,
 } from "@/lib/api/http";
@@ -86,11 +85,6 @@ export async function downloadInfraEvidenceTerraformAdvisoryZip(snapshotId: stri
   const url = `${SNAPSHOTS_PATH}/${snapshotId}/terraform-advisory`;
   const headers = new Headers();
   headers.set("Accept", "application/zip, application/json");
-  const bearer = getBearerToken();
-
-  if (bearer) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
 
   const init = mergeRegistrationScopeForProxy({
     method: "GET",

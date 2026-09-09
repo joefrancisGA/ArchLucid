@@ -8,7 +8,9 @@ export type SidebarCollapsibleNavGroupId =
   | "operate-analysis"
   | "operate-governance"
   | "operate-policy"
+  | "operate-compliance"
   | "operate-integrations"
+  | "operate-security"
   | "operate-infrastructure"
   | "operator-admin"
   | "operator-system-admin";
@@ -27,7 +29,9 @@ export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState 
   "operate-analysis": true,
   "operate-governance": false,
   "operate-policy": false,
+  "operate-compliance": false,
   "operate-integrations": false,
+  "operate-security": false,
   "operate-infrastructure": false,
   "operator-admin": false,
   "operator-system-admin": false,
@@ -98,9 +102,13 @@ function migrateLegacySidebarExpansion(): SidebarNavGroupExpansionState {
     ...SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION,
     ...(analysisExpanded || reportsExpanded ? { "operate-analysis": true } : {}),
     ...(governanceExpanded
-      ? { "operate-governance": true, "operate-policy": true }
+      ? {
+          "operate-governance": true,
+          "operate-policy": true,
+          "operate-compliance": true,
+        }
       : {}),
-    ...(integrationsExpanded ? { "operate-integrations": true } : {}),
+    ...(integrationsExpanded ? { "operate-integrations": true, "operate-security": true } : {}),
     ...(showAdministration ? { "operator-admin": true } : {}),
   };
 }
@@ -128,7 +136,15 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
         || legacyOperationsExpanded,
       "operate-governance": record["operate-governance"] === true,
       "operate-policy": record["operate-policy"] === true || record["operate-governance"] === true,
+      "operate-compliance":
+        record["operate-compliance"] === true
+        || record["operate-policy"] === true
+        || record["operate-governance"] === true,
       "operate-integrations": record["operate-integrations"] === true || legacyOperationsExpanded,
+      "operate-security":
+        record["operate-security"] === true
+        || record["operate-integrations"] === true
+        || legacyOperationsExpanded,
       "operate-infrastructure": record["operate-infrastructure"] === true,
       "operator-admin":
         record["operator-admin"] === true || legacyPlatformOpsExpanded || legacyOperationsExpanded,
@@ -188,7 +204,9 @@ export function isSidebarCollapsibleNavGroupId(groupId: string): groupId is Side
     groupId === "operate-analysis" ||
     groupId === "operate-governance" ||
     groupId === "operate-policy" ||
+    groupId === "operate-compliance" ||
     groupId === "operate-integrations" ||
+    groupId === "operate-security" ||
     groupId === "operate-infrastructure" ||
     groupId === "operator-admin" ||
     groupId === "operator-system-admin"

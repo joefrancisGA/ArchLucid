@@ -1,0 +1,77 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000064",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000064",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000064-0000-4000-8000-000000000064",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000064",
+    "runId": "20000000-0000-4000-8000-000000000064",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "ctx-golden-64",
+        "nodeType": "ContextSnapshot",
+        "label": "scope",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "sql-prod-64",
+        "nodeType": "TopologyResource",
+        "label": "prod-sql",
+        "category": "datastore",
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "terraformType": "azurerm_mssql_database"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null,
+  "priorGraphFixture": {
+    "priorRunId": "20000000-0000-4000-8000-000000000065",
+    "priorGraphSnapshotId": "00000065-0000-4000-8000-000000000064",
+    "priorGraphSnapshot": {
+      "schemaVersion": 1,
+      "graphSnapshotId": "00000065-0000-4000-8000-000000000064",
+      "contextSnapshotId": "10000000-0000-4000-8000-000000000064",
+      "runId": "20000000-0000-4000-8000-000000000065",
+      "createdUtc": "2026-01-15T12:00:00Z",
+      "nodes": [
+        {
+          "nodeId": "ctx-golden-64-prior",
+          "nodeType": "ContextSnapshot",
+          "label": "scope",
+          "category": null,
+          "sourceType": null,
+          "sourceId": null,
+          "properties": {},
+          "reasoningTrace": null
+        },
+        {
+          "nodeId": "sql-prod-64",
+          "nodeType": "TopologyResource",
+          "label": "prod-sql",
+          "category": "datastore",
+          "sourceType": null,
+          "sourceId": null,
+          "properties": {
+            "terraformType": "azurerm_mssql_database",
+            "geo_redundant": "enabled"
+          },
+          "reasoningTrace": null
+        }
+      ],
+      "edges": [],
+      "warnings": []
+    }
+  }
+}

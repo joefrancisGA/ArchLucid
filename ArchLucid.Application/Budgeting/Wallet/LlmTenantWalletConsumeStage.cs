@@ -29,10 +29,20 @@ public sealed class LlmTenantWalletConsumeStage(
         if (command.MonthlyCapUsd.HasValue && !IsValidMonthlyCap(command.MonthlyCapUsd.Value))
             return null;
 
-        if (command.AutoReplenishEnabled == true
-            && command.MonthlyCapUsd.GetValueOrDefault() <= 0m)
+        if (command.AutoReplenishEnabled == true)
         {
-            return null;
+            if (command.MonthlyCapUsd is <= 0m)
+                return null;
+
+            if (!command.MonthlyCapUsd.HasValue)
+            {
+                LlmTenantWalletStateReadModel current = await _repository
+                    .GetOrCreateAsync(tenantId, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (current.MonthlyCapUsd <= 0m)
+                    return null;
+            }
         }
 
         LlmTenantWalletStateReadModel? updated = await _repository
@@ -63,12 +73,14 @@ public sealed class LlmTenantWalletConsumeStage(
         if (tenantId == Guid.Empty || estimatedUsd <= 0m)
             return false;
 
+        decimal billedUsd = LlmTenantWalletDefaults.ApplyOverageMarkup(estimatedUsd);
+
         for (int attempt = 0; attempt < LlmTenantWalletConsumeRetry.MaxOptimisticRetries; attempt++)
         {
             LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
             LlmTenantWalletConsumeResult result = await _repository
-                .TryConsumeAsync(tenantId, estimatedUsd, Guid.NewGuid(), state.RowVersion, cancellationToken)
+                .TryConsumeAsync(tenantId, billedUsd, Guid.NewGuid(), state.RowVersion, cancellationToken)
                 .ConfigureAwait(false);
 
             if (result.InsufficientFunds)

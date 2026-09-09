@@ -27,9 +27,7 @@ public sealed partial class RunDetailQueryService
         bool useRollupProjection,
         CancellationToken cancellationToken)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-
-        if (!TryParseRunGuid(runId, out Guid runGuid))
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
         {
             if (logger.IsEnabled(LogLevel.Debug))
                 logger.LogDebug("RunDetailQueryService: run '{RunId}' is not a valid run identifier.", LogSanitizer.Sanitize(runId));
@@ -123,7 +121,7 @@ public sealed partial class RunDetailQueryService
                 TokenCounts = new ArchLucid.Contracts.Runs.RunLlmTokenCountsDto
                 {
                     Prompt = costSummary.PromptTokens,
-                    Completion = costSummary.CompletionTokens
+                    Completion = costSummary.CombinedOutputTokens
                 },
                 Model = costSummary.ModelLabel,
                 CostEstimationBasis = costSummary.CostEstimationBasis
@@ -154,8 +152,4 @@ public sealed partial class RunDetailQueryService
         };
     }
 
-    private static bool TryParseRunGuid(string runId, out Guid runGuid)
-    {
-        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
-    }
 }

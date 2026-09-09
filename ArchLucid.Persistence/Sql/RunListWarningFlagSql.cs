@@ -27,7 +27,7 @@ internal static class RunListWarningFlagSql
                                            COALESCE(
                                                r.PackageOrigin,
                                                CASE
-                                                   WHEN JSON_VALUE(ar.RequestJson, '$.workflowIntent') = N'create-architecture'
+                                                   WHEN UPPER(LTRIM(RTRIM(JSON_VALUE(ar.RequestJson, '$.workflowIntent')))) = N'CREATE-ARCHITECTURE'
                                                        THEN N'Created'
                                                    ELSE N'Reviewed'
                                                END) AS PackageOrigin
@@ -53,9 +53,9 @@ internal static class RunListWarningFlagSql
     ///     (<c>Runs.ScopeProjectId</c>) — demo seeds store display names in <c>ProjectId</c>
     ///     while UI/live E2E list by the stable scope project id.
     /// </summary>
-    public const string ProjectWherePrefix = """
+    public const string ProjectWherePrefix = $"""
                                              (
-                                                 UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug
+                                                 {RunRepositorySql.CollapsedUpperRunsProjectId} = @NormalizedProjectSlug
                                                  OR r.ScopeProjectId = TRY_CONVERT(uniqueidentifier, @ProjectSlug)
                                              )
                                                AND
@@ -79,12 +79,12 @@ internal static class RunListWarningFlagSql
     public const string KeysetOrderBy = "ORDER BY r.CreatedUtc DESC, r.RunId DESC";
 
     /// <summary>Default recent-first ordering for unpaged run lists.</summary>
-    public const string CreatedUtcDescOrderBy = "ORDER BY r.CreatedUtc DESC";
+    public const string CreatedUtcDescOrderBy = "ORDER BY r.CreatedUtc DESC, r.RunId DESC";
 
     /// <summary>
     ///     Pre-aggregated findings and open-alert presence keyed by <c>RunId</c> for dashboard list paths.
     /// </summary>
-    public const string LeftJoinAggregates = """
+    public const string LeftJoinAggregates = $"""
                                              LEFT JOIN (
                                                  SELECT
                                                      fs.RunId,
@@ -102,6 +102,6 @@ internal static class RunListWarningFlagSql
                                                  GROUP BY ar.RunId
                                              ) govWarn ON govWarn.RunId = r.RunId
                                              LEFT JOIN dbo.ArchitectureRequests ar WITH (NOLOCK)
-                                                 ON ar.RequestId = r.ArchitectureRequestId
+                                                 ON {RunRepositorySql.CollapsedUpperArchitectureRequestsRequestId} = {RunRepositorySql.CollapsedUpperRunsArchitectureRequestId}
                                              """;
 }

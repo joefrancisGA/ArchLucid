@@ -54,6 +54,8 @@ export type QuickDecisionFinding = {
   humanReviewStatus?: number | null;
   /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage. */
   classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
+  /** LP-05: sealed typed snapshot vs advisory agent stream (WK-09 / WK-19). */
+  streamBand?: "sealed" | "agent";
 };
 
 function normalizeConfidenceLevelFromWire(raw: unknown): FindingConfidenceLevel | null {

@@ -1,3 +1,5 @@
+using ArchLucid.Application;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -48,5 +50,18 @@ public static class SealedManifestHashTestSupport
             .Returns(hash);
 
         return manifestHash.Object;
+    }
+
+    public static IRunDetailQueryService CreateRunDetailQueryServiceWithoutCommittedRuns()
+    {
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                It.IsAny<string?>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Array.Empty<RunSummary>(), false, (string?)null));
+
+        return runDetails.Object;
     }
 }

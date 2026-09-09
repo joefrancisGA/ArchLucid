@@ -1,0 +1,184 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000068",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000068",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000068-0000-4000-8000-000000000068",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000068",
+    "runId": "20000000-0000-4000-8000-000000000068",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "obj-eb3e6969f87c3d32e91c8b63baf75a89",
+        "nodeType": "TopologyResource",
+        "label": "edge",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-tf-golden-68",
+        "properties": {
+          "terraformType": "aws_lb",
+          "tf.name": "edge-alb",
+          "tf.backend": "pay_api",
+          "declarationBackendNodeId": "pay_api",
+          "connectedToNodeIds": "pay_api"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-5a69f5bf587a92b4b39e83d685dd293e",
+        "nodeType": "TopologyResource",
+        "label": "pay_api",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-tf-golden-68",
+        "properties": {
+          "terraformType": "aws_lambda_function",
+          "tf.function_name": "pay-api",
+          "tf.connected_to": "pay_sql",
+          "connectedToNodeIds": "pay_sql"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-48c994417310e7379e7990abc8938921",
+        "nodeType": "TopologyResource",
+        "label": "pay_sql",
+        "category": "data",
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-tf-golden-68",
+        "properties": {
+          "terraformType": "aws_db_instance",
+          "tf.identifier": "pay-sql",
+          "category": "data",
+          "topologySensitivity": "data-bearing"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "declaration-actor-10000000000040008000000000000068-1",
+        "nodeType": "Actor",
+        "label": "edge",
+        "category": null,
+        "sourceType": "DeclarationIdentity",
+        "sourceId": "decl-tf-golden-68",
+        "properties": {
+          "kind": "Machine",
+          "trustOrigin": "External",
+          "contract": "Sync",
+          "origin": "Inferred",
+          "confidence": "70",
+          "declarationSourceNodeId": "obj-eb3e6969f87c3d32e91c8b63baf75a89"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "declaration-trust-boundary-10000000000040008000000000000068-1",
+        "nodeType": "TrustBoundary",
+        "label": "Trust boundary for edge",
+        "category": null,
+        "sourceType": "DeclarationIdentity",
+        "sourceId": "decl-tf-golden-68",
+        "properties": {
+          "trustOrigin": "External",
+          "actorNodeId": "declaration-actor-10000000000040008000000000000068-1",
+          "actorLabel": "edge"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": "37b2c1476adc42609d8385aa727e093c",
+        "fromNodeId": "context-10000000000040008000000000000068",
+        "toNodeId": "obj-eb3e6969f87c3d32e91c8b63baf75a89",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "adef0e8bdb8343768b904243afaca064",
+        "fromNodeId": "context-10000000000040008000000000000068",
+        "toNodeId": "obj-5a69f5bf587a92b4b39e83d685dd293e",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "fc7cce9e84894b3a85a74fdeb759fcf5",
+        "fromNodeId": "context-10000000000040008000000000000068",
+        "toNodeId": "obj-48c994417310e7379e7990abc8938921",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "1ca6f5f083c84f5ca3bd356f40380e9a",
+        "fromNodeId": "context-10000000000040008000000000000068",
+        "toNodeId": "declaration-actor-10000000000040008000000000000068-1",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "08678148ceca4af2940f33c252ffa9d8",
+        "fromNodeId": "context-10000000000040008000000000000068",
+        "toNodeId": "declaration-trust-boundary-10000000000040008000000000000068-1",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "922a957f317943c8b8a83622785cceeb",
+        "fromNodeId": "declaration-actor-10000000000040008000000000000068-1",
+        "toNodeId": "obj-eb3e6969f87c3d32e91c8b63baf75a89",
+        "edgeType": "RELATES_TO",
+        "label": "Actor linked to edge",
+        "weight": 1,
+        "inferenceSource": "declaration-identity-actor-link",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked a declaration-seeded Actor to the topology node that declared it."
+      },
+      {
+        "edgeId": "6fa4a5e425ab40b3b3ee0a644fe4e4fe",
+        "fromNodeId": "declaration-actor-10000000000040008000000000000068-1",
+        "toNodeId": "obj-5a69f5bf587a92b4b39e83d685dd293e",
+        "edgeType": "CONNECTS_TO",
+        "label": "External actor connects to declared backend",
+        "weight": 1,
+        "inferenceSource": "declaration-identity-data-flow-path",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked an external declaration Actor to a declared backend compute node and, when present, that compute node to a declared datastore \u2014 only when both ends already exist."
+      },
+      {
+        "edgeId": "0101632c91ad404680cb790ec9026d72",
+        "fromNodeId": "obj-5a69f5bf587a92b4b39e83d685dd293e",
+        "toNodeId": "obj-48c994417310e7379e7990abc8938921",
+        "edgeType": "CONNECTS_TO",
+        "label": "Compute connects to declared datastore",
+        "weight": 1,
+        "inferenceSource": "declaration-identity-data-flow-path",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked an external declaration Actor to a declared backend compute node and, when present, that compute node to a declared datastore \u2014 only when both ends already exist."
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null,
+  "priorGraphFixture": null
+}

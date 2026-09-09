@@ -1,7 +1,10 @@
 import {
   resolveArchitectWorkspaceChrome,
+  resolveWorkingForbidsBuyerPolish,
   type ResolveArchitectWorkspaceChromeInput,
 } from "@/lib/architect-workspace-chrome";
+
+export { resolveWorkingForbidsBuyerPolish };
 import { DEFAULT_WORKSPACE_MODE, type WorkspaceModeId } from "@/lib/workspace-mode/workspace-mode";
 
 export type ResolveProductionDeskChromeInput = ResolveArchitectWorkspaceChromeInput;
@@ -20,6 +23,10 @@ export function resolveProductionDeskChrome(input: ResolveProductionDeskChromeIn
  * even though buyer-polished env is false (WD-01).
  */
 export function resolveProductionEvalChrome(input: ResolveProductionDeskChromeInput): boolean {
+  if (resolveWorkingForbidsBuyerPolish(input)) {
+    return false;
+  }
+
   return !resolveProductionDeskChrome(input);
 }
 

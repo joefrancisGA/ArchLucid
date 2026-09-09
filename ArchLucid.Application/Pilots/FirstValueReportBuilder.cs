@@ -3,6 +3,7 @@ using System.Text;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Operator;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
@@ -17,7 +18,10 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Pilots;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Core.InfraEvidence;
@@ -55,6 +59,8 @@ public sealed class FirstValueReportBuilder(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IRunRepository runRepository,
     ILogger<FirstValueReportBuilder> logger) : IFirstValueReportBuilder
 {
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions = publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
@@ -87,6 +93,9 @@ public sealed class FirstValueReportBuilder(
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     /// <summary>
     ///     Returns Markdown, or <see langword="null"/> when the run does not exist.
@@ -179,10 +188,21 @@ public sealed class FirstValueReportBuilder(
             detail,
             _authorityQueryService,
             _graphSnapshotRepository,
+            _agentExecutionTraceRepository,
             scope,
             workingDesk: true,
+            _configuration,
             cancellationToken);
+        TransparencyTrail? transparencyTrail = careerExportHonesty.CoverageContext.Verdict?.TransparencyTrail;
+        CareerArtifactCompletenessInput careerArtifactInput = CareerArtifactCompletenessInputMapper.MapForExport(
+            careerExportHonesty,
+            transparencyTrail,
+            blockExternalSponsorDistribution: deltas.IsDemoTenant);
+        CareerArtifactExportBlock? careerArtifactBlock = CareerArtifactExportCompletenessGate.ResolveBlock(
+            careerExportHonesty,
+            careerArtifactInput);
         CareerExportCoverageHonestyComposer.AppendMarkdownSection(sb, careerExportHonesty);
+        SponsorExecutionModeMarkdownFormatter.AppendMarkdownSection(sb, run);
         SponsorSafeProofStatusMarkdownFormatter.AppendMarkdownSection(sb, sponsorSafeDisposition, buyerSafeGate, proofCompleteness, deltas, run);
         SponsorDecisionDeltaNoveltyResult decisionDeltaNovelty = SponsorDecisionDeltaNoveltyResolver.Resolve(
             detail,
@@ -212,7 +232,12 @@ public sealed class FirstValueReportBuilder(
             valueWindowSnapshot,
             ResolveSavingsPricingBasisForBadges(proofCompleteness, deltas, hasUploadedCostEvidence),
             costEvidenceFreshnessForBadges);
-        SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness, deltas, run);
+        SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(
+            sb,
+            proofCompleteness,
+            deltas,
+            run,
+            proofCompleteness.DeferredBuyerRequirementsPresent);
         if (run.RealModeFellBackToSimulator)
         {
             sb.AppendLine(_executionProvenanceFooter.BuildYellowSimulatorSubstitutionCallout());
@@ -242,6 +267,7 @@ public sealed class FirstValueReportBuilder(
             PilotRoiBaselineInputsMarkdownFormatter.AppendMarkdownSection(sb, proofCompleteness.RoiBaselineInputs);
         FirstValueReportFindingFeedbackSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         FirstValueReportDeltasSectionFormatter.AppendFindingsSection(sb, deltas);
+        FirstValueReportDeltasSectionFormatter.AppendFindingsTrustHonestySection(sb);
         FirstValueReportDeltasSectionFormatter.AppendElapsedSection(sb, deltas);
         FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(sb, detail, runId, baseUrl);
         FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(sb, deltas);
@@ -259,9 +285,15 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine($"*Generated from run `{run.RunId}`.*");
         sb.AppendLine();
         string ui = _publicSiteOptions.CurrentValue.BaseUrl.Trim().TrimEnd('/');
+        Guid? architectureId = await WorkingOperatorRunArchitectureIdResolver.TryResolveFromScopeProviderAsync(
+            _runRepository,
+            _scopeProvider,
+            run.RunId,
+            cancellationToken);
+        string reviewUiPath = WorkingOperatorReviewLinks.BuildReviewWorkspaceRelativePath(run.RunId, architectureId);
         sb.AppendLine("## Return to ArchLucid (authoritative state)");
         sb.AppendLine();
-        sb.AppendLine($"- Operator review UI: {ui}/reviews/{run.RunId}");
+        sb.AppendLine($"- Operator review UI: {ui}{reviewUiPath}");
         sb.AppendLine($"- Pilot scorecard: {ui}/scorecard");
         sb.AppendLine($"- API anchor (authenticated): {baseUrl}/v1/architecture/review/{run.RunId}");
         return new FirstValueReportBuildResult(
@@ -269,7 +301,9 @@ public sealed class FirstValueReportBuilder(
             evidenceCompleteness,
             SponsorProofReadinessClassifier.Classify(deltas, buyerSafeGate),
             tenantBranding,
-            proofCompleteness);
+            proofCompleteness,
+            careerArtifactBlock?.Message,
+            careerArtifactBlock?.Code);
     }
 
     private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)

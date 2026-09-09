@@ -1,0 +1,77 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000039",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000039",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000039-0000-4000-8000-000000000039",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000039",
+    "runId": "20000000-0000-4000-8000-000000000039",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "nsg-web",
+        "nodeType": "SecurityBaseline",
+        "label": "web-nsg",
+        "category": null,
+        "sourceType": null,
+        "sourceId": "azurerm_network_security_group.web",
+        "properties": {
+          "terraformType": "azurerm_network_security_group",
+          "tf.security_rule": "access = allow direction = inbound source_address_prefix = * destination_port_range = 22"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "subnet-app",
+        "nodeType": "TopologyResource",
+        "label": "app-subnet",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "network"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "sql-pay",
+        "nodeType": "TopologyResource",
+        "label": "sql-pay-prod",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "category": "data"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": null,
+        "fromNodeId": "nsg-web",
+        "toNodeId": "subnet-app",
+        "edgeType": "APPLIES_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "edgeId": null,
+        "fromNodeId": "subnet-app",
+        "toNodeId": "sql-pay",
+        "edgeType": "CONNECTS_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

@@ -1,4 +1,8 @@
-import { architectureDraftPath, reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import {
+  architectureDraftPath,
+  resolveArchitectureReviewHref,
+  reviewDetailPath,
+} from "@/lib/architecture/architecture-routes";
 
 import type { DraftRequestStatus } from "@/types/draft-intake";
 
@@ -23,17 +27,28 @@ export function isArchitectureDraftBriefFrozen(
   return status === "Admitted" || status === "Submitted";
 }
 
+export type ResolveGuidedIntakeBlockedRedirectOptions = {
+  readonly workingMode?: boolean;
+};
+
 export function resolveGuidedIntakeBlockedRedirectHref(
   architectureId: string,
   spawnedRunId: string | null | undefined,
+  options?: ResolveGuidedIntakeBlockedRedirectOptions,
 ): string {
   const trimmedRunId = spawnedRunId?.trim() ?? "";
+  const trimmedArchitectureId = architectureId.trim();
+  const workingMode = options?.workingMode === true;
 
   if (trimmedRunId.length > 0) {
+    if (workingMode) {
+      return resolveArchitectureReviewHref(trimmedRunId, trimmedArchitectureId);
+    }
+
     return reviewDetailPath(trimmedRunId);
   }
 
-  return architectureDraftPath(architectureId);
+  return architectureDraftPath(trimmedArchitectureId);
 }
 
 export const ARCHITECTURE_DRAFT_INTAKE_MODE_TITLE =

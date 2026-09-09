@@ -1,10 +1,14 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ALERTS_PAGE_SHORTCUTS, FINDINGS_PAGE_SHORTCUTS, SHORTCUTS } from "@/lib/shortcut-registry";
+import { resolveShortcutDescription, SHORTCUTS } from "@/lib/shortcut-registry";
 
-const { routerPush } = vi.hoisted(() => ({
+const { routerPush, workspaceModeMocks } = vi.hoisted(() => ({
   routerPush: vi.fn(),
+  workspaceModeMocks: {
+    mode: "guided" as const,
+    isWorkingMode: false,
+  },
 }));
 
 vi.mock("next/navigation", async (importOriginal) => {
@@ -25,7 +29,10 @@ vi.mock("@/lib/auth-config", () => ({
 }));
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
-  useWorkspaceMode: () => ({ mode: "guided" }),
+  useWorkspaceMode: () => ({
+    mode: workspaceModeMocks.mode,
+    isWorkingMode: workspaceModeMocks.isWorkingMode,
+  }),
 }));
 
 vi.mock("next/link", () => ({
@@ -51,6 +58,8 @@ import { KeyboardShortcutProvider } from "./KeyboardShortcutProvider";
 describe("KeyboardShortcutProvider", () => {
   beforeEach(() => {
     routerPush.mockClear();
+    workspaceModeMocks.mode = "guided";
+    workspaceModeMocks.isWorkingMode = false;
   });
 
   it("renders children without visible shortcut help UI by default", () => {
@@ -65,7 +74,7 @@ describe("KeyboardShortcutProvider", () => {
     expect(screen.queryByText("Keyboard shortcuts")).not.toBeInTheDocument();
   });
 
-  it("opens help dialog on Shift+? with heading and lists every shortcut description", () => {
+  it("opens help dialog on Shift+? with heading and command palette shortcuts", () => {
     render(
       <KeyboardShortcutProvider>
         <span>app</span>
@@ -76,28 +85,10 @@ describe("KeyboardShortcutProvider", () => {
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Keyboard shortcuts" })).toBeInTheDocument();
-
-    // Help content groups shortcuts in collapsible sections; hidden nodes are not matched by getByText.
-    fireEvent.click(screen.getByRole("button", { name: "Show all navigation shortcuts" }));
-    fireEvent.click(screen.getByRole("button", { name: "Show alerts page shortcuts" }));
-    fireEvent.click(screen.getByRole("button", { name: "Show findings page shortcuts" }));
-    fireEvent.click(screen.getByRole("button", { name: "Show help overlay shortcut" }));
-
-    for (const entry of SHORTCUTS) {
-      expect(screen.getByText(entry.description)).toBeInTheDocument();
-    }
-
-    expect(screen.getByRole("heading", { name: "Alerts page" })).toBeInTheDocument();
-
-    for (const entry of ALERTS_PAGE_SHORTCUTS) {
-      expect(screen.getByText(entry.description)).toBeInTheDocument();
-    }
-
-    expect(screen.getByRole("heading", { name: "Findings page" })).toBeInTheDocument();
-
-    for (const entry of FINDINGS_PAGE_SHORTCUTS) {
-      expect(screen.getByText(entry.description)).toBeInTheDocument();
-    }
+    expect(screen.getByRole("table", { name: "Command palette" })).toBeInTheDocument();
+    expect(
+      screen.getByText(resolveShortcutDescription(SHORTCUTS[0], workspaceModeMocks.isWorkingMode)),
+    ).toBeInTheDocument();
   });
 
   it("closes the dialog on Escape", () => {
@@ -113,5 +104,21 @@ describe("KeyboardShortcutProvider", () => {
     fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("describes desk work before navigation in Working mode (PC-11)", () => {
+    workspaceModeMocks.mode = "working";
+    workspaceModeMocks.isWorkingMode = true;
+
+    render(
+      <KeyboardShortcutProvider>
+        <span>app</span>
+      </KeyboardShortcutProvider>,
+    );
+
+    fireEvent.keyDown(window, { key: "?", shiftKey: true });
+
+    expect(screen.getByText(/Desk work shortcuts are listed first/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Desk work (Working)" })).toBeInTheDocument();
   });
 });

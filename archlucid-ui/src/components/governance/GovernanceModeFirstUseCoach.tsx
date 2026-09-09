@@ -18,7 +18,7 @@ export type GovernanceModeFirstUseCoachProps = {
   readonly model?: GovernanceModeTeachingModel;
 };
 
-/** TB-2392 — First-enable coach when governance view is turned on. */
+/** TB-2392 — First-enable coach when approval view is turned on. */
 export function GovernanceModeFirstUseCoach(props: GovernanceModeFirstUseCoachProps): JSX.Element | null {
   const model = props.model ?? buildGovernanceModeTeaching();
   const [ready, setReady] = useState(false);

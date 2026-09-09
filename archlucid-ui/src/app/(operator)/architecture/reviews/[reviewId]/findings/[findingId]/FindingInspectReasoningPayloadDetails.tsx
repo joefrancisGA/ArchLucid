@@ -6,12 +6,16 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { FindingInspectJsonPayload } from "@/components/findings/FindingInspectJsonPayload";
 import { getFindingInspect } from "@/lib/api/findings-api";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   findingInspectReasoningHrefFromSearch,
   parseFindingInspectReasoningOpenFromSearch,
 } from "@/lib/findings/finding-inspect-reasoning-url";
+import {
+  findingInspectEvaluationDisclosureHrefFromSearch,
+  parseFindingInspectEvaluationOpenFromSearch,
+} from "@/lib/findings/finding-inspect-evaluation-disclosure-url";
 
 export type FindingInspectReasoningPayloadDetailsProps = {
   readonly runId: string;
@@ -35,7 +39,8 @@ export function FindingInspectReasoningPayloadDetails({
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const findingInspectReasoningOpenParam = searchParams.get("findingInspectReasoningOpen");
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const findingInspectEvaluationOpenParam = searchParams.get("findingInspectEvaluationOpen");
+  const buyerPolished = resolveProductionEvalChromeFromStorage();
   const rationaleLabel = buyerPolished ? "Review rationale (technical)" : "View AI Reasoning";
   const evaluationLabel = buyerPolished ? "Structured evaluation record" : "AI Audit Inspection";
   const [reasoningOpen, setReasoningOpenState] = useState(() =>
@@ -63,6 +68,29 @@ export function FindingInspectReasoningPayloadDetails({
     setReasoningOpenState(parseFindingInspectReasoningOpenFromSearch(findingInspectReasoningOpenParam));
   }, [findingInspectReasoningOpenParam]);
 
+  const [evaluationOpen, setEvaluationOpenState] = useState(() =>
+    parseFindingInspectEvaluationOpenFromSearch(findingInspectEvaluationOpenParam),
+  );
+  const syncEvaluationOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        findingInspectEvaluationDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setEvaluationOpen = useCallback(
+    (open: boolean) => {
+      setEvaluationOpenState(open);
+      syncEvaluationOpenToUrl(open);
+    },
+    [syncEvaluationOpenToUrl],
+  );
+  useEffect(() => {
+    setEvaluationOpenState(parseFindingInspectEvaluationOpenFromSearch(findingInspectEvaluationOpenParam));
+  }, [findingInspectEvaluationOpenParam]);
+
   const [resolvedPayload, setResolvedPayload] = useState<unknown>(typedPayload);
   const [loadState, setLoadState] = useState<"idle" | "loading" | "error" | "ready">(
     lazyLoadTypedPayload ? "idle" : "ready",
@@ -70,11 +98,14 @@ export function FindingInspectReasoningPayloadDetails({
 
   const onEvaluationToggle = useCallback(
     async (event: SyntheticEvent<HTMLDetailsElement>) => {
+      const nextOpen = event.currentTarget.open;
+      setEvaluationOpen(nextOpen);
+
       if (!lazyLoadTypedPayload || loadState === "ready" || loadState === "loading") {
         return;
       }
 
-      if (!event.currentTarget.open) {
+      if (!nextOpen) {
         return;
       }
 
@@ -88,7 +119,7 @@ export function FindingInspectReasoningPayloadDetails({
         setLoadState("error");
       }
     },
-    [findingId, lazyLoadTypedPayload, loadState, runId],
+    [findingId, lazyLoadTypedPayload, loadState, runId, setEvaluationOpen],
   );
 
   return (
@@ -118,6 +149,7 @@ export function FindingInspectReasoningPayloadDetails({
 
       <details
         className="rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40"
+        open={evaluationOpen}
         onToggle={onEvaluationToggle}
       >
         <summary className={cn("cursor-pointer select-none px-4 py-3 text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

@@ -64,6 +64,7 @@ public static class GovernanceWorkflowTestComposition
                 auditSupport,
                 integrationEvents,
                 catalogService,
+                unitOfWorkFactory,
                 governanceGateOptions,
                 NullLogger<GovernanceWorkflowSubmitStage>.Instance),
             new GovernanceWorkflowReviewStage(

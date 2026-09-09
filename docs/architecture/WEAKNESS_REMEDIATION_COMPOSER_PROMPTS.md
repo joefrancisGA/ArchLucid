@@ -3,7 +3,7 @@
 
 # Weakness-remediation Composer prompts (WK-01–WK-22)
 
-**Created:** 2026-08-26 · **Status:** ready to run (one prompt per chat).
+**Created:** 2026-08-26 · **Status:** **historical — do not re-run** for trunk health. v8 (2026-09-09) ROI prompts: [`V8_QUALITY_ROI_COMPOSER_PROMPTS.md`](V8_QUALITY_ROI_COMPOSER_PROMPTS.md) (**QR-01–QR-05**).
 
 These prompts map 1:1 to the **top-10 weaknesses** and **§17** items from the 2026-08-26 v3 assessments. They do **not** implement the remediations — paste each block into a fresh Composer/Cloud Agent chat.
 

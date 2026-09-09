@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
@@ -14,7 +15,10 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Application.Exports;
 
@@ -27,7 +31,10 @@ public sealed class SponsorReviewPacketBuilder(
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IGraphSnapshotRepository graphSnapshotRepository) : ISponsorReviewPacketBuilder
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
+    IConfiguration configuration) : ISponsorReviewPacketBuilder
 {
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
@@ -52,6 +59,14 @@ public sealed class SponsorReviewPacketBuilder(
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     public async Task<string?> BuildMarkdownAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -67,14 +82,23 @@ public sealed class SponsorReviewPacketBuilder(
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (Guid.TryParse(runId.Trim(), out Guid runGuid))
         {
+            await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId.Trim(),
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+
             await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
                 runGuid,
                 runId.Trim(),
                 _authorityQueryService,
                 _manifestHashService,
-                _scopeContextProvider.GetCurrentScope(),
+                scope,
                 cancellationToken);
         }
 
@@ -97,14 +121,22 @@ public sealed class SponsorReviewPacketBuilder(
         string? activeTrialExportNotice = await ActiveTrialExportNoticeResolver
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
             detail,
             _authorityQueryService,
             _graphSnapshotRepository,
+            _agentExecutionTraceRepository,
             scope,
             workingDesk: true,
+            _configuration,
             cancellationToken);
+
+        IReadOnlyList<FindingArchitectRestatementExportRow> architectRestatements =
+            await FindingArchitectRestatementExportMaterialLoader.LoadForRunAsync(
+                detail,
+                _findingReviewTrailRepository,
+                scope,
+                cancellationToken);
 
         return SponsorReviewPacketComposer.ComposeMarkdown(
             detail,
@@ -115,7 +147,8 @@ public sealed class SponsorReviewPacketBuilder(
             topDecisions,
             portfolioSignals,
             activeTrialExportNotice,
-            careerExportHonesty);
+            careerExportHonesty,
+            architectRestatements);
     }
 
     private static string BuildDeterministicSponsorReport(

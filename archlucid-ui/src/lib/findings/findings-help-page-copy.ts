@@ -8,3 +8,5 @@ export const FINDINGS_HELP_SKIP_LINK_LABEL = "Skip to findings workspace" as con
 
 export const FINDINGS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-findings-header-claim-discipline" as const;
+
+export const FINDINGS_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-findings-orientation-bottom" as const;

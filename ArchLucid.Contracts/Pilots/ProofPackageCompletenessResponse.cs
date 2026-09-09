@@ -178,4 +178,14 @@ public sealed class ProofPackageCompletenessResponse
         get;
         init;
     }
+
+    /// <summary>
+    ///     V1 buyer asks outside product readiness (SOC 2 CPA, third-party pen test, reference customer, etc.) —
+    ///     surfaced in sponsor exports so evidence-basis labels include <c>Deferred scope</c>.
+    /// </summary>
+    public bool DeferredBuyerRequirementsPresent
+    {
+        get;
+        init;
+    } = true;
 }

@@ -7,6 +7,10 @@ import {
   resolveRunDetailReviewPackageInspectEmphasizedStepId,
   resolveRunDetailReviewPackageInspectSteps,
 } from "@/lib/run-detail-review-package-inspect-checklist";
+import {
+  resolveRunDetailDeferredSurfaceFindingCount,
+  resolveRunDetailFindingsReviewed,
+} from "@/lib/runs/run-detail-findings-tab-badge-count";
 
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import {
@@ -53,20 +57,29 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
   const {
     buyerFinalizedPackage,
     deferredContext,
+    findingCoverageSummary,
     reviewPolicyPackCallout,
     showDemoMarketingChrome,
     showGovernanceCtaCard,
   } = presentation;
   const runId = m.resolvedDetail.run.runId.trim();
+  const deferredSurfaceFindingCount = resolveRunDetailDeferredSurfaceFindingCount(
+    m.findingCountDisplay,
+    presentation.quickDecisionFindings,
+  );
+  const findingsReviewed = resolveRunDetailFindingsReviewed(
+    m.findingCountDisplay,
+    presentation.quickDecisionFindings,
+  );
   const reviewPackageInspectSteps = resolveRunDetailReviewPackageInspectSteps({
     reviewPicked: runId.length > 0,
     packageLoaded: Boolean(m.manifestId),
-    findingsReviewed: (m.findingCountDisplay ?? 0) > 0,
+    findingsReviewed,
   });
   const reviewPackageInspectEmphasizedStepId = resolveRunDetailReviewPackageInspectEmphasizedStepId({
     reviewPicked: runId.length > 0,
     packageLoaded: Boolean(m.manifestId),
-    findingsReviewed: (m.findingCountDisplay ?? 0) > 0,
+    findingsReviewed,
   });
 
   return (
@@ -84,7 +97,7 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
           ruleSetId={reviewPolicyPackCallout.ruleSetId}
           ruleSetVersion={reviewPolicyPackCallout.ruleSetVersion}
           runId={m.resolvedDetail.run.runId}
-          totalFindingCount={m.findingCountDisplay}
+          totalFindingCount={deferredSurfaceFindingCount}
           architectureRequestId={m.resolvedDetail.run.architectureRequestId}
           effectiveGovernanceAtCommit={reviewPolicyPackCallout.effectiveGovernanceAtCommit}
         />
@@ -139,6 +152,13 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
           runExecution={{
             realModeFellBackToSimulator: m.resolvedDetail.run.realModeFellBackToSimulator,
             pilotAoaiDeploymentSnapshot: m.resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
+          }}
+          careerArtifactHonesty={{
+            progressSummary: m.progressForPipelineUi,
+            manifestSummary: m.manifestSummaryForUi,
+            graphSnapshot: m.resolvedDetail.graphSnapshot,
+            enginesSucceeded: findingCoverageSummary?.enginesSucceeded ?? null,
+            isSample: m.usedStaticDemoRun,
           }}
         />
       ) : null}
@@ -197,6 +217,10 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
           <RunDetailGenerateAdrFromRunModal
             input={m.adrGeneratorInput}
             totalFindingCount={m.careerExportEligibleFindingCount}
+            enginesSucceeded={findingCoverageSummary?.enginesSucceeded ?? null}
+            graphSnapshot={m.resolvedDetail.graphSnapshot}
+            progressSummary={m.progressForPipelineUi}
+            findingsSnapshot={m.resolvedDetail.findingsSnapshot}
             buyerPolished={false}
           />
         </div>
@@ -229,7 +253,13 @@ export function RunDetailPageViewCommitted(props: RunDetailPageViewCommittedProp
 
       {buyerFinalizedPackage ? null : sectionNavEl}
 
-      {resolveRunDetailSponsorBriefingSection(m, { pagePrimaryOwnedElsewhere: true })}
+      {resolveRunDetailSponsorBriefingSection(m, {
+        pagePrimaryOwnedElsewhere: true,
+        enginesSucceeded: findingCoverageSummary?.enginesSucceeded ?? null,
+        manifestSummary: m.manifestSummaryForUi ?? m.manifestSummary,
+        progressSummary: m.progressForPipelineUi,
+        graphSnapshot: m.resolvedDetail.graphSnapshot,
+      })}
 
       <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
         <RunDetailBelowFoldSectionsDeferred model={m} context={deferredContext} />
