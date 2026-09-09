@@ -170,6 +170,8 @@ public sealed partial class GovernanceStickinessFacade(
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        await EnsureRegistersSealedManifestOrThrowAsync(scope.ProjectId, ct).ConfigureAwait(false);
+
         return await _reviewsAwaitingActionQueryService.ListAsync(scope, ct);
     }
 
@@ -182,6 +184,8 @@ public sealed partial class GovernanceStickinessFacade(
 
         if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
             return new GovernanceDecisionsNeededSummaryResponse();
+
+        await EnsureRegistersSealedManifestOrThrowAsync(resolvedProjectId, ct).ConfigureAwait(false);
 
         return await _governanceDigestDecisionNeededComposer.BuildSummaryAsync(
             scope.TenantId,

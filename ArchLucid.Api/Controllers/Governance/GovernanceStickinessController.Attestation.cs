@@ -1,5 +1,6 @@
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -14,6 +15,7 @@ public sealed partial class GovernanceStickinessController
 {
     [HttpGet("realized-value/attestation")]
     [ProducesResponseType(typeof(RealizedValueAttestationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRealizedValueAttestation(CancellationToken cancellationToken = default)
     {
         IActionResult? tenantProblem = await RequireTenantAndWorkspaceOrNotFoundAsync(cancellationToken).ConfigureAwait(false);
@@ -21,10 +23,17 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        RealizedValueAttestationResponse response =
-            await _facade.GetRealizedValueAttestationAsync(cancellationToken);
+        try
+        {
+            RealizedValueAttestationResponse response =
+                await _facade.GetRealizedValueAttestationAsync(cancellationToken);
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpPut("realized-value/attestation")]

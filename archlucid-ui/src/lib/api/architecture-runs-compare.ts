@@ -4,6 +4,7 @@ import type {
   RunExplanation,
 } from "@/types/explanation";
 import type { RunComparison } from "@/types/authority";
+import type { components } from "@/lib/openapi-schemas";
 import {
   ensureOidcBearerReady,
   resolveRequest,
@@ -31,6 +32,26 @@ export async function compareRunsEndToEnd(
 ): Promise<EndToEndReplayComparisonWireResponse> {
   return apiGetSealedManifestAware<EndToEndReplayComparisonWireResponse>(
     `/v1/architecture/review/compare/end-to-end?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+  );
+}
+
+/** Structured agent-result diff between two runs. */
+export async function compareAgentResults(
+  leftRunId: string,
+  rightRunId: string,
+): Promise<components["schemas"]["AgentResultCompareResponse"]> {
+  return apiGetSealedManifestAware<components["schemas"]["AgentResultCompareResponse"]>(
+    `/v1/architecture/review/compare/agents?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+  );
+}
+
+/** Markdown summary of agent-result diffs between two runs. */
+export async function compareAgentResultsSummary(
+  leftRunId: string,
+  rightRunId: string,
+): Promise<components["schemas"]["AgentResultCompareSummaryResponse"]> {
+  return apiGetSealedManifestAware<components["schemas"]["AgentResultCompareSummaryResponse"]>(
+    `/v1/architecture/review/compare/agents/summary?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
   );
 }
 

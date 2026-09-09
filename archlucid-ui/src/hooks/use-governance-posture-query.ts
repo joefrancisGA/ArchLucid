@@ -6,6 +6,9 @@ import {
   getGovernancePosture,
   type ArchitecturePostureSummary,
 } from "@/lib/api/governance-stickiness-api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governancePostureBlockedReason } from "@/lib/governance/governance-posture-blocked-reason";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -20,7 +23,7 @@ type UseGovernancePostureQueryOptions = {
 export function useGovernancePostureQuery(options?: UseGovernancePostureQueryOptions) {
   const projectId = options?.projectId;
 
-  return useQuery<ArchitecturePostureSummary>({
+  const query = useQuery<ArchitecturePostureSummary>({
     queryKey: operatorQueryKeys.governancePosture(projectId),
     queryFn: () => getGovernancePosture(projectId),
     enabled: options?.enabled ?? true,
@@ -28,4 +31,13 @@ export function useGovernancePostureQuery(options?: UseGovernancePostureQueryOpt
     gcTime: OPERATOR_QUERY_GC_MS,
     retry: false,
   });
+
+  const failure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
+  const blockedReason = governancePostureBlockedReason(failure);
+
+  return {
+    ...query,
+    failure,
+    blockedReason,
+  };
 }

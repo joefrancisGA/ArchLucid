@@ -9,6 +9,7 @@ export type RunsPageModel = {
   readonly runs: RunSummary[];
   readonly totalCount: number;
   readonly loadFailure: ApiLoadFailureState | null;
+  readonly listBlockedReason: string | null;
   readonly malformedMessage: string | null;
   readonly usedStaticRunsFallback: boolean;
   readonly nextCursorForClient: string | null;

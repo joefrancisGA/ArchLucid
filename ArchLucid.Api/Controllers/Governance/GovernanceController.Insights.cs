@@ -51,6 +51,12 @@ public sealed partial class GovernanceController
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         try
         {
             GovernanceDashboardSummary summary = await _insightsFacade.GetDashboardAsync(
@@ -79,6 +85,7 @@ public sealed partial class GovernanceController
     [ProducesResponseType(typeof(IReadOnlyList<ComplianceDriftTrendPoint>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetComplianceDriftTrend(
         [FromQuery] DateTime fromUtc,
         [FromQuery] DateTime toUtc,
@@ -118,16 +125,29 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
+        IActionResult? sealedGuardResult =
+            await EnsureGovernanceInsightsScopeSealedManifestReadAllowedAsync(cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        IReadOnlyList<ComplianceDriftTrendPoint> points = await _insightsFacade.GetComplianceDriftTrendAsync(
-            scope.TenantId,
-            fromUtcNormalized,
-            toUtcNormalized,
-            bucketSize,
-            cancellationToken);
+        try
+        {
+            IReadOnlyList<ComplianceDriftTrendPoint> points = await _insightsFacade.GetComplianceDriftTrendAsync(
+                scope.TenantId,
+                fromUtcNormalized,
+                toUtcNormalized,
+                bucketSize,
+                cancellationToken);
 
-        return Ok(points);
+            return Ok(points);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     [HttpGet("approval-requests/{approvalRequestId}/lineage")]

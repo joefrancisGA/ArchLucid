@@ -167,6 +167,26 @@ export const operatorQueryKeys = {
   compareGovernanceDiff: (baselineRunId: string, targetRunId: string) =>
     ["operator", "compare", "governance-diff", baselineRunId, targetRunId] as const,
   runExportHistory: (runId: string) => ["operator", "runs", "export-history", runId] as const,
+  exportRecord: (exportRecordId: string) => ["operator", "runs", "export-record", exportRecordId] as const,
+  runComparisonHistory: (runId: string) => ["operator", "compare", "run-history", runId] as const,
+  comparisonRecord: (comparisonRecordId: string) =>
+    ["operator", "compare", "record", comparisonRecordId] as const,
+  comparisonSummary: (comparisonRecordId: string) =>
+    ["operator", "compare", "summary", comparisonRecordId] as const,
+  governanceRiskExceptions: (projectId: string) =>
+    ["operator", "governance", "risk-exceptions", projectId] as const,
+  governanceRecurrenceSchedules: () => ["operator", "governance", "recurrence-schedules"] as const,
+  governanceScopeCoverage: () => ["operator", "governance", "scope-coverage"] as const,
+  compareAgentResults: (leftRunId: string, rightRunId: string) =>
+    ["operator", "compare", "agents", leftRunId, rightRunId] as const,
+  exportLineageVerify: (runId: string) => ["operator", "runs", "export-lineage-verify", runId] as const,
+  exportRecordCompare: (leftExportRecordId: string, rightExportRecordId: string) =>
+    ["operator", "compare", "export-records", leftExportRecordId, rightExportRecordId] as const,
+  comparisonSearch: (query: Record<string, string | number | undefined>) =>
+    ["operator", "compare", "search", query] as const,
+  governanceRealizedValueAttestation: () => ["operator", "governance", "realized-value-attestation"] as const,
+  governanceApprovalRationale: (approvalRequestId: string) =>
+    ["operator", "governance", "approval-rationale", approvalRequestId] as const,
   architectureRequest: (requestId: string) => ["operator", "architecture", "request", requestId] as const,
   azureBoardsWorkItemTypes: (projectName: string) =>
     ["operator", "integrations", "azure-boards", "work-item-types", projectName] as const,
