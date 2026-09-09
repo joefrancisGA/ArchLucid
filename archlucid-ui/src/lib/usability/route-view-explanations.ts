@@ -17,22 +17,33 @@ export type RouteViewExplanation = {
 };
 
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
+import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
+import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
 import { DIGESTS_HUB_PATH, digestsHubTabFromLocation } from "@/lib/digests-route-paths";
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { GOVERNANCE_ALERTS_PATH } from "@/lib/governance/governance-route-paths";
 import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 import type { ImpactPreviewPageState } from "@/lib/impact-preview-page-types";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { NOTIFICATION_PREFERENCE_CENTER_PATH } from "@/lib/notification-preference-center";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import {
+  SETTINGS_ROOT_PATH,
   SETTINGS_SECURITY_TRUST_PATH,
   SETTINGS_USERS_PATH,
   SETTINGS_WORKSPACE_SETTINGS_PATH,
 } from "@/lib/settings-admin-route-paths";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import {
+  SPONSOR_REPORT_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
 
 const IDENTITY_PROVIDERS_TAB_DISMISS_KEY =
   "archlucid.explain-view.dismissed./administration/identity-providers-tabs" as const;
@@ -160,6 +171,100 @@ const ROUTE_VIEW_EXPLANATIONS: readonly RouteViewExplanationRow[] = [
       summary:
         "Manage workspace members, role assignments, and API keys that control who can read, execute, or administer reviews.",
       nextAction: "Invite reviewers on the Users tab, confirm role mappings on Roles, then issue API keys only for automation.",
+    },
+  },
+  {
+    prefix: SETTINGS_ROOT_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Administration",
+      summary:
+        "Search and open workspace, integration, security, billing, and support configuration pages for this tenant.",
+      nextAction: "Search or browse a section, then open the destination page to change settings.",
+    },
+  },
+  {
+    prefix: NOTIFICATION_PREFERENCE_CENTER_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Notifications",
+      summary:
+        "Channel launcher for digests, in-product alerts, alert rules, Teams, and Slack — each destination saves its own settings.",
+      nextAction: "Scan each channel card, then open the destination page to change subscriptions, rules, or webhook connections.",
+    },
+  },
+  {
+    prefix: CONNECTION_STATUS_CANONICAL_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Connection status",
+      summary:
+        "See which workspace integrations are configured, recommended, or need attention before reviews depend on them.",
+      nextAction:
+        "Scan connector tiles, open the matching integration page when setup is incomplete, then open System health for runtime checks.",
+    },
+  },
+  {
+    prefix: CLOUD_CONNECTIONS_CANONICAL_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Cloud connections",
+      summary:
+        "Connect Azure, AWS, or Google Cloud for optional read-only evidence collection, or start evidence-only reviews without a connector.",
+      nextAction:
+        "Choose platforms to show, open a provider to configure federation, or start an evidence-only review from uploaded packages.",
+    },
+  },
+  {
+    prefix: FIRST_REVIEW_GUIDE_PATH,
+    matchExact: true,
+    explanation: {
+      title: "First review guide",
+      summary:
+        "Checklist onboarding for your first architecture draft or review, including required setup and optional workspace steps.",
+      nextAction:
+        "Clear required setup blockers, then create architecture or start a review when the workspace is ready.",
+    },
+  },
+  {
+    prefix: ARCHITECTURE_INTELLIGENCE_PATH,
+    explanation: {
+      title: "Architecture intelligence",
+      summary:
+        "Run closed-loop architecture reasoning against a free-form description, then publish findings into the workspace review trail when ready.",
+      nextAction:
+        "Paste or edit a description, run architecture reasoning, then publish findings into review when the output is ready to attach.",
+    },
+  },
+  {
+    prefix: ARCHITECTURE_SCORECARD_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Architecture scorecard",
+      summary:
+        "Workspace throughput tiles and a directional review-time savings model for pilot discussions.",
+      nextAction: "Finalize reviews to populate tiles, then tune ROI assumptions or open ROI summary for sponsor exports.",
+    },
+  },
+  {
+    prefix: SPONSOR_REPORT_PATH,
+    matchExact: true,
+    explanation: {
+      title: "Sponsor report",
+      summary:
+        "Period summary of finalized reviews, material findings, approval decisions, and directional ROI, with sponsor exports.",
+      nextAction: "Set the reporting period, apply it, then generate sponsor exports when data is ready.",
+    },
+  },
+  {
+    prefix: SPONSOR_REPORT_ROI_SUMMARY_PATH,
+    matchExact: true,
+    explanation: {
+      title: "ROI summary",
+      summary:
+        "Portfolio KPI view for review-cycle reduction, estimated effort saved, and export-ready artifacts across a reporting window.",
+      nextAction:
+        "Compare rolling and pilot-to-date windows, then review confidence notes before citing hours or dollars.",
     },
   },
   {

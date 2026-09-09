@@ -64,6 +64,9 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/insights/patterns")?.title).toBe("Pattern library");
     expect(routeViewExplanationForPathname("/help")?.title).toBe("Help");
     expect(routeViewExplanationForPathname("/administration/security-trust")?.title).toBe("Security & trust");
+    expect(routeViewExplanationForPathname("/integrations/cloud-connections")?.title).toBe("Cloud connections");
+    expect(routeViewExplanationForPathname("/architecture/first-review-guide")?.title).toBe("First review guide");
+    expect(routeViewExplanationForPathname("/insights/sponsor-report")?.title).toBe("Sponsor report");
   });
 
   it("routeViewExplanationForPathname covers alerts hubs (TB-2216)", () => {

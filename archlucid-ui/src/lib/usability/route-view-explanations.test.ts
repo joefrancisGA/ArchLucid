@@ -8,19 +8,30 @@ import {
   architectureDraftPath,
 } from "@/lib/architecture/architecture-routes";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
+import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { SETTINGS_BILLING_PATH } from "@/lib/billing-and-plans-help-route";
+import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
+import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
+import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import { GOVERNANCE_ALERTS_PATH, GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import { NOTIFICATION_PREFERENCE_CENTER_PATH } from "@/lib/notification-preference-center";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import {
+  SETTINGS_ROOT_PATH,
   SETTINGS_SECURITY_TRUST_PATH,
   SETTINGS_USERS_PATH,
   SETTINGS_WORKSPACE_SETTINGS_PATH,
 } from "@/lib/settings-admin-route-paths";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
+import {
+  SPONSOR_REPORT_PATH,
+  SPONSOR_REPORT_ROI_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
 import { routeViewExplanationForPathname, explainViewDismissKey } from "@/lib/usability/route-view-explanations";
 
 describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
@@ -136,6 +147,27 @@ describe("routeViewExplanationForPathname (TB-2216 / TB-2257)", () => {
     expect(routeViewExplanationForPathname(SETTINGS_WORKSPACE_SETTINGS_PATH)?.title).toBe("Workspace settings");
     expect(routeViewExplanationForPathname(`${SETTINGS_WORKSPACE_SETTINGS_PATH}/recycle-bin`)).toBeNull();
     expect(routeViewExplanationForPathname(SETTINGS_USERS_PATH)?.title).toBe("Users & roles");
+  });
+
+  it("covers instrument primer wave 6 — integrations, outcomes, onboarding, and admin index", () => {
+    expect(routeViewExplanationForPathname(SETTINGS_ROOT_PATH)?.title).toBe("Administration");
+    expect(routeViewExplanationForPathname(`${SETTINGS_ROOT_PATH}/billing`)?.title).toBe("Billing & plans");
+
+    expect(routeViewExplanationForPathname(NOTIFICATION_PREFERENCE_CENTER_PATH)?.title).toBe("Notifications");
+
+    expect(routeViewExplanationForPathname(CONNECTION_STATUS_CANONICAL_PATH)?.title).toBe("Connection status");
+
+    expect(routeViewExplanationForPathname(CLOUD_CONNECTIONS_CANONICAL_PATH)?.title).toBe("Cloud connections");
+    expect(routeViewExplanationForPathname(`${CLOUD_CONNECTIONS_CANONICAL_PATH}/azure`)).toBeNull();
+
+    expect(routeViewExplanationForPathname(FIRST_REVIEW_GUIDE_PATH)?.title).toBe("First review guide");
+
+    expect(routeViewExplanationForPathname(ARCHITECTURE_INTELLIGENCE_PATH)?.title).toBe("Architecture intelligence");
+
+    expect(routeViewExplanationForPathname(ARCHITECTURE_SCORECARD_PATH)?.title).toBe("Architecture scorecard");
+
+    expect(routeViewExplanationForPathname(SPONSOR_REPORT_PATH)?.title).toBe("Sponsor report");
+    expect(routeViewExplanationForPathname(SPONSOR_REPORT_ROI_SUMMARY_PATH)?.title).toBe("ROI summary");
   });
 
   it("keeps drafts-inventory orientation off the draft editor and the new-draft workspace", () => {
