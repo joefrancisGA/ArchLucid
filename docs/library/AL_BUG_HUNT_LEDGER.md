@@ -10153,7 +10153,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — renewal store failure left scan running after lease TTL freed a second slot
+- **last-bug:** 2026-09-09 — dispose marked lease released before ReleaseLeaseAsync succeeded
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10166,7 +10166,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `QuickScanDistributedConcurrencyLeaseRenewal` — `RenewLeaseAsync` failure faulted the renewal task so `DisposeAsync` rethrew and skipped `ReleaseLeaseAsync`, pinning the slot until lease TTL expiry — **hit 2026-09-09 (#1402):** stop the renewal loop on store renewal errors and swallow faulted renewal tasks during dispose so release always runs; regression `DisposeAsync_releases_lease_when_renewal_loop_faults`
 - [x] (valid-no-repro) `QuickScanDistributedConcurrencyService` — `TryAdmitAsync` store exception returns `StoreUnavailable` without abandoning a queue row when admit partially queued — **cheap-disproof 2026-09-09 thorough hunt #1402:** SQL/in-memory admit is atomic before returning `Queued`; regression `WaitForAdmissionAsync_store_error_on_admit_does_not_pin_queue_capacity`
 - [x] (proven) `QuickScanDistributedConcurrencyLeaseRenewal` / `QuickScanExecutionOrchestrator` — renewal store failure stopped the renewal loop but did not cancel in-flight execute, so the distributed lease expired at TTL while the scan kept running and a peer could acquire a second direct slot (over-capacity window) — **hit 2026-09-09 seed hunt #1403:** cancel linked `ExecutionCancellationToken` on renewal failure and route scan invoke through it; regressions `ExecutionCancellationToken_is_cancelled_when_renewal_store_fails` and `ExecuteAsync_releases_concurrency_lease_when_renewal_store_fails_during_scan`
+- [ ] (candidate) `InMemoryQuickScanDistributedConcurrencyStore.RenewLeaseAsync` / `usp_QuickScanConcurrency_RenewLease` — renewal no-ops when `ExpiresUtc <= @UtcNow` without error so the renewal loop keeps running while the SQL lease row expires (same over-capacity shape as #1403 when `LeaseRenewalIntervalSeconds` ≥ `LeaseDurationSeconds` or renewal is delayed past TTL)
+- [ ] (candidate) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — promote store-error path calls `AbandonQueueEntryAsync` without swallowing abandon failures, so a transient abandon error could leave the queue row pinned until `QueueExpiresUtc`
+- [x] (proven) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` — `_released` was set before `ReleaseLeaseAsync` and renewal CTS was disposed on the first attempt, so a transient release failure pinned the slot until lease TTL and a retry dispose faulted on the disposed CTS — **hit 2026-09-09 seed hunt #1404:** stop renewal once, release with `CancellationToken.None`, set `_released` only after store release succeeds; regression `DisposeAsync_can_retry_release_when_store_throws`
 
+2026-09-09 seed hunt #1404 (hit): reseeded dispose/release and renewal no-op candidates; proved failed release must stay retriable; 12 scoped tests passed.
 2026-09-09 seed hunt #1403 (hit): reseeded renewal-failure execute-cancel path; proved renewal loss must cancel in-flight scan before lease TTL frees peer admission; 11 scoped tests passed.
 2026-09-09 thorough hunt #1402 (hit): proved renewal failure skipped lease release on dispose; cheap-disproved admit partial-queue candidate; 9 scoped tests passed.
 2026-09-07 thorough hunt #1210 (dry): cheap-disproved post-admission emergency flip concurrency leak; added lease-release regression test; reseeded renewal-failure and admit-store-error candidates.

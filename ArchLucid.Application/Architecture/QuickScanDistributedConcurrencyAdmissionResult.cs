@@ -15,6 +15,7 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
     private readonly Task? _renewalTask;
     private Guid? _leaseId;
     private bool _released;
+    private bool _renewalStopped;
 
     private QuickScanDistributedConcurrencyAdmissionResult(
         bool allowed,
@@ -86,40 +87,52 @@ public sealed class QuickScanDistributedConcurrencyAdmissionResult : IAsyncDispo
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
-        if (_executeCancellationSource is not null)
-        {
-            await _executeCancellationSource.CancelAsync().ConfigureAwait(false);
-
-            if (_renewalTask is not null)
-            {
-                try
-                {
-                    await _renewalTask.ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (Exception)
-                {
-                    // Renewal can stop when the store rejects RenewLeaseAsync; release must still run.
-                }
-            }
-
-            _executeCancellationSource.Dispose();
-        }
+        await StopRenewalLoopAsync().ConfigureAwait(false);
 
         if (_released || !_leaseId.HasValue || _store is null)
         {
             return;
         }
 
-        _released = true;
+        await _store.ReleaseLeaseAsync(_leaseId.Value, CancellationToken.None).ConfigureAwait(false);
 
-        await _store.ReleaseLeaseAsync(_leaseId.Value).ConfigureAwait(false);
+        _released = true;
 
         if (_telemetry is not null && _telemetryContext is not null)
         {
             _telemetry.RecordConcurrencyLeaseReleased(_telemetryContext);
         }
+    }
+
+    private async Task StopRenewalLoopAsync()
+    {
+        if (_renewalStopped || _executeCancellationSource is null)
+        {
+            return;
+        }
+
+        _renewalStopped = true;
+
+        if (!_executeCancellationSource.IsCancellationRequested)
+        {
+            await _executeCancellationSource.CancelAsync().ConfigureAwait(false);
+        }
+
+        if (_renewalTask is not null)
+        {
+            try
+            {
+                await _renewalTask.ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception)
+            {
+                // Renewal can stop when the store rejects RenewLeaseAsync; release must still run.
+            }
+        }
+
+        _executeCancellationSource.Dispose();
     }
 }
