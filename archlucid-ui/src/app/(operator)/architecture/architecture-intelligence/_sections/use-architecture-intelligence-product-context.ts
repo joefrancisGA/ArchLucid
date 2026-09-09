@@ -100,6 +100,8 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
   const previousScopeKeyRef = useRef(scopeKey);
   const previousInboundRunIdRef = useRef(inboundRunId);
+  const previousUrlContextRunIdRef = useRef("");
+  const previousInboundRunIdForScopeRef = useRef(inboundRunId);
   const actionGenerationRef = useRef(0);
   const invalidateInFlightActions = useCallback(() => {
     actionGenerationRef.current += 1;
@@ -176,18 +178,54 @@ export function useArchitectureIntelligenceProductContext(): UseArchitectureInte
   );
 
   useEffect(() => {
+    const previousContextRunId = previousUrlContextRunIdRef.current;
+    const previousInbound = previousInboundRunIdForScopeRef.current;
+
+    previousUrlContextRunIdRef.current = urlContextRunId;
+    previousInboundRunIdForScopeRef.current = inboundRunId;
+
     if (urlContextRunId.length === 0) {
       return;
     }
 
-    invalidateInFlightActions();
-    setRunState(null);
-    setInterviewAnswers({});
+    const droppedInboundToDifferentContext =
+      previousInbound.length > 0 &&
+      inboundRunId.length === 0 &&
+      urlContextRunId !== previousInbound;
+
+    const changedContextOnlyScope =
+      inboundRunId.length === 0 &&
+      previousContextRunId.length > 0 &&
+      previousContextRunId !== urlContextRunId;
+
+    const changedContextRunId =
+      previousContextRunId.length > 0 &&
+      previousContextRunId !== urlContextRunId;
+
+    if (changedContextRunId) {
+      invalidateInFlightActions();
+      setRunState(null);
+      setInterviewAnswers({});
+      setError(null);
+      setPublishToProduct(false);
+      setHydratedSourceTexts([]);
+    }
+
+    if (droppedInboundToDifferentContext || changedContextOnlyScope) {
+      invalidateInFlightActions();
+      setRunState(null);
+      setInterviewAnswers({});
+      setError(null);
+      setArchitectureDescription("");
+      setPrioritiesRaw("");
+      setHydratedSourceTexts([]);
+      setPublishToProduct(false);
+      setProductContextStatus("idle");
+      setLoadingAction(null);
+    }
+
     setActiveRunId(urlContextRunId);
-    setError(null);
-    setPublishToProduct(false);
-    setHydratedSourceTexts([]);
-  }, [urlContextRunId, invalidateInFlightActions]);
+  }, [urlContextRunId, inboundRunId, invalidateInFlightActions]);
 
   useEffect(() => {
     if (inboundRunId.length > 0 || urlContextRunId.length > 0) {
