@@ -6,8 +6,11 @@ using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -32,7 +35,10 @@ public sealed class CrossTenantPortfolioEndpointTests
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IComplianceDriftTrendService>(),
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            Mock.Of<IManifestHashService>(),
+            Mock.Of<ITenantRepository>(),
+            Mock.Of<IScimUserRepository>(),
+            Mock.Of<SponsorRoiRunCollector>());
 
         DefaultHttpContext httpContext = new();
         httpContext.Request.Path = "/v1/roi/cross-tenant-portfolio";

@@ -56,6 +56,13 @@ public sealed partial class PolicyPacksController
         if (validationProblem is not null)
             return validationProblem;
 
+        IActionResult? sealedGuardResult = await EnsurePolicyPackSimulateRunSealedManifestAllowedAsync(
+            request.RunId.Trim(),
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         PolicyPackHttpResult<PolicyPackGovernanceDryRunResult> result;
 
         try
@@ -149,6 +156,13 @@ public sealed partial class PolicyPacksController
 
         if (validationProblem is not null)
             return validationProblem;
+
+        IActionResult? sealedGuardResult = await EnsurePolicyPackSimulateBulkRunIdsSealedManifestAllowedAsync(
+            runIds,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PolicyPackHttpResult<PolicyPackSimulateBulkSummary> result;
 

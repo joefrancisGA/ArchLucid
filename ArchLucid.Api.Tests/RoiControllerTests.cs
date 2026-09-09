@@ -7,7 +7,9 @@ using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 
 using FluentAssertions;
@@ -193,7 +195,10 @@ public sealed class RoiControllerTests
                 scopeProvider.Object,
                 complianceDriftTrendService ?? Mock.Of<IComplianceDriftTrendService>(),
                 Mock.Of<IAuthorityQueryService>(),
-                Mock.Of<IManifestHashService>())
+                Mock.Of<IManifestHashService>(),
+                Mock.Of<ITenantRepository>(),
+                Mock.Of<IScimUserRepository>(),
+                Mock.Of<SponsorRoiRunCollector>())
             {
                 ControllerContext = new ControllerContext { HttpContext = httpContext }
             };
