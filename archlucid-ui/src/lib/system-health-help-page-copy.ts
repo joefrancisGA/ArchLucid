@@ -12,6 +12,8 @@ export const SYSTEM_HEALTH_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 
 export const SYSTEM_HEALTH_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-system-health-orientation-bottom" as const;
 
+export const SYSTEM_HEALTH_HELP_WORKSPACE_TEST_ID = "help-system-health-workspace" as const;
+
 export const SYSTEM_HEALTH_HELP_PAGE_SUBTITLE_BUYER =
   "Confirm workspace readiness, deployment identity, and dependency follow-ups before reviews depend on them." as const;
 
