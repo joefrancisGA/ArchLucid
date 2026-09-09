@@ -6515,6 +6515,96 @@ describe("wave82 filter url helpers", () => {
   });
 });
 
+describe("wave83 filter url helpers", () => {
+  it("architecture created evidence/findings sources, operator home, tenant settings, projects recycle bin, help baseline/slack integration, compare two reviews, provenance, advisory schedules sources params", async () => {
+    const {
+      architectureCreatedEvidenceSourcesDisclosureHrefFromSearch,
+      parseArchitectureCreatedEvidenceSourcesOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-created-evidence-sources-disclosure-url");
+    const {
+      architectureCreatedFindingsSourcesDisclosureHrefFromSearch,
+      parseArchitectureCreatedFindingsSourcesOpenFromSearch,
+    } = await import("@/lib/architecture/architecture-created-findings-sources-disclosure-url");
+    const {
+      operatorHomeSourcesDisclosureHrefFromSearch,
+      parseOperatorHomeSourcesOpenFromSearch,
+    } = await import("@/lib/operator/operator-home-sources-disclosure-url");
+    const {
+      parseTenantSettingsSourcesOpenFromSearch,
+      tenantSettingsSourcesDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/tenant-settings-sources-disclosure-url");
+    const {
+      parseProjectsRecycleBinSourcesOpenFromSearch,
+      projectsRecycleBinSourcesDisclosureHrefFromSearch,
+    } = await import("@/lib/administration/projects-recycle-bin-sources-disclosure-url");
+    const {
+      helpBaselineSettingsSourcesDisclosureHrefFromSearch,
+      parseHelpBaselineSettingsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-baseline-settings-sources-disclosure-url");
+    const {
+      helpSlackIntegrationSourcesDisclosureHrefFromSearch,
+      parseHelpSlackIntegrationSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-slack-integration-sources-disclosure-url");
+    const {
+      compareTwoReviewsSourcesDisclosureHrefFromSearch,
+      parseCompareTwoReviewsSourcesOpenFromSearch,
+    } = await import("@/lib/insights/compare-two-reviews-sources-disclosure-url");
+    const {
+      parseProvenanceSourcesOpenFromSearch,
+      provenanceSourcesDisclosureHrefFromSearch,
+    } = await import("@/lib/provenance/provenance-sources-disclosure-url");
+    const {
+      advisorySchedulesSourcesDisclosureHrefFromSearch,
+      parseAdvisorySchedulesSourcesOpenFromSearch,
+    } = await import("@/lib/advisory/advisory-schedules-sources-disclosure-url");
+
+    expect(parseArchitectureCreatedEvidenceSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      architectureCreatedEvidenceSourcesDisclosureHrefFromSearch(
+        "reviewTab=evidence",
+        true,
+        "/architecture/reviews/r1",
+      ),
+    ).toBe("/architecture/reviews/r1?reviewTab=evidence&architectureCreatedEvidenceSourcesOpen=1");
+    expect(parseArchitectureCreatedFindingsSourcesOpenFromSearch("true")).toBe(true);
+    expect(
+      architectureCreatedFindingsSourcesDisclosureHrefFromSearch("", true, "/architecture/reviews/r1"),
+    ).toBe("/architecture/reviews/r1?architectureCreatedFindingsSourcesOpen=1");
+    expect(parseOperatorHomeSourcesOpenFromSearch("1")).toBe(true);
+    expect(operatorHomeSourcesDisclosureHrefFromSearch("tab=home", true, "/")).toBe(
+      "/?tab=home&operatorHomeSourcesOpen=1",
+    );
+    expect(parseTenantSettingsSourcesOpenFromSearch("true")).toBe(true);
+    expect(tenantSettingsSourcesDisclosureHrefFromSearch("", true, "/administration/workspace-settings")).toBe(
+      "/administration/workspace-settings?tenantSettingsSourcesOpen=1",
+    );
+    expect(parseProjectsRecycleBinSourcesOpenFromSearch("1")).toBe(true);
+    expect(
+      projectsRecycleBinSourcesDisclosureHrefFromSearch("", true, "/administration/workspace-settings/recycle-bin"),
+    ).toBe("/administration/workspace-settings/recycle-bin?projectsRecycleBinSourcesOpen=1");
+    expect(parseHelpBaselineSettingsSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpBaselineSettingsSourcesDisclosureHrefFromSearch("", true, "/help/baseline-settings")).toBe(
+      "/help/baseline-settings?helpBaselineSettingsSourcesOpen=1",
+    );
+    expect(parseHelpSlackIntegrationSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpSlackIntegrationSourcesDisclosureHrefFromSearch("", true, "/help/slack-integration")).toBe(
+      "/help/slack-integration?helpSlackIntegrationSourcesOpen=1",
+    );
+    expect(parseCompareTwoReviewsSourcesOpenFromSearch("true")).toBe(true);
+    expect(compareTwoReviewsSourcesDisclosureHrefFromSearch("runA=a", true, "/insights/compare-two-reviews")).toBe(
+      "/insights/compare-two-reviews?runA=a&compareTwoReviewsSourcesOpen=1",
+    );
+    expect(parseProvenanceSourcesOpenFromSearch("1")).toBe(true);
+    expect(provenanceSourcesDisclosureHrefFromSearch("", true, "/architecture/reviews/r1/provenance")).toBe(
+      "/architecture/reviews/r1/provenance?provenanceSourcesOpen=1",
+    );
+    expect(parseAdvisorySchedulesSourcesOpenFromSearch("true")).toBe(true);
+    expect(advisorySchedulesSourcesDisclosureHrefFromSearch("tab=schedules", true, "/governance/advisory-scans")).toBe(
+      "/governance/advisory-scans?tab=schedules&advisorySchedulesSourcesOpen=1",
+    );
+  });
+});
+
 describe("wave79 filter url helpers", () => {
   it("dev testing quick switch, operator first-run workflow minimized, run detail workspace disclosures, role nav density, sidebar groups, collapsible json path, finding ask inline finding id, technical id disclosure key, usability feedback, draft intake reason default open params", async () => {
     const {
