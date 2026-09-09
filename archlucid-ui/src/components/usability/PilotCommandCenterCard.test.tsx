@@ -133,9 +133,11 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
+    replace: vi.fn(),
     prefetch: vi.fn(),
   }),
   usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
@@ -265,9 +267,9 @@ describe("PilotCommandCenterCard", () => {
         displayName: "Claims intake",
         customerStatus: "draft",
         ownerLabel: "You",
-        lastUpdatedUtc: "2026-01-01T00:00:00.000Z",
+        lastUpdatedUtc: new Date().toISOString(),
         linkedReviewId: null,
-        serverUpdatedUtc: "2026-01-01T00:00:00.000Z",
+        serverUpdatedUtc: new Date().toISOString(),
       },
     ]);
 
@@ -282,7 +284,7 @@ describe("PilotCommandCenterCard", () => {
     ).toBeNull();
     expect(screen.queryByTestId("operator-home-draft-status-tag")).toBeNull();
     expect(screen.getByTestId("operator-home-draft-status-headline")).toHaveTextContent(
-      /1 architecture draft · Updated/,
+      /1 architecture draft ·/,
     );
     expect(screen.getByTestId("operator-home-draft-status-refine-hint")).toHaveTextContent(
       /Required before review:/,
@@ -332,6 +334,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveTextContent(
       OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
     );
+    expect(screen.getByTestId("operator-home-eval-with-drafts-canonical-next-action")).toBeInTheDocument();
   });
 
   it("shows optional refine guidance when persisted draft fields are review-ready but registry status is still draft", () => {

@@ -323,6 +323,20 @@ public sealed class ReviewCacheManifestBuilderTests
         lookupManifest.ContentHash.Should().Be(storageManifest.ContentHash);
     }
 
+    [Fact]
+    public void Build_changes_tenant_configuration_hash_when_workspace_changes()
+    {
+        ClosedLoopReasoningRequest workspaceA = CreateRequest("Architecture note.");
+        workspaceA.WorkspaceId = "11111111-1111-1111-1111-111111111111";
+
+        ClosedLoopReasoningRequest workspaceB = CreateRequest("Architecture note.");
+        workspaceB.WorkspaceId = "22222222-2222-2222-2222-222222222222";
+
+        ReviewCacheManifestBuilder.Build(workspaceA).TenantConfigurationHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(workspaceB).TenantConfigurationHash);
+    }
+
     private static ClosedLoopReasoningRequest CreateRequest(string content)
     {
         return new ClosedLoopReasoningRequest

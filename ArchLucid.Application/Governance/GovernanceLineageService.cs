@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
@@ -17,12 +18,14 @@ public sealed class GovernanceLineageService(
     IGovernancePromotionRecordRepository promotionRepo,
     IRunDetailQueryService runDetailQuery,
     IAuthorityQueryService authorityQuery,
+    IManifestHashService manifestHashService,
     IScopeContextProvider scopeProvider) : IGovernanceLineageService
 {
     private readonly IGovernanceApprovalRequestRepository _approvalRepo = approvalRepo ?? throw new ArgumentNullException(nameof(approvalRepo));
     private readonly IAuthorityQueryService _authorityQuery = authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
     private readonly IGovernancePromotionRecordRepository _promotionRepo = promotionRepo ?? throw new ArgumentNullException(nameof(promotionRepo));
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
+    private readonly IManifestHashService _manifestHashService = manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
     private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     /// <inheritdoc/>
@@ -59,7 +62,14 @@ public sealed class GovernanceLineageService(
             };
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         RunDetailDto? authorityDetail = await _authorityQuery.GetRunDetailAsync(scope, authorityRunId, cancellationToken);
-        if (authorityDetail?.GoldenManifest is not null)
+        bool manifestSealed = await GovernanceInsightsSealedManifestHashGuard.TryVerifyRunSealedManifestHashAsync(
+            authorityRunId.ToString("D"),
+            scope,
+            _authorityQuery,
+            _manifestHashService,
+            cancellationToken).ConfigureAwait(false);
+
+        if (manifestSealed && authorityDetail?.GoldenManifest is not null)
         {
             ManifestDocument gm = authorityDetail.GoldenManifest;
             manifestSummary = new GovernanceLineageManifestSummary

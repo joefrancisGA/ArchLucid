@@ -292,6 +292,14 @@ public sealed partial class PolicyPackWorkflowFacade(
     public async Task<bool> TrySetAssignmentOrganizationRequiredAsync(
         Guid assignmentId,
         bool isOrganizationRequired,
+        CancellationToken ct) =>
+        await TrySetAssignmentOrganizationRequiredWithOutcomeAsync(assignmentId, isOrganizationRequired, ct).ConfigureAwait(false) ==
+        PolicyPackSetAssignmentOrganizationRequiredOutcome.Updated;
+
+    /// <inheritdoc />
+    public async Task<PolicyPackSetAssignmentOrganizationRequiredOutcome> TrySetAssignmentOrganizationRequiredWithOutcomeAsync(
+        Guid assignmentId,
+        bool isOrganizationRequired,
         CancellationToken ct)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -299,9 +307,24 @@ public sealed partial class PolicyPackWorkflowFacade(
         PolicyPackAssignment? existing =
             await _assignmentRepository.GetByTenantAndAssignmentIdAsync(scope.TenantId, assignmentId, ct);
 
-        bool valueUnchanged = existing is not null
-            && PolicyPackAssignmentScope.IsVisibleInScope(existing, scope)
-            && existing.IsOrganizationRequired == isOrganizationRequired;
+        if (!PolicyPackAssignmentScope.IsVisibleInScope(existing, scope))
+            return PolicyPackSetAssignmentOrganizationRequiredOutcome.NotFound;
+
+        bool valueUnchanged = existing!.IsOrganizationRequired == isOrganizationRequired;
+
+        if (valueUnchanged)
+            return PolicyPackSetAssignmentOrganizationRequiredOutcome.Updated;
+
+        if (isOrganizationRequired)
+        {
+            PolicyPack? pack = await _packRepository.GetByIdAsync(existing.PolicyPackId, ct).ConfigureAwait(false);
+
+            if (pack is null || pack.TenantId != scope.TenantId)
+                return PolicyPackSetAssignmentOrganizationRequiredOutcome.NotFound;
+
+            if (!await _platformAvailability.IsGloballyActiveAsync(pack, ct).ConfigureAwait(false))
+                return PolicyPackSetAssignmentOrganizationRequiredOutcome.PlatformPackInactive;
+        }
 
         bool ok = await _workspaceSelectionService.TrySetAssignmentOrganizationRequiredAsync(
             scope,
@@ -310,7 +333,7 @@ public sealed partial class PolicyPackWorkflowFacade(
             ct);
 
         if (!ok)
-            return false;
+            return PolicyPackSetAssignmentOrganizationRequiredOutcome.NotFound;
 
         if (!valueUnchanged)
         {
@@ -323,7 +346,7 @@ public sealed partial class PolicyPackWorkflowFacade(
                 ct);
         }
 
-        return true;
+        return PolicyPackSetAssignmentOrganizationRequiredOutcome.Updated;
     }
 
     private async Task<IReadOnlyList<PolicyPack>> ListVisiblePacksInScopeAsync(ScopeContext scope, CancellationToken ct)

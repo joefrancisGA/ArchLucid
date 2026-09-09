@@ -66,6 +66,11 @@ public static class AzureResourceTagPromptSanitizer
             .Replace(UntrustedClose, "</untrusted" + TagBreak + "_input>", StringComparison.OrdinalIgnoreCase);
     }
 
+    private static bool IsLineBreakOrTab(char ch)
+    {
+        return ch is '\n' or '\r' or '\t' or '\u2028' or '\u2029';
+    }
+
     private static string StripControlChars(string value)
     {
         if (string.IsNullOrEmpty(value))
@@ -75,7 +80,15 @@ public static class AzureResourceTagPromptSanitizer
 
         foreach (char ch in value)
         {
-            if (!char.IsControl(ch) || ch is '\n' or '\r' or '\t')
+            if (IsLineBreakOrTab(ch))
+            {
+                if (builder.Length > 0 && builder[^1] != ' ')
+                    builder.Append(' ');
+
+                continue;
+            }
+
+            if (!char.IsControl(ch))
                 builder.Append(ch);
         }
 

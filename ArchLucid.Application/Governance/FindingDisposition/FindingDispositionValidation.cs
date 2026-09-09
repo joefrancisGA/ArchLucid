@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Governance;
 
 using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
@@ -30,6 +32,9 @@ public static class FindingDispositionValidation
             throw new ArgumentException("Finding id is required.", nameof(request));
 
         string normalizedFindingId = request.FindingId.Trim();
+
+        if (!HasSubstantiveFindingId(normalizedFindingId))
+            throw new ArgumentException("Finding id is required.", nameof(request));
 
         if (normalizedFindingId.Length > MaxFindingIdLength)
         {
@@ -151,5 +156,33 @@ public static class FindingDispositionValidation
         throw new ArgumentException(
             "Impact preview attestation is required when marking a finding remediated on a Working desk.",
             nameof(request));
+    }
+
+    /// <summary>
+    /// Rejects blank and invisible-only ids (for example U+200B) that pass
+    /// <see cref="string.IsNullOrWhiteSpace(string?)"/> but are not usable finding ids.
+    /// </summary>
+    private static bool HasSubstantiveFindingId(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        bool hasSubstantive = false;
+
+        foreach (char character in value)
+        {
+
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            UnicodeCategory category = char.GetUnicodeCategory(character);
+
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control)
+                return false;
+
+            hasSubstantive = true;
+        }
+
+        return hasSubstantive;
     }
 }

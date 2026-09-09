@@ -147,7 +147,9 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
           title={JIRA_INTEGRATION_HELP_PAGE_TITLE}
           titleTestId="help-jira-integration-page-title"
           subtitle={jiraIntegrationHelpPageSubtitle(buyerPolishedShell)}
-          subtitleClassName="max-w-3xl"
+          subtitleClassName={
+            buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+          }
           navHref={JIRA_INTEGRATION_HELP_CANONICAL_PATH}
           headingLevel="h1"
           metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}

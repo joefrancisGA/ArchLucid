@@ -11,6 +11,7 @@ using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Integration;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Cosmos;
+using ArchLucid.Retrieval.Indexing;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -337,6 +338,41 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
         hasHosted.Should().BeTrue(
             "Quick Scan budget reconciliation registers on Api; HostLeaderElectionCoordinator prevents duplicate work");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_leader_elected_retrieval_corpus_startup_indexers()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasPolicyPackIndexer = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(PolicyPackCorpusStartupIndexerHostedService));
+
+        bool hasPlatformDocIndexer = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(PlatformDocCorpusStartupIndexerHostedService));
+
+        bool hasExemplarIndexer = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ExemplarCorpusStartupIndexerHostedService));
+
+        bool hasRetrievalOutbox = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(RetrievalIndexingOutboxHostedService));
+
+        hasPolicyPackIndexer.Should().BeTrue(
+            "corpus startup indexers register on Api; ILeaderElectionWorkRunner runs one-shot indexing cluster-wide");
+        hasPlatformDocIndexer.Should().BeTrue();
+        hasExemplarIndexer.Should().BeTrue();
+        hasRetrievalOutbox.Should().BeFalse(
+            "continuous retrieval outbox pumpers remain Worker+Combined only");
     }
 
     [Fact]

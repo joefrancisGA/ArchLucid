@@ -349,6 +349,53 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
   });
 
+  it("does not open inspector when Space activates the baseline menu summary", () => {
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000aa",
+      hasGoldenManifest: true,
+    };
+
+    render(<RunsListClient runs={[committed]} projectId="default" page={1} pageSize={20} totalCount={1} />);
+
+    const menu = screen.getByTestId(`runs-row-baseline-menu-${committed.runId}`);
+    const summary = within(menu).getByText("More");
+
+    fireEvent.keyDown(summary, { key: " ", code: "Space" });
+
+    expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+  });
+
+  it("buyer-polished: Space on the featured card CTA does not open the inspector", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+    const committed2: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cf",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[committed, committed2]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    const cta = screen.getByTestId(`runs-row-primary-explore-${committed.runId}`);
+
+    fireEvent.keyDown(cta, { key: " ", code: "Space" });
+
+    expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+  });
+
   it("Escape in the filter field clears the query without closing an open inspector", () => {
     const secondRun: RunSummary = {
       ...sampleRun,

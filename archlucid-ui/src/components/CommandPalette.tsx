@@ -54,6 +54,7 @@ import {
   type OpenCommandPaletteEventDetail,
 } from "@/lib/shortcut-registry";
 import { CommandPaletteActions } from "@/components/CommandPaletteActions";
+import { CommandPaletteLockedNavGroup } from "@/components/CommandPaletteLockedNavGroup";
 import { CommandPaletteArchitectureIdentitiesGroup } from "@/components/CommandPaletteArchitectureIdentitiesGroup";
 import { consumePendingCommandPaletteOpen } from "@/lib/command-palette-open-intent";
 import { CommandPaletteAdminNavGroups } from "@/components/CommandPaletteAdminNavGroups";
@@ -66,6 +67,10 @@ import { RunIdQuickOpen } from "@/components/RunIdQuickOpen";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { filterNavGroupsForWorkingProfessionalMode } from "@/lib/workspace-mode/working-mode-nav-filter";
 import { filterWorkingPaletteNavHrefs } from "@/lib/filter-working-palette-nav-hrefs";
+import {
+  resolveGuidedPaletteLockedDestinations,
+  shouldShowGuidedPaletteLockedDestinations,
+} from "@/lib/usability/guided-palette-locked-destinations";
 import { isWorkingWorkspaceMode } from "@/lib/workspace-mode/workspace-mode";
 import {
   commandPaletteOverlayHrefFromSearch,
@@ -319,6 +324,20 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     return resolveShellHeaderSearchPlaceholder(pathname ?? "", productLine);
   }, [pathname, productLine]);
 
+  const guidedLockedDestinations = useMemo(() => {
+    if (
+      !shouldShowGuidedPaletteLockedDestinations({
+        workingMode,
+        hasCommittedArchitectureReview: committedForNav,
+        showFullNav: showFullNavForProduct,
+      })
+    ) {
+      return [];
+    }
+
+    return resolveGuidedPaletteLockedDestinations();
+  }, [committedForNav, showFullNavForProduct, workingMode]);
+
   return (
     <>
       {showTrigger ? (
@@ -390,6 +409,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             auditRunId={auditRunId}
             onNavigate={navigate}
           />
+          <CommandPaletteLockedNavGroup destinations={guidedLockedDestinations} />
           <CommandEmpty>
             {buyerPolishedShell ? (
               <>
@@ -422,6 +442,10 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
               <CommandGroup heading="Keyboard shortcuts (navigation)">
                 {SHORTCUTS.filter((entry) => {
                   if (entry.route === undefined || entry.route === "") {
+                    return false;
+                  }
+
+                  if (!visibleHrefs.has(entry.route)) {
                     return false;
                   }
 

@@ -37,8 +37,8 @@ export function useCompareFormUrlSync(options: {
 
   useEffect(() => {
     const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);
-    if (left.length > 0) setLeftRunId(left);
-    if (right.length > 0) setRightRunId(right);
+    setLeftRunId(left);
+    setRightRunId(right);
   }, [searchParams, setLeftRunId, setRightRunId]);
 
   useEffect(() => {

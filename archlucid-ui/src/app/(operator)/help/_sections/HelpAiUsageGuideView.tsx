@@ -136,7 +136,9 @@ export function HelpAiUsageGuideView(props: HelpAiUsageGuideViewProps): React.Re
           title={AI_USAGE_HELP_PAGE_TITLE}
           titleTestId="help-ai-usage-page-title"
           subtitle={aiUsageHelpPageSubtitle(buyerPolishedShell)}
-          subtitleClassName="max-w-3xl"
+          subtitleClassName={
+            buyerPolishedShell ? cn("max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody) : "max-w-3xl"
+          }
           navHref={AI_USAGE_HELP_CANONICAL_PATH}
           headingLevel="h1"
           metadata={buyerPolishedShell ? undefined : <HelpTopicRegistryProvenanceLine entry={entry} />}

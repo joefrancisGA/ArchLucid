@@ -141,22 +141,35 @@ public sealed class InsightDensityGateOptionsTests
     }
 
     [Fact]
-    public async Task Real_mode_leaves_prose_assumption_extraction_opt_in()
+    public async Task Real_mode_turns_on_prose_assumption_extraction_when_tenant_stored_nothing()
     {
         Guid tenantId = Guid.NewGuid();
 
-        InsightDensityGateOptions offByDefault = await ResolveRealModeAsync(
+        InsightDensityGateOptions effective = await ResolveRealModeAsync(
             tenantId,
             new InsightDensityGateOptions());
 
-        offByDefault.EnableProseAssumptionExtraction.Should().BeFalse(
-            "prose extraction issues extra completions per document, so Real mode must not turn it on");
+        effective.EnableProseAssumptionExtraction.Should().BeTrue(
+            "owner decision 2026-09-09: Real mode turns prose extraction on unless the tenant opts out");
+    }
 
-        InsightDensityGateOptions hostEnabled = await ResolveRealModeAsync(
+    [Fact]
+    public async Task Real_mode_honours_tenant_opt_out_of_prose_assumption_extraction()
+    {
+        Guid tenantId = Guid.NewGuid();
+        InMemoryTenantSettingsRepository settings = new();
+        await settings.UpsertAsync(
             tenantId,
-            new InsightDensityGateOptions { EnableProseAssumptionExtraction = true });
+            TenantSettingKeys.FindingsInsightDensityProseAssumptionExtractionEnabled,
+            "false",
+            CancellationToken.None);
 
-        hostEnabled.EnableProseAssumptionExtraction.Should().BeTrue();
+        InsightDensityGateOptions effective = await ResolveRealModeAsync(
+            tenantId,
+            new InsightDensityGateOptions(),
+            settings);
+
+        effective.EnableProseAssumptionExtraction.Should().BeFalse();
     }
 
     [Fact]

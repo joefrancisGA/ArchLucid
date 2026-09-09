@@ -35,6 +35,11 @@ public static class ArchitectureDiagramCanonicalObjectMapper
                 continue;
             }
 
+            if (StructuredDiagramUnlabeledShapeDetector.IsUnlabeledResourceShape(node))
+            {
+                continue;
+            }
+
             string objectId = ContextIngestionStableLineNames.StableObjectId(
                 StructuredDiagramSourceType,
                 $"{documentId}:{node.Id.Trim()}");

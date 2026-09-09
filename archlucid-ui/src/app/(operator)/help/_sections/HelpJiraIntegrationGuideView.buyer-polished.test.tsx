@@ -47,6 +47,7 @@ import {
   JIRA_INTEGRATION_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/jira-integration-help-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -107,7 +108,10 @@ describe("HelpJiraIntegrationGuideView buyer-polished shell (HEJ)", () => {
       within(actionPanel).getByRole("link", { name: JIRA_INTEGRATION_HELP_PRIMARY_ACTION.label }),
     ).toHaveAttribute("href", JIRA_INTEGRATION_HELP_PRIMARY_ACTION.href);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_HELP_SOURCES)) {
+    for (const source of filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_HELP_SOURCES),
+      "/help/jira-integration",
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
