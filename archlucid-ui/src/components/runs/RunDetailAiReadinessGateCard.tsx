@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
+import { usePilotRunDeltasQuery, resolvePilotRunDeltasQueryErrorMessage } from "@/hooks/use-pilot-run-deltas-query";
 import { downloadPilotFirstValueReportMarkdown } from "@/lib/api/pilots-collateral-download-api";
 import { OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
@@ -19,6 +19,7 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
     data: payload,
     isPending,
     isError,
+    error,
   } = usePilotRunDeltasQuery(runId, { enabled: committed });
 
   if (!committed) {
@@ -36,12 +37,17 @@ export function RunDetailAiReadinessGateCard(props: { readonly runId: string; re
   }
 
   if (isError || payload == null) {
+    const message =
+      error !== undefined && error !== null
+        ? resolvePilotRunDeltasQueryErrorMessage(error)
+        : "AI readiness signals could not be loaded. Review the first-value Markdown report before sponsor send.";
+
     return (
       <div
         className={cn("mb-4 px-4 py-3", OPERATOR_TYPOGRAPHY.body, operatorSemanticSurface("warn"))}
         data-testid="run-detail-ai-readiness-gate-error"
       >
-        AI readiness signals could not be loaded. Review the first-value Markdown report before sponsor send.
+        {message}
       </div>
     );
   }

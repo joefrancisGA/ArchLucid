@@ -26,6 +26,7 @@ import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { OPERATOR_TYPE_SCALE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
 import { architecturePackageDocxMutationBlockedReason } from "@/lib/runs/architecture-package-docx-mutation-blocked-reason";
+import { artifactBundleMutationBlockedReason } from "@/lib/runs/artifact-bundle-mutation-blocked-reason";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError, showSuccess } from "@/lib/toast";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
@@ -194,7 +195,10 @@ export function ManifestDeliverableGrid(props: ManifestDeliverableGridProps): Re
 
                 void downloadArtifactBundleZip(manifestIdTrimmed)
                   .catch((error: unknown) => {
-                    showError("Artifact bundle", error instanceof Error ? error.message : "Download failed.");
+                    const failure = toApiLoadFailure(error);
+                    const blocked = artifactBundleMutationBlockedReason(failure);
+
+                    showError("Artifact bundle", blocked ?? failure.message);
                   })
                   .finally(() => {
                     setZipBusy(false);

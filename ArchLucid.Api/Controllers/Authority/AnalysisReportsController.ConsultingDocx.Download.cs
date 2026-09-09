@@ -38,6 +38,11 @@ public sealed partial class AnalysisReportsController
         if (loaded.Error is not null)
             return loaded.Error;
 
+        IActionResult? sealedGuardResult = await EnsureRunAnalysisSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         if (Guid.TryParse(runId, out Guid runGuid))
         {
             await ConsultingDocxExportSealedReceiptGuard.EnsureVerifiedOrThrowAsync(
