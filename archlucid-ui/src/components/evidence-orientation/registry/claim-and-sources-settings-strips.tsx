@@ -339,7 +339,9 @@ export function ModelGovernanceSettingsEvidenceOrientationStrip(
   );
 }
 
-export function AiUsageSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function AiUsageSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="ai-usage-settings"
@@ -347,6 +349,8 @@ export function AiUsageSettingsEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={AI_USAGE_SETTINGS_SOURCES_INTRO}
       sources={AI_USAGE_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
