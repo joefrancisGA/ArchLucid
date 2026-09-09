@@ -17,10 +17,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { downloadTerraformAdvisoryExportZip } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { recordFirstExportOpenedOnce } from "@/lib/first-tenant-funnel-telemetry";
 import { showError } from "@/lib/toast";
 import { TERRAFORM_ADVISORY_EXPORT_DISCLAIMER } from "@/lib/terraform-advisory-disclaimer";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
+import { terraformAdvisoryExportMutationBlockedReason } from "@/lib/runs/terraform-advisory-export-mutation-blocked-reason";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   parseTerraformAdvisoryExportConfirmOpenFromSearch,
@@ -82,8 +84,10 @@ export function ExportTerraformAdvisoryButton(props: ExportTerraformAdvisoryButt
       await downloadTerraformAdvisoryExportZip(runId);
       setOpen(false);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showError("Could not download Terraform export", msg);
+      const failure = toApiLoadFailure(e);
+      const blocked = terraformAdvisoryExportMutationBlockedReason(failure);
+
+      showError("Could not download Terraform export", blocked ?? failure.message);
     } finally {
       setBusy(false);
     }

@@ -11,8 +11,14 @@ public sealed partial class PilotsController
     [Produces("application/json")]
     [ProducesResponseType(typeof(PilotRunDeltasResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetPilotRunDeltas(string runId, CancellationToken cancellationToken)
     {
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         PilotRunDeltasResponse? response = await _pilots.TryGetPilotRunDeltasAsync(runId, cancellationToken);
 
         return response is null
