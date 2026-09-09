@@ -31,10 +31,10 @@ import { compareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { COMPARE_CLAIM_DISCIPLINE } from "@/lib/compare-evidence-copy";
 import {
   COMPARE_PAGE_SUBTITLE_BUYER,
+  COMPARE_PAGE_LEAD,
   COMPARE_START_HERE_HELPER,
   COMPARE_TWO_REVIEWS_FIRST_VIEWPORT_TEST_ID,
   COMPARE_TWO_REVIEWS_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  COMPARE_TWO_REVIEWS_ORIENTATION_BOTTOM_TEST_ID,
   COMPARE_TWO_REVIEWS_PRIMARY_CONTENT_ID,
   COMPARE_TWO_REVIEWS_SKIP_LINK_LABEL,
   COMPARE_TWO_REVIEWS_SKIP_TARGET_ID,
@@ -79,6 +79,8 @@ export function CompareForm(props: CompareFormProps = {}) {
     lastComparedPair,
     leftPickedSummary,
     rightPickedSummary,
+    leftSummaryBlockedReason,
+    rightSummaryBlockedReason,
     continueLastPair,
     syncSelectionToUrl,
     handleLeftRunIdChange,
@@ -163,6 +165,14 @@ export function CompareForm(props: CompareFormProps = {}) {
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
+          <div className="space-y-4" data-testid="compare-two-reviews-buyer-intro">
+            <p
+              className={cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody)}
+              data-testid="compare-two-reviews-intro"
+            >
+              {COMPARE_PAGE_LEAD}
+            </p>
+          </div>
           <CompareComparisonDimensionsPreview />
           <div className="flex flex-wrap items-center gap-2">
             {showRelatedReviewLinks ? (
@@ -235,6 +245,8 @@ export function CompareForm(props: CompareFormProps = {}) {
           onSummarizeForSponsor={loadAiExplanation}
           onLeftRunPicked={setLeftPickedSummary}
           onRightRunPicked={setRightPickedSummary}
+          leftSummaryBlockedReason={leftSummaryBlockedReason}
+          rightSummaryBlockedReason={rightSummaryBlockedReason}
           useBuyerFacingRunLabels={buyerPolished}
           summarizeButtonLabel={buyerPolished ? "Summarize for leadership" : "Summarize for sponsor"}
           compareButtonLabel={buyerPolished ? buyerComparePrimaryActionLabel : "Compare two reviews"}
@@ -304,11 +316,7 @@ export function CompareForm(props: CompareFormProps = {}) {
         <CompareNextReviewFooterClient priorRunId={leftTrim} laterRunId={rightTrim} />
       ) : null}
 
-      {buyerPolished ? (
-        <div data-testid={COMPARE_TWO_REVIEWS_ORIENTATION_BOTTOM_TEST_ID}>
-          <CompareSourcesOrientationStrip />
-        </div>
-      ) : null}
+      {buyerPolished ? <CompareSourcesOrientationStrip /> : null}
     </>
   );
 

@@ -21,6 +21,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { commitArchitectureRun, getRunSummary } from "@/lib/api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
 import { resolveFinalizeSuccessDeskHref } from "@/lib/architecture/finalize-success-desk-href";
 import { resolveReviewWorkspaceArchitectureId } from "@/lib/architecture/working-architecture-review-routes";
@@ -83,6 +85,7 @@ export function CommitRunButton({
   const [dialogOpen, setDialogOpenState] = useState(urlFinalizeConfirm);
   const [successModalOpen, setSuccessModalOpenState] = useState(urlFinalizeSuccess);
   const [findingsCount, setFindingsCount] = useState<number | null>(null);
+  const [postCommitSummaryBlockedReason, setPostCommitSummaryBlockedReason] = useState<string | null>(null);
   const [notifySponsor, setNotifySponsor] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{
@@ -157,8 +160,9 @@ export function CommitRunButton({
       try {
         const summary = await getRunSummary(runId);
         setFindingsCount(summary.findingCount ?? null);
-      } catch {
-        // Ignore error fetching summary
+        setPostCommitSummaryBlockedReason(null);
+      } catch (error: unknown) {
+        setPostCommitSummaryBlockedReason(runSummaryBlockedReason(toApiLoadFailure(error)));
       }
       
       setSuccessModalOpen(true);
@@ -314,6 +318,15 @@ export function CommitRunButton({
                   Total findings: {findingsCount}
                 </span>
               )}
+              {postCommitSummaryBlockedReason !== null ? (
+                <span
+                  role="alert"
+                  className="mt-2 block text-rose-700 dark:text-rose-300"
+                  data-testid="commit-run-post-finalize-summary-blocked-reason"
+                >
+                  {postCommitSummaryBlockedReason}
+                </span>
+              ) : null}
               <span className={cn("mt-2 block", OPERATOR_TYPOGRAPHY.helper)}>
                 This review&apos;s decisions are now searchable in Ask.{" "}
                 <Link

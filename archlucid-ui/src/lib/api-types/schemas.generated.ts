@@ -5378,6 +5378,7 @@ export interface components {
             judgeEffectiveCap?: null | number;
             /** Format: int32 */
             judgeSkippedByCap?: number;
+            proseAssumptionHeldCheckAsks?: null | components["schemas"]["ProseAssumptionHeldCheckAsk"][];
             proseAssumptionRegisterEntries?: null | components["schemas"]["ProseAssumptionRegisterEntry"][];
             /** Format: int32 */
             retainedFindingCount?: number;
@@ -7595,6 +7596,11 @@ export interface components {
         };
         /** @enum {string} */
         ProseAssumptionDisposition: "Contradicted" | "Consistent" | "NotVerifiable";
+        ProseAssumptionHeldCheckAsk: {
+            evidenceRef?: string;
+            inputCode?: components["schemas"]["HeldCheckInputCode"];
+            statement?: string;
+        };
         ProseAssumptionRegisterEntry: {
             disposition?: components["schemas"]["ProseAssumptionDisposition"];
             documentPath?: string;
@@ -7997,6 +8003,9 @@ export interface components {
         RecordBulkFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
             evidenceRequestText?: null | string;
+            expectedCurrentDispositionRowVersionBase64ByFindingId?: {
+                [key: string]: string;
+            } | null;
             findingIds: string[];
             rationale: string;
             /** Format: date-time */
@@ -8004,6 +8013,9 @@ export interface components {
             tradeOffAcknowledgment?: null | string;
         };
         RecordBulkFindingDispositionResponse: {
+            currentDispositionRowVersionBase64ByFindingId?: {
+                [key: string]: string;
+            } | null;
             /** Format: int32 */
             processedCount?: number;
             updatedFindingIds: string[];

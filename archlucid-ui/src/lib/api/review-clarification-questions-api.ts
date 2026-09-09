@@ -1,4 +1,4 @@
-import { apiGet } from "@/lib/api/http";
+import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import type { ReviewClarificationQuestionsResponse } from "@/lib/review-clarification-questions-types";
 
 export async function getReviewClarificationQuestions(
@@ -18,5 +18,5 @@ export async function getReviewClarificationQuestions(
       ? `/v1/architecture/review/${encodeURIComponent(trimmedRunId)}/clarification-questions?${query}`
       : `/v1/architecture/review/${encodeURIComponent(trimmedRunId)}/clarification-questions`;
 
-  return apiGet<ReviewClarificationQuestionsResponse>(path);
+  return apiGetSealedManifestAware<ReviewClarificationQuestionsResponse>(path);
 }

@@ -18,7 +18,10 @@ vi.mock("@/lib/resolve-nav-link-for-pathname", () => ({
 }));
 
 import { AlertRulesBuyerChrome } from "@/components/alerts/AlertRulesBuyerChrome";
-import { ALERT_RULES_CONDITIONS_CLAIM_DISCIPLINE } from "@/lib/alert-rules-conditions-evidence-copy";
+import {
+  ALERT_RULES_CONDITIONS_CLAIM_DISCIPLINE,
+  ALERT_RULES_CONDITIONS_ORIENTATION_BOTTOM_TEST_ID,
+} from "@/lib/alert-rules-conditions-evidence-copy";
 
 describe("AlertRulesBuyerChrome", () => {
   it("renders claim discipline and Sources orientation in buyer-polished shell", () => {
@@ -26,7 +29,7 @@ describe("AlertRulesBuyerChrome", () => {
 
     render(<AlertRulesBuyerChrome />);
 
-    expect(screen.getByTestId("alert-rules-conditions-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId(ALERT_RULES_CONDITIONS_ORIENTATION_BOTTOM_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-conditions-claim-discipline")).toHaveTextContent(
       ALERT_RULES_CONDITIONS_CLAIM_DISCIPLINE.slice(0, 40),
     );

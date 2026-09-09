@@ -11,6 +11,8 @@ import {
   PROVENANCE_BUYER_START_HERE_HELPER,
   PROVENANCE_FIRST_VIEWPORT_TEST_ID,
   PROVENANCE_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  PROVENANCE_ORIENTATION_BOTTOM_TEST_ID,
+  PROVENANCE_OVERVIEW,
   PROVENANCE_PAGE_LEAD,
   PROVENANCE_PAGE_SUBTITLE_BUYER,
   PROVENANCE_PRIMARY_CONTENT_ID,
@@ -139,6 +141,15 @@ describe("ProvenancePageWorkspace buyer-polished shell (RRP)", () => {
     );
     expect(screen.getByTestId("provenance-buyer-subtitle")).toHaveTextContent(PROVENANCE_PAGE_SUBTITLE_BUYER);
     expect(screen.getByTestId("provenance-intro")).toHaveTextContent(PROVENANCE_PAGE_LEAD);
+    expect(screen.getByTestId("provenance-overview")).toHaveTextContent(PROVENANCE_OVERVIEW);
+    expect(screen.getByTestId(PROVENANCE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("provenance-intro"),
+    );
+    expect(
+      screen.getByTestId(PROVENANCE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("provenance-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(screen.getByTestId("provenance-buyer-start-here-helper")).toHaveTextContent(
       PROVENANCE_BUYER_START_HERE_HELPER,
     );
@@ -165,7 +176,7 @@ describe("ProvenancePageWorkspace buyer-polished shell (RRP)", () => {
 
     const primaryContent = screen.getByTestId(PROVENANCE_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(PROVENANCE_FIRST_VIEWPORT_TEST_ID);
-    const orientationBottom = screen.getByTestId("provenance-orientation-bottom");
+    const orientationBottom = screen.getByTestId(PROVENANCE_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("provenance-settings-sources");
 
     expect(primaryContent).toContainElement(firstViewport);

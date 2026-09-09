@@ -19,6 +19,11 @@ import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-po
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import { resolveDispositionConcurrentUpdateNotice } from "@/lib/findings/finding-disposition-concurrent-update";
+import {
+  readFindingDispositionConflictFromError,
+  type FindingDispositionConflictDetail,
+} from "@/lib/findings/finding-disposition-conflict";
+import { resolveExpectedCurrentDispositionRowVersion } from "@/lib/findings/finding-expected-current-disposition-row-version";
 import { collabRecentActorsFromDispositionHistory } from "@/lib/collab-recent-actor-presence";
 import {
   buildFindingApplyChangeDispositionAttestation,
@@ -61,6 +66,7 @@ export type UseFindingInspectGovernanceStickinessDispositionsInput = {
   readonly busyAction: GovernanceBusyAction | "remediation" | "waiver" | "revoke-waiver" | null;
   readonly setBusyAction: (action: GovernanceBusyAction | "remediation" | "waiver" | "revoke-waiver" | null) => void;
   readonly resolveMutationError: (error: unknown) => string;
+  readonly latestDispositionRowVersionBase64?: string | null;
 };
 
 function latestDispositionLabel(history: readonly FindingDispositionEvent[]): string {
@@ -85,6 +91,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   busyAction,
   setBusyAction,
   resolveMutationError,
+  latestDispositionRowVersionBase64 = null,
 }: UseFindingInspectGovernanceStickinessDispositionsInput) {
   const buyerPolishedShell = useProductionEvalChrome();
   const isWorkingDesk = useProductionDeskChrome();
@@ -110,6 +117,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
     EMPTY_FINDING_INSPECT_DISPOSITION_BASELINE,
   );
   const [dispositionHistoryAsOfUtc, setDispositionHistoryAsOfUtc] = useState<string | null>(null);
+  const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
+    null,
+  );
 
   function captureDispositionBaseline(): FindingInspectDispositionBaseline {
     return {
@@ -173,6 +183,25 @@ export function useFindingInspectGovernanceStickinessDispositions({
     [reload],
   );
 
+  const expectedCurrentDispositionRowVersionBase64 = useMemo(
+    () =>
+      resolveExpectedCurrentDispositionRowVersion({
+        inspectPayloadRowVersionBase64: latestDispositionRowVersionBase64,
+        latestHistoryEvent: history[0] ?? null,
+        conflict: dispositionConflict,
+      }),
+    [dispositionConflict, history, latestDispositionRowVersionBase64],
+  );
+
+  const reloadDispositionConflict = useCallback(async (): Promise<void> => {
+    await reload();
+    setDispositionConflict(null);
+  }, [reload]);
+
+  const dismissDispositionConflict = useCallback((): void => {
+    setDispositionConflict(null);
+  }, []);
+
   useResumePendingLivelihoodMutation({
     enabled: canMutate,
     onReplayed: (_kind, result) => {
@@ -233,6 +262,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
         previewOverrideReason: applyChangeAttestation?.previewOverrideReason,
         architectRestatement:
           architectRestatement.trim().length > 0 ? architectRestatement.trim() : undefined,
+        ...(expectedCurrentDispositionRowVersionBase64 === undefined
+          ? {}
+          : { expectedCurrentDispositionRowVersionBase64 }),
       };
       const idempotencyKey = createGovernanceMutationIdempotencyKey();
 
@@ -241,9 +273,19 @@ export function useFindingInspectGovernanceStickinessDispositions({
         returnPath: livelihoodReturnPath,
       });
 
+      setDispositionConflict(null);
       await handleDispositionSaved(saved, "Disposition recorded.");
     } catch (error: unknown) {
       if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
+      const conflict = readFindingDispositionConflictFromError(error);
+
+      if (conflict !== null) {
+        setDispositionConflict(conflict);
+        setDispositionInlineSaveError(null);
+        setErrorMessage(null);
         return;
       }
 
@@ -281,6 +323,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
         previewOverrideReason: applyChangeAttestation?.previewOverrideReason,
         architectRestatement:
           architectRestatement.trim().length > 0 ? architectRestatement.trim() : undefined,
+        ...(expectedCurrentDispositionRowVersionBase64 === undefined
+          ? {}
+          : { expectedCurrentDispositionRowVersionBase64 }),
       };
       const idempotencyKey = createGovernanceMutationIdempotencyKey();
 
@@ -289,10 +334,20 @@ export function useFindingInspectGovernanceStickinessDispositions({
         returnPath: livelihoodReturnPath,
       });
 
+      setDispositionConflict(null);
       await handleDispositionSaved(saved, "Finding marked as remediated.");
       setShowIncrementalRereviewLink(true);
     } catch (error: unknown) {
       if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
+      const conflict = readFindingDispositionConflictFromError(error);
+
+      if (conflict !== null) {
+        setDispositionConflict(conflict);
+        setDispositionInlineSaveError(null);
+        setErrorMessage(null);
         return;
       }
 
@@ -399,5 +454,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
     dispositionBaseline,
     dispositionHistoryAsOfUtc,
     refreshDispositionHistory: reload,
+    expectedCurrentDispositionRowVersionBase64,
+    dispositionConflict,
+    reloadDispositionConflict,
+    dismissDispositionConflict,
   };
 }

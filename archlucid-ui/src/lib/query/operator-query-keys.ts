@@ -147,6 +147,8 @@ export const operatorQueryKeys = {
   tenantIdentityProviderConfiguration: ["operator", "admin", "tenant-identity-provider-configuration"] as const,
   architectureIntelligenceSourceContext: (scope: OperatorScopeQueryKey, runId: string) =>
     ["operator", "architecture-intelligence", "source-context", scope, runId] as const,
+  architectureIntelligenceRunModel: (runId: string) =>
+    ["operator", "architecture-intelligence", "run-model", runId] as const,
   runRetrievalGrounding: (runId: string) => ["operator", "runs", "retrieval-grounding", runId] as const,
   effectivePolicyPacks: ["operator", "governance", "effective-policy-packs"] as const,
   effectivePolicyContent: ["operator", "governance", "effective-policy-content"] as const,

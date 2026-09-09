@@ -34,6 +34,12 @@ public sealed class GoldenCorpusInputDocument
     {
         get; set;
     }
+
+    /// <summary>Optional pinned prior graph for cross-run engines (case-64 topology-security-drift).</summary>
+    public GoldenCorpusPriorGraphFixtureDocument? PriorGraphFixture
+    {
+        get; set;
+    }
 }
 
 /// <summary>Pinned Azure and/or AWS/GCP cloud inventory packages for golden corpus inventory-backed engines.</summary>

@@ -209,7 +209,11 @@ public sealed class ExportsControllerScopeTests
             (manifestHashService ?? new Mock<IManifestHashService>()).Object,
             scopeProvider.Object);
 
-        ExportsController controller = new(facade);
+        ExportsController controller = new(
+            facade,
+            (authorityQuery ?? new Mock<IAuthorityQueryService>()).Object,
+            scopeProvider.Object,
+            (manifestHashService ?? new Mock<IManifestHashService>()).Object);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         return controller;

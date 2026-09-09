@@ -7,6 +7,8 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -44,9 +46,11 @@ public sealed class TechnologyLedgerControllerTests
     private TechnologyLedgerController BuildSut() =>
         new(
             _service.Object,
+            Mock.Of<IAuthorityQueryService>(),
             _scopeProvider.Object,
             _actorContext.Object,
-            _audit.Object)
+            _audit.Object,
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

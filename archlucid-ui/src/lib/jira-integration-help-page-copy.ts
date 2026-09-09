@@ -17,3 +17,9 @@ export const JIRA_INTEGRATION_HELP_PAGE_SUBTITLE_BUYER =
 
 export const JIRA_INTEGRATION_HELP_START_HERE_HELPER =
   "Without workspace admin access, review the feature summaries below and use Where to go next for integration readiness or audit follow-ups." as const;
+
+export const JIRA_INTEGRATION_HELP_PAGE_LEAD =
+  "Jira integration configures outbound work-item routing — project keys, severity filters, and issue-type mappings — so findings and reviews can create Jira issues from ArchLucid." as const;
+
+export const JIRA_INTEGRATION_HELP_BUYER_OVERVIEW =
+  "Feature summaries and read steps below explain connection preconditions, routing mappings, and outbound issue creation before you open Jira integration." as const;

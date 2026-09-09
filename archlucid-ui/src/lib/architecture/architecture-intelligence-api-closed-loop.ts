@@ -6,6 +6,10 @@ import type {
   ClosedLoopReasoningResult,
   ClosedLoopReasoningSourceText,
 } from "@/lib/architecture/architecture-intelligence-api-types";
+import type { components } from "@/lib/openapi-schemas";
+import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
+
+type ArchitectureKnowledgeModel = components["schemas"]["ArchitectureKnowledgeModel"];
 
 const DEFAULT_ARCHITECTURE_FILE_NAME = "architecture-description.txt";
 const DEFAULT_CONTENT_TYPE = "text/plain";
@@ -13,8 +17,16 @@ const DEFAULT_CONTENT_TYPE = "text/plain";
 export async function fetchArchitectureIntelligenceProductSourceContext(
   runId: string,
 ): Promise<ArchitectureIntelligenceProductSourceContext> {
-  return getJson<ArchitectureIntelligenceProductSourceContext>(
-    `/api/proxy/v1/architecture-intelligence/product-runs/${encodeURIComponent(runId)}/source-context`,
+  return apiGetSealedManifestAware<ArchitectureIntelligenceProductSourceContext>(
+    `/v1/architecture-intelligence/product-runs/${encodeURIComponent(runId)}/source-context`,
+  );
+}
+
+export async function fetchArchitectureIntelligenceRunModel(
+  runId: string,
+): Promise<ArchitectureKnowledgeModel> {
+  return apiGetSealedManifestAware<ArchitectureKnowledgeModel>(
+    `/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}`,
   );
 }
 
@@ -118,18 +130,6 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
       body: JSON.stringify(body),
     }),
   );
-
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-
-    throw new Error(`Request failed (HTTP ${response.status}). ${text.slice(0, 240)}`);
-  }
-
-  return (await response.json()) as T;
-}
-
-async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(path, mergeRegistrationScopeForProxy({ method: "GET" }));
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");

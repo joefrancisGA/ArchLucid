@@ -7,7 +7,6 @@ import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import {
   type ApiResponseWithTrace,
-  apiGet,
   apiPostJson,
 } from "./http";
 import type {
@@ -20,7 +19,7 @@ export async function getArchitectureRequest(
   requestId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<components["schemas"]["ArchitectureRequest"]> {
-  return apiGet<components["schemas"]["ArchitectureRequest"]>(
+  return apiGetSealedManifestAware<components["schemas"]["ArchitectureRequest"]>(
     `/v1/architecture/request/${encodeURIComponent(requestId)}`,
     options,
   );
@@ -35,7 +34,7 @@ export async function getRunSummary(
     throw new Error(`Run id "${runId.trim()}" is not a live authority key.`);
   }
 
-  return apiGet<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
+  return apiGetSealedManifestAware<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
 }
 
 /** Buyer-proof run detail — whitelisted fields only (TB-283). */
@@ -61,12 +60,14 @@ export async function recordRunOperatorGovernanceDisposition(
 
 /** Authority pipeline stage outcomes (`GET /v1/architecture/review/{runId}/stage-timeline`, TB-250). */
 export async function getRunStageTimeline(runId: string): Promise<StageTimelineSummary[]> {
-  return apiGet<StageTimelineSummary[]>(
+  return apiGetSealedManifestAware<StageTimelineSummary[]>(
     `/v1/architecture/review/${encodeURIComponent(runId)}/stage-timeline`,
   );
 }
 
 /** Run-scoped audit events oldest-first (pipeline / lifecycle timeline for operators). */
 export async function getRunPipelineTimeline(runId: string): Promise<PipelineTimelineItem[]> {
-  return apiGet<PipelineTimelineItem[]>(`/v1/authority/reviews/${runId}/pipeline-timeline`);
+  return apiGetSealedManifestAware<PipelineTimelineItem[]>(
+    `/v1/authority/reviews/${runId}/pipeline-timeline`,
+  );
 }

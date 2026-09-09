@@ -10,7 +10,7 @@ import {
   parseArchitectureCreatedGovernanceSourcesOpenFromSearch,
 } from "@/lib/architecture/architecture-created-governance-sources-disclosure-url";
 import { ARCHITECTURE_CREATED_GOVERNANCE_SOURCES_INTRO } from "@/lib/architecture/architecture-created-governance-sources";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { EVALUATION_SOURCES_TITLE } from "@/lib/evaluation-sources-title";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
@@ -20,6 +20,7 @@ export function ArchitectureCreatedGovernanceBuyerChrome(): React.JSX.Element | 
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const architectureCreatedGovernanceSourcesOpenParam = searchParams.get("architectureCreatedGovernanceSourcesOpen");
+  const evalChromeShell = useProductionEvalChrome();
   const [sourcesOpen, setSourcesOpenState] = useState(() =>
     parseArchitectureCreatedGovernanceSourcesOpenFromSearch(architectureCreatedGovernanceSourcesOpenParam),
   );
@@ -46,7 +47,7 @@ export function ArchitectureCreatedGovernanceBuyerChrome(): React.JSX.Element | 
     setSourcesOpenState(parseArchitectureCreatedGovernanceSourcesOpenFromSearch(architectureCreatedGovernanceSourcesOpenParam));
   }, [architectureCreatedGovernanceSourcesOpenParam]);
 
-  if (!isBuyerPolishedOperatorShellEnv()) {
+  if (!evalChromeShell) {
     return null;
   }
 

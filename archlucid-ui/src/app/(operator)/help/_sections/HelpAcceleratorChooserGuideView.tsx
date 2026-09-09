@@ -10,11 +10,12 @@ import { HelpAcceleratorChooserHeaderActions } from "@/app/(operator)/help/_sect
 import { HelpAcceleratorChooserPrerequisitePanel } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserPrerequisitePanel";
 import { HelpAcceleratorChooserRelatedNextStepsLinks } from "@/app/(operator)/help/_sections/HelpAcceleratorChooserSourceLinks";
 import { AcceleratorChooserHelpClaimDisciplineStrip } from "@/components/help/AcceleratorChooserHelpClaimDisciplineStrip";
-import { AcceleratorChooserHelpEvidenceOrientationStrip } from "@/components/help/AcceleratorChooserHelpEvidenceOrientationStrip";
+import { AcceleratorChooserHelpSourcesOrientationStrip } from "@/components/help/AcceleratorChooserHelpSourcesOrientationStrip";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { Button } from "@/components/ui/button";
 import { HelpAcceleratorCostGovernancePackCard } from "@/components/accelerator/HelpAcceleratorCostGovernancePackCard";
 import { AcceleratorPackStartCta } from "@/components/accelerator/AcceleratorPackStartCta";
 import { useAcceleratorChooserPrerequisitePresentation } from "@/hooks/use-accelerator-chooser-prerequisite-presentation";
@@ -25,6 +26,7 @@ import {
   ACCELERATOR_CHOOSER_HELP_OVERVIEW,
   ACCELERATOR_CHOOSER_HELP_PAGE_SUBTITLE,
   ACCELERATOR_CHOOSER_HELP_PAGE_TITLE,
+  ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS,
   ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS,
 } from "@/lib/accelerator-chooser-help-guide-content";
 import {
@@ -33,11 +35,15 @@ import {
 } from "@/lib/accelerator-chooser-help-evidence-copy";
 import { ACCELERATOR_CHOOSER_HELP_PATH } from "@/lib/accelerator-chooser-help-route";
 import {
+  ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW,
+  ACCELERATOR_CHOOSER_HELP_BUYER_START_HERE_HELPER,
+  ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID,
   ACCELERATOR_CHOOSER_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  ACCELERATOR_CHOOSER_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  ACCELERATOR_CHOOSER_HELP_PAGE_LEAD,
   ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID,
   ACCELERATOR_CHOOSER_HELP_SKIP_LINK_LABEL,
   ACCELERATOR_CHOOSER_HELP_SKIP_TARGET_ID,
+  ACCELERATOR_CHOOSER_HELP_START_HERE_CARD_TITLE,
 } from "@/lib/accelerator-chooser-help-page-copy";
 import {
   ACCELERATOR_GREENFIELD_PACK_ID,
@@ -167,6 +173,41 @@ function AcceleratorChooserPackCard(props: AcceleratorChooserPackCardProps): Rea
   );
 }
 
+function AcceleratorChooserStartHerePanel(): React.ReactElement {
+  return (
+    <section
+      className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+      data-testid="help-accelerator-chooser-start-here-panel"
+      aria-labelledby="help-accelerator-chooser-start-here-panel-heading"
+    >
+      <h2
+        id="help-accelerator-chooser-start-here-panel-heading"
+        className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+      >
+        {ACCELERATOR_CHOOSER_HELP_START_HERE_CARD_TITLE}
+      </h2>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button asChild size="sm" variant="primary">
+          <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.baselineReview.href}>
+            {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.baselineReview.label}
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline">
+          <Link href={ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.pathChooser.href}>
+            {ACCELERATOR_CHOOSER_HELP_PRIMARY_ACTIONS.pathChooser.label}
+          </Link>
+        </Button>
+      </div>
+      <p
+        className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="help-accelerator-chooser-start-here-helper"
+      >
+        {ACCELERATOR_CHOOSER_HELP_BUYER_START_HERE_HELPER}
+      </p>
+    </section>
+  );
+}
+
 /** Buyer-safe accelerator pack chooser for `/help/accelerator-chooser` (TB-1604). */
 export function HelpAcceleratorChooserGuideView(
   props: HelpAcceleratorChooserGuideViewProps,
@@ -210,8 +251,11 @@ export function HelpAcceleratorChooserGuideView(
     ACCELERATOR_CHOOSER_GUIDE_HEADINGS,
     "claim-discipline",
   );
-  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
-  const showSectionNav = guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
+  const contentGridClass = resolveHelpPageContentGridClass(
+    buyerPolishedShell ? 0 : guideHeadings.length,
+  );
+  const showSectionNav = !buyerPolishedShell && guideHeadings.length >= HELP_PAGE_MIN_TOC_HEADINGS;
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
     <article
@@ -259,7 +303,33 @@ export function HelpAcceleratorChooserGuideView(
             data-testid={buyerPolishedShell ? ACCELERATOR_CHOOSER_HELP_PRIMARY_CONTENT_ID : undefined}
             className={cn(buyerPolishedShell ? "scroll-mt-24 space-y-6" : "space-y-6")}
           >
-          <HelpAcceleratorChooserPrerequisitePanel presentation={presentation} />
+          {buyerPolishedShell ? (
+            <div
+              id={ACCELERATOR_CHOOSER_HELP_SKIP_TARGET_ID}
+              data-testid={ACCELERATOR_CHOOSER_HELP_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+            >
+              <div className="space-y-4" data-testid="help-accelerator-chooser-buyer-intro">
+                <p className={readingBodyClass} data-testid="help-accelerator-chooser-intro">
+                  {ACCELERATOR_CHOOSER_HELP_PAGE_LEAD}
+                </p>
+              </div>
+              <AcceleratorChooserStartHerePanel />
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="help-accelerator-chooser-overview"
+              >
+                {ACCELERATOR_CHOOSER_HELP_BUYER_OVERVIEW}
+              </p>
+            </div>
+          ) : null}
+
+          {buyerPolishedShell ? null : (
+            <HelpAcceleratorChooserPrerequisitePanel presentation={presentation} />
+          )}
 
           <section
             aria-labelledby="help-accelerator-chooser-packs-heading"
@@ -350,9 +420,7 @@ export function HelpAcceleratorChooserGuideView(
           )}
 
           {buyerPolishedShell ? (
-            <div data-testid={ACCELERATOR_CHOOSER_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-              <AcceleratorChooserHelpEvidenceOrientationStrip />
-            </div>
+            <AcceleratorChooserHelpSourcesOrientationStrip />
           ) : null}
           </div>
         </div>

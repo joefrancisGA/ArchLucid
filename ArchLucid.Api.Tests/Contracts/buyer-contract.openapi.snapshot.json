@@ -18573,6 +18573,15 @@
             "format": "int32",
             "type": "integer"
           },
+          "proseAssumptionHeldCheckAsks": {
+            "items": {
+              "$ref": "#/components/schemas/ProseAssumptionHeldCheckAsk"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
           "proseAssumptionRegisterEntries": {
             "items": {
               "$ref": "#/components/schemas/ProseAssumptionRegisterEntry"
@@ -25910,6 +25919,20 @@
         ],
         "type": "string"
       },
+      "ProseAssumptionHeldCheckAsk": {
+        "properties": {
+          "evidenceRef": {
+            "type": "string"
+          },
+          "inputCode": {
+            "$ref": "#/components/schemas/HeldCheckInputCode"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ProseAssumptionRegisterEntry": {
         "properties": {
           "disposition": {
@@ -27201,6 +27224,16 @@
               "string"
             ]
           },
+          "expectedCurrentDispositionRowVersionBase64ByFindingId": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": [
+              "null",
+              "object"
+            ]
+          },
           "findingIds": {
             "items": {
               "type": "string"
@@ -27233,6 +27266,16 @@
       },
       "RecordBulkFindingDispositionResponse": {
         "properties": {
+          "currentDispositionRowVersionBase64ByFindingId": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true,
+            "type": [
+              "null",
+              "object"
+            ]
+          },
           "processedCount": {
             "format": "int32",
             "type": "integer"
@@ -44165,13 +44208,18 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {

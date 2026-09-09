@@ -380,6 +380,37 @@ public sealed class GoldenCorpusMaterializerTests
             "Context snapshot requires encryption-at-rest with no matching graph evidence — expect **required-capability-coverage** (DX-49).");
     }
 
+    [Fact]
+    public async Task Record_hand_authored_case_64_when_env_flag_set()
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("ARCHLUCID_RECORD_DECISIONING_GOLDEN"), "1", StringComparison.Ordinal))
+            return;
+
+        GraphSnapshot graph = GoldenCorpusDx64GraphFactory.CreateCurrentGraph(includeReplica: false);
+        GoldenCorpusPriorGraphFixtureDocument priorFixture = GoldenCorpusDx64GraphFactory.CreatePriorFixture();
+
+        string dir = Path.Combine(GoldenCorpusRepoPaths.CorpusSourceDirectory, "case-64");
+        Directory.CreateDirectory(dir);
+
+        GoldenCorpusInputDocument input = new()
+        {
+            RunId = graph.RunId,
+            ContextSnapshotId = graph.ContextSnapshotId,
+            GraphSnapshot = graph,
+            Merge = null,
+            PriorGraphFixture = priorFixture,
+        };
+
+        string inputJson = JsonSerializer.Serialize(input, GoldenCorpusJson.SerializerOptions);
+        await File.WriteAllTextAsync(Path.Combine(dir, "input.json"), inputJson);
+
+        string readme =
+            "# case-64\n\nPrior graph retains SQL geo-redundant replica evidence; current graph removes it — expect **topology-security-drift** (DX-64).\n\nRegenerated with `ARCHLUCID_RECORD_DECISIONING_GOLDEN=1`.\n";
+        await File.WriteAllTextAsync(Path.Combine(dir, "README.md"), readme);
+
+        await RecordHandAuthoredCaseAsync("case-64");
+    }
+
     private static async Task RecordIngestDeclarationCaseAsync(
         string caseFolderName,
         GraphSnapshot graph,
@@ -468,7 +499,8 @@ public sealed class GoldenCorpusMaterializerTests
             audit,
             merge,
             CancellationToken.None,
-            input.InventoryFixture);
+            input.InventoryFixture,
+            input.PriorGraphFixture);
 
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
@@ -521,7 +553,8 @@ public sealed class GoldenCorpusMaterializerTests
                 audit,
                 merge,
                 CancellationToken.None,
-                input.InventoryFixture);
+                input.InventoryFixture,
+                input.PriorGraphFixture);
 
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);

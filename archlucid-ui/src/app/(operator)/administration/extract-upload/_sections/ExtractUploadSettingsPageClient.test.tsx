@@ -156,6 +156,8 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.getByText("Step 1 — Collect inventory locally")).toBeInTheDocument();
     expect(screen.getByText("Step 2 — Upload ZIP")).toBeInTheDocument();
     expect(screen.queryByText("Step 3 — Upload ZIP")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-go-reviews")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /go to reviews/i })).not.toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-demo-aside")).toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-validate-disclosure")).toBeInTheDocument();
     expect(screen.getByText(EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND)).toBeInTheDocument();

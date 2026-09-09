@@ -12,6 +12,7 @@ import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQua
 import { RunDetailInsightDensityMeasurementDenominatorStrip } from "@/components/reviews/RunDetailInsightDensityMeasurementDenominatorStrip";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
 import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
 import type { ManifestFeasibilityVerdict, TransparencyTrail } from "@/types/feasibility-verdict";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
@@ -37,6 +38,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
   readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
   readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
+  readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
   readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
   readonly isSample?: boolean | null;
   readonly preCommitGateEnabled?: boolean | null;
@@ -105,6 +107,7 @@ export function RunDetailReviewPackageStampViewport(
           heldCheckLedgerEntries={props.heldCheckLedgerEntries}
           heldCheckSecondPass={props.heldCheckSecondPass}
           proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
+          proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
           suppressOnTerminalFailure={props.suppressMeasurementDenominator}
         />
         <RunDetailReviewPackageDecisionReceiptStrip
@@ -164,6 +167,7 @@ export function RunDetailReviewPackageStampViewport(
         heldCheckLedgerEntries={props.heldCheckLedgerEntries}
         heldCheckSecondPass={props.heldCheckSecondPass}
         proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
+        proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
         suppressOnTerminalFailure={props.suppressMeasurementDenominator}
       />
       <RunDetailOverviewTransparencyTrail

@@ -1,8 +1,11 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
@@ -23,6 +26,7 @@ public sealed partial class GraphController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetArchitectureGraphTemporalSnapshot(
         [FromQuery] Guid runId,
         [FromQuery] DateTimeOffset? asOf,
@@ -65,6 +69,36 @@ public sealed partial class GraphController
             resolved,
             anchorCompareDetail?.GoldenManifest,
             detail.GoldenManifest);
+
+        if (anchorCompareDetail?.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    anchorCompareDetail.GoldenManifest,
+                    runId.ToString("D"),
+                    manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
+
+        if (detail.GoldenManifest is not null)
+        {
+            try
+            {
+                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
+                    detail.GoldenManifest,
+                    resolved.RunId.ToString("D"),
+                    manifestHashService);
+            }
+            catch (ConflictException ex)
+            {
+                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            }
+        }
 
         if (detail.GraphSnapshot is null)
         {

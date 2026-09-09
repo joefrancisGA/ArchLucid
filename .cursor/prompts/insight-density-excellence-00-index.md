@@ -3,7 +3,7 @@
      docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md
      Do not implement from this index. -->
 
-# Insight-density excellence — Composer prompt set (DX-01–DX-68)
+# Insight-density excellence — Composer prompt set (DX-01–DX-72)
 
 Canonical prompts (copy-paste blocks):
 
@@ -16,7 +16,8 @@ Canonical prompts (copy-paste blocks):
 - **DX-51–DX-56 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX51.md)
 - **DX-57 (shipped `#2242` — do not re-run):** Real-mode ranking-prior defaults; no prompt file
 - **DX-58–DX-62 (shipped on `master` — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX58.md)
-- **DX-63–DX-68 (ready):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md)
+- **DX-63–DX-68 (shipped — do not re-run):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md)
+- **DX-69–DX-72 (ready):** [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md)
 
 Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md)
 
@@ -129,7 +130,7 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 | **DX-61** | Prose assumption register | Yes with DX-58 | DX-55 shipped |
 | **DX-62** | Judge remaining-budget cap shrink | Yes with DX-58 | DX-02, DX-57 |
 
-**DX-63–DX-68 ready** (2026-09-08). Canonical prompts: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md)
+**DX-63–DX-68 shipped** (2026-09-08). Canonical history: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md)
 
 | Prompt | Title | Parallel? | Depends on |
 |--------|-------|-----------|------------|
@@ -142,6 +143,17 @@ Strategy (why): [`docs/architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../
 
 Owner-gated (not default-on in DX-63–DX-68): live frontier corpus (**G-REAL-06**), `EnableProseAssumptionExtraction` default-on, Graph-RAG live ablation (**TB-883**), `PreferHighHumanAcceptResidual` (DX-67 flag, default false).
 
+**DX-69–DX-72 ready** (2026-09-08). Canonical prompts: [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md)
+
+| Prompt | Title | Parallel? | Depends on |
+|--------|-------|-----------|------------|
+| **DX-69** | Declaration-derived IAM + data-flow path edges | First | DX-03, DX-06, DX-32 shipped |
+| **DX-70** | Tighten remaining evidence-ref vetoes | Yes with DX-69 | DX-50 shipped |
+| **DX-71** | Fuse-then-demote constituents | Yes with DX-69 | DX-51, DX-63 shipped |
+| **DX-72** | Graduated evidence-quality score terms | After DX-70 | DX-70, DX-65 shipped |
+
+Owner-gated (not in DX-69–DX-72): live extractor-as-default, `EnableProseAssumptionExtraction` default-on, live frontier corpus (**G-REAL-06**), Graph-RAG live ablation (**TB-883**).
+
 ## Constraints (same as architecture file)
 
 - One prompt per chat. Feature branch per prompt. Do not push `master`.
@@ -150,7 +162,8 @@ Owner-gated (not default-on in DX-63–DX-68): live frontier corpus (**G-REAL-06
 - **DX-51–DX-56 shipped** — do not re-run.
 - **DX-57 shipped** (`#2242`) — do not re-run.
 - **DX-58–DX-62 shipped** — do not re-run.
-- **DX-63–DX-68** — run from [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md); one prompt per chat. **Only DX-64 adds an EngineType** (`topology-security-drift`).
+- **DX-63–DX-68 shipped** — do not re-run.
+- **DX-69–DX-72** — run from [`INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](../../docs/architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md); one prompt per chat. **Adds no EngineType.**
 - No 5th `AgentType` enum (DX-10 uses the orchestrator/judge seam).
 - No fake named-model frontier transcripts.
 - **DX-19** (ADR 0062 / TB-2033) shipped 2026-09-07 — do not re-run.

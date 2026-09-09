@@ -5,8 +5,15 @@ import { GOVERNANCE_OVERVIEW_PAGE_LEAD, BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD } fr
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import {
   APPROVAL_QUEUE_CLAIM_DISCIPLINE,
+  APPROVAL_QUEUE_FOLLOW_UPS_TITLE,
+  GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER,
+  GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID,
+  GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID,
+  GOVERNANCE_APPROVAL_QUEUE_OVERVIEW,
+  GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
   GOVERNANCE_APPROVAL_QUEUE_PRIMARY_CONTENT_ID,
   GOVERNANCE_APPROVAL_QUEUE_SKIP_LINK_LABEL,
+  GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE,
 } from "@/lib/approval-queue-evidence-copy";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
@@ -224,6 +231,28 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     expect(screen.getByTestId("approval-queue-header-claim-discipline")).toHaveTextContent(
       APPROVAL_QUEUE_CLAIM_DISCIPLINE,
     );
+    expect(screen.getByTestId("governance-approval-queue-intro")).toHaveTextContent(
+      GOVERNANCE_APPROVAL_QUEUE_PAGE_LEAD,
+    );
+    expect(screen.getByTestId("governance-approval-queue-overview")).toHaveTextContent(
+      GOVERNANCE_APPROVAL_QUEUE_OVERVIEW,
+    );
+    expect(screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID)).toContainElement(
+      screen.getByTestId("governance-approval-queue-intro"),
+    );
+    expect(
+      screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_FIRST_VIEWPORT_TEST_ID).compareDocumentPosition(
+        screen.getByTestId("governance-approval-queue-overview"),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(screen.getByTestId("governance-approval-queue-buyer-start-here-helper")).toHaveTextContent(
+      GOVERNANCE_APPROVAL_QUEUE_BUYER_START_HERE_HELPER,
+    );
+    expect(
+      screen.getByRole("heading", { level: 2, name: GOVERNANCE_APPROVAL_QUEUE_START_HERE_CARD_TITLE }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: APPROVAL_QUEUE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.queryByTestId("approval-queue-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Workspace health" })).toHaveAttribute(
       "href",
@@ -231,7 +260,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     );
     expect(screen.queryByTestId("layer-header-collapsible-guidance")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-approval-queue-primary-content")).toBeInTheDocument();
-    expect(screen.getByTestId("governance-approval-queue-orientation-bottom")).toBeInTheDocument();
+    expect(screen.getByTestId(GOVERNANCE_APPROVAL_QUEUE_ORIENTATION_BOTTOM_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("approval-queue-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-interactive-quickstart")).not.toBeInTheDocument();
     expect(screen.queryByText("How approval works")).not.toBeInTheDocument();

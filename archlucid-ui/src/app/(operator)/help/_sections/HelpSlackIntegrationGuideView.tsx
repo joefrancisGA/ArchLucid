@@ -41,6 +41,7 @@ import {
 import {
   SLACK_INTEGRATION_HELP_FIRST_VIEWPORT_TEST_ID,
   SLACK_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  SLACK_INTEGRATION_HELP_PAGE_LEAD,
   SLACK_INTEGRATION_HELP_PRIMARY_CONTENT_ID,
   SLACK_INTEGRATION_HELP_SKIP_LINK_LABEL,
   SLACK_INTEGRATION_HELP_SKIP_TARGET_ID,
@@ -168,10 +169,12 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
+            <div className="space-y-4" data-testid="help-slack-integration-buyer-intro">
+              <p className={readingBodyClass} data-testid="help-slack-integration-intro">
+                {SLACK_INTEGRATION_HELP_PAGE_LEAD}
+              </p>
+            </div>
             <SlackIntegrationStartHerePanel buyerPolishedShell={buyerPolishedShell} />
-            <p className={readingBodyClass} data-testid="help-slack-integration-overview">
-              {SLACK_INTEGRATION_HELP_OVERVIEW}
-            </p>
           </div>
         ) : null}
 
@@ -181,11 +184,9 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
               <SlackIntegrationHelpEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
             ) : null}
 
-            {!buyerPolishedShell ? (
-              <p className={readingBodyClass} data-testid="help-slack-integration-overview">
-                {SLACK_INTEGRATION_HELP_OVERVIEW}
-              </p>
-            ) : null}
+            <p className={readingBodyClass} data-testid="help-slack-integration-overview">
+              {SLACK_INTEGRATION_HELP_OVERVIEW}
+            </p>
 
             {!buyerPolishedShell ? (
               <SlackIntegrationStartHerePanel buyerPolishedShell={buyerPolishedShell} />
@@ -244,11 +245,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
           {buyerPolishedShell ? null : <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy />}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-slack-integration-orientation-bottom">
-            <HelpSlackIntegrationSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpSlackIntegrationSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

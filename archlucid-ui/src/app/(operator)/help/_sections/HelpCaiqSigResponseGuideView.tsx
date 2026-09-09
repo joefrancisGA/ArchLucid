@@ -253,16 +253,12 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
                   summary={CAIQ_SIG_RESPONSE_SIG_DEFERRED_SUMMARY}
                   detailsTestId={CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID}
                   bodyTestId="help-caiq-sig-response-sig-deferred-body"
-                >
-                  <MarketingAccessibilityMarkdownFragment
-                    markdownBody={markdown}
-                    tableCaption={`${entry.title} SIG reference table`}
-                    presentation="help"
-                    sourceDocPath={sourceDocPath}
-                    helpTopicSlug={entry.slug}
-                    preparedMarkdownOverride={sigMarkdown}
-                  />
-                </HelpCaiqSigResponseSigDeferredDisclosure>
+                  markdownBody={markdown}
+                  tableCaption={`${entry.title} SIG reference table`}
+                  sourceDocPath={sourceDocPath}
+                  helpTopicSlug={entry.slug}
+                  preparedMarkdownOverride={sigMarkdown}
+                />
               ) : null}
             </div>
 
@@ -314,16 +310,12 @@ export function HelpCaiqSigResponseGuideView(props: HelpCaiqSigResponseGuideView
                   summary={CAIQ_SIG_RESPONSE_SIG_DEFERRED_SUMMARY}
                   detailsTestId={CAIQ_SIG_RESPONSE_SIG_DEFERRED_TEST_ID}
                   bodyTestId="help-caiq-sig-response-sig-deferred-body"
-                >
-                  <MarketingAccessibilityMarkdownFragment
-                    markdownBody={markdown}
-                    tableCaption={`${entry.title} SIG reference table`}
-                    presentation="help"
-                    sourceDocPath={sourceDocPath}
-                    helpTopicSlug={entry.slug}
-                    preparedMarkdownOverride={sigMarkdown}
-                  />
-                </HelpCaiqSigResponseSigDeferredDisclosure>
+                  markdownBody={markdown}
+                  tableCaption={`${entry.title} SIG reference table`}
+                  sourceDocPath={sourceDocPath}
+                  helpTopicSlug={entry.slug}
+                  preparedMarkdownOverride={sigMarkdown}
+                />
               ) : null}
             </div>
 

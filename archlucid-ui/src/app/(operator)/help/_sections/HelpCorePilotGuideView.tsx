@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { HelpCorePilotFirstViewportJobChrome } from "@/app/(operator)/help/_sections/HelpCorePilotFirstViewportJobChrome";
 import { HelpCorePilotJobMatrix } from "@/app/(operator)/help/_sections/HelpCorePilotJobMatrix";
+import { HelpCorePilotSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpCorePilotSourcesOrientationStrip";
 import { CorePilotHelpClosingPanel } from "@/app/(operator)/help/_sections/CorePilotHelpClosingPanel";
 import { CorePilotHelpPostStepperPanel } from "@/app/(operator)/help/_sections/CorePilotHelpPostStepperPanel";
 import { FirstReviewGuideFirstArchitectureReviewVocabularyRail } from "@/components/FirstReviewGuideFirstArchitectureReviewVocabularyRail";
@@ -33,9 +34,10 @@ import {
   CORE_PILOT_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/core-pilot-help-evidence-copy";
 import {
+  CORE_PILOT_HELP_BUYER_OVERVIEW,
   CORE_PILOT_HELP_FIRST_VIEWPORT_TEST_ID,
   CORE_PILOT_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
-  CORE_PILOT_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  CORE_PILOT_HELP_PAGE_LEAD,
   CORE_PILOT_HELP_PAGE_SUBTITLE_BUYER,
   CORE_PILOT_HELP_PRIMARY_CONTENT_ID,
   CORE_PILOT_HELP_SKIP_LINK_LABEL,
@@ -188,6 +190,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
   const contentGridClass = resolveHelpPageContentGridClass(
     showSectionNav ? CORE_PILOT_HELP_GUIDE_HEADINGS.length : 0,
   );
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   const syncGuideVocabularyOpenToUrl = useCallback(
     (open: boolean) => {
@@ -353,6 +356,11 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
                 OPERATOR_LAYOUT.sectionStack,
               )}
             >
+              <div className="space-y-4" data-testid="help-core-pilot-buyer-intro">
+                <p className={readingBodyClass} data-testid="help-core-pilot-intro">
+                  {CORE_PILOT_HELP_PAGE_LEAD}
+                </p>
+              </div>
               {firstViewportContent}
               <p
                 className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -366,6 +374,15 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
               {firstViewportContent}
             </div>
           )}
+
+          {buyerPolishedShell ? (
+            <p
+              className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="help-core-pilot-overview"
+            >
+              {CORE_PILOT_HELP_BUYER_OVERVIEW}
+            </p>
+          ) : null}
 
           <section aria-labelledby="run-the-first-review" className="space-y-3">
             <HelpSectionHeading id="run-the-first-review">Run the first review</HelpSectionHeading>
@@ -405,11 +422,7 @@ export function HelpCorePilotGuideView(props: HelpCorePilotGuideViewProps): Reac
         {showSectionNav ? <HelpTopicTableOfContents headings={CORE_PILOT_HELP_GUIDE_HEADINGS} /> : null}
       </div>
 
-      {buyerPolishedShell ? (
-        <div data-testid={CORE_PILOT_HELP_ORIENTATION_BOTTOM_TEST_ID}>
-          <CorePilotHelpEvidenceOrientationStrip />
-        </div>
-      ) : null}
+      {buyerPolishedShell ? <HelpCorePilotSourcesOrientationStrip /> : null}
     </>
   );
 
