@@ -605,6 +605,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-09 seed hunt #1493 (seed-only): reseeded email-otp-auth; cheap-disproved ClientIp rate-limit bypass candidate; 21 scoped EmailOtpAuthService tests passed.
 
+- [x] (invalid) OTP verify rate limit keyed only by challenge id allows unlimited guesses by requesting new challenges for the same email — **invalid 2026-09-09 seed hunt #1494:** `IsEmailOtpVerificationRateLimitedAsync` counts failures per normalized email independent of challenge id; regression `VerifyCodeAsync_rate_limits_repeated_failures_per_email`
+
+2026-09-09 seed hunt #1494 (seed-only): reseeded email-otp-auth; cheap-disproved per-challenge verify rate-limit bypass candidate; 21 scoped EmailOtpAuthService tests passed.
+
 ---
 
 ## Zone: auth-return-path
@@ -658,6 +662,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `..` path segments before `#` fragment bypass `ContainsDotDotSegment` — **hit 2026-09-09 #1491:** `ContainsDotDotSegment` stripped query but not fragment, so `/signin/..#fragment` evaded traversal check; fixed with `GetPathWithoutQueryOrFragment`; regression in `TryNormalize_rejects_dot_dot_path_traversal_before_fragment_delimiter` and `TryNormalize_accepts_safe_relative_paths_with_fragment`
 
 2026-09-09 hunt #1491 (hit): proved dot-dot traversal before fragment delimiter bypass; 41 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (valid-no-repro) Query-string parent traversal (`/signin?next=../../evil`) bypasses `ContainsDotDotSegment` because only the path prefix is validated — **valid-no-repro 2026-09-09 seed hunt #1494:** `GetPathWithoutQueryOrFragment` limits dot-segment checks to the path; query parameters are not used as post-sign-in redirect targets by `TryNormalize` consumers
+
+2026-09-09 seed hunt #1494 (seed-only): reseeded auth-return-path; cheap-disproved query-string traversal candidate; 41 scoped AuthSignInReturnPathGuard tests passed.
 
 2026-09-07 seed hunt #1222 (hit): proved Unicode dot homoglyph traversal and residual percent after decode cap; reseeded from exhausted zone.
 
