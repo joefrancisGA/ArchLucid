@@ -1,6 +1,8 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
 
@@ -36,5 +38,18 @@ public sealed partial class ExportsController
         }
 
         return null;
+    }
+
+    private async Task<IActionResult?> EnsureSealedManifestReadAllowedForExportRecordAsync(
+        string exportRecordId,
+        IRunExportRecordRepository exportRecordRepository,
+        CancellationToken cancellationToken)
+    {
+        RunExportRecord? record = await exportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+
+        if (record is null || string.IsNullOrWhiteSpace(record.RunId))
+            return null;
+
+        return await EnsureSealedManifestReadAllowedAsync(record.RunId, cancellationToken);
     }
 }

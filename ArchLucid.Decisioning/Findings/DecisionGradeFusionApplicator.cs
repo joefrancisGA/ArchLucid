@@ -11,7 +11,7 @@ namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
 ///     Joins Decision-grade findings from distinct preferred engines that share a graph node (DX-51).
-///     Constituent rows stay on the package; this applicator only appends synthesis rows.
+///     DX-71 demotes fused constituents to checklist after this applicator appends synthesis rows.
 /// </summary>
 public static class DecisionGradeFusionApplicator
 {
@@ -190,7 +190,7 @@ public static class DecisionGradeFusionApplicator
             Severity = FindingSeverity.Warning,
             Classification = FindingClassification.DecisionGradeFinding,
             Treatment = FindingTreatment.Promote,
-            InsightDensityScore = 80,
+            InsightDensityScore = ResolveFusionScore(cluster.Members),
             Title = title,
             Rationale = string.Join('\n', descriptionLines),
             DecisionConsequence =
@@ -218,6 +218,19 @@ public static class DecisionGradeFusionApplicator
                 "Review the constituent Decision-grade findings on the shared node as one decision.",
             ],
         };
+    }
+
+    private static int? ResolveFusionScore(IReadOnlyList<Finding> members)
+    {
+        List<int> scores = members
+            .Where(static member => member.InsightDensityScore is int)
+            .Select(static member => member.InsightDensityScore!.Value)
+            .ToList();
+
+        if (scores.Count == 0)
+            return null;
+
+        return scores.Max();
     }
 
     private static string ComputeFindingId(IReadOnlyList<string> constituentFindingIds)

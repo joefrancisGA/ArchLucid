@@ -37,7 +37,7 @@ export function CloudProviderDetailSection(props: CloudProviderDetailSectionProp
 
 export type CloudProviderDetailLayoutProps = {
   readonly providerLabel: string;
-  readonly overview: ReactNode;
+  readonly overview?: ReactNode;
   readonly securityPreflight: ReactNode;
   readonly identitySetup: ReactNode;
   readonly connectionDetails: ReactNode;
@@ -53,9 +53,11 @@ export function CloudProviderDetailLayout(props: CloudProviderDetailLayoutProps)
 
   return (
     <div className="space-y-4" data-testid={`cloud-provider-detail-${props.providerLabel.toLowerCase()}`}>
-      <CloudProviderDetailSection id="overview" title="Overview">
-        {props.overview}
-      </CloudProviderDetailSection>
+      {props.overview !== undefined ? (
+        <CloudProviderDetailSection id="overview" title="Overview">
+          {props.overview}
+        </CloudProviderDetailSection>
+      ) : null}
       <CloudProviderDetailSection
         id="security-preflight"
         title="Security preflight"

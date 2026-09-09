@@ -12,9 +12,10 @@ export type ArchitectureInputTodayLane =
   | "pixel-stub"
   | "store-only"
   | "analyze"
-  | "separate-ingest";
+  | "separate-ingest"
+  | "structured-parse";
 
-export type ArchitectureInputOwnerStatus = "asOwned" | "asDeferred";
+export type ArchitectureInputOwnerStatus = "asOwned" | "asDeferred" | "shipped";
 
 /** How ESI rows classify inspectable bytes vs citation-only pointers today. */
 export type ArchitectureInputEsiCatalogKind =

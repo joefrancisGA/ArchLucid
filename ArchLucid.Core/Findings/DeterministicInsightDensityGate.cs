@@ -33,6 +33,9 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
             candidate.Message,
             candidate.EvidenceRefs);
         bool isGenericAdvice = GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(candidate.Message);
+        bool hasProductShapedInventory =
+            GenericArchitectureAdvicePatterns.HasProductShapedInventoryEvidence(candidate.EvidenceRefs);
+        bool hasLineAnchoredDoc = candidate.EvidenceRefs.Any(FindingEvidenceRefs.HasLineAnchoredDocRef);
 
         if (isGenericAdvice)
         {
@@ -46,10 +49,34 @@ public sealed class DeterministicInsightDensityGate(IOptions<InsightDensityGateO
             penaltyReasons.Add("no-concrete-evidence");
         }
 
-        if (!hasArchitectureAnchor)
+        // DX-72: inventory-shaped citations skip the missing-anchor penalty; quoted-name / title
+        // anchors without a product-shaped id get a weaker -8 instead of -15.
+        if (!hasProductShapedInventory)
         {
-            score -= 15;
-            penaltyReasons.Add("no-architecture-anchor");
+            if (hasArchitectureAnchor)
+            {
+                score -= 8;
+                penaltyReasons.Add("weak-architecture-anchor");
+            }
+            else
+            {
+                score -= 15;
+                penaltyReasons.Add("no-architecture-anchor");
+            }
+        }
+
+        if (hasConcreteEvidence)
+        {
+            if (hasProductShapedInventory)
+            {
+                score = Math.Min(100, score + 10);
+                penaltyReasons.Add("inventory-shaped-evidence");
+            }
+            else if (hasLineAnchoredDoc)
+            {
+                score = Math.Min(100, score + 5);
+                penaltyReasons.Add("line-anchored-doc");
+            }
         }
 
         if (GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(candidate.Message) && hasConcreteEvidence)

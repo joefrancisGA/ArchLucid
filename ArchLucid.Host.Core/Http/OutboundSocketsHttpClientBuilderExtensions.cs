@@ -1,6 +1,7 @@
 using System.Net.Http;
 
 using ArchLucid.Core.Http;
+using ArchLucid.Core.Security;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,13 +19,20 @@ public static class OutboundSocketsHttpClientBuilderExtensions
     public static IHttpClientBuilder ConfigureArchLucidOutboundSocketsHandler(
         this IHttpClientBuilder builder,
         OutboundHttpSocketsHandlerProfile profile = OutboundHttpSocketsHandlerProfile.ExternalIntegration,
-        bool allowAutoRedirect = true)
+        bool allowAutoRedirect = true,
+        bool rejectPrivateNetworkConnectEndpoints = false)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
         builder.ConfigurePrimaryHttpMessageHandler(() =>
         {
             SocketsHttpHandler handler = new() { AllowAutoRedirect = allowAutoRedirect };
+
+            if (rejectPrivateNetworkConnectEndpoints)
+            {
+                handler.ConnectCallback = OutboundHttpsConnectGuard.RejectPrivateNetworkAndConnectAsync;
+            }
+
             OutboundSocketsHttpHandlerSettings.Apply(handler, profile);
 
             return handler;

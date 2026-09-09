@@ -42,6 +42,7 @@ import {
   REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS,
 } from "@/lib/repeat-review-loop-help-guide-content";
 import {
+  REPEAT_REVIEW_LOOP_HELP_BUYER_OVERVIEW,
   REPEAT_REVIEW_LOOP_HELP_FIRST_VIEWPORT_TEST_ID,
   REPEAT_REVIEW_LOOP_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
   REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID,
@@ -84,14 +85,19 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
       REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
     );
 
+    expect(screen.getByTestId("help-repeat-review-loop-intro")).toHaveTextContent(REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-repeat-review-loop-overview")).toHaveTextContent(
+      REPEAT_REVIEW_LOOP_HELP_BUYER_OVERVIEW,
+    );
+
     const primaryContent = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-repeat-review-loop-action-panel");
+    const overview = screen.getByTestId("help-repeat-review-loop-overview");
     const stepper = screen.getByTestId("repeat-review-loop-workflow-stepper");
     const orientationBottom = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID);
 
     expect(primaryContent).toContainElement(firstViewport);
-    expect(screen.getByTestId("help-repeat-review-loop-intro")).toHaveTextContent(REPEAT_REVIEW_LOOP_HELP_PAGE_LEAD);
     expect(firstViewport).toContainElement(actionPanel);
     expect(
       within(actionPanel).getByRole("link", { name: REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS.compareReviews.label }),
@@ -99,9 +105,11 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
     expect(screen.getByTestId("help-repeat-review-loop-start-here-helper")).toHaveTextContent(
       REPEAT_REVIEW_LOOP_HELP_START_HERE_HELPER,
     );
+    expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(stepper);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(overview.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(stepper.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const sourcesSection = screen.getByTestId("repeat-review-loop-help-sources");

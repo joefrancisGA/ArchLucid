@@ -106,9 +106,10 @@ internal static class ArchitectureRecommendationAlternatives
             Create(
                 "Defer with documented exception and compensating controls",
                 "The exception, compensating controls, and expiry are recorded in the architecture package."),
+            // Distinct from ProposedChange (collect additional evidence before changing the design).
             Create(
-                "Collect additional evidence before changing the design",
-                "New evidence artifacts are attached and the finding is re-reviewed before the design changes."),
+                "Run a time-boxed discovery spike with named owners to produce the missing evidence artifacts",
+                "Spike outputs are attached as evidence artifacts and the finding is re-reviewed before the design changes."),
         ];
     }
 

@@ -74,6 +74,7 @@ public sealed partial class GovernanceStickinessController
     [ProducesResponseType(typeof(IReadOnlyList<RiskExceptionRecord>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListRiskExceptions(
         [FromQuery] Guid? projectId,
         CancellationToken cancellationToken = default)
@@ -90,10 +91,17 @@ public sealed partial class GovernanceStickinessController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IReadOnlyList<RiskExceptionRecord> records =
-            await _facade.ListRiskExceptionsAsync(projectId, cancellationToken);
+        try
+        {
+            IReadOnlyList<RiskExceptionRecord> records =
+                await _facade.ListRiskExceptionsAsync(projectId, cancellationToken);
 
-        return Ok(records);
+            return Ok(records);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry

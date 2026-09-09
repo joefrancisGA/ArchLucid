@@ -1,6 +1,7 @@
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
-import { apiGet, apiPostJson } from "./http";
+import { apiPostJson } from "./http";
 import {
   type FindingDispositionEvent,
   type FindingDispositionKind,
@@ -79,7 +80,7 @@ export async function recordBulkFindingDisposition(
 }
 
 export async function listFindingDispositions(findingId: string): Promise<FindingDispositionEvent[]> {
-  return apiGet<FindingDispositionEvent[]>(
+  return apiGetSealedManifestAware<FindingDispositionEvent[]>(
     `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
   );
 }

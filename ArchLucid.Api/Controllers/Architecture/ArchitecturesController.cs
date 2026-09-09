@@ -9,9 +9,11 @@ using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Interfaces;
 
 using Asp.Versioning;
 
@@ -28,13 +30,25 @@ namespace ArchLucid.Api.Controllers.Architecture;
 [Route("v{version:apiVersion}/architectures")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ArchitecturesController(
+public sealed partial class ArchitecturesController(
     IScopeContextProvider scopeProvider,
     IActorContext actorContext,
     IArchitectureIdentityService architectureIdentityService,
     IArchitectureSealDeltaService architectureSealDeltaService,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    IRunRepository runRepository,
+    IGoldenManifestRepository goldenManifestRepository,
+    IManifestHashService manifestHashService) : ControllerBase
 {
+    private readonly IGoldenManifestRepository _goldenManifestRepository =
+        goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
@@ -54,6 +68,7 @@ public sealed class ArchitecturesController(
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [HttpGet]
     [ProducesResponseType(typeof(ArchitectureIdentityListPage), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListArchitectures(
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
@@ -69,6 +84,12 @@ public sealed class ArchitecturesController(
             includeArchived,
             cancellationToken);
 
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureIdentityListSealedManifestReadAllowedAsync(scope, response, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         return Ok(response);
     }
 
@@ -77,6 +98,7 @@ public sealed class ArchitecturesController(
     [HttpGet("{architectureId:guid}")]
     [ProducesResponseType(typeof(ArchitectureIdentityDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetArchitecture(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -93,6 +115,15 @@ public sealed class ArchitecturesController(
                 ProblemTypes.ResourceNotFound);
         }
 
+        IActionResult? sealedGuardResult = await EnsureArchitectureIdentitySealedManifestReadAllowedAsync(
+            scope,
+            architectureId,
+            detail.LatestSealedManifestId,
+            cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         return Ok(detail);
     }
 
@@ -107,6 +138,12 @@ public sealed class ArchitecturesController(
     public async Task<IActionResult> GetSealDelta(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureSealDeltaSealedManifestReadAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

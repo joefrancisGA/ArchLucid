@@ -9,6 +9,8 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -28,10 +30,12 @@ namespace ArchLucid.Api.Controllers.Authority;
 [Route("v{version:apiVersion}/runs")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class RunsExportController(
+public sealed partial class RunsExportController(
     IArchitectureReviewExportService exportService,
     IAuditService auditService,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
     private readonly IArchitectureReviewExportService _exportService =
         exportService ?? throw new ArgumentNullException(nameof(exportService));
@@ -41,6 +45,12 @@ public sealed class RunsExportController(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <summary>Downloads a review export for the given run (<c>docx</c>, <c>pdf</c>, or <c>html</c>).</summary>
     [HttpGet("{runId}/export/{format}")]
@@ -62,6 +72,11 @@ public sealed class RunsExportController(
                 "format must be one of: docx, pdf, html.",
                 ProblemTypes.ValidationFailed);
         }
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId.Trim(), cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

@@ -98,6 +98,15 @@ export function GovernanceApprovalLineagePageView({
             <Link href="/governance/findings">Findings</Link>
           </Button>
         </div>
+        {model.blockedReason !== null ? (
+          <p
+            role="alert"
+            className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="governance-approval-lineage-blocked-reason"
+          >
+            {model.blockedReason}
+          </p>
+        ) : null}
         <OperatorApiProblem
           problem={failure.problem}
           fallbackMessage={failure.message}

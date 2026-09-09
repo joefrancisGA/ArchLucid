@@ -17,6 +17,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { resolveTeamsConnectCtaPresentation } from "@/lib/teams-integration-connect-cta";
@@ -54,6 +55,7 @@ const TEAMS_CONNECT_CONTENT_MEASURE = "max-w-xl" as const;
 export function TeamsNotificationsIntegrationPageView(props: Props): React.ReactElement {
   const m = props.model;
   const { localize } = useLocalizedProductCopy();
+  const showOperatorNotes = isShowSystemAdministrationNavEnabled();
 
   if (m.isDemo) {
     return (
@@ -361,6 +363,7 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
             <TeamsIntegrationAside
               secretNameConfigured={m.secretName.trim().length > 0}
               testSucceeded={testSucceeded}
+              showOperatorNotes={showOperatorNotes}
             />
         </div>
       )}

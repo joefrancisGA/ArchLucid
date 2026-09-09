@@ -5,7 +5,10 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -23,12 +26,24 @@ namespace ArchLucid.Api.Controllers.Authority;
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class ArchitectureExportController(
+public sealed partial class ArchitectureExportController(
     IRunSummaryOnePagerExportService exportService,
-    IOptionsMonitor<GenerateRunSummaryOptions> generateRunSummaryOptions) : ControllerBase
+    IOptionsMonitor<GenerateRunSummaryOptions> generateRunSummaryOptions,
+    IScopeContextProvider scopeContextProvider,
+    IAuthorityQueryService authorityQueryService,
+    IManifestHashService manifestHashService) : ControllerBase
 {
     private readonly IOptionsMonitor<GenerateRunSummaryOptions> _generateRunSummaryOptions =
         generateRunSummaryOptions ?? throw new ArgumentNullException(nameof(generateRunSummaryOptions));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IAuthorityQueryService _authorityQueryService =
+        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     /// <summary>Downloads an AI-assisted sponsor one-pager for a committed run.</summary>
     [HttpGet("run/{runId}/export/summary")]
@@ -49,6 +64,11 @@ public sealed class ArchitectureExportController(
                 "Run summary export is not enabled for this deployment.",
                 ProblemTypes.ResourceNotFound);
         }
+
+        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId.Trim(), cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         try
         {

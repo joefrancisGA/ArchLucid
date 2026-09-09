@@ -64,14 +64,15 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
+  ARCHITECTURE_CREATED_EVIDENCE_BUYER_OVERVIEW,
   ARCHITECTURE_CREATED_EVIDENCE_BUYER_START_HERE_HELPER,
   ARCHITECTURE_CREATED_EVIDENCE_FIRST_VIEWPORT_TEST_ID,
-  ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW,
   ARCHITECTURE_CREATED_EVIDENCE_PAGE_LEAD,
   ARCHITECTURE_CREATED_EVIDENCE_PRIMARY_CONTENT_ID,
   ARCHITECTURE_CREATED_EVIDENCE_SKIP_LINK_LABEL,
   ARCHITECTURE_CREATED_EVIDENCE_SKIP_TARGET_ID,
   ARCHITECTURE_CREATED_EVIDENCE_START_HERE_CARD_TITLE,
+  ARCHITECTURE_CREATED_EVIDENCE_WORKSPACE_TEST_ID,
 } from "@/lib/architecture/architecture-created-evidence-sources";
 import {
   ARCHITECTURE_CREATED_FINDINGS_BUYER_START_HERE_HELPER,
@@ -527,53 +528,64 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             className={cn("space-y-4", buyerPolishedShell ? "scroll-mt-24" : undefined)}
           >
             {buyerPolishedShell ? (
-              <div
-                id={ARCHITECTURE_CREATED_EVIDENCE_SKIP_TARGET_ID}
-                data-testid={ARCHITECTURE_CREATED_EVIDENCE_FIRST_VIEWPORT_TEST_ID}
-                className={cn(
-                  "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
-                  OPERATOR_LAYOUT.sectionStack,
-                )}
-              >
-                <p
-                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-                  data-testid="architecture-created-evidence-intro"
+              <>
+                <div
+                  id={ARCHITECTURE_CREATED_EVIDENCE_SKIP_TARGET_ID}
+                  data-testid={ARCHITECTURE_CREATED_EVIDENCE_FIRST_VIEWPORT_TEST_ID}
+                  className={cn(
+                    "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                    OPERATOR_LAYOUT.sectionStack,
+                  )}
                 >
-                  {ARCHITECTURE_CREATED_EVIDENCE_PAGE_LEAD}
-                </p>
-                <section
-                  className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
-                  data-testid="architecture-created-evidence-start-here-panel"
-                  aria-labelledby="architecture-created-evidence-start-here-heading"
-                >
-                  <h2
-                    id="architecture-created-evidence-start-here-heading"
-                    className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
-                  >
-                    {ARCHITECTURE_CREATED_EVIDENCE_START_HERE_CARD_TITLE}
-                  </h2>
                   <p
-                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid="architecture-created-evidence-buyer-start-here-helper"
+                    className={cn("m-0 text-al-text-secondary", HELP_PAGE_LAYOUT.readingBody)}
+                    data-testid="architecture-created-evidence-intro"
                   >
-                    {ARCHITECTURE_CREATED_EVIDENCE_BUYER_START_HERE_HELPER}
+                    {ARCHITECTURE_CREATED_EVIDENCE_PAGE_LEAD}
                   </p>
-                </section>
+                  <section
+                    className="space-y-2 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
+                    data-testid="architecture-created-evidence-start-here-panel"
+                    aria-labelledby="architecture-created-evidence-start-here-heading"
+                  >
+                    <h2
+                      id="architecture-created-evidence-start-here-heading"
+                      className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+                    >
+                      {ARCHITECTURE_CREATED_EVIDENCE_START_HERE_CARD_TITLE}
+                    </h2>
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="architecture-created-evidence-buyer-start-here-helper"
+                    >
+                      {ARCHITECTURE_CREATED_EVIDENCE_BUYER_START_HERE_HELPER}
+                    </p>
+                  </section>
+                </div>
+
                 <p
                   className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
                   data-testid="architecture-created-evidence-overview"
                 >
-                  {ARCHITECTURE_CREATED_EVIDENCE_OVERVIEW}
+                  {ARCHITECTURE_CREATED_EVIDENCE_BUYER_OVERVIEW}
                 </p>
-              </div>
-            ) : null}
-            {buyerPolishedShell ? null : (
-              <PackageEvidenceEvidenceGraphVocabularyRail
-                runId={props.baseline.runId}
-                currentSurfaceId="package-evidence"
-              />
+
+                <section
+                  className={cn("min-w-0", OPERATOR_LAYOUT.sectionStack)}
+                  data-testid={ARCHITECTURE_CREATED_EVIDENCE_WORKSPACE_TEST_ID}
+                >
+                  {props.panels.evidence}
+                </section>
+              </>
+            ) : (
+              <>
+                <PackageEvidenceEvidenceGraphVocabularyRail
+                  runId={props.baseline.runId}
+                  currentSurfaceId="package-evidence"
+                />
+                {props.panels.evidence}
+              </>
             )}
-            {props.panels.evidence}
             {buyerPolishedShell ? <ArchitectureCreatedEvidenceBuyerChrome /> : null}
           </div>
       </div>
