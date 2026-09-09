@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Roi;
+using ArchLucid.Api.Tests;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
