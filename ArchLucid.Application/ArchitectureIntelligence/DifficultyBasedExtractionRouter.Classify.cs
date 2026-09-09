@@ -20,6 +20,10 @@ public sealed partial class DifficultyBasedExtractionRouter
         "iso 27001",
         "fedramp",
         "nist",
+        "sox",
+        "glba",
+        "lgpd",
+        "data protection",
     ];
 
     public ExtractionDifficulty Classify(string sourceText)
