@@ -384,9 +384,9 @@ export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
   );
 }
 
-export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(props: {
-  readonly sources?: readonly EvidenceOrientationLink[];
-} = {}): React.JSX.Element {
+export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
   const sources = props.sources ?? IDENTITY_PROVIDERS_SAML_SOURCES;
 
   return (
@@ -397,6 +397,8 @@ export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(props: {
       sourcesIntro={IDENTITY_PROVIDERS_SAML_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
