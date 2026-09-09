@@ -81,6 +81,7 @@ public sealed partial class WizardIntakeDraftsController(
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(WizardIntakeDraftResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> UpsertDraft(
         string wizardId,
         [FromBody] UpsertWizardIntakeDraftRequest? body,
@@ -97,6 +98,12 @@ public sealed partial class WizardIntakeDraftsController(
 
         if (scopeProblem is not null)
             return scopeProblem;
+
+        IActionResult? sealedGuardResult =
+            await EnsureWizardIntakeDraftSealedManifestReadAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         WizardIntakeDraftResponse draft =
             await wizardIntakeDraftService.UpsertAsync(scope, wizardId, body, cancellationToken);

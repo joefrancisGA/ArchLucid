@@ -23,6 +23,7 @@ import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
   PACKAGE_PRINT_LOADING_LABEL,
+  buildPackagePrintBackHref,
   buildPackagePrintPresentation,
   PACKAGE_PRINT_BACK_LABEL,
 } from "@/lib/package-print-view";
@@ -53,6 +54,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   const meetingCaptureQuery = usePackagePrintMeetingCaptureQuery(runId, {
     enabled: summaryQuery.isSuccess,
   });
+  const meetingCaptureBlockedReason = meetingCaptureQuery.blockedReason;
+
   const meetingCaptureBlockedReason = meetingCaptureQuery.blockedReason;
 
   useOidcSessionKeepalive(true);
@@ -123,12 +126,22 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   }
 
   const presentation = buildPackagePrintPresentation(summaryQuery.data, {
+    coverageHonestyLine: workingDesk
+      ? formatCareerExportHonestyPlainText({
+          runId: summaryQuery.data.runId,
+          progressSummary: summaryQuery.data,
+          manifestSummary: null,
+          graphSnapshot: null,
+          enginesSucceeded: null,
+          workingDesk: true,
+        })
+      : null,
+    meetingCaptureEntries:
+      meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
     coverageHonestyLine:
       workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
         ? coverageHonestyLine
         : null,
-    meetingCaptureEntries:
-      meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
     transparencyTrail:
       workingDesk && coverageHonestyQuery.data !== undefined
         ? coverageHonestyQuery.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null
@@ -155,6 +168,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
           {sealedManifestBlockedReason}
         </p>
         <Button type="button" variant="secondary" asChild>
+          <Link href={buildPackagePrintBackHref(runId)} data-testid="package-print-blocked-back">
+            Back to review package
           <Link href={printBackHref} data-testid="package-print-blocked-back">
             {PACKAGE_PRINT_BACK_LABEL}
           </Link>

@@ -52,6 +52,8 @@ import {
 
 import { SponsorRoiSystemicIssueTrendChartDeferred } from "./sponsor-roi-dashboard-deferred-chunks";
 
+function sponsorRoiSummaryCardTitle(): string {
+  if (isBuyerPolishedOperatorShellEnv()) {
 function sponsorRoiSummaryCardTitle(evalChromeShell: boolean): string {
   if (evalChromeShell) {
     return BUYER_SPONSOR_SUMMARY_VOCABULARY.pageTitle;

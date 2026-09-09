@@ -59,6 +59,8 @@ export type PackagePrintPageViewProps = {
 /** Print-friendly architecture package summary (TB-2205). */
 export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JSX.Element {
   const { presentation, listScopedRunId = null, meetingCaptureBlockedReason = null } = props;
+  const backHref = buildPackagePrintBackHref(presentation.runId);
+  const buyerPolishedShell = useProductionEvalChrome();
   const { reviewJobHref: backHref } = useWorkingBackLocator({
     reviewId: presentation.runId,
     reviewTab: "review-package",
@@ -304,6 +306,21 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
                     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
                       {meetingCaptureBlockedReason}
                     </p>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : meetingCaptureBlockedReason !== null ? (
+          <section
+            className="space-y-2 print:hidden"
+            data-testid="package-print-meeting-capture-blocked"
+          >
+            <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{PACKAGE_PRINT_MEETING_CAPTURE_HEADING}</h2>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+              {meetingCaptureBlockedReason}
+            </p>
+        ) : null}
                   </section>
                 ) : null}
               </div>

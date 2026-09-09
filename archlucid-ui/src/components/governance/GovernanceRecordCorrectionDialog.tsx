@@ -19,6 +19,7 @@ import { OperatorMutationInlineError } from "@/components/operator/OperatorMutat
 import { useResumePendingLivelihoodMutation } from "@/hooks/use-resume-pending-livelihood-mutation";
 import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governanceMutationCorrectionBlockedReason } from "@/lib/governance/governance-mutation-correction-blocked-reason";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import {
   GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE,
@@ -96,6 +97,12 @@ export function GovernanceRecordCorrectionDialog(
       props.onOpenChange(false);
       props.onRecorded?.();
     } catch (error) {
+      const failure = toApiLoadFailure(error);
+      setErrorMessage(
+        governanceMutationCorrectionBlockedReason(failure)
+          ?? failure.message
+          ?? GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE,
+      );
       if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }
