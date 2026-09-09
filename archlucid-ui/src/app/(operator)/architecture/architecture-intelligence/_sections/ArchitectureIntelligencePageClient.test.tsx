@@ -2445,6 +2445,293 @@ describe("ArchitectureIntelligencePageClient", () => {
       );
     });
   });
+
+  it("shows error when run reasoning is clicked with empty architecture description", async () => {
+    render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    expect(screen.getByTestId("architecture-intelligence-error")).toHaveTextContent(
+      "Architecture description is required",
+    );
+  });
+
+  it("hydrates declared priorities from deep-linked product source context", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "dddddddd-dddd-dddd-dddd-dddddddddddd";
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Hydrated product architecture description.",
+              },
+            ],
+            declaredPriorities: ["security", "cost"],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("security, cost");
+    });
+  });
+
+  it("clears inline error when inbound runId switches after reasoning failure", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: currentRunId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: `Architecture for review ${currentRunId.slice(0, 1).toUpperCase()}.`,
+              },
+            ],
+          });
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return new Response("Reasoning failed", { status: 500 });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-error")).toBeInTheDocument();
+    });
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-intelligence-error")).not.toBeInTheDocument();
+    });
+  });
+
+  it("ignores stale golden test results when inbound runId switches before golden test completes", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let resolveGoldenPost: (() => void) | null = null;
+    const goldenPostGate = new Promise<void>((resolve) => {
+      resolveGoldenPost = resolve;
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: currentRunId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: currentRunId.startsWith("a") ? "Architecture for review A." : "Architecture for review B.",
+              },
+            ],
+          });
+        }
+
+        if (method === "POST" && url.includes("/architecture-intelligence/golden-test")) {
+          await goldenPostGate;
+
+          return okJsonFetchResponse({
+            passed: true,
+            plantedDefectRecall: 1,
+            falsePositiveCount: 0,
+            mutationChangedFindings: false,
+            beforeCounts: { High: 1 },
+            afterCounts: { High: 1 },
+            notes: "Stale golden test marker",
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-golden-test-button"));
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    resolveGoldenPost?.();
+
+    await waitFor(() => {
+      expect(screen.queryByText("Stale golden test marker")).not.toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-golden-results")).not.toBeInTheDocument();
+  });
+
+  it("ignores stale fixture intake when inbound runId switches before golden fixture load completes", async () => {
+    let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let resolveFixtureGet: (() => void) | null = null;
+    const fixtureGetGate = new Promise<void>((resolve) => {
+      resolveFixtureGet = resolve;
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      if (key === "from") {
+        return "reviews";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "GET" && url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse({
+            runId: currentRunId,
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: currentRunId.startsWith("a") ? "Architecture for review A." : "Architecture for review B.",
+              },
+            ],
+          });
+        }
+
+        if (method === "GET" && url.includes("/architecture-intelligence/golden-fixture")) {
+          await fixtureGetGate;
+
+          return okJsonFetchResponse({
+            sourceTexts: [
+              {
+                fileName: "architecture-description.txt",
+                contentType: "text/plain",
+                content: "Stale golden fixture description.",
+              },
+            ],
+          });
+        }
+
+        return okJsonFetchResponse({});
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review A.",
+      );
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Load golden fixture" }));
+
+    currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    resolveFixtureGet?.();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-description")).toHaveValue(
+        "Architecture for review B.",
+      );
+    });
+
+    expect(screen.queryByDisplayValue("Stale golden fixture description.")).not.toBeInTheDocument();
+  });
 });
 
 describe("ArchitectureIntelligenceProductRoundTrip", () => {
