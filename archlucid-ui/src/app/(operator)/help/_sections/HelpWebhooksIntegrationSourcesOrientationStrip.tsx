@@ -22,19 +22,16 @@ export function HelpWebhooksIntegrationSourcesOrientationStrip(): React.JSX.Elem
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const helpWebhooksIntegrationSourcesOpenParam = searchParams.get("helpWebhooksIntegrationSourcesOpen");
+  const sourcesOpenParam = searchParams.get("helpWebhooksIntegrationSourcesOpen");
   const [sourcesOpen, setSourcesOpenState] = useState(() =>
-    parseHelpWebhooksIntegrationSourcesOpenFromSearch(helpWebhooksIntegrationSourcesOpenParam),
+    parseHelpWebhooksIntegrationSourcesOpenFromSearch(sourcesOpenParam),
   );
 
   const syncSourcesOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(
-        helpWebhooksIntegrationSourcesDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        {
-          scroll: false,
-        },
-      );
+      router.replace(helpWebhooksIntegrationSourcesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
     },
     [pathname, router, searchParams],
   );
@@ -48,8 +45,8 @@ export function HelpWebhooksIntegrationSourcesOrientationStrip(): React.JSX.Elem
   );
 
   useEffect(() => {
-    setSourcesOpenState(parseHelpWebhooksIntegrationSourcesOpenFromSearch(helpWebhooksIntegrationSourcesOpenParam));
-  }, [helpWebhooksIntegrationSourcesOpenParam]);
+    setSourcesOpenState(parseHelpWebhooksIntegrationSourcesOpenFromSearch(sourcesOpenParam));
+  }, [sourcesOpenParam]);
 
   return (
     <CollapsibleSection

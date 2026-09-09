@@ -11,20 +11,20 @@ import {
   CLOUD_CONNECTIONS_SOURCES,
   CLOUD_CONNECTIONS_SOURCES_INTRO,
 } from "@/lib/cloud-connections-evidence-copy";
+import { CLOUD_CONNECTIONS_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/cloud-connections-help-page-copy";
 import {
   helpCloudConnectionsSourcesDisclosureHrefFromSearch,
   parseHelpCloudConnectionsSourcesOpenFromSearch,
 } from "@/lib/help/help-cloud-connections-sources-disclosure-url";
-import { CLOUD_CONNECTIONS_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/cloud-connections-help-page-copy";
 
 /** Sources-only follow-ups for `/help/cloud-connections` buyer-polished shell (HCE). */
 export function HelpCloudConnectionsSourcesOrientationStrip(): React.JSX.Element {
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
-  const helpCloudConnectionsSourcesOpenParam = searchParams.get("helpCloudConnectionsSourcesOpen");
+  const sourcesOpenParam = searchParams.get("helpCloudConnectionsSourcesOpen");
   const [sourcesOpen, setSourcesOpenState] = useState(() =>
-    parseHelpCloudConnectionsSourcesOpenFromSearch(helpCloudConnectionsSourcesOpenParam),
+    parseHelpCloudConnectionsSourcesOpenFromSearch(sourcesOpenParam),
   );
 
   const syncSourcesOpenToUrl = useCallback(
@@ -45,8 +45,8 @@ export function HelpCloudConnectionsSourcesOrientationStrip(): React.JSX.Element
   );
 
   useEffect(() => {
-    setSourcesOpenState(parseHelpCloudConnectionsSourcesOpenFromSearch(helpCloudConnectionsSourcesOpenParam));
-  }, [helpCloudConnectionsSourcesOpenParam]);
+    setSourcesOpenState(parseHelpCloudConnectionsSourcesOpenFromSearch(sourcesOpenParam));
+  }, [sourcesOpenParam]);
 
   return (
     <CollapsibleSection
