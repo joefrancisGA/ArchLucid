@@ -790,6 +790,95 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
                            """;
 
         sql.Should().Contain("ORDER BY CreatedUtc ASC, RunId ASC");
+        sql.Should().Contain("ArchivedUtc IS NULL");
+    }
+
+    [Fact]
+    public async Task InMemory_list_with_null_architecture_id_excludes_archived_runs()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                ArchivedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        RunRecord active = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "billing",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+        await runs.SaveAsync(active, CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListWithNullArchitectureIdAsync(scope, 10, CancellationToken.None);
+
+        listed.Should().ContainSingle(r => r.RunId == active.RunId);
+    }
+
+    [Fact]
+    public async Task InMemory_select_latest_with_graph_skips_runs_without_graph_snapshot()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        DateTime asOfUtc = new(2026, 9, 9, 12, 0, 0, DateTimeKind.Utc);
+        Guid graphRunId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = Guid.NewGuid(),
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CreatedUtc = asOfUtc.AddMinutes(1),
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = graphRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "billing",
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = asOfUtc,
+            },
+            CancellationToken.None);
+
+        RunRecord? selected = await runs.GetLatestWithGraphAtOrBeforeAsync(scope, "billing", asOfUtc, CancellationToken.None);
+
+        selected.Should().NotBeNull();
+        selected!.RunId.Should().Be(graphRunId);
     }
 
     [Fact]
@@ -873,6 +962,38 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     {
         RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("CreatedUtc <= @AsOfUtc");
         RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("ORDER BY CreatedUtc DESC, RunId DESC");
+    }
+
+    [Fact]
+    public void SelectLatestWithGraphAtOrBefore_requires_graph_snapshot_id()
+    {
+        RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("GraphSnapshotId IS NOT NULL");
+    }
+
+    [Fact]
+    public void SelectPriorCommittedRunIdBeforeCurrent_excludes_current_and_later_timeline()
+    {
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should().Contain("r.RunId <> @CurrentRunId");
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should().Contain("r.CreatedUtc < @CurrentCreatedUtc");
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should()
+            .Contain("(r.CreatedUtc = @CurrentCreatedUtc AND r.RunId < @CurrentRunId)");
+    }
+
+    [Fact]
+    public void ArchiveRunsByIds_targets_active_rows_and_reports_already_archived()
+    {
+        RunRepositorySql.ArchiveRunsByIds.Should().Contain("WHERE RunId IN @RunIds AND ArchivedUtc IS NULL");
+        RunRepositorySql.ArchiveRunsByIds.Should().Contain("WHERE RunId IN @RunIds AND ArchivedUtc IS NOT NULL");
+        RunRepositorySql.ArchiveRunsByIds.Should().Contain("EXEC dbo.Archival_CascadeFromArchivedRuns");
+    }
+
+    [Fact]
+    public void ArchiveRunsCreatedBefore_omits_tenant_scope_for_catalog_retention()
+    {
+        RunRepositorySql.ArchiveRunsCreatedBefore.Should().Contain("CreatedUtc < @Cutoff");
+        RunRepositorySql.ArchiveRunsCreatedBefore.Should().Contain("ArchivedUtc IS NULL");
+        RunRepositorySql.ArchiveRunsCreatedBefore.Should().NotContain("TenantId = @TenantId",
+            "catalog retention archive is TenantScopeExempt and filters by CreatedUtc cutoff only.");
     }
 
     [Fact]

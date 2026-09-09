@@ -681,7 +681,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests|FullyQualifiedName~RunRepositoryArchitectureRequestSqlTests|FullyQualifiedName~RunListWarningFlagSqlTests
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -761,6 +761,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ListByArchitectureIdAsync` returns archived architecture child runs — **cheap-disproof 2026-09-09 seed hunt #1446:** SQL and InMemory filter active in-scope runs and order by `CreatedUtc DESC, RunId DESC`; regression `InMemory_architecture_list_excludes_archived_runs`.
 
 2026-09-09 seed hunt #1446 (seed-only): reseeded sql-run-repository after #1445; cheap-disproof closed scoped bulk archive, prior-committed manifest filter, operator governance active-run guard, archived replay read split, list archival filter, and architecture child list scope; 68 scoped Persistence tests passed (1 SQL integration skipped).
+
+- [x] (valid-no-repro) `SelectLatestWithGraphAtOrBefore` returns runs without `GraphSnapshotId` — **cheap-disproof 2026-09-09 seed hunt #1447:** temporal graph lookup requires non-null graph pointer; regressions `SelectLatestWithGraphAtOrBefore_requires_graph_snapshot_id` and `InMemory_select_latest_with_graph_skips_runs_without_graph_snapshot`.
+- [x] (valid-no-repro) `SelectPriorCommittedRunIdBeforeCurrent` ranks all committed runs and ignores current-run timeline — **cheap-disproof 2026-09-09 seed hunt #1447:** SQL excludes current id and requires strictly earlier `(CreatedUtc, RunId)` tuple; regression `SelectPriorCommittedRunIdBeforeCurrent_excludes_current_and_later_timeline`.
+- [x] (valid-no-repro) `ArchiveRunsByIds` re-archives already soft-archived runs — **cheap-disproof 2026-09-09 seed hunt #1447:** update targets `ArchivedUtc IS NULL` only and second result set reports already-archived ids; regression `ArchiveRunsByIds_targets_active_rows_and_reports_already_archived`.
+- [x] (valid-no-repro) Global `ArchiveRunsCreatedBefore` archives cross-tenant runs because scoped variant exists — **cheap-disproof 2026-09-09 seed hunt #1447:** catalog retention path is TenantScopeExempt and filters by cutoff only; regression `ArchiveRunsCreatedBefore_omits_tenant_scope_for_catalog_retention`.
+- [x] (valid-no-repro) `ListWithNullArchitectureIdAsync` includes archived backfill candidates — **cheap-disproof 2026-09-09 seed hunt #1447:** backfill batch requires `ArchivedUtc IS NULL`; regression `ListWithNullArchitectureId_excludes_archived_backfill_candidates` plus `InMemory_list_with_null_architecture_id_excludes_archived_runs`.
+
+2026-09-09 seed hunt #1447 (seed-only): reseeded sql-run-repository after #1446; cheap-disproof closed graph-at-time snapshot requirement, prior-committed timeline guard, archive-by-ids idempotency, catalog retention scope, and null-architecture backfill archival filter; 74 scoped Persistence tests passed (1 SQL integration skipped).
 
 2026-09-07 thorough hunt #1265 (dry): cheap-disproof closed padded `@ProjectSlug` TRY_CONVERT and PascalCase `workflowIntent` JSON-path candidates seeded in #1264; 30 scoped unit tests passed, 1 SQL integration skipped.
 
