@@ -22,5 +22,6 @@ public static class GraphEdgeInferenceSources
     public const string DeclarationIdentityActorLink = "declaration-identity-actor-link";
     public const string DeclarationIdentityIamPath = "declaration-identity-iam-path";
     public const string DeclarationIdentityDataFlowPath = "declaration-identity-data-flow-path";
+    public const string DeclarationSegmentationPath = "declaration-segmentation-path";
     public const string StructuredParse = "structured-parse";
 }

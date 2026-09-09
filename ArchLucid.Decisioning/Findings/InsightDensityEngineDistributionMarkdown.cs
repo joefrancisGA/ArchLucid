@@ -39,6 +39,7 @@ public static class InsightDensityEngineDistributionMarkdown
             "",
             "Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.",
             "Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.",
+            "Recorded scores on this corpus do not form a 60/65/75/80/85 ladder; inventory and line-anchored doc bonuses apply only where those anchors exist.",
             "",
             "| Engine | Findings | Min | Median | Max | Would demote if unprotected | Generic advice | No evidence | No anchor | Duplication | Would demote at 65 |",
             "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",

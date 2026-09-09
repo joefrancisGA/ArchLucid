@@ -31,6 +31,11 @@ public static class SupportedContextDocumentContentTypes
     /// </summary>
     public const string DrawIoXml = "application/vnd.jgraph.mxfile";
 
+    /// <summary>
+    ///     Visio <c>.vsdx</c> Open Packaging zip posted as base64 (AS-010). Legacy <c>.vsd</c> remains unsupported.
+    /// </summary>
+    public const string VisioVsdx = "application/vnd.ms-visio.drawing.main+xml";
+
     public static readonly IReadOnlyList<string> All =
     [
         "text/plain",
@@ -39,6 +44,7 @@ public static class SupportedContextDocumentContentTypes
         Mermaid,
         StructuredDiagramSvg,
         DrawIoXml,
+        VisioVsdx,
     ];
 
     public static bool IsSupported(string? contentType)
@@ -81,6 +87,12 @@ public static class SupportedContextDocumentContentTypes
     {
         return !string.IsNullOrWhiteSpace(contentType)
                && string.Equals(contentType.Trim(), DrawIoXml, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsVisioVsdxContentType(string? contentType)
+    {
+        return !string.IsNullOrWhiteSpace(contentType)
+               && string.Equals(contentType.Trim(), VisioVsdx, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

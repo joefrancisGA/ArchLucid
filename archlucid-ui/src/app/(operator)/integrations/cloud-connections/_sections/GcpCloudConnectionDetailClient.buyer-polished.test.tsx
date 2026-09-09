@@ -56,6 +56,7 @@ import {
   GCP_CLOUD_CONNECTION_PRIMARY_CONTENT_ID,
   GCP_CLOUD_CONNECTION_SKIP_LINK_LABEL,
   GCP_CLOUD_CONNECTION_SKIP_TARGET_ID,
+  GCP_CLOUD_CONNECTION_WORKSPACE_TEST_ID,
 } from "./gcp-cloud-connection-page-copy";
 import {
   CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
@@ -90,17 +91,20 @@ describe("GcpCloudConnectionDetailClient buyer-polished shell (IGC)", () => {
     const firstViewport = screen.getByTestId(GCP_CLOUD_CONNECTION_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("gcp-cloud-connection-action-panel");
     const overview = screen.getByTestId("gcp-cloud-connection-overview");
-    const workspace = screen.getByTestId("cloud-provider-detail-gcp");
+    const workspace = screen.getByTestId(GCP_CLOUD_CONNECTION_WORKSPACE_TEST_ID);
+    const providerDetail = screen.getByTestId("cloud-provider-detail-gcp");
     const orientationBottom = screen.getByTestId(GCP_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("cloud-connections-gcp-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(screen.getByTestId("gcp-cloud-connection-intro")).toHaveTextContent(GCP_CLOUD_CONNECTION_PAGE_LEAD);
+    expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).not.toContainElement(overview);
     expect(screen.getByTestId("gcp-cloud-connection-overview")).toHaveTextContent(GCP_CLOUD_CONNECTION_BUYER_OVERVIEW);
     expect(primaryContent).toContainElement(overview);
     expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(providerDetail);
     expect(primaryContent).toContainElement(orientationBottom);
-    expect(firstViewport).toContainElement(actionPanel);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(screen.queryByRole("heading", { level: 2, name: "Overview" })).not.toBeInTheDocument();
 

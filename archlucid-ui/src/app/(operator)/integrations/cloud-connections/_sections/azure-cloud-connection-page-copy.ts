@@ -11,6 +11,8 @@ export const AZURE_CLOUD_CONNECTION_HEADER_CLAIM_DISCIPLINE_TEST_ID =
 
 export const AZURE_CLOUD_CONNECTION_ORIENTATION_BOTTOM_TEST_ID = "azure-cloud-connection-orientation-bottom" as const;
 
+export const AZURE_CLOUD_CONNECTION_WORKSPACE_TEST_ID = "azure-cloud-connection-workspace" as const;
+
 export const AZURE_CLOUD_CONNECTION_PAGE_SUBTITLE_BUYER =
   "Configure read-only Azure inventory through a federated service principal — review the security preflight, provision identity access, then save and validate your connection." as const;
 
