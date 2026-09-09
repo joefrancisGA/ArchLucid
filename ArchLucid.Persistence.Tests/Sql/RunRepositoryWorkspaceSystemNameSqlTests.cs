@@ -248,16 +248,17 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     [Fact]
     public void Authority_project_slug_queries_trim_project_id_before_upper_compare()
     {
-        RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("UPPER(LTRIM(RTRIM(ProjectId)))");
-        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId)))");
-        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId)))");
+        RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(ProjectId))");
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
     }
 
     [Fact]
     public void Project_list_queries_trim_project_id_before_upper_compare()
     {
-        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug");
-        HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug");
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
+        HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("STRING_AGG");
     }
 
     [Fact]
@@ -1495,5 +1496,298 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         IReadOnlyList<RunRecord> listed = await runs.ListWithNullArchitectureIdAsync(scope, 10, CancellationToken.None);
 
         listed.Select(r => r.RunId).Should().Equal(runA, runB, runC);
+    }
+
+    [Fact]
+    public void SelectCommittedRunIdByGoldenManifestId_excludes_current_run_via_exclude_run_id()
+    {
+        RunRepositorySql.SelectCommittedRunIdByGoldenManifestId.Should().Contain("r.RunId <> @ExcludeRunId");
+    }
+
+    [Fact]
+    public async Task InMemory_committed_run_by_golden_manifest_excludes_current_run_when_seal_delta_requested()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid architectureId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        Guid lowerRunId = Guid.Parse("11111111-0000-0000-0000-000000000001");
+        Guid higherRunId = Guid.Parse("22222222-0000-0000-0000-000000000002");
+        DateTime sharedCreatedUtc = new(2026, 9, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        InMemoryRunRepository runs = new();
+        foreach (Guid runId in new[] { lowerRunId, higherRunId })
+        {
+            await runs.SaveAsync(
+                new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ProjectId = "billing",
+                    ArchitectureId = architectureId,
+                    GoldenManifestId = manifestId,
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                    CreatedUtc = sharedCreatedUtc,
+                },
+                CancellationToken.None);
+        }
+
+        Guid? selected = await runs.GetCommittedRunIdByGoldenManifestIdAsync(
+            scope,
+            architectureId,
+            manifestId,
+            higherRunId,
+            CancellationToken.None);
+
+        selected.Should().Be(lowerRunId,
+            "seal-delta lookup must skip the current run while still finding the prior committed sibling.");
+    }
+
+    [Fact]
+    public void ExistsActiveRunWithSystemNameInWorkspace_sql_honors_optional_exclude_run_id()
+    {
+        RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace.Should()
+            .Contain("(@ExcludeRunId IS NULL OR RunId <> @ExcludeRunId)");
+    }
+
+    [Fact]
+    public void Update_requires_row_version_match_when_stamp_supplied()
+    {
+        RunRepositorySql.Update.Should().Contain("RowVersionStamp = @RowVersion");
+        RunRepositorySql.Update.Should().Contain("@RowVersion IS NULL OR RowVersionStamp = @RowVersion");
+    }
+
+    [Fact]
+    public void IsEligibleForStaleUncommittedPurge_includes_soft_archived_uncommitted_runs_by_design()
+    {
+        DateTime cutoff = new(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime oldCreated = new(2026, 8, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        RunRepositoryCore.IsEligibleForStaleUncommittedPurge(
+            new RunRecord
+            {
+                CreatedUtc = oldCreated,
+                ArchivedUtc = oldCreated.AddDays(1),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            },
+            cutoff).Should().BeTrue(
+            "retention purge intentionally hard-deletes stale uncommitted rows even when soft-archived.");
+
+        const string purgeSql = """
+                                SELECT TOP (@BatchSize)
+                                       r.RunId
+                                FROM dbo.Runs AS r
+                                WHERE r.CreatedUtc < @CutoffUtc
+                                  AND (r.LegacyRunStatus IS NULL OR r.LegacyRunStatus <> N'Committed')
+                                  AND r.IsDemoWelcomeRun = 0
+                                  AND r.IsPublicShowcase = 0
+                                ORDER BY r.CreatedUtc ASC;
+                                """;
+
+        purgeSql.Should().NotContain("ArchivedUtc",
+            "dbo.Archival_PurgeStaleUncommittedRunsBatch matches InMemory eligibility without an archival filter.");
+    }
+
+    [Fact]
+    public void IsEligibleForSamplePurge_honors_tenant_and_cutoff_filters()
+    {
+        Guid tenantA = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000001");
+        Guid tenantB = Guid.Parse("bbbbbbbb-0000-0000-0000-000000000002");
+        DateTime cutoff = new(2026, 9, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime oldCreated = new(2026, 8, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime newCreated = new(2026, 9, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        RunRepositoryCore.IsEligibleForSamplePurge(
+            new RunRecord { TenantId = tenantA, IsSample = true, CreatedUtc = oldCreated },
+            tenantA,
+            cutoff).Should().BeTrue();
+
+        RunRepositoryCore.IsEligibleForSamplePurge(
+            new RunRecord { TenantId = tenantB, IsSample = true, CreatedUtc = oldCreated },
+            tenantA,
+            cutoff).Should().BeFalse();
+
+        RunRepositoryCore.IsEligibleForSamplePurge(
+            new RunRecord { TenantId = tenantA, IsSample = true, CreatedUtc = newCreated },
+            tenantA,
+            cutoff).Should().BeFalse();
+
+        RunRepositoryCore.IsEligibleForSamplePurge(
+            new RunRecord { TenantId = tenantA, IsSample = false, CreatedUtc = oldCreated },
+            tenantA,
+            cutoff).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task InMemory_sample_purge_honors_tenant_and_cutoff_filters()
+    {
+        Guid tenantA = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000001");
+        Guid tenantB = Guid.Parse("bbbbbbbb-0000-0000-0000-000000000002");
+        DateTimeOffset cutoff = new(2026, 9, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTime oldCreated = new(2026, 8, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime newCreated = new(2026, 9, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        InMemoryRunRepository runs = new();
+        Guid eligibleRunId = Guid.Parse("11111111-0000-0000-0000-000000000001");
+        Guid otherTenantRunId = Guid.Parse("22222222-0000-0000-0000-000000000002");
+        Guid tooNewRunId = Guid.Parse("33333333-0000-0000-0000-000000000003");
+
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = eligibleRunId,
+                TenantId = tenantA,
+                WorkspaceId = Guid.NewGuid(),
+                ScopeProjectId = Guid.NewGuid(),
+                ProjectId = "sample",
+                IsSample = true,
+                CreatedUtc = oldCreated,
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = otherTenantRunId,
+                TenantId = tenantB,
+                WorkspaceId = Guid.NewGuid(),
+                ScopeProjectId = Guid.NewGuid(),
+                ProjectId = "sample",
+                IsSample = true,
+                CreatedUtc = oldCreated,
+            },
+            CancellationToken.None);
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = tooNewRunId,
+                TenantId = tenantA,
+                WorkspaceId = Guid.NewGuid(),
+                ScopeProjectId = Guid.NewGuid(),
+                ProjectId = "sample",
+                IsSample = true,
+                CreatedUtc = newCreated,
+            },
+            CancellationToken.None);
+
+        RunSamplePurgeBatchResult batch = await runs.HardDeleteSampleRunsBatchAsync(
+            tenantA,
+            cutoff,
+            10,
+            CancellationToken.None);
+
+        batch.Deleted.Select(row => row.RunId).Should().Equal(eligibleRunId);
+        (await runs.GetByRunIdAdminAsync(otherTenantRunId, CancellationToken.None)).Should().NotBeNull();
+        (await runs.GetByRunIdAdminAsync(tooNewRunId, CancellationToken.None)).Should().NotBeNull();
+    }
+
+    [Fact]
+    public void SampleRunPurgeBatch_honors_optional_tenant_and_cutoff_filters()
+    {
+        const string sql = """
+                           CREATE OR ALTER PROCEDURE dbo.SampleRunPurgeBatch
+                           AS
+                           SELECT TOP (@BatchSize)
+                                  r.RunId
+                           FROM dbo.Runs AS r
+                           WHERE r.IsSample = 1
+                             AND (@TenantId IS NULL OR r.TenantId = @TenantId)
+                             AND (@CreatedBeforeUtc IS NULL OR r.CreatedUtc < @CreatedBeforeUtc)
+                           ORDER BY r.CreatedUtc ASC;
+                           """;
+
+        sql.Should().Contain("(@TenantId IS NULL OR r.TenantId = @TenantId)");
+        sql.Should().Contain("(@CreatedBeforeUtc IS NULL OR r.CreatedUtc < @CreatedBeforeUtc)");
+        sql.Should().Contain("r.IsSample = 1");
+    }
+
+    [Fact]
+    public void Project_list_queries_collapse_internal_whitespace_in_project_slug()
+    {
+        RunRepositorySql.SelectLatestCommittedRunIdByManifestCreatedUtc.Should().Contain("STRING_SPLIT");
+        RunRepositorySql.SelectPriorCommittedRunIdBeforeCurrent.Should().Contain("STRING_SPLIT");
+        RunRepositorySql.SelectLatestWithGraphAtOrBefore.Should().Contain("STRING_SPLIT");
+    }
+
+    [Fact]
+    public async Task InMemory_list_by_project_matches_internal_whitespace_in_stored_project_slug()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid runId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "Claims  API",
+                Description = "internal whitespace slug",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByProjectAsync(
+            scope,
+            "claims api",
+            10,
+            CancellationToken.None);
+
+        listed.Should().ContainSingle(r => r.RunId == runId);
+    }
+
+    [Fact]
+    public async Task InMemory_matches_internal_whitespace_for_latest_committed_run_lookup()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid committedRunId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = committedRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "Claims  Intake",
+                CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                CompletedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                GoldenManifestId = Guid.NewGuid(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+                CurrentManifestVersion = "v1",
+            },
+            CancellationToken.None);
+
+        Guid? latest = await runs.GetLatestCommittedRunIdByManifestCreatedUtcAsync(
+            scope,
+            "claims intake",
+            CancellationToken.None);
+
+        latest.Should().Be(committedRunId);
+    }
+
+    [Fact]
+    public void NormalizeAuthorityProjectSlug_collapses_internal_whitespace()
+    {
+        RunRepositoryCore.NormalizeAuthorityProjectSlug("  claims   api  ").Should().Be("CLAIMS API");
     }
 }

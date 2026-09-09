@@ -2445,6 +2445,249 @@ describe("ArchitectureIntelligencePageClient", () => {
       );
     });
   });
+  it("clears reasoning results when contextRunId switches to another review", async () => {
+    let currentContextRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "contextRunId") {
+        return currentContextRunId;
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse(({
+              runId: currentContextRunId,
+              model: { elements: [] },
+              specialistReviews: [
+                {
+                  findings: [
+                    {
+                      findingId: "finding-from-context-review-a",
+                      title: "Stale finding from context review A",
+                      severity: "High",
+                      conclusion: "Should not survive contextRunId switch",
+                    },
+                  ],
+                },
+              ],
+              recommendations: [],
+              mustNotFailViolations: [],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Architecture scoped to context review A." },
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-reasoning-results")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Stale finding from context review A")).toBeInTheDocument();
+
+    currentContextRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(
+        "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      );
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+    expect(screen.queryByText("Stale finding from context review A")).not.toBeInTheDocument();
+  });
+
+  it("ignores stale reasoning results when contextRunId switches before run completes", async () => {
+    let currentContextRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let resolveRunPost: (() => void) | null = null;
+    const runPostGate = new Promise<void>((resolve) => {
+      resolveRunPost = resolve;
+    });
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "contextRunId") {
+        return currentContextRunId;
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          await runPostGate;
+
+          return okJsonFetchResponse(({
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              model: { elements: [] },
+              specialistReviews: [
+                {
+                  findings: [
+                    {
+                      findingId: "stale-in-flight-context",
+                      title: "Stale in-flight context finding",
+                      severity: "High",
+                      conclusion: "Must not appear after contextRunId switch",
+                    },
+                  ],
+                },
+              ],
+              recommendations: [],
+              mustNotFailViolations: [],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Architecture for context review A." },
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-run-button"));
+
+    currentContextRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(
+        "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      );
+    });
+
+    resolveRunPost?.();
+
+    await waitFor(() => {
+      expect(screen.queryByText("Stale in-flight context finding")).not.toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
+  });
+
+  it("clears publish-to-product toggle when contextRunId switches to another review", async () => {
+    let currentContextRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "contextRunId") {
+        return currentContextRunId;
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? "GET";
+
+        if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          return okJsonFetchResponse(({
+              runId: currentContextRunId,
+              model: { elements: [] },
+              specialistReviews: [{ findings: [] }],
+              recommendations: [],
+              mustNotFailViolations: [],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-description"), {
+      target: { value: "Architecture scoped to context review A." },
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-intelligence-publish-toggle"));
+
+    expect(screen.getByTestId("architecture-intelligence-publish-toggle")).toBeChecked();
+
+    currentContextRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(
+        "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-publish-toggle")).not.toBeChecked();
+  });
+
+  it("preserves freeform declared priorities when workspace auto-pick deep-links to empty intake", async () => {
+    let currentRunId: string | null = null;
+
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return currentRunId;
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return okJsonFetchResponse(({
+              runId: currentRunId,
+              sourceTexts: [],
+              declaredPriorities: [],
+            }));
+        }
+
+        return okJsonFetchResponse(({}));
+      }),
+    );
+
+    const view = render(<ArchitectureIntelligencePageClient />);
+
+    fireEvent.change(screen.getByTestId("architecture-intelligence-priorities"), {
+      target: { value: "security, cost" },
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("security, cost");
+
+    currentRunId = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+    view.rerender(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(
+        "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-priorities")).toHaveValue("security, cost");
+  });
 });
 
 describe("ArchitectureIntelligenceProductRoundTrip", () => {
@@ -2474,4 +2717,5 @@ describe("ArchitectureIntelligenceProductRoundTrip", () => {
       "/governance/advisory-scans?runId=run-abc",
     );
   });
+
 });

@@ -33,9 +33,9 @@ internal static partial class RunRepositoryCore
             return false;
 
         return string.Equals(
-            storedProjectId.Trim(),
-            authorityProjectSlug.Trim(),
-            StringComparison.OrdinalIgnoreCase);
+            NormalizeAuthorityProjectSlug(storedProjectId),
+            NormalizeAuthorityProjectSlug(authorityProjectSlug),
+            StringComparison.Ordinal);
     }
 
     public static bool ArchitectureRequestIdMatches(string? storedArchitectureRequestId, string architectureRequestId)
