@@ -6692,6 +6692,92 @@ describe("wave85 filter url helpers", () => {
   });
 });
 
+describe("wave86 filter url helpers", () => {
+  it("help notifications, findings, billing and plans, governance approval, decision register, scope, security trust, users and roles, advisory scans, azure boards sources params", async () => {
+    const {
+      helpNotificationsSourcesDisclosureHrefFromSearch,
+      parseHelpNotificationsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-notifications-sources-disclosure-url");
+    const {
+      helpFindingsSourcesDisclosureHrefFromSearch,
+      parseHelpFindingsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-findings-sources-disclosure-url");
+    const {
+      helpBillingAndPlansSourcesDisclosureHrefFromSearch,
+      parseHelpBillingAndPlansSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-billing-and-plans-sources-disclosure-url");
+    const {
+      helpGovernanceApprovalSourcesDisclosureHrefFromSearch,
+      parseHelpGovernanceApprovalSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-governance-approval-sources-disclosure-url");
+    const {
+      helpDecisionRegisterSourcesDisclosureHrefFromSearch,
+      parseHelpDecisionRegisterSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-decision-register-sources-disclosure-url");
+    const {
+      helpScopeSourcesDisclosureHrefFromSearch,
+      parseHelpScopeSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-scope-sources-disclosure-url");
+    const {
+      helpSecurityTrustSourcesDisclosureHrefFromSearch,
+      parseHelpSecurityTrustSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-security-trust-sources-disclosure-url");
+    const {
+      helpUsersAndRolesSourcesDisclosureHrefFromSearch,
+      parseHelpUsersAndRolesSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-users-and-roles-sources-disclosure-url");
+    const {
+      helpAdvisoryScansSourcesDisclosureHrefFromSearch,
+      parseHelpAdvisoryScansSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-advisory-scans-sources-disclosure-url");
+    const {
+      helpAzureBoardsSourcesDisclosureHrefFromSearch,
+      parseHelpAzureBoardsSourcesOpenFromSearch,
+    } = await import("@/lib/help/help-azure-boards-sources-disclosure-url");
+
+    expect(parseHelpNotificationsSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpNotificationsSourcesDisclosureHrefFromSearch("", true, "/help/notifications")).toBe(
+      "/help/notifications?helpNotificationsSourcesOpen=1",
+    );
+    expect(parseHelpFindingsSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpFindingsSourcesDisclosureHrefFromSearch("tab=open", true, "/help/findings")).toBe(
+      "/help/findings?tab=open&helpFindingsSourcesOpen=1",
+    );
+    expect(parseHelpBillingAndPlansSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpBillingAndPlansSourcesDisclosureHrefFromSearch("", true, "/help/billing-and-plans")).toBe(
+      "/help/billing-and-plans?helpBillingAndPlansSourcesOpen=1",
+    );
+    expect(parseHelpGovernanceApprovalSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpGovernanceApprovalSourcesDisclosureHrefFromSearch("", true, "/help/governance-approval")).toBe(
+      "/help/governance-approval?helpGovernanceApprovalSourcesOpen=1",
+    );
+    expect(parseHelpDecisionRegisterSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpDecisionRegisterSourcesDisclosureHrefFromSearch("", true, "/help/decision-register")).toBe(
+      "/help/decision-register?helpDecisionRegisterSourcesOpen=1",
+    );
+    expect(parseHelpScopeSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpScopeSourcesDisclosureHrefFromSearch("", true, "/help/scope")).toBe(
+      "/help/scope?helpScopeSourcesOpen=1",
+    );
+    expect(parseHelpSecurityTrustSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpSecurityTrustSourcesDisclosureHrefFromSearch("", true, "/help/security-trust")).toBe(
+      "/help/security-trust?helpSecurityTrustSourcesOpen=1",
+    );
+    expect(parseHelpUsersAndRolesSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpUsersAndRolesSourcesDisclosureHrefFromSearch("", true, "/help/users-and-roles")).toBe(
+      "/help/users-and-roles?helpUsersAndRolesSourcesOpen=1",
+    );
+    expect(parseHelpAdvisoryScansSourcesOpenFromSearch("1")).toBe(true);
+    expect(helpAdvisoryScansSourcesDisclosureHrefFromSearch("", true, "/help/advisory-scans")).toBe(
+      "/help/advisory-scans?helpAdvisoryScansSourcesOpen=1",
+    );
+    expect(parseHelpAzureBoardsSourcesOpenFromSearch("true")).toBe(true);
+    expect(helpAzureBoardsSourcesDisclosureHrefFromSearch("", true, "/help/azure-boards")).toBe(
+      "/help/azure-boards?helpAzureBoardsSourcesOpen=1",
+    );
+  });
+});
+
 describe("wave79 filter url helpers", () => {
   it("dev testing quick switch, operator first-run workflow minimized, run detail workspace disclosures, role nav density, sidebar groups, collapsible json path, finding ask inline finding id, technical id disclosure key, usability feedback, draft intake reason default open params", async () => {
     const {

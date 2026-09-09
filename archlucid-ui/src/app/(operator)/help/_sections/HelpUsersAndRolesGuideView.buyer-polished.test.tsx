@@ -41,6 +41,8 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/users-and-roles",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpUsersAndRolesGuideView } from "@/app/(operator)/help/_sections/HelpUsersAndRolesGuideView";
