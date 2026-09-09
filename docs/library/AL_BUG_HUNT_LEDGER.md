@@ -1218,13 +1218,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
+- **last-hunt:** 2026-09-09
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1237,6 +1237,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Composition roots in evidence diverge from `$hostedCompositionRoots` — same apply-saas source; `DefaultApplyOrderRoots_composition_roots_match_apply_saas_ps1_hostedCompositionRoots` (2026-09-04).
 - [x] (invalid) `DocumentationRelativePath` cites missing stack-order doc — `DocumentationRelativePath_points_to_existing_reference_doc` confirms `docs/library/REFERENCE_SAAS_STACK_ORDER.md` on disk (2026-09-04).
 - [x] (invalid) Optional infra roots (`terraform-otel-collector`, `terraform-customer-onboarding`, etc.) must appear in deployment evidence — evidence lists canonical hosted SaaS apply order per `REFERENCE_SAAS_STACK_ORDER.md`, not every `infra/terraform*` directory.
+- [x] (valid-no-repro) Evidence default pilot profile path drifts from `$pilotProfileOnly` in `infra/apply-saas.ps1` — **cheap-disproof 2026-09-09 seed hunt #1436:** paths match today; added `DefaultApplyOrderRoots_default_pilot_profile_matches_apply_saas_ps1_pilotProfileOnly` guard alongside existing `$multiRootSequence` / `$hostedCompositionRoots` sync tests.
+- [x] (valid-no-repro) Hardcoded `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_multi_root_order` could pass while `$multiRootSequence` diverges — **cheap-disproof 2026-09-09 seed hunt #1436:** live ps1 parse test `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_ps1_multiRootSequence` fails first on drift; hardcoded test is redundant fast-check only.
+- [x] (invalid) Evidence lists pilot after full leaf sequence so deployment-evidence readers assume `-MultiRoot` default — pilot line cites `canonical default profile (metadata + cost knobs; no Azure apply)` and `DocumentationRelativePath` points to `REFERENCE_SAAS_STACK_ORDER.md` § default path (`apply-saas.ps1` without flags runs `$pilotProfileOnly` only).
+
+2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-04 seed hunt #734: seeded four drift/doc-scope candidates; cheap-disproved all; added apply-saas.ps1 sync regression tests. No hunt-ready rows; seed-only.
 
