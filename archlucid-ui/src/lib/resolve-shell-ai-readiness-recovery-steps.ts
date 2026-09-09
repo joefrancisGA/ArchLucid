@@ -1,5 +1,5 @@
 import type { SessionAiReadinessState } from "@/hooks/use-session-ai-readiness";
-import { workspaceAiUnavailableDetail } from "@/lib/workspace-ai-availability";
+import { operatorSafeWorkspaceAiUnavailableDetail } from "@/lib/workspace-ai-availability";
 
 function managedPlatformShellSteps(): readonly string[] {
   return [
@@ -53,7 +53,7 @@ export function resolveShellAiReadinessRecoverySteps(
     return [];
   }
 
-  const outageDetail = workspaceAiUnavailableDetail(probeState.result).trim();
+  const outageDetail = operatorSafeWorkspaceAiUnavailableDetail(probeState.result).trim();
   const usesCustomerConnection = availability?.aiSource === "customer-connection";
   const baseSteps = usesCustomerConnection
     ? customerConnectionShellSteps()

@@ -13,7 +13,7 @@ export default function DigestsPage() {
     return (
       <DemoWorkspaceCapabilityUnavailablePanel
         capability="Digest delivery"
-        description="In a connected tenant, architects configure scheduled governance digests and notification subscriptions."
+        description="In a connected tenant, architects configure scheduled scheduled digests and notification subscriptions."
       />
     );
   }

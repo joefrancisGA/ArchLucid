@@ -1,11 +1,18 @@
 "use client";
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 
 import { citationKindBuyerLabel } from "@/lib/citation-kind-buyer-label";
 import { formatCitationBuyerDisplay } from "@/lib/citation-buyer-display";
+import {
+  CITATION_CHIPS_TECHNICAL_CITATION_KEY_PARAM,
+  citationChipsTechnicalCitationDisclosureHrefFromSearch,
+  parseCitationChipsTechnicalCitationKeyFromSearch,
+} from "@/lib/explanation/citation-chips-technical-citation-disclosure-url";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { CitationReference } from "@/types/explanation";
@@ -39,6 +46,33 @@ function citationHref(c: CitationReference, runId: string, buyerPolishedShell: b
 
 /** Renders persisted artifact links backing aggregate explanation narratives. */
 export function CitationChips({ citations, runId }: CitationChipsProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const citationChipsTechnicalCitationKeyParam = searchParams.get(CITATION_CHIPS_TECHNICAL_CITATION_KEY_PARAM);
+  const [openCitationKey, setOpenCitationKeyState] = useState(() =>
+    parseCitationChipsTechnicalCitationKeyFromSearch(citationChipsTechnicalCitationKeyParam),
+  );
+  const syncOpenCitationKeyToUrl = useCallback(
+    (citationKey: string | null) => {
+      router.replace(
+        citationChipsTechnicalCitationDisclosureHrefFromSearch(searchParams.toString(), citationKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenCitationKey = useCallback(
+    (citationKey: string | null) => {
+      setOpenCitationKeyState(citationKey ?? "");
+      syncOpenCitationKeyToUrl(citationKey);
+    },
+    [syncOpenCitationKeyToUrl],
+  );
+  useEffect(() => {
+    setOpenCitationKeyState(parseCitationChipsTechnicalCitationKeyFromSearch(citationChipsTechnicalCitationKeyParam));
+  }, [citationChipsTechnicalCitationKeyParam]);
+
   if (!citations || citations.length === 0) {
     return null;
   }
@@ -55,6 +89,8 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
           const href = citationHref(c, runId, buyerPolished);
           const kindLabel = citationKindBuyerLabel(c.kind);
           const display = formatCitationBuyerDisplay(c, buyerPolished);
+          const citationKey = `${c.kind}-${c.id}`;
+          const technicalDetailsOpen = openCitationKey === citationKey;
 
           return (
             <li key={`${c.kind}-${c.id}`}>
@@ -66,7 +102,14 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
                 <span className="text-neutral-500 dark:text-neutral-400">{kindLabel}</span> · {display.headline}
               </Link>
               {buyerPolished && display.technicalId !== null ? (
-                <details className="mt-1">
+                <details
+                  className="mt-1"
+                  open={technicalDetailsOpen}
+                  onToggle={(event) => {
+                    const nextOpen = event.currentTarget.open;
+                    setOpenCitationKey(nextOpen ? citationKey : null);
+                  }}
+                >
                   <summary className={cn("cursor-pointer text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.micro)}>
                     Technical details
                   </summary>

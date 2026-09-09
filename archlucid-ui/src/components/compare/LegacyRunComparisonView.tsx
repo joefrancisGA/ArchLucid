@@ -1,5 +1,10 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { CompareDiffExpandableValueCell } from "@/components/compare/CompareDiffExpandableValueCell";
 import {
@@ -16,6 +21,10 @@ import {
   buildCompareEmptyDiffTeaching,
   type CompareEmptyDiffTeaching,
 } from "@/lib/compare-empty-diff-teaching";
+import {
+  compareLegacyTechnicalDetailsDisclosureHrefFromSearch,
+  parseCompareLegacyTechnicalDetailsOpenFromSearch,
+} from "@/lib/compare/compare-legacy-technical-details-disclosure-url";
 import type { RunComparison } from "@/types/authority";
 
 const monoCls = cn("font-mono", OPERATOR_TYPOGRAPHY.helper);
@@ -55,12 +64,41 @@ function displayHash(hash: string): string {
  * Review-level and manifest diffs from the comparison endpoint.
  */
 export function LegacyRunComparisonView(props: { result: RunComparison }) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/insights/compare-two-reviews";
+  const searchParams = useSearchParams();
+  const compareLegacyTechnicalDetailsOpenParam = searchParams.get("compareLegacyTechnicalDetailsOpen");
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseCompareLegacyTechnicalDetailsOpenFromSearch(compareLegacyTechnicalDetailsOpenParam),
+  );
   const { result } = props;
   const runLevelDiffs = sortDiffItems(result.runLevelDiffs);
   const manifestDiffs =
     result.manifestComparison !== undefined && result.manifestComparison !== null
       ? sortDiffItems(result.manifestComparison.diffs)
       : [];
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        compareLegacyTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(parseCompareLegacyTechnicalDetailsOpenFromSearch(compareLegacyTechnicalDetailsOpenParam));
+  }, [compareLegacyTechnicalDetailsOpenParam]);
 
   return (
     <section id="compare-legacy" className="mt-7">
@@ -113,7 +151,13 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
             <strong>Changes:</strong> added {result.manifestComparison.addedCount}, removed{" "}
             {result.manifestComparison.removedCount}, changed {result.manifestComparison.changedCount}
           </p>
-          <details className={cn("mb-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}>
+          <details
+            className={cn("mb-3 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.body)}
+            open={technicalDetailsOpen}
+            onToggle={(event) => {
+              setTechnicalDetailsOpen(event.currentTarget.open);
+            }}
+          >
             <summary className={cn("cursor-pointer font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Technical details
             </summary>

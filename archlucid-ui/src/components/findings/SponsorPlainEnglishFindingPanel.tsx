@@ -1,12 +1,18 @@
 "use client";
 
 import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   buildSponsorPlainEnglishFinding,
   type SponsorPlainEnglishFindingInput,
 } from "@/lib/sponsor-plain-english-finding";
+import {
+  findingSponsorPlainEnglishDisclosureHrefFromSearch,
+  parseFindingSponsorPlainEnglishOpenFromSearch,
+} from "@/lib/findings/sponsor-plain-english-finding-disclosure-url";
 import { cn } from "@/lib/utils";
 
 export type SponsorPlainEnglishFindingPanelProps = {
@@ -30,7 +36,36 @@ export function SponsorPlainEnglishFindingPanel(
     className,
     testId = "sponsor-plain-english-finding",
   } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingSponsorPlainEnglishOpenParam = searchParams.get("findingSponsorPlainEnglishOpen");
+  const [panelOpen, setPanelOpenState] = useState(() =>
+    parseFindingSponsorPlainEnglishOpenFromSearch(findingSponsorPlainEnglishOpenParam),
+  );
   const rewrite = buildSponsorPlainEnglishFinding(input);
+
+  const syncPanelOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        findingSponsorPlainEnglishDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPanelOpen = useCallback(
+    (open: boolean) => {
+      setPanelOpenState(open);
+      syncPanelOpenToUrl(open);
+    },
+    [syncPanelOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPanelOpenState(parseFindingSponsorPlainEnglishOpenFromSearch(findingSponsorPlainEnglishOpenParam));
+  }, [findingSponsorPlainEnglishOpenParam]);
 
   const body = (
     <div className="space-y-2" data-testid={`${testId}-body`}>
@@ -71,6 +106,10 @@ export function SponsorPlainEnglishFindingPanel(
         className,
       )}
       data-testid={testId}
+      open={panelOpen}
+      onToggle={(event) => {
+        setPanelOpen(event.currentTarget.open);
+      }}
     >
       <summary className={cn("cursor-pointer select-none font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Explain for a sponsor

@@ -36,6 +36,13 @@ import {
   type GovernanceFindingsBulkDisposition,
 } from "@/lib/governance/governance-findings-bulk-disposition-confirm-url";
 import { recordBulkFindingDisposition } from "@/lib/api/governance-stickiness-api";
+import { collectExpectedCurrentDispositionRowVersionByFindingId } from "@/lib/findings/finding-collect-expected-disposition-row-versions";
+import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
+import {
+  formatFindingDispositionBulkConflictMessage,
+  readFindingDispositionConflictFromError,
+  type FindingDispositionConflictDetail,
+} from "@/lib/findings/finding-disposition-conflict";
 
 export type BulkDispositionSucceededPayload = {
   readonly message: string;
@@ -62,7 +69,7 @@ function isAssignedToMeFindingsPath(pathname: string): boolean {
     || pathname.startsWith(`${GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}/`);
 }
 
-/** Bulk accept / waive / defer for governance findings queue rows. */
+/** Bulk accept / waive / defer for policy findings queue rows. */
 export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActionsProps) {
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_FINDINGS_PATH;
@@ -71,6 +78,9 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [inlineErrorMessage, setInlineErrorMessage] = useState<string | null>(null);
+  const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
+    null,
+  );
   const [pendingDisposition, setPendingDispositionState] = useState<BulkDisposition | null>(() => {
     const parsed = parseGovernanceFindingsBulkDispositionConfirmFromSearch(bulkDispConfirmParam);
 
@@ -127,6 +137,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
     }
 
     setInlineErrorMessage(null);
+    setDispositionConflict(null);
     setPendingDisposition(disposition);
   }
 
@@ -139,12 +150,15 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
 
     setBusy(true);
     setInlineErrorMessage(null);
+    setDispositionConflict(null);
 
     const idempotencyKey = createGovernanceMutationIdempotencyKey();
     const findingIds = [...props.selectedFindingIds];
 
     try {
       const revisitDueUtc = computeFindingDispositionRevisitDueUtc();
+      const expectedCurrentDispositionRowVersionBase64ByFindingId =
+        await collectExpectedCurrentDispositionRowVersionByFindingId(findingIds);
 
       const result = await recordBulkFindingDisposition(
         {
@@ -152,6 +166,9 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
           disposition,
           rationale: trimmedReason,
           revisitDueUtc: disposition === "Deferred" ? revisitDueUtc : undefined,
+          ...(Object.keys(expectedCurrentDispositionRowVersionBase64ByFindingId).length === 0
+            ? {}
+            : { expectedCurrentDispositionRowVersionBase64ByFindingId }),
         },
         { idempotencyKey },
       );
@@ -183,12 +200,22 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
       props.onDispositionSucceeded({
         message: successMessage,
         undo: async () => {
+          const undoExpectedCurrentDispositionRowVersionBase64ByFindingId =
+            result.currentDispositionRowVersionBase64ByFindingId
+            ?? await collectExpectedCurrentDispositionRowVersionByFindingId(findingIds);
+
           const undoResult = await recordBulkFindingDisposition(
             {
               findingIds,
               disposition: "Deferred",
               rationale: undoRationale,
               revisitDueUtc: computeFindingDispositionRevisitDueUtc(),
+              ...(Object.keys(undoExpectedCurrentDispositionRowVersionBase64ByFindingId).length === 0
+                ? {}
+                : {
+                    expectedCurrentDispositionRowVersionBase64ByFindingId:
+                      undoExpectedCurrentDispositionRowVersionBase64ByFindingId,
+                  }),
             },
             { idempotencyKey: createGovernanceMutationIdempotencyKey() },
           );
@@ -207,6 +234,14 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
       setPendingDisposition(null);
       router.refresh();
     } catch (err) {
+      const conflict = readFindingDispositionConflictFromError(err);
+
+      if (conflict !== null) {
+        setDispositionConflict(conflict);
+        setInlineErrorMessage(null);
+        return;
+      }
+
       setInlineErrorMessage(err instanceof Error ? err.message : GOVERNANCE_BULK_DISPOSITION_FAILURE_MESSAGE);
     } finally {
       setBusy(false);
@@ -302,6 +337,22 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
         extraContent={
           pendingDisposition !== null ? (
             <div className="mt-2 space-y-2">
+              {dispositionConflict !== null ? (
+                <FindingDispositionConflictPanel
+                  conflict={dispositionConflict}
+                  message={formatFindingDispositionBulkConflictMessage(dispositionConflict)}
+                  onReload={() => {
+                    setDispositionConflict(null);
+                    setPendingDisposition(null);
+                    props.onApplied();
+                    router.refresh();
+                  }}
+                  onDismiss={() => {
+                    setDispositionConflict(null);
+                  }}
+                  testId="governance-bulk-disposition-conflict"
+                />
+              ) : null}
               <DispositionExportBeforeAfterPreview disposition={pendingDisposition} />
               <DispositionExportImpactNotice disposition={pendingDisposition} />
             </div>

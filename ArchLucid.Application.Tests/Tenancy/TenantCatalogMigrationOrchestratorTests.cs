@@ -236,6 +236,98 @@ public sealed class TenantCatalogMigrationOrchestratorTests
     }
 
     [Fact]
+    public async Task StartAsync_unsuspends_when_migration_insert_fails_after_scope_freeze_suspend()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        InMemoryTenantRepository tenants = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 9, 7, 12, 0, 0, TimeSpan.Zero));
+
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Acme",
+            "acme",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        Mock<ITenantCatalogMigrationRepository> migrationSpy = new(MockBehavior.Strict);
+        migrationSpy
+            .Setup(r => r.GetActiveByTenantIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCatalogMigrationRecord?)null);
+        migrationSpy
+            .Setup(r => r.InsertAsync(It.IsAny<TenantCatalogMigrationRecord>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("migration insert failed"));
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Loose);
+        TenantSuspendCommandService suspend = new(tenants, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrationSpy.Object,
+            tenants,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await sut.StartAsync(TenantId, "corr-insert-fail", "admin", "Admin", CancellationToken.None));
+
+        TenantRecord? tenantAfterFailure = await tenants.GetByIdAsync(TenantId, CancellationToken.None);
+        Assert.NotNull(tenantAfterFailure);
+        Assert.Null(tenantAfterFailure.SuspendedUtc);
+        Assert.Null(await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task StartAsync_preserves_admin_suspend_when_migration_insert_fails()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        InMemoryTenantRepository tenants = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 9, 7, 12, 0, 0, TimeSpan.Zero));
+
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Acme",
+            "acme",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+        await tenants.SuspendTenantAsync(TenantId, CancellationToken.None);
+
+        TenantRecord? adminSuspended = await tenants.GetByIdAsync(TenantId, CancellationToken.None);
+        Assert.NotNull(adminSuspended?.SuspendedUtc);
+
+        Mock<ITenantCatalogMigrationRepository> migrationSpy = new(MockBehavior.Strict);
+        migrationSpy
+            .Setup(r => r.GetActiveByTenantIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantCatalogMigrationRecord?)null);
+        migrationSpy
+            .Setup(r => r.InsertAsync(It.IsAny<TenantCatalogMigrationRecord>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("migration insert failed"));
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Loose);
+        TenantSuspendCommandService suspend = new(tenants, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrationSpy.Object,
+            tenants,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await sut.StartAsync(TenantId, "corr-pre-suspended-insert-fail", "admin", "Admin", CancellationToken.None));
+
+        TenantRecord? tenantAfterFailure = await tenants.GetByIdAsync(TenantId, CancellationToken.None);
+        Assert.NotNull(tenantAfterFailure?.SuspendedUtc);
+        Assert.Equal(adminSuspended.SuspendedUtc, tenantAfterFailure.SuspendedUtc);
+        Assert.Null(await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None));
+    }
+
+    [Fact]
     public async Task CompleteAsync_preserves_admin_suspend_when_tenant_was_suspended_before_migration_start()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();

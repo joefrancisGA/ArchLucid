@@ -42,6 +42,7 @@ import {
 import {
   ADMIN_DIAGNOSTICS_HELP_FIRST_VIEWPORT_TEST_ID,
   ADMIN_DIAGNOSTICS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD,
   ADMIN_DIAGNOSTICS_HELP_PAGE_SUBTITLE_BUYER,
   ADMIN_DIAGNOSTICS_HELP_PRIMARY_CONTENT_ID,
   ADMIN_DIAGNOSTICS_HELP_SKIP_LINK_LABEL,
@@ -80,17 +81,22 @@ describe("HelpAdminDiagnosticsGuideView buyer-polished shell (HAE)", () => {
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-admin-diagnostics-header-actions")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-admin-diagnostics-live-surfaces")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-admin-diagnostics-intro")).toHaveTextContent(ADMIN_DIAGNOSTICS_HELP_PAGE_LEAD);
     expect(screen.getByRole("heading", { level: 2, name: ADMIN_DIAGNOSTICS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("help-admin-diagnostics-sources")).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId(ADMIN_DIAGNOSTICS_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(ADMIN_DIAGNOSTICS_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-admin-diagnostics-action-panel");
+    const signalTable = screen.getByTestId("help-admin-diagnostics-signal-table");
     const orientationBottom = screen.getByTestId("help-admin-diagnostics-orientation-bottom");
     const sourcesSection = screen.getByTestId("help-admin-diagnostics-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(screen.getByTestId("help-admin-diagnostics-intro"));
     expect(firstViewport).toContainElement(actionPanel);
+    expect(primaryContent).toContainElement(signalTable);
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
     expect(
@@ -108,6 +114,7 @@ describe("HelpAdminDiagnosticsGuideView buyer-polished shell (HAE)", () => {
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(firstViewport.compareDocumentPosition(signalTable) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(signalTable.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

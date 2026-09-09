@@ -4,9 +4,6 @@ using ArchLucid.ContextIngestion.Models;
 
 using Microsoft.Extensions.Logging;
 
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
-
 namespace ArchLucid.ContextIngestion.Infrastructure;
 
 /// <summary>
@@ -15,11 +12,6 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 public sealed class KubernetesYamlInfrastructureDeclarationParser(
     ILogger<KubernetesYamlInfrastructureDeclarationParser> logger) : IInfrastructureDeclarationParser
 {
-    private static readonly IDeserializer YamlDeserializer = new DeserializerBuilder()
-        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-        .IgnoreUnmatchedProperties()
-        .Build();
-
     public bool CanParse(string format)
     {
         return string.Equals(format?.Trim(), "kubernetes-yaml", StringComparison.OrdinalIgnoreCase);
@@ -36,30 +28,10 @@ public sealed class KubernetesYamlInfrastructureDeclarationParser(
 
         try
         {
-            string[] documents = declaration.Content.Split(
-                new[] { "\n---", "\r\n---" },
-                StringSplitOptions.RemoveEmptyEntries);
-
-            List<JsonElement> jsonDocuments = [];
-
-            foreach (string documentText in documents)
-            {
-                if (string.IsNullOrWhiteSpace(documentText))
-                    continue;
-
-                object? yamlObject = YamlDeserializer.Deserialize<object>(documentText.Trim());
-
-                if (yamlObject is null)
-                    continue;
-
-                string json = JsonSerializer.Serialize(yamlObject);
-                using JsonDocument jsonDocument = JsonDocument.Parse(json);
-                jsonDocuments.Add(jsonDocument.RootElement.Clone());
-            }
-
-            IReadOnlyList<CanonicalObject> results = KubernetesManifestCanonicalObjectMapper.MapDocuments(
-                jsonDocuments,
-                declaration);
+            IReadOnlyList<CanonicalObject> results = KubernetesYamlContentParser.ParseContent(
+                declaration.Content,
+                declaration,
+                logger);
 
             return Task.FromResult(results);
         }

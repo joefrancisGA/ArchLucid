@@ -19,7 +19,12 @@ import {
   IDENTITY_PROVIDERS_RECOMMENDED_CONFIGURE_PRODUCTION_SIGN_IN,
   identityProvidersOidcPageSubtitle,
 } from "@/lib/identity-providers-settings-copy";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
+import {
+  OPERATOR_LAYOUT,
+  OPERATOR_LINK,
+  OPERATOR_TYPOGRAPHY,
+  operatorSemanticSurface,
+} from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { canViewIdentityProviderTechnicalDiagnostics } from "@/lib/resolve-identity-providers-overview";
@@ -30,8 +35,10 @@ import { IdentityProvidersOidcBreadcrumb } from "./IdentityProvidersOidcBreadcru
 import { IdentityProvidersOidcBuyerChrome } from "./IdentityProvidersOidcBuyerChrome";
 import { IdentityProvidersSettingsShell } from "./IdentityProvidersSettingsShell";
 import {
+  OIDC_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   OIDC_SETTINGS_PRIMARY_CONTENT_ID,
   OIDC_SETTINGS_SKIP_LINK_LABEL,
+  OIDC_SETTINGS_SKIP_TARGET_ID,
 } from "./oidc-settings-page-copy";
 import type { UseIdentityProvidersSettingsPageModel } from "./use-identity-providers-settings-page";
 
@@ -74,20 +81,8 @@ export function IdentityProvidersOidcPageView(props: IdentityProvidersOidcPageVi
   const roleMappingPresentation = identityProviderCustomerStatusPresentation(props.model.overview.roleMappingStatus);
   const showTechnicalDetails = canViewIdentityProviderTechnicalDiagnostics(isArchLucidInternalOperatorShellEnv());
 
-  return (
-    <IdentityProvidersSettingsShell
-      pageTitle={IDENTITY_PROVIDERS_OIDC_PAGE_TITLE}
-      pageSubtitle={identityProvidersOidcPageSubtitle(buyerPolishedShell)}
-      overview={props.model.overview}
-      statusBadgeReady={props.model.dataLoaded}
-      refreshing={props.model.refreshing}
-      lastRefreshedAt={props.model.lastRefreshedAt}
-      diagnosticsDataUnavailable={props.model.diagnosticsDataUnavailable}
-      headerBreadcrumb={buyerPolishedShell ? <IdentityProvidersOidcBreadcrumb /> : undefined}
-      primaryContentId={buyerPolishedShell ? OIDC_SETTINGS_PRIMARY_CONTENT_ID : undefined}
-      skipLinkLabel={buyerPolishedShell ? OIDC_SETTINGS_SKIP_LINK_LABEL : undefined}
-      onRefresh={() => void props.model.refresh()}
-    >
+  const oidcWorkspaceBody = (
+    <>
       {buyerPolishedShell ? (
         <IdentityProvidersOidcBuyerChrome />
       ) : (
@@ -209,6 +204,38 @@ export function IdentityProvidersOidcPageView(props: IdentityProvidersOidcPageVi
           )}
         </CardContent>
       </Card>
+    </>
+  );
+
+  return (
+    <IdentityProvidersSettingsShell
+      pageTitle={IDENTITY_PROVIDERS_OIDC_PAGE_TITLE}
+      pageSubtitle={identityProvidersOidcPageSubtitle(buyerPolishedShell)}
+      overview={props.model.overview}
+      statusBadgeReady={props.model.dataLoaded}
+      refreshing={props.model.refreshing}
+      lastRefreshedAt={props.model.lastRefreshedAt}
+      diagnosticsDataUnavailable={props.model.diagnosticsDataUnavailable}
+      headerBreadcrumb={buyerPolishedShell ? <IdentityProvidersOidcBreadcrumb /> : undefined}
+      primaryContentId={buyerPolishedShell ? OIDC_SETTINGS_PRIMARY_CONTENT_ID : undefined}
+      skipTargetId={buyerPolishedShell ? OIDC_SETTINGS_SKIP_TARGET_ID : undefined}
+      skipLinkLabel={buyerPolishedShell ? OIDC_SETTINGS_SKIP_LINK_LABEL : undefined}
+      onRefresh={() => void props.model.refresh()}
+    >
+      {buyerPolishedShell ? (
+        <div
+          id={OIDC_SETTINGS_SKIP_TARGET_ID}
+          data-testid={OIDC_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          {oidcWorkspaceBody}
+        </div>
+      ) : (
+        oidcWorkspaceBody
+      )}
     </IdentityProvidersSettingsShell>
   );
 }

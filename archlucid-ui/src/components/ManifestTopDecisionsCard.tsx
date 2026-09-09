@@ -1,10 +1,19 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import {
+  MANIFEST_TOP_DECISIONS_AREA_KEY_PARAM,
+  manifestTopDecisionsAreaDisclosureHrefFromSearch,
+  parseManifestTopDecisionsAreaKeyFromSearch,
+} from "@/lib/manifests/manifest-top-decisions-area-disclosure-url";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_ITEMS,
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
@@ -31,8 +40,35 @@ function isShowcaseManifest(summary: ManifestSummary): boolean {
  * when decisionCount is non-zero (API does not yet return individual decision bullets on ManifestSummary — see backlog).
  */
 export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const manifestTopDecisionsAreaKeyParam = searchParams.get(MANIFEST_TOP_DECISIONS_AREA_KEY_PARAM);
+  const [openAreaKey, setOpenAreaKeyState] = useState(() =>
+    parseManifestTopDecisionsAreaKeyFromSearch(manifestTopDecisionsAreaKeyParam),
+  );
+  const syncOpenAreaKeyToUrl = useCallback(
+    (areaKey: string | null) => {
+      router.replace(
+        manifestTopDecisionsAreaDisclosureHrefFromSearch(searchParams.toString(), areaKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenAreaKey = useCallback(
+    (areaKey: string | null) => {
+      setOpenAreaKeyState(areaKey ?? "");
+      syncOpenAreaKeyToUrl(areaKey);
+    },
+    [syncOpenAreaKeyToUrl],
+  );
   const { summary, buyerPolishedLayout } = props;
   const buyer = buyerPolishedLayout ?? false;
+
+  useEffect(() => {
+    setOpenAreaKeyState(parseManifestTopDecisionsAreaKeyFromSearch(manifestTopDecisionsAreaKeyParam));
+  }, [manifestTopDecisionsAreaKeyParam]);
 
   if (!isShowcaseManifest(summary)) {
     if (summary.decisionCount <= 0) {
@@ -111,28 +147,39 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {sections.map((section, idx) => (
-            <details key={section.area} open={idx === 0} className="rounded-lg border border-neutral-200 dark:border-neutral-700">
-              <summary className="flex cursor-pointer select-none items-center justify-between px-3 py-2.5">
-                <span className={cn("font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-                  {section.area}
-                </span>
-                <span className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  {section.lines.length} decision{section.lines.length === 1 ? "" : "s"}
-                </span>
-              </summary>
-              <ul className="m-0 list-none space-y-2 border-t border-neutral-200 p-3 dark:border-neutral-700">
-                {section.lines.map((line) => (
-                  <li
-                    key={line}
-                    className={cn("rounded-md border border-neutral-100 bg-white px-3 py-2 text-neutral-800 dark:border-neutral-700/60 dark:bg-neutral-900/40 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
-                  >
-                    {line}
-                  </li>
-                ))}
-              </ul>
-            </details>
-          ))}
+          {sections.map((section, idx) => {
+            const sectionOpen =
+              openAreaKey === section.area ||
+              (manifestTopDecisionsAreaKeyParam === null && idx === 0);
+
+            return (
+              <details
+                key={section.area}
+                open={sectionOpen}
+                onToggle={(event) => setOpenAreaKey(event.currentTarget.open ? section.area : null)}
+                className="rounded-lg border border-neutral-200 dark:border-neutral-700"
+              >
+                <summary className="flex cursor-pointer select-none items-center justify-between px-3 py-2.5">
+                  <span className={cn("font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+                    {section.area}
+                  </span>
+                  <span className={cn("font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    {section.lines.length} decision{section.lines.length === 1 ? "" : "s"}
+                  </span>
+                </summary>
+                <ul className="m-0 list-none space-y-2 border-t border-neutral-200 p-3 dark:border-neutral-700">
+                  {section.lines.map((line) => (
+                    <li
+                      key={line}
+                      className={cn("rounded-md border border-neutral-100 bg-white px-3 py-2 text-neutral-800 dark:border-neutral-700/60 dark:bg-neutral-900/40 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}
+                    >
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            );
+          })}
         </CardContent>
       </Card>
     );

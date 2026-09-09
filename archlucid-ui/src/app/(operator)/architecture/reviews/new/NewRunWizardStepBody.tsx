@@ -17,6 +17,7 @@ import { LlmUsageBandHint } from "@/components/llm/LlmUsageBandHint";
 import type { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { AzureExtractorDemoScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -296,7 +297,7 @@ export function NewRunWizardStepBody(props: NewRunWizardStepBodyProps) {
         {props.liveMessage}
       </div>
 
-      {evalChrome ? (
+      {evalChrome && !isBuyerPolishedOperatorShellEnv() ? (
         <div className="mt-6" data-testid="new-run-wizard-llm-usage-band-footer">
           <LlmUsageBandHint />
         </div>

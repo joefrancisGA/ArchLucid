@@ -32,7 +32,10 @@ internal static class BicepResourceBodyParser
         """,
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    internal static void ParseBodyIntoProperties(string braceBody, Dictionary<string, string> properties)
+    internal static void ParseBodyIntoProperties(
+        string braceBody,
+        Dictionary<string, string> properties,
+        IReadOnlyDictionary<string, string>? parameterValues = null)
     {
         ArgumentNullException.ThrowIfNull(properties);
 
@@ -68,7 +71,7 @@ internal static class BicepResourceBodyParser
 
             if (arrayMatch.Success)
             {
-                if (TryConsumeArrayAssignment(lines, ref lineIndex, arrayMatch.Groups["key"].Value, properties))
+                if (TryConsumeArrayAssignment(lines, ref lineIndex, arrayMatch.Groups["key"].Value, properties, parameterValues))
                     continue;
             }
 
@@ -76,10 +79,10 @@ internal static class BicepResourceBodyParser
 
             if (multilineArrayMatch.Success)
             {
-                if (TryConsumeMultilineArrayAssignment(lines, ref lineIndex, multilineArrayMatch.Groups["key"].Value, properties))
+                if (TryConsumeMultilineArrayAssignment(lines, ref lineIndex, multilineArrayMatch.Groups["key"].Value, properties, parameterValues))
                     continue;
 
-                if (TryConsumeMultilineNestedBlockAssignment(lines, ref lineIndex, multilineArrayMatch.Groups["key"].Value, properties))
+                if (TryConsumeMultilineNestedBlockAssignment(lines, ref lineIndex, multilineArrayMatch.Groups["key"].Value, properties, parameterValues))
                     continue;
             }
 
@@ -95,7 +98,7 @@ internal static class BicepResourceBodyParser
                 if (!string.IsNullOrWhiteSpace(blockBody))
                 {
                     if (IsFlattenableBlockName(blockName))
-                        ParseBodyIntoProperties(blockBody, properties);
+                        ParseBodyIntoProperties(blockBody, properties, parameterValues);
                     else
                         CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(properties, blockName, blockBody);
 
@@ -126,6 +129,7 @@ internal static class BicepResourceBodyParser
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingSlashSlashComment(rawValue);
             rawValue = CanonicalInfrastructurePropertyBag.StripTrailingBlockComment(rawValue);
             string scalarValue = CanonicalInfrastructurePropertyBag.UnquoteInfrastructureScalar(rawValue);
+            scalarValue = ResolveScalarValue(scalarValue, parameterValues);
 
             InfrastructureDeclarationSecurityPropertyWriter.TryAddTfPropertyWithArmAlias(properties, key, scalarValue);
             lineIndex++;
@@ -136,7 +140,8 @@ internal static class BicepResourceBodyParser
         string[] lines,
         ref int lineIndex,
         string arrayKey,
-        Dictionary<string, string> properties)
+        Dictionary<string, string> properties,
+        IReadOnlyDictionary<string, string>? parameterValues)
     {
         string fromHere = string.Join('\n', lines[lineIndex..]);
         int bracketIndex = fromHere.IndexOf('[', StringComparison.Ordinal);
@@ -158,7 +163,8 @@ internal static class BicepResourceBodyParser
         string[] lines,
         ref int lineIndex,
         string arrayKey,
-        Dictionary<string, string> properties)
+        Dictionary<string, string> properties,
+        IReadOnlyDictionary<string, string>? parameterValues)
     {
         int probeIndex = lineIndex + 1;
         bool inBlockComment = false;
@@ -207,7 +213,8 @@ internal static class BicepResourceBodyParser
         string[] lines,
         ref int lineIndex,
         string blockKey,
-        Dictionary<string, string> properties)
+        Dictionary<string, string> properties,
+        IReadOnlyDictionary<string, string>? parameterValues)
     {
         int probeIndex = lineIndex + 1;
         bool inBlockComment = false;
@@ -240,7 +247,7 @@ internal static class BicepResourceBodyParser
             if (!string.IsNullOrWhiteSpace(blockBody))
             {
                 if (IsFlattenableBlockName(blockKey))
-                    ParseBodyIntoProperties(blockBody, properties);
+                    ParseBodyIntoProperties(blockBody, properties, parameterValues);
                 else
                     CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(properties, blockKey, blockBody);
             }
@@ -252,6 +259,23 @@ internal static class BicepResourceBodyParser
         }
 
         return false;
+    }
+
+    private static string ResolveScalarValue(
+        string scalarValue,
+        IReadOnlyDictionary<string, string>? parameterValues)
+    {
+        if (parameterValues is null || parameterValues.Count == 0 || string.IsNullOrWhiteSpace(scalarValue))
+            return scalarValue;
+
+        if (scalarValue.Contains('{', StringComparison.Ordinal)
+            || scalarValue.Contains('[', StringComparison.Ordinal)
+            || scalarValue.Contains('(', StringComparison.Ordinal))
+            return scalarValue;
+
+        return parameterValues.TryGetValue(scalarValue.Trim(), out string? resolved)
+            ? resolved
+            : scalarValue;
     }
 
     private static bool IsFlattenableBlockName(string blockName) =>

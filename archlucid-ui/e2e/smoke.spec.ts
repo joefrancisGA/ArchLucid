@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 import { waitForAppReady } from "./helpers/waits";
 import {
   START_REVIEW_PAGE_HEADING_PATTERN,
+  ARCHITECTURES_LIST_PAGE_PRIMARY_HEADING_PATTERN,
   MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
   RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN,
   SHOWCASE_DEMO_RUN_ID,
@@ -77,9 +78,10 @@ test.describe("operator shell smoke — core proof path", () => {
     await waitForAppReady(page);
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
-    await page.goto("/architecture/reviews");
+    // SY-98: Working happy path lands on the architecture portfolio, not the reviews inbox.
+    await page.goto("/architecture/architectures");
     await expect(
-      page.getByRole("heading", { level: 2, name: RUNS_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
+      page.getByRole("heading", { level: 2, name: ARCHITECTURES_LIST_PAGE_PRIMARY_HEADING_PATTERN }),
     ).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 

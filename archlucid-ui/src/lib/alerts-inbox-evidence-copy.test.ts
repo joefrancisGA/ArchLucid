@@ -4,6 +4,7 @@ import {
   ALERTS_INBOX_CLAIM_DISCIPLINE,
   ALERTS_INBOX_CLAIM_HEADING,
   ALERTS_INBOX_FOLLOW_UPS_TITLE,
+  ALERTS_INBOX_ORIENTATION_SOURCES,
   ALERTS_INBOX_SOURCES,
   ALERTS_INBOX_SOURCES_INTRO,
 } from "@/lib/alerts-inbox-evidence-copy";
@@ -20,5 +21,10 @@ describe("alerts-inbox-evidence-copy", () => {
     for (const link of ALERTS_INBOX_SOURCES) {
       expect(link.href).not.toBe(GOVERNANCE_ALERTS_PATH);
     }
+
+    const orientationHrefs = ALERTS_INBOX_ORIENTATION_SOURCES.map((source) => source.href);
+
+    expect(orientationHrefs).not.toContain(GOVERNANCE_ALERTS_PATH);
+    expect(ALERTS_INBOX_ORIENTATION_SOURCES.length).toBe(ALERTS_INBOX_SOURCES.length);
   });
 });

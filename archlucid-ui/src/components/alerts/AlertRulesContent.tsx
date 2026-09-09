@@ -19,9 +19,10 @@ import { LivelihoodDocumentGuardDialog } from "@/hooks/use-livelihood-document-g
 import { useAlertRulesContentList } from "@/components/alerts/use-alert-rules-content-list";
 import { useAlertRulesContentCreate } from "@/components/alerts/use-alert-rules-content-create";
 import { useAlertRulesContentPreview } from "@/components/alerts/use-alert-rules-content-preview";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER,
+  ALERT_RULES_CONDITIONS_OVERVIEW,
   ALERT_RULES_CONDITIONS_PAGE_LEAD,
   ALERT_RULES_CREATE_BUTTON_LABEL,
   ALERT_RULES_SAMPLE_MODE_BANNER,
@@ -37,7 +38,7 @@ import { governanceAlertRulesTabHref } from "@/lib/governance/governance-route-p
 import { OPERATOR_LIVE_PREVIEW_READINESS_RAIL_KIND } from "@/lib/operator/operator-live-preview-readiness-rail";
 
 export function AlertRulesContent() {
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = useProductionEvalChrome();
   const list = useAlertRulesContentList();
   const create = useAlertRulesContentCreate({
     canEdit: list.canEdit,
@@ -106,6 +107,15 @@ export function AlertRulesContent() {
             {ALERT_RULES_CONDITIONS_BUYER_START_HERE_HELPER}
           </p>
         </div>
+      ) : null}
+
+      {buyerPolishedShell ? (
+        <p
+          className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="alert-rules-conditions-overview"
+        >
+          {ALERT_RULES_CONDITIONS_OVERVIEW}
+        </p>
       ) : null}
 
       <div

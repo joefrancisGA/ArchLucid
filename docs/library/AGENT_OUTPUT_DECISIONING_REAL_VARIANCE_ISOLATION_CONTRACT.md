@@ -36,6 +36,7 @@
 | `ProposedChanges` / topology proposals | May merge via `AgentTopologyProposalGraphMerge` at commit | **Validate-before-overlay**: schema + domain invariants; reject/HOLD → no overlay, no new `GoldenManifestId` |
 | `DecisionMergeInputGate` | Schema gate | Not domain/provenance closure alone |
 | Finding `Message` / narrative | Display + audit | Never governance tags or topology nodes |
+| Finding `Message` → `ComplianceTags` lift | **Closed (DR-15)** — pack `PolicyRuleId` only; prose quarantined | N/A |
 
 ---
 

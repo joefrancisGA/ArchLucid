@@ -4,6 +4,15 @@ import { NOTIFICATION_PREFERENCE_CENTER_PAGE_TITLE } from "@/lib/notification-pr
 export const NOTIFICATION_PREFERENCE_CENTER_PRIMARY_CONTENT_ID =
   "notification-preference-center-primary-content" as const;
 
+export const NOTIFICATION_PREFERENCE_CENTER_FIRST_VIEWPORT_ID =
+  "notification-preference-center-first-viewport" as const;
+
+export const NOTIFICATION_PREFERENCE_CENTER_FIRST_VIEWPORT_TEST_ID =
+  NOTIFICATION_PREFERENCE_CENTER_FIRST_VIEWPORT_ID;
+
+export const NOTIFICATION_PREFERENCE_CENTER_SKIP_TARGET_ID =
+  NOTIFICATION_PREFERENCE_CENTER_FIRST_VIEWPORT_ID;
+
 export const NOTIFICATION_PREFERENCE_CENTER_SKIP_LINK_LABEL = "Skip to notifications workspace" as const;
 
 export const NOTIFICATION_PREFERENCE_CENTER_BREADCRUMB_ADMINISTRATION_LABEL = "Administration" as const;

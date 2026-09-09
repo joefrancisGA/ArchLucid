@@ -38,8 +38,12 @@ import {
 } from "@/lib/api-keys-help-evidence-copy";
 import {
   API_KEYS_HELP_FIRST_VIEWPORT_TEST_ID,
+  API_KEYS_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  API_KEYS_HELP_PAGE_LEAD,
+  API_KEYS_HELP_PAGE_SUBTITLE_BUYER,
   API_KEYS_HELP_SKIP_LINK_LABEL,
   API_KEYS_HELP_SKIP_TARGET_ID,
+  API_KEYS_HELP_START_HERE_HELPER,
 } from "@/lib/api-keys-help-page-copy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -61,6 +65,11 @@ describe("HelpApiKeysGuideView buyer-polished shell (HEP)", () => {
     expect(screen.getByTestId("help-api-keys-header-claim-discipline")).toHaveTextContent(
       API_KEYS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
+    expect(screen.getByText(API_KEYS_HELP_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByTestId("help-api-keys-intro")).toHaveTextContent(API_KEYS_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-api-keys-start-here-helper")).toHaveTextContent(
+      API_KEYS_HELP_START_HERE_HELPER,
+    );
     expect(screen.queryByTestId("help-api-keys-claim-discipline")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-api-keys-claim-discipline-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
@@ -71,7 +80,7 @@ describe("HelpApiKeysGuideView buyer-polished shell (HEP)", () => {
     const primaryContent = screen.getByTestId("help-api-keys-primary-content");
     const firstViewport = screen.getByTestId(API_KEYS_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-api-keys-action-panel");
-    const orientationBottom = screen.getByTestId("help-api-keys-orientation-bottom");
+    const orientationBottom = screen.getByTestId(API_KEYS_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("help-api-keys-sources");
 
     expect(primaryContent).toContainElement(firstViewport);

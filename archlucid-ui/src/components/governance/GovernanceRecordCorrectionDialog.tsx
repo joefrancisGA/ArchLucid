@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,12 +16,15 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { useResumePendingLivelihoodMutation } from "@/hooks/use-resume-pending-livelihood-mutation";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import {
   GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE,
   GOVERNANCE_MUTATION_CORRECTION_RATIONALE_REQUIRED,
   type GovernanceMutationCorrectionTarget,
-  recordGovernanceMutationCorrection,
+  recordGovernanceMutationCorrectionWith401Resume,
 } from "@/lib/governance/governance-mutation-correction-api";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -39,6 +43,21 @@ export function GovernanceRecordCorrectionDialog(
   const [rationale, setRationale] = useState("");
   const [submitBusy, setSubmitBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+
+  useResumePendingLivelihoodMutation({
+    enabled: true,
+    onReplayed: () => {
+      props.onOpenChange(false);
+      props.onRecorded?.();
+    },
+    onReplayError: (error) => {
+      setErrorMessage(toApiLoadFailure(error).message ?? GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE);
+    },
+  });
 
   useEffect(() => {
     if (!props.open) {
@@ -64,13 +83,23 @@ export function GovernanceRecordCorrectionDialog(
     setErrorMessage(null);
 
     try {
-      await recordGovernanceMutationCorrection({
-        ...props.target,
-        rationale: trimmed,
-      });
+      await recordGovernanceMutationCorrectionWith401Resume(
+        {
+          ...props.target,
+          rationale: trimmed,
+        },
+        {
+          idempotencyKey: createGovernanceMutationIdempotencyKey(),
+          returnPath: livelihoodReturnPath,
+        },
+      );
       props.onOpenChange(false);
       props.onRecorded?.();
     } catch (error) {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       setErrorMessage(toApiLoadFailure(error).message ?? GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE);
     } finally {
       setSubmitBusy(false);

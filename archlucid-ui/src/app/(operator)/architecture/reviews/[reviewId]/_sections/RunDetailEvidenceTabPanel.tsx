@@ -96,6 +96,7 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
         evidenceCoverageLine={evidenceCoverageLine}
       />
       <RunDetailEvidenceInventorySection
+        runId={props.runId}
         items={props.items}
         hasManifest={hasManifest}
         pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}

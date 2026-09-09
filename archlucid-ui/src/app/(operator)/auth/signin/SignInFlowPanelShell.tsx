@@ -6,10 +6,13 @@ import { SignInMethodPicker } from "@/app/(operator)/auth/signin/SignInMethodPic
 import { SignInSsoRequiredStep } from "@/app/(operator)/auth/signin/SignInSsoRequiredStep";
 import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
 import { SignInBuyerChrome } from "@/app/(operator)/auth/signin/SignInBuyerChrome";
+import { PostAuthBootstrapExitActions } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapExitActions";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { AUTH_SIGNIN_FATAL_ERROR_TITLE } from "@/lib/auth/auth-signin-page-copy";
+import { shouldOfferSignInStepReportProblem } from "@/lib/auth/sign-in-step-error-recovery";
 import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer/buyer-safe-auth-messages";
 
+import { SignInStepErrorRecovery } from "./SignInStepErrorRecovery";
 import type { SignInFlowState } from "./use-sign-in-flow-state";
 
 export type SignInFlowPanelShellProps = SignInFlowState;
@@ -51,13 +54,18 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
   if (fatalError) {
     return (
       <SignInBuyerChrome hasReturnDestination={hasReturnDestination}>
-        <AuthErrorPanel message={fatalError} title={AUTH_SIGNIN_FATAL_ERROR_TITLE} />
+        <AuthErrorPanel
+          message={fatalError}
+          title={AUTH_SIGNIN_FATAL_ERROR_TITLE}
+          onTryAgain={beginWorkSchool}
+        />
         <FatalPageReportProblemSupportRow
           surfaceId="auth-signin-cannot-proceed"
           routePath="/auth/signin"
           errorTitle={AUTH_SIGNIN_FATAL_ERROR_TITLE}
           errorCode="auth-signin-cannot-proceed"
         />
+        <PostAuthBootstrapExitActions />
       </SignInBuyerChrome>
     );
   }
@@ -68,6 +76,7 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
         <AuthErrorPanel
           message={BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE}
           title={AUTH_SIGNIN_FATAL_ERROR_TITLE}
+          onTryAgain={beginWorkSchool}
         />
         <FatalPageReportProblemSupportRow
           surfaceId="auth-signin-cannot-proceed"
@@ -75,6 +84,7 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
           errorTitle={AUTH_SIGNIN_FATAL_ERROR_TITLE}
           errorCode="auth-signin-not-configured"
         />
+        <PostAuthBootstrapExitActions />
       </SignInBuyerChrome>
     );
   }
@@ -105,6 +115,9 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
           onBack={resetEmailOtpFlow}
           onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
         />
+        {shouldOfferSignInStepReportProblem(emailError) ? (
+          <SignInStepErrorRecovery errorCode="auth-signin-email-step-failure" />
+        ) : null}
       </SignInBuyerChrome>
     );
   }
@@ -141,6 +154,9 @@ export function SignInFlowPanelShell(props: SignInFlowPanelShellProps): React.JS
         onDifferentEmail={handleDifferentEmail}
         onBotChallengeTokenChange={turnstileRequired ? handleBotChallengeTokenChange : undefined}
       />
+      {shouldOfferSignInStepReportProblem(codeError) ? (
+        <SignInStepErrorRecovery errorCode="auth-signin-code-step-failure" />
+      ) : null}
     </SignInBuyerChrome>
   );
 }
