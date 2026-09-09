@@ -33,6 +33,7 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         };
 
         Dictionary<string, string> nodeIdMap = new(StringComparer.Ordinal);
+        int unlabeledShapeCount = 0;
 
         foreach (ArchitectureDiagramSubgraphRecord subgraph in model.Subgraphs.OrderBy(subgraph => subgraph.OrderKey))
         {
@@ -76,6 +77,12 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
         {
             if (node.Removed)
             {
+                continue;
+            }
+
+            if (StructuredDiagramUnlabeledShapeDetector.IsUnlabeledResourceShape(node))
+            {
+                unlabeledShapeCount++;
                 continue;
             }
 
@@ -147,7 +154,19 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             });
         }
 
-        return new StructuredDiagramGraphCompileResult { Snapshot = snapshot };
+        StructuredDiagramGraphCompileResult result = new()
+        {
+            Snapshot = snapshot,
+            UnlabeledShapeCount = unlabeledShapeCount,
+        };
+
+        if (unlabeledShapeCount > 0)
+        {
+            result.Warnings.Add(
+                $"{unlabeledShapeCount} unlabeled diagram shape(s) were not compiled as topology resources (NotVerifiable).");
+        }
+
+        return result;
     }
 
     private static string BuildSubgraphNodeId(string subgraphId)

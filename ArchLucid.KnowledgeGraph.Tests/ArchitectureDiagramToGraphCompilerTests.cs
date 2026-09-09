@@ -149,6 +149,96 @@ public sealed class ArchitectureDiagramToGraphCompilerTests
     }
 
     [Fact]
+    public void Compile_three_unlabeled_rects_produce_zero_resource_nodes()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "rect-1",
+                    Label = string.Empty,
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "rect-2",
+                    Label = "rect-2",
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = "rect-3",
+                    Label = string.Empty,
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+            ],
+            Edges =
+            [
+                new ArchitectureDiagramEdgeRecord
+                {
+                    Id = "e1",
+                    SourceId = "rect-1",
+                    TargetId = "rect-2",
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult result = compiler.Compile(
+            model,
+            new StructuredDiagramGraphCompileOptions
+            {
+                RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                GraphSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                CreatedUtc = DateTime.Parse("2026-01-01T00:00:00Z"),
+            });
+
+        result.Snapshot.Nodes.Should().BeEmpty();
+        result.Snapshot.Edges.Should().BeEmpty();
+        result.UnlabeledShapeCount.Should().Be(3);
+        result.Warnings.Should().ContainSingle()
+            .Which.Should().Contain("NotVerifiable");
+    }
+
+    [Fact]
+    public void Compile_bound_terraform_address_without_label_still_compiles_topology_node()
+    {
+        const string terraformAddress = "azurerm_sql_server.pay_sql";
+
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord
+                {
+                    Id = terraformAddress,
+                    Label = string.Empty,
+                    Kind = ArchitectureDiagramNodeKinds.System,
+                },
+            ],
+            ExtractionMethod = DiagramExtractionMethods.StructuredParse,
+        };
+
+        ArchitectureDiagramToGraphCompiler compiler = new();
+        StructuredDiagramGraphCompileResult result = compiler.Compile(
+            model,
+            new StructuredDiagramGraphCompileOptions
+            {
+                RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                ContextSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                GraphSnapshotId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                CreatedUtc = DateTime.Parse("2026-01-01T00:00:00Z"),
+            });
+
+        result.UnlabeledShapeCount.Should().Be(0);
+        result.Snapshot.Nodes.Should().ContainSingle(node => node.NodeId == $"diagram-node:{terraformAddress}");
+    }
+
+    [Fact]
     public void Compile_empty_nodes_produces_empty_graph_snapshot()
     {
         ArchitectureDiagramToGraphCompiler compiler = new();
