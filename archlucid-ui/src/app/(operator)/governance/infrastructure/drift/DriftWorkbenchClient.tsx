@@ -122,7 +122,7 @@ import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governanc
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   formatInfraEvidenceDiffLabel,
   formatInfraEvidenceScopeFreshnessLine,
@@ -958,7 +958,7 @@ export function DriftWorkbenchClient() {
 
           <div className="grid gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-800 md:grid-cols-3" aria-label="Drift table filters">
             <label className="grid gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL}</span>
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>{GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RISK_FILTER_LABEL}</span>
               <select
                 className={cnField}
                 data-testid="infra-drift-risk-filter"
@@ -977,7 +977,7 @@ export function DriftWorkbenchClient() {
               </select>
             </label>
             <label className="grid gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
                 {GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_CHANGE_TYPE_FILTER_LABEL}
               </span>
               <select
@@ -998,7 +998,7 @@ export function DriftWorkbenchClient() {
               </select>
             </label>
             <label className="grid gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
                 {GOVERNANCE_INFRASTRUCTURE_DRIFT_TABLE_RESOURCE_FILTER_LABEL}
               </span>
               <Input
