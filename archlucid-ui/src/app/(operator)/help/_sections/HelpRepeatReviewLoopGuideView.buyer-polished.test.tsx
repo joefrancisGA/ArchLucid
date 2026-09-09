@@ -51,6 +51,7 @@ import {
   REPEAT_REVIEW_LOOP_HELP_SKIP_LINK_LABEL,
   REPEAT_REVIEW_LOOP_HELP_SKIP_TARGET_ID,
   REPEAT_REVIEW_LOOP_HELP_START_HERE_HELPER,
+  REPEAT_REVIEW_LOOP_HELP_WORKSPACE_TEST_ID,
 } from "@/lib/repeat-review-loop-help-page-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -94,11 +95,14 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
     const firstViewport = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_FIRST_VIEWPORT_TEST_ID);
     const actionPanel = screen.getByTestId("help-repeat-review-loop-action-panel");
     const overview = screen.getByTestId("help-repeat-review-loop-overview");
+    const workspace = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_WORKSPACE_TEST_ID);
     const stepper = screen.getByTestId("repeat-review-loop-workflow-stepper");
     const orientationBottom = screen.getByTestId(REPEAT_REVIEW_LOOP_HELP_ORIENTATION_BOTTOM_TEST_ID);
+    const sourcesSection = screen.getByTestId("repeat-review-loop-help-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(actionPanel);
+    expect(firstViewport).not.toContainElement(overview);
     expect(
       within(actionPanel).getByRole("link", { name: REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS.compareReviews.label }),
     ).toHaveAttribute("href", REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS.compareReviews.href);
@@ -106,13 +110,13 @@ describe("HelpRepeatReviewLoopGuideView buyer-polished shell (HRX)", () => {
       REPEAT_REVIEW_LOOP_HELP_START_HERE_HELPER,
     );
     expect(primaryContent).toContainElement(overview);
-    expect(primaryContent).toContainElement(stepper);
+    expect(primaryContent).toContainElement(workspace);
+    expect(workspace).toContainElement(stepper);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(orientationBottom).toContainElement(sourcesSection);
     expect(firstViewport.compareDocumentPosition(overview) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(overview.compareDocumentPosition(stepper) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(stepper.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    const sourcesSection = screen.getByTestId("repeat-review-loop-help-sources");
+    expect(overview.compareDocumentPosition(workspace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(workspace.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     for (const source of filterWhereToGoNextFollowUpLinks(REPEAT_REVIEW_LOOP_HELP_SOURCES)) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
