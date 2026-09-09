@@ -14,6 +14,18 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
         @"^\s*([A-Za-z0-9_]+)\s*-->\s*(?:\|""?([^""|]*)""?\|\s*)?([A-Za-z0-9_]+)",
         RegexOptions.Compiled | RegexOptions.Multiline);
 
+    private static readonly Regex C4ActorRegex = new(
+        @"^\s*Person\s*\(\s*([A-Za-z0-9_]+)\s*,\s*[""']([^""']+)[""']",
+        RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+
+    private static readonly Regex C4SystemRegex = new(
+        @"^\s*(?:Container|System|System_Ext|Container_Ext)\s*\(\s*([A-Za-z0-9_]+)\s*,\s*[""']([^""']+)[""']",
+        RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+
+    private static readonly Regex C4RelRegex = new(
+        @"^\s*Rel\s*\(\s*([A-Za-z0-9_]+)\s*,\s*([A-Za-z0-9_]+)\s*,\s*[""']([^""']*)[""']",
+        RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+
     private readonly ArchitectureDiagramServiceTypeInferencer inferencer = new();
 
     public bool CanParse(string format)
@@ -57,6 +69,16 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
             nodes[nodeId] = node;
         }
 
+        foreach (Match match in C4ActorRegex.Matches(source.Content))
+        {
+            AddC4Node(nodes, match.Groups[1].Value, match.Groups[2].Value, ArchitectureDiagramNodeKinds.User);
+        }
+
+        foreach (Match match in C4SystemRegex.Matches(source.Content))
+        {
+            AddC4Node(nodes, match.Groups[1].Value, match.Groups[2].Value, ArchitectureDiagramNodeKinds.System);
+        }
+
         int edgeIndex = 0;
 
         foreach (Match match in EdgeRegex.Matches(source.Content))
@@ -64,6 +86,25 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
             string fromId = match.Groups[1].Value;
             string edgeLabel = match.Groups[2].Value;
             string toId = match.Groups[3].Value;
+
+            EnsurePlaceholderNode(nodes, fromId);
+            EnsurePlaceholderNode(nodes, toId);
+
+            model.Edges.Add(new ArchitectureDiagramEdgeRecord
+            {
+                Id = $"edge-{edgeIndex++}",
+                SourceId = fromId,
+                TargetId = toId,
+                Label = edgeLabel,
+                Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+            });
+        }
+
+        foreach (Match match in C4RelRegex.Matches(source.Content))
+        {
+            string fromId = match.Groups[1].Value;
+            string toId = match.Groups[2].Value;
+            string edgeLabel = match.Groups[3].Value;
 
             EnsurePlaceholderNode(nodes, fromId);
             EnsurePlaceholderNode(nodes, toId);
@@ -108,5 +149,25 @@ public sealed class MermaidDiagramSourceParser : IDiagramSourceParser
 
         this.inferencer.ApplyLabelInference(node);
         nodes[nodeId] = node;
+    }
+
+    private static void AddC4Node(
+        Dictionary<string, ArchitectureDiagramNodeRecord> nodes,
+        string nodeId,
+        string label,
+        string kind)
+    {
+        if (nodes.ContainsKey(nodeId))
+        {
+            return;
+        }
+
+        nodes[nodeId] = new ArchitectureDiagramNodeRecord
+        {
+            Id = nodeId,
+            Label = label,
+            Kind = kind,
+            Provenance = ArchitectureDiagramProvenanceKinds.Inferred,
+        };
     }
 }

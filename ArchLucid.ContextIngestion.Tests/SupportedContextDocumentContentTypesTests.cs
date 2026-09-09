@@ -15,6 +15,8 @@ public sealed class SupportedContextDocumentContentTypesTests
     [InlineData("text/markdown", true)]
     [InlineData("application/vnd.archlucid.diagram+json", true)]
     [InlineData("APPLICATION/VND.ARCHLUCID.DIAGRAM+JSON", true)]
+    [InlineData("text/vnd.mermaid", true)]
+    [InlineData("TEXT/VND.MERMAID", true)]
     [InlineData("image/png", false)]
     [InlineData("application/pdf", false)]
     [InlineData("", false)]
@@ -31,6 +33,7 @@ public sealed class SupportedContextDocumentContentTypesTests
             "text/plain",
             "text/markdown",
             SupportedContextDocumentContentTypes.StructuredDiagramJson,
+            SupportedContextDocumentContentTypes.Mermaid,
         ]);
     }
 
