@@ -53,9 +53,9 @@ internal static class RunListWarningFlagSql
     ///     (<c>Runs.ScopeProjectId</c>) — demo seeds store display names in <c>ProjectId</c>
     ///     while UI/live E2E list by the stable scope project id.
     /// </summary>
-    public const string ProjectWherePrefix = """
+    public const string ProjectWherePrefix = $"""
                                              (
-                                                 UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug
+                                                 {RunRepositorySql.CollapsedUpperRunsProjectId} = @NormalizedProjectSlug
                                                  OR r.ScopeProjectId = TRY_CONVERT(uniqueidentifier, @ProjectSlug)
                                              )
                                                AND
