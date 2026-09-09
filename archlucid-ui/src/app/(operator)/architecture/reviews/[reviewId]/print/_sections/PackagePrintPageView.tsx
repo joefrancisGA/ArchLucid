@@ -53,6 +53,7 @@ export type PackagePrintPageViewProps = {
   readonly presentation: PackagePrintPresentation;
   readonly listScopedRunId?: string | null;
   readonly parentArchitectureId?: string | null;
+
   readonly meetingCaptureBlockedReason?: string | null;
 };
 
@@ -315,6 +316,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           <section
             className="space-y-2 print:hidden"
             data-testid="package-print-meeting-capture-blocked"
+
           >
             <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{PACKAGE_PRINT_MEETING_CAPTURE_HEADING}</h2>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">

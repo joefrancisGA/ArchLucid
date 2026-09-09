@@ -17,6 +17,7 @@ import { findingDispositionMutationBlockedReason } from "@/lib/findings/finding-
 import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import { useResumePendingLivelihoodMutation } from "@/hooks/use-resume-pending-livelihood-mutation";
+
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
@@ -125,6 +126,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
     null,
   );
+
 
   function captureDispositionBaseline(): FindingInspectDispositionBaseline {
     return {
@@ -307,6 +309,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
         setErrorMessage(null);
 
       const message = resolveMutationError(error);
+
       setDispositionInlineSaveError(message);
       setErrorMessage(message);
     } finally {
@@ -370,6 +373,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
         setErrorMessage(null);
 
       const message = resolveMutationError(error);
+
       setDispositionInlineSaveError(message);
       setErrorMessage(message);
     } finally {

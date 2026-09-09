@@ -10,6 +10,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Authorization;
@@ -41,6 +42,7 @@ public sealed class ArchitecturesControllerTests
     private readonly Mock<IManifestHashService> _manifestHashService = new();
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
     private readonly Mock<IAuthorityQueryService> _authorityQueryService = new();
+
 
     public ArchitecturesControllerTests()
     {

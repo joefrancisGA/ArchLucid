@@ -1,6 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Api.Support;
+
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
@@ -63,8 +63,9 @@ public sealed class InternalArchitectureTraceForensicsController(
                 $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
                 ProblemTypes.ValidationFailed);
 
-        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (!Guid.TryParse(runId, out Guid runGuid))
+            return this.BadRequestProblem("runId must be a GUID.", ProblemTypes.ValidationFailed);
+
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 

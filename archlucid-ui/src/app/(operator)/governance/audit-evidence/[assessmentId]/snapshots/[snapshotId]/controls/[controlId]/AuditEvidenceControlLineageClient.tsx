@@ -34,12 +34,14 @@ import {
   AUDIT_EVIDENCE_CONTROL_LINEAGE_RETRY_ACTION,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_SKIP_LINK_LABEL,
 } from "@/lib/audit-evidence-page-copy";
+
 import {
   auditEvidenceLineageChainHrefFromSearch,
   parseAuditEvidenceLineageChainOpenFromSearch,
 } from "@/lib/governance/audit-evidence-lineage-chain-url";
 import { showError } from "@/lib/toast";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+
 import { cn } from "@/lib/utils";
 
 import { AuditEvidenceControlLineageBreadcrumb } from "./AuditEvidenceControlLineageBreadcrumb";
@@ -131,6 +133,21 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
     }
   }, [props.assessmentId, props.snapshotId]);
 
+  const onDownloadEvidencePackage = useCallback(async () => {
+    setPackageDownloadBusy(true);
+
+    try {
+      await downloadAuditEvidencePackageZip(props.assessmentId, props.snapshotId);
+    } catch (error: unknown) {
+      showError(
+        "Audit evidence package download failed",
+        error instanceof Error ? error.message : String(error),
+      );
+    } finally {
+      setPackageDownloadBusy(false);
+    }
+  }, [props.assessmentId, props.snapshotId]);
+
   return (
     <div className="space-y-6 p-4" data-testid="audit-evidence-control-lineage-page">
       <header className="space-y-2">
@@ -141,6 +158,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
           Chain of custody from control through requirements, evaluation, and collected evidence. Read-only.
         <p className={cnMonoIds}>
           assessmentId={props.assessmentId} · snapshotId={props.snapshotId} · controlId={props.controlId}
+
         <div className="flex flex-wrap items-center gap-3">
           <Button
             type="button"
@@ -167,6 +185,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
           <p className={OPERATOR_TYPOGRAPHY.helper}>
             {lineageBlockedReason ?? "Could not load chain of custody for this control."}
           </p>
+
 
       {lineage ? (
         <>

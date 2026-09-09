@@ -24,6 +24,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly manifestVersion?: string | null;
   readonly suppressMeasurementDenominator?: boolean;
   readonly pipelineTerminalFailure?: boolean;
+
   readonly enginesSucceeded?: number | null;
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
   readonly runCompleted: boolean;
