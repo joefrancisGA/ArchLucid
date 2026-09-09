@@ -9943,7 +9943,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -9969,6 +9969,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `RecoverableOutboxProcessorBase` calls `OnDeadLetterAsync` after `ProcessEntryAsync` throws, so the entry's `AmbientScopeContext` is already disposed; `PostCommitProjectionOutboxProcessor.OnDeadLetterAsync` and `RunExportBlobPushOutboxProcessor.OnDeadLetterAsync` logged dead-letter audits without re-pushing scope — retry-exhaustion audits inherit dev-default tenant triple — **hit 2026-09-09 seed hunt #1407:** push entry scope in `OnDeadLetterAsync`; regressions `PostCommitProjectionOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_exhaustion_dead_letter_audit` and `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_pushes_ambient_scope_before_exhaustion_dead_letter_audit`
 - [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` and `RetrievalIndexingOutboxProcessor` omit retry-exhaustion audit/instrumentation hooks present on post-commit and run-export processors — **cheap-disproof 2026-09-09 seed hunt #1424:** neither processor calls `IAuditService` on dead letter today; gap is observability-only, not tenant-scope mis-tagging like #1373/#1407
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor.VerifyOptions` copied `MaxAttemptsBeforeDeadLetter` without `OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry` 999 ceiling used by sibling outbox processors — configured values above 999 kept retrying past the shared dead-letter threshold (`AttemptCount` 998 + failure scheduled backoff instead of `RecordDeadLetterAsync`) — **hit 2026-09-09 seed hunt #1424:** route retry/lease options through shared verifier with `minLeaseDurationSeconds: 60`; regression `CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_dead_letters_at_shared_max_attempts_ceiling`
+- [x] (invalid) `RetrievalIndexingOutboxProcessor` null-ref when `GetRunDetailForRetrievalIndexingAsync` returns snapshots without `Run` — **cheap-disproof 2026-09-09 seed hunt #1425:** `DapperAuthorityQueryService.GetRunDetailForRetrievalIndexingAsync` returns `null` when `runRepository.GetByIdAsync` misses; non-null DTO always sets `Run = run` (lines 198–231)
+- [x] (valid-no-repro) `CosmosGraphSnapshotOutboxProcessor` and `RetrievalIndexingOutboxProcessor` omit `OnRetryScheduledAsync` instrumentation counters that post-commit/run-export processors increment — **cheap-disproof 2026-09-09 seed hunt #1425:** no `IAuditService` or tenant-scope reader on retry scheduling path; observability-only gap
+- [x] (valid-no-repro) `PostCommitProjectionOutboxProcessor` increments `RecordPostCommitProjectionOutboxProcessedSuccess` when `ProvenanceSnapshotMaterialization` benign-skips missing run detail — **cheap-disproof 2026-09-09 seed hunt #1425:** metrics treat skip-as-processed by design; row is marked processed and does not retry
+
+2026-09-09 seed hunt #1425 (seed-only): re-read coordination processors after #1424; cheap-disproof closed retrieval null-`Run` NRE, retry instrumentation, and benign-skip metrics candidates; no new hunt-ready row; 29 scoped coordination processor tests passed.
 
 2026-09-09 seed hunt #1424 (hit): reseeded host-core-coordination; cheap-disproof closed missing dead-letter audit/instrumentation on cosmos/retrieval processors; proved cosmos VerifyOptions skipped shared max-attempts ceiling; 29 scoped coordination processor tests passed.
 
