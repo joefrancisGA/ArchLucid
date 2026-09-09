@@ -1,6 +1,7 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -133,5 +134,31 @@ public sealed partial class GovernanceStickinessController
         return await EnsureRecurrenceScheduleSourceRunSealedManifestAllowedAsync(
             existing.SourceRunId,
             cancellationToken);
+    }
+
+    private async Task<IActionResult?> EnsureRegistersSealedManifestAllowedAsync(
+        Guid? projectId,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid resolvedProjectId = projectId ?? scope.ProjectId;
+
+        try
+        {
+            await GovernancePostureSealedManifestHashGuard.EnsureLatestCommittedRunSealedOrThrowAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                resolvedProjectId,
+                _runDetailQueryService,
+                _authorityQueryService,
+                _manifestHashService,
+                cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        return null;
     }
 }

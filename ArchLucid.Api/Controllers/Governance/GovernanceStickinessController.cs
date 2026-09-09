@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Stickiness;
 using ArchLucid.Core.Authorization;
@@ -33,6 +34,7 @@ public sealed partial class GovernanceStickinessController(
     IArchitectureReviewRecurrenceNextRunCalculator recurrenceNextRunCalculator,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
+    IRunDetailQueryService runDetailQueryService,
     IRiskExceptionService riskExceptionService,
     IFindingInspectReadRepository findingInspectReadRepository,
     IArchitectureReviewRecurrenceScheduleRepository recurrenceScheduleRepository) : ControllerBase
@@ -54,6 +56,9 @@ public sealed partial class GovernanceStickinessController(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     private readonly IRiskExceptionService _riskExceptionService =
         riskExceptionService ?? throw new ArgumentNullException(nameof(riskExceptionService));

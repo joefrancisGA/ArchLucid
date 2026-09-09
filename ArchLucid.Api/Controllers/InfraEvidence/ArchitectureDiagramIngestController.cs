@@ -91,6 +91,11 @@ public sealed partial class ArchitectureDiagramIngestController(
             return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
         }
 
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         try
