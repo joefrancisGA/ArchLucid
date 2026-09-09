@@ -1,1 +1,198 @@
-[]
+[
+  {
+    "findingId": "1d930951-052f-9461-b12b-59da77232666",
+    "findingType": "ComplianceFinding",
+    "category": "Compliance",
+    "severity": "Warning",
+    "title": "Compliance gap: Data resources must be covered by policy controls",
+    "rationale": "Every data resource should be covered by at least one policy control.",
+    "relatedNodeIds": [
+      "obj-38dedb83731441f9560ff4420b6a55d3"
+    ],
+    "payloadType": "ComplianceFindingPayload",
+    "rulesApplied": [
+      "data-must-have-policy-applicability"
+    ],
+    "decisionsTaken": [
+      "Detected uncovered resources against compliance rule requirements."
+    ]
+  },
+  {
+    "findingId": "97d8e408-2fc5-3fdf-d16a-e4bec555b48b",
+    "findingType": "DanglingDeclarationReferenceFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Resource \u0027checkout_mi\u0027 references identity \u002711111111-2222-3333-4444-555555555555\u0027 that is not declared in this package",
+    "rationale": "Property \u0027principalId\u0027 on \u0027checkout_mi\u0027 references \u002711111111-2222-3333-4444-555555555555\u0027, which is not present in this review package graph.",
+    "relatedNodeIds": [
+      "obj-4c4c4236ed17a9102ac6f7f5685b558e"
+    ],
+    "payloadType": "DanglingDeclarationReferenceFindingPayload",
+    "rulesApplied": [
+      "dangling-declaration-reference"
+    ],
+    "decisionsTaken": [
+      "Referenced token is not resolvable to any node id, label, or resource id on this snapshot."
+    ]
+  },
+  {
+    "findingId": "57a197cf-523b-f504-9969-15e90d7ad5e1",
+    "findingType": "DanglingDeclarationReferenceFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Resource \u0027mi_sql_contributor\u0027 references identity \u002711111111-2222-3333-4444-555555555555\u0027 that is not declared in this package",
+    "rationale": "Property \u0027principalId\u0027 on \u0027mi_sql_contributor\u0027 references \u002711111111-2222-3333-4444-555555555555\u0027, which is not present in this review package graph.",
+    "relatedNodeIds": [
+      "obj-57da2b6f068301e5884890d3b30ceedc"
+    ],
+    "payloadType": "DanglingDeclarationReferenceFindingPayload",
+    "rulesApplied": [
+      "dangling-declaration-reference"
+    ],
+    "decisionsTaken": [
+      "Referenced token is not resolvable to any node id, label, or resource id on this snapshot."
+    ]
+  },
+  {
+    "findingId": "368175ec-25f8-d072-9085-2e129296b222",
+    "findingType": "IdentityBlastRadiusFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Machine actor \u0027checkout_mi\u0027 has contributor access to regulated datastore \u0027pay_sql\u0027",
+    "rationale": "A machine identity can reach datastore \u0027pay_sql\u0027 through role \u0027contributor\u0027 within 2 graph hop(s).",
+    "relatedNodeIds": [
+      "declaration-actor-10000000000040008000000000000065-1",
+      "obj-38dedb83731441f9560ff4420b6a55d3",
+      "obj-57da2b6f068301e5884890d3b30ceedc"
+    ],
+    "payloadType": "IdentityBlastRadiusFindingPayload",
+    "rulesApplied": [
+      "contributor",
+      "identity-blast-radius"
+    ],
+    "decisionsTaken": [
+      "Machine actor path to regulated datastore through allow-listed write/admin role."
+    ]
+  },
+  {
+    "findingId": "49016949-4296-81fa-1002-cae63ef48eb2",
+    "findingType": "IdentityBlastRadiusFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Machine actor \u0027mi_sql_contributor\u0027 has contributor access to regulated datastore \u0027pay_sql\u0027",
+    "rationale": "A machine identity can reach datastore \u0027pay_sql\u0027 through role \u0027contributor\u0027 within 2 graph hop(s).",
+    "relatedNodeIds": [
+      "declaration-actor-10000000000040008000000000000065-2",
+      "obj-38dedb83731441f9560ff4420b6a55d3",
+      "obj-57da2b6f068301e5884890d3b30ceedc"
+    ],
+    "payloadType": "IdentityBlastRadiusFindingPayload",
+    "rulesApplied": [
+      "contributor",
+      "identity-blast-radius"
+    ],
+    "decisionsTaken": [
+      "Machine actor path to regulated datastore through allow-listed write/admin role."
+    ]
+  },
+  {
+    "findingId": "e4de1f04-5c89-be42-0fd8-6cbc0c5b31fb",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "obj-38dedb83731441f9560ff4420b6a55d3",
+      "obj-4c4c4236ed17a9102ac6f7f5685b558e",
+      "obj-57da2b6f068301e5884890d3b30ceedc"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "dc4eb50b-09ef-5e8f-675d-9a6aef832b6d",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "obj-38dedb83731441f9560ff4420b6a55d3",
+      "obj-4c4c4236ed17a9102ac6f7f5685b558e",
+      "obj-57da2b6f068301e5884890d3b30ceedc"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "6d258151-b05e-7835-070d-9a29f9423bda",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "obj-38dedb83731441f9560ff4420b6a55d3",
+      "obj-4c4c4236ed17a9102ac6f7f5685b558e",
+      "obj-57da2b6f068301e5884890d3b30ceedc"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "abccc946-205a-c8b9-9b48-77c0d18abe60",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "checkout_mi",
+      "mi_sql_contributor",
+      "pay_sql"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "29e34399-a03e-9a75-11d1-ee46156957e9",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "obj-38dedb83731441f9560ff4420b6a55d3",
+      "obj-4c4c4236ed17a9102ac6f7f5685b558e",
+      "obj-57da2b6f068301e5884890d3b30ceedc"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

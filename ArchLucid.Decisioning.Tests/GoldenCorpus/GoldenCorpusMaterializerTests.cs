@@ -481,7 +481,8 @@ public sealed class GoldenCorpusMaterializerTests
             audit,
             merge,
             CancellationToken.None,
-            input.InventoryFixture);
+            input.InventoryFixture,
+            input.PriorGraphFixture);
 
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
         await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
@@ -534,7 +535,8 @@ public sealed class GoldenCorpusMaterializerTests
                 audit,
                 merge,
                 CancellationToken.None,
-                input.InventoryFixture);
+                input.InventoryFixture,
+                input.PriorGraphFixture);
 
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-findings.json"), artifacts.FindingsJson);
             await File.WriteAllTextAsync(Path.Combine(dir, "expected-decisions.json"), artifacts.DecisionsJson);
