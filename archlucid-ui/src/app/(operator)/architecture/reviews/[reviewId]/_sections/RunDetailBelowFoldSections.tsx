@@ -238,6 +238,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           progressSummary={m.resolvedDetail.run}
           graphSnapshot={m.resolvedDetail.graphSnapshot}
           findingsSnapshot={m.resolvedDetail.findingsSnapshot}
+          contextSnapshot={m.resolvedDetail.contextSnapshot}
           pagePrimaryOwnedElsewhere
         />
       ) : null}
