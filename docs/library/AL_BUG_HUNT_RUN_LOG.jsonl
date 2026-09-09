@@ -1681,3 +1681,5 @@
 {"at":"2026-09-09T21:46:50.9244589Z","zoneId":"auth-return-path","outcome":"seed-only"}
 {"at":"2026-09-09T21:48:57.7003405Z","zoneId":"email-otp-auth","outcome":"seed-only"}
 {"at":"2026-09-09T21:48:58.1501433Z","zoneId":"email-otp-auth","outcome":"seed-only"}
+{"at":"2026-09-09T21:51:48.2638579Z","zoneId":"auth-return-path","outcome":"seed-only"}
+{"at":"2026-09-09T21:51:48.7114680Z","zoneId":"auth-return-path","outcome":"seed-only"}
