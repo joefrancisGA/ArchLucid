@@ -1761,11 +1761,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 15
-- **bugs-found:** 16
+- **hunts:** 16
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-08
-- **last-bug:** 2026-09-08 — durable enqueue capacity check is atomic; notify failure no longer leaves orphan Pending rows
+- **last-hunt:** 2026-09-09
+- **last-bug:** 2026-09-09 — watchdog mid-batch notify failure left orphan Pending rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1789,6 +1789,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DurableBackgroundJobQueue.EnqueueAsync` — `CountNonTerminalAsync` then `InsertAsync` is not atomic; concurrent enqueues at capacity-1 can exceed `MaxPendingJobs` — **hit 2026-09-08 thorough hunt #1365:** `TryInsertPendingJobIfUnderCapacityAsync` counts and inserts under `UPDLOCK, HOLDLOCK`; regression `DurableBackgroundJobQueue_EnqueueAsync_concurrent_at_capacity_minus_one_inserts_only_one_job`.
 - [x] (proven) `DurableBackgroundJobQueue.EnqueueAsync` — row inserted before queue notify; notify failure leaves orphan `Pending` row without Azure notification until manual/watchdog intervention — **hit 2026-09-08 thorough hunt #1365:** failed notify now marks the row terminal before rethrowing; regression `DurableBackgroundJobQueue_EnqueueAsync_marks_job_failed_when_queue_notify_fails`.
 - [x] (valid-no-repro) `BackgroundJobStuckRunningWatchdogBackgroundWork` — jobs running longer than `ProcessorVisibilityMinutes + 1` can be reclaimed while the original worker still executes, enabling duplicate side effects — **cheap-disproof 2026-09-08 thorough hunt #1365:** `ResolveStaleRunningThreshold` intentionally exceeds queue visibility to avoid reclaim during the in-flight window; duplicate notify while `Running` is dropped by `TryPrepareQueuedJobAsync`; regression `ResolveStaleRunningThreshold_exceeds_processor_visibility_minutes`.
+- [x] (proven) `BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync` — mid-batch `SendJobIdAsync` failure aborted later re-notifies and left reclaimed rows orphan `Pending` without queue messages — **hit 2026-09-09 seed hunt #1429:** per-job try/catch now marks notify failures terminal (parity with `DurableBackgroundJobQueue.EnqueueAsync`) and continues the batch; regressions `RunSinglePassAsync_continues_notifying_after_mid_batch_notify_failure` and `RunSinglePassAsync_marks_job_failed_when_queue_notify_fails_after_reclaim`.
+
+2026-09-09 seed hunt #1429 (hit): reseeded host-core-jobs; proved watchdog partial notify failure after stale Running reclaim; 22 scoped background-job unit tests passed.
 
 2026-09-08 thorough hunt #1365 (hit): proved durable enqueue capacity TOCTOU and notify-failure orphan Pending rows; closed watchdog long-run duplicate as valid-no-repro; scoped background-job tests passed.
 
