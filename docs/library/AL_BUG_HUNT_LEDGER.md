@@ -822,7 +822,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-09
@@ -850,6 +850,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 thorough hunt #1182 (dry): cheap-disproved negative ordinal via existing `Enum.IsDefined` guard; max-revisit probe valid-no-repro.
 
 2026-09-09 seed hunt #1400: proved invisible/format finding id bypass; closed zero-width and embedded-format rows.
+
+- [x] (invalid) `FindingDispositionValidation.Validate` accepts finding ids with embedded Unicode control characters — **cheap-disproof 2026-09-09 seed hunt #1439:** `HasSubstantiveFindingId` rejects `UnicodeCategory.Control` like format chars; regression `Validate_rejects_finding_id_with_embedded_control_character`.
+- [x] (valid-no-repro) `ValidateWorkingRemediatedImpactPreviewAttestation` accepts single-character preview override reasons — **cheap-disproof 2026-09-09 seed hunt #1439:** override branch requires `PreviewOverrideReason.Trim().Length >= MinimumRationaleLength`; regression `Validate_working_remediated_rejects_short_preview_override_reason`.
+- [x] (valid-no-repro) `Validate` rejects finding ids longer than 64 characters after trim only — **cheap-disproof 2026-09-09 seed hunt #1439:** max-length boundary is inclusive on trimmed value; regression `Validate_accepts_finding_id_at_max_length`.
+- [x] (valid-no-repro) `ListHistoryAsync` omits `HasSubstantiveFindingId` and could persist invisible ids via read path — **cheap-disproof 2026-09-09 seed hunt #1439:** history lookup is read-only and uses `findingId.Trim()`; writes still pass `FindingDispositionValidation.Validate` before append.
+
+2026-09-09 seed hunt #1439 (seed-only): reseeded finding-disposition after #1400 hit; cheap-disproof closed control-char, short preview override, max-length boundary, and ListHistory read-path candidates; 23 scoped FindingDispositionValidation tests passed.
 
 ---
 
