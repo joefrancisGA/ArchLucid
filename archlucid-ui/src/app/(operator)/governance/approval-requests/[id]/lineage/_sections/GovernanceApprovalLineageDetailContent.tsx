@@ -44,6 +44,7 @@ import {
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
 import { formatGovernanceLineageCompletenessPercent } from "@/lib/governance/governance-lineage-metric-format";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { GOVERNANCE_APPROVAL_LINEAGE_FINDINGS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import {
   APPROVAL_LINEAGE_CLAIM_DISCIPLINE,
@@ -116,6 +117,7 @@ export function GovernanceApprovalLineageDetailContent({
         navHref={GOVERNANCE_APPROVAL_QUEUE_PATH}
         title="Approval lineage"
         subtitle={displayApprovalTitle}
+        subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
         titleTestId="approval-lineage-page-title"
         claimDiscipline={buyerPolishedShell ? APPROVAL_LINEAGE_CLAIM_DISCIPLINE : undefined}
         claimDisciplineTestId={buyerPolishedShell ? "approval-lineage-claim-discipline" : undefined}
