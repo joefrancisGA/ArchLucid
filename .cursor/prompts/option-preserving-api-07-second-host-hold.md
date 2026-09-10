@@ -1,6 +1,8 @@
 # OP-07 — Hold: second HTTP host (compile check only, after OP-01–06)
 
-**This prompt is a hold.** Implement **nothing** unless the owner’s message in **this same session** explicitly says to reopen a second composition root **and** quotes that OP-01–06 are done (map, ratchet, signal, 403 gate, registrars, Worker inventory). Implied “we should split the API” is **not** a reopen.
+**Tech backlog:** **TB-2400** — [`docs/library/TECH_BACKLOG_TB2400_INDEX.md`](../../docs/library/TECH_BACKLOG_TB2400_INDEX.md). Pick up **TB-2400** when the owner directs that row; do not implement from this prompt unless the session explicitly names **TB-2400**.
+
+**This prompt is a hold.** Implement **nothing** unless the owner’s message in **this same session** explicitly says to pick up **TB-2400** (or reopen a second composition root) **and** quotes that OP-01–06 are done (map, ratchet, signal, 403 gate, registrars, Worker inventory). Implied “we should split the API” is **not** a reopen.
 
 ## Goal
 
