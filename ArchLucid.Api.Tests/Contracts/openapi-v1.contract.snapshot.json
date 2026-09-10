@@ -21954,6 +21954,13 @@
             "format": "date-time",
             "type": "string"
           },
+          "pathId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "payloadHashSha256": {
             "format": "byte",
             "type": "string"

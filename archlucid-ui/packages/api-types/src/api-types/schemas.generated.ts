@@ -1477,13 +1477,6 @@ export interface components {
             id: string;
             name: string;
         };
-        ArchitectureRestrictToSharesResponse: {
-            actorAdminShareInserted?: boolean;
-            /** Format: uuid */
-            architectureId?: string;
-            confirmationCopy?: string;
-            restrictToShares?: boolean;
-        };
         ArchitectureReviewRecurrenceSchedule: {
             /** Format: uuid */
             architectureId?: null | string;
@@ -6373,6 +6366,8 @@ export interface components {
             inventoryDiffId?: null | string;
             /** Format: date-time */
             lastObservedUtc?: string;
+            /** Format: uuid */
+            pathId?: null | string;
             /** Format: byte */
             payloadHashSha256?: string;
             /** Format: uuid */
@@ -9635,10 +9630,6 @@ export interface components {
         ServiceType: "Unknown" | "Api" | "Worker" | "Ui" | "Integration" | "DataService" | "SearchService" | "AiService";
         SetAppearancePreferenceRequest: {
             value?: string;
-        };
-        SetArchitectureRestrictToSharesRequest: {
-            confirmOptIn?: boolean;
-            restrictToShares?: boolean;
         };
         SetCloudPlatformScopeRequest: {
             scope?: components["schemas"]["CloudPlatformScopeDto"];
