@@ -185,6 +185,76 @@ export function cloudConnectionsHelpFollowUpLinks(
 export const CLOUD_CONNECTIONS_HELP_FOLLOW_UP_LINKS: readonly CloudConnectionsHelpFollowUpLink[] =
   cloudConnectionsHelpFollowUpLinks("architecture");
 
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_PAGE_INTRO =
+  "Azure connectors are optional and read-only. Pick a tier below when you need provider inventory in SecureNow — or upload a validated inventory ZIP without a connector.";
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE = "Start with inventory ZIP upload" as const;
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE =
+  "This guide explains optional read-only Azure connectors and inventory ZIP intake for SecureNow — not where procurement goes for audit lineage citations.";
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD =
+  "This guide explains optional read-only Azure connectors and how to pick an evidence tier for cloud inventory scans.";
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_TIER_1 = {
+  title: "Tier 1 · Upload inventory",
+  eyebrow: "Recommended",
+  useWhen:
+    "Run packaging scripts from your SecureNow distribution, then upload the inventory ZIP from Extract and upload. SecureNow never receives long-lived credentials in your cloud account.",
+} as const;
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS = {
+  openExtractUpload: {
+    label: "Extract and upload",
+    href: "/governance/infrastructure/extract-upload",
+  },
+  openHub: { label: "Open Azure connections", href: "/integrations/cloud-connections" },
+} as const;
+
+export function cloudConnectionsHelpPageIntro(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_PAGE_INTRO
+    : CLOUD_CONNECTIONS_HELP_PAGE_INTRO;
+}
+
+export function cloudConnectionsHelpStartHereCardTitle(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE
+    : CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE;
+}
+
+export function cloudConnectionsHelpClaimDiscipline(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE
+    : CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE;
+}
+
+export function cloudConnectionsHelpOrientationLead(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD
+    : CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD;
+}
+
+export function cloudConnectionsHelpTier1(productLineId: ProductLineId = "architecture") {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_TIER_1
+    : CLOUD_CONNECTIONS_HELP_TIER_1;
+}
+
+export function cloudConnectionsHelpPrimaryActions(productLineId: ProductLineId = "architecture") {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS
+    : CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS;
+}
+
+export function cloudConnectionsHelpPrimaryCta(productLineId: ProductLineId = "architecture") {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openExtractUpload;
+  }
+
+  return CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview;
+}
+
 /** Operator Sources — no self-href to `/help/cloud-connections`. */
 export const CLOUD_CONNECTIONS_HELP_SOURCES: readonly CloudConnectionsHelpFollowUpLink[] = [
   { label: "Cloud connections hub", href: "/integrations/cloud-connections", kind: "product" },

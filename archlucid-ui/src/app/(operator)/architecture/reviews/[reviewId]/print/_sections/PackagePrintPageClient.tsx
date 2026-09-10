@@ -23,7 +23,6 @@ import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
   PACKAGE_PRINT_LOADING_LABEL,
-  buildPackagePrintBackHref,
   buildPackagePrintPresentation,
   PACKAGE_PRINT_BACK_LABEL,
   resolvePackagePrintSemanticSupportBandStampLine,
@@ -111,7 +110,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       findingsSnapshot: buyerSummary?.findingsSnapshot ?? null,
       run: { runId: summaryQuery.data.runId },
       results: [],
-    } as RunDetail;
+    } as unknown as RunDetail;
     const findings = extractSealedQuickDecisionFindingsFromRunDetail(pseudoDetail);
 
     if (findings.length === 0) {
@@ -152,12 +151,21 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   }
 
   const presentation = buildPackagePrintPresentation(summaryQuery.data, {
+coverageHonestyLine: workingDesk
+      ? formatCareerExportHonestyPlainText({
+          runId: summaryQuery.data.runId,
+          progressSummary: summaryQuery.data,
+          manifestSummary: null,
+          graphSnapshot: null,
+          enginesSucceeded: null,
+          workingDesk: true,
+        })
+      : null,
     meetingCaptureEntries:
       meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
     coverageHonestyLine:
       workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
         ? coverageHonestyLine
-        : null,
     semanticSupportBandStampLine,
     transparencyTrail:
       workingDesk && coverageHonestyQuery.data !== undefined
@@ -185,7 +193,9 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
           {sealedManifestBlockedReason}
         </p>
         <Button type="button" variant="secondary" asChild>
-          <Link href={printBackHref} data-testid="package-print-blocked-back">
+<Link href={buildPackagePrintBackHref(runId)} data-testid="package-print-blocked-back">
+            Back to review package
+<Link href={printBackHref} data-testid="package-print-blocked-back">
             {PACKAGE_PRINT_BACK_LABEL}
           </Link>
         </Button>
@@ -197,7 +207,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     <PackagePrintPageView
       presentation={presentation}
       listScopedRunId={listScopedRunId}
-      parentArchitectureId={parentArchitectureId}
+parentArchitectureId={parentArchitectureId}
       meetingCaptureBlockedReason={meetingCaptureBlockedReason}
     />
   );

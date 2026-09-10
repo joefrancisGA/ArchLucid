@@ -1,11 +1,17 @@
 import { FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING } from "@/lib/findings/findings-help-evidence-copy";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import {
-  GOVERNANCE_RESOLUTION_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_RESOLUTION_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import { SEVERITY_LABELS } from "@/lib/design-tokens";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 export const FINDINGS_HELP_PAGE_TITLE = "Findings";
 
@@ -329,3 +335,123 @@ export const FINDINGS_HELP_NEGATION_DRIFT_MARKERS = {
   overviewMustNotContain: ["not a full audit export", "sources package"],
   claimMustNotContain: ["sources package", "sealed-review diligence"],
 } as const;
+
+export const SECURENOW_FINDINGS_HELP_PAGE_SUBTITLE =
+  "Triage ARC-AMPE and cloud-inventory findings, inspect supporting evidence, and assign remediation owners.";
+
+export const SECURENOW_FINDINGS_HELP_OVERVIEW =
+  "A finding is an evidence-backed cloud security concern raised when assigned policy packs evaluate connected inventory. Findings describe the observed issue, severity, affected resources, supporting evidence, and recommended action. Depending on your role, you may investigate, assign, remediate, accept, waive, or escalate a finding.";
+
+export const SECURENOW_FINDINGS_HELP_WHAT_IS_BODY =
+  "When ARC-AMPE policy packs run against connected cloud inventory, SecureNow records findings with severity, impact, and recommended action. Findings stay linked to inventory evidence so operators can investigate, assign owners, and trace audit lineage consistently.";
+
+export const SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS = {
+  openFindings: FINDINGS_HELP_PRIMARY_ACTIONS.openFindings,
+  openAssignedToMe: {
+    label: "Open assigned to me",
+    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  },
+  openPolicyPacks: {
+    label: "Open policy packs",
+    href: GOVERNANCE_POLICY_PACKS_PATH,
+  },
+} as const;
+
+export function findingsHelpPageSubtitle(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_FINDINGS_HELP_PAGE_SUBTITLE
+    : FINDINGS_HELP_PAGE_SUBTITLE;
+}
+
+export function findingsHelpOverview(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_FINDINGS_HELP_OVERVIEW : FINDINGS_HELP_OVERVIEW;
+}
+
+export function findingsHelpWhatIsBody(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_FINDINGS_HELP_WHAT_IS_BODY : FINDINGS_HELP_WHAT_IS_BODY;
+}
+
+export function findingsHelpPrimaryActions(productLineId: ProductLineId = "architecture") {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS
+    : FINDINGS_HELP_PRIMARY_ACTIONS;
+}
+
+export function findingsHelpEvidenceActions(productLineId: ProductLineId = "architecture") {
+  if (!isSecureNowProductLine(productLineId)) {
+    return FINDINGS_HELP_EVIDENCE_ACTIONS;
+  }
+
+  return [
+    {
+      label: SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.label,
+      description: "Open the finding from the queue and inspect linked inventory evidence.",
+      href: SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS.openFindings.href,
+    },
+    {
+      label: "Browse standards and rules",
+      description: "See the policy or standard that produced the finding.",
+      href: GOVERNANCE_RESOLUTION_PATH,
+    },
+    {
+      label: "Open resource explorer",
+      description: "Inspect the affected cloud resource and linked inventory context.",
+      href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    },
+    {
+      label: SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS.openPolicyPacks.label,
+      description: "Review enabled policy packs that scope standards and rules for this workspace.",
+      href: SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS.openPolicyPacks.href,
+    },
+  ] as const;
+}
+
+export function findingsHelpGovernanceIntro(productLineId: ProductLineId = "architecture"): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return "Findings connect cloud evidence operations to audit and remediation follow-up:";
+  }
+
+  return FINDINGS_HELP_GOVERNANCE_INTRO;
+}
+
+export function findingsHelpGovernanceItems(productLineId: ProductLineId = "architecture"): readonly string[] {
+  if (!isSecureNowProductLine(productLineId)) {
+    return FINDINGS_HELP_GOVERNANCE_ITEMS;
+  }
+
+  return [
+    "Findings influence remediation prioritization and executive remediation metrics.",
+    "Severe unresolved findings may require explicit acceptance or monitoring.",
+    "Policy and standards results provide context for each finding.",
+    "Disposition changes become part of the audit trail and lineage exports.",
+    "Material findings may appear in compliance and audit evidence packages.",
+  ];
+}
+
+export function findingsHelpAnatomyFields(productLineId: ProductLineId = "architecture"): readonly FindingsHelpAnatomyField[] {
+  if (!isSecureNowProductLine(productLineId)) {
+    return FINDINGS_HELP_ANATOMY_FIELDS;
+  }
+
+  return FINDINGS_HELP_ANATOMY_FIELDS.map((field) =>
+    field.label === "Title"
+      ? { ...field, description: "Short statement of the cloud security or configuration concern." }
+      : field.label === "Affected domain"
+        ? { ...field, description: "The cloud resource, service, or inventory area involved." }
+        : field,
+  );
+}
+
+export function findingsHelpRelatedLinks(productLineId: ProductLineId = "architecture") {
+  if (!isSecureNowProductLine(productLineId)) {
+    return {
+      auditTrail: FINDINGS_HELP_RELATED_PRODUCT_DOCS,
+      policyPacks: FINDINGS_HELP_POLICY_PACKS_LINK,
+    };
+  }
+
+  return {
+    auditTrail: { label: "Audit evidence lineage", href: AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH },
+    policyPacks: FINDINGS_HELP_POLICY_PACKS_LINK,
+  };
+}

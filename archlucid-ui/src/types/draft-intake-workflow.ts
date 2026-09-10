@@ -5,6 +5,8 @@ import type { DraftRequestStatus } from "@/types/draft-intake-status";
 
 export type DraftRequestSummary = {
   draftId: string;
+  /** Durable architecture identity when ensure-on-create has run (ADR 0074). */
+  architectureId?: string | null;
   status: DraftRequestStatus;
   systemName?: string | null;
   freeTextIntent: string;

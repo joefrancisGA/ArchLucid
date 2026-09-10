@@ -32,9 +32,15 @@ public sealed partial class RunComparisonController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunComparisonSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps run comparison read <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapRunComparisonSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

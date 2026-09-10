@@ -1,3 +1,4 @@
+using ArchLucid.Core.Findings;
 using FluentAssertions;
 
 namespace ArchLucid.Architecture.Tests;
@@ -8,6 +9,17 @@ namespace ArchLucid.Architecture.Tests;
 public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
 {
     private static readonly string RepoRoot = FindRepoRoot();
+
+    private const string AdrRelativePath =
+        "docs/architecture/adrs/0085-semantic-support-band-working-career-not-commit-gate.md";
+
+    [Fact]
+    public void As074_insight_density_gate_options_default_semantic_support_llm_judge_off()
+    {
+        InsightDensityGateOptions options = new();
+
+        options.EnableSemanticSupportBandLlmJudge.Should().BeFalse();
+    }
 
     [Fact]
     public void As074_options_default_enable_llm_judge_false()
@@ -36,6 +48,20 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     }
 
     [Fact]
+    public void As074_scorer_remains_heuristic_default_without_llm_judge_flag()
+    {
+        string scorer = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Decisioning",
+                "Findings",
+                "FindingSemanticSupportBandScorer.cs"));
+
+        scorer.Should().Contain("Deterministic quote-overlap heuristic");
+        scorer.Should().NotContain("EnableSemanticSupportBandLlmJudge");
+    }
+
+    [Fact]
     public void As074_emission_applicator_skips_llm_judge_when_option_disabled()
     {
         string emission = File.ReadAllText(
@@ -54,13 +80,7 @@ public sealed class ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests
     [Fact]
     public void As074_adr_0085_documents_default_off_llm_judge()
     {
-        string adr = File.ReadAllText(
-            Path.Combine(
-                RepoRoot,
-                "docs",
-                "architecture",
-                "adrs",
-                "0085-semantic-support-band-working-career-not-commit-gate.md"));
+        string adr = File.ReadAllText(Path.Combine(RepoRoot, AdrRelativePath));
 
         adr.Should().Contain("AS-074");
         adr.Should().Contain("default off");
