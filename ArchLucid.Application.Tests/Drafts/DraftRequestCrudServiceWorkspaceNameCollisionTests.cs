@@ -53,7 +53,8 @@ public sealed class DraftRequestCrudServiceWorkspaceNameCollisionTests
                 Mock.Of<IQuestionSelectionEngine>(),
                 guard.Object,
                 Mock.Of<IArchitectureIdentityService>(),
-                Mock.Of<IPresenterIntakeTrailSyncService>()),
+                Mock.Of<IPresenterIntakeTrailSyncService>(),
+                DraftRequestServiceTestFactory.CreateSilentForceOverwriteAudit()),
             new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 
         DraftRequestResponse created = await repository.CreateAsync(
