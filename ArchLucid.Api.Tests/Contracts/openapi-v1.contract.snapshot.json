@@ -195424,9 +195424,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -195597,9 +195602,14 @@
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
+              },
+              "text/markdown": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
