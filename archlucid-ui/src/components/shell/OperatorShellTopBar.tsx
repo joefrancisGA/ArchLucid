@@ -17,6 +17,7 @@ import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { OperatorShellDemoWorkspaceTag } from "@/components/shell/OperatorShellDemoWorkspaceTag";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GuidedModeTopBarChip } from "@/components/workspace-mode/GuidedModeTopBarChip";
+import { WorkingCareerRehearsalChooser } from "@/components/workspace-mode/WorkingCareerRehearsalChooser";
 import { SimulatorModeTopBarChip } from "@/components/usability/SimulatorModeTopBarChip";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chrome-active";
@@ -120,6 +121,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             ) : null}
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2.5 border-l border-neutral-200 pl-3 dark:border-neutral-700">
+              <WorkingCareerRehearsalChooser />
               <GuidedModeTopBarChip />
               {showDevAnalysisTopBarChrome ? <SimulatorModeTopBarChip /> : null}
               <ShellInFlightOperationsAffordanceDeferred />
