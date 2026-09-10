@@ -8,9 +8,9 @@
 
 ## Verdict
 
-**Shipped (data + honesty core)** on branch `cursor/as-prompt-queue-close-97a4`, subject to share **API/UI residuals** below. ADR 0084–0087 exist. PNG/JPEG are not silently dropped on intake. Structured diagram parsers (Mermaid, VSDX, ArchLucid JSON) compile into the review graph; pixel-only paths remain NotVerifiable. Semantic support band enum, Working chip, and mismatch tests landed. Career/Rehearsal chooser and Rehearsal Ready suppression landed. `RestrictToShares` SQL + grandfather default open landed with no SQL RLS. Host `AgentExecution:Mode` default was not flipped. No second Azure collector was forked.
+**Shipped (data + honesty core + share ACL stack)** on branch `cursor/as-prompt-queue-close-97a4`. ADR 0084–0087 exist. PNG/JPEG are not silently dropped on intake. Structured diagram parsers (Mermaid, VSDX, ArchLucid JSON) compile into the review graph; pixel-only paths remain NotVerifiable. Semantic support band enum, Working chip, and mismatch tests landed. Career/Rehearsal chooser and Rehearsal Ready suppression landed. `RestrictToShares` SQL + grandfather default open landed with no SQL RLS. Share opt-in API (grant/revoke/restrict), list/get IDOR-safe filtering, audit events, OpenAPI snapshot, and Working desk share panel landed. Host `AgentExecution:Mode` default was not flipped. No second Azure collector was forked.
 
-This audit does **not** claim full share administration UI (AS-089–AS-096, AS-099), IE collector implementation, G-REAL-06, or vision default-on.
+This audit does **not** claim IE collector implementation, G-REAL-06, or vision default-on.
 
 ## Headline gates (owner checklist)
 
@@ -22,7 +22,7 @@ This audit does **not** claim full share administration UI (AS-089–AS-096, AS-
 | Pixel-only NotVerifiable | Yes | AS-019 unlabeled box tests |
 | Support band enum + chip + mismatch | Yes | AS-056–073; `semantic-support-band-desk-guard` |
 | Career/Rehearsal + no unlabeled Ready | Yes | AS-076–081, AS-079; `run-pipeline-finalize-blocked-honesty.ts` |
-| RestrictToShares opt-in schema | Partial | AS-087/088 SQL landed; AS-089+ API/UI residual |
+| RestrictToShares opt-in schema + API | Yes | AS-087/088 SQL; AS-089–AS-099 API, tests, OpenAPI, desk panel | None |
 | No host Mode flip | Yes | AS-085 ratchet; ADR 0086 |
 | No second collector | Yes | ADR 0084 constraints; inventory bind reuses existing snapshots |
 
@@ -40,15 +40,14 @@ This audit does **not** claim full share administration UI (AS-089–AS-096, AS-
 | AS-081 Guided keeps teaching | Yes | `OPERATOR_UI_EXPERIENCE_MODES.md`; AS-081 architecture + Vitest ratchets | None |
 | AS-087–AS-088 share SQL + grandfather | Yes | `380_ArchitectureShares.sql`; `ArchitectureShareDdlArchitectureTests`; AS-088 list test | None |
 | AS-097 no SQL RLS ratchet | Yes | DDL grep tests on migration 380 | None |
-| AS-098 share help boundary | Yes | `/help/architecture-sharing`; AS-098 tests | Share panel UI (AS-092) |
-| AS-089–AS-096, AS-099 share API/UI | No | ADR 0087 decision only | Opt-in API, roles, IDOR, OpenAPI — next wave |
+| AS-098 share help boundary | Yes | `/help/architecture-sharing`; AS-098 tests | None |
+| AS-089–AS-099 share API/UI/OpenAPI | Yes | `ArchitecturesController.Shares`; `ArchitectureShareService`; `ARCHITECTURE_SHARE_ACL_CONTRACT.md`; desk panel AS-092 | None |
 | AS-100 close audit | Yes | This file; `architecture-spine-prompt-inventory.test.ts` | None |
 
 ## Residuals (out of wave)
 
 | Item | Tracking | Notes |
 |------|----------|-------|
-| Share opt-in API + UI + IDOR | AS-089–AS-096, AS-099 | SQL schema landed; enforcement/API/UI not in this branch |
 | Concurrent desk / work-lease without presence | Wave 23 | ADR 0084 follow-up |
 | Intake wizard dirty-guard | leftover | Named in wave index; not architecture-spine body |
 | Stop-analysis confirm | leftover | Not a disposition write |
@@ -62,7 +61,6 @@ This audit does **not** claim full share administration UI (AS-089–AS-096, AS-
 
 ## Do not claim
 
-- Full RestrictToShares product (share panel, hub filter, IDOR suite) — schema + help only on this branch.
 - G-REAL-06 fake Real runs or host Mode flip.
 - Live presence or finding-comment chat.
 - IE plane or second Azure collector shipped in wave 22.
