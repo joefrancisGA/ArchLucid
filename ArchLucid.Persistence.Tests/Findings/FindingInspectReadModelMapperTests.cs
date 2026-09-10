@@ -394,4 +394,22 @@ public sealed class FindingInspectReadModelMapperTests
     {
         FindingInspectReadModelMapper.ParseDisposition("-1").Should().BeNull();
     }
+
+    [Fact]
+    public void ParseFindingSeverity_maps_fractional_numeric_string_to_info_default()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("1.5").Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public void ParseHumanReview_maps_fractional_numeric_string_to_not_required_default()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("2.5").Should().Be(FindingHumanReviewStatus.NotRequired);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_returns_null_for_fractional_numeric_string()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("1.5").Should().BeNull();
+    }
 }

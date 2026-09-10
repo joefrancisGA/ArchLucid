@@ -2423,4 +2423,67 @@ public sealed class FindingInspectReadRepositoryCoreTests
         projection.LatestDispositionReviewerUserId.Should().Be("reviewer-3");
         projection.RevisitDueUtc.Should().NotBeNull();
     }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_whitespace_padded_needs_evidence_string()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "  NeedsEvidence  ",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.NeedsEvidence);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_whitespace_padded_rejected_as_not_applicable_string()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "  RejectedAsNotApplicable  ",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.RejectedAsNotApplicable);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_preserves_pointer_metadata_when_disposition_raw_is_whitespace_only()
+    {
+        DateTimeOffset occurredAt = new(2026, 10, 8, 14, 30, 0, TimeSpan.Zero);
+        Guid eventId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "   ",
+            hasDispositionRow: true,
+            occurredAtUtc: occurredAt,
+            revisitDueUtc: new DateTime(2026, 11, 4, 0, 0, 0, DateTimeKind.Unspecified),
+            eventId: eventId,
+            reviewerUserId: "reviewer-4",
+            rowVersionStamp: [0x05]);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionOccurredAtUtc.Should().Be(occurredAt);
+        projection.LatestDispositionEventId.Should().Be(eventId);
+        projection.LatestDispositionReviewerUserId.Should().Be("reviewer-4");
+        projection.RevisitDueUtc.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_only_empty_string_entries_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["", "   "]""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
 }
