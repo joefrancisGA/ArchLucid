@@ -109326,7 +109326,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["CrossTenantPortfolioSummaryResponse"];
                         "application/problem+json": components["schemas"]["ProblemDetails"];
                     };
                 };

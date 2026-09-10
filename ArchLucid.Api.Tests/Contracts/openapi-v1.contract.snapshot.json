@@ -181120,7 +181120,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/CrossTenantPortfolioSummaryResponse"
                 }
               },
               "application/problem\u002Bjson": {
