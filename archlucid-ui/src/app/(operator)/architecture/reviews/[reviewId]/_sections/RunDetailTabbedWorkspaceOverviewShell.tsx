@@ -17,6 +17,7 @@ import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import { RunDetailDetailedOutcomeCardsDisclosure } from "./RunDetailDetailedOutcomeCardsDisclosure";
 import { deriveDecisionSnapshotSuppressedReason, isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
 import { isAssertedTransparencyTrailEmpty } from "@/lib/feasibility/transparency-trail-completeness";
+import { resolveRunDetailOutcomeCardsFindingCountDisplay } from "./run-detail-outcome-cards-finding-count";
 
 export type RunDetailTabbedWorkspaceOverviewShellInput = {
   readonly model: RunDetailPageModel;
@@ -44,17 +45,23 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
     reviewDisplayTitle,
     reviewOwnerLabel,
     reviewStatusSummary,
+    quickDecisionFindings,
     severityCounts,
     submittedArchitectureText,
     workspaceStatus,
   } = p;
+
+  const outcomeCardsFindingCountDisplay = resolveRunDetailOutcomeCardsFindingCountDisplay(
+    m.findingCountDisplay,
+    quickDecisionFindings,
+  );
 
   const outcomeCardsEl = (
     <RunDetailOutcomeCardsDeferred
       runId={m.resolvedDetail.run.runId}
       manifestId={m.manifestId}
       artifactCount={m.artifacts.length}
-      findingCountDisplay={m.findingCountDisplay}
+      findingCountDisplay={outcomeCardsFindingCountDisplay}
       warningCountDisplay={m.warningCountDisplay}
       hasGoldenManifest={Boolean(m.manifestId)}
       unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}

@@ -61,10 +61,8 @@ public sealed class QuickScanDistributedConcurrencyService(
                 QuickScanConcurrencyRejectionReason.EmergencyDisabled);
         }
 
-        QuickScanSafetyConcurrencyLimits limits = safety.Concurrency;
         DateTimeOffset utcNow = _timeProvider.GetUtcNow();
-        TimeSpan queueWaitTimeout = TimeSpan.FromSeconds(limits.QueueWaitTimeoutSeconds);
-        TimeSpan leaseDuration = TimeSpan.FromSeconds(limits.LeaseDurationSeconds);
+        TimeSpan queueWaitTimeout = TimeSpan.FromSeconds(safety.Concurrency.QueueWaitTimeoutSeconds);
         Guid leaseId = Guid.NewGuid();
         Guid queueEntryId = Guid.NewGuid();
 
@@ -75,10 +73,10 @@ public sealed class QuickScanDistributedConcurrencyService(
             RequestKey = requestKey,
             HolderInstanceId = HolderInstanceId,
             UtcNow = utcNow,
-            MaxConcurrentScans = limits.MaxConcurrentAnonymousScans,
-            MaxQueuedScans = limits.MaxQueuedAnonymousScans,
+            MaxConcurrentScans = safety.Concurrency.MaxConcurrentAnonymousScans,
+            MaxQueuedScans = safety.Concurrency.MaxQueuedAnonymousScans,
             QueueWaitTimeout = queueWaitTimeout,
-            LeaseDuration = leaseDuration,
+            LeaseDuration = TimeSpan.FromSeconds(safety.Concurrency.LeaseDurationSeconds),
         };
 
         QuickScanConcurrencyAdmitResult admitResult;
@@ -146,14 +144,16 @@ public sealed class QuickScanDistributedConcurrencyService(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
+                QuickScanSafetyConcurrencyLimits promoteLimits = _safetyOptions.CurrentValue.Concurrency;
+
                 QuickScanConcurrencyPromoteRequest promoteRequest = new()
                 {
                     QueueEntryId = waitingQueueEntryId,
                     LeaseId = promotedLeaseId,
                     HolderInstanceId = HolderInstanceId,
                     UtcNow = _timeProvider.GetUtcNow(),
-                    MaxConcurrentScans = limits.MaxConcurrentAnonymousScans,
-                    LeaseDuration = leaseDuration,
+                    MaxConcurrentScans = promoteLimits.MaxConcurrentAnonymousScans,
+                    LeaseDuration = TimeSpan.FromSeconds(promoteLimits.LeaseDurationSeconds),
                 };
 
                 QuickScanConcurrencyPromoteResult promoteResult;

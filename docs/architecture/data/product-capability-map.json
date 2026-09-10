@@ -1,0 +1,2242 @@
+{
+  "version": 1,
+  "capabilities": [
+    "platform",
+    "authority",
+    "infra-evidence",
+    "governance"
+  ],
+  "alwaysAllowedRoutePrefixes": [
+    "/health",
+    "/openapi"
+  ],
+  "controllers": [
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminAgentModelCatalogController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminAiUsageDashboardController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminApiKeySettingsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminArchitectureIdentityBackfillController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminAuthDiagnosticsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminAzureOpenAiConnectionController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminCrossTenantUsageRollupController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminCustomerSuccessController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminDeploymentStatusController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminFleetLlmCogsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminIdentityProviderDiagnosticsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminIntegrationsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminLlmCostTuningController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminLlmMonthlyDollarBudgetStatusController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminPlatformBundledPolicyPacksController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminPrerequisitesController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminQualityGateDiagnosticsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminQuickScanBudgetController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminQuickScanSafetyController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminRagHealthController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminTenantCatalogMigrationController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminTenantsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AdminTrialFunnelOperationalController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AuditController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.AuthDebugController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.ClientErrorTelemetryController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.ConfluencePublishingAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.CustomRolesAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.DemoController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.DiagnosticsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.DocsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.EvidenceProposalsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.HostedAwsExtractorRunController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.HostedAzureExtractorAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.HostedAzureExtractorRunController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.HostedGcpExtractorRunController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.IdentityMigrationReviewAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.IdentityProviderConfigurationController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.JobsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.MarketingPricingQuoteAgingAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.MarketingPricingQuoteFollowUpAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.MeteringAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.OperationalErrorsAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.OperationsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.PromptVariantsAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.ReferenceEvidenceAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.RoiBulletinAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.ScimTokensAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.ScopeDebugController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.SecurityTrustPublicationController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.SettingsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.SupportBundleController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.TenantAuthDomainAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.TenantsAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Admin.UsersAdminController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Advisory.AdvisoryController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Advisory.AdvisorySchedulingController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Advisory.DigestSubscriptionsController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Advisory.LearningController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Advisory.ProductLearningController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Advisory.RecommendationLearningController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.AgentExecution.AgentExecutionCostPreviewController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Alerts.AlertRoutingSubscriptionsController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Alerts.AlertRulesController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Alerts.AlertSimulationController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Alerts.AlertTuningController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Alerts.AlertsController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Alerts.CompositeAlertRulesController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Analytics.InternalCrossTenantAnalyticsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Analytics.PatternInsightsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Analytics.RoiAnalyticsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Architecture.ArchitecturesController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Architecture.DraftRequestsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Architecture.WizardIntakeDraftsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Architecture.WorkspaceSystemNameAvailabilityController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.ArchitectureIntelligence.ArchitectureIntelligenceController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Auth.AuthSignInRoutingController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Auth.AuthenticationSignInMethodsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Auth.EmailOtpAuthController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Auth.PostAuthBootstrapController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Auth.TrialLocalIdentityAuthController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Auth.UserInvitationPublicController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.AnalysisReportsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.ArchitectureDefinitionImportController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.ArchitectureExportController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.ArchitectureQuickScanController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.ArtifactExportController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.AuthorityCompareController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.AuthorityQueryController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.AuthorityReadsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.AuthorityReplayController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.AuthorityRunEventsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.AwsTier2ConnectionController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.CloudInventoryExtractorUploadController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.DocxExportController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.EvidenceBulkUploadController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.EvidenceDocumentTextExtractionController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.ExportsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.FastPathContextController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.GcpTier2ConnectionController",
+      "capability": "infra-evidence",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.ImportRequestFileController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.InternalArchitectureDiagnosticsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.InternalArchitectureTraceForensicsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.ReviewClarificationQuestionsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.ReviewStoredEvidenceFilesController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.ReviewsDemoController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.RunAgentEvaluationController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.RunComparisonController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.RunCoverageController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.RunDetailPageBundleController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.RunQueryController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.RunsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.RunsExportController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.TechnologyLedgerController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.TemplatesController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Authority.Tier2ConnectionController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Billing.BillingCheckoutController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Billing.BillingMarketplaceWebhookController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Billing.BillingStripeWebhookController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Billing.WalletController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Demo.DemoCommitPagePreviewController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Demo.DemoExplainController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Demo.DemoViewerController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Demo.QuickStartController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Diagnostics.ConfigurationHealthController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Diagnostics.DevelopmentCatalogResetController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Diagnostics.OperatorTaskSuccessDiagnosticsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Diagnostics.SyntheticOperatorDemoPackController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Diagnostics.WorkspaceAiAvailabilityController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.E2e.E2EHarnessController",
+      "capability": "platform",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Evolution.EvolutionController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Findings.ArchitectureFindingAskController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Findings.FindingInsightSignalController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Findings.FindingInspectController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Findings.FindingMuteController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Findings.FindingRemediationAssignmentController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Findings.FindingVerificationController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Findings.InsightDensityNoveltyRatesController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Findings.InsightDensityVerificationConfirmedRatesController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.GovernanceController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.GovernanceCoverageController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.GovernanceEnvironmentCatalogController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.GovernancePostureController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.GovernancePreCommitSimulationController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.GovernancePreviewController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.GovernanceResolutionController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.GovernanceSetupController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.GovernanceStickinessController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.ManifestsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Governance.PolicyPacksController",
+      "capability": "governance",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.ArchitectureDiagramIngestController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.ArchitectureDiagramReconciliationController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.ArchitectureDiagramVisionIngestController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.AuditEvidenceLineageController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.AuditEvidencePackageController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.BrandAssetController",
+      "capability": "infra-evidence",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.CloudResourceEvidenceHubController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.InfraEvidenceAskController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.InfraEvidenceDiffsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.InfraEvidenceInventoryController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.InfraEvidenceOperationalFindingRemediationController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.InfraEvidenceSnapshotsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.RemediationFactoryWorkbenchController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.RemediationInstancesController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.TenantBrandingAdminController",
+      "capability": "infra-evidence",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.InfraEvidence.TenantBrandingController",
+      "capability": "infra-evidence",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.AzureBoardsIntegrationsController",
+      "capability": "infra-evidence",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.ItsmCorrelationController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.ItsmInboundWebhooksController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.ItsmIntegrationHealthController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.ItsmOutboundIssuesController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.ItsmProviderIntegrationPageController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.SlackInteractivityController",
+      "capability": "infra-evidence",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.TeamsIncomingWebhookConnectionsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.TenantItsmConnectorConnectionsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.TenantItsmOutboundSettingsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.WebhookConnectionsController",
+      "capability": "infra-evidence",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Integrations.WebhookSimulationController",
+      "capability": "infra-evidence",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Internal.PlatformIdentityRecoveryController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Marketing.EnterpriseComparisonMarketingController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Marketing.MarketingEarlyAccessRequestController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Marketing.MarketingPricingQuoteRequestController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Marketing.MarketingQuickScanController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Marketing.MarketingShowcaseController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Marketing.SponsorBriefMarketingController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Marketing.TrustCenterEvidencePackController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Marketing.WhyArchlucidMarketingPackController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Mcp.McpRetrievalToolsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Notifications.CustomerNotificationChannelPreferencesController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Notifications.ExecDigestSponsorDeepLinkController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Notifications.ExecDigestUnsubscribeController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Notifications.SponsorDigestUnsubscribeController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.OperationalSecurityFindingsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.RemediationFactoryMetricsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.RemediationPatternsController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.RemediationPrioritizationController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.OperationalSecurity.RemediationWavesController",
+      "capability": "infra-evidence",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Operator.OperatorSavedViewsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Operator.OperatorShellStatusController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Pilots.PilotsBoardPackController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Pilots.PilotsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Planning.AskController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Planning.ComparisonController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Planning.ComparisonsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Planning.ConversationController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Planning.ExplanationController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Planning.FindingFeedbackController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Planning.GraphController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Planning.ProvenanceController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Planning.ProvenanceQueryController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Planning.RetrievalController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.RegistrationController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Reports.SponsorReportController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Roi.RoiController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Scim.ScimDiscoveryController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Scim.ScimGroupsController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Scim.ScimUsersController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.SearchController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Support.SupportProblemReportsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.CorePilotTeamChecklistController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantBaselineController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantCatalogMigrationStatusController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantCostSettingsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantCustomerSuccessController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantErasureLegalHoldController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantExecDigestPreferencesController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantHomepageSettingsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantIntegrationsOperationsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantLlmCostReportingController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantMeasuredRoiController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantPilotValueReportController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantSponsorDigestPreferencesController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantTrialController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantUsageStatusController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantWeeklyDigestHealthController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantWorkspaceBaselineArtifactsController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Tenancy.TenantWorkspacesController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.User.UserAttentionSummaryController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.User.UserPreferencesController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.ValueReports.ValueReportController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.VersionController",
+      "capability": "platform",
+      "productLine": "both",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Webhooks.OutboundWebhookDryRunController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Api.Controllers.Webhooks.WebhooksController",
+      "capability": "authority",
+      "productLine": "architecture",
+      "status": "assigned",
+      "ownerNote": null
+    }
+  ],
+  "applicationNamespaces": [
+    {
+      "namespacePrefix": "ArchLucid.Application",
+      "capability": "authority",
+      "status": "disputed",
+      "ownerNote": "Root Application types span run orchestration and shared helpers."
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Admin",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Advisory",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Agents",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.AiProviders",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.AiUsage",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Alerts",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Analysis",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Analytics",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Architecture",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.ArchitectureIntelligence",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Ask",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Audit",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Authority",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Authorization",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.AwsExtractor",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.AzureExtractor",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Billing",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Bootstrap",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Budgeting",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Clarifications",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.CloudExtractor",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.CloudInventoryExtractor",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Common",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Configuration",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Connectors",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Coordination",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.CustomerSuccess",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.DataConsistency",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Decisions",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Determinism",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Diagnostics",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Diagrams",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Diffs",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Documents",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Drafts",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Evidence",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Evolution",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.ExecDigest",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.ExecutiveSummary",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Explanation",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Exports",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Findings",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.GcpExtractor",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Governance",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Http",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Identity",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Import",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.InfraEvidence",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Ingestion",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Intake",
+      "capability": "platform",
+      "status": "disputed",
+      "ownerNote": "Unclassified Application folder 'Intake'."
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Integration",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Integrations",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Jobs",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Manifests",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Marketing",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Notifications",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.OperationalErrors",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Operations",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Operator",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.OperatorHome",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Pilots",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Planning",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Provenance",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Rendering",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Replay",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Reporting",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Reports",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Roi",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Runs",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Scim",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Search",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.SponsorDigest",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Summaries",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Support",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Telemetry",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Templates",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Tenancy",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.TerraformAdvisory",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Traceability",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Trust",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.Value",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.WeeklyArchitectureDigest",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "namespacePrefix": "ArchLucid.Application.WeeklyExecutiveSummary",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    }
+  ],
+  "requiredApplicationNamespacePrefixes": [
+    "ArchLucid.Application.Runs",
+    "ArchLucid.Application.InfraEvidence",
+    "ArchLucid.Application.Governance",
+    "ArchLucid.Application.Findings"
+  ]
+}

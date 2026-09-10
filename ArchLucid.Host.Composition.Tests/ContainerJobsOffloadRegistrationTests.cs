@@ -10,6 +10,7 @@ using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Integration;
 using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.TestSupport;
@@ -474,6 +475,68 @@ public sealed class ContainerJobsOffloadRegistrationTests
     }
 
     [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_servicebus_integration_events_still_registers_sql_outbox_pumpers()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.ServiceBusIntegrationEvents;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasOutboxPumper = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(IntegrationEventOutboxHostedService));
+
+        bool hasDlqRetry = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(IntegrationEventDlqRetryHostedService));
+
+        hasOutboxPumper.Should().BeTrue(
+            "SQL integration outbox publishing must keep running when only the Service Bus consumer is container-offloaded");
+        hasDlqRetry.Should().BeTrue(
+            "SQL integration outbox DLQ auto-retry must keep running when only the Service Bus consumer is container-offloaded");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Worker_registers_operational_error_capture_drain_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasDrain = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(OperationalErrorCaptureDrainHostedService));
+
+        hasDrain.Should().BeTrue(
+            "each replica drains its own in-memory operational error capture queue into SQL");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_operational_error_retention_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasRetention = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(OperationalErrorRetentionHostedService));
+
+        hasRetention.Should().BeFalse(
+            "leader-elected operational-error retention purge is Worker+Combined only");
+    }
+
+    [Fact]
     public void AddArchLucidApplicationServices_Api_role_does_not_register_ServiceBus_integration_event_consumer()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
@@ -805,6 +868,52 @@ public sealed class ContainerJobsOffloadRegistrationTests
         hasJob.Should().BeTrue(
             "trial-email-scan must resolve via ArchLucidJobRunner when offloaded from the worker host");
         hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_audit_retry_drain_still_registers_hosted_service_not_job()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.AuditRetryDrain;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType is not null
+            && d.ImplementationType.Name.Contains("AuditRetry", StringComparison.Ordinal));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AuditRetryDrainHostedService));
+
+        hasJob.Should().BeFalse("audit-retry-drain has no IArchLucidJob until a durable cross-replica queue exists");
+        hasHosted.Should().BeTrue(
+            "InMemoryAuditRetryQueue is per-process; each host must drain its own retry buffer locally");
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_advisory_scan_still_registers_architecture_review_recurrence_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.AdvisoryScan;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasRecurrence = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ArchitectureReviewRecurrenceHostedService));
+
+        hasRecurrence.Should().BeTrue(
+            "architecture-review recurrence is leader-elected in-process scheduling and is not gated by advisory-scan container offload");
     }
 
     [Fact]

@@ -34,29 +34,21 @@ public sealed partial class AuthorityQueryController
         Guid runId,
         CancellationToken ct = default)
     {
-        try
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (detail is not null)
         {
-            ScopeContext scope = scopeProvider.GetCurrentScope();
-            RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-            if (detail is not null)
-            {
-                IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
-
-                if (sealedGuardResult is not null)
-                    return sealedGuardResult;
-            }
-
-            RunSummaryDto? result = await queryService.GetRunSummaryAsync(scope, runId, ct);
-
-            return result is null
-                ? this.NotFoundProblem($"Run summary '{runId}' was not found.", ProblemTypes.RunNotFound)
-                : Ok(AuthorityRunReadHandlers.ToRunSummaryResponse(result));
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
         }
-        catch (ConflictException ex)
-        {
-            return MapRunQuerySealedManifestConflict(ex);
-        }
+
+        RunSummaryDto? result = await queryService.GetRunSummaryAsync(scope, runId, ct);
+        return result is null
+            ? this.NotFoundProblem($"Run summary '{runId}' was not found.", ProblemTypes.RunNotFound)
+            : Ok(AuthorityRunReadHandlers.ToRunSummaryResponse(result));
     }
 
     /// <summary>Loads full run detail including hydrated snapshots and golden manifest when available.</summary>
@@ -72,24 +64,29 @@ public sealed partial class AuthorityQueryController
         Guid runId,
         CancellationToken ct = default)
     {
-        try
-        {
-            RunDetailDto? result = await readHandlers.GetRunDetailAsync(runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-            if (result is null)
-                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        IActionResult? shareGuardResult = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+            this,
+            User,
+            scope,
+            runId,
+            ct);
 
-            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(result, runId);
+        if (shareGuardResult is not null)
+            return shareGuardResult;
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+        RunDetailDto? result = await readHandlers.GetRunDetailAsync(runId, ct);
 
-            return Ok(result);
-        }
-        catch (ConflictException ex)
-        {
-            return MapRunQuerySealedManifestConflict(ex);
-        }
+        if (result is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(result, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        return Ok(result);
     }
 
     /// <summary>Buyer-proof run detail — whitelisted fields only; no embedded snapshots (TB-283).</summary>
@@ -103,46 +100,39 @@ public sealed partial class AuthorityQueryController
         Guid runId,
         CancellationToken ct = default)
     {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? result = await queryService.GetRunDetailForBuyerSummaryAsync(scope, runId, ct);
+
+        if (result is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(result, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
+            result.Run.RealModeFellBackToSimulator,
+            _effectiveAgentExecutionModeAccessor.GetEffectiveMode());
+
         try
         {
-            ScopeContext scope = scopeProvider.GetCurrentScope();
-            RunDetailDto? result = await queryService.GetRunDetailForBuyerSummaryAsync(scope, runId, ct);
-
-            if (result is null)
-                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(result, runId);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
-
-            result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
-                result.Run.RealModeFellBackToSimulator,
-                _effectiveAgentExecutionModeAccessor.GetEffectiveMode());
-
-            try
-            {
-                await runDetailOperatorEnricher
-                    .EnrichBuyerSummaryAsync(result, _effectiveAgentExecutionModeAccessor.GetEffectiveMode(), ct)
-                    .ConfigureAwait(false);
-            }
-            catch (OperationCanceledException) when (ct.IsCancellationRequested)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Buyer-summary enrichment failed for run {RunId}; returning unenriched proof DTO.", runId);
-            }
-
-            BuyerRunDetailSummaryDto buyerSummary = RunDetailBuyerMapper.Map(result);
-
-            return Ok(buyerSummary);
+            await runDetailOperatorEnricher
+                .EnrichBuyerSummaryAsync(result, _effectiveAgentExecutionModeAccessor.GetEffectiveMode(), ct)
+                .ConfigureAwait(false);
         }
-        catch (ConflictException ex)
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            return MapRunQuerySealedManifestConflict(ex);
+            throw;
         }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Buyer-summary enrichment failed for run {RunId}; returning unenriched proof DTO.", runId);
+        }
+
+        BuyerRunDetailSummaryDto buyerSummary = RunDetailBuyerMapper.Map(result);
+
+        return Ok(buyerSummary);
     }
 
     /// <summary>Records run-level approve / reject / request-remediation (TB-112).</summary>
@@ -217,30 +207,23 @@ public sealed partial class AuthorityQueryController
         Guid runId,
         CancellationToken ct = default)
     {
-        try
-        {
-            ScopeContext scope = scopeProvider.GetCurrentScope();
-            RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
-            if (detail is null)
-                return this.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
 
-            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
-            RunRetrievalGroundingResponse? result =
-                await runRetrievalGroundingService.BuildAsync(runId.ToString("D"), ct);
+        RunRetrievalGroundingResponse? result =
+            await runRetrievalGroundingService.BuildAsync(runId.ToString("D"), ct);
 
-            if (result is null)
-                return this.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
+        if (result is null)
+            return this.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
 
-            return Ok(result);
-        }
-        catch (ConflictException ex)
-        {
-            return MapRunQuerySealedManifestConflict(ex);
-        }
+        return Ok(result);
     }
 }

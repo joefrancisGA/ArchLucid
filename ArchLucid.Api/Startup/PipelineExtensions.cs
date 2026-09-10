@@ -23,6 +23,7 @@ internal static partial class PipelineExtensions
         app.UseMiddleware<TenantErasureQuarantineMiddleware>();
         app.UseMiddleware<TrialSeatReservationMiddleware>();
         app.UseAuthorization();
+        app.UseMiddleware<ProductLineRouteGateMiddleware>();
         app.UseMiddleware<EmptyErrorResponseNormalizationMiddleware>();
         app.UseMiddleware<LlmTokenUsageResponseMiddleware>();
         app.UseMiddleware<ApiRequestMeteringMiddleware>();

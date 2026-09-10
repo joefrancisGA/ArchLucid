@@ -15,6 +15,7 @@ import {
   resolveGovernanceFindingsPageSubtitle,
   resolveGovernanceFindingsPageTitle,
 } from "@/app/(operator)/governance/findings/governance-findings-queue-presentation";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 export type UseGovernanceFindingsQueueModeInput = {
@@ -22,6 +23,7 @@ export type UseGovernanceFindingsQueueModeInput = {
 };
 
 export function useGovernanceFindingsQueueMode({ mode }: UseGovernanceFindingsQueueModeInput) {
+  const { productLine } = useProductLine();
   const isAssignedToMe = mode === "assigned-to-me";
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
@@ -39,8 +41,12 @@ export function useGovernanceFindingsQueueMode({ mode }: UseGovernanceFindingsQu
   const loadFailure = isAssignedToMe ? assignedToMeQuery.loadFailure : tenantQuery.loadFailure;
 
   const pageTitle = resolveGovernanceFindingsPageTitle(isAssignedToMe, buyerPolishedShell);
-  const pageSubtitle = resolveGovernanceFindingsPageSubtitle(isAssignedToMe, buyerPolishedShell);
-  const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe);
+  const pageSubtitle = resolveGovernanceFindingsPageSubtitle(
+    isAssignedToMe,
+    buyerPolishedShell,
+    productLine,
+  );
+  const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe, productLine);
   const currentJobId: GovernanceJobId = isAssignedToMe ? "assigned-to-me-findings" : "triage-findings";
   const loadFailedPreset = resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe);
 

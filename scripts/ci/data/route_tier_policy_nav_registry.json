@@ -1952,6 +1952,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "OperationalSecurity/OperationalSecurityPathsController.cs",
+      "class_name": "OperationalSecurityPathsController",
+      "route_template": "v{version:apiVersion}/operational-security/paths",
+      "normalized_prefix": "/v1/operational-security/paths",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "OperationalSecurity/RemediationFactoryMetricsController.cs",
       "class_name": "RemediationFactoryMetricsController",
       "route_template": "v{version:apiVersion}/operational-security/remediation-metrics",

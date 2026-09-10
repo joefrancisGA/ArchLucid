@@ -1,3 +1,4 @@
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Evidence;
 using ArchLucid.Core.Authorization;
@@ -34,7 +35,7 @@ public sealed class ReviewStoredEvidenceFilesController(
 
         if (files is null)
         {
-            return NotFound();
+            return this.NotFoundProblem("Review run was not found.", ProblemTypes.RunNotFound);
         }
 
         return Ok(files);
@@ -57,7 +58,7 @@ public sealed class ReviewStoredEvidenceFilesController(
 
         if (content is null)
         {
-            return NotFound();
+            return this.NotFoundProblem("Stored evidence file was not found.", ProblemTypes.ResourceNotFound);
         }
 
         bool inlineRequested = string.Equals(disposition, "inline", StringComparison.OrdinalIgnoreCase);

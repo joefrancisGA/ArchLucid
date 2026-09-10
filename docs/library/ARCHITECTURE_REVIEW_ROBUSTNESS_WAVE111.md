@@ -23,4 +23,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave111Ar
 
 **Hasher baseline note:** wave 111 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** wave 86 authority query run-detail bundle follow-ups completed in wave 112 — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE113.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE113.md) (1341–1352) when opened.
+**Deferred:** wave 86 authority query run-detail bundle follow-ups — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE112.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE112.md) (1329–1340) when opened.
