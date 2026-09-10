@@ -1803,3 +1803,4 @@
 {"at":"2026-09-10T17:00:04.6070779Z","zoneId":"review-recurrence","outcome":"seed-only"}
 {"at":"2026-09-10T17:02:27.4533644Z","zoneId":"ui-auth-callback","outcome":"seed-only"}
 {"at":"2026-09-10T17:06:42.8731915Z","zoneId":"core-azure-extractor","outcome":"seed-only"}
+{"at":"2026-09-10T17:09:42.2045498Z","zoneId":"ui-help-docs","outcome":"seed-only"}
