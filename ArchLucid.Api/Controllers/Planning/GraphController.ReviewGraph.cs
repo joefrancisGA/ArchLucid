@@ -27,16 +27,18 @@ public sealed partial class GraphController
     [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<IActionResult> GetArchitectureGraph(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        if (detail.GraphSnapshot is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
-                ProblemTypes.ResourceNotFound);
-
         try
         {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            if (detail.GraphSnapshot is null)
+                return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
+                    ProblemTypes.ResourceNotFound);
+
             if (detail.GoldenManifest is not null)
             {
                 IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, runId);
@@ -79,16 +81,18 @@ public sealed partial class GraphController
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        if (detail.GraphSnapshot is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
-                ProblemTypes.ResourceNotFound);
-
         try
         {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            if (detail.GraphSnapshot is null)
+                return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
+                    ProblemTypes.ResourceNotFound);
+
             if (detail.GoldenManifest is not null)
             {
                 IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, runId);

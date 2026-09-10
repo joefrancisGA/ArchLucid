@@ -32,97 +32,98 @@ public sealed partial class GraphController
         [FromQuery] DateTimeOffset? asOf,
         CancellationToken ct = default)
     {
-        if (runId == Guid.Empty)
-            return this.BadRequestProblem("Query parameter \"runId\" is required.");
-
-        if (!asOf.HasValue)
-            return this.BadRequestProblem("Query parameter \"asOf\" is required.");
-
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-
-        RunRecord? anchor = await runRepository.GetByIdAsync(scope, runId, ct);
-        if (anchor is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        DateTime boundaryUtc = DateTime.SpecifyKind(asOf.Value.UtcDateTime, DateTimeKind.Utc);
-
-        RunRecord? resolved =
-            await runRepository.GetLatestWithGraphAtOrBeforeAsync(scope, anchor.ProjectId, boundaryUtc, ct);
-
-        if (resolved is null)
-        {
-            return this.NotFoundProblem(
-                $"No persisted architecture graph exists for project '{anchor.ProjectId}' at or before the requested instant.",
-                ProblemTypes.ResourceNotFound);
-        }
-
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, resolved.RunId, ct);
-
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{resolved.RunId}' was not found.", ProblemTypes.RunNotFound);
-
-        RunDetailDto? anchorCompareDetail =
-            await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, ct);
-
         try
         {
+            if (runId == Guid.Empty)
+                return this.BadRequestProblem("Query parameter \"runId\" is required.");
+
+            if (!asOf.HasValue)
+                return this.BadRequestProblem("Query parameter \"asOf\" is required.");
+
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+
+            RunRecord? anchor = await runRepository.GetByIdAsync(scope, runId, ct);
+
+            if (anchor is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            DateTime boundaryUtc = DateTime.SpecifyKind(asOf.Value.UtcDateTime, DateTimeKind.Utc);
+
+            RunRecord? resolved =
+                await runRepository.GetLatestWithGraphAtOrBeforeAsync(scope, anchor.ProjectId, boundaryUtc, ct);
+
+            if (resolved is null)
+            {
+                return this.NotFoundProblem(
+                    $"No persisted architecture graph exists for project '{anchor.ProjectId}' at or before the requested instant.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, resolved.RunId, ct);
+
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{resolved.RunId}' was not found.", ProblemTypes.RunNotFound);
+
+            RunDetailDto? anchorCompareDetail =
+                await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, ct);
+
             GraphSnapshotComparePinInventoryGuard.EnsureTemporalPairPinInventoryReadyOrThrow(
                 anchor,
                 resolved,
                 anchorCompareDetail?.GoldenManifest,
                 detail.GoldenManifest);
+
+            if (anchorCompareDetail?.GoldenManifest is not null)
+            {
+                IActionResult? anchorSealedGuardResult =
+                    EnsureGoldenManifestSealedReadAllowed(anchorCompareDetail.GoldenManifest, runId);
+
+                if (anchorSealedGuardResult is not null)
+                    return anchorSealedGuardResult;
+            }
+
+            if (detail.GoldenManifest is not null)
+            {
+                IActionResult? resolvedSealedGuardResult =
+                    EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, resolved.RunId);
+
+                if (resolvedSealedGuardResult is not null)
+                    return resolvedSealedGuardResult;
+            }
+
+            if (detail.GraphSnapshot is null)
+            {
+                return this.NotFoundProblem(
+                    $"Run '{resolved.RunId}' does not have a graph snapshot.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
+
+            if (limits.FullGraphResponseMaxNodes > 0 &&
+                detail.GraphSnapshot.Nodes.Count > limits.FullGraphResponseMaxNodes)
+            {
+                return this.PayloadTooLargeProblem(
+                    $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the temporal snapshot endpoint allows at most "
+                    + $"{limits.FullGraphResponseMaxNodes} for resolved run '{resolved.RunId:D}'. Use GET /v1/evidence-graph/reviews/{resolved.RunId:D}/nodes with page/pageSize (resolvedRunId returned in this problem).",
+                    ProblemTypes.GraphTooLargeForFullResponse,
+                    extensions: new Dictionary<string, object?> { ["resolvedRunId"] = resolved.RunId });
+            }
+
+            GraphViewModel graph = MapArchitectureGraph(detail.GraphSnapshot);
+            ArchitectureGraphTemporalSnapshotResponse body = new()
+            {
+                ResolvedRunId = resolved.RunId,
+                AsOfUtc = new DateTimeOffset(DateTime.SpecifyKind(boundaryUtc, DateTimeKind.Utc), TimeSpan.Zero),
+                ResolvedRunCreatedUtc = DateTime.SpecifyKind(resolved.CreatedUtc.ToUniversalTime(), DateTimeKind.Utc),
+                Graph = graph
+            };
+
+            return Ok(body);
         }
         catch (ConflictException ex)
         {
             return MapGraphSealedManifestConflict(ex);
         }
-
-        if (anchorCompareDetail?.GoldenManifest is not null)
-        {
-            IActionResult? anchorSealedGuardResult =
-                EnsureGoldenManifestSealedReadAllowed(anchorCompareDetail.GoldenManifest, runId);
-
-            if (anchorSealedGuardResult is not null)
-                return anchorSealedGuardResult;
-        }
-
-        if (detail.GoldenManifest is not null)
-        {
-            IActionResult? resolvedSealedGuardResult =
-                EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, resolved.RunId);
-
-            if (resolvedSealedGuardResult is not null)
-                return resolvedSealedGuardResult;
-        }
-
-        if (detail.GraphSnapshot is null)
-        {
-            return this.NotFoundProblem(
-                $"Run '{resolved.RunId}' does not have a graph snapshot.",
-                ProblemTypes.ResourceNotFound);
-        }
-
-        KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
-
-        if (limits.FullGraphResponseMaxNodes > 0 &&
-            detail.GraphSnapshot.Nodes.Count > limits.FullGraphResponseMaxNodes)
-        {
-            return this.PayloadTooLargeProblem(
-                $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the temporal snapshot endpoint allows at most "
-                + $"{limits.FullGraphResponseMaxNodes} for resolved run '{resolved.RunId:D}'. Use GET /v1/evidence-graph/reviews/{resolved.RunId:D}/nodes with page/pageSize (resolvedRunId returned in this problem).",
-                ProblemTypes.GraphTooLargeForFullResponse,
-                extensions: new Dictionary<string, object?> { ["resolvedRunId"] = resolved.RunId });
-        }
-
-        GraphViewModel graph = MapArchitectureGraph(detail.GraphSnapshot);
-        ArchitectureGraphTemporalSnapshotResponse body = new()
-        {
-            ResolvedRunId = resolved.RunId,
-            AsOfUtc = new DateTimeOffset(DateTime.SpecifyKind(boundaryUtc, DateTimeKind.Utc), TimeSpan.Zero),
-            ResolvedRunCreatedUtc = DateTime.SpecifyKind(resolved.CreatedUtc.ToUniversalTime(), DateTimeKind.Utc),
-            Graph = graph
-        };
-
-        return Ok(body);
     }
 }
