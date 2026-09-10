@@ -6,6 +6,7 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  architectureGraphReadBlockedReason,
   getArchitectureGraph,
   getDecisionSubgraph,
   getNodeNeighborhood,
@@ -179,7 +180,13 @@ export function useGraphPageFetch(options: UseGraphPageFetchOptions): UseGraphPa
         return;
       }
 
-      setLoadFailure(toApiLoadFailure(err));
+      const failure = toApiLoadFailure(err);
+      const blockedReason =
+        effectiveMode === "architecture" ? architectureGraphReadBlockedReason(failure) : null;
+
+      setLoadFailure(
+        blockedReason !== null ? { ...failure, message: blockedReason } : failure,
+      );
       setGraph(null);
       tryStaticProvenance();
 

@@ -44,7 +44,7 @@ Do **not** collapse desktop review workspace tabs behind **More**. Do **not** re
 
 | Residual | Why |
 |----------|-----|
-| Concurrent desk / work lease without presence | Problem 5 from the 2026-09-09 diagnosis — **wave 23** |
+| Concurrent desk / work lease without presence | Problem 5 from the 2026-09-09 diagnosis — livelihood UX **wave 23** [`lost-write-00-index.md`](lost-write-00-index.md) (**LW-001–LW-100**) |
 | **AS-094 hub/search share filter** | API shipped; hub still uses draft list — **V12-01** (highest token ROI) |
 | Intake wizard + architecture-rename dirty-form guards | Still in LP-11 deferred inventory |
 | Stop-analysis confirm | FP leftover; not a disposition write |

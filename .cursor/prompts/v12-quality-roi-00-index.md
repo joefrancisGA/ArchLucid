@@ -19,7 +19,7 @@ Suggested branches: `cursor/v12-<short-name>-97a4`. Name the branch in any commi
 3. **V12-03** — Full `ci.yml` matrix triage (QR-35 carry) on post-merge trunk.
 4. **V12-04** — Gate 1 staging checklist (owner executes the run; Composer documents/verifies script path).
 
-**Defer wave 23 concurrent desk until V12-01 ships.**
+**Livelihood UX wave 23** (lost-write) is [`lost-write-00-index.md`](lost-write-00-index.md) (**LW-001–LW-100**). Do not start LW on a branch where AS-094 / V12-01 share hub filter is still open.
 
 **Owner, not Composer:** enable merge queue; G-REAL-06 two-pack pilots; G-REAL-07 proof packets. **No DX-77.**
 

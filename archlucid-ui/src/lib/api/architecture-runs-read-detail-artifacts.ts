@@ -15,8 +15,10 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { runExplanationSummaryBlockedReason } from "@/lib/explain/run-explanation-summary-blocked-reason";
 import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { runAgentForensicsBlockedReason } from "@/lib/runs/run-agent-forensics-blocked-reason";
+import { runManifestReadBlockedReason } from "@/lib/runs/run-manifest-read-blocked-reason";
 import { runProvenanceBlockedReason } from "@/lib/provenance/run-provenance-blocked-reason";
 import { runRationaleBlockedReason } from "@/lib/runs/run-rationale-blocked-reason";
+import { runRetrievalGroundingBlockedReason } from "@/lib/runs/run-retrieval-grounding-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import {
@@ -131,9 +133,16 @@ export async function getRunAgentEvaluation(
 export async function getRunRetrievalGrounding(
   runId: string,
 ): Promise<RunRetrievalGroundingPayload> {
-  return apiGetSealedManifestAware<RunRetrievalGroundingPayload>(
-    `/v1/authority/reviews/${encodeURIComponent(runId)}/retrieval-grounding`,
-  );
+  try {
+    return await apiGetSealedManifestAware<RunRetrievalGroundingPayload>(
+      `/v1/authority/reviews/${encodeURIComponent(runId)}/retrieval-grounding`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runRetrievalGroundingBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Latest authority manifest document JSON for a run (`GET /v1/authority/reviews/{runId}/signed-review-record`). */

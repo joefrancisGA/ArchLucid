@@ -14,7 +14,7 @@ v12 scored **(A) 83.91%** on branch `cursor/as-prompt-queue-close-97a4` (wave 22
 3. **V12-03 (QR-35 carry)** — triage full `ci.yml` matrix (~1–2 sessions, Runtime 77).
 4. **Owner** — Gate 1 with bind + G-REAL-06 (no fake runs).
 
-**Do not start wave 23 concurrent desk until V12-01 ships** — share leaks undermine the wave 22 close story.
+**Do not re-run V12-01 / AS-094** if already shipped on the AS close audit. Livelihood UX wave 23 (silent overwrite / work-lease) is [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md) (**LW-001–LW-100**) — run those prompts, not a second share-filter pass.
 
 **Run one prompt per chat.** Feature branch per prompt: `cursor/v12-<short-name>-97a4`. **Do not push `master`.**
 
@@ -28,7 +28,7 @@ v12 scored **(A) 83.91%** on branch `cursor/as-prompt-queue-close-97a4` (wave 22
 | Proof-of-ROI | 76 | **216** | **Owner:** Gate 1 + G-REAL-06 |
 | Decision-Changing Insight Density | 82 | 234 | **Owner validation**, not more engines |
 
-Wave 23 (concurrent desk / work-lease) is **high product value, low token ROI** — defer until V12-01–02 land.
+Livelihood UX wave 23 (lost-write / work-lease) is now a 100-prompt set ([`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md)). Do not start LW until V12-01/AS-094 is merged if that leak is still open on the branch you cut from.
 
 ## Do not re-run
 
