@@ -8520,10 +8520,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-07
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-07 — alert-routing webhook destinations skipped post-DNS private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8535,6 +8535,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AlertRoutingWebhookDestinationPolicy` — sync-only literal guard omits `OutboundHttpsUrlDnsResolutionGuard` on subscription create — **hit 2026-09-07 (#1215):** `DigestSubscriptionFacade.Create` and `AlertRoutingSubscriptionsController.Create` accepted public hostnames without DNS re-validation; hostname rebinding could reach private networks at delivery; fixed with `TryGetRejectionReasonAfterDnsResolveAsync` parity to webhook probe policy (`TryGetRejectionReasonAfterDnsResolveAsync_WhenHostnameDoesNotResolve_RewritesUrlPrefixToWebhookUrl`)
 - [x] (valid-no-repro) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — non-dotted IPv4 encodings (octal/hex) may bypass literal guard when `IPAddress.TryParse` rejects host token — **2026-09-07 (#1216):** .NET `IPAddress.TryParse` accepts octal/hex/shorthand private forms (`0177.0.0.1`, `0x7f000001`, `127.1`, `192.168.001.001`); octal `010.*` correctly maps to public `8.0.0.1` and stays allowed (`PrivateNetworkAddressGuardEncodingTests`)
 - [x] (invalid) `IContentSafetyGuard` — Safety zone has interface-only surface; outbound URL SSRF guards live under `ArchLucid.Core/Security/` — **2026-09-07 (#1216):** not a defect row; document URL / webhook / export / alert-routing policies already expose `TryGetRejectionReasonAfterDnsResolveAsync` and orchestrators wire post-DNS checks (see `ArchitectureRunCreateOrchestrator`, `FluentArchitectureRequestImportValidator`)
+- [x] (valid-no-repro) `PrivateNetworkAddressGuard` — RFC6598 CGNAT `100.64.0.0/10` and RFC2544 benchmark `198.18.0.0/15` may bypass literal guard — **2026-09-10 seed hunt #1627:** TB-274 scope is RFC1918 / link-local / loopback / IPv6 ULA only; `100.64.0.1` and `198.18.0.1` stay allowed (`IsForbiddenHostLiteral_allows_out_of_scope_shared_and_benchmark_ipv4`)
+- [x] (valid-no-repro) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — unspecified `0.0.0.0` may be treated as public — **2026-09-10 seed hunt #1627:** `IPAddress.Any` is forbidden (`IsForbiddenHostLiteral_blocks_unspecified_ipv4_zero_address`)
+- [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — pool profiles may omit connect-time SSRF guard — **2026-09-10 seed hunt #1627:** profiles tune transport only; `ConnectCallback` stays null (`Apply_does_not_configure_connect_callback`)
+- [x] (valid-no-repro) `ConfigureArchLucidOutboundSocketsHandler` — default `rejectPrivateNetworkConnectEndpoints: false` leaves integration clients without connect callback — **2026-09-10 seed hunt #1627:** opt-in wires `OutboundHttpsConnectGuard.RejectPrivateNetworkAndConnectAsync`; webhook dry-run is the only integration client that enables it today (`ConfigureArchLucidOutboundSocketsHandler_opt_in_wires_private_network_connect_callback`)
+
+- [ ] (candidate) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards `ExternalIntegration` clients register without `rejectPrivateNetworkConnectEndpoints: true`; DNS rebinding between connector URL save and outbound delivery may bypass pre-save literal guard if Integrations layer lacks post-DNS policy parity
+- [ ] (candidate) `PrivateNetworkAddressGuard` — IANA reserved/documentation IPv4 (`192.0.0.0/24`, `192.0.2.0/24`) outside TB-274 RFC1918/link-local scope may be reachable when URL policies accept public hostnames that resolve there
+
+2026-09-10 seed hunt #1627 (seed-only): reseeded core-safety-network after #1216; cheap-disproof on CGNAT/benchmark out-of-scope ranges, `0.0.0.0` blocking, pool-only handler settings, and opt-in connect guard wiring; 28 scoped PrivateNetwork + 7 OutboundSockets tests passed.
 
 2026-09-07 seed hunt #1215 (hit): reseeded private-network/SSRF guard paths; proved alert-routing webhook destination policy lacked post-DNS resolution guard on create paths.
 2026-09-07 thorough hunt #1216 (dry): cheap-disproved octal/hex IPv4 bypass and Safety-interface DNS-parity meta hypothesis; added encoding regression tests.
