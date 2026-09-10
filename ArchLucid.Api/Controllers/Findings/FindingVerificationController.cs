@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Contracts.Findings;
@@ -146,7 +147,7 @@ public sealed partial class FindingVerificationController(
         }
         catch (FindingVerificationRunNotSealedException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapFindingVerificationSealedManifestConflict(new ConflictException(ex.Message));
         }
     }
 }

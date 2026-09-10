@@ -59,7 +59,14 @@ export async function submitApprovalRequest(body: {
   targetEnvironment: string;
   requestComment?: string;
 }): Promise<GovernanceApprovalRequest> {
-  return apiPostJson<GovernanceApprovalRequest>(`${governanceBase()}/approval-requests`, body);
+  try {
+    return await apiPostJson<GovernanceApprovalRequest>(`${governanceBase()}/approval-requests`, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Approves a pending approval request. */
@@ -105,12 +112,19 @@ export async function batchReviewGovernanceApprovalRequests(body: {
   reviewComment?: string;
   reviewedBy?: string;
 }): Promise<GovernanceBatchReviewResponse> {
-  return apiPostJson<GovernanceBatchReviewResponse>(`${governanceBase()}/approval-requests/batch-review`, {
-    approvalRequestIds: body.approvalRequestIds,
-    decision: body.decision,
-    reviewComment: body.reviewComment,
-    reviewedBy: body.reviewedBy,
-  });
+  try {
+    return await apiPostJson<GovernanceBatchReviewResponse>(`${governanceBase()}/approval-requests/batch-review`, {
+      approvalRequestIds: body.approvalRequestIds,
+      decision: body.decision,
+      reviewComment: body.reviewComment,
+      reviewedBy: body.reviewedBy,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Records promotion of a manifest from source to target environment (after approval when required). */
@@ -123,7 +137,14 @@ export async function promoteManifest(body: {
   approvalRequestId?: string;
   notes?: string;
 }): Promise<GovernancePromotionRecord> {
-  return apiPostJson<GovernancePromotionRecord>(`${governanceBase()}/promotions`, body);
+  try {
+    return await apiPostJson<GovernancePromotionRecord>(`${governanceBase()}/promotions`, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Lists promotion audit rows for a run. */

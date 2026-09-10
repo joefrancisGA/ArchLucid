@@ -62,10 +62,8 @@ public sealed class AzureInventorySnapshotMaterializer(
             List<AzureInventoryResourcePropertyWrite> properties = [];
             List<AzureInventoryTagWrite> tags = [];
             List<AzureInventoryUnknownResourceWrite> unknowns = [];
-            List<AzureInventoryResourceRelationshipWrite> relationships = [];
             List<AzureInventoryRoleAssignmentWrite> roleAssignments = [];
             List<AzureInventoryDiagnosticConfigurationWrite> diagnostics = [];
-            Dictionary<string, Guid> resourceRowIdsByArmId = new(StringComparer.OrdinalIgnoreCase);
 
             foreach (AzureExtractorExtendedResourceRow row in inventory.Resources)
             {
@@ -98,8 +96,6 @@ public sealed class AzureInventorySnapshotMaterializer(
                     ParentResourceId = TryGetParentArmId(normalizedArmId),
                     SourceEvidenceReference = AzureExtractorPackageZipEntryNames.Resources,
                 });
-
-                resourceRowIdsByArmId[normalizedArmId] = resourceRowId;
 
                 foreach (KeyValuePair<string, string> tag in row.Tags)
                 {
@@ -135,32 +131,6 @@ public sealed class AzureInventorySnapshotMaterializer(
                         ResourceGroup = row.ResourceGroup,
                         CappedPropertiesJson = JsonSerializer.Serialize(row.Properties),
                         SourceEvidenceReference = AzureExtractorPackageZipEntryNames.Resources,
-                    });
-                }
-
-                string? parentArmId = TryGetParentArmId(normalizedArmId);
-
-                if (!string.IsNullOrWhiteSpace(parentArmId))
-                {
-                    relationships.Add(new AzureInventoryResourceRelationshipWrite
-                    {
-                        FromAzureResourceId = parentArmId,
-                        ToAzureResourceId = normalizedArmId,
-                        RelationshipType = "contains",
-                        ProvenanceKind = ProvenanceKind.ObservedFact,
-                        Confidence = 1.0m,
-                    });
-                }
-
-                if (row.Properties.TryGetValue("privateEndpointConnections", out _))
-                {
-                    relationships.Add(new AzureInventoryResourceRelationshipWrite
-                    {
-                        FromAzureResourceId = normalizedArmId,
-                        ToAzureResourceId = normalizedArmId,
-                        RelationshipType = "privateEndpoint",
-                        ProvenanceKind = ProvenanceKind.ObservedFact,
-                        Confidence = 1.0m,
                     });
                 }
             }
@@ -207,21 +177,17 @@ public sealed class AzureInventorySnapshotMaterializer(
                         : ArmResourceIdNormalizer.Normalize(workspaceId),
                     SourceEvidenceReference = AzureExtractorPackageZipEntryNames.DiagnosticSettings,
                 });
-
-                if (!string.IsNullOrWhiteSpace(workspaceId))
-                {
-                    relationships.Add(new AzureInventoryResourceRelationshipWrite
-                    {
-                        FromAzureResourceId = ArmResourceIdNormalizer.Normalize(targetId),
-                        ToAzureResourceId = ArmResourceIdNormalizer.Normalize(workspaceId),
-                        RelationshipType = "logsTo",
-                        ProvenanceKind = ProvenanceKind.ObservedFact,
-                        Confidence = 1.0m,
-                    });
-                }
             }
 
-            byte[] contentHash = ComputeContentHash(resources, relationships);
+            AzureInventorySecurityEdgeMaterializeResult securityEdges =
+                AzureInventorySecurityEdgeMaterializer.Materialize(
+                    inventory.Resources,
+                    inventory.RoleAssignments,
+                    inventory.NetworkAssociations,
+                    inventory.PolicyAssignments,
+                    inventory.DiagnosticSettings);
+
+            byte[] contentHash = ComputeContentHash(resources, securityEdges.Relationships);
             AzureInventoryCaptureStatus status = resources.Count == 0
                 ? AzureInventoryCaptureStatus.Partial
                 : AzureInventoryCaptureStatus.Succeeded;
@@ -233,16 +199,16 @@ public sealed class AzureInventorySnapshotMaterializer(
                 {
                     CaptureStatus = status,
                     ResourceCount = resources.Count,
-                    RelationshipCount = relationships.Count,
+                    RelationshipCount = securityEdges.Relationships.Count,
                     CompletenessScore = resources.Count == 0 ? 0m : 1.0m,
-                    WarningCount = 0,
+                    WarningCount = securityEdges.CompletenessWarnings.Count,
                     ErrorCount = 0,
                     ContentHashSha256 = contentHash,
                     CaptureMethod = captureMethod,
                     CollectorVersion = collectorVersion,
                     Resources = resources,
                     Properties = properties,
-                    Relationships = relationships,
+                    Relationships = securityEdges.Relationships,
                     RoleAssignments = roleAssignments,
                     Tags = tags,
                     Diagnostics = diagnostics,
@@ -267,7 +233,7 @@ public sealed class AzureInventorySnapshotMaterializer(
                 Succeeded = true,
                 CaptureStatus = status,
                 ResourceCount = resources.Count,
-                RelationshipCount = relationships.Count,
+                RelationshipCount = securityEdges.Relationships.Count,
                 ContentHashSha256 = contentHash,
             };
         }
@@ -307,6 +273,8 @@ public sealed class AzureInventorySnapshotMaterializer(
                 .Append(relationship.ToAzureResourceId)
                 .Append('|')
                 .Append(relationship.RelationshipType)
+                .Append('|')
+                .Append((int)relationship.ProvenanceKind)
                 .Append(';');
         }
 

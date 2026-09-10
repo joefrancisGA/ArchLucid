@@ -41,8 +41,12 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
         return Task.FromResult<ArchitectureShareRecord?>(Clone(record));
     }
 
-    public Task UpsertAsync(ArchitectureShareRecord record, CancellationToken cancellationToken = default)
+    public Task UpsertAsync(
+        ScopeContext scope,
+        ArchitectureShareRecord record,
+        CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(record);
         _ = cancellationToken;
 

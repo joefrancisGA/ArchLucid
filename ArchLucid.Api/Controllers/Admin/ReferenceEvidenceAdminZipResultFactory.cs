@@ -29,6 +29,7 @@ internal static class ReferenceEvidenceAdminZipResultFactory
         catch (ConflictException ex)
         {
             return OperationsController.MapReferenceEvidenceAdminSealedManifestConflict(controller, ex);
+
         }
 
         if (zip is null || zip.Length == 0)

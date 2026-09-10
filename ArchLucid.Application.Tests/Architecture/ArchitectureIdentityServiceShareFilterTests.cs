@@ -47,6 +47,7 @@ public sealed class ArchitectureIdentityServiceShareFilterTests
         await identityRepository.TrySetRestrictToSharesAsync(Scope, restricted.ArchitectureId, restrictToShares: true);
 
         await shareRepository.UpsertAsync(
+            Scope,
             new ArchitectureShareRecord
             {
                 ArchitectureId = restricted.ArchitectureId,

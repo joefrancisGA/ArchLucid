@@ -13,6 +13,7 @@ import { reviewArchiveMutationBlockedReason } from "@/lib/runs/review-archive-mu
 import { reviewPinMutationBlockedReason } from "@/lib/runs/review-pin-mutation-blocked-reason";
 import { reviewSelectiveExecuteMutationBlockedReason } from "@/lib/runs/review-selective-execute-mutation-blocked-reason";
 import { architectureRequestLifecycleMutationBlockedReason } from "@/lib/runs/architecture-request-lifecycle-mutation-blocked-reason";
+import { internalArchitectureSeedFakeMutationBlockedReason } from "@/lib/runs/internal-architecture-seed-fake-mutation-blocked-reason";
 
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -209,10 +210,17 @@ export async function executeArchitectureRunSelectiveInFlight(
 
 /** Seeds deterministic fake agent results for a run (POST /v1/internal/architecture/runs/{runId}/seed-fake-results; operator + ExecuteAuthority). */
 export async function seedFakeArchitectureRunResults(runId: string): Promise<{ resultCount?: number }> {
-  return apiPostJson<{ resultCount?: number }>(
-    `/v1/internal/architecture/runs/${encodeURIComponent(runId)}/seed-fake-results`,
-    {},
-  );
+  try {
+    return await apiPostJson<{ resultCount?: number }>(
+      `/v1/internal/architecture/runs/${encodeURIComponent(runId)}/seed-fake-results`,
+      {},
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = internalArchitectureSeedFakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Restores a soft-archived architecture request (POST /v1/architecture/request/{requestId}/restore). */
@@ -253,5 +261,12 @@ export async function archiveArchitectureRequest(requestId: string): Promise<voi
 
 /** Soft-deletes an architecture request (DELETE /v1/architecture/request/{requestId}). */
 export async function deleteArchitectureRequest(requestId: string): Promise<void> {
-  await apiDelete(`/v1/architecture/request/${encodeURIComponent(requestId)}`);
+  try {
+    await apiDelete(`/v1/architecture/request/${encodeURIComponent(requestId)}`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureRequestLifecycleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
