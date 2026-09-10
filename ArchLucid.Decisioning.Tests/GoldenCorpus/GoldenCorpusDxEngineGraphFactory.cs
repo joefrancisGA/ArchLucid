@@ -68,6 +68,10 @@ internal static class GoldenCorpusDxEngineGraphFactory
                         ["category"] = GraphTopologyCategories.Data,
                         ["terraformType"] = "azurerm_mssql_database",
                         ["sku"] = "Standard_LRS",
+                        ["armResourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000042/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-pay-prod",
+                        ["resourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000042/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-pay-prod",
                     },
                 },
             ],

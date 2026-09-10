@@ -77,7 +77,7 @@ function ExtractUploadSettingsPageClientInner() {
     setAdvancedCommandOpen,
     buyerPolishedShell,
     baselineLoading,
-    hasBaselineArtifacts,
+    hasInventoryOnFile,
     extractorScriptVersion,
     extractorUpdateBanner,
     maxMb,
@@ -107,7 +107,7 @@ function ExtractUploadSettingsPageClientInner() {
       >
         <ExtractUploadSettingsPageHeader
           baselineLoading={baselineLoading}
-          hasBaselineArtifacts={hasBaselineArtifacts}
+          hasInventoryOnFile={hasInventoryOnFile}
           extractorScriptVersion={extractorScriptVersion}
         />
 

@@ -52,7 +52,17 @@ function applyBootstrapSession(session: {
 export function PostAuthBootstrapClient() {
   const searchParams = useSearchParams();
   const returnUrl = searchParams.get("returnUrl") ?? undefined;
+  const invitationTokenFromQuery = searchParams.get("invitationToken")?.trim() ?? "";
   const safeReturnUrl = useMemo(() => resolveSafeReturnPath(returnUrl, "/"), [returnUrl]);
+  const bootstrapInvitationToken = useMemo(() => {
+    const storedToken = readInvitationToken();
+
+    if (storedToken !== null) {
+      return storedToken;
+    }
+
+    return invitationTokenFromQuery.length > 0 ? invitationTokenFromQuery : null;
+  }, [invitationTokenFromQuery]);
 
   const [status, setStatus] = useState<PostAuthBootstrapStatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,7 +77,7 @@ export function PostAuthBootstrapClient() {
     try {
       const nextStatus = await fetchPostAuthBootstrapStatus(
         safeReturnUrl !== "/" ? safeReturnUrl : undefined,
-        readInvitationToken(),
+        bootstrapInvitationToken,
       );
       setStatus(nextStatus);
 
@@ -85,7 +95,7 @@ export function PostAuthBootstrapClient() {
     } finally {
       setLoading(false);
     }
-  }, [safeReturnUrl]);
+  }, [bootstrapInvitationToken, safeReturnUrl]);
 
   useEffect(() => {
     void loadStatus();

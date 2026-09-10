@@ -320,4 +320,60 @@ describe("ExtractUploadSettingsPageClient", () => {
 
     expect(screen.queryByTestId("extract-upload-error-code")).not.toBeInTheDocument();
   });
+
+  it("updates header inventory status after a successful upload", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts")) {
+        return baselineArtifactsResponse({ hasBaselineArtifacts: false, extractorScriptVersion: "1.0.0" });
+      }
+
+      if (url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return scriptVersionResponse("1.0.0");
+      }
+
+      if (url.includes("/v1/azure-extractor/upload") && init?.method === "POST") {
+        return new Response(JSON.stringify({ packageId: "pkg-upload-success" }), {
+          status: 202,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
+        EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
+      );
+    });
+
+    const fileInput = screen.getByTestId("extract-upload-drop-zone-input");
+    const bytes = zipSync({
+      "manifest.json": strToU8(
+        JSON.stringify({
+          schemaVersion: 2,
+          scriptVersion: "0.4.0",
+          collectionTimestamp: "2026-01-01T00:00:00Z",
+          subscriptionId: "11111111-1111-1111-1111-111111111111",
+          scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg",
+        }),
+      ),
+      "resources.json": strToU8("[]"),
+    });
+    const file = new File([bytes], "archlucid-azure-package.zip", { type: "application/zip" });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
+        EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
+      );
+    });
+  });
 });

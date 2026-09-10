@@ -12,7 +12,7 @@ using FluentAssertions;
 namespace ArchLucid.Decisioning.Tests.GoldenCorpus;
 
 /// <summary>
-///     QR-18 / QR-19 / QR-25: golden graphs that those engines already traverse carry product-shaped
+///     QR-18 / QR-19 / QR-25 / QR-27: golden graphs that those engines already traverse carry product-shaped
 ///     ARM/ARN so <see cref="GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation" /> is true.
 /// </summary>
 [Trait("Suite", "Core")]
@@ -86,10 +86,46 @@ public sealed class GoldenCorpusProductCitationTests
     }
 
     [Fact]
+    public async Task Case40_dr_rpo_topology_has_concrete_citation()
+    {
+        GraphSnapshot graph = await LoadGraphAsync("case-40");
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        AssertAllHaveConcreteCitation(findings);
+    }
+
+    [Fact]
     public async Task Case41_dangling_declaration_reference_has_concrete_citation()
     {
         GraphSnapshot graph = await LoadGraphAsync("case-41");
         DanglingDeclarationReferenceFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        AssertAllHaveConcreteCitation(findings);
+    }
+
+    [Fact]
+    public async Task Case42_requirement_sku_tier_has_concrete_citation()
+    {
+        GraphSnapshot graph = await LoadGraphAsync("case-42");
+        RequirementSkuTierFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        AssertAllHaveConcreteCitation(findings);
+    }
+
+    [Fact]
+    public async Task Case45_dr_rpo_topology_second_has_concrete_citation()
+    {
+        GraphSnapshot graph = await LoadGraphAsync("case-45");
+        DrRpoTopologyFindingEngine sut = new();
 
         IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
 

@@ -16,6 +16,7 @@ import {
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
+  resolveExtractUploadHasInventoryOnFile,
   resolveExtractUploadPackageEmphasizedStepId,
   resolveExtractUploadPackageSteps,
 } from "@/lib/extract-upload-package-checklist";
@@ -63,6 +64,10 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
 
   const baselineLoading = baselineQuery.isPending;
   const hasBaselineArtifacts = baselineQuery.data?.hasBaselineArtifacts ?? null;
+  const hasInventoryOnFile = resolveExtractUploadHasInventoryOnFile({
+    hasBaselineArtifacts,
+    packageId: upload.packageId,
+  });
   const extractorScriptVersion = baselineQuery.data?.extractorScriptVersion ?? null;
   const extractorUpdateBanner = baselineQuery.data?.extractorUpdateBanner ?? null;
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
@@ -143,6 +148,7 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     buyerPolishedShell,
     baselineLoading,
     hasBaselineArtifacts,
+    hasInventoryOnFile,
     extractorScriptVersion,
     extractorUpdateBanner,
     maxMb,
