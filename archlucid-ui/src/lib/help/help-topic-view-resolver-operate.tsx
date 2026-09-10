@@ -23,6 +23,11 @@ const HelpArchitectureIntelligenceGuideView = dynamic(() =>
 const HelpArchitectureScorecardGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureScorecardGuideView").then((module) => module.HelpArchitectureScorecardGuideView),
 );
+const HelpArchitectureShareRestrictGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpArchitectureShareRestrictGuideView").then(
+    (module) => module.HelpArchitectureShareRestrictGuideView,
+  ),
+);
 const HelpAuditTrailGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpAuditTrailGuideView").then((module) => module.HelpAuditTrailGuideView),
 );
@@ -239,6 +244,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "career-rehearsal-doors") {
     return <HelpWorkingCareerRehearsalGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "architecture-sharing") {
+    return <HelpArchitectureShareRestrictGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "standards-and-rules") {
     return <HelpStandardsRulesGuideView entry={loaded.entry} />;

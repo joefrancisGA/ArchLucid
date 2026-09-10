@@ -3,6 +3,8 @@ export const ARCHITECTURE_IDENTITY_DESK_SHARE_PANEL_TITLE = "Architecture shares
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_PANEL_HELPER =
   "Restrict this architecture to named people or keep it visible to everyone with workspace read access. Shares are per person only — SCIM groups are not supported in this release.";
 
+export const ARCHITECTURE_IDENTITY_DESK_SHARE_HELPER = ARCHITECTURE_IDENTITY_DESK_SHARE_PANEL_HELPER;
+
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_RESTRICT_LABEL = "Restrict to share list";
 
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_CONFIRM_LABEL = "I understand only share list members can see this architecture";

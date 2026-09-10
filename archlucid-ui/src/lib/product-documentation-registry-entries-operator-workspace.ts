@@ -340,6 +340,16 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_WORKSPACE: readonly
     "releaseApplicability": "Working Career vs Rehearsal door chrome (ADR 0086 / AS-082)",
   },
   {
+    "slug": "architecture-sharing",
+    "title": "Architecture sharing",
+    "summary": "Restrict-to-shares, View / Decide / Admin roles, and grandfather workspace-visible default — still one tenant, not chat or presence.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-09-10",
+    "releaseApplicability": "Architecture share ACL help boundary (ADR 0087 / AS-098)",
+  },
+  {
     "slug": "notifications",
     "title": "Notifications",
     "summary": "Channel launcher for digests, alerts, alert rules, Teams, and Slack — routes to where each destination configures.",
