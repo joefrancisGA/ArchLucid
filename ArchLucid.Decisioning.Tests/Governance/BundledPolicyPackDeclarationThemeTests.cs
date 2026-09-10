@@ -175,6 +175,19 @@ public sealed class BundledPolicyPackDeclarationThemeTests
     }
 
     [Fact]
+    public async Task Pci_architecture_emits_encryption_and_transport_themes_at_p1_floor()
+    {
+        IReadOnlySet<string> pci = await ResolveAtFloorAsync("pci-dss-architecture.json", PolicyPackRulePriority.P1);
+
+        pci.Should().Contain("pci-007");
+        pci.Should().Contain("pci-009");
+        DeclarationSignalPolicyGate.ShouldEmitTheme(Encryption, pci).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(TransportSecurity, pci).Should().BeTrue();
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(Encryption, pci).Should().Be("pci-007");
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(TransportSecurity, pci).Should().Be("pci-009");
+    }
+
+    [Fact]
     public async Task Hipaa_architecture_stays_silent_at_shipped_p0_pilot_floor()
     {
         IReadOnlySet<string> hipaa = await ResolveShippedAsync("hipaa-architecture.json");
