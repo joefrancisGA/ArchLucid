@@ -19,7 +19,6 @@ public static class RunSummaryOnePagerDocumentFactory
         int sealedFindingCount = 0,
         string? careerExportHonestyPlainText = null,
         string? architectRestatementMarkdown = null)
-
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);

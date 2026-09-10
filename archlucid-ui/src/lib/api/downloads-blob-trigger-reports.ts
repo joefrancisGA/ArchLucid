@@ -116,7 +116,6 @@ export async function downloadFirstValueReportPdf(runId: string): Promise<void> 
     const blockedReason = firstValueReportMutationBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-
   }
 
   assertBinaryDownloadContentType(response, ["application/pdf"]);
@@ -159,7 +158,6 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
     const blockedReason = boardPackMutationBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-
   }
 
   assertBinaryDownloadContentType(response, ["application/pdf"]);
@@ -200,7 +198,6 @@ export async function downloadSponsorOnePagerPdf(runId: string): Promise<void> {
     const blockedReason = sponsorOnePagerMutationBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-
   }
 
   assertBinaryDownloadContentType(response, ["application/pdf"]);

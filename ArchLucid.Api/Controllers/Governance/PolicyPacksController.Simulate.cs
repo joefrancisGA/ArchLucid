@@ -78,7 +78,6 @@ public sealed partial class PolicyPacksController
         catch (ConflictException ex)
         {
             return MapPolicyPackSealedManifestConflict(ex);
-
         }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
@@ -179,7 +178,6 @@ public sealed partial class PolicyPacksController
         catch (ConflictException ex)
         {
             return MapPolicyPackSealedManifestConflict(ex);
-
         }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);

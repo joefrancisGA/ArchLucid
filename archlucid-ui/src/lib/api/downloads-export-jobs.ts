@@ -139,7 +139,6 @@ export async function downloadValueReportDocx(fromIso: string, toIso: string): P
     const blockedReason = sponsorValueReportDocxMutationBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-
   }
 
   const fileName =

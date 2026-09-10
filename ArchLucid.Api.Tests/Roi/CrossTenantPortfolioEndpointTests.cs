@@ -11,6 +11,7 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
 using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;

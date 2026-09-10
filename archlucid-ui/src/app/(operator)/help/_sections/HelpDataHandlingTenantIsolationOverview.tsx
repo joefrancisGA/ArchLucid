@@ -4,10 +4,11 @@ import {
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CONTRACTED_PACK_FOLLOW_UP,
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_PREFIX,
   DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_SUFFIX,
-  DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_LEAD,
+  dataHandlingTenantIsolationHelpOverviewLead,
   dataHandlingTenantIsolationHelpOverviewCrossCheckLinks,
 } from "@/lib/data-handling-tenant-isolation-help-guide-content";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
@@ -15,11 +16,13 @@ import { cn } from "@/lib/utils";
 /** Lead + linked cross-check line for `/help/data-handling`. */
 export function HelpDataHandlingTenantIsolationOverview(): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const productLineId = resolveProductLineIdFromEnv();
   const crossCheckLinks = dataHandlingTenantIsolationHelpOverviewCrossCheckLinks(buyerPolishedShell);
+  const overviewLead = dataHandlingTenantIsolationHelpOverviewLead(productLineId);
 
   return (
     <div className="space-y-2" data-testid="help-data-handling-tenant-isolation-overview">
-      <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_LEAD}</p>
+      <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>{overviewLead}</p>
       <p className={cn("m-0", HELP_PAGE_LAYOUT.readingBody)}>
         {DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_PREFIX}{" "}
         {crossCheckLinks.map((link, index) => (

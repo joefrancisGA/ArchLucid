@@ -1,13 +1,14 @@
 import Link from "next/link";
 
-import {
-  DATA_HANDLING_TENANT_ISOLATION_HELP_LEAVES_STAYS_CARDS,
-} from "@/lib/data-handling-tenant-isolation-help-guide-content";
+import { dataHandlingTenantIsolationHelpLeavesStaysCards } from "@/lib/data-handling-tenant-isolation-help-guide-content";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Leaves vs stays orientation cards for `/help/data-handling` first viewport (TB-1654). */
 export function HelpDataHandlingTenantIsolationLeavesStaysChrome(): React.JSX.Element {
+  const leavesStaysCards = dataHandlingTenantIsolationHelpLeavesStaysCards(resolveProductLineIdFromEnv());
+
   return (
     <section
       aria-labelledby="help-data-handling-tenant-isolation-leaves-stays-heading"
@@ -21,7 +22,7 @@ export function HelpDataHandlingTenantIsolationLeavesStaysChrome(): React.JSX.El
         Data boundary at a glance
       </h2>
       <div className="grid gap-4 md:grid-cols-2">
-        {DATA_HANDLING_TENANT_ISOLATION_HELP_LEAVES_STAYS_CARDS.map((card) => (
+        {leavesStaysCards.map((card) => (
           <div
             key={card.id}
             className={cn(
