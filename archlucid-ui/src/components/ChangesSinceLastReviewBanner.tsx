@@ -40,7 +40,7 @@ export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBanner
     : "Open full comparison";
   const blockedReason = props.blockedReason?.trim() ?? "";
 
-const syncBannerOpenToUrl = useCallback(
+  const syncBannerOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(changesSinceLastReviewDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
         scroll: false,
@@ -48,10 +48,15 @@ const syncBannerOpenToUrl = useCallback(
     },
     [pathname, router, searchParams],
   );
+
   const setBannerOpen = useCallback(
+    (open: boolean) => {
       setBannerOpenState(open);
       syncBannerOpenToUrl(open);
+    },
     [syncBannerOpenToUrl],
+  );
+
   useEffect(() => {
     setBannerOpenState(parseChangesSinceLastReviewOpenFromSearch(changesSinceLastReviewOpenParam));
   }, [changesSinceLastReviewOpenParam]);
