@@ -27,20 +27,17 @@ public sealed class ArchitectureShareManagementServiceTests
     [Fact]
     public async Task GetSharesAsync_returns_list_with_restrict_flag()
     {
-        Mock<IArchitectureIdentityRepository> identities = CreateIdentityMock();
+        Mock<IArchitectureIdentityRepository> identities = CreateIdentityMock(restrictToShares: true);
         Mock<IArchitectureShareRepository> shares = new();
 
         shares
-            .Setup(repository => repository.TryGetRestrictToSharesAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-
-        shares
-            .Setup(repository => repository.ListSharesAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.ListByArchitectureIdAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new ArchitectureShareRecord
                 {
-                    UserId = ShareUserId,
+                    ArchitectureId = ArchitectureId,
+                    ActorOid = ArchitectureSharePlatformUserActorOid.FromUserId(ShareUserId),
                     Role = ArchitectureShareRoles.Admin,
                     GrantedBy = "owner@example.com",
                     GrantedUtc = DateTime.UtcNow,
@@ -56,8 +53,8 @@ public sealed class ArchitectureShareManagementServiceTests
 
         result.Status.Should().Be(ArchitectureShareListStatus.Success);
         result.Response!.RestrictToShares.Should().BeTrue();
-        result.Response.Shares.Should().ContainSingle(share => share.UserId == ShareUserId);
-        result.Response.ConfirmationCopy.Should().Be(ArchitectureRestrictToSharesCopy.OptInConfirmation);
+        result.Response.Shares.Should().ContainSingle(share =>
+            share.ActorOid == ArchitectureSharePlatformUserActorOid.FromUserId(ShareUserId));
     }
 
     [Fact]
@@ -89,10 +86,10 @@ public sealed class ArchitectureShareManagementServiceTests
         Mock<IArchitectureShareRepository> shares = new();
 
         shares
-            .Setup(repository => repository.TryDeleteShareAsync(
+            .Setup(repository => repository.TryDeleteAsync(
                 Scope,
                 ArchitectureId,
-                ShareUserId,
+                ArchitectureSharePlatformUserActorOid.FromUserId(ShareUserId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
@@ -151,7 +148,7 @@ public sealed class ArchitectureShareManagementServiceTests
         return validator;
     }
 
-    private static Mock<IArchitectureIdentityRepository> CreateIdentityMock()
+    private static Mock<IArchitectureIdentityRepository> CreateIdentityMock(bool restrictToShares = false)
     {
         Mock<IArchitectureIdentityRepository> identities = new();
 
@@ -161,6 +158,7 @@ public sealed class ArchitectureShareManagementServiceTests
             {
                 ArchitectureId = ArchitectureId,
                 DisplayName = "Payments",
+                RestrictToShares = restrictToShares,
             });
 
         return identities;

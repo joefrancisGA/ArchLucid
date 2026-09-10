@@ -32,9 +32,10 @@ public sealed class ArchitectureRestrictToSharesService(
 
         if (!restrictToShares)
         {
-            bool disabled = await _shareRepository.TryDisableRestrictToSharesAsync(
+            bool disabled = await _architectureIdentityRepository.TrySetRestrictToSharesAsync(
                 scope,
                 architectureId,
+                restrictToShares: false,
                 cancellationToken);
 
             if (!disabled)
@@ -55,14 +56,30 @@ public sealed class ArchitectureRestrictToSharesService(
         if (actorUserId == Guid.Empty)
             return ArchitectureRestrictToSharesSetResult.ActorUserRequired();
 
-        int shareCount = await _shareRepository.CountSharesAsync(scope, architectureId, cancellationToken);
+        int shareCount = await _shareRepository.CountByArchitectureIdAsync(scope, architectureId, cancellationToken);
         bool actorAdminShareInserted = shareCount == 0;
 
-        bool enabled = await _shareRepository.TryEnableRestrictToSharesAsync(
+        if (actorAdminShareInserted)
+        {
+            DateTime grantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+            await _shareRepository.UpsertAsync(
+                scope,
+                new ArchitectureShareRecord
+                {
+                    ArchitectureId = architectureId,
+                    ActorOid = ArchitectureSharePlatformUserActorOid.FromUserId(actorUserId),
+                    Role = ArchitectureShareRoles.Admin,
+                    GrantedBy = grantedBy.Trim(),
+                    GrantedUtc = grantedUtc,
+                },
+                cancellationToken);
+        }
+
+        bool enabled = await _architectureIdentityRepository.TrySetRestrictToSharesAsync(
             scope,
             architectureId,
-            actorUserId,
-            grantedBy.Trim(),
+            restrictToShares: true,
             cancellationToken);
 
         if (!enabled)

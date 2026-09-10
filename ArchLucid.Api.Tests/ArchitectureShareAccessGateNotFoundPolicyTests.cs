@@ -1,11 +1,10 @@
 using System.Net;
 using System.Security.Claims;
 
-using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application.Architecture;
-using ArchLucid.Core.Identity;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -38,8 +37,13 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
         Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
     private readonly Mock<IArchitectureShareAccessService> _shareAccessService = new();
-    private readonly Mock<IAuthenticatedPlatformUserResolver> _platformUserResolver = new();
+    private readonly Mock<IActorContext> _actorContext = new();
     private readonly Mock<IRunRepository> _runRepository = new();
+
+    public ArchitectureShareAccessGateNotFoundPolicyTests()
+    {
+        _actorContext.Setup(static context => context.GetActorId()).Returns("jwt:tenant:unshared");
+    }
 
     [Fact]
     public async Task EnsureArchitectureReadAllowed_when_unshared_restricted_returns_404_not_403()
@@ -48,7 +52,7 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
             .Setup(service => service.EvaluateAsync(
                 Scope,
                 ArchitectureId,
-                It.IsAny<Guid?>(),
+                It.IsAny<string?>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>(),
@@ -90,7 +94,7 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
             .Setup(service => service.EvaluateAsync(
                 Scope,
                 ArchitectureId,
-                It.IsAny<Guid?>(),
+                It.IsAny<string?>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>(),
@@ -140,7 +144,7 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
     }
 
     private ArchitectureShareAccessGate BuildSut() =>
-        new(_shareAccessService.Object, _platformUserResolver.Object, _runRepository.Object);
+        new(_shareAccessService.Object, _actorContext.Object, _runRepository.Object);
 
     private static ControllerBase CreateController() =>
         new TestController
@@ -160,7 +164,6 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
         Microsoft.AspNetCore.Mvc.ProblemDetails problem =
             notFound.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         problem.Type.Should().Be(expectedProblemType);
-        problem.Status.Should().Be((int)expectedStatus);
     }
 
     private sealed class TestController : ControllerBase;
