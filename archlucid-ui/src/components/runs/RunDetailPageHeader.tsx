@@ -24,11 +24,10 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { EXPORT_FORMAT_DOCX, EXPORT_FORMAT_PDF } from "@/lib/export-format-when-to-use";
 import { RUN_PACKAGE_EXPORT_LABELS } from "@/lib/i18n";
-import { downloadRunSummaryExport } from "@/lib/api/run-summary-export-api";
+import { downloadRunSummaryExport, runSummaryExportMutationBlockedReason } from "@/lib/api/run-summary-export-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { runPackageExportMutationBlockedReason } from "@/lib/runs/run-package-export-mutation-blocked-reason";
-import { runSummaryExportMutationBlockedReason } from "@/lib/runs/run-summary-export-mutation-blocked-reason";
 import {
   SAMPLE_REVIEW_EXPORT_UNAVAILABLE_HINT,
 } from "@/lib/api/downloads-api";
