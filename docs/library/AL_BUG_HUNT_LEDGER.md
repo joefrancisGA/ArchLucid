@@ -2695,10 +2695,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-25
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-08-24 — activation accepted non-HTTP(S) issuer URIs that discovery rejects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2717,6 +2717,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Null `ClaimMapping.Mappings` crashes activation with HTTP 500 — **seed 2026-08-25:** LINQ `.Where` throws `ArgumentNullException` (derives from `ArgumentException`); controller maps to 400; regression in `ActivateAsync_null_claim_mapping_entries_throw_argument_null_exception`
 - [x] (valid-no-repro) Activation accepts issuer URI without host (`https://`) — **seed 2026-08-25:** `IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps` rejects; regression in `ActivateAsync_rejects_issuer_without_host`
 - [x] (valid-no-repro) Empty `RoleClaimName` persists broken mapping — **seed 2026-08-25:** `IdentityClaimRoleMappingValidator.ValidateOrThrow` fails before upsert; regression in `ActivateAsync_rejects_empty_role_claim_name`
+- [x] (valid-no-repro) `ActivateAsync` accepts `Guid.Empty` tenant id — **cheap-disproof 2026-09-10 seed hunt #1669:** `tenantId == Guid.Empty` throws before upsert; regression `ActivateAsync_rejects_empty_tenant_id`
+- [x] (valid-no-repro) Blank `actorId` persists activation — **cheap-disproof 2026-09-10 seed hunt #1669:** `ArgumentException.ThrowIfNullOrWhiteSpace(actorId)`; regression `ActivateAsync_rejects_blank_actor_id`
+- [x] (valid-no-repro) Null `request` throws unhandled exception — **cheap-disproof 2026-09-10 seed hunt #1669:** `ArgumentNullException.ThrowIfNull(request)`; regression `ActivateAsync_rejects_null_request`
+- [x] (valid-no-repro) Invalid protocol strings (`oauth`, empty, whitespace) accepted — **cheap-disproof 2026-09-10 seed hunt #1669:** protocol switch throws `ArgumentException`; regression `ActivateAsync_rejects_invalid_protocol`
+- [x] (valid-no-repro) Case-variant protocol names (`OIDC`, `SaMl`) rejected — **cheap-disproof 2026-09-10 seed hunt #1669:** `ToLowerInvariant` before switch; regression `ActivateAsync_accepts_case_insensitive_protocol_names`
+- [x] (valid-no-repro) Untrimmed issuer URI and actor id stored verbatim — **cheap-disproof 2026-09-10 seed hunt #1669:** `Trim()` on issuer and `UpdatedByActorId`; regression `ActivateAsync_trims_issuer_uri_and_actor_id`
+- [x] (valid-no-repro) Whitespace-only `KeyVaultSecretName` preserves prior secret — **cheap-disproof 2026-09-10 seed hunt #1669:** `ResolveOptionalPersistedField` clears on whitespace; regression `ActivateAsync_clears_key_vault_secret_when_whitespace_only_string_provided`
+- [x] (valid-no-repro) Whitespace-only `MetadataXml` preserves prior metadata — **cheap-disproof 2026-09-10 seed hunt #1669:** `ResolveOptionalPersistedField` clears on whitespace; regression `ActivateAsync_clears_metadata_xml_when_whitespace_only_string_provided`
+- [x] (valid-no-repro) Missing or relative issuer URI accepted — **cheap-disproof 2026-09-10 seed hunt #1669:** `IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps` rejects empty/relative; regression `ActivateAsync_rejects_missing_or_relative_issuer_uri`
+- [x] (valid-no-repro) Unsupported `ArchLucidRole` in mapping persisted — **cheap-disproof 2026-09-10 seed hunt #1669:** `IdentityClaimRoleMappingResolver.ValidateMapping` fails before upsert; regression `ActivateAsync_rejects_unsupported_arch_lucid_role_in_mapping`
+
+2026-09-10 seed hunt #1669 (seed-only): reseeded identity-provider-config after 2026-08-25; cheap-disproof closed empty-tenant guard, blank-actor guard, null-request guard, invalid-protocol guard, case-insensitive protocol acceptance, issuer/actor trim, whitespace-only secret/metadata clear, missing/relative issuer rejection, and unsupported role mapping rejection; 26 scoped `IdentityProviderActivationServiceTests` passed.
 
 ---
 
