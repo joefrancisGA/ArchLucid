@@ -1,5 +1,6 @@
 import {
-  isDecisionGradeFinding,
+  FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
+  FINDING_CLASSIFICATION_DECISION_GRADE,
 } from "@/lib/findings/review-detail-findings-classification-band";
 import {
   countDecisionGradeSemanticSupportBandsForPresentation,
@@ -27,10 +28,37 @@ export type SemanticSupportBandExportStamp = {
   readonly stampLine: string | null;
 };
 
+export type FindingSemanticSupportBandExportInput = Pick<
+  QuickDecisionFinding,
+  "classification" | "semanticSupportBand"
+> & {
+  readonly insightDensityScore?: QuickDecisionFinding["insightDensityScore"];
+};
+
+function isDecisionGradeFindingForSemanticExport(
+  finding: FindingSemanticSupportBandExportInput,
+): boolean {
+  if (finding.classification === FINDING_CLASSIFICATION_DECISION_GRADE) {
+    return true;
+  }
+
+  if (finding.classification === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE) {
+    return false;
+  }
+
+  const score = finding.insightDensityScore;
+
+  if (score === null || score === undefined) {
+    return true;
+  }
+
+  return score >= 50;
+}
+
 export function resolveFindingSemanticSupportBandExportFields(
-  finding: Pick<QuickDecisionFinding, "classification" | "semanticSupportBand">,
+  finding: FindingSemanticSupportBandExportInput,
 ): FindingSemanticSupportBandExportFields | null {
-  if (!isDecisionGradeFinding(finding)) {
+  if (!isDecisionGradeFindingForSemanticExport(finding)) {
     return null;
   }
 

@@ -1,5 +1,7 @@
 # Architecture share ACL contract (AS-090)
 
+> **Scope:** Engineering contract for architecture-scoped share ACL inside one tenant (AS-090 / ADR 0087). **Contributor-reference** — internal only.
+
 Architecture-scoped sharing is **inside one tenant**. It does not replace ADR 0037 catalog isolation and does not add SQL row-level security (AS-097).
 
 ## Roles

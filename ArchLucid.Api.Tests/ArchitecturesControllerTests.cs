@@ -44,6 +44,7 @@ public sealed class ArchitecturesControllerTests
     public ArchitecturesControllerTests()
     {
         _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
+        _actorContext.Setup(static a => a.GetActorId()).Returns("jwt:tenant:actor");
     }
 
     [Fact]
@@ -65,7 +66,7 @@ public sealed class ArchitecturesControllerTests
         };
 
         _service
-            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, false, It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, false, "jwt:tenant:actor", It.IsAny<CancellationToken>()))
             .ReturnsAsync(page);
 
         ArchitecturesController sut = BuildSut();
@@ -82,7 +83,7 @@ public sealed class ArchitecturesControllerTests
         Guid architectureId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
         _service
-            .Setup(s => s.GetIdentityAsync(Scope, architectureId, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetIdentityAsync(Scope, architectureId, "jwt:tenant:actor", It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureIdentityDetail?)null);
 
         ArchitecturesController sut = BuildSut();
@@ -190,26 +191,6 @@ public sealed class ArchitecturesControllerTests
     }
 
     private ArchitecturesController BuildSut() =>
-<<<<<<< HEAD
-        new(
-            _scopeProvider.Object,
-            _actorContext.Object,
-            _service.Object,
-            _bindingService.Object,
-            new ArchitectureInventoryBindingAuditSupport(
-                _auditService.Object,
-                NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
-            _sealDeltaService.Object,
-            _auditService.Object,
-            _runRepository.Object,
-            _goldenManifestRepository.Object,
-            _manifestHashService.Object,
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
-            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
-=======
         ArchitecturesControllerTestSupport.BuildController(
             _scopeProvider,
             _actorContext,
@@ -219,5 +200,4 @@ public sealed class ArchitecturesControllerTests
             _auditService,
             _runRepository,
             _goldenManifestRepository);
->>>>>>> 24079b3915 (Fix merge compile error and refresh OpenAPI snapshot post-merge)
 }

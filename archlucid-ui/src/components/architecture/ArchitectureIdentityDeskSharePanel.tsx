@@ -377,7 +377,13 @@ export function ArchitectureIdentityDeskSharePanel(
                 size="sm"
                 disabled={revokeMutation.isPending || grantMutation.isPending || restrictMutation.isPending}
                 data-testid={`architecture-identity-desk-share-remove-${share.actorOid}`}
-                onClick={() => void revokeMutation.mutate(share.actorOid)}
+                onClick={() => {
+                  if (share.actorOid === undefined) {
+                    return;
+                  }
+
+                  void revokeMutation.mutate(share.actorOid);
+                }}
               >
                 {ARCHITECTURE_IDENTITY_DESK_SHARE_REMOVE_LABEL}
               </Button>
