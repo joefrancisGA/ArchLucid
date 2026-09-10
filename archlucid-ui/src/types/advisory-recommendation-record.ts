@@ -2,7 +2,7 @@ import type { components } from "@/lib/openapi-schemas";
 
 type RecommendationRecordResponseSchema = components["schemas"]["RecommendationRecordResponse"];
 
-/** Persisted recommendation with governance workflow state (Change 36). */
+/** Persisted recommendation with approval workflow state (Change 36). */
 export type RecommendationRecord = Omit<
   RecommendationRecordResponseSchema &
     Required<

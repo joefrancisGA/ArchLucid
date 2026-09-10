@@ -1,4 +1,4 @@
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import {
   findingDetailHeadingTitleForRoute,
   isPhiMinimizationFindingId,
@@ -48,7 +48,7 @@ export async function loadFindingDetailPageModel(
   const inspectPayload: FindingInspectPayload | null = inspectPayloadRaw;
   const inspectFailure = inspectFailureRaw;
 
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
   const linkedManifestHref = findingLinkedManifestDetailHrefForRun(runId);
   const pageTitle = findingDetailHeadingTitleForRoute(decodedFindingId, inspectPayload);
   const findingIsPhi =
@@ -60,6 +60,10 @@ export async function loadFindingDetailPageModel(
     criticalBundle?.data.buyerSummary !== undefined && criticalBundle.data.buyerSummary !== null
       ? resolveNextFindingInReviewForRunDetail(criticalBundle.data.buyerSummary, decodedFindingId)
       : null;
+  const parentArchitectureId =
+    criticalBundle?.data.buyerSummary?.run?.architectureId?.trim() ?? "";
+  const transparencyTrail =
+    criticalBundle?.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null;
 
   const model: FindingDetailPageModel = {
     runId,
@@ -74,6 +78,8 @@ export async function loadFindingDetailPageModel(
     runExecutionFootnote,
     statedConstraintContext,
     nextFindingInReview,
+    parentArchitectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,
+    transparencyTrail,
   };
 
   return { kind: "success", model };

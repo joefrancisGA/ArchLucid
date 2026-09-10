@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: GOVERNANCE_OVERVIEW_PAGE_TITLE,
 };
 
-/** Governance approval queue with deferred workflow client chunk (TB-934). */
+/** Approval queue with deferred workflow client chunk (TB-934). */
 export default function GovernanceApprovalQueuePage() {
   return (
     <Suspense fallback={<GovernanceWorkflowSuspenseFallback />}>

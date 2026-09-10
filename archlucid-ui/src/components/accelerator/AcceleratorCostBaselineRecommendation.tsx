@@ -7,7 +7,7 @@ type AcceleratorCostBaselineRecommendationProps = {
   readonly testId?: string;
 };
 
-/** Soft recommendation for cost-governance packs — not a tenant gate. */
+/** Soft recommendation for cost-policy packs — not a tenant gate. */
 export function AcceleratorCostBaselineRecommendation(
   props: AcceleratorCostBaselineRecommendationProps,
 ): React.ReactElement {

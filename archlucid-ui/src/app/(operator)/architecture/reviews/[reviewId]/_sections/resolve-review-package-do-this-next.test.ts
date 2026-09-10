@@ -72,7 +72,8 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.sentence).toContain("re-run the review");
     expect(next.actionLabel).toBe("Re-run review");
     expect(next.href).toBe(baseInput.correctionHref);
-    expect(next.secondaryAction).toBeUndefined();
+    expect(next.secondaryAction?.label).toBe("Review submitted intake");
+    expect(next.secondaryAction?.href).toContain("reviewTab=overview");
     expect(next.failureRecovery?.headline).toContain("Execution failed");
     expect(next.failureRecovery?.recoverySteps.join(" ")).toContain("administrator handoff");
     expect(next.failureRecovery?.recoverySteps.join(" ")).not.toContain("Confirm intake fields");
@@ -80,6 +81,29 @@ describe("resolveReviewPackageDoThisNext", () => {
     expect(next.failureRecovery?.submittedIntakeRecap?.attachedFiles).toEqual(["handbook.docx"]);
     expect(next.sentence).not.toContain("running");
     expect(next.sentence).not.toContain("start a new review");
+  });
+
+  it("does not surface workspace AI settings as a secondary CTA for admin viewers", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      showProgressTracker: true,
+      canConfigureWorkspaceAi: true,
+      legacyRunStatus: "Failed",
+      pipelineDiagnosticContext: { legacyRunStatus: "Failed" },
+      pipelineSummary: {
+        hasContextSnapshot: false,
+        hasGraphSnapshot: false,
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+      lastFailureSummary: {
+        failureClass: "invalidOperation",
+        reasonCode: "NoScheduledAgentTasks",
+      },
+    });
+
+    expect(next.kind).toBe("rerun-review");
+    expect(next.secondaryAction).toBeNull();
   });
 
   it("builds a rerun href when correctionHref is absent on terminal failure", () => {
@@ -132,6 +156,45 @@ describe("resolveReviewPackageDoThisNext", () => {
   it("surfaces ready-to-finalize guidance when the run completed without a manifest", () => {
     const next = resolveReviewPackageDoThisNext({
       ...baseInput,
+      runCompleted: true,
+    });
+
+    expect(next.kind).toBe("finalize-package");
+    expect(next.sentence).toContain("finalize");
+    expect(next.href).toBeNull();
+  });
+
+  it("surfaces finalize guidance when run completed without manifest even if showProgressTracker is true", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      showProgressTracker: true,
+      runCompleted: true,
+    });
+
+    expect(next.kind).toBe("finalize-package");
+    expect(next.sentence).toContain("finalize");
+    expect(next.href).toBeNull();
+  });
+
+  it("routes infeasible completed runs to decision receipt export instead of finalize (FC-33)", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      runCompleted: true,
+      feasibilityVerdictKind: "HardInfeasible",
+    });
+
+    expect(next.kind).toBe("export-decision-receipt");
+    expect(next.sentence).toContain("reasoned no");
+    expect(next.sentence).not.toContain("finalize");
+    expect(next.actionLabel).toBe("Export decision receipt");
+    expect(next.href).toContain("reviewTab=evidence");
+    expect(next.href).toContain("artifacts-exports");
+  });
+
+  it("surfaces finalize guidance when run completed without manifest even if showProgressTracker is true", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      showProgressTracker: true,
       runCompleted: true,
     });
 

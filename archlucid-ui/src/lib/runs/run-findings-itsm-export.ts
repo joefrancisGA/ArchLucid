@@ -3,6 +3,8 @@ import {
   type FindingWorkItemJsonDocument,
 } from "@/lib/copy-finding-as-work-item";
 import { severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { partitionFindingsForItsmExport } from "@/lib/findings/decision-grade-finding-export-filter";
+import { findingTrustExportJsonFields } from "@/lib/findings/finding-trust-export";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
 
@@ -12,6 +14,7 @@ export type RunFindingsItsmJsonExportDocument = {
   runId: string;
   exportedAtUtc: string;
   findingCount: number;
+  omittedChecklistCoverageCount?: number;
   recordStatus?: string;
   workItems: FindingWorkItemJsonDocument[];
 };
@@ -81,16 +84,20 @@ function resolveExportRecordStatus(options?: RunFindingsExportOptions): string {
   return "Open";
 }
 
-/** Builds a CSV export for the on-screen findings set (client-side; matches visible rows). */
+/** Builds a CSV export for decision-grade findings only (client-side; checklist coverage omitted). */
 export function buildQuickDecisionFindingsCsv(
   runId: string,
   findings: readonly QuickDecisionFinding[],
   options?: RunFindingsExportOptions,
 ): string {
+  const { exportableFindings } = partitionFindingsForItsmExport(findings);
   const recordStatus = resolveExportRecordStatus(options);
-  const header = "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,Status,RecordStatus";
-  const lines = findings.map((finding) =>
-    [
+  const header =
+    "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,Status,RecordStatus";
+  const lines = exportableFindings.map((finding) => {
+    const trustFields = findingTrustExportJsonFields(finding);
+
+    return [
       finding.findingId,
       runId,
       severityLabelFromQuickDecisionFinding(finding),
@@ -98,10 +105,12 @@ export function buildQuickDecisionFindingsCsv(
       escapeCsvCell(finding.recommendation),
       finding.confidenceLevel ?? "",
       finding.policyRuleId ?? "",
+      "trustLabel" in trustFields ? trustFields.trustLabel : "",
+      "trustLabelReason" in trustFields ? trustFields.trustLabelReason ?? "" : "",
       finding.isMuted ? "Muted" : "Open",
       escapeCsvCell(recordStatus),
-    ].join(","),
-  );
+    ].join(",");
+  });
 
   return [header, ...lines].join("\n");
 }
@@ -122,7 +131,8 @@ export function buildRunFindingsItsmJsonExportDocument(
   siteOrigin: string,
   options?: RunFindingsExportOptions,
 ): RunFindingsItsmJsonExportDocument {
-  const workItems: FindingWorkItemJsonDocument[] = findings.map((finding) => {
+  const { exportableFindings, omittedChecklistCount } = partitionFindingsForItsmExport(findings);
+  const workItems: FindingWorkItemJsonDocument[] = exportableFindings.map((finding) => {
     const jsonBody = buildTraceRowWorkItemBody("json", {
       runId,
       findingId: finding.findingId,
@@ -144,6 +154,7 @@ export function buildRunFindingsItsmJsonExportDocument(
     runId,
     exportedAtUtc: new Date().toISOString(),
     findingCount: workItems.length,
+    omittedChecklistCoverageCount: omittedChecklistCount > 0 ? omittedChecklistCount : undefined,
     workItems,
   };
 

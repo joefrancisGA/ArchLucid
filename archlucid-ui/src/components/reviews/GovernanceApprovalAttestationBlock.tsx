@@ -33,7 +33,7 @@ function formatUtc(utc: string | null | undefined): string {
 }
 
 /**
- * Locked attestation block rendered below a governance approval.
+ * Locked attestation block rendered below a approval.
  * Designed to be screenshottable for compliance walkthroughs — mirrors
  * the visual pattern of DocuSign or AdobeSign approval records.
  */

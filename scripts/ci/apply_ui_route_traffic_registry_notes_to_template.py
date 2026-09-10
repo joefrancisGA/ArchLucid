@@ -3,24 +3,27 @@
 
 from __future__ import annotations
 
+import json
 import re
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
+from archlucid_ui_route_catalog import DEFAULT_NEW_HIT_PCT
 from archlucid_ui_route_traffic_table import (
+    DEFAULT_DONE,
     REPO_ROOT,
     TEMPLATE_DOC,
+    parse_rows,
     sanitize_note_text,
+    sort_rows,
+    split_document,
+    write_table,
 )
 
 UI_LIB = REPO_ROOT / "archlucid-ui" / "src" / "lib"
-REGISTRY_DIR = UI_LIB / "ui-route-traffic"
-
-ROW_BLOCK = re.compile(
-    r"rowId:\s*\"(?P<row_id>[A-Z0-9]{2,4})\".*?path:\s*\"(?P<path>[^\"]+)\".*?"
-    r"section:\s*\"(?P<section>[^\"]+)\".*?note:\s*\"(?P<note>(?:[^\"\\]|\\.)*)\"",
-    re.DOTALL,
-)
+EXPORT_SCRIPT = REPO_ROOT / "scripts" / "ci" / "export-ui-route-traffic-registry.ts"
 
 STANDALONE_ROW_ID = re.compile(
     r"export const (?P<prefix>\w+)_TRAFFIC_ROW_ID = \"(?P<row_id>[A-Z0-9]{2,4})\";",
@@ -62,18 +65,33 @@ def _resolve_path_literal(text: str, raw: str) -> str | None:
     return None
 
 
-def parse_registry_rows() -> dict[str, dict[str, str]]:
+def parse_registry_rows_from_typescript() -> dict[str, dict[str, str]]:
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as handle:
+        output_path = Path(handle.name)
+
+    try:
+        subprocess.run(
+            [
+                "npx",
+                "tsx",
+                str(EXPORT_SCRIPT),
+                str(output_path),
+            ],
+            cwd=REPO_ROOT / "archlucid-ui",
+            check=True,
+        )
+        rows = json.loads(output_path.read_text(encoding="utf-8"))
+    finally:
+        output_path.unlink(missing_ok=True)
+
     patches: dict[str, dict[str, str]] = {}
 
-    for path in sorted(REGISTRY_DIR.glob("*-rows.ts")):
-        text = path.read_text(encoding="utf-8")
-
-        for match in ROW_BLOCK.finditer(text):
-            patches[match.group("row_id")] = {
-                "path": match.group("path"),
-                "section": match.group("section"),
-                "notes": _decode_ts_string(match.group("note")),
-            }
+    for row in rows:
+        patches[row["rowId"]] = {
+            "path": row["path"],
+            "section": row["section"],
+            "notes": row["note"],
+        }
 
     return patches
 
@@ -118,52 +136,48 @@ def parse_standalone_modules() -> dict[str, dict[str, str]]:
 
 
 def apply_template(doc: Path = TEMPLATE_DOC) -> int:
-    patches = parse_registry_rows()
+    patches = parse_registry_rows_from_typescript()
     patches.update(parse_standalone_modules())
 
-    lines = doc.read_text(encoding="utf-8").splitlines()
+    text = doc.read_text(encoding="utf-8")
+    before, table_body, after = split_document(text, doc)
+    by_id = {row["id"]: row for row in parse_rows(table_body)}
+
     updated = 0
-    in_table = False
+    added = 0
 
-    for index, line in enumerate(lines):
-        if line.startswith("## Master table"):
-            in_table = True
+    for row_id, patch in sorted(patches.items()):
+        sanitized_notes = sanitize_note_text(patch["notes"])
+
+        if row_id in by_id:
+            row = by_id[row_id]
+
+            if patch.get("path"):
+                row["path"] = patch["path"]
+
+            row["section"] = patch["section"]
+            row["notes"] = sanitized_notes
+            updated += 1
             continue
 
-        if in_table and line.startswith("---"):
-            in_table = False
-            continue
+        by_id[row_id] = {
+            "id": row_id,
+            "path": patch.get("path", ""),
+            "pct": DEFAULT_NEW_HIT_PCT,
+            "score": "0",
+            "section": patch["section"],
+            "done": DEFAULT_DONE,
+            "notes": sanitized_notes,
+        }
+        added += 1
 
-        if not in_table or not line.startswith("| ") or line.startswith("| ID") or line.startswith("|----"):
-            continue
-
-        parts = [part.strip() for part in line.strip("|").split("|")]
-
-        if len(parts) not in (7, 8, 9):
-            continue
-
-        row_id = parts[0]
-        patch = patches.get(row_id)
-
-        if patch is None:
-            continue
-
-        if len(parts) == 7:
-            parts[5] = patch["section"]
-            parts[6] = sanitize_note_text(patch["notes"])
-        elif len(parts) == 8:
-            parts[6] = patch["section"]
-            parts[7] = sanitize_note_text(patch["notes"])
-        else:
-            parts[6] = patch["section"]
-            parts[8] = sanitize_note_text(patch["notes"])
-
-        lines[index] = "| " + " | ".join(parts) + " |"
-        updated += 1
-
-    doc.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"Applied registry notes to {updated} rows in {doc.relative_to(REPO_ROOT)}")
-    return updated
+    sorted_rows = sort_rows(list(by_id.values()))
+    write_table(doc, before, sorted_rows, after)
+    print(
+        f"Applied registry notes: updated {updated}, added {added}, "
+        f"total {len(sorted_rows)} rows in {doc.relative_to(REPO_ROOT)}",
+    )
+    return updated + added
 
 
 def main() -> int:

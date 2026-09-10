@@ -16,6 +16,20 @@ vi.mock("@/hooks/useProductionDeskChrome", () => ({
   useProductionEvalChrome: () => false,
 }));
 
+vi.mock("@/hooks/use-working-back-locator", () => ({
+  useWorkingBackLocator: () => ({
+    reviewJobHref:
+      "/architecture/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa?reviewTab=review-package",
+    architectureDeskHref: null,
+  }),
+}));
+
+vi.mock("@/components/findings/ActorDependentFindingsQuietEnginesHint", () => ({
+  ActorDependentFindingsQuietEnginesHint: () => (
+    <div data-testid="actor-dependent-quiet-engines-hint-stub">Quiet engines hint</div>
+  ),
+}));
+
 describe("PackagePrintPageView (TB-2205)", () => {
   it("renders title, status, findings, and sponsor synopsis", () => {
     render(
@@ -44,7 +58,7 @@ describe("PackagePrintPageView (TB-2205)", () => {
     expect(screen.getByTestId("package-print-pdf")).toBeInTheDocument();
     expect(screen.getByTestId("package-print-back")).toHaveAttribute(
       "href",
-      "/architecture/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa?tab=review-package",
+      "/architecture/reviews/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa?reviewTab=review-package",
     );
   });
 
@@ -96,5 +110,51 @@ describe("PackagePrintPageView (TB-2205)", () => {
     expect(screen.getByTestId("package-print-meeting-capture")).toHaveTextContent("not a sealed record");
     expect(screen.getByTestId("package-print-meeting-capture")).toHaveTextContent("latency");
     expect(screen.getByTestId("package-print-meeting-capture")).toHaveTextContent("Yes");
+  });
+
+  it("renders transparency trail sections when trail is present (FC-53)", () => {
+    render(
+      <PackagePrintPageView
+        presentation={{
+          title: "Payments edge",
+          statusLabel: "Finalized",
+          statusKind: "approved",
+          findingsSummary: "3 findings",
+          sponsorSynopsis: null,
+          createdUtc: "2026-08-01T12:00:00Z",
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          manifestVersionForGuard: "manifest-1",
+          transparencyTrail: {
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+            inferred: [],
+            skipped: [],
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("package-print-transparency-trail")).toBeInTheDocument();
+    expect(screen.getByTestId("package-print-trail-asserted")).toHaveTextContent("businessOutcome");
+  });
+
+  it("renders quiet-engine hint when flagged (FC-54)", () => {
+    render(
+      <PackagePrintPageView
+        presentation={{
+          title: "Payments edge",
+          statusLabel: "Finalized",
+          statusKind: "approved",
+          findingsSummary: "3 findings",
+          sponsorSynopsis: null,
+          createdUtc: "2026-08-01T12:00:00Z",
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          manifestVersionForGuard: "manifest-1",
+          showQuietEnginesHint: true,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("package-print-quiet-engines-hint")).toBeInTheDocument();
+    expect(screen.getByTestId("actor-dependent-quiet-engines-hint-stub")).toBeInTheDocument();
   });
 });

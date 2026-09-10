@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.Application.Findings.HeldCheck;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
@@ -215,6 +216,15 @@ public sealed partial class CloudInventoryExtractorIngestService
                     AuditJsonSerializationOptions.Instance),
                 CorrelationId = correlationId,
             },
+            ct);
+
+        await HeldCheckSecondPassIngestCoordinator.TryRunAfterIngestAsync(
+            heldCheckSecondPassService,
+            logger,
+            scope,
+            runId,
+            HeldCheckSecondPassInputCodeMapper.FromCloudProvider(cloudProvider),
+            packageId,
             ct);
 
         return new CloudInventoryExtractorIngestResult

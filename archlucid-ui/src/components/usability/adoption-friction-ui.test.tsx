@@ -42,6 +42,18 @@ vi.mock("@/hooks/use-finish-setup-readiness-context", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-operator-home-empty-do-this-next-action", () => ({
+  useOperatorHomeEmptyDoThisNextAction: () => ({
+    action: {
+      kind: "work",
+      label: "Create an architecture",
+      href: "/architecture/architectures/new",
+      bridgeCopy: "Start with your first architecture review.",
+    },
+    sampleLoading: false,
+  }),
+}));
+
 vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
   useFeaturedCompletedSampleQuery: () => ({
     isPending: false,
@@ -71,9 +83,11 @@ vi.mock("@/components/operator-home/operator-home-workspace-activity-context", (
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
+    replace: vi.fn(),
     prefetch: vi.fn(),
   }),
   usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/hooks/use-review-intake-navigation", () => ({
@@ -115,7 +129,7 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.getByTestId("operator-home-review-architecture-cta")).toHaveTextContent(
       OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
     );
-    expect(screen.queryByTestId("operator-home-do-this-next")).toBeNull();
+    expect(screen.getByTestId("operator-home-eval-empty-canonical-next-action")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-help")).toBeInTheDocument();
     expect(screen.queryByTestId("pilot-command-center-open-completed-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();

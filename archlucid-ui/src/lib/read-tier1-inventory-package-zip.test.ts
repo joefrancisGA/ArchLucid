@@ -53,6 +53,52 @@ describe("readTier1InventoryPackageZipFromBytes", () => {
     expect(result.message).toContain("resources.json");
   });
 
+  it("accepts Azure inventory ZIP with current packager schemaVersion 2", () => {
+    const bytes = zipEntries({
+      "manifest.json": {
+        schemaVersion: 2,
+        scriptVersion: "0.4.0",
+        collectionTimestamp: "2026-06-25T12:00:00.000Z",
+        subscriptionId: "11111111-1111-1111-1111-111111111111",
+        scope: "/subscriptions/11111111-1111-1111-1111-111111111111",
+        completenessScore: 1,
+        warnings: [],
+        errors: [],
+        resourceCount: 0,
+        captureMethod: "CustomerScript",
+        collectorVersion: "0.4.0",
+      },
+      "resources.json": [],
+    });
+
+    const result = readTier1InventoryPackageZipFromBytes(bytes, "azure");
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects Azure inventory ZIP with schemaVersion outside 1–2", () => {
+    const bytes = zipEntries({
+      "manifest.json": {
+        schemaVersion: 99,
+        scriptVersion: "0.4.0",
+        collectionTimestamp: "2026-06-25T12:00:00.000Z",
+        subscriptionId: "11111111-1111-1111-1111-111111111111",
+        scope: "/subscriptions/11111111-1111-1111-1111-111111111111",
+      },
+      "resources.json": [],
+    });
+
+    const result = readTier1InventoryPackageZipFromBytes(bytes, "azure");
+
+    expect(result.ok).toBe(false);
+
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.message).toContain("Supported schema versions: 1–2");
+  });
+
   it("accepts valid GCP inventory ZIP", () => {
     const bytes = zipEntries({
       "manifest.json": {

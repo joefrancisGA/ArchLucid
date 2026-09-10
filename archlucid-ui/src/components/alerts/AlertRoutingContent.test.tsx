@@ -22,13 +22,27 @@ const apiHoisted = vi.hoisted(() => ({
 
 const mutateCapability = vi.hoisted(() => ({ current: true }));
 
+const navigationMock = vi.hoisted(() => ({
+  params: "tab=notifications&runId=run-routing-test",
+  replace: vi.fn((href: string) => {
+    const queryIndex = href.indexOf("?");
+
+    navigationMock.params = queryIndex >= 0 ? href.slice(queryIndex + 1) : "";
+  }),
+}));
+
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => mutateCapability.current,
 }));
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => false,
+}));
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: vi.fn() }),
-  useSearchParams: () => new URLSearchParams("tab=notifications&runId=run-routing-test"),
+  useRouter: () => ({ replace: navigationMock.replace }),
+  usePathname: () => "/governance/alert-rules",
+  useSearchParams: () => new URLSearchParams(navigationMock.params),
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -76,6 +90,8 @@ function fillValidDestinationForm(): void {
 describe("AlertRoutingContent", () => {
   beforeEach(() => {
     mutateCapability.current = true;
+    navigationMock.params = "tab=notifications&runId=run-routing-test";
+    navigationMock.replace.mockClear();
     apiHoisted.listAlertRoutingSubscriptions.mockResolvedValue([]);
     apiHoisted.createAlertRoutingSubscription.mockResolvedValue({
       routingSubscriptionId: "sub-1",

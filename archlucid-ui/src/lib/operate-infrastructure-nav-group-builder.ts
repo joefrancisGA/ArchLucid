@@ -6,6 +6,8 @@ import {
   LayoutDashboard,
   MessageCircleQuestion,
   Network,
+  SquareStack,
+  Upload,
 } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
@@ -14,6 +16,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
@@ -42,10 +46,26 @@ export class OperateInfrastructureNavGroupBuilder extends NavGroupBuilderBase {
           requiredAuthority: "ReadAuthority",
         },
         {
+          href: "/governance/infrastructure/extract-upload" as typeof GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.extractUpload,
+          title: "Extract & upload — run the local inventory script and upload a ZIP",
+          icon: Upload,
+          tier: "extended",
+          requiredAuthority: "ExecuteAuthority",
+        },
+        {
           href: "/governance/infrastructure/drift" as typeof GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
           label: OPERATOR_NAV_LINK_LABELS.infrastructureDrift,
           title: "Compare snapshots, review drift classifications, and export advisory Terraform",
           icon: GitCompareArrows,
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: "/governance/infrastructure/terraform" as typeof GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+          label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
+          title: "Review advisory Terraform mapping reconstructed from inventory evidence",
+          icon: SquareStack,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

@@ -4,6 +4,8 @@ using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
 
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
@@ -14,34 +16,58 @@ public static class PreCommitGateEvaluator
     /// <summary>
     ///     Evaluates persisted <see cref = "PolicyPackAssignment"/> enforcement against findings (production gate).
     /// </summary>
-    public static PreCommitGateResult EvaluateForAssignment(IReadOnlyList<Finding> findings, PolicyPackAssignment enforcing,
-        PreCommitGovernanceGateOptions options)
+    public static PreCommitGateResult EvaluateForAssignment(
+        IReadOnlyList<Finding> findings,
+        PolicyPackAssignment enforcing,
+        PreCommitGovernanceGateOptions options,
+        IReadOnlyDictionary<string, Disposition>? latestDispositionsByFindingId = null)
     {
         ArgumentNullException.ThrowIfNull(findings);
         ArgumentNullException.ThrowIfNull(enforcing);
         ArgumentNullException.ThrowIfNull(options);
-        return Evaluate(findings, enforcing.BlockCommitOnCritical, enforcing.BlockCommitMinimumSeverity, enforcing.PolicyPackId.ToString("N"),
-            options.WarnOnlySeverities);
+
+        return Evaluate(
+            findings,
+            enforcing.BlockCommitOnCritical,
+            enforcing.BlockCommitMinimumSeverity,
+            enforcing.PolicyPackId.ToString("N"),
+            options.WarnOnlySeverities,
+            latestDispositionsByFindingId);
     }
 
     /// <summary>
     ///     Evaluates proposed enforcement flags against findings (dry-run / what-if).
     /// </summary>
-    public static PreCommitGateResult Evaluate(IReadOnlyList<Finding> findings, bool blockCommitOnCritical, int? blockCommitMinimumSeverity,
-        string policyPackIdLabel, string[]? warnOnlySeverities)
+    public static PreCommitGateResult Evaluate(
+        IReadOnlyList<Finding> findings,
+        bool blockCommitOnCritical,
+        int? blockCommitMinimumSeverity,
+        string policyPackIdLabel,
+        string[]? warnOnlySeverities,
+        IReadOnlyDictionary<string, Disposition>? latestDispositionsByFindingId = null)
     {
         ArgumentNullException.ThrowIfNull(findings);
         ArgumentException.ThrowIfNullOrWhiteSpace(policyPackIdLabel);
+
         if (!blockCommitOnCritical && !blockCommitMinimumSeverity.HasValue)
             return PreCommitGateResult.Allowed();
 
-        IReadOnlyList<Finding> gateFindings = findings
-            .Where(static f => !f.IsMuted && f.EnforcementTier != FindingEnforcementTier.Advisory)
-            .ToList();
-
         int effectiveMinSeverity = blockCommitMinimumSeverity ?? (int)FindingSeverity.Critical;
         FindingSeverity effectiveSeverityEnum = (FindingSeverity)effectiveMinSeverity;
-        List<string> blockingIds = gateFindings.Where(f => (int)f.Severity >= effectiveMinSeverity).Select(static f => f.FindingId).ToList();
+
+        List<string> blockingIds = latestDispositionsByFindingId is null
+            ? findings
+                .Where(static f => !f.IsMuted && f.EnforcementTier != FindingEnforcementTier.Advisory)
+                .Where(f => (int)f.Severity >= effectiveMinSeverity)
+                .Select(static f => f.FindingId)
+                .ToList()
+            : findings
+                .Where(f => PreFinalizeActiveFindingCounter.IsBlockingForPreCommitGate(
+                    f,
+                    effectiveMinSeverity,
+                    latestDispositionsByFindingId))
+                .Select(static f => f.FindingId)
+                .ToList();
         if (blockingIds.Count == 0)
             return PreCommitGateResult.Allowed();
         string severityLabel = effectiveSeverityEnum.ToString();

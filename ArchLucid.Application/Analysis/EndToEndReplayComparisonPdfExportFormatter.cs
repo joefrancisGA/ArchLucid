@@ -37,6 +37,7 @@ public static class EndToEndReplayComparisonPdfExportFormatter
                 {
                     column.Item().PaddingBottom(5).Text($"Left: {report.LeftRunId}  |  Right: {report.RightRunId}  |  Profile: {p}");
                     column.Item().PaddingBottom(10).Text($"Generated: {TimeProvider.System.UtcNowDateTime():O}");
+                    AppendFindingCorrelationMetadata(column, report);
                     column.Item().PaddingBottom(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                     column.Item().PaddingBottom(5).Text("Summary").Bold().FontSize(12);
                     column.Item().PaddingBottom(10).Text(summaryMarkdown);
@@ -67,6 +68,25 @@ public static class EndToEndReplayComparisonPdfExportFormatter
         });
 
         return Task.FromResult(pdf);
+    }
+
+    private static void AppendFindingCorrelationMetadata(
+        ColumnDescriptor column,
+        EndToEndReplayComparisonReport report)
+    {
+        if (report.FindingCorrelation is null)
+        {
+            return;
+        }
+
+        ComparisonFindingCorrelationMetadata metadata = report.FindingCorrelation;
+        column.Item().PaddingBottom(3).Text($"Finding correlation method: {metadata.PrimaryCorrelationMethod}");
+        column.Item().PaddingBottom(3).Text($"Finding dedupe key format: {ComparisonFindingCorrelationMetadata.DedupeKeyFormat}");
+        column.Item().PaddingBottom(3).Text($"Policy-rule matches: {metadata.PolicyRuleMatchCount}");
+        column.Item().PaddingBottom(3).Text($"Fuzzy (possible) matches: {metadata.FuzzyMatchCount}");
+        column.Item().PaddingBottom(3).Text($"Unmatched left findings: {metadata.UnmatchedLeftCount}");
+        column.Item().PaddingBottom(3).Text($"Unmatched right findings: {metadata.UnmatchedRightCount}");
+        column.Item().PaddingBottom(3).Text($"Correlation honesty: {metadata.HonestyNote}");
     }
 
     private static void AppendSponsorReport(ColumnDescriptor column, EndToEndReplayComparisonReport report)

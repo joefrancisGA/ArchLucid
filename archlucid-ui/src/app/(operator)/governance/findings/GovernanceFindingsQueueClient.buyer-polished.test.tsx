@@ -204,10 +204,10 @@ describe("GovernanceFindingsQueueClient buyer-polished shell (GOF)", () => {
     expect(screen.queryByTestId("findings-queue-pick-review-before-triage")).not.toBeInTheDocument();
 
     const body = screen.getByTestId("governance-findings-queue-body");
-    const orientationTop = await screen.findByTestId("governance-assigned-to-me-orientation-top");
+    const orientationBottom = await screen.findByTestId("governance-assigned-to-me-orientation-bottom");
 
-    expect(body).toContainElement(orientationTop);
-    expect(body.compareDocumentPosition(orientationTop) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(body).toContainElement(orientationBottom);
+    expect(body.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("governance-assigned-to-me-settings-sources")).toBeInTheDocument();
     expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toBeInTheDocument();
   });

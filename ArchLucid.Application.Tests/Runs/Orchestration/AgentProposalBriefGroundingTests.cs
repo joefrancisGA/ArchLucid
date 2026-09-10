@@ -44,4 +44,38 @@ public sealed class AgentProposalBriefGroundingTests
         result.ProposedChanges!.AddedServices.Should().BeEmpty();
         dropLog.Should().ContainSingle();
     }
+
+    [Fact]
+    public void ApplyBriefGrounding_filters_services_only_not_datastores()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "HTTPS-only brief",
+            SystemName = "brief-grounding-datastore",
+            Constraints = ["HTTPS only for all public endpoints"],
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                AddedDatastores =
+                [
+                    new ManifestDatastore
+                    {
+                        DatastoreName = "public-http-logs",
+                        DatastoreType = DatastoreType.Sql,
+                        RuntimePlatform = RuntimePlatform.SqlServer,
+                    },
+                ],
+            },
+        };
+
+        List<string> dropLog = [];
+        AgentProposalStructuralPostProcessor.ApplyBriefGrounding(request, [result], dropLog);
+
+        result.ProposedChanges!.AddedDatastores.Should().ContainSingle();
+        dropLog.Should().BeEmpty();
+    }
 }

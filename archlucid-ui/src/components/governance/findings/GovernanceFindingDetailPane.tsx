@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { memo, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { memo, useCallback, useEffect, useState, type ReactElement } from "react";
 
 import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
@@ -13,6 +14,11 @@ import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA,
   BUYER_OPEN_SIGNED_RECORD_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
+import {
+  GOVERNANCE_FINDING_DETAIL_SEVERITY_OPEN_PARAM,
+  governanceFindingDetailSeverityDisclosureHrefFromSearch,
+  parseGovernanceFindingDetailSeverityOpenFromSearch,
+} from "@/lib/governance/governance-finding-detail-severity-disclosure-url";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
@@ -43,6 +49,34 @@ function GovernanceFindingDetailPaneComponent({
   buyerPolishedShell,
   variant,
 }: GovernanceFindingDetailPaneProps): ReactElement {
+  const searchParams = useSearchParams();
+  const pathname = usePathname() ?? "/";
+  const router = useRouter();
+  const governanceFindingDetailSeverityParam = searchParams.get(GOVERNANCE_FINDING_DETAIL_SEVERITY_OPEN_PARAM);
+  const [governanceFindingDetailSeverityOpen, setGovernanceFindingDetailSeverityOpenState] = useState(() =>
+    parseGovernanceFindingDetailSeverityOpenFromSearch(governanceFindingDetailSeverityParam),
+  );
+  const syncGovernanceFindingDetailSeverityOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        governanceFindingDetailSeverityDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setGovernanceFindingDetailSeverityOpen = useCallback(
+    (open: boolean) => {
+      setGovernanceFindingDetailSeverityOpenState(open);
+      syncGovernanceFindingDetailSeverityOpenToUrl(open);
+    },
+    [syncGovernanceFindingDetailSeverityOpenToUrl],
+  );
+  useEffect(() => {
+    setGovernanceFindingDetailSeverityOpenState(
+      parseGovernanceFindingDetailSeverityOpenFromSearch(governanceFindingDetailSeverityParam),
+    );
+  }, [governanceFindingDetailSeverityParam]);
   const graphHref = governanceQueueGraphEvidenceHref(row);
   const buyerVariant = variant === "buyer";
 
@@ -54,7 +88,11 @@ function GovernanceFindingDetailPaneComponent({
           <p className="m-0 mt-0.5 text-al-text-secondary">{row.recommended}</p>
         </div>
         {row.recordKind === "finding" ? (
-          <details className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-2 py-2 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.helper)}>
+          <details
+            className={cn("rounded-md border border-neutral-200 bg-neutral-50/80 px-2 py-2 text-al-text-secondary dark:border-neutral-700 dark:bg-neutral-900/40", OPERATOR_TYPOGRAPHY.helper)}
+            open={governanceFindingDetailSeverityOpen}
+            onToggle={(event) => setGovernanceFindingDetailSeverityOpen(event.currentTarget.open)}
+          >
             <summary className={cn("cursor-pointer select-none font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
               Severity, confidence, and review
             </summary>

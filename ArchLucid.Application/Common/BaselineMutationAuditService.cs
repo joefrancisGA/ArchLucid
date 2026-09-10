@@ -46,6 +46,10 @@ public sealed class BaselineMutationAuditService(
         {
             throw;
         }
+        catch (DurableAuditWriteFailedException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             if (logger.IsEnabled(LogLevel.Warning))

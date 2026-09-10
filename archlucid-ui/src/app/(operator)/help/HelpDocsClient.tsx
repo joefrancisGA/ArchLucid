@@ -6,6 +6,7 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useHelpDocsIndexQuery } from "@/hooks/use-help-docs-index-query";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
 import {
@@ -13,6 +14,7 @@ import {
   helpHubSearchHrefFromSearch,
   parseHelpHubSearchQuery,
 } from "@/lib/help/help-hub-search-url";
+import { slugifyHelpHeading } from "@/lib/help/help-heading-slug";
 import type { DocIndexEntry } from "@/lib/help-docs-index";
 
 export type { DocIndexEntry } from "@/lib/help-docs-index";
@@ -74,6 +76,10 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
   },
 ];
 
+function helpDocCategoryDomId(category: string): string {
+  return `help-cat-${slugifyHelpHeading(category)}`;
+}
+
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
   if (fetched === null || fetched.length === 0) {
     return [...staticRows];
@@ -115,6 +121,7 @@ function helpDocCategoriesForDisplay(grouped: Map<string, DocIndexEntry[]>): str
 export function HelpDocsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { localize } = useLocalizedProductCopy();
   const currentSearch = searchParams.toString();
   const urlQuery = parseHelpHubSearchQuery(searchParams.get("q"));
   const indexQuery = useHelpDocsIndexQuery();
@@ -163,11 +170,13 @@ export function HelpDocsClient() {
     }
 
     return mergedEntries.filter((e) => {
-      const hay = `${e.title} ${e.summary}`.toLowerCase();
+      const localizedTitle = localize(e.title);
+      const localizedSummary = localize(e.summary);
+      const hay = `${e.category} ${e.title} ${e.summary} ${e.url} ${localizedTitle} ${localizedSummary}`.toLowerCase();
 
       return hay.includes(q);
     });
-  }, [mergedEntries, query]);
+  }, [mergedEntries, query, localize]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, DocIndexEntry[]>();
@@ -221,7 +230,7 @@ export function HelpDocsClient() {
             clearSearch();
           }
         }}
-        placeholder="Filter by title or summary"
+        placeholder="Filter by title, summary, category, or URL"
         className={cn("max-w-xl", HELP_PAGE_TOC.referenceSearchInput)}
         autoComplete="off"
       />
@@ -238,9 +247,9 @@ export function HelpDocsClient() {
         }
 
         return (
-          <section key={cat} aria-labelledby={`help-cat-${cat}`} className={OPERATOR_LAYOUT.sectionHeadingStack}>
+          <section key={cat} aria-labelledby={helpDocCategoryDomId(cat)} className={OPERATOR_LAYOUT.sectionHeadingStack}>
             <h2
-              id={`help-cat-${cat}`}
+              id={helpDocCategoryDomId(cat)}
               className={OPERATOR_TYPOGRAPHY.sectionTitle}
             >
               {cat}
@@ -253,9 +262,9 @@ export function HelpDocsClient() {
                     className={OPERATOR_LINK.inline}
                     {...linkProps(row.url)}
                   >
-                    {row.title}
+                    {localize(row.title)}
                   </Link>
-                  <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{row.summary}</p>
+                  <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{localize(row.summary)}</p>
                 </li>
               ))}
             </ul>

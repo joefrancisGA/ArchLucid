@@ -4,7 +4,14 @@ import type { ReactNode } from "react";
 
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
 
 vi.mock("./AzureConnectionDetailsPanel", () => ({
 
@@ -153,12 +160,9 @@ describe("AzureCloudConnectionDetailClient", () => {
 
     const sources = screen.getByTestId("cloud-connections-azure-sources");
 
-    expect(within(sources).getByRole("link", { name: "Open Connection status" })).toHaveAttribute(
-
+    expect(within(sources).getByRole("link", { name: "Open Cloud connections" })).toHaveAttribute(
       "href",
-
-      "/administration/connection-status",
-
+      "/integrations/cloud-connections",
     );
 
     expect(

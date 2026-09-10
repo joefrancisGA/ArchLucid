@@ -1,3 +1,8 @@
+import {
+  diagramEvidenceCitationLabel,
+  tryParseDiagramEvidenceCitation,
+  type DiagramEvidenceCitation,
+} from "@/lib/findings/diagram-evidence-citation";
 import { graphEvidenceHrefFromInspect, preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 import { findingInspectEvidenceCitationLabel } from "@/lib/findings/finding-policy-evidence-citations";
 import { normalizeEvidenceRefSnippet } from "@/lib/findings/finding-evidence-ref-snippet";
@@ -14,6 +19,7 @@ export type FindingSourceEvidenceLinkKind =
   | "manifestRecord"
   | "graphNode"
   | "artifactSection"
+  | "diagramShape"
   | "inspect";
 
 /** Navigable evidence anchor derived from inspect rows or persisted evidence refs. */
@@ -22,6 +28,7 @@ export type FindingSourceEvidenceLink = {
   readonly label: string;
   readonly detail: string | null;
   readonly href: string;
+  readonly diagramCitation?: DiagramEvidenceCitation | null;
 };
 
 export type FindingSourceEvidenceLinkContext = {
@@ -72,8 +79,21 @@ function linkFromKind(
   label: string,
   href: string,
   detail: string | null,
+  diagramCitation: DiagramEvidenceCitation | null = null,
 ): FindingSourceEvidenceLink {
-  return { kind, label, href, detail };
+  return { kind, label, href, detail, diagramCitation };
+}
+
+function resolveDiagramCitationFromInspectRow(
+  row: FindingInspectEvidence,
+): DiagramEvidenceCitation | null {
+  const artifactCitation = tryParseDiagramEvidenceCitation(row.artifactId);
+
+  if (artifactCitation !== null) {
+    return artifactCitation;
+  }
+
+  return tryParseDiagramEvidenceCitation(row.excerpt);
 }
 
 function parsePrefixedRef(ref: string): { prefix: string; target: string } | null {
@@ -140,6 +160,17 @@ function inspectRowSourceLink(
   const artifactId = nonEmpty(row.artifactId);
   const detail = detailFromInspectRow(row);
   const label = findingInspectEvidenceCitationLabel(row);
+  const diagramCitation = resolveDiagramCitationFromInspectRow(row);
+
+  if (diagramCitation !== null) {
+    return linkFromKind(
+      "diagramShape",
+      diagramEvidenceCitationLabel(diagramCitation),
+      "#diagram-citation-preview",
+      detail ?? diagramCitation.shapeOrEdgeId,
+      diagramCitation,
+    );
+  }
 
   if (artifactId !== null) {
     const prefixed = parsePrefixedRef(artifactId);
@@ -225,6 +256,18 @@ export function parseEvidenceRefToSourceLink(
 
   if (snippet === null) {
     return null;
+  }
+
+  const diagramCitation = tryParseDiagramEvidenceCitation(snippet);
+
+  if (diagramCitation !== null) {
+    return linkFromKind(
+      "diagramShape",
+      diagramEvidenceCitationLabel(diagramCitation),
+      "#diagram-citation-preview",
+      snippet,
+      diagramCitation,
+    );
   }
 
   const prefixed = parsePrefixedRef(snippet);

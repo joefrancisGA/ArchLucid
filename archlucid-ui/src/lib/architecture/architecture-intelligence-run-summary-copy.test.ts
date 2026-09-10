@@ -32,6 +32,24 @@ describe("architecture-intelligence-run-summary-copy", () => {
     ).toBe("Analysis complete · No evidence-backed findings yet");
   });
 
+  it("uses governed vocabulary when asserted trail is empty (FC-13)", () => {
+    expect(
+      formatArchitectureIntelligenceRunHeadline(sampleResult(), { assertedTrailEmpty: true }),
+    ).toBe("Analysis complete · 3 governed findings");
+
+    expect(
+      formatArchitectureIntelligenceRunHeadline(sampleResult({ integrityPassedFindingIds: ["f1"] }), {
+        assertedTrailEmpty: true,
+      }),
+    ).toBe("Analysis complete · 1 governed finding");
+
+    expect(
+      formatArchitectureIntelligenceRunHeadline(sampleResult({ integrityPassedFindingIds: [] }), {
+        assertedTrailEmpty: true,
+      }),
+    ).toBe("Analysis complete · No governed findings yet");
+  });
+
   it("lists operator diagnostics without jargon in labels", () => {
     expect(
       listArchitectureIntelligenceRunTechnicalDetails(

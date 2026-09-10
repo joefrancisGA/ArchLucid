@@ -32,6 +32,8 @@ public static class AuthSignInReturnPathGuard
         if (!candidate.StartsWith("/", StringComparison.Ordinal)
             || ContainsProtocolRelativeTraversal(candidate)
             || ContainsSlashHomoglyph(candidate)
+            || ContainsDotHomoglyph(candidate)
+            || ContainsDotDotSegment(candidate)
             || candidate.Contains('\\', StringComparison.Ordinal)
             || candidate.Contains('@', StringComparison.Ordinal)
             || candidate.Contains("://", StringComparison.Ordinal))
@@ -113,6 +115,8 @@ public static class AuthSignInReturnPathGuard
 
             if (ContainsProtocolRelativeTraversal(decoded)
                 || ContainsSlashHomoglyph(decoded)
+                || ContainsDotHomoglyph(decoded)
+                || ContainsDotDotSegment(decoded)
                 || decoded.Contains('\\', StringComparison.Ordinal)
                 || decoded.Contains('@', StringComparison.Ordinal)
                 || decoded.Contains("://", StringComparison.Ordinal))
@@ -123,8 +127,12 @@ public static class AuthSignInReturnPathGuard
             working = decoded;
         }
 
-        return ContainsPercentEncodedPathSeparator(working);
+        return ContainsPercentEncodedPathSeparator(working)
+            || ContainsTrailingPercentAfterDecodeCap(working);
     }
+
+    private static bool ContainsTrailingPercentAfterDecodeCap(string candidate) =>
+        candidate.Contains('%', StringComparison.Ordinal);
 
     private static bool ContainsPercentEncodedPathSeparator(string candidate)
     {
@@ -161,6 +169,37 @@ public static class AuthSignInReturnPathGuard
         return false;
     }
 
+    private static bool ContainsDotHomoglyph(string candidate)
+    {
+        foreach (char ch in candidate)
+        {
+            if (IsDotHomoglyph(ch))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool ContainsDotDotSegment(string candidate)
+    {
+        int queryIndex = candidate.IndexOf('?', StringComparison.Ordinal);
+        ReadOnlySpan<char> pathOnly = queryIndex >= 0
+            ? candidate.AsSpan(0, queryIndex)
+            : candidate.AsSpan();
+
+        foreach (Range segmentRange in pathOnly.Split('/'))
+        {
+            if (pathOnly[segmentRange].SequenceEqual("..".AsSpan()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // Browsers may normalize these to "/" or "\\" and treat the path as protocol-relative.
     private static bool IsSlashHomoglyph(char ch) =>
         ch == '\uFF0F' // ／ FULLWIDTH SOLIDUS
@@ -171,4 +210,12 @@ public static class AuthSignInReturnPathGuard
         || ch == '\u2571' // ╱ BOX DRAWINGS LIGHT DIAGONAL UPPER RIGHT TO LOWER LEFT
         || ch == '\u29F6' // ⧶ SOLIDUS WITH OVERLAY
         || ch == '\u29F8'; // ⧸ BIG SOLIDUS
+
+    // Browsers may normalize these to "." and treat homoglyph ".." segments like parent traversal.
+    private static bool IsDotHomoglyph(char ch) =>
+        ch == '\uFF0E' // ． FULLWIDTH FULL STOP
+        || ch == '\uFE52' // ﹒ SMALL FULL STOP
+        || ch == '\u00B7' // · MIDDLE DOT
+        || ch == '\u2024' // ․ ONE DOT LEADER
+        || ch == '\u2025'; // ‥ TWO DOT LEADER
 }

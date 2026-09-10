@@ -29,10 +29,21 @@ vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => mutateCapability.current,
 }));
 
-vi.mock("@/lib/demo-ui-env", () => ({
-  isBuyerPolishedOperatorShellEnv: () => false,
-  isOperatorExperienceFullShellEnv: () => true,
+const evalChromeMock = vi.hoisted(() => ({ enabled: false }));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: () => evalChromeMock.enabled,
 }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: () => false,
+    isOperatorExperienceFullShellEnv: () => true,
+  };
+});
 
 const apiHoisted = vi.hoisted(() => ({
   listAlertRules: vi.fn(),

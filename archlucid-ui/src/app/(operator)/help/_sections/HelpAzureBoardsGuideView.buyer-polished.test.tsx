@@ -37,9 +37,8 @@ import {
   AZURE_BOARDS_HELP_SKIP_LINK_LABEL,
   AZURE_BOARDS_HELP_SKIP_TARGET_ID,
 } from "@/lib/azure-boards-help-page-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpAzureBoardsGuideView buyer-polished shell (HEZ)", () => {
   const entry = getProductDocumentationEntry("azure-boards");
@@ -84,10 +83,7 @@ describe("HelpAzureBoardsGuideView buyer-polished shell (HEZ)", () => {
     expect(screen.getByRole("heading", { level: 2, name: AZURE_BOARDS_HELP_CONTINUE_HEADING })).toBeInTheDocument();
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(AZURE_BOARDS_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), AZURE_BOARDS_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

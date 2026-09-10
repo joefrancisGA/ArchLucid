@@ -2,6 +2,7 @@
 
 import type { JSX } from "react";
 
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import {
   buildDigestsTeamsSlackVocabulary,
   resolveDigestsTeamsSlackLink,
@@ -25,9 +26,16 @@ export type DigestsTeamsSlackVocabularyRailProps = {
 export function DigestsTeamsSlackVocabularyRail(
   props: DigestsTeamsSlackVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildDigestsTeamsSlackVocabulary();
-  const peers = resolveDigestsTeamsSlackPeerLinks(props.currentSurfaceId);
-  const currentLink = resolveDigestsTeamsSlackLink(props.currentSurfaceId);
+  const { productLine } = useLocalizedProductCopy();
+  const model = props.model ?? buildDigestsTeamsSlackVocabulary(productLine);
+  // Canonical peer rows keep "Microsoft Teams"; swap the localized label for SecureNow.
+  const peers = resolveDigestsTeamsSlackPeerLinks(props.currentSurfaceId).map((peer) =>
+    peer.id === "teams" ? model.teamsLink : peer,
+  );
+  const currentLink =
+    props.currentSurfaceId === "teams"
+      ? model.teamsLink
+      : resolveDigestsTeamsSlackLink(props.currentSurfaceId);
 
   return (
     <VocabularyRail

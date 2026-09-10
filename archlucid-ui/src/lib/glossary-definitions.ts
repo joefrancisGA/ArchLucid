@@ -43,13 +43,13 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Authority chain",
     shortDefinition: "The ordered pipeline that applies policies and records authoritative outcomes for a review.",
     longDefinition:
-      "The authority chain is the trusted sequence from context through engines and governance: each step declares inputs, rules, and outputs so overrides and replay stay explainable.",
+      "The authority chain is the trusted sequence from context through engines and approvals: each step declares inputs, rules, and outputs so overrides and replay stay explainable.",
   },
   governance_gate: {
-    displayLabel: "Governance approval",
+    displayLabel: "Approval",
     shortDefinition: "Checkpoints where policy, reviewers, or thresholds must pass before advancing.",
     longDefinition:
-      "Governance approvals enforce required reviewers, policy packs, and risk thresholds before a review or deliverable state advance — locking unsafe silent changes.",
+      "Approvals enforce required reviewers, policy packs, and risk thresholds before a review or deliverable state advance — locking unsafe silent changes.",
   },
   policy_pack: {
     displayLabel: "Policy pack",
@@ -67,7 +67,7 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Replay",
     shortDefinition: "Re-executing stored logic or outputs to reproduce deltas under current rules.",
     longDefinition:
-      "Replay recomputes comparison or governance views from saved review records and trace — seful when policies change and you need a consistent historical baseline.",
+      "Replay recomputes comparison or approval views from saved review records and trace — seful when policies change and you need a consistent historical baseline.",
   },
 } as const satisfies Readonly<Record<string, GlossaryDefinitionEntry>>;
 

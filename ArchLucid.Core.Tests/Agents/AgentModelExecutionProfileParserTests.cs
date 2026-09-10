@@ -32,29 +32,26 @@ public sealed class AgentModelExecutionProfileParserTests
     }
 
     [Fact]
-    public void TryParse_accepts_string_encoded_boolean_balanced_ordinal()
+    public void TryParse_rejects_string_encoded_boolean_balanced_ordinal()
     {
         bool ok = AgentModelExecutionProfileParser.TryParse("True", out AgentModelExecutionProfile profile);
 
-        ok.Should().BeTrue();
-        profile.Should().Be(AgentModelExecutionProfile.Balanced);
+        ok.Should().BeFalse();
     }
 
     [Fact]
-    public void TryParse_accepts_string_encoded_boolean_economy_ordinal()
+    public void TryParse_rejects_string_encoded_boolean_economy_ordinal()
     {
         bool ok = AgentModelExecutionProfileParser.TryParse("False", out AgentModelExecutionProfile profile);
 
-        ok.Should().BeTrue();
-        profile.Should().Be(AgentModelExecutionProfile.Economy);
+        ok.Should().BeFalse();
     }
 
     [Fact]
-    public void TryParse_accepts_on_synonym_balanced_ordinal()
+    public void TryParse_rejects_on_synonym_balanced_ordinal()
     {
         bool ok = AgentModelExecutionProfileParser.TryParse("on", out AgentModelExecutionProfile profile);
 
-        ok.Should().BeTrue();
-        profile.Should().Be(AgentModelExecutionProfile.Balanced);
+        ok.Should().BeFalse();
     }
 }

@@ -18,6 +18,8 @@ export type ArchitectureDraftRegistryEntry = {
   readonly lastUpdatedUtc: string;
   readonly linkedReviewId: string | null;
   readonly serverUpdatedUtc: string;
+  /** Durable architecture identity when ensure-on-create has run (ADR 0074 / AO-08). */
+  readonly parentArchitectureId?: string | null;
   /** Server lifecycle from the last registry upsert — drives home resume vs review routing. */
   readonly serverDraftStatus?: DraftRequestStatus;
   /** Creator identity from the draft API when known. */
@@ -208,6 +210,8 @@ export function buildArchitectureDraftRegistryEntry(
 ): ArchitectureDraftRegistryEntry {
   const linkedReviewId = options.linkedReviewId ?? architectureDraftSpawnedRunId(draft);
 
+  const parentArchitectureId = draft.architectureId?.trim() ?? "";
+
   return {
     draftId: draft.draftId,
     displayName: architectureDraftDisplayName(draft.document.systemName, draft.document.freeTextIntent),
@@ -215,6 +219,7 @@ export function buildArchitectureDraftRegistryEntry(
     ownerLabel: options.ownerLabel ?? "You",
     lastUpdatedUtc: draft.updatedUtc,
     linkedReviewId,
+    parentArchitectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,
     serverUpdatedUtc: draft.updatedUtc,
     serverDraftStatus: draft.status,
     createdByUserId: draft.createdByUserId ?? null,

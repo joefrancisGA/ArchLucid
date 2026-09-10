@@ -18,6 +18,7 @@ export const GRAPH_NODE_KIND_LEGEND_ENTRIES: ReadonlyArray<GraphNodeKindLegendEn
   { key: "artifact", label: "Artifact" },
   { key: "review", label: "Review" },
   { key: "component", label: "Component" },
+  { key: "default", label: "Unknown" },
 ] as const;
 
 const GRAPH_NODE_KIND_CSS_PREFIX = "--al-graph-kind";
@@ -83,7 +84,7 @@ export function resolveGraphNodeKindBuyerLabel(nodeType: string): string | null 
   const key = resolveGraphNodeKindKey(nodeType);
 
   if (key === "default") {
-    return null;
+    return "Unknown";
   }
 
   const entry = GRAPH_NODE_KIND_LEGEND_ENTRIES.find((row) => row.key === key);

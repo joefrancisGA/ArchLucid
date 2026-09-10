@@ -20,8 +20,11 @@ import { cn } from "@/lib/utils";
 import { ApiKeysSettingsBreadcrumb } from "./ApiKeysSettingsBreadcrumb";
 import { ApiKeysSettingsBuyerChrome } from "./ApiKeysSettingsBuyerChrome";
 import {
+  API_KEYS_SETTINGS_FIRST_VIEWPORT_ID,
+  API_KEYS_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   API_KEYS_SETTINGS_PRIMARY_CONTENT_ID,
   API_KEYS_SETTINGS_SKIP_LINK_LABEL,
+  API_KEYS_SETTINGS_SKIP_TARGET_ID,
 } from "./api-keys-settings-page-copy";
 
 export type ApiKeysSettingsRestrictedStateProps = {
@@ -51,7 +54,7 @@ export function ApiKeysSettingsRestrictedState(props: ApiKeysSettingsRestrictedS
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="api-keys-settings-restricted">
       <a
-        href={`#${API_KEYS_SETTINGS_PRIMARY_CONTENT_ID}`}
+        href={`#${API_KEYS_SETTINGS_SKIP_TARGET_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
       >
         {API_KEYS_SETTINGS_SKIP_LINK_LABEL}
@@ -67,17 +70,26 @@ export function ApiKeysSettingsRestrictedState(props: ApiKeysSettingsRestrictedS
           headingLevel="h1"
           titleTestId="api-keys-settings-restricted-title"
           breadcrumb={buyerPolishedShell ? <ApiKeysSettingsBreadcrumb /> : undefined}
-          actions={<PageContextualHelpButton />}
+          actions={buyerPolishedShell ? null : <PageContextualHelpButton />}
         />
 
-        <ApiKeysSettingsBuyerChrome />
+        <div
+          id={API_KEYS_SETTINGS_SKIP_TARGET_ID}
+          data-testid={API_KEYS_SETTINGS_FIRST_VIEWPORT_TEST_ID}
+          className={cn(
+            "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+            OPERATOR_LAYOUT.sectionStack,
+          )}
+        >
+          <ApiKeysSettingsBuyerChrome />
 
-        <EnterpriseCompactEmptyState
-          title={emptyCompact.title}
-          description={emptyCompact.description}
-          actions={emptyCompact.actions}
-          testId={emptyCompact.testId}
-        />
+          <EnterpriseCompactEmptyState
+            title={emptyCompact.title}
+            description={emptyCompact.description}
+            actions={emptyCompact.actions}
+            testId={emptyCompact.testId}
+          />
+        </div>
       </div>
     </OperatorPageContainer>
   );

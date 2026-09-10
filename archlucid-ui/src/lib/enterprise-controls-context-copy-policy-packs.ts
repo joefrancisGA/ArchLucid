@@ -33,7 +33,7 @@ export const policyPacksPageLeadReaderBuyerPolished =
 
 
 export const policyPacksOutcomeBannerLine =
-  "Versions and assigns packs for this scope; enforcement applies through governance resolution and review finalizatio — ot from this page alone.";
+  "Versions and assigns packs for this scope; enforcement applies through approval resolution and review finalizatio — ot from this page alone.";
 
 
 export const policyPacksDeltaDemoBannerLine =
