@@ -475,6 +475,49 @@ public sealed class ContainerJobsOffloadRegistrationTests
     }
 
     [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_servicebus_integration_events_still_registers_sql_outbox_pumpers()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.ServiceBusIntegrationEvents;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasOutboxPumper = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(IntegrationEventOutboxHostedService));
+
+        bool hasDlqRetry = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(IntegrationEventDlqRetryHostedService));
+
+        hasOutboxPumper.Should().BeTrue(
+            "SQL integration outbox publishing must keep running when only the Service Bus consumer is container-offloaded");
+        hasDlqRetry.Should().BeTrue(
+            "SQL integration outbox DLQ auto-retry must keep running when only the Service Bus consumer is container-offloaded");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Worker_registers_operational_error_capture_drain_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasDrain = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(OperationalErrorCaptureDrainHostedService));
+
+        hasDrain.Should().BeTrue(
+            "each replica drains its own in-memory operational error capture queue into SQL");
+    }
+
+    [Fact]
     public void AddArchLucidApplicationServices_Api_role_does_not_register_ServiceBus_integration_event_consumer()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();

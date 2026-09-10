@@ -3,6 +3,7 @@ using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Host.Composition.Caching;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
@@ -77,6 +78,46 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
 
         registered.Should().BeTrue(
             "CosmosGraphSnapshotOutboxHostedService must be registered when StorageProvider=Sql and CosmosDb:GraphSnapshotsEnabled=true");
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Api_role_registers_graph_projection_cache_invalidation_subscriber_when_projection_redis_enabled()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["Hosting:Role"] = "Api",
+                    ["ConnectionStrings:ArchLucid"] =
+                        "Server=localhost;Database=ArchLucidCompositionTests;Trusted_Connection=True;TrustServerCertificate=True",
+                    ["ArchLucid:StorageProvider"] = "Sql",
+                    ["ArchLucid:KnowledgeGraph:ProjectionCache:Backend"] = "Distributed",
+                    ["ArchLucid:KnowledgeGraph:ProjectionCache:RedisConnectionString"] = "localhost:6379",
+                    ["AgentExecution:Mode"] = "Simulator",
+                    ["AzureOpenAI:Endpoint"] = "",
+                    ["AzureOpenAI:ApiKey"] = "",
+                    ["AzureOpenAI:DeploymentName"] = "",
+                    ["AzureOpenAI:EmbeddingDeploymentName"] = "",
+                    ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
+                    ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
+                    ["RateLimiting:Expensive:PermitLimit"] = "100000",
+                    ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                    ["CosmosDb:GraphSnapshotsEnabled"] = "false",
+                    ["LlmCompletionCache:Enabled"] = "false",
+                    ["HotPathCache:Enabled"] = "false",
+                })
+            .Build();
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(GraphProjectionCacheInvalidationSubscriberHostedService));
+
+        registered.Should().BeTrue(
+            "every Api replica with distributed graph projection cache must subscribe to Redis invalidations");
     }
 
     [Fact]
