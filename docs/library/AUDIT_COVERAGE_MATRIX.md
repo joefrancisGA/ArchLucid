@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:431 -->
+<!-- audit-core-const-count:433 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -128,6 +128,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Finding-scoped Ask (conversation persist only) | `ArchitectureFindingAskController` (`POST /v1/architecture/finding/{findingId}/ask`); `IAskService.AskAboutFindingAsync` | `FindingAskConversationPersisted` | RunId from inspect read when available | `{ findingId, threadId, action: conversationPersisted }` — durable row after `IConversationService` persist; question/answer text excluded |
 | Per-finding thumbs feedback (operator instrumentation) | `RunsController` (`POST /v1/architecture/finding/{findingId}/feedback`); legacy alias `FindingFeedbackController` (`POST /v1/explain/runs/{runId}/findings/{findingId}/feedback`) | `FindingFeedbackRecorded` | RunId from request/route | `{ findingId, score, comment? }` — comment omitted on decision-grade findings (`commentOmitted: true`); append-only `dbo.FindingFeedback` row |
 | Finding remediation assignee / due date update | `FindingRemediationAssignmentController` (`PUT /v1/findings/{findingId}/remediation-assignment`) | `FindingRemediationAssignmentUpdated` | RunId from request body | `{ findingId, assignedToUserId, remediationDueUtc }` |
+| Finding mute / unmute (relational snapshot) | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`; `DELETE /v1/findings/{findingId}/mute`) | `FindingMuted` on mute only | RunId from request body | `{ findingId, muteReason?, muteExpiresAtUtc? }` on mute; unmute is `[MutatingAuditExcluded]` (no dedicated audit event) |
 | Grounded Ask SSE stream (conversation persist only) | `AskController` (`POST /v1/ask/stream`); `IAskService.AskStreamAsync` | — | — | Same persistence semantics as `POST /v1/ask` (conversation thread/messages via `IConversationService`); streams `text/event-stream` token/`done` events — **no** durable `IAuditService` row |
 | Advisory scan lifecycle | `AdvisoryScanRunner` | `AdvisoryScanScheduled`, `AdvisoryScanExecuted`, `ArchitectureDigestGenerated`, … | varies by path | scan / digest payloads (JSON) |
 | Advisory scheduling API | `AdvisorySchedulingController` | `AdvisoryScanScheduled` (and related) | per request | schedule metadata |
@@ -477,7 +478,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ArchitectureReviewRecurrenceNotified` | `ArchitectureReviewRecurrenceNotified` | `RecurrenceCompletionNotificationService` |
 | `ArchitectureReviewRecurrenceAutoDisabled` | `ArchitectureReviewRecurrenceAutoDisabled` | `RecurringArchitectureReviewTriggerService` |
 | `AuthTokenDiagnosticRequested` | `Auth.TokenDiagnosticRequested` | `AdminAuthDiagnosticsController` (`POST /v1/admin/auth/diagnose-token`) |
-| `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`) |
+| `FindingMuted` | `FindingMuted` | `FindingMuteController` (`POST /v1/findings/{findingId}/mute`; `DELETE /v1/findings/{findingId}/mute` — unmute is `[MutatingAuditExcluded]`) |
 | `FindingFeedbackRecorded` | `FindingFeedbackRecorded` | `RunsController` (`POST /v1/architecture/finding/{findingId}/feedback`); `FindingFeedbackController` (`POST /v1/explain/runs/{runId}/findings/{findingId}/feedback`) |
 | `FindingInsightSignalRecorded` | `FindingInsightSignalRecorded` | `FindingInsightSignalController` (`POST /v1/runs/{runId}/findings/{findingId}/insight-signal`) |
 | `FindingVerificationStarted` | `FindingVerificationStarted` | `FindingVerificationService.CreateReportAsync` (`POST /v1/runs/{runId}/finding-verification`) |
