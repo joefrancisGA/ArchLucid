@@ -15,8 +15,8 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { compareAgentResultsBlockedReason } from "@/lib/compare/compare-agent-results-blocked-reason";
 import { compareExplainMutationBlockedReason } from "@/lib/compare/compare-explain-mutation-blocked-reason";
 import { explainRunBlockedReason } from "@/lib/explain/explain-run-blocked-reason";
-
 import { compareRunsLoadBlockedReason } from "@/lib/api/compare-runs-load-blocked-reason";
+import { compareAgentResultsBlockedReason } from "@/lib/compare/compare-agent-results-blocked-reason";
 import { compareExplainMutationBlockedReason } from "@/lib/compare/compare-explain-mutation-blocked-reason";
 import { explainRunBlockedReason } from "@/lib/explain/explain-run-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -81,28 +81,8 @@ export async function compareAgentResultsSummary(
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }
 
-/** Structured agent-result diff between two runs. */
-export async function compareAgentResults(
-  leftRunId: string,
-  rightRunId: string,
-): Promise<components["schemas"]["AgentResultCompareResponse"]> {
-  return apiGetSealedManifestAware<components["schemas"]["AgentResultCompareResponse"]>(
-    `/v1/architecture/review/compare/agents?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
-  );
-}
-
-/** Markdown summary of agent-result diffs between two runs. */
-export async function compareAgentResultsSummary(
-  leftRunId: string,
-  rightRunId: string,
-): Promise<components["schemas"]["AgentResultCompareSummaryResponse"]> {
-  return apiGetSealedManifestAware<components["schemas"]["AgentResultCompareSummaryResponse"]>(
-    `/v1/architecture/review/compare/agents/summary?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
-  );
-}
 
 /** Legacy flat-diff comparison between two runs (run-level + optional manifest diffs). */
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
@@ -133,7 +113,6 @@ export async function compareGoldenManifestRuns(
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }
 
 /** Requests an AI-generated narrative explanation of the differences between two runs. */
@@ -151,7 +130,6 @@ export async function explainComparisonRuns(
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }
 
 /** Requests an AI-generated explanation of a single run's decisions and implications. */
@@ -166,7 +144,6 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }
 
 /**
