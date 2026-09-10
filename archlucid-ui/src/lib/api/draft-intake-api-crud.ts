@@ -5,6 +5,10 @@ import type {
   DraftRequestSummaryPage,
 } from "@/types/draft-intake";
 
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiGet, apiPatchJson, apiPostJson } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
@@ -33,11 +37,18 @@ export async function createDraftRequest(
 ): Promise<DraftRequestResponse> {
   const trimmedPriorRunId = priorRunId?.trim() ?? "";
 
-  return apiPostJson<DraftRequestResponse>(DRAFT_BASE, {
-    freeTextIntent: freeTextIntent.trim(),
-    ...(workflowIntent !== undefined ? { workflowIntent } : {}),
-    ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
-  });
+  try {
+    return await apiPostJson<DraftRequestResponse>(DRAFT_BASE, {
+      freeTextIntent: freeTextIntent.trim(),
+      ...(workflowIntent !== undefined ? { workflowIntent } : {}),
+      ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function listDraftRequests(params?: {
@@ -92,5 +103,12 @@ export async function patchDraftRequest(
     forceOverwrite?: boolean;
   },
 ): Promise<DraftRequestResponse> {
-  return apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);
+  try {
+    return await apiPatchJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}`, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
