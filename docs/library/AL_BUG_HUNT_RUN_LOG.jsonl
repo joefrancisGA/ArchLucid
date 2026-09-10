@@ -1795,3 +1795,4 @@
 {"at":"2026-09-10T16:09:29.2518986Z","zoneId":"finding-disposition","outcome":"hit"}
 {"at":"2026-09-10T16:15:10.0679069Z","zoneId":"finding-disposition","outcome":"dry"}
 {"at":"2026-09-10T16:20:50.3382224Z","zoneId":"ui-runs-list","outcome":"hit"}
+{"at":"2026-09-10T16:25:07.5875334Z","zoneId":"archlucid-contracts","outcome":"dry"}
