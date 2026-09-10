@@ -35,7 +35,7 @@ public static class AuthSignInReturnPathGuard
             || ContainsDotHomoglyph(candidate)
             || ContainsDotDotSegment(candidate)
             || candidate.Contains('\\', StringComparison.Ordinal)
-            || candidate.Contains('@', StringComparison.Ordinal)
+            || ContainsAtSignInPath(candidate)
             || candidate.Contains("://", StringComparison.Ordinal))
         {
             return null;
@@ -118,7 +118,7 @@ public static class AuthSignInReturnPathGuard
                 || ContainsDotHomoglyph(decoded)
                 || ContainsDotDotSegment(decoded)
                 || decoded.Contains('\\', StringComparison.Ordinal)
-                || decoded.Contains('@', StringComparison.Ordinal)
+                || ContainsAtSignInPath(decoded)
                 || decoded.Contains("://", StringComparison.Ordinal))
             {
                 return true;
@@ -195,6 +195,13 @@ public static class AuthSignInReturnPathGuard
         }
 
         return false;
+    }
+
+    private static bool ContainsAtSignInPath(string candidate)
+    {
+        ReadOnlySpan<char> pathOnly = GetPathWithoutQueryOrFragment(candidate);
+
+        return pathOnly.IndexOf('@') >= 0;
     }
 
     private static ReadOnlySpan<char> GetPathWithoutQueryOrFragment(string candidate)

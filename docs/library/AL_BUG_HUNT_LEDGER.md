@@ -619,11 +619,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 11
-- **bugs-found:** 9
+- **hunts:** 12
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — URL fragment delimiter lets `..` path traversal bypass dot-segment checks
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — `@` host-smuggling check rejected safe return paths with `@` in query or fragment
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -846,6 +846,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Residual edge case in zone `auth-return-path` from picker reseed #1521 — **valid-no-repro 2026-09-09 seed hunt #1521:** cheap-disproof from zone paths and existing regressions
 
 2026-09-09 seed hunt #1521 (seed-only): reseeded auth-return-path; cheap-disproved picker reseed candidate; 41 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) `TryNormalizeRelativePath` rejects any `@` in the full return path including query/fragment, blocking legitimate in-app URLs like `/reviews?notify=user@example.com` — **hit 2026-09-10 seed hunt #1522 (seed→hit):** `@` host-smuggling guard now scopes to `GetPathWithoutQueryOrFragment`; regression `TryNormalize_accepts_at_sign_in_query_or_fragment_not_path`; path smuggling regressions unchanged in `TryNormalize_rejects_open_redirect_shapes`
+
+2026-09-10 seed hunt #1522 (hit): reseeded auth-return-path; proved `@`-in-query false reject; 44 scoped AuthSignInReturnPathGuard tests passed.
 
 ## Zone: tenant-erasure
 

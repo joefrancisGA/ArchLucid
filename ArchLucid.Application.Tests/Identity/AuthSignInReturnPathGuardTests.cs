@@ -137,4 +137,13 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().Be(path);
     }
+
+    [Theory]
+    [InlineData("/architecture/reviews?notify=user@example.com")]
+    [InlineData("/reviews/1?cc=team@contoso.com")]
+    [InlineData("/reviews/1#notes@team")]
+    public void TryNormalize_accepts_at_sign_in_query_or_fragment_not_path(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().Be(path);
+    }
 }
