@@ -1769,3 +1769,4 @@
 {"at":"2026-09-10T05:35:23.2371464Z","zoneId":"tenant-settings-sql","outcome":"seed-only"}
 {"at":"2026-09-10T05:38:52.918204Z","zoneId":"commit-output-integrity","outcome":"dry"}
 {"at":"2026-09-10T05:42:13.7089384Z","zoneId":"tenant-settings-sql","outcome":"dry"}
+{"at":"2026-09-10T05:45:06.2353254Z","zoneId":"cli-tenant-isolation","outcome":"dry"}
