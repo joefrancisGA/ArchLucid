@@ -57,6 +57,8 @@ internal static class FindingsOrchestratorComposer
             humanReviewOptions,
             insightDensityGateOptions,
             new FindingProvenanceValidator(),
+            Microsoft.Extensions.Options.Options.Create(new FindingSemanticSupportBandOptions()),
+            NoOpFindingSemanticSupportBandLlmJudge.Instance,
             timeProvider);
 
         IFindingsChecklistClusterStage checklistClusterStage = new FindingsChecklistClusterStage();

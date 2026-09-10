@@ -78,3 +78,7 @@ TB-1228 rejected fusing semantic/RAG faithfulness into a **sync LLM judge on com
 **Ratchet shipped:** `DeterministicInsightDensityGate.Score` and `InsightDensityGateCandidate` do **not** read `Finding.SemanticSupportBand`. Unit test `Score_ignores_semantic_support_band_on_source_finding` proves band changes do not alter score/treatment/classification; architecture tests guard the gate source from reintroducing band coupling.
 
 **Why sibling signals:** Cited-but-paraphrased rows can stay decision-grade under ADR 0070 while showing **Unchecked** or **Unsupported** on Working — fusing band into density demotion would hide semantic risk inside checklist coverage.
+
+## Related (AS-074)
+
+**Premium LLM judge default off:** `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudge` defaults to **false** (same posture as `InsightDensityGate:EnableProseAssumptionExtraction`). The sync emit path uses the deterministic quote-overlap heuristic (AS-057) unless an operator explicitly opts in. Host composition registers `NoOpFindingSemanticSupportBandLlmJudge` by default — **zero LLM calls** on the default support-band scoring path. Ratchet: `ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests`.
