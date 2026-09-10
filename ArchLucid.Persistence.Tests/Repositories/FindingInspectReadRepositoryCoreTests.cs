@@ -1663,4 +1663,73 @@ public sealed class FindingInspectReadRepositoryCoreTests
         FindingInspectReadRepositoryCore.ResolveDecisionRuleName(null, "   ")
             .Should().Be("   ");
     }
+
+    [Fact]
+    public void MapDispositionPointerProjection_encodes_empty_row_version_stamp_as_empty_base64_string()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Accepted",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: []);
+
+        projection.LatestDispositionRowVersionBase64.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void FilterNonBlankTrimmedStrings_returns_empty_for_empty_input_sequence()
+    {
+        FindingInspectReadRepositoryCore.FilterNonBlankTrimmedStrings(Array.Empty<string>()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ResolveRuleFields_returns_first_entry_when_applied_rule_ids_json_contains_duplicates()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["cost-guardrail", "cost-guardrail"]""",
+            firstRuleText: null);
+
+        ruleId.Should().Be("cost-guardrail");
+        ruleName.Should().Be("cost-guardrail");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_payload_is_corrupt_and_title_is_whitespace()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "   ",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void ToUtcDateTimeOffset_labels_unspecified_remediation_timestamp_as_utc_offset()
+    {
+        DateTime unspecified = new(2026, 10, 20, 8, 0, 0, DateTimeKind.Unspecified);
+
+        DateTimeOffset? actual = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(unspecified);
+
+        actual.Should().NotBeNull();
+        actual!.Value.Offset.Should().Be(TimeSpan.Zero);
+        actual!.Value.UtcDateTime.Should().Be(unspecified);
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_only_duplicate_whitespace_entries_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["   ", "   "]""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
 }

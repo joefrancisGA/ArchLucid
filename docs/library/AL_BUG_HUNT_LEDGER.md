@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1616,6 +1616,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MainInspectWithoutTypedPayload` omits confidence/review/mute columns — **cheap-disproof 2026-09-10 seed hunt #1659:** metadata-only query projects the same governance columns as typed-payload SQL; regression `MainInspectWithoutTypedPayload_projects_confidence_review_and_mute_fields`.
 
 2026-09-10 seed hunt #1659 (seed-only): reseeded finding-inspect-sql after #1658; cheap-disproof closed negative numeric enum parsing, Dapper whitespace/empty finding-id validation, local remediation UTC labeling, numeric disposition mapping, whitespace rule-id fallback, and metadata-only SQL column parity; 295 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MapDispositionPointerProjection` returns null base64 when `RowVersionStamp` is a zero-length byte array — **cheap-disproof 2026-09-10 seed hunt #1660:** empty stamp bytes encode to empty string; regression `MapDispositionPointerProjection_encodes_empty_row_version_stamp_as_empty_base64_string`.
+- [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` throws on empty input sequences — **cheap-disproof 2026-09-10 seed hunt #1660:** empty enumerable yields empty list; regression `FilterNonBlankTrimmedStrings_returns_empty_for_empty_input_sequence`.
+- [x] (valid-no-repro) `ResolveRuleFields` deduplicates repeated `AppliedRuleIdsJson` entries — **cheap-disproof 2026-09-10 seed hunt #1660:** duplicate ids return the first entry unchanged; regression `ResolveRuleFields_returns_first_entry_when_applied_rule_ids_json_contains_duplicates`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` drops rationale metadata when corrupt `PayloadJson` has whitespace-only `Title` — **cheap-disproof 2026-09-10 seed hunt #1660:** whitespace title is ignored and rationale-only slim metadata is built; regression `ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_payload_is_corrupt_and_title_is_whitespace`.
+- [x] (valid-no-repro) `ToUtcDateTimeOffset` preserves local offset for unspecified remediation timestamps — **cheap-disproof 2026-09-10 seed hunt #1660:** helper labels `DateTimeKind.Unspecified` values as UTC without shifting clock time; regression `ToUtcDateTimeOffset_labels_unspecified_remediation_timestamp_as_utc_offset`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains only duplicate whitespace entries uses the first whitespace id — **cheap-disproof 2026-09-10 seed hunt #1660:** whitespace-only elements are skipped and trace text is used; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_only_duplicate_whitespace_entries_falls_back_to_trace_text`.
+
+2026-09-10 seed hunt #1660 (seed-only): reseeded finding-inspect-sql after #1659; cheap-disproof closed empty row-version projection encoding, empty filter input, duplicate applied-rule ids, corrupt-payload rationale-only metadata fallback, unspecified remediation UTC labeling, and duplicate whitespace rule-id arrays; 301 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
