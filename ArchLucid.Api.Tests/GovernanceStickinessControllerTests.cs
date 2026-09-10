@@ -25,6 +25,8 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Models;
 
+using ArchLucid.TestSupport.SealedManifest;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -229,13 +231,13 @@ public sealed class GovernanceStickinessControllerTests
                     findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
                     CreateAuthorityQueryService(),
                     CreateManifestHashService(),
-                    Mock.Of<IRunDetailQueryService>()),
+                    SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns()),
                 scope.Object,
                 tenantRepository ?? TenantExistsRepository(),
                 nextRun.Object,
                 CreateAuthorityQueryService(),
                 CreateManifestHashService(),
-                Mock.Of<IRunDetailQueryService>(),
+                SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
                 riskExceptionService.Object,
                 findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
                 recurrenceRepository.Object)
@@ -271,13 +273,13 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IFindingInspectReadRepository>(),
                     CreateAuthorityQueryService(),
                     CreateManifestHashService(),
-                    Mock.Of<IRunDetailQueryService>()),
+                    SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns()),
                 scopeProvider,
                 tenantRepository ?? TenantExistsRepository(),
                 Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
                 CreateAuthorityQueryService(),
                 CreateManifestHashService(),
-                Mock.Of<IRunDetailQueryService>(),
+                SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
                 Mock.Of<IRiskExceptionService>(),
                 Mock.Of<IFindingInspectReadRepository>(),
                 Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>())

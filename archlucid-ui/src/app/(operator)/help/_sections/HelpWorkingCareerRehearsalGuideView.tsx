@@ -141,13 +141,11 @@ export function HelpWorkingCareerRehearsalGuideView(
           </section>
         </div>
 
-        <aside className={HELP_PAGE_LAYOUT.tocColumn}>
-          <HelpTopicTableOfContents headings={WORKING_CAREER_REHEARSAL_HELP_GUIDE_HEADINGS} />
-          <p className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Topic: {WORKING_CAREER_REHEARSAL_HELP_TOPIC_LABEL}
-          </p>
-        </aside>
+        <HelpTopicTableOfContents headings={WORKING_CAREER_REHEARSAL_HELP_GUIDE_HEADINGS} />
       </div>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        Topic: {WORKING_CAREER_REHEARSAL_HELP_TOPIC_LABEL}
+      </p>
     </article>
   );
 }
