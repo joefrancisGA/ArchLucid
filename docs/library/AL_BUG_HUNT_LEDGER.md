@@ -566,11 +566,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 13
-- **bugs-found:** 9
+- **hunts:** 14
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — Resend cooldown blocked immediate retry after email delivery failure invalidated challenge
+- **last-bug:** 2026-09-10 — Hourly request rate limit counted delivery-failed challenge rows
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -612,6 +612,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `GetLatestRequestUtcByEmailAsync` includes invalidated challenges so resend cooldown blocks retry after email delivery failure — **hit 2026-09-10 seed hunt #1539:** `EmailOtpRequestFlow` invalidates the row when send fails but cooldown still read the invalidated `CreatedUtc`; fixed by filtering to active challenges in in-memory and Dapper repos; regression `RequestCodeAsync_retries_immediately_after_email_delivery_failure_despite_resend_cooldown`
 
 2026-09-10 seed hunt #1539 (seed→hit): proved resend cooldown blocked immediate retry after email send failure; 23 scoped EmailOtp tests passed.
+
+- [x] (proven) `CountRecentRequestsForRateLimitAsync` counts delivery-failed invalidated challenges so hourly email cap blocks retry — **hit 2026-09-10 seed hunt #1540:** `EmailOtpRequestFlow` invalidated undelivered rows that still counted toward `MaxCodeRequestsPerEmailPerHour`; fixed by deleting active rows on send failure via `DeleteActiveChallengesForEmailAsync`; regression `RequestCodeAsync_retries_after_email_delivery_failure_despite_hourly_email_rate_limit`
+
+2026-09-10 seed hunt #1540 (seed→hit): reseeded after #1539; proved hourly rate limit blocked retry when first send failed with cap=1; 24 scoped EmailOtp tests passed.
 
 ---
 
