@@ -49,6 +49,16 @@ describe("RemediationPatternsClient", () => {
     expect(screen.getByTestId("remediation-patterns-empty")).toBeInTheDocument();
   });
 
+  it("renders the Remediation patterns nav icon in the page header", () => {
+    useRemediationPatternsQueryMock.mockReturnValue({ data: [], isError: false });
+    useRemediationPatternDetailQueryMock.mockReturnValue({ data: null, isError: false });
+
+    render(<RemediationPatternsClient />);
+
+    expect(screen.getByTestId("remediation-patterns-page-title")).toBeInTheDocument();
+    expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
+  });
+
   it("renders list error state", () => {
     useRemediationPatternsQueryMock.mockReturnValue({ data: undefined, isError: true });
     useRemediationPatternDetailQueryMock.mockReturnValue({ data: null, isError: false });

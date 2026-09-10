@@ -35,28 +35,35 @@ public sealed partial class GraphController
             return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
                 ProblemTypes.ResourceNotFound);
 
-        if (detail.GoldenManifest is not null)
+        try
         {
-            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, runId);
+            if (detail.GoldenManifest is not null)
+            {
+                IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, runId);
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+            }
+
+            KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
+
+            if (limits.FullGraphResponseMaxNodes > 0 &&
+                detail.GraphSnapshot.Nodes.Count > limits.FullGraphResponseMaxNodes)
+            {
+                return this.PayloadTooLargeProblem(
+                    $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the full-graph endpoint allows at most "
+                    + $"{limits.FullGraphResponseMaxNodes}. Use GET /v1/evidence-graph/reviews/{runId}/nodes with page and pageSize "
+                    + $"(maximum page size {PaginationDefaults.MaxPageSize}).",
+                    ProblemTypes.GraphTooLargeForFullResponse);
+            }
+
+            GraphViewModel vm = MapArchitectureGraph(detail.GraphSnapshot);
+            return Ok(vm);
         }
-
-        KnowledgeGraphLimitsOptions limits = knowledgeGraphLimits.Value;
-
-        if (limits.FullGraphResponseMaxNodes > 0 &&
-            detail.GraphSnapshot.Nodes.Count > limits.FullGraphResponseMaxNodes)
+        catch (ConflictException ex)
         {
-            return this.PayloadTooLargeProblem(
-                $"This graph has {detail.GraphSnapshot.Nodes.Count} nodes; the full-graph endpoint allows at most "
-                + $"{limits.FullGraphResponseMaxNodes}. Use GET /v1/evidence-graph/reviews/{runId}/nodes with page and pageSize "
-                + $"(maximum page size {PaginationDefaults.MaxPageSize}).",
-                ProblemTypes.GraphTooLargeForFullResponse);
+            return MapGraphSealedManifestConflict(ex);
         }
-
-        GraphViewModel vm = MapArchitectureGraph(detail.GraphSnapshot);
-        return Ok(vm);
     }
 
     /// <summary>
@@ -80,17 +87,24 @@ public sealed partial class GraphController
             return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.",
                 ProblemTypes.ResourceNotFound);
 
-        if (detail.GoldenManifest is not null)
+        try
         {
-            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, runId);
+            if (detail.GoldenManifest is not null)
+            {
+                IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, runId);
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+            }
+
+            GraphSnapshotNodesPage slice = GraphSnapshotPagination.CreatePage(detail.GraphSnapshot, page, pageSize);
+            GraphNodesPageResponse body = MapArchitectureGraphPage(slice);
+            return Ok(body);
         }
-
-        GraphSnapshotNodesPage slice = GraphSnapshotPagination.CreatePage(detail.GraphSnapshot, page, pageSize);
-        GraphNodesPageResponse body = MapArchitectureGraphPage(slice);
-        return Ok(body);
+        catch (ConflictException ex)
+        {
+            return MapGraphSealedManifestConflict(ex);
+        }
     }
 
     private static GraphViewModel MapArchitectureGraph(GraphSnapshot snapshot)

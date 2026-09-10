@@ -9,6 +9,7 @@ export type {
 export {
   getArchitectureRequest,
   getBuyerRunDetailSummary,
+  getReviewTrail,
   getRunPipelineTimeline,
   getRunStageTimeline,
   getRunSummary,
@@ -22,6 +23,7 @@ export {
   getRunDetail,
   getRunExplanationSummary,
   getRunProvenance,
+  getRunRationale,
   getRunRetrievalGrounding,
   getRunToolInvocationForensics,
   getRunTraces,

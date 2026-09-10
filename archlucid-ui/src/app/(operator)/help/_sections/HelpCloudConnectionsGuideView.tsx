@@ -12,6 +12,17 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { extractMarkdownSectionsByAnchor } from "@/lib/help/help-markdown-sections";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+
 import {
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_ID,
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO,
@@ -40,16 +51,6 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
-import { extractMarkdownSectionsByAnchor } from "@/lib/help/help-markdown-sections";
-import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
-import type { ProductLineId } from "@/lib/product-line/product-line-id";
-import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
-import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
-import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { cn } from "@/lib/utils";
-import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 const CLOUD_CONNECTIONS_HELP_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: CLOUD_CONNECTIONS_HELP_ORIENTATION_ID, title: CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE, level: 2 },

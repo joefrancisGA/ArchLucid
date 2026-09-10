@@ -1,6 +1,6 @@
 /** SecureNow Security shell home (`/`) — grouped destination cards. */
 
-import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH, SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
@@ -28,7 +28,7 @@ export const SECURENOW_HOME_CONTEXTUAL_HELP_ENTRY: PageContextualHelpEntry = {
     "Switch workspace or project scope from the header switcher when you work across teams.",
   whatToDoNextAction: {
     label: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
-    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   },
   whereToConfigureAction: {
     label: OPERATOR_NAV_LINK_LABELS.policyPacks,

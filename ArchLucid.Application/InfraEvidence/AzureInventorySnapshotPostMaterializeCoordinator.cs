@@ -1,3 +1,5 @@
+using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -14,7 +16,14 @@ public interface IAzureInventorySnapshotPostMaterializeCoordinator
 
 public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     IAzureInventorySnapshotRepository snapshotRepository,
-    IAzureInventoryDiffService diffService) : IAzureInventorySnapshotPostMaterializeCoordinator
+    IAzureInventoryDiffService diffService,
+    IPrivilegePathEngine privilegePathEngine,
+    IIntendedReachabilityEngine intendedReachabilityEngine,
+    IToxicCombinationEngine toxicCombinationEngine,
+    ICapabilityToFlowEngine capabilityToFlowEngine,
+    ISharedControlBlastRadiusEngine sharedControlBlastRadiusEngine,
+    IPathRankingEngine pathRankingEngine,
+    ICutPointAnalysisEngine cutPointAnalysisEngine) : IAzureInventorySnapshotPostMaterializeCoordinator
 {
     public async Task OnSnapshotMaterializedAsync(
         ScopeContext scope,
@@ -24,22 +33,64 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        if (string.IsNullOrWhiteSpace(subscriptionId))
-            return;
+        if (!string.IsNullOrWhiteSpace(subscriptionId))
+        {
+            Guid? priorSnapshotId = await snapshotRepository.TryGetPriorMaterializedSnapshotIdAsync(
+                scope,
+                subscriptionId,
+                snapshotId,
+                cancellationToken);
 
-        Guid? priorSnapshotId = await snapshotRepository.TryGetPriorMaterializedSnapshotIdAsync(
+            if (priorSnapshotId is not null && priorSnapshotId != Guid.Empty)
+            {
+                await diffService.ComputeAndPersistDiffAsync(
+                    scope,
+                    priorSnapshotId.Value,
+                    snapshotId,
+                    cancellationToken);
+            }
+        }
+
+        await privilegePathEngine.RunAsync(
             scope,
-            subscriptionId,
             snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
             cancellationToken);
 
-        if (priorSnapshotId is null || priorSnapshotId == Guid.Empty)
-            return;
-
-        await diffService.ComputeAndPersistDiffAsync(
+        await intendedReachabilityEngine.RunAsync(
             scope,
-            priorSnapshotId.Value,
             snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await toxicCombinationEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await capabilityToFlowEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await sharedControlBlastRadiusEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await pathRankingEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await cutPointAnalysisEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
             cancellationToken);
     }
 }

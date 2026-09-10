@@ -29,46 +29,53 @@ public sealed partial class ExplanationController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ExplainRun(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
-        if (detail?.GoldenManifest is null)
-            return this.NotFoundProblem(
-                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
-                ProblemTypes.RunNotFound);
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+            if (detail?.GoldenManifest is null)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                    ProblemTypes.RunNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        DecisionProvenanceGraph? graph = null;
-        ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot? snapshot =
-            await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
+            DecisionProvenanceGraph? graph = null;
+            ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot? snapshot =
+                await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
 
-        if (snapshot is not null)
+            if (snapshot is not null)
 
-            try
-            {
-                graph = ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogWarningWithSanitizedUserArg(
-                    ex,
-                    "Provenance graph JSON for run {RunId} is corrupt; explanation will proceed without provenance.",
-                    runId.ToString("D"));
-            }
+                try
+                {
+                    graph = ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    _logger.LogWarningWithSanitizedUserArg(
+                        ex,
+                        "Provenance graph JSON for run {RunId} is corrupt; explanation will proceed without provenance.",
+                        runId.ToString("D"));
+                }
 
-        ExplanationResult result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
-        List<FindingTraceConfidenceDto> traceRows = FindingTraceConfidenceMapper.FromSnapshot(detail.FindingsSnapshot);
+            ExplanationResult result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
+            List<FindingTraceConfidenceDto> traceRows = FindingTraceConfidenceMapper.FromSnapshot(detail.FindingsSnapshot);
 
-        if (traceRows.Count > 0)
-            result.FindingTraceConfidences = traceRows;
+            if (traceRows.Count > 0)
+                result.FindingTraceConfidences = traceRows;
 
-        int findingCountForTelemetry = detail.FindingsSnapshot?.Findings?.Count ?? 0;
-        FindingsListAccessTelemetry.LogFindingSnapshotExpose(_logger, scope, runId, nameof(ExplainRun), findingCountForTelemetry);
+            int findingCountForTelemetry = detail.FindingsSnapshot?.Findings?.Count ?? 0;
+            FindingsListAccessTelemetry.LogFindingSnapshotExpose(_logger, scope, runId, nameof(ExplainRun), findingCountForTelemetry);
 
-        return Ok(result);
+            return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapExplanationSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Sponsor rollup: themes, risk posture, counts, and the same explanation payload as granular explain.</summary>
@@ -81,32 +88,40 @@ public sealed partial class ExplanationController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AggregateRunExplanation(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
 
-        if (detail?.GoldenManifest is null)
-            return this.NotFoundProblem(
-                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
-                ProblemTypes.RunNotFound);
+            if (detail?.GoldenManifest is null)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                    ProblemTypes.RunNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        RunExplanationSummary? summary = await runExplanationSummary.GetSummaryAsync(scope, runId, ct);
-        if (summary is null)
-            return this.NotFoundProblem(
-                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
-                ProblemTypes.RunNotFound);
+            RunExplanationSummary? summary = await runExplanationSummary.GetSummaryAsync(scope, runId, ct);
 
-        FindingsListAccessTelemetry.LogFindingSnapshotExpose(
-            _logger,
-            scope,
-            runId,
-            nameof(AggregateRunExplanation),
-            summary.FindingCount);
+            if (summary is null)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                    ProblemTypes.RunNotFound);
 
-        return Ok(summary);
+            FindingsListAccessTelemetry.LogFindingSnapshotExpose(
+                _logger,
+                scope,
+                runId,
+                nameof(AggregateRunExplanation),
+                summary.FindingCount);
+
+            return Ok(summary);
+        }
+        catch (ConflictException ex)
+        {
+            return MapExplanationSealedManifestConflict(ex);
+        }
     }
 }

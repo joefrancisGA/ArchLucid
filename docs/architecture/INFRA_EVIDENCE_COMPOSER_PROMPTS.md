@@ -96,6 +96,10 @@ Run **IE-UX-00 first** after backend batches land; then IE-UX-01–IE-UX-05 in o
 
 **Run one prompt per chat.** Feature branch per prompt (`cursor/<short-name>-9cc3`). Name the branch in any commit/push request.
 
+## Follow-on — SecureNow architect paths (not this set)
+
+Attack-path / capability-to-flow engines over **live inventory** are **SA-01–SA-22**: [`SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md`](SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md). They consume this plane. Do **not** re-run IE collector bodies to add them. Do **not** add `IFindingEngine`.
+
 ## Global constraints (every prompt)
 
 - Read the plane doc first. **One Azure collector family.** Audit code must not new up ARM clients.

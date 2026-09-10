@@ -20,9 +20,10 @@ import {
 import { StatusTag } from "@/components/ui/status-tag";
 import { getTechnologyLedger, patchTechnologyLedgerEntry } from "@/lib/api/technology-ledger";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
+import { technologyLedgerMutationBlockedReason } from "@/lib/runs/technology-ledger-mutation-blocked-reason";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { technologyLedgerBlockedReason } from "@/lib/runs/technology-ledger-blocked-reason";
-import { technologyLedgerMutationBlockedReason } from "@/lib/runs/technology-ledger-mutation-blocked-reason";
+
 import { tryStaticDemoTechnologyLedger } from "@/lib/operator/operator-static-demo-technology-ledger";
 import {
   technologyLedgerProviderLabel,

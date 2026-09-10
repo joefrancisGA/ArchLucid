@@ -9,10 +9,16 @@ import type {
   AgentOutputEvaluationSummaryPayload,
   RunRetrievalGroundingPayload,
 } from "@/types/agent-forensics";
+import type { components } from "@/lib/openapi-schemas";
 
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { runExplanationSummaryBlockedReason } from "@/lib/explain/run-explanation-summary-blocked-reason";
 import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
+import { runAgentForensicsBlockedReason } from "@/lib/runs/run-agent-forensics-blocked-reason";
+import { runManifestReadBlockedReason } from "@/lib/runs/run-manifest-read-blocked-reason";
 import { runProvenanceBlockedReason } from "@/lib/provenance/run-provenance-blocked-reason";
+import { runRationaleBlockedReason } from "@/lib/runs/run-rationale-blocked-reason";
+import { runRetrievalGroundingBlockedReason } from "@/lib/runs/run-retrieval-grounding-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import {
@@ -28,9 +34,16 @@ import type { RunToolInvocationForensicsPayload } from "./architecture-runs-read
 export async function getArchitectureRunProvenance(
   runId: string,
 ): Promise<ArchitectureRunProvenanceGraph> {
-  return apiGetSealedManifestAware<ArchitectureRunProvenanceGraph>(
-    `/v1/architecture/reviews/${encodeURIComponent(runId)}/provenance`,
-  );
+  try {
+    return await apiGetSealedManifestAware<ArchitectureRunProvenanceGraph>(
+      `/v1/architecture/reviews/${encodeURIComponent(runId)}/provenance`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runProvenanceBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Fetches the full run detail envelope (run metadata, snapshots, manifest, trace, bundle). */
@@ -72,43 +85,96 @@ export async function getRunTraces(
   q.set("pageNumber", String(pageNumber));
   q.set("pageSize", String(pageSize));
 
-  return apiGetSealedManifestAware<AgentExecutionTraceListPayload>(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/traces?${q}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<AgentExecutionTraceListPayload>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/traces?${q}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runAgentForensicsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Trace-derived redacted invocation forensics (TB-110). */
 export async function getRunToolInvocationForensics(
   runId: string,
 ): Promise<RunToolInvocationForensicsPayload> {
-  return apiGetSealedManifestAware<RunToolInvocationForensicsPayload>(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/tool-invocation-forensics`,
-  );
+  try {
+    return await apiGetSealedManifestAware<RunToolInvocationForensicsPayload>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/tool-invocation-forensics`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runAgentForensicsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** On-demand structural evaluation of persisted `parsedResultJson` per trace (no OTel side effects in API). */
 export async function getRunAgentEvaluation(
   runId: string,
 ): Promise<AgentOutputEvaluationSummaryPayload> {
-  return apiGetSealedManifestAware<AgentOutputEvaluationSummaryPayload>(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/agent-evaluation`,
-  );
+  try {
+    return await apiGetSealedManifestAware<AgentOutputEvaluationSummaryPayload>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/agent-evaluation`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runAgentForensicsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Redaction-safe retrieval grounding diagnostics for one authority run. */
 export async function getRunRetrievalGrounding(
   runId: string,
 ): Promise<RunRetrievalGroundingPayload> {
-  return apiGetSealedManifestAware<RunRetrievalGroundingPayload>(
-    `/v1/authority/reviews/${encodeURIComponent(runId)}/retrieval-grounding`,
-  );
+  try {
+    return await apiGetSealedManifestAware<RunRetrievalGroundingPayload>(
+      `/v1/authority/reviews/${encodeURIComponent(runId)}/retrieval-grounding`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runRetrievalGroundingBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Latest authority manifest document JSON for a run (`GET /v1/authority/reviews/{runId}/signed-review-record`). */
 export async function getAuthorityRunManifest(runId: string): Promise<unknown> {
-  return apiGetSealedManifestAware<unknown>(
-    `/v1/authority/reviews/${encodeURIComponent(runId)}/signed-review-record`,
-  );
+  try {
+    return await apiGetSealedManifestAware<unknown>(
+      `/v1/authority/reviews/${encodeURIComponent(runId)}/signed-review-record`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runManifestReadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
+/** Unified decision rationale for operator triage (`GET /v1/runs/{runId}/review-trail/rationale`). */
+export async function getRunRationale(
+  runId: string,
+  options?: ApiGetOptions,
+): Promise<components["schemas"]["RunRationale"]> {
+  try {
+    return await apiGetSealedManifestAware<components["schemas"]["RunRationale"]>(
+      `/v1/runs/${encodeURIComponent(runId)}/review-trail/rationale`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runRationaleBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Aggregate sponsor explanation (themes, posture, counts) with nested full explanation payload. */
@@ -116,8 +182,15 @@ export async function getRunExplanationSummary(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<RunExplanationSummary> {
-  return apiGetSealedManifestAware<RunExplanationSummary>(
-    `/v1/explain/runs/${encodeURIComponent(runId)}/aggregate`,
-    options,
-  );
+  try {
+    return await apiGetSealedManifestAware<RunExplanationSummary>(
+      `/v1/explain/runs/${encodeURIComponent(runId)}/aggregate`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runExplanationSummaryBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

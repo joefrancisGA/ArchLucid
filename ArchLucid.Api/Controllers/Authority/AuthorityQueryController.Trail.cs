@@ -31,26 +31,33 @@ public sealed partial class AuthorityQueryController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunPipelineTimeline(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        IReadOnlyList<RunPipelineTimelineItemResponse>? items =
-            await readHandlers.TryGetPipelineTimelineAsync(runId, ct);
+            IReadOnlyList<RunPipelineTimelineItemResponse>? items =
+                await readHandlers.TryGetPipelineTimelineAsync(runId, ct);
 
-        if (items is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (items is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        await readHandlers.LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, null, ct);
+            await readHandlers.LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, null, ct);
 
-        return Ok(items);
+            return Ok(items);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Unified decision rationale (authority or coordinator) for operator triage.</summary>
@@ -65,22 +72,29 @@ public sealed partial class AuthorityQueryController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunRationale(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        RunRationale? rationale = await readHandlers.GetRunRationaleAsync(runId, ct);
+            RunRationale? rationale = await readHandlers.GetRunRationaleAsync(runId, ct);
 
-        return rationale is null
-            ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
-            : Ok(rationale);
+            return rationale is null
+                ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
+                : Ok(rationale);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Gets compact counts/metadata for a golden manifest in the current scope.</summary>
@@ -97,41 +111,48 @@ public sealed partial class AuthorityQueryController
         Guid manifestId,
         CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        ManifestSummaryDto? result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
-
-        if (result is null)
-            return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
-
-        RunDetailDto? manifestDetail =
-            await queryService.GetRunDetailForManifestCompareAsync(scope, result.RunId, ct);
-
-        IActionResult? sealedGuardResult = EnsureManifestSummarySealedReadAllowed(result, manifestDetail);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        return Ok(new ManifestSummaryResponse
+        try
         {
-            ManifestId = result.ManifestId,
-            RunId = result.RunId,
-            CreatedUtc = result.CreatedUtc,
-            ManifestHash = result.ManifestHash,
-            RuleSetId = result.RuleSetId,
-            RuleSetVersion = result.RuleSetVersion,
-            DecisionCount = result.DecisionCount,
-            WarningCount = result.WarningCount,
-            UnresolvedIssueCount = result.UnresolvedIssueCount,
-            Status = result.Status,
-            HasWarnings = result.WarningCount > 0,
-            HasUnresolvedIssues = result.UnresolvedIssueCount > 0,
-            OperatorSummary =
-                $"{result.DecisionCount} decisions, {result.WarningCount} warnings, {result.UnresolvedIssueCount} unresolved issues, status {result.Status}",
-            TopDecisionSynopses = result.TopDecisionSynopses,
-            FeasibilityVerdict = result.FeasibilityVerdict,
-            EffectiveGovernanceAtCommit = result.EffectiveGovernanceAtCommit,
-            ReviewStandardsAtCommit = result.ReviewStandardsAtCommit
-        });
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            ManifestSummaryDto? result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
+
+            if (result is null)
+                return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
+
+            RunDetailDto? manifestDetail =
+                await queryService.GetRunDetailForManifestCompareAsync(scope, result.RunId, ct);
+
+            IActionResult? sealedGuardResult = EnsureManifestSummarySealedReadAllowed(result, manifestDetail);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            return Ok(new ManifestSummaryResponse
+            {
+                ManifestId = result.ManifestId,
+                RunId = result.RunId,
+                CreatedUtc = result.CreatedUtc,
+                ManifestHash = result.ManifestHash,
+                RuleSetId = result.RuleSetId,
+                RuleSetVersion = result.RuleSetVersion,
+                DecisionCount = result.DecisionCount,
+                WarningCount = result.WarningCount,
+                UnresolvedIssueCount = result.UnresolvedIssueCount,
+                Status = result.Status,
+                HasWarnings = result.WarningCount > 0,
+                HasUnresolvedIssues = result.UnresolvedIssueCount > 0,
+                OperatorSummary =
+                    $"{result.DecisionCount} decisions, {result.WarningCount} warnings, {result.UnresolvedIssueCount} unresolved issues, status {result.Status}",
+                TopDecisionSynopses = result.TopDecisionSynopses,
+                FeasibilityVerdict = result.FeasibilityVerdict,
+                EffectiveGovernanceAtCommit = result.EffectiveGovernanceAtCommit,
+                ReviewStandardsAtCommit = result.ReviewStandardsAtCommit
+            });
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -202,27 +223,34 @@ public sealed partial class AuthorityQueryController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetRunGoldenManifest(Guid runId, CancellationToken ct = default)
     {
-        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+        try
+        {
+            RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        if (detail.GoldenManifest is null)
-            return this.NotFoundProblem(
-                $"Golden manifest for run '{runId}' was not found.",
-                ProblemTypes.ManifestNotFound);
+            if (detail.GoldenManifest is null)
+                return this.NotFoundProblem(
+                    $"Golden manifest for run '{runId}' was not found.",
+                    ProblemTypes.ManifestNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        await readHandlers.LogRunScopedAuditAsync(
-            AuditEventTypes.ManifestViewed,
-            runId,
-            detail.GoldenManifest.ManifestId,
-            ct);
+            await readHandlers.LogRunScopedAuditAsync(
+                AuditEventTypes.ManifestViewed,
+                runId,
+                detail.GoldenManifest.ManifestId,
+                ct);
 
-        return Ok(detail.GoldenManifest);
+            return Ok(detail.GoldenManifest);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunQuerySealedManifestConflict(ex);
+        }
     }
 }

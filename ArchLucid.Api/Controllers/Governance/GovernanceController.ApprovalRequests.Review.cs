@@ -103,11 +103,11 @@ public sealed partial class GovernanceController
                 ex,
                 "Approve conflict: approval request '{ApprovalRequestId}' already finalized by a concurrent request.",
                 approvalRequestId);
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
         catch (ConflictException ex)
         {
-return MapGovernanceSealedManifestConflict(ex);
+            return MapGovernanceSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -208,11 +208,11 @@ return MapGovernanceSealedManifestConflict(ex);
                 ex,
                 "Reject conflict: approval request '{ApprovalRequestId}' already finalized by a concurrent request.",
                 approvalRequestId);
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
         catch (ConflictException ex)
         {
-return MapGovernanceSealedManifestConflict(ex);
+            return MapGovernanceSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

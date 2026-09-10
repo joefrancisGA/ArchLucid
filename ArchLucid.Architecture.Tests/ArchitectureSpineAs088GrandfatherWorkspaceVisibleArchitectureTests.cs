@@ -1,34 +1,57 @@
-using ArchLucid.Application.Architecture;
-using ArchLucid.Contracts.Architecture;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Repositories;
-
 using FluentAssertions;
 
 namespace ArchLucid.Architecture.Tests;
 
-/// <summary>AS-088: grandfathered architectures (RestrictToShares = false) remain list-visible until opt-in.</summary>
+/// <summary>AS-088: grandfather backfill keeps existing architectures workspace-visible until opt-in.</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ArchitectureSpineAs088GrandfatherWorkspaceVisibleArchitectureTests
 {
-    private static readonly ScopeContext Scope = new()
-    {
-        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-    };
+    private static readonly string RepoRoot = FindRepoRoot();
 
     [Fact]
-    public async Task As088_list_includes_unrestricted_architecture_for_workspace_readers()
+    public void Migration_381_backfills_restrict_to_shares_zero()
     {
-        InMemoryArchitectureIdentityRepository repository = new();
-        ArchitectureIdentityRecord created = await repository.CreateAsync(Scope, "Grandfather package", null);
+        string migrationText = ReadPersistenceSql("Migrations", "381_GrandfatherArchitecturesRestrictToShares.sql");
 
-        created.RestrictToShares.Should().BeFalse("AS-088 default open — column defaults to 0 on new rows");
+        migrationText.Should().Contain("AS-088");
+        migrationText.Should().Contain("UPDATE dbo.Architectures");
+        migrationText.Should().Contain("RestrictToShares = 0");
+        migrationText.Should().NotContain("ROW LEVEL SECURITY", "ADR 0037 tenant catalog — no SQL RLS (AS-088)");
+    }
 
-        ArchitectureIdentityListPage page = await repository.ListAsync(Scope, page: 1, pageSize: 50);
+    [Fact]
+    public void Migration_380_default_remains_workspace_visible_grandfather()
+    {
+        string migrationText = ReadPersistenceSql("Migrations", "380_ArchitectureShares.sql");
 
-        page.Items.Should().ContainSingle(item => item.ArchitectureId == created.ArchitectureId);
+        migrationText.Should().Contain("DF_Architectures_RestrictToShares DEFAULT (0)");
+    }
+
+    private static string ReadPersistenceSql(params string[] relativeSegments)
+    {
+        string[] parts = new string[relativeSegments.Length + 2];
+        parts[0] = RepoRoot;
+        parts[1] = "ArchLucid.Persistence";
+        Array.Copy(relativeSegments, 0, parts, 2, relativeSegments.Length);
+        string path = Path.Combine(parts);
+        File.Exists(path).Should().BeTrue($"expected SQL at {path}");
+
+        return File.ReadAllText(path);
+    }
+
+    private static string FindRepoRoot()
+    {
+        DirectoryInfo? dir = new(AppContext.BaseDirectory);
+
+        while (dir is not null)
+        {
+            if (File.Exists(Path.Combine(dir.FullName, "ArchLucid.sln")))
+                return dir.FullName;
+
+            dir = dir.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate repo root (ArchLucid.sln).");
     }
 }

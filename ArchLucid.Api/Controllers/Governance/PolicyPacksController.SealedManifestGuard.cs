@@ -1,3 +1,4 @@
+using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Governance;
@@ -40,7 +41,7 @@ public sealed partial class PolicyPacksController
     ///     Maps policy pack mutation/simulate <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
     /// </summary>
     private IActionResult MapPolicyPackSealedManifestConflict(ConflictException ex) =>
-        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        PolicyPackSealedManifestConflictMapping.MapPolicyPackSealedManifestConflict(this, ex);
 
     private async Task<IActionResult?> EnsurePolicyPackSimulateRunSealedManifestAllowedAsync(
         string runId,

@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
@@ -26,9 +27,9 @@ public sealed partial class AuditController
         if (matchingRows <= exportMaxRows)
             return null;
 
-        return this.ConflictProblem(
-            $"Audit export blocked: {matchingRows} events match the filter but maxRows is {exportMaxRows}. "
-            + "Narrow the date range or filters, or raise maxRows up to 10,000.",
-            ProblemTypes.AuditExportRowCapExceeded);
+        return MapAuditExportSealedManifestConflict(
+            new ConflictException(
+                $"Audit export blocked: {matchingRows} events match the filter but maxRows is {exportMaxRows}. "
+                + "Narrow the date range or filters, or raise maxRows up to 10,000."));
     }
 }

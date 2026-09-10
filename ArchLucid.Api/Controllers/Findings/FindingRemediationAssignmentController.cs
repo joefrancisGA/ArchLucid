@@ -90,56 +90,63 @@ public sealed partial class FindingRemediationAssignmentController(
         if (string.IsNullOrWhiteSpace(assignee))
             assignee = null;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        IActionResult? sealedGuardResult =
-            await EnsureFindingRemediationAssignmentSealedManifestAllowedAsync(request.RunId, scope, ct);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        bool updated = await _remediationAssignmentRepository.TryUpdateAssignmentAsync(
-            request.RunId,
-            trimmedId,
-            scope,
-            assignee,
-            request.RemediationDueUtc,
-            ct);
-
-        if (!updated)
+        try
         {
-            return this.NotFoundProblem(
-                $"Finding '{trimmedId}' was not found for run '{request.RunId:D}' in the current scope.",
-                ProblemTypes.ResourceNotFound);
-        }
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.FindingRemediationAssignmentUpdated,
-                RunId = request.RunId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        findingId = trimmedId,
-                        assignedToUserId = assignee,
-                        remediationDueUtc = request.RemediationDueUtc
-                    })
-            },
-            ct);
+            IActionResult? sealedGuardResult =
+                await EnsureFindingRemediationAssignmentSealedManifestAllowedAsync(request.RunId, scope, ct);
 
-        if (assignee is not null)
-        {
-            await _assignmentEmailDispatcher.TryDispatchAsync(
-                scope.TenantId,
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            bool updated = await _remediationAssignmentRepository.TryUpdateAssignmentAsync(
                 request.RunId,
                 trimmedId,
-                trimmedId,
+                scope,
                 assignee,
                 request.RemediationDueUtc,
                 ct);
-        }
 
-        return NoContent();
+            if (!updated)
+            {
+                return this.NotFoundProblem(
+                    $"Finding '{trimmedId}' was not found for run '{request.RunId:D}' in the current scope.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.FindingRemediationAssignmentUpdated,
+                    RunId = request.RunId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            findingId = trimmedId,
+                            assignedToUserId = assignee,
+                            remediationDueUtc = request.RemediationDueUtc
+                        })
+                },
+                ct);
+
+            if (assignee is not null)
+            {
+                await _assignmentEmailDispatcher.TryDispatchAsync(
+                    scope.TenantId,
+                    request.RunId,
+                    trimmedId,
+                    trimmedId,
+                    assignee,
+                    request.RemediationDueUtc,
+                    ct);
+            }
+
+            return NoContent();
+        }
+        catch (ConflictException ex)
+        {
+            return MapFindingRemediationAssignmentSealedManifestConflict(ex);
+        }
     }
 }

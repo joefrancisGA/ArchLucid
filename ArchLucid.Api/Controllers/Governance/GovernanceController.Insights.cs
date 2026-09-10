@@ -146,7 +146,8 @@ public sealed partial class GovernanceController
         }
         catch (ConflictException ex)
         {
-return MapGovernanceSealedManifestConflict(ex);
+            return MapGovernanceSealedManifestConflict(ex);
+
         }
     }
 

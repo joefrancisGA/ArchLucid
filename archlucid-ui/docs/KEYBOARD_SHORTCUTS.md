@@ -72,6 +72,18 @@ Focus a finding card or row (`data-finding-id`, typically `role="article"` / `ta
 | **Alt+K** | Focus previous finding (stays on first) |
 
 
+## Page-specific: Inventory diagrams (`/governance/infrastructure/diagrams`)
+
+Focus the diagram viewport (`data-testid="architecture-diagram-viewport"`, `tabIndex={0}`) before using zoom shortcuts. Implemented in [`ArchitectureDiagramViewer`](../src/components/architecture/ArchitectureDiagramViewer.tsx).
+
+| Combo | Action |
+|-------|--------|
+| **+** or **=** | Zoom in |
+| **−** | Zoom out |
+| **0** | Reset zoom to 100% |
+
+Zoom level persists in the `diagZoom` URL query parameter while you stay on the workbench.
+
 ## Page-specific: Review detail (`/architecture/reviews/[reviewId]`)
 
 Focus a finding card on the Findings tab (or governance findings lists). **Alt+J/K** and **Alt+1–3** respect the visible classification band in Working mode (IS-07 / IS-10). Implemented via [`FindingKeyboardTriageHost`](../src/components/governance/findings/FindingKeyboardTriageHost.tsx).

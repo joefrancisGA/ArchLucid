@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -36,28 +37,35 @@ public sealed partial class FindingMuteController
         if (request.RunId == Guid.Empty)
             return this.BadRequestProblem("Run id is required.", ProblemTypes.ValidationFailed);
 
-        IActionResult? sealedGuardResult = await EnsureFindingMuteRunSealedManifestAllowedAsync(
-            request.RunId,
-            ct);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        bool updated = await _findingRecordMuteRepository.TryUnmuteAsync(
-            request.RunId,
-            trimmedId,
-            scope,
-            ct);
-
-        if (!updated)
+        try
         {
-            return this.NotFoundProblem(
-                $"Finding '{trimmedId}' was not found for run '{request.RunId:D}' in the current scope, or is not muted.",
-                ProblemTypes.ResourceNotFound);
-        }
+            IActionResult? sealedGuardResult = await EnsureFindingMuteRunSealedManifestAllowedAsync(
+                request.RunId,
+                ct);
 
-        return NoContent();
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            bool updated = await _findingRecordMuteRepository.TryUnmuteAsync(
+                request.RunId,
+                trimmedId,
+                scope,
+                ct);
+
+            if (!updated)
+            {
+                return this.NotFoundProblem(
+                    $"Finding '{trimmedId}' was not found for run '{request.RunId:D}' in the current scope, or is not muted.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return NoContent();
+        }
+        catch (ConflictException ex)
+        {
+            return MapFindingMuteSealedManifestConflict(ex);
+        }
     }
 }

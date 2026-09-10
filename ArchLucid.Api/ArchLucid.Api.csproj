@@ -49,6 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="..\docs\architecture\data\product-capability-map.json" Link="docs\architecture\data\product-capability-map.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\archlucid-ui\public\logo\icon-512.png" Link="Branding\icon-512.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

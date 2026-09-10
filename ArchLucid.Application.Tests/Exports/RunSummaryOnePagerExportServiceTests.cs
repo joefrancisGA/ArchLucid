@@ -96,6 +96,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
 
+
         RunSummaryOnePagerExportResult result = await sut.GenerateMarkdownAsync(runId, CancellationToken.None);
         string markdown = System.Text.Encoding.UTF8.GetString(result.Content);
 
@@ -252,6 +253,7 @@ public sealed class RunSummaryOnePagerExportServiceTests
             Mock.Of<IConfiguration>(),
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
+
 
         Func<Task> act = () => sut.GenerateMarkdownAsync(runId, CancellationToken.None);
 

@@ -61,6 +61,7 @@ import {
   fetchInfraEvidenceSnapshots,
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
@@ -112,13 +113,6 @@ const MATCH_KIND_FILTERS: readonly { value: DiagramReconcileMatchKindFilter; lab
   { value: "Exact", label: "Exact" },
   { value: "Probable", label: "Probable" },
 ];
-
-function formatSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
-  const captured = snapshot.capturedUtc != null ? new Date(snapshot.capturedUtc).toLocaleString() : "unknown time";
-  const subscription = snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription";
-
-  return `${subscription} · ${captured} · ${snapshot.resourceCount} resources`;
-}
 
 function buildDiagramReconcileCorrespondenceAskHref(
   row: DiagramInfrastructureCorrespondenceRow,
@@ -849,7 +843,7 @@ export function DiagramReconcileWorkbenchClient() {
             ) : (
               snapshots.map((snapshot) => (
                 <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                  {formatSnapshotLabel(snapshot)}
+                  {formatInfraEvidenceSnapshotLabel(snapshot)}
                 </option>
               ))
             )}
