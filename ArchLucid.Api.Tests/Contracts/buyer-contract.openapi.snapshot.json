@@ -5576,6 +5576,52 @@
         },
         "type": "object"
       },
+      "ArchitectureShareListResponse": {
+        "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "restrictToShares": {
+            "type": "boolean"
+          },
+          "shares": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureShareResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureShareResponse": {
+        "properties": {
+          "actorOid": {
+            "type": "string"
+          },
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "grantedBy": {
+            "type": "string"
+          },
+          "grantedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "rowVersionBase64": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureTraceTimelineEntry": {
         "properties": {
           "kind": {
@@ -12970,6 +13016,13 @@
       },
       "DraftRequestSummaryResponse": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdByUserId": {
             "type": "string"
           },
@@ -22663,6 +22716,17 @@
         },
         "type": "object"
       },
+      "PatchArchitectureRestrictToSharesRequest": {
+        "properties": {
+          "confirmRestrict": {
+            "type": "boolean"
+          },
+          "restrictToShares": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "PatchDraftRequest": {
         "properties": {
           "actorSet": {
@@ -26202,6 +26266,17 @@
         "required": [
           "contentJson"
         ],
+        "type": "object"
+      },
+      "PutArchitectureShareRequest": {
+        "properties": {
+          "actorOid": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "PutRunCoverageAcknowledgementRequest": {

@@ -25,7 +25,7 @@ public sealed class ArchitectureIdentityServiceRenameTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         ArchitectureIdentityRecord created = await identityRepository.CreateAsync(Scope, "Original name", null);
 
@@ -46,7 +46,7 @@ public sealed class ArchitectureIdentityServiceRenameTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         ArchitectureIdentityRecord created = await identityRepository.CreateAsync(Scope, "Original name", null);
 
@@ -61,7 +61,7 @@ public sealed class ArchitectureIdentityServiceRenameTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         ArchitectureIdentityRecord created = await identityRepository.CreateAsync(Scope, "Scoped", null);
 
@@ -83,7 +83,7 @@ public sealed class ArchitectureIdentityServiceRenameTests
         InMemoryDraftRequestRepository draftRepository = new();
         InMemoryRunRepository runRepository = new();
         InMemoryArchitectureIdentityRepository identityRepository = new(draftRepository, runRepository);
-        ArchitectureIdentityService sut = new(identityRepository, runRepository, draftRepository);
+        ArchitectureIdentityService sut = ArchitectureIdentityServiceTestSupport.Create(identityRepository, runRepository, draftRepository);
 
         ArchitectureIdentityRecord created = await identityRepository.CreateAsync(Scope, "Payments API", null);
 

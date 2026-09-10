@@ -110,7 +110,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       findingsSnapshot: buyerSummary?.findingsSnapshot ?? null,
       run: { runId: summaryQuery.data.runId },
       results: [],
-    } as RunDetail;
+    } as unknown as RunDetail;
     const findings = extractSealedQuickDecisionFindingsFromRunDetail(pseudoDetail);
 
     if (findings.length === 0) {

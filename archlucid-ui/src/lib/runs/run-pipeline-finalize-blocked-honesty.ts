@@ -1,9 +1,9 @@
 import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
 import { shouldSuppressReadyToFinalizeForPreCommitGateHonesty } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { shouldSuppressReadyToFinalizeForQualityGateHonesty } from "@/lib/governance/agent-output-quality-gate-career-honesty";
-import { shouldLabelWorkingIntentAsRehearsal } from "@/lib/governance/working-career-rehearsal-gate";
-import type { WorkingCareerRehearsalIntentId } from "@/lib/governance/working-career-rehearsal-intent";
 import { shouldSuppressReadyToFinalizeForSimulatorRehearsal } from "@/lib/governance/simulator-career-honesty";
+import { shouldSuppressReadyToFinalizeForWorkingRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import { countSkippedMustQuestions } from "@/lib/review-quality/count-skipped-must-questions";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { QualityGateModeInput } from "@/lib/governance/agent-output-quality-gate-career-honesty";
@@ -18,7 +18,7 @@ export type RunPipelineFinalizeBlockedHonestyInput = {
   readonly hostQualityGateMode?: QualityGateModeInput;
   readonly aggregateQualityGateOutcome?: number | null;
   readonly transparencyTrail?: TransparencyTrail | null;
-  readonly workingCareerRehearsalIntent?: WorkingCareerRehearsalIntentId | null;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
 };
 
 /** FC-70 — suppress Ready-to-finalize when career honesty would block sealing. */
@@ -29,19 +29,11 @@ export function shouldSuppressReadyToFinalizeForCareerHonesty(
     return true;
   }
 
-  if (shouldSuppressReadyToFinalizeForQualityGateHonesty(input)) {
+  if (shouldSuppressReadyToFinalizeForWorkingRehearsalDoor(input)) {
     return true;
   }
 
-  if (
-    input.workingCareerRehearsalIntent !== undefined
-    && input.workingCareerRehearsalIntent !== null
-    && shouldLabelWorkingIntentAsRehearsal({
-      workingDesk: input.workingDesk,
-      intent: input.workingCareerRehearsalIntent,
-      structuralExecutionMode: input.structuralExecutionMode,
-    })
-  ) {
+  if (shouldSuppressReadyToFinalizeForQualityGateHonesty(input)) {
     return true;
   }
 

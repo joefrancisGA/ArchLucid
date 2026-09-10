@@ -13,12 +13,27 @@ const apiMocks = vi.hoisted(() => ({
 }));
 
 const useOperateCapabilityMock = vi.hoisted(() => vi.fn(() => true));
-const routerReplaceMock = vi.hoisted(() => vi.fn());
+const navigationMocks = vi.hoisted(() => {
+  let searchParams = new URLSearchParams();
+  const routerReplaceMock = vi.fn((href: string) => {
+    const queryIndex = href.indexOf("?");
+
+    searchParams = new URLSearchParams(queryIndex >= 0 ? href.slice(queryIndex + 1) : "");
+  });
+
+  return {
+    routerReplaceMock,
+    getSearchParams: (): URLSearchParams => searchParams,
+    resetSearchParams: (): void => {
+      searchParams = new URLSearchParams();
+    },
+  };
+});
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: routerReplaceMock, refresh: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: navigationMocks.routerReplaceMock, refresh: vi.fn() }),
   usePathname: () => "/integrations/webhooks",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => navigationMocks.getSearchParams(),
 }));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
@@ -84,6 +99,8 @@ describe("WebhooksIntegrationPage", () => {
     apiMocks.toggle.mockReset();
     useOperateCapabilityMock.mockReset();
     useOperateCapabilityMock.mockReturnValue(true);
+    navigationMocks.resetSearchParams();
+    navigationMocks.routerReplaceMock.mockClear();
 
     apiMocks.list.mockResolvedValue([]);
     apiMocks.create.mockResolvedValue({});
@@ -507,6 +524,39 @@ describe("WebhooksIntegrationPage", () => {
     });
   });
 
+  it("does not show save success when list refresh fails after create", async () => {
+    let listCallCount = 0;
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([]);
+      }
+
+      return Promise.reject(new Error("list refresh failed"));
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    await waitFor(() => {
+      expect(apiMocks.create).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    expect(screen.queryByTestId("webhook-save-success-callout")).toBeNull();
+    expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/list refresh failed/i);
+  });
+
   it("shows save failure feedback without raw internal errors", async () => {
     apiMocks.create.mockRejectedValue(new Error("routingSubscriptionId conflict in dbo.AlertRouting"));
 
@@ -690,6 +740,154 @@ describe("WebhooksIntegrationPage", () => {
     await waitFor(() => {
       expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
     });
+  });
+
+  it("keeps enable confirmation open when list refresh fails after toggle", async () => {
+    const subscriptionId = "sub-enable-refresh-fail-1";
+    let listCallCount = 0;
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "PagerDuty alerts",
+            channelType: "OnCallWebhook",
+            destination: "https://example.com/webhooks/archlucid",
+            minimumSeverity: "High",
+            isEnabled: false,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+          },
+        ]);
+      }
+
+      return Promise.reject(new Error("list refresh failed"));
+    });
+    apiMocks.toggle.mockResolvedValue(undefined);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("webhook-subscription-enable-error")).toHaveTextContent(/list refresh failed/i);
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+  });
+
+  it("keeps disable confirmation open when list refresh fails after toggle", async () => {
+    const subscriptionId = "sub-disable-refresh-fail-1";
+    let listCallCount = 0;
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "PagerDuty alerts",
+            channelType: "OnCallWebhook",
+            destination: "https://example.com/webhooks/archlucid",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+          },
+        ]);
+      }
+
+      return Promise.reject(new Error("list refresh failed"));
+    });
+    apiMocks.toggle.mockResolvedValue(undefined);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    fireEvent.click(screen.getByRole("button", { name: "Disable" }));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    expect(screen.getByText(/Disable webhook subscription PagerDuty alerts/i)).toBeInTheDocument();
+    expect(screen.getByTestId("alert-routing-subscription-disable-error")).toHaveTextContent(/list refresh failed/i);
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+  });
+
+  it("clears stale webhookDisableId from the URL when the subscription is missing from loaded rows", async () => {
+    navigationMocks.getSearchParams().set("webhookDisableId", "missing-subscription");
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-disable-1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(navigationMocks.routerReplaceMock).toHaveBeenCalledWith("/integrations/webhooks", { scroll: false });
+    });
+
+    expect(screen.queryByText(/Disable webhook subscription/i)).not.toBeInTheDocument();
+  });
+
+  it("clears stale webhookEnableId from the URL when the subscription is missing from loaded rows", async () => {
+    navigationMocks.getSearchParams().set("webhookEnableId", "missing-subscription");
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-enable-1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(navigationMocks.routerReplaceMock).toHaveBeenCalledWith("/integrations/webhooks", { scroll: false });
+    });
+
+    expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
   });
 
   it("does not render mid-page About webhooks panel (TB-2093)", async () => {
@@ -970,6 +1168,119 @@ describe("WebhooksIntegrationPage", () => {
       expect((screen.getByLabelText(/^Signing secret$/i) as HTMLInputElement).value).toBe("");
     });
     await waitFor(() => expect(apiMocks.list).toHaveBeenCalled());
+  });
+
+  it("does not show continue-last row for another workspace subscription after scope switch", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+    const { writeWebhookSubscriptionLastViewedId } = await import(
+      "@/lib/resolve-continue-last-webhook-subscription"
+    );
+    const subscriptionIdA = "11111111-1111-1111-1111-111111111111";
+    const subscriptionIdB = "22222222-2222-2222-2222-222222222222";
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionIdA,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook A",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-a",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionIdA}`);
+    writeWebhookSubscriptionLastViewedId(subscriptionIdA);
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionIdB,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook B",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-b",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-02T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionIdB}`);
+    expect(screen.queryByTestId("webhooks-continue-last-viewed-row")).toBeNull();
+    expect(screen.queryByText("Hook A")).toBeNull();
+  });
+
+  it("closes enable and disable confirmation dialogs when operator scope switches workspaces", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+    const subscriptionId = "11111111-1111-1111-1111-111111111111";
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook A",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-a",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(/Disable webhook subscription Hook A/i)).toBeInTheDocument();
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Disable webhook subscription Hook A/i)).not.toBeInTheDocument();
+    });
+    expect(navigationMocks.routerReplaceMock).toHaveBeenCalledWith("/integrations/webhooks", { scroll: false });
   });
 
   it("does not show toggle failure in a new workspace when enable completes after scope switch", async () => {
