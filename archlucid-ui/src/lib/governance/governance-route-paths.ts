@@ -44,6 +44,12 @@ export const GOVERNANCE_REMEDIATION_FACTORY_PATH = "/governance/remediation-fact
 /** SecureNow Security shell — remediation factory (same page, Security URL namespace). */
 export const SECURENOW_REMEDIATION_FACTORY_PATH = "/security/remediation-factory" as const;
 
+/** IE-14 remediation pattern registry — list, version history, YAML import, SoD-gated approve. */
+export const GOVERNANCE_REMEDIATION_PATTERNS_PATH = "/governance/remediation-patterns" as const;
+
+/** SecureNow Security shell — remediation patterns (same page, Security URL namespace). */
+export const SECURENOW_REMEDIATION_PATTERNS_PATH = "/security/remediation-patterns" as const;
+
 /** Cross-review decision register (left-nav). */
 export const GOVERNANCE_DECISION_REGISTER_PATH = "/governance/decision-register" as const;
 

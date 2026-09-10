@@ -10,12 +10,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
-  GOVERNANCE_REMEDIATION_FACTORY_PATH,
   SECURENOW_REMEDIATION_FACTORY_PATH,
+  SECURENOW_REMEDIATION_PATTERNS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
-
-const GOVERNANCE_REMEDIATION_PATTERNS_PATH = "/governance/remediation-patterns";
 
 describe("SecureNow governance contextual help rows", () => {
   it("does not resolve Approval copy for remediation factory", () => {
@@ -31,12 +29,12 @@ describe("SecureNow governance contextual help rows", () => {
   });
 
   it("does not resolve Approval copy for remediation patterns", () => {
-    const entry = contextualHelpForPathname(GOVERNANCE_REMEDIATION_PATTERNS_PATH, { productLineId: "security" });
+    const entry = contextualHelpForPathname(SECURENOW_REMEDIATION_PATTERNS_PATH, { productLineId: "security" });
 
     expect(entry?.whatIsThisPage).toContain("Remediation patterns");
     expect(entry?.whatIsThisPage).toContain("Draft");
     expect(entry?.whatIsThisPage).not.toContain("approval queue");
-    expect(pageHelpTopicForPathname(GOVERNANCE_REMEDIATION_PATTERNS_PATH, "security")?.slug).toBe(
+    expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_PATTERNS_PATH, "security")?.slug).toBe(
       "remediation-patterns",
     );
   });

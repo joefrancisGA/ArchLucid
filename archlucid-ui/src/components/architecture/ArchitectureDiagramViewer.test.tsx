@@ -20,6 +20,8 @@ describe("ArchitectureDiagramViewer", () => {
       <ArchitectureDiagramViewer
         mermaidSource={'flowchart TB\n  a["A"]'}
         textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
         onRetry={onRetry}
       />,
     );

@@ -1,4 +1,5 @@
 using ArchLucid.Architecture.Tests.DependencyInjection;
+using ArchLucid.Core.ProductCapability;
 
 using FluentAssertions;
 

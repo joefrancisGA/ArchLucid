@@ -1,3 +1,5 @@
+using ArchLucid.Core.ProductCapability;
+
 using FluentAssertions;
 
 namespace ArchLucid.Architecture.Tests.ProductCapability;
