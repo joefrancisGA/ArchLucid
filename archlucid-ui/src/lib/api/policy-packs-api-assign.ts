@@ -45,7 +45,6 @@ export async function archivePolicyPackAssignment(assignmentId: string): Promise
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }
 
 /** Enables or disables one policy pack assignment for the current workspace. */
