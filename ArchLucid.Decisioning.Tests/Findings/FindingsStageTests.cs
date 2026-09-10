@@ -99,7 +99,9 @@ public sealed class FindingsMergeAndGateStageTests
         FindingsMergeAndGateStage stage = new(
             Options.Create(new HumanReviewFindingOptions()),
             Options.Create(new InsightDensityGateOptions()),
-            new FindingProvenanceValidator());
+            new FindingProvenanceValidator(),
+            Options.Create(new FindingSemanticSupportBandOptions()),
+            NoOpFindingSemanticSupportBandLlmJudge.Instance);
 
         await stage.ExecuteAsync(context, CancellationToken.None);
 
@@ -128,7 +130,9 @@ public sealed class FindingsMergeAndGateStageTests
         FindingsMergeAndGateStage stage = new(
             Options.Create(new HumanReviewFindingOptions()),
             Options.Create(new InsightDensityGateOptions()),
-            new FindingProvenanceValidator());
+            new FindingProvenanceValidator(),
+            Options.Create(new FindingSemanticSupportBandOptions()),
+            NoOpFindingSemanticSupportBandLlmJudge.Instance);
 
         await stage.ExecuteAsync(context, CancellationToken.None);
 
@@ -180,7 +184,9 @@ public sealed class FindingsMergeAndGateStageTests
         FindingsMergeAndGateStage stage = new(
             Options.Create(new HumanReviewFindingOptions()),
             Options.Create(new InsightDensityGateOptions()),
-            new FindingProvenanceValidator());
+            new FindingProvenanceValidator(),
+            Options.Create(new FindingSemanticSupportBandOptions()),
+            NoOpFindingSemanticSupportBandLlmJudge.Instance);
 
         await stage.ExecuteAsync(context, CancellationToken.None);
 
