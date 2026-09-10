@@ -5,7 +5,8 @@ namespace ArchLucid.Core.AgentEvaluation;
 /// <summary>
 ///     Picks the newest trace per <see cref="AgentExecutionTrace.TaskId" /> so superseded auto-retry attempts do not
 ///     affect downstream evaluation. Ordering is <see cref="AgentExecutionTrace.AttemptIndex" /> first (TB-035), then
-///     <see cref="AgentExecutionTrace.CreatedUtc" />, then <see cref="AgentExecutionTrace.TraceId" />.
+///     quality-preference rank for upsert-drift duplicate rows, then <see cref="AgentExecutionTrace.CreatedUtc" />,
+///     then <see cref="AgentExecutionTrace.TraceId" />.
 /// </summary>
 public static class AgentExecutionTraceLatestPerTaskSelector
 {
@@ -20,8 +21,8 @@ public static class AgentExecutionTraceLatestPerTaskSelector
             .GroupBy(GetLatestPerTaskKey, StringComparer.OrdinalIgnoreCase)
             .Select(static g => g
                 .OrderByDescending(static t => t.AttemptIndex)
-                .ThenByDescending(static t => t.CreatedUtc)
                 .ThenByDescending(QualityPreferenceRank)
+                .ThenByDescending(static t => t.CreatedUtc)
                 .ThenByDescending(static t => t.TraceId, StringComparer.Ordinal)
                 .First())
             .ToList();

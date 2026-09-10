@@ -136,6 +136,7 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
             TaskId = taskId,
             AgentType = AgentType.Compliance,
             CreatedUtc = olderUtc,
+            AttemptIndex = 0,
             RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
         };
         AgentExecutionTrace latestRejected = new()
@@ -144,6 +145,7 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
             TaskId = taskId,
             AgentType = AgentType.Compliance,
             CreatedUtc = newerUtc,
+            AttemptIndex = 2,
             RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
         };
 
@@ -494,6 +496,47 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
 
         RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [trace])
             .Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_same_attempt_duplicates_with_different_created_utc_does_not_block_on_newer_rejected()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 1, 10, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 1, 10, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace acceptedDuplicate = new()
+        {
+            TraceId = "trace-a-accepted",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace rejectedDuplicate = new()
+        {
+            TraceId = "trace-z-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [rejectedDuplicate, acceptedDuplicate]);
+
+        reasons.Should().BeEmpty(
+            "upsert-drift duplicate rows at the same attempt must not block commit when an accepted trace exists");
     }
 
     [Fact]
