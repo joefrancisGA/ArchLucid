@@ -4764,11 +4764,53 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
         AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("non-secret").Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData("nosecret")]
+    [InlineData("no-secret")]
+    [InlineData("nopassword")]
+    [InlineData("no_password")]
+    public void IsSensitiveKey_ignores_no_prefixed_secret_fragments(string key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("unsecret")]
+    [InlineData("un-secret")]
+    [InlineData("unpassword")]
+    [InlineData("un_password")]
+    public void IsSensitiveKey_ignores_un_prefixed_secret_fragments(string key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("mysecret")]
+    [InlineData("disclosureSecret")]
+    [InlineData("classificationPassword")]
+    public void IsSensitiveKey_ignores_embedded_secret_fragment_in_compound_property_name(string key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeFalse();
+    }
+
     [Fact]
     public void RedactStructuredJson_redacts_sensitive_keys_inside_array_elements()
     {
         using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
             """[{"apiKey":"abc123"},{"location":"eastus"}]""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("[REDACTED]");
+        redacted.Should().NotContain("abc123");
+        redacted.Should().Contain("eastus");
+    }
+
+    [Fact]
+    public void RedactStructuredJson_redacts_sensitive_keys_inside_nested_array_objects()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"bindings":[{"settings":{"apiKey":"abc123"}}],"region":"eastus"}""");
 
         string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
 

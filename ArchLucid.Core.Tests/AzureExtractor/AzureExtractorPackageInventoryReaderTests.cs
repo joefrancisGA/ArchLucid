@@ -705,6 +705,31 @@ public sealed class AzureExtractorPackageInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_treats_string_true_is_unknown_type_as_false()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Unknown/widget1",
+                "resourceType": "Microsoft.Unknown/widget",
+                "name": "widget1",
+                "isUnknownType": "true"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].IsUnknownType.Should().BeFalse();
+    }
+
+    [Fact]
     public void TryReadFromZip_fails_on_malformed_resources_json()
     {
         byte[] zipBytes = BuildZip("{ not-valid-json");

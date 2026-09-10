@@ -344,6 +344,30 @@ public sealed class AzureExtractorResourceInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_skips_resource_rows_with_whitespace_only_resource_type()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "name": "sa1",
+                "resourceType": "   ",
+                "location": "eastus"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        error.Should().BeNull();
+        lines.Should().NotBeNull();
+        lines!.Should().BeEmpty();
+    }
+
+    [Fact]
     public void TryReadFromZip_returns_empty_lines_for_empty_resources_array()
     {
         byte[] zipBytes = BuildZip("[]");

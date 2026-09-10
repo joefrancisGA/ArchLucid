@@ -113,6 +113,19 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_unsupported_future_schema_reports_exact_version_in_error_detail()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 99, includeResources: true);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.ErrorDetail.Should().Be(
+            "Unsupported manifest schemaVersion: 99. Supported schema versions: 1–2.");
+    }
+
+    [Fact]
     public void Validate_legacy_schema_zero_is_schema_rejection()
     {
         byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 0, includeResources: true);
