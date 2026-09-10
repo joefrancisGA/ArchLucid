@@ -1,3 +1,5 @@
+using ArchLucid.Application.Reporting;
+using ArchLucid.Application.Templates;
 using ArchLucid.Host.Core.Hosting;
 
 using Microsoft.Extensions.DependencyInjection;
