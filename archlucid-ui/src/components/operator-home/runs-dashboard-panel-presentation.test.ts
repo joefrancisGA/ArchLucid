@@ -9,7 +9,7 @@ import {
   runsDashboardHomeHrefFromSearch,
 } from "@/components/operator-home/runs-dashboard-panel-presentation";
 
-describe("home governance warnings URL helpers", () => {
+describe("home approval warnings URL helpers", () => {
   it("detects warnings query param", () => {
     expect(homeGovernanceWarningsQueryEnabled(new URLSearchParams("warnings=1"))).toBe(true);
     expect(homeGovernanceWarningsQueryEnabled(new URLSearchParams("warnings=true"))).toBe(true);

@@ -1,12 +1,14 @@
 "use client";
 
 import { ArchitectureCreatedOverviewEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedOverviewEvidenceOrientationStrip";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 /** Buyer default: mount Sources orientation after primary Overview workspace (REO). */
 export function ArchitectureCreatedOverviewBuyerChrome(): React.JSX.Element | null {
-  if (!isBuyerPolishedOperatorShellEnv()) {
+  const evalChromeShell = useProductionEvalChrome();
+
+  if (!evalChromeShell) {
     return null;
   }
 

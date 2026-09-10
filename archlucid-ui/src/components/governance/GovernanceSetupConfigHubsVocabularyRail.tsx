@@ -18,7 +18,7 @@ export type GovernanceSetupConfigHubsVocabularyRailProps = {
   readonly model?: GovernanceSetupConfigHubsVocabularyModel;
 };
 
-/** TB-2297 — Governance setup guide vs live Alert rules / Policy packs / Standards hubs. */
+/** TB-2297 — Approval setup guide vs live Alert rules / Policy packs / Standards hubs. */
 export function GovernanceSetupConfigHubsVocabularyRail(
   props: GovernanceSetupConfigHubsVocabularyRailProps,
 ): JSX.Element {

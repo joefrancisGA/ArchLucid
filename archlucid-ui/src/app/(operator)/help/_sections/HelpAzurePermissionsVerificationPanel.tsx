@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -16,6 +17,10 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tokens";
 import { isAzureGuid } from "@/lib/azure-identifier-validation";
 import { sanitizeHostedAzureValidationError } from "@/lib/sanitize-hosted-azure-validation-error";
+import {
+  helpAzurePermissionsTechnicalDetailsDisclosureHrefFromSearch,
+  parseHelpAzurePermissionsTechnicalDetailsOpenFromSearch,
+} from "@/lib/help/help-azure-permissions-technical-details-disclosure-url";
 import { cn } from "@/lib/utils";
 
 export type AzurePermissionsVerificationState =
@@ -69,11 +74,42 @@ function verificationStatusTag(
 }
 
 export function HelpAzurePermissionsVerificationPanel(props: HelpAzurePermissionsVerificationPanelProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpAzurePermissionsTechnicalDetailsOpenParam = searchParams.get("helpAzurePermissionsTechnicalDetailsOpen");
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseHelpAzurePermissionsTechnicalDetailsOpenFromSearch(helpAzurePermissionsTechnicalDetailsOpenParam),
+  );
   const canRunValidation = useNavCallerAuthorityRank() >= AUTHORITY_RANK.AdminAuthority;
   const [state, setState] = useState<AzurePermissionsVerificationState>({ status: "idle" });
   const subscriptionId = props.subscriptionId?.trim() ?? "";
   const hasSubscription = subscriptionId.length > 0 && isAzureGuid(subscriptionId);
   const statusTag = useMemo(() => verificationStatusTag(state), [state]);
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        helpAzurePermissionsTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(
+      parseHelpAzurePermissionsTechnicalDetailsOpenFromSearch(helpAzurePermissionsTechnicalDetailsOpenParam),
+    );
+  }, [helpAzurePermissionsTechnicalDetailsOpenParam]);
 
   const verify = useCallback(async () => {
     if (!hasSubscription) {
@@ -157,7 +193,13 @@ export function HelpAzurePermissionsVerificationPanel(props: HelpAzurePermission
         </p>
       )}
       {state.status === "failed" && state.technicalDetail ? (
-        <details className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800">
+        <details
+          className="rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800"
+          open={technicalDetailsOpen}
+          onToggle={(event) => {
+            setTechnicalDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className="cursor-pointer font-medium">View technical details</summary>
           <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{state.technicalDetail}</p>
         </details>

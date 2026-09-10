@@ -81,8 +81,14 @@ public sealed partial class UserPreferencesController
         decimal roiLoadedHourlyCostUsd = RoiLoadedHourlyCostUsdValues.ParseOrDefault(roiLoadedHourlyCostStored);
         bool findingsHideGenericEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsHideGenericStored);
         bool findingsShowLowConfidenceEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsShowLowConfidenceStored);
+        if (!FindingsVisibilityToggleValues.IsExplicitValue(findingsShowLowConfidenceStored)
+            && string.Equals(workspaceMode, WorkspaceModeValues.Working, StringComparison.OrdinalIgnoreCase))
+        {
+            findingsShowLowConfidenceEnabled = true;
+        }
         bool findingsShowAdvisoryEnabled = FindingsVisibilityToggleValues.ParseOrDefault(findingsShowAdvisoryStored);
         DeskContinuityDto deskContinuity = DeskContinuityValues.NormalizeOrDefault(deskContinuityStored);
+        deskContinuity = await EnrichDeskContinuityFromReviewAsync(deskContinuity, cancellationToken);
 
         return Ok(new UserPreferencesResponse
         {

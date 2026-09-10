@@ -162,11 +162,11 @@ public sealed class QuickScanDistributedConcurrencyService(
                 {
                     promoteResult = await _store.TryPromoteAsync(promoteRequest, cancellationToken).ConfigureAwait(false);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     _logger.LogError(ex, "Quick Scan distributed concurrency promote failed.");
 
-                    await _store.AbandonQueueEntryAsync(waitingQueueEntryId, cancellationToken).ConfigureAwait(false);
+                    await AbandonQueueEntryForCleanupAsync(waitingQueueEntryId).ConfigureAwait(false);
 
                     return QuickScanDistributedConcurrencyAdmissionResult.Reject(
                         QuickScanConcurrencyRejectionReason.StoreUnavailable);
@@ -191,16 +191,37 @@ public sealed class QuickScanDistributedConcurrencyService(
         }
         catch (OperationCanceledException)
         {
-            await _store.AbandonQueueEntryAsync(waitingQueueEntryId, CancellationToken.None).ConfigureAwait(false);
+            await AbandonQueueEntryForCleanupAsync(waitingQueueEntryId).ConfigureAwait(false);
 
             throw;
         }
 
-        await _store.AbandonQueueEntryAsync(waitingQueueEntryId, cancellationToken).ConfigureAwait(false);
+        await AbandonQueueEntryForCleanupAsync(waitingQueueEntryId).ConfigureAwait(false);
 
         _telemetry.RecordConcurrencyRejection(telemetryContext, QuickScanConcurrencyRejectionReason.QueueTimeout);
 
         return QuickScanDistributedConcurrencyAdmissionResult.Reject(
             QuickScanConcurrencyRejectionReason.QueueTimeout);
+    }
+
+    private async Task AbandonQueueEntryForCleanupAsync(Guid queueEntryId)
+    {
+        try
+        {
+            await _store.AbandonQueueEntryAsync(queueEntryId, CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Quick Scan distributed concurrency abandon failed; retrying once.");
+
+            try
+            {
+                await _store.AbandonQueueEntryAsync(queueEntryId, CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception retryEx)
+            {
+                _logger.LogError(retryEx, "Quick Scan distributed concurrency abandon retry failed.");
+            }
+        }
     }
 }

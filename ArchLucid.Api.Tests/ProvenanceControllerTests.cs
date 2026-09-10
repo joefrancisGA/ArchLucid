@@ -1,6 +1,8 @@
 using ArchLucid.Api.Controllers.Planning;
 using ArchLucid.Api.Models;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Provenance;
 
 using FluentAssertions;
@@ -36,7 +38,11 @@ public sealed class ProvenanceControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        ProvenanceController controller = new(service.Object, scopeProvider.Object)
+        ProvenanceController controller = new(
+            service.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -61,7 +67,11 @@ public sealed class ProvenanceControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        ProvenanceController controller = new(service.Object, scopeProvider.Object);
+        ProvenanceController controller = new(
+            service.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
 
         IActionResult action = await controller.GetFullGraph(runId, CancellationToken.None);
 
@@ -91,7 +101,11 @@ public sealed class ProvenanceControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        ProvenanceController controller = new(service.Object, scopeProvider.Object);
+        ProvenanceController controller = new(
+            service.Object,
+            scopeProvider.Object,
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>());
 
         await controller.GetNodeNeighborhood(runId, nodeId, depth: 999, CancellationToken.None);
 

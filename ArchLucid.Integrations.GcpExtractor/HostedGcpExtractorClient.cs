@@ -14,8 +14,6 @@ public sealed class HostedGcpExtractorClient(
     GcpWorkloadIdentityCredentialFactory credentialFactory,
     ILogger<HostedGcpExtractorClient> logger) : IHostedGcpExtractorClient
 {
-    private const int MaxResultsPerSearch = 50;
-
     private readonly GcpWorkloadIdentityCredentialFactory _credentialFactory =
         credentialFactory ?? throw new ArgumentNullException(nameof(credentialFactory));
 
@@ -46,7 +44,7 @@ public sealed class HostedGcpExtractorClient(
             Credential = credential
         }.BuildAsync(cancellationToken).ConfigureAwait(false);
 
-        List<GcpInventoryResourceEntry> resources = await SearchResourcesAsync(
+        List<GcpInventoryResourceEntry> resources = await GcpAssetInventoryCollector.CollectAsync(
                 client,
                 projectId,
                 cancellationToken)
@@ -75,31 +73,4 @@ public sealed class HostedGcpExtractorClient(
         };
     }
 
-    private static async Task<List<GcpInventoryResourceEntry>> SearchResourcesAsync(
-        AssetServiceClient client,
-        string projectId,
-        CancellationToken cancellationToken)
-    {
-        SearchAllResourcesRequest request = new()
-        {
-            Scope = $"projects/{projectId}",
-            PageSize = MaxResultsPerSearch
-        };
-
-        List<GcpInventoryResourceEntry> resources = new();
-
-        await foreach (ResourceSearchResult item in client
-                           .SearchAllResourcesAsync(request)
-                           .WithCancellation(cancellationToken)
-                           .ConfigureAwait(false))
-        {
-            resources.Add(new GcpInventoryResourceEntry(
-                item.Name ?? string.Empty,
-                item.AssetType ?? string.Empty,
-                item.Location ?? string.Empty,
-                null));
-        }
-
-        return resources;
-    }
 }

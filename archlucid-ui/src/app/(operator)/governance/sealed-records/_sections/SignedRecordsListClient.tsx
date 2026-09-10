@@ -10,11 +10,21 @@ import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStat
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  GOVERNANCE_SIGNED_RECORDS_LIST_BUYER_START_HERE_HELPER,
+  GOVERNANCE_SIGNED_RECORDS_LIST_LOAD_ERROR,
+  GOVERNANCE_SIGNED_RECORDS_LIST_PAGE_LEAD,
+  GOVERNANCE_SIGNED_RECORDS_LIST_PRIMARY_CONTENT_ID,
+  GOVERNANCE_SIGNED_RECORDS_LIST_SKIP_LINK_LABEL,
+} from "@/lib/governance-signed-records-list-page-copy";
+import { SIGNED_RECORDS_LIST_CLAIM_DISCIPLINE } from "@/lib/signed-records-list-evidence-copy";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 
@@ -22,12 +32,13 @@ import { formatSignedRecordsListRecordCount } from "./signed-records-list-copy";
 import {
   SIGNED_RECORDS_LIST_LIST_LEAD,
   SIGNED_RECORDS_LIST_LOADING_STATUS,
-  SIGNED_RECORDS_LIST_PAGE_SUBTITLE,
   SIGNED_RECORDS_LIST_PAGE_TITLE,
   SIGNED_RECORDS_LIST_RETRY_FAILED_STATUS,
   SIGNED_RECORDS_LIST_RETRY_SUCCEEDED_STATUS,
 } from "./signed-records-list-copy";
+import { signedRecordsListPageSubtitle } from "./signed-records-list-page-copy";
 import { SignedRecordsContinueLastViewedRow } from "./SignedRecordsContinueLastViewedRow";
+import { SignedRecordsListBuyerChrome } from "./SignedRecordsListBuyerChrome";
 import { SignedRecordsListPickReviewBeforeFilteringStrip } from "./SignedRecordsListPickReviewBeforeFilteringStrip";
 import { SignedRecordsListNextReviewFooterClient } from "./SignedRecordsListNextReviewFooterClient";
 import { SignedRecordsListPagination } from "./SignedRecordsListPagination";
@@ -38,6 +49,7 @@ import { SignedRecordsListEmptyStates } from "./SignedRecordsListEmptyStates";
 import { useSignedRecordsListClient } from "./use-signed-records-list-client";
 
 export default function SignedRecordsListClient() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const {
     scopedRunId,
     scopedRunFilterActive,
@@ -86,6 +98,8 @@ export default function SignedRecordsListClient() {
     clearFilters,
   } = useSignedRecordsListClient();
 
+  const pageSubtitle = signedRecordsListPageSubtitle(buyerPolishedShell);
+
   const headerActions = (
     <div className="flex flex-wrap items-center gap-2" data-testid="signed-records-list-header-actions">
       <PageContextualHelpButton />
@@ -99,31 +113,34 @@ export default function SignedRecordsListClient() {
     </div>
   );
 
-  return (
-    <OperatorPageContainer variant="dashboard">
-      <OperatorPageHeader
-        navHref={SIGNED_RECORDS_LIST_PATH}
-        title={SIGNED_RECORDS_LIST_PAGE_TITLE}
-        subtitle={SIGNED_RECORDS_LIST_PAGE_SUBTITLE}
-        titleTestId="signed-records-list-page-title"
-        breadcrumb={<GovernanceSealedRecordsListBreadcrumb />}
-        actions={headerActions}
-      />
-      <ArchitectureObjectMapStrip focus="sealed" />
-
-      {usedStaticFallback && isOperatorExperienceFullShellEnv() ? (
+  const listBody = (
+    <>
+      {usedStaticFallback && isOperatorExperienceFullShellEnv() && !buyerPolishedShell ? (
         <div className="mb-4 max-w-5xl">
           <OperatorDemoStaticBanner emphasizeSampleData />
         </div>
       ) : null}
 
-      {hasRows ? <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="signed-records" /> : null}
+      {!buyerPolishedShell && hasRows ? (
+        <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="signed-records" />
+      ) : null}
 
       {continueLastViewedRow !== null && hasRows ? (
         <SignedRecordsContinueLastViewedRow row={continueLastViewedRow} scopedRunId={scopedRunId} />
       ) : null}
 
-      {loadFailure !== null ? (
+      {loadFailure !== null && buyerPolishedShell ? (
+        <OperatorSectionLoadFailure
+          message={GOVERNANCE_SIGNED_RECORDS_LIST_LOAD_ERROR}
+          retrying={loading}
+          testId="signed-records-list-load-failure"
+          onRetry={() => {
+            void loadRows({ page, cursor });
+          }}
+        />
+      ) : null}
+
+      {loadFailure !== null && !buyerPolishedShell ? (
         <div className="mb-4 space-y-3" data-testid="signed-records-list-load-failure">
           <OperatorApiProblem failure={loadFailure} />
         </div>
@@ -266,6 +283,62 @@ export default function SignedRecordsListClient() {
       ) : null}
 
       {scopedRunFilterActive ? <SignedRecordsListNextReviewFooterClient runId={scopedRunId} /> : null}
+      {buyerPolishedShell ? <SignedRecordsListBuyerChrome /> : null}
+    </>
+  );
+
+  return (
+    <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"}>
+      {buyerPolishedShell ? (
+        <a
+          href={`#${GOVERNANCE_SIGNED_RECORDS_LIST_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_SIGNED_RECORDS_LIST_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <OperatorPageHeader
+        navHref={SIGNED_RECORDS_LIST_PATH}
+        title={SIGNED_RECORDS_LIST_PAGE_TITLE}
+        subtitle={pageSubtitle}
+        titleTestId="signed-records-list-page-title"
+        claimDiscipline={SIGNED_RECORDS_LIST_CLAIM_DISCIPLINE}
+        claimDisciplineTestId="signed-records-list-claim-discipline"
+        breadcrumb={<GovernanceSealedRecordsListBreadcrumb />}
+        actions={headerActions}
+      />
+
+      {!buyerPolishedShell ? <ArchitectureObjectMapStrip focus="sealed" /> : null}
+
+      {buyerPolishedShell ? (
+        <div
+          id={GOVERNANCE_SIGNED_RECORDS_LIST_PRIMARY_CONTENT_ID}
+          className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+          data-testid="governance-signed-records-list-primary-content"
+        >
+          <div
+            className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+            data-testid="governance-signed-records-list-first-viewport"
+          >
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="governance-signed-records-list-intro"
+            >
+              {GOVERNANCE_SIGNED_RECORDS_LIST_PAGE_LEAD}
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="governance-signed-records-list-buyer-start-here-helper"
+            >
+              {GOVERNANCE_SIGNED_RECORDS_LIST_BUYER_START_HERE_HELPER}
+            </p>
+          </div>
+          {listBody}
+        </div>
+      ) : (
+        listBody
+      )}
     </OperatorPageContainer>
   );
 }

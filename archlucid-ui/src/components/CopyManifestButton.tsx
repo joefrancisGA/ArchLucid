@@ -6,9 +6,13 @@ import { useState, type ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
 import { BUYER_COPY_REVIEW_RECORD_JSON } from "@/lib/buyer/buyer-polish-copy";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
+import type { CareerArtifactHonestyInput } from "@/lib/career-artifact/career-artifact-honesty";
 import { fetchManifestJsonText } from "@/lib/manifest-json-fetch";
 import { signedReviewRecordBlockedReason } from "@/lib/manifest/signed-review-record-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildSealedManifestExportJson } from "@/lib/sealed-manifest-json-export";
+
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 
 type CopyManifestButtonProps = {
@@ -16,11 +20,17 @@ type CopyManifestButtonProps = {
   readonly manifestVersion?: string | null;
   readonly className?: string;
   readonly buyerPolishedLayout?: boolean;
+  readonly careerArtifactHonesty?: Omit<CareerArtifactHonestyInput, "artifactKind" | "runId" | "workingDesk">;
 };
 
 /** One-click copy of the committed golden manifest JSON to the clipboard. */
 export function CopyManifestButton(props: CopyManifestButtonProps): ReactElement {
-  const { runId, manifestVersion, className, buyerPolishedLayout } = props;
+  const { runId, manifestVersion, className, buyerPolishedLayout, careerArtifactHonesty } = props;
+  const workingDesk = useProductionDeskChrome();
+  const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
+    runId,
+    manifestVersion,
+  });
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +48,19 @@ export function CopyManifestButton(props: CopyManifestButtonProps): ReactElement
 
     try {
       const jsonText = await fetchManifestJsonText(runId);
-      await navigator.clipboard.writeText(jsonText);
+      const exportResult = buildSealedManifestExportJson({
+        rawManifestJson: jsonText,
+        runId,
+        workingDesk,
+        careerArtifactHonesty,
+      });
+
+      if (!exportResult.ok) {
+        setError(exportResult.blockedReason);
+        return;
+      }
+
+      await navigator.clipboard.writeText(exportResult.jsonText);
       setCopied(true);
       window.setTimeout(() => {
         setCopied(false);
@@ -64,12 +86,21 @@ export function CopyManifestButton(props: CopyManifestButtonProps): ReactElement
         variant="outline"
         size="sm"
         data-testid="copy-manifest-json-button"
-        disabled={copying}
+        disabled={copying || sealedManifestBlockedReason !== null}
         className="border-neutral-300 dark:border-neutral-600"
         onClick={() => void onCopy()}
       >
         {copying ? "Preparing JSON…" : copied ? "Copied!" : buyerPolishedLayout === true ? BUYER_COPY_REVIEW_RECORD_JSON : "Copy review record JSON"}
       </Button>
+      {sealedManifestBlockedReason !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="copy-manifest-json-blocked-reason"
+        >
+          {sealedManifestBlockedReason}
+        </p>
+      ) : null}
       {error !== null ? (
         <p
           role="alert"

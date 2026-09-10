@@ -28,11 +28,13 @@ import {
   CLOUD_PLATFORM_CHIP_OPTIONS,
   type CloudConnectionsPageViewModel,
 } from "./use-cloud-connections-page";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 
 export type CloudConnectionsProviderListProps = CloudConnectionsPageViewModel;
 
 export function CloudConnectionsProviderList(props: CloudConnectionsProviderListProps) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { localize } = useLocalizedProductCopy();
   const {
     currentSearch,
     urlPlatform,
@@ -47,6 +49,7 @@ export function CloudConnectionsProviderList(props: CloudConnectionsProviderList
     totalProviderCount,
     recommendedProviderId,
     continueLastProvider,
+    visiblePlatformChipOptions,
   } = props;
 
   return (
@@ -84,7 +87,7 @@ export function CloudConnectionsProviderList(props: CloudConnectionsProviderList
         className="flex flex-wrap gap-2"
         data-testid="cloud-connections-platform-chips"
       >
-        {CLOUD_PLATFORM_CHIP_OPTIONS.map((option) => (
+        {visiblePlatformChipOptions.map((option) => (
           <FilterChip
             key={option.id}
             href={cloudConnectionsPlatformHrefFromSearch(currentSearch, option.id)}
@@ -117,7 +120,7 @@ export function CloudConnectionsProviderList(props: CloudConnectionsProviderList
 
       {visibleProviders.length === 0 ? (
         <p className={OPERATOR_TYPOGRAPHY.helper}>
-          {CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_LEAD}{" "}
+          {localize(CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_LEAD)}{" "}
           <Link
             href={CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF}
             className={OPERATOR_LINK.nav}

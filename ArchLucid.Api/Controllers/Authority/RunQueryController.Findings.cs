@@ -114,6 +114,7 @@ public sealed partial class RunQueryController
             RunFindingsQueryOutcome.Success => Ok(result.Chain),
             RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
                 new ConflictException(result.ProblemDetail!)),
+
             _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
         };
     }
@@ -149,6 +150,7 @@ public sealed partial class RunQueryController
             RunFindingsQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
             RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
                 new ConflictException(result.ProblemDetail!)),
+
             _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
         };
     }

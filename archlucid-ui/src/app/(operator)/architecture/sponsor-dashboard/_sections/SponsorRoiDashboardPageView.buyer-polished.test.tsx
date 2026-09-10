@@ -71,10 +71,13 @@ vi.mock("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorDashbo
   SponsorDashboardSupportingMetricsSection: () => null,
 }));
 
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { SponsorRoiDashboardPageView } from "@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardPageView";
 import {
   ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE,
   ARCHITECTURE_SPONSOR_DASHBOARD_FOLLOW_UPS_TITLE,
+  ARCHITECTURE_SPONSOR_DASHBOARD_SOURCES,
 } from "@/lib/architecture/architecture-sponsor-dashboard-evidence-copy";
 import {
   SPONSOR_DASHBOARD_FIRST_VIEWPORT_ID,
@@ -86,7 +89,7 @@ import {
 } from "@/lib/sponsor/sponsor-dashboard-page-copy";
 
 describe("SponsorRoiDashboardPageView buyer-polished shell (ARE)", () => {
-  it("renders skip link, workspace before follow-ups, buyer subtitle, and keeps contextual help", () => {
+  it("renders skip link, orientation above workspace, buyer subtitle, Sources links, and hides contextual help", () => {
     render(<SponsorRoiDashboardPageView surface="sponsor" />);
 
     expect(screen.getByRole("link", { name: SPONSOR_DASHBOARD_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -103,7 +106,7 @@ describe("SponsorRoiDashboardPageView buyer-polished shell (ARE)", () => {
       ).not.toBeInTheDocument();
     }
     expect(screen.queryByTestId("sponsor-dashboard-scope-details")).toBeNull(); // TB-2093
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("sponsor-dashboard-refresh-button")).toBeInTheDocument();
     expect(screen.queryByText(SPONSOR_DASHBOARD_SCOPE_DETAILS_TRIGGER)).toBeNull(); // TB-2093
     expect(screen.queryByTestId("sponsor-dashboard-how-it-works")).not.toBeInTheDocument();
@@ -111,19 +114,26 @@ describe("SponsorRoiDashboardPageView buyer-polished shell (ARE)", () => {
       ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByRole("heading", { level: 2, name: ARCHITECTURE_SPONSOR_DASHBOARD_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-sponsor-dashboard-sources")).toBeInTheDocument();
 
     const primaryContent = screen.getByTestId("sponsor-dashboard-primary-content");
     const hero = screen.getByTestId("sponsor-dashboard-page-hero");
     const firstViewport = screen.getByTestId(SPONSOR_DASHBOARD_FIRST_VIEWPORT_ID);
     const emptyState = screen.getByTestId("sponsor-dashboard-empty-state");
-    const orientationBottom = screen.getByTestId("architecture-sponsor-dashboard-orientation-bottom");
+    const orientationTop = screen.getByTestId("architecture-sponsor-dashboard-orientation-top");
+    const sourcesSection = screen.getByTestId("architecture-sponsor-dashboard-sources");
 
     expect(primaryContent).toContainElement(hero);
     expect(primaryContent).toContainElement(firstViewport);
-    expect(primaryContent).toContainElement(orientationBottom);
+    expect(firstViewport).not.toContainElement(hero);
+    expect(firstViewport).toContainElement(orientationTop);
     expect(firstViewport).toContainElement(emptyState);
-    expect(hero.compareDocumentPosition(firstViewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientationTop).toContainElement(sourcesSection);
+    expect(orientationTop.compareDocumentPosition(emptyState) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByTestId("architecture-sponsor-dashboard-orientation-bottom")).not.toBeInTheDocument();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(ARCHITECTURE_SPONSOR_DASHBOARD_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

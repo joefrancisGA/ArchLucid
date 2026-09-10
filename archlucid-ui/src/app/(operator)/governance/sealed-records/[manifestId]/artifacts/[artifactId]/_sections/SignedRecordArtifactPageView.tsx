@@ -14,6 +14,7 @@ import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStat
 import {
   OperatorEvidenceLimitsFooter,
 } from "@/components/operator/OperatorEvidenceLimitsFooter";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,16 +35,23 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { SIGNED_RECORD_ARTIFACT_CLAIM_DISCIPLINE } from "@/lib/signed-record-artifact-evidence-copy";
 import {
+  SIGNED_RECORD_ARTIFACT_BUYER_START_HERE_HELPER,
   SIGNED_RECORD_ARTIFACT_CONTENT_HASH_LABEL,
   SIGNED_RECORD_ARTIFACT_DOWNLOAD_UNAVAILABLE,
   SIGNED_RECORD_ARTIFACT_GENERATED_LABEL,
+  SIGNED_RECORD_ARTIFACT_PAGE_LEAD,
   SIGNED_RECORD_ARTIFACT_PREVIEW_RETRY,
+  SIGNED_RECORD_ARTIFACT_PRIMARY_CONTENT_ID,
   SIGNED_RECORD_ARTIFACT_SIBLINGS_HEADING,
+  SIGNED_RECORD_ARTIFACT_SKIP_LINK_LABEL,
   SIGNED_RECORD_ARTIFACT_WHAT_IS_THIS_HEADING,
   signedRecordArtifactPageSubtitle,
 } from "@/lib/signed-record-artifact-page-copy";
 import { signedRecordArtifactPath } from "@/lib/signed-records-paths";
+import { SignedRecordArtifactBuyerChrome } from "./SignedRecordArtifactBuyerChrome";
 import { SignedRecordArtifactGeneratedTimestamp } from "./signed-record-artifact-generated-timestamp";
 import { SignedRecordArtifactPageHeader } from "./SignedRecordArtifactPageHeader";
 import { SignedRecordArtifactPageSkeleton } from "./SignedRecordArtifactPageSkeleton";
@@ -88,123 +96,178 @@ export function SignedRecordArtifactPageView(props: SignedRecordArtifactPageView
 
   const downloadAvailable = model.contentError === null;
 
+  const artifactBody = refreshing ? (
+    <SignedRecordArtifactPageSkeleton />
+  ) : (
+    <>
+      <Card data-testid="signed-record-artifact-metadata-card">
+        <CardHeader>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SIGNED_RECORD_ARTIFACT_WHAT_IS_THIS_HEADING}</CardTitle>
+          <CardDescription>{getArtifactTypeDescription(model.descriptor.artifactType)}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
+            <div>
+              <dt className={OPERATOR_TYPOGRAPHY.label}>Output</dt>
+              <dd className="m-0 mt-1 font-medium text-al-text-primary">{displayLabel}</dd>
+            </div>
+            <div>
+              <dt className={OPERATOR_TYPOGRAPHY.label}>Format</dt>
+              <dd className="m-0 mt-1">{getArtifactFormatLabel(model.descriptor.format)}</dd>
+            </div>
+            <div>
+              <dt className={OPERATOR_TYPOGRAPHY.label}>{SIGNED_RECORD_ARTIFACT_GENERATED_LABEL}</dt>
+              <dd className="m-0 mt-1">
+                <SignedRecordArtifactGeneratedTimestamp createdUtc={model.descriptor.createdUtc} />
+              </dd>
+            </div>
+            <div>
+              <HelpCopyableValue
+                label={SIGNED_RECORD_ARTIFACT_CONTENT_HASH_LABEL}
+                value={model.descriptor.contentHash}
+                testId="signed-record-artifact-content-hash"
+              />
+            </div>
+          </dl>
+          {downloadAvailable ? (
+            <ExportTrackedAnchor href={getArtifactDownloadUrl(model.manifestId, model.artifactId)}>
+              Download artifact
+            </ExportTrackedAnchor>
+          ) : (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="signed-record-artifact-download-unavailable">
+              {SIGNED_RECORD_ARTIFACT_DOWNLOAD_UNAVAILABLE}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <section aria-labelledby="signed-record-artifact-preview-heading" className="space-y-3">
+        <h2 id="signed-record-artifact-preview-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          Preview
+        </h2>
+        {model.contentError !== null ? (
+          <div data-testid="signed-record-artifact-content-error"><OperatorWarningCallout>
+            <strong>In-shell preview unavailable.</strong>
+            <p className="mt-2">{model.contentError}</p>
+            <div className="mt-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-testid="signed-record-artifact-preview-retry-button"
+                onClick={onRefresh}
+              >
+                {SIGNED_RECORD_ARTIFACT_PREVIEW_RETRY}
+              </Button>
+            </div>
+          </OperatorWarningCallout></div>) : (
+          <ArtifactReviewContent
+            prepared={model.prepared}
+            contentType={model.contentType}
+            byteLength={model.byteLength}
+            truncated={model.truncated}
+            contentError={null}
+          />
+        )}
+      </section>
+
+      {model.siblings.length > 0 ? (
+        <section aria-labelledby="signed-record-artifact-siblings-heading" className="space-y-3">
+          <h2 id="signed-record-artifact-siblings-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+            {SIGNED_RECORD_ARTIFACT_SIBLINGS_HEADING}
+          </h2>
+          <ArtifactListTable
+            manifestId={model.manifestId}
+            artifacts={model.siblings}
+            currentArtifactId={model.artifactId}
+            runId={model.runId ?? undefined}
+            sponsorMode={buyerPolishedLayout}
+          />
+        </section>
+      ) : null}
+
+      {buyerPolishedLayout ? <SignedRecordArtifactBuyerChrome /> : null}
+
+      {model.runId !== null ? (
+        <OperatorEvidenceLimitsFooter runId={model.runId} showArchitectureReviewSummaryLink />
+      ) : null}
+    </>
+  );
+
   return (
-    <div className={cn("w-full max-w-[1200px] px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)} data-testid="signed-record-artifact-page">
+    <OperatorPageContainer
+      variant={buyerPolishedLayout ? "workflow" : "dashboard"}
+      className={cn("w-full max-w-[1200px] px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)}
+      data-testid="signed-record-artifact-page"
+    >
+      {buyerPolishedLayout ? (
+        <a
+          href={`#${SIGNED_RECORD_ARTIFACT_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {SIGNED_RECORD_ARTIFACT_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
       <SignedRecordArtifactPageHeader
         subtitle={signedRecordArtifactPageSubtitle(buyerPolishedLayout)}
         breadcrumb={breadcrumb}
+        claimDiscipline={buyerPolishedLayout ? SIGNED_RECORD_ARTIFACT_CLAIM_DISCIPLINE : undefined}
+        claimDisciplineTestId="signed-record-artifact-claim-discipline"
         refreshing={refreshing}
         onRefresh={onRefresh}
         lastRefreshedAt={lastRefreshedAt}
       />
 
-      {model.usedStaticDemoFallback && isOperatorExperienceFullShellEnv() ? (
-        <div className="max-w-5xl">
-          <OperatorDemoStaticBanner emphasizeSampleData />
+      {buyerPolishedLayout ? (
+        <div
+          id={SIGNED_RECORD_ARTIFACT_PRIMARY_CONTENT_ID}
+          className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+          data-testid="governance-signed-record-artifact-primary-content"
+        >
+          <div
+            className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+            data-testid="governance-signed-record-artifact-first-viewport"
+          >
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="governance-signed-record-artifact-intro"
+            >
+              {SIGNED_RECORD_ARTIFACT_PAGE_LEAD}
+            </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="governance-signed-record-artifact-buyer-start-here-helper"
+            >
+              {SIGNED_RECORD_ARTIFACT_BUYER_START_HERE_HELPER}
+            </p>
+          </div>
+
+          {model.usedStaticDemoFallback && isOperatorExperienceFullShellEnv() ? (
+            <div className="max-w-5xl">
+              <OperatorDemoStaticBanner emphasizeSampleData />
+            </div>
+          ) : null}
+
+          {artifactBody}
         </div>
-      ) : null}
-
-      <ArtifactPreviewSponsorExportVocabularyRail
-        currentSurfaceId="artifact-preview"
-        artifactHref={signedRecordArtifactPath(model.manifestId, model.descriptor.artifactId)}
-        runId={model.runId}
-      />
-
-      {refreshing ? (
-        <SignedRecordArtifactPageSkeleton />
       ) : (
         <>
-          <Card data-testid="signed-record-artifact-metadata-card">
-            <CardHeader>
-              <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{SIGNED_RECORD_ARTIFACT_WHAT_IS_THIS_HEADING}</CardTitle>
-              <CardDescription>{getArtifactTypeDescription(model.descriptor.artifactType)}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
-                <div>
-                  <dt className={OPERATOR_TYPOGRAPHY.label}>Output</dt>
-                  <dd className="m-0 mt-1 font-medium text-al-text-primary">{displayLabel}</dd>
-                </div>
-                <div>
-                  <dt className={OPERATOR_TYPOGRAPHY.label}>Format</dt>
-                  <dd className="m-0 mt-1">{getArtifactFormatLabel(model.descriptor.format)}</dd>
-                </div>
-                <div>
-                  <dt className={OPERATOR_TYPOGRAPHY.label}>{SIGNED_RECORD_ARTIFACT_GENERATED_LABEL}</dt>
-                  <dd className="m-0 mt-1">
-                    <SignedRecordArtifactGeneratedTimestamp createdUtc={model.descriptor.createdUtc} />
-                  </dd>
-                </div>
-                <div>
-                  <HelpCopyableValue
-                    label={SIGNED_RECORD_ARTIFACT_CONTENT_HASH_LABEL}
-                    value={model.descriptor.contentHash}
-                    testId="signed-record-artifact-content-hash"
-                  />
-                </div>
-              </dl>
-              {downloadAvailable ? (
-                <ExportTrackedAnchor href={getArtifactDownloadUrl(model.manifestId, model.artifactId)}>
-                  Download artifact
-                </ExportTrackedAnchor>
-              ) : (
-                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="signed-record-artifact-download-unavailable">
-                  {SIGNED_RECORD_ARTIFACT_DOWNLOAD_UNAVAILABLE}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <section aria-labelledby="signed-record-artifact-preview-heading" className="space-y-3">
-            <h2 id="signed-record-artifact-preview-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-              Preview
-            </h2>
-            {model.contentError !== null ? (
-              <div data-testid="signed-record-artifact-content-error"><OperatorWarningCallout>
-                <strong>In-shell preview unavailable.</strong>
-                <p className="mt-2">{model.contentError}</p>
-                <div className="mt-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    data-testid="signed-record-artifact-preview-retry-button"
-                    onClick={onRefresh}
-                  >
-                    {SIGNED_RECORD_ARTIFACT_PREVIEW_RETRY}
-                  </Button>
-                </div>
-              </OperatorWarningCallout></div>) : (
-              <ArtifactReviewContent
-                prepared={model.prepared}
-                contentType={model.contentType}
-                byteLength={model.byteLength}
-                truncated={model.truncated}
-                contentError={null}
-              />
-            )}
-          </section>
-
-          {model.siblings.length > 0 ? (
-            <section aria-labelledby="signed-record-artifact-siblings-heading" className="space-y-3">
-              <h2 id="signed-record-artifact-siblings-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {SIGNED_RECORD_ARTIFACT_SIBLINGS_HEADING}
-              </h2>
-              <ArtifactListTable
-                manifestId={model.manifestId}
-                artifacts={model.siblings}
-                currentArtifactId={model.artifactId}
-                runId={model.runId ?? undefined}
-                sponsorMode={buyerPolishedLayout}
-              />
-            </section>
+          {model.usedStaticDemoFallback && isOperatorExperienceFullShellEnv() ? (
+            <div className="max-w-5xl">
+              <OperatorDemoStaticBanner emphasizeSampleData />
+            </div>
           ) : null}
 
-          {model.runId !== null ? (
-            <OperatorEvidenceLimitsFooter runId={model.runId} showArchitectureReviewSummaryLink />
-          ) : null}
+          <ArtifactPreviewSponsorExportVocabularyRail
+            currentSurfaceId="artifact-preview"
+            artifactHref={signedRecordArtifactPath(model.manifestId, model.descriptor.artifactId)}
+            runId={model.runId}
+          />
+
+          {artifactBody}
         </>
       )}
-    </div>
+    </OperatorPageContainer>
   );
 }

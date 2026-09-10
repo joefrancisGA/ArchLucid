@@ -43,6 +43,20 @@ describe("tenant-settings-page-copy", () => {
     ).toContain("Claims Intake");
   });
 
+  it("prefers API project names over synthesized defaults", () => {
+    expect(
+      tenantSettingsEffectiveScopeSummary(
+        {
+          "x-tenant-id": "tenant-1",
+          "x-workspace-id": DEV_SCOPE_WORKSPACE_ID,
+          "x-project-id": DEV_SCOPE_PROJECT_ID,
+        },
+        null,
+        "default",
+      ),
+    ).toBe("Active scope: Workspace: Claims Intake — default");
+  });
+
   it("prefers storage labels when headers match the stored record", () => {
     expect(
       tenantSettingsEffectiveScopeSummary(

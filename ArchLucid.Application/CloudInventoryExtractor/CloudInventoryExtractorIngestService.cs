@@ -1,3 +1,4 @@
+using ArchLucid.Application.Findings.HeldCheck;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
@@ -17,7 +18,8 @@ public sealed partial class CloudInventoryExtractorIngestService(
     IAuditService auditService,
     ICloudInventoryExtractorPackageRepository packageRepository,
     IRunRepository runRepository,
-    ILogger<CloudInventoryExtractorIngestService> logger) : ICloudInventoryExtractorIngestService
+    ILogger<CloudInventoryExtractorIngestService> logger,
+    IHeldCheckSecondPassService? heldCheckSecondPassService = null) : ICloudInventoryExtractorIngestService
 {
     internal const long MaxUploadedZipBytes = CloudInventoryExtractorUploadLimits.MaxZipBytes;
 

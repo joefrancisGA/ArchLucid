@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
@@ -27,9 +28,7 @@ public sealed partial class RunDetailQueryService
         bool useRollupProjection,
         CancellationToken cancellationToken)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-
-        if (!TryParseRunGuid(runId, out Guid runGuid))
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
         {
             if (logger.IsEnabled(LogLevel.Debug))
                 logger.LogDebug("RunDetailQueryService: run '{RunId}' is not a valid run identifier.", LogSanitizer.Sanitize(runId));
@@ -90,6 +89,13 @@ public sealed partial class RunDetailQueryService
             FindingMuteFlagApplier.Apply(results, muteFlags);
         }
 
+        await ApplySemanticSupportBandOverlaysAndLaneBComposeAsync(
+            runId,
+            scope,
+            results,
+            record.FindingsSnapshotId,
+            cancellationToken).ConfigureAwait(false);
+
         FindingTrustLabelEnricher.Apply(run, results, _findingTrustLabelMapper);
 
         GoldenManifest? manifest = await manifestTask.ConfigureAwait(false);
@@ -123,7 +129,7 @@ public sealed partial class RunDetailQueryService
                 TokenCounts = new ArchLucid.Contracts.Runs.RunLlmTokenCountsDto
                 {
                     Prompt = costSummary.PromptTokens,
-                    Completion = costSummary.CompletionTokens
+                    Completion = costSummary.CombinedOutputTokens
                 },
                 Model = costSummary.ModelLabel,
                 CostEstimationBasis = costSummary.CostEstimationBasis
@@ -154,8 +160,4 @@ public sealed partial class RunDetailQueryService
         };
     }
 
-    private static bool TryParseRunGuid(string runId, out Guid runGuid)
-    {
-        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
-    }
 }

@@ -81,6 +81,10 @@ internal static class RealModeSmokeCommand
     {
         Console.WriteLine(
             "Usage: archlucid real-mode smoke [--staging] [--one-line] [--api-base-url <url>] " +
-            "[--timeout-seconds <n>] [--poll-interval-seconds <n>] [--allow-simulator]");
+            "[--timeout-seconds <n>] [--poll-interval-seconds <n>] [--allow-simulator|--rehearse]");
+        Console.WriteLine(
+            "  --rehearse   Rehearsal door alias for --allow-simulator (Simulator smoke; no Real AOAI requirement).");
+        Console.WriteLine(
+            "  Career path  Omit --rehearse on --staging to require Real execution tokens (Career-aligned smoke).");
     }
 }

@@ -134,6 +134,13 @@ public sealed class ArchitectureFinding
         set;
     }
 
+    /// <summary>Semantic support band for Working career surfaces (AS-059 / ADR 0085).</summary>
+    public FindingSemanticSupportBand? SemanticSupportBand
+    {
+        get;
+        set;
+    }
+
     /// <summary>LLM-derived rationale for why the insight is not generic (TB-382; Phase 2).</summary>
     public string? WhyThisIsNotGeneric
     {

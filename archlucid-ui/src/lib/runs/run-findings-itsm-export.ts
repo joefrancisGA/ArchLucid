@@ -2,17 +2,35 @@ import {
   buildTraceRowWorkItemBody,
   type FindingWorkItemJsonDocument,
 } from "@/lib/copy-finding-as-work-item";
+import {
+  buildSemanticSupportBandExportStamp,
+  FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION,
+} from "@/lib/findings/finding-semantic-support-band-export";
 import { severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { partitionFindingsForItsmExport } from "@/lib/findings/decision-grade-finding-export-filter";
+import { findingTrustExportJsonFields } from "@/lib/findings/finding-trust-export";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
 
 /** Bulk JSON export envelope for external ticketing scripts (UI-only seam until V1.1 connectors). */
+export type SemanticSupportBandExportStampDocument = {
+  readonly scorerVersion: string;
+  readonly supported: number;
+  readonly unchecked: number;
+  readonly unsupported: number;
+  readonly notScored: number;
+  readonly decisionGradeTotal: number;
+  readonly stampLine: string | null;
+};
+
 export type RunFindingsItsmJsonExportDocument = {
   schema: "archlucid.findings-export.v1";
   runId: string;
   exportedAtUtc: string;
   findingCount: number;
+  omittedChecklistCoverageCount?: number;
   recordStatus?: string;
+  semanticSupportBandStamp?: SemanticSupportBandExportStampDocument;
   workItems: FindingWorkItemJsonDocument[];
 };
 
@@ -81,16 +99,21 @@ function resolveExportRecordStatus(options?: RunFindingsExportOptions): string {
   return "Open";
 }
 
-/** Builds a CSV export for the on-screen findings set (client-side; matches visible rows). */
+/** Builds a CSV export for decision-grade findings only (client-side; checklist coverage omitted). */
 export function buildQuickDecisionFindingsCsv(
   runId: string,
   findings: readonly QuickDecisionFinding[],
   options?: RunFindingsExportOptions,
 ): string {
+  const { exportableFindings } = partitionFindingsForItsmExport(findings);
   const recordStatus = resolveExportRecordStatus(options);
-  const header = "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,Status,RecordStatus";
-  const lines = findings.map((finding) =>
-    [
+  const header =
+    "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,SemanticSupportBand,SemanticSupportBandScorerVersion,Status,RecordStatus";
+  const lines = exportableFindings.map((finding) => {
+    const trustFields = findingTrustExportJsonFields(finding);
+    const semanticSupportBand = finding.semanticSupportBand ?? "";
+
+    return [
       finding.findingId,
       runId,
       severityLabelFromQuickDecisionFinding(finding),
@@ -98,10 +121,14 @@ export function buildQuickDecisionFindingsCsv(
       escapeCsvCell(finding.recommendation),
       finding.confidenceLevel ?? "",
       finding.policyRuleId ?? "",
+      "trustLabel" in trustFields ? trustFields.trustLabel : "",
+      "trustLabelReason" in trustFields ? trustFields.trustLabelReason ?? "" : "",
+      semanticSupportBand,
+      semanticSupportBand.length > 0 ? FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION : "",
       finding.isMuted ? "Muted" : "Open",
       escapeCsvCell(recordStatus),
-    ].join(","),
-  );
+    ].join(",");
+  });
 
   return [header, ...lines].join("\n");
 }
@@ -122,7 +149,8 @@ export function buildRunFindingsItsmJsonExportDocument(
   siteOrigin: string,
   options?: RunFindingsExportOptions,
 ): RunFindingsItsmJsonExportDocument {
-  const workItems: FindingWorkItemJsonDocument[] = findings.map((finding) => {
+  const { exportableFindings, omittedChecklistCount } = partitionFindingsForItsmExport(findings);
+  const workItems: FindingWorkItemJsonDocument[] = exportableFindings.map((finding) => {
     const jsonBody = buildTraceRowWorkItemBody("json", {
       runId,
       findingId: finding.findingId,
@@ -134,16 +162,29 @@ export function buildRunFindingsItsmJsonExportDocument(
       siteOrigin,
       trustLabel: finding.trustLabel ?? null,
       trustLabelReason: finding.trustLabelReason ?? null,
+      classification: finding.classification ?? "DecisionGradeFinding",
+      semanticSupportBand: finding.semanticSupportBand ?? null,
     });
 
     return JSON.parse(jsonBody) as FindingWorkItemJsonDocument;
   });
 
+  const semanticStamp = buildSemanticSupportBandExportStamp(exportableFindings);
   const document: RunFindingsItsmJsonExportDocument = {
     schema: "archlucid.findings-export.v1",
     runId,
     exportedAtUtc: new Date().toISOString(),
     findingCount: workItems.length,
+    omittedChecklistCoverageCount: omittedChecklistCount > 0 ? omittedChecklistCount : undefined,
+    semanticSupportBandStamp: {
+      scorerVersion: semanticStamp.scorerVersion,
+      supported: semanticStamp.counts.supported,
+      unchecked: semanticStamp.counts.unchecked,
+      unsupported: semanticStamp.counts.unsupported,
+      notScored: semanticStamp.counts.notScored,
+      decisionGradeTotal: semanticStamp.counts.decisionGradeTotal,
+      stampLine: semanticStamp.stampLine,
+    },
     workItems,
   };
 

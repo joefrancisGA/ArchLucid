@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
@@ -22,15 +23,33 @@ import {
   readOperatorFirstRunMinimizedFromStorage,
   syncOperatorFirstRunDoneByIndexToStorage,
 } from "./operator-first-run-workflow-storage";
+import {
+  operatorFirstRunWorkflowMinimizedDisclosureHrefFromSearch,
+  parseOperatorFirstRunWorkflowMinimizedOpenFromSearch,
+} from "@/lib/operator/operator-first-run-workflow-minimized-disclosure-url";
 
 export function useOperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: boolean } = {}) {
   const exploreCompletedOutput = props.exploreCompletedOutput === true;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const operatorFirstRunWorkflowMinimizedOpenParam = searchParams.get("operatorFirstRunWorkflowMinimizedOpen");
   const autoGraduateBlockedRef = useRef(false);
   const [hydrated, setHydrated] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [graduated, setGraduated] = useState(false);
   const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => operatorFirstRunCorePilotSteps.map(() => false));
   const [hasAnyRun, setHasAnyRun] = useState(false);
+
+  const syncMinimizedToUrl = useCallback(
+    (minimizedState: boolean) => {
+      router.replace(
+        operatorFirstRunWorkflowMinimizedDisclosureHrefFromSearch(searchParams.toString(), minimizedState, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
 
   const commitContextQuery = useCorePilotCommitContextQuery({ enabled: !exploreCompletedOutput });
   const runsQuery = useAskProjectRunsQuery("default");
@@ -43,12 +62,25 @@ export function useOperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput
   useEffect(() => {
     const nextDone = readOperatorFirstRunDoneByIndexFromStorage();
     const allDoneFromStorage = nextDone.length === operatorFirstRunCorePilotSteps.length && nextDone.every(Boolean);
+    const minimizedFromUrl = parseOperatorFirstRunWorkflowMinimizedOpenFromSearch(operatorFirstRunWorkflowMinimizedOpenParam);
 
     setDoneByIndex(nextDone);
-    setMinimized(readOperatorFirstRunMinimizedFromStorage());
+    setMinimized(
+      operatorFirstRunWorkflowMinimizedOpenParam !== null
+        ? minimizedFromUrl
+        : readOperatorFirstRunMinimizedFromStorage(),
+    );
     setGraduated(readOperatorFirstRunGraduatedFromStorage(allDoneFromStorage));
     setHydrated(true);
-  }, []);
+  }, [operatorFirstRunWorkflowMinimizedOpenParam]);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+
+    setMinimized(parseOperatorFirstRunWorkflowMinimizedOpenFromSearch(operatorFirstRunWorkflowMinimizedOpenParam));
+  }, [hydrated, operatorFirstRunWorkflowMinimizedOpenParam]);
 
   useEffect(() => {
     if (!hydrated || exploreCompletedOutput || checklistQuery.isPending) {
@@ -121,11 +153,13 @@ export function useOperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput
   function minimize() {
     setMinimized(true);
     persistOperatorFirstRunMinimized();
+    syncMinimizedToUrl(true);
   }
 
   function expand() {
     setMinimized(false);
     clearOperatorFirstRunMinimized();
+    syncMinimizedToUrl(false);
   }
 
   function revisitChecklist() {
@@ -134,6 +168,7 @@ export function useOperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput
     setGraduated(false);
     setMinimized(false);
     clearOperatorFirstRunMinimized();
+    syncMinimizedToUrl(false);
   }
 
   return {

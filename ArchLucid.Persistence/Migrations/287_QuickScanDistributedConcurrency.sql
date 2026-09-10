@@ -229,6 +229,9 @@ BEGIN
     UPDATE dbo.QuickScanConcurrencyLeases
     SET ExpiresUtc = DATEADD(SECOND, @LeaseDurationSeconds, @UtcNow)
     WHERE LeaseId = @LeaseId AND Status = 0 AND ExpiresUtc > @UtcNow;
+
+    IF @@ROWCOUNT = 0
+        THROW 51000, N'Quick Scan distributed concurrency lease is not renewable.', 1;
 END
 
 GO

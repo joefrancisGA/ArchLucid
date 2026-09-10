@@ -91,4 +91,13 @@ describe("ArchLucidLogo", () => {
     expect(container.querySelector("svg")).toHaveAttribute("width", "32");
     expect(screen.getByText("ArchLucid")).toBeInTheDocument();
   });
+
+  it("omits the ArchLucid mark when showMark is false", () => {
+    const { container } = render(
+      <ArchLucidLogo variant="compact" showMark={false} wordmarkText="SecureNow" />,
+    );
+
+    expect(screen.getByText("SecureNow")).toBeInTheDocument();
+    expect(container.querySelector("svg")).toBeNull();
+  });
 });

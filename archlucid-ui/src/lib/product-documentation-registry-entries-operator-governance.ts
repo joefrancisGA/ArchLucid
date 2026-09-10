@@ -58,14 +58,24 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "Policy resolution, enforced rules, and diagnostic export",
   },
   {
+    "slug": "governance-infrastructure-drift",
+    "title": "Drift & snapshots",
+    "summary": "Compare inventory snapshots, review semantic drift rows, and export advisory Terraform.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-09-09",
+    "releaseApplicability": "infrastructure drift workbench orientation",
+  },
+  {
     "slug": "model-governance",
-    "title": "AI and model governance",
+    "title": "AI and model policy",
     "summary": "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",
     "audience": "operator",
     "sourcePaths": [
     ],
     "lastReviewed": "2026-08-13",
-    "releaseApplicability": "administration model governance orientation",
+    "releaseApplicability": "administration model approval orientation",
   },
   {
     "slug": "alerts",
@@ -76,6 +86,28 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     ],
     "lastReviewed": "2026-08-09",
     "releaseApplicability": "policy alerts orientation",
+  },
+  {
+    "slug": "career-vs-rehearsal",
+    "title": "Career vs Rehearsal on the Working desk",
+    "summary": "Choose Career for sealed-record evidence or Rehearsal for labeled practice — Simulator output is not sponsor proof.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/go-to-market/CAREER_VS_REHEARSAL_WORKING_DOORS.md",
+    ],
+    "lastReviewed": "2026-09-10",
+    "releaseApplicability": "Working desk Career vs Rehearsal doors (AS-076+)",
+  },
+  {
+    "slug": "architecture-sharing",
+    "title": "Architecture sharing inside your tenant",
+    "summary": "Optional restrict-to-shares hides a package from unshared workspace members — still one tenant, not chat or a second tenant.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/architecture/adrs/0087-architecture-share-acl-inside-tenant.md",
+    ],
+    "lastReviewed": "2026-09-10",
+    "releaseApplicability": "Optional RestrictToShares inside tenant (AS-086+)",
   },
   {
     "slug": "pilot-feedback",

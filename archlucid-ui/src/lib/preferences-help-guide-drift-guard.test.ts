@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { expectsVisibleClaimDisciplineBand } from "@/lib/claim-discipline-policy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   PREFERENCES_HELP_CLAIM_DISCIPLINE,
-  PREFERENCES_HELP_SOURCES,
+  preferencesHelpSources,
 } from "@/lib/preferences-help-evidence-copy";
 import {
   PREFERENCES_HELP_CHANGES_ITEMS,
@@ -101,12 +102,13 @@ describe("preferences help negation drift guard", () => {
   });
 
   it("lists stacked preference sources with real routes and no self-href", () => {
-    const sourceHrefs = PREFERENCES_HELP_SOURCES.map((source) => source.href);
-    const sourceLabels = PREFERENCES_HELP_SOURCES.map((source) => source.label);
+    const sources = preferencesHelpSources(resolveProductLineIdFromEnv());
+    const sourceHrefs = sources.map((source) => source.href);
+    const sourceLabels = sources.map((source) => source.label);
 
     expect(new Set(sourceHrefs).size).toBe(sourceHrefs.length);
-    expect(PREFERENCES_HELP_SOURCES.every((source) => source.href.startsWith("/"))).toBe(true);
-    expect(PREFERENCES_HELP_SOURCES.every((source) => source.when !== undefined && source.when.length > 0)).toBe(
+    expect(sources.every((source) => source.href.startsWith("/"))).toBe(true);
+    expect(sources.every((source) => source.when !== undefined && source.when.length > 0)).toBe(
       true,
     );
     expect(sourceHrefs).not.toContain("/account/preferences");

@@ -24,6 +24,7 @@ import type { AdminUserInvitationRow } from "@/lib/admin-user-invitations";
 import type { SettingsRolesContinueLastTarget } from "@/lib/resolve-continue-last-settings-principal";
 
 import { SettingsRolesInvitePanel } from "./SettingsRolesInvitePanel";
+import { AuthBetaReadinessInviteCallout } from "./AuthBetaReadinessInviteCallout";
 import { PendingInvitationsPanel } from "./PendingInvitationsPanel";
 import { SettingsRolesPrincipalTable } from "./SettingsRolesPrincipalTable";
 import {
@@ -73,6 +74,7 @@ export function SettingsRolesUsersTab(props: SettingsRolesUsersTabProps) {
 
   return (
     <TabsContent value="users" data-testid="settings-roles-tabpanel-users">
+      <AuthBetaReadinessInviteCallout />
       <div className={OPERATOR_LAYOUT.sectionStack}>
         <FilterChipGroup
           aria-label="Filter members by role"

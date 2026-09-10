@@ -220,11 +220,7 @@ export function HelpAzureBoardsGuideView(props: HelpAzureBoardsGuideViewProps): 
           <HelpTopicTableOfContents headings={headings} />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-azure-boards-orientation-bottom">
-            <HelpAzureBoardsSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpAzureBoardsSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

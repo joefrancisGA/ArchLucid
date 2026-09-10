@@ -21,11 +21,24 @@ public static class AgentExecutionTraceLatestPerTaskSelector
             .Select(static g => g
                 .OrderByDescending(static t => t.AttemptIndex)
                 .ThenByDescending(static t => t.CreatedUtc)
+                .ThenByDescending(QualityPreferenceRank)
                 .ThenByDescending(static t => t.TraceId, StringComparer.Ordinal)
                 .First())
             .ToList();
 
         return latest;
+    }
+
+    private static int QualityPreferenceRank(AgentExecutionTrace trace)
+    {
+        if (trace.QualityRejected
+            || trace.RecordedQualityGateOutcome == AgentOutputQualityGateOutcome.Rejected)
+            return 0;
+
+        if (trace.RecordedQualityGateOutcome == AgentOutputQualityGateOutcome.Warned)
+            return 1;
+
+        return 2;
     }
 
     private static string GetLatestPerTaskKey(AgentExecutionTrace trace)

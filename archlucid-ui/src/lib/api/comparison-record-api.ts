@@ -74,4 +74,5 @@ export async function getComparisonSummary(comparisonRecordId: string): Promise<
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
+
 }

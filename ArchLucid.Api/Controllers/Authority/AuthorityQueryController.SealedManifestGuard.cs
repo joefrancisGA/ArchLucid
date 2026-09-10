@@ -97,6 +97,7 @@ public sealed partial class AuthorityQueryController
                 return MapRunQuerySealedManifestConflict(
                     new ConflictException(
                         $"Manifest '{result.ManifestId}' sealed hash verification is unavailable because the committed golden manifest is missing."));
+
             }
 
             SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(

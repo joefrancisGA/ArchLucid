@@ -11,6 +11,7 @@ export type FindingInspectDispositionBaseline = {
   readonly revisitDueUtc: string;
   readonly evidenceRequestText: string;
   readonly tradeOffAcknowledgment: string;
+  readonly architectRestatement: string;
 };
 
 export type FindingInspectWaiverBaseline = {
@@ -36,6 +37,7 @@ export const EMPTY_FINDING_INSPECT_DISPOSITION_BASELINE: FindingInspectDispositi
   revisitDueUtc: "",
   evidenceRequestText: "",
   tradeOffAcknowledgment: "",
+  architectRestatement: "",
 };
 
 export const EMPTY_FINDING_INSPECT_WAIVER_BASELINE: FindingInspectWaiverBaseline = {
@@ -65,6 +67,7 @@ export function findingInspectDispositionHasUnsavedEdits(
     || current.revisitDueUtc.trim() !== baseline.revisitDueUtc.trim()
     || current.evidenceRequestText.trim() !== baseline.evidenceRequestText.trim()
     || current.tradeOffAcknowledgment.trim() !== baseline.tradeOffAcknowledgment.trim()
+    || current.architectRestatement.trim() !== baseline.architectRestatement.trim()
   );
 }
 

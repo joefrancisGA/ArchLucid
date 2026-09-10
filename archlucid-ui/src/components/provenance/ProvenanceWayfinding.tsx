@@ -6,6 +6,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ProvenanceWayfindingProps = {
   readonly reviewPackageHref: string;
+  readonly hideContextualHelp?: boolean;
 };
 
 /** Hierarchy back link + contextual help for run provenance (TB-2090: not a breadcrumb trail). */
@@ -24,7 +25,7 @@ export function ProvenanceWayfinding(props: ProvenanceWayfindingProps): React.JS
           Back to review
         </Link>
       </p>
-      <PageContextualHelpButton />
+      {props.hideContextualHelp ? null : <PageContextualHelpButton />}
     </div>
   );
 }

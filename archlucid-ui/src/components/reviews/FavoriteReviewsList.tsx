@@ -4,7 +4,8 @@ import Link from "next/link";
 
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { listArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ const DEFAULT_HEADING = "Pinned reviews";
 export function FavoriteReviewsList(props: FavoriteReviewsListProps): React.JSX.Element | null {
   const { favorites } = useFavoriteReviews();
   const heading = props.heading ?? DEFAULT_HEADING;
+  const draftRegistryEntries = listArchitectureDraftRegistryEntries();
 
   if (favorites.length === 0) {
     return null;
@@ -36,7 +38,10 @@ export function FavoriteReviewsList(props: FavoriteReviewsListProps): React.JSX.
 
       <ul className="m-0 list-none space-y-1 p-0">
         {favorites.map((row) => {
-          const href = reviewDetailPath(row.runId);
+          const href = resolveWorkingRunReviewLocator({
+            runId: row.runId,
+            draftRegistryEntries,
+          }).href;
           const label =
             row.title !== undefined && row.title.trim().length > 0
               ? row.title.trim()

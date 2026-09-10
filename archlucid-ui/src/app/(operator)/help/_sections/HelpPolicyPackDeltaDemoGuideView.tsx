@@ -9,6 +9,11 @@ import { Button } from "@/components/ui/button";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import {
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_HONESTY,
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_OFFLINE_TESTS,
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SCREENSHOT_CHECKLIST,
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SUMMARY,
+  POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE,
   POLICY_PACK_DELTA_DEMO_HELP_NARRATIVE_ARC,
   POLICY_PACK_DELTA_DEMO_HELP_OVERVIEW,
   POLICY_PACK_DELTA_DEMO_HELP_PAGE_SUBTITLE,
@@ -86,6 +91,38 @@ export function HelpPolicyPackDeltaDemoGuideView(
                 <li key={beat}>{beat}</li>
               ))}
             </ol>
+          </section>
+
+          <section
+            aria-labelledby="help-policy-pack-delta-demo-finding-toggle-heading"
+            data-testid="help-policy-pack-delta-demo-finding-toggle"
+          >
+            <h2
+              id="help-policy-pack-delta-demo-finding-toggle-heading"
+              className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
+            >
+              {POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_TITLE}
+            </h2>
+            <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+              {POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SUMMARY}
+            </p>
+            <h3 className={cn("m-0 mt-4", OPERATOR_TYPOGRAPHY.cardTitle)}>Offline golden tests (CI)</h3>
+            <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+              {POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_OFFLINE_TESTS.map((testName) => (
+                <li key={testName}>
+                  <code>{testName}</code>
+                </li>
+              ))}
+            </ul>
+            <h3 className={cn("m-0 mt-4", OPERATOR_TYPOGRAPHY.cardTitle)}>Screenshot checklist</h3>
+            <ul className={cn("m-0 mt-2 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
+              {POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_SCREENSHOT_CHECKLIST.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <p className={cn("m-0 mt-4", OPERATOR_TYPOGRAPHY.body)} data-testid="help-policy-pack-delta-demo-finding-toggle-honesty">
+              {POLICY_PACK_DELTA_DEMO_HELP_FINDING_TOGGLE_HONESTY}
+            </p>
           </section>
 
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-policy-pack-delta-demo-overview">

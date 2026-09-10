@@ -1,8 +1,16 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  parseSlackPlatformNotesOpenFromSearch,
+  slackPlatformNotesDisclosureHrefFromSearch,
+} from "@/lib/integrations/slack-platform-notes-disclosure-url";
 import {
   SLACK_CONFIGURATION_STATUS_ASIDE_TITLE,
   SLACK_INTEGRATION_SECURITY_NOTE,
@@ -23,9 +31,39 @@ type SlackIntegrationAsideProps = {
   readonly totalDestinationCount: number;
   readonly activeDestinationCount: number;
   readonly formTestSucceeded: boolean;
+  readonly showOperatorNotes: boolean;
 };
 
 export function SlackIntegrationAside(props: SlackIntegrationAsideProps): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/integrations/slack";
+  const searchParams = useSearchParams();
+  const slackPlatformNotesOpenParam = searchParams.get("slackPlatformNotesOpen");
+  const [platformNotesOpen, setPlatformNotesOpenState] = useState(() =>
+    parseSlackPlatformNotesOpenFromSearch(slackPlatformNotesOpenParam),
+  );
+
+  const syncPlatformNotesOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(slackPlatformNotesDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setPlatformNotesOpen = useCallback(
+    (open: boolean) => {
+      setPlatformNotesOpenState(open);
+      syncPlatformNotesOpenToUrl(open);
+    },
+    [syncPlatformNotesOpenToUrl],
+  );
+
+  useEffect(() => {
+    setPlatformNotesOpenState(parseSlackPlatformNotesOpenFromSearch(slackPlatformNotesOpenParam));
+  }, [slackPlatformNotesOpenParam]);
+
   const statusLabel = props.loading
     ? "Loading"
     : slackIntegrationConfigurationStatusLabel(props.activeDestinationCount);
@@ -64,6 +102,20 @@ export function SlackIntegrationAside(props: SlackIntegrationAsideProps): React.
           {SLACK_INTEGRATION_SECURITY_NOTE}
         </p>
       </div>
+
+      {props.showOperatorNotes ? (
+        <CollapsibleSection
+          title="Platform administrator notes"
+          sectionTestId="slack-operator-notes"
+          open={platformNotesOpen}
+          onToggle={setPlatformNotesOpen}
+        >
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {props.activeDestinationCount} of {props.totalDestinationCount} Slack destinations are active for this
+            workspace.
+          </p>
+        </CollapsibleSection>
+      ) : null}
     </aside>
   );
 }

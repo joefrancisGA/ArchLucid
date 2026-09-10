@@ -4,6 +4,8 @@ using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
+#pragma warning disable CS0618 // Tests target AuthorityManifestRiskPosture until TradeoffDetectionEngine replaces it.
+
 namespace ArchLucid.Decisioning.Tests.Manifest;
 
 [Trait("Suite", "Core")]

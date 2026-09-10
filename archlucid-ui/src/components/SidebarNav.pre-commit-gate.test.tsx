@@ -7,8 +7,13 @@ import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 
 import { SidebarNav } from "./SidebarNav";
 
-const { mockPathname } = vi.hoisted(() => ({
+const { mockPathname, mockSearchParams, mockRouter } = vi.hoisted(() => ({
   mockPathname: vi.fn((): string => "/"),
+  mockSearchParams: new URLSearchParams(),
+  mockRouter: {
+    push: vi.fn(),
+    replace: vi.fn(),
+  },
 }));
 
 vi.mock("@/hooks/use-governance-mode", async () => {
@@ -27,7 +32,8 @@ vi.mock("@/hooks/use-governance-mode", async () => {
 
 vi.mock("next/navigation", () => ({
   usePathname: (): string => mockPathname(),
-  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+  useSearchParams: (): URLSearchParams => mockSearchParams,
+  useRouter: () => mockRouter,
 }));
 
 /** Real tenant, not the curated walkthrough — so the pre-commit gate must actually apply. */

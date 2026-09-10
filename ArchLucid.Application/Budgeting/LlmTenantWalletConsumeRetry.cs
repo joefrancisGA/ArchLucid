@@ -46,7 +46,9 @@ internal sealed class LlmTenantWalletConsumeRetry(
         Guid correlationId,
         CancellationToken cancellationToken)
     {
-        decimal delta = decimal.Round(actualUsd - authorizedUsd, 2, MidpointRounding.AwayFromZero);
+        decimal markedActual = LlmTenantWalletDefaults.ApplyOverageMarkup(actualUsd);
+        decimal markedAuthorized = LlmTenantWalletDefaults.ApplyOverageMarkup(authorizedUsd);
+        decimal delta = decimal.Round(markedActual - markedAuthorized, 2, MidpointRounding.AwayFromZero);
 
         if (delta > 0m)
         {
