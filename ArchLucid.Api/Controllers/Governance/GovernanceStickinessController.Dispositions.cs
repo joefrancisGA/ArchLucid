@@ -3,6 +3,7 @@ using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -110,6 +111,10 @@ public sealed partial class GovernanceStickinessController
         {
             return MapGovernanceStickinessSealedManifestConflict(ex);
         }
+        catch (FindingDispositionConflictException ex)
+        {
+            return MapFindingDispositionConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
@@ -177,6 +182,10 @@ public sealed partial class GovernanceStickinessController
         {
             return MapGovernanceStickinessSealedManifestConflict(ex);
         }
+        catch (FindingDispositionConflictException ex)
+        {
+            return MapFindingDispositionConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
@@ -188,6 +197,12 @@ public sealed partial class GovernanceStickinessController
 
         return Ok(response);
     }
+
+    private IActionResult MapFindingDispositionConflict(FindingDispositionConflictException ex) =>
+        this.ConflictProblem(
+            ex.Message,
+            ProblemTypes.Conflict,
+            extensions: new Dictionary<string, object?> { ["currentDisposition"] = ex.CurrentDisposition });
 
     [HttpGet("findings/{findingId}/dispositions")]
     [ProducesResponseType(typeof(IReadOnlyList<FindingDispositionEventDto>), StatusCodes.Status200OK)]
