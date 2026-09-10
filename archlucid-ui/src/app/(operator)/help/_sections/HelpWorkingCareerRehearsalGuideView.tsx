@@ -30,7 +30,7 @@ import {
   WORKING_CAREER_REHEARSAL_HELP_GUIDE_TEST_ID,
   WORKING_CAREER_REHEARSAL_HELP_PRIMARY_CONTENT_ID,
 } from "@/lib/governance/working-career-rehearsal-help-page-copy";
-import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_TOC, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -141,11 +141,13 @@ export function HelpWorkingCareerRehearsalGuideView(
           </section>
         </div>
 
-        <HelpTopicTableOfContents headings={WORKING_CAREER_REHEARSAL_HELP_GUIDE_HEADINGS} />
+        <aside className={HELP_PAGE_TOC.nav}>
+          <HelpTopicTableOfContents headings={WORKING_CAREER_REHEARSAL_HELP_GUIDE_HEADINGS} />
+          <p className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Topic: {WORKING_CAREER_REHEARSAL_HELP_TOPIC_LABEL}
+          </p>
+        </aside>
       </div>
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Topic: {WORKING_CAREER_REHEARSAL_HELP_TOPIC_LABEL}
-      </p>
     </article>
   );
 }

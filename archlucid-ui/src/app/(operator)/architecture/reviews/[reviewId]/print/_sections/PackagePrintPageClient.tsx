@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import { useMemo } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -23,12 +24,14 @@ import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
   PACKAGE_PRINT_LOADING_LABEL,
+  buildPackagePrintBackHref,
   buildPackagePrintPresentation,
   PACKAGE_PRINT_BACK_LABEL,
   resolvePackagePrintSemanticSupportBandStampLine,
 } from "@/lib/package-print-view";
 import { extractSealedQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-finding-stream-resolver";
 import type { RunDetail } from "@/types/authority";
+
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { cn } from "@/lib/utils";
 
@@ -167,6 +170,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       && coverageHonestyQuery.data !== undefined
       && analysisStagesCompleteOnSummary(summaryQuery.data)
       && countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null) === 0,
+
   });
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
     runId,

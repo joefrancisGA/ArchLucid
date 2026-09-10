@@ -11,6 +11,7 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.TestSupport.SealedManifest;
 
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -198,6 +199,7 @@ public sealed class RoiControllerTests
                 Mock.Of<ITenantRepository>(),
                 Mock.Of<IScimUserRepository>(),
                 RoiControllerTestSupport.CreateRunCollector(Scope))
+
             {
                 ControllerContext = new ControllerContext { HttpContext = httpContext }
             };
