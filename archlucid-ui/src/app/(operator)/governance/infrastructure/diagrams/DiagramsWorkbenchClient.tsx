@@ -8,7 +8,6 @@ import { Loader2 } from "lucide-react";
 import { ArchitectureDiagramViewer } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
@@ -527,8 +526,6 @@ export function DiagramsWorkbenchClient() {
           </div>
         }
       />
-
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-diagrams" /> : null}
 
       <main
         id={buyerPolishedShell ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID : undefined}
