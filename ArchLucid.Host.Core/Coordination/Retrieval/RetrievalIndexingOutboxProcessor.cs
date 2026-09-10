@@ -104,16 +104,6 @@ public sealed class RetrievalIndexingOutboxProcessor(
 
         using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
 
-        IManifestHashService manifestHashService =
-            scope.ServiceProvider.GetRequiredService<IManifestHashService>();
-
-        await RetrievalIndexingOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-            entry.RunId,
-            scopeContext,
-            query,
-            manifestHashService,
-            cancellationToken).ConfigureAwait(false);
-
         RunDetailDto? detail = await query.GetRunDetailForRetrievalIndexingAsync(scopeContext, entry.RunId, cancellationToken)
             .ConfigureAwait(false);
 
@@ -129,6 +119,16 @@ public sealed class RetrievalIndexingOutboxProcessor(
 
             return;
         }
+
+        IManifestHashService manifestHashService =
+            scope.ServiceProvider.GetRequiredService<IManifestHashService>();
+
+        await RetrievalIndexingOutboxSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+            entry.RunId,
+            scopeContext,
+            query,
+            manifestHashService,
+            cancellationToken).ConfigureAwait(false);
 
         ManifestDocument manifest = detail.GoldenManifest;
         GraphSnapshot graphSnapshot = detail.GraphSnapshot;

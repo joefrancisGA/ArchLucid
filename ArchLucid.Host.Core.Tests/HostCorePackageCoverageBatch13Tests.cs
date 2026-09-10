@@ -322,19 +322,40 @@ public sealed class HostCorePackageCoverageBatch13Tests
     }
 
     [Fact]
-    public async Task RetrievalIndexFreshnessHealthCheck_healthy_when_in_memory_vector_index_and_empty_catalog()
+    public async Task RetrievalIndexFreshnessHealthCheck_healthy_when_startup_indexing_disabled_and_empty_catalog()
     {
         Mock<IRetrievalDocumentIndexCatalog> catalog = new();
         catalog.Setup(c => c.GetCorpusFreshnessSummaries()).Returns([]);
         IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> { ["Retrieval:VectorIndex"] = "InMemory" })
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Retrieval:PolicyPackCorpus:IndexOnStartup"] = "false",
+                ["Retrieval:PlatformDocs:IndexOnStartup"] = "false",
+                ["Retrieval:ExemplarCorpus:IndexOnStartup"] = "false",
+            })
             .Build();
         RetrievalIndexFreshnessHealthCheck sut = new(catalog.Object, configuration);
 
         HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext());
 
         result.Status.Should().Be(HealthStatus.Healthy);
-        result.Description.Should().Contain("in-memory retrieval index");
+        result.Description.Should().Contain("Startup corpus indexing disabled");
+    }
+
+    [Fact]
+    public async Task RetrievalIndexFreshnessHealthCheck_healthy_when_empty_catalog_on_leader_elected_replica()
+    {
+        Mock<IRetrievalDocumentIndexCatalog> catalog = new();
+        catalog.Setup(c => c.GetCorpusFreshnessSummaries()).Returns([]);
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Retrieval:VectorIndex"] = "AzureSearch" })
+            .Build();
+        RetrievalIndexFreshnessHealthCheck sut = new(catalog.Object, configuration);
+
+        HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext());
+
+        result.Status.Should().Be(HealthStatus.Healthy);
+        result.Description.Should().Contain("no corpus indexed on this replica yet");
     }
 
     [Fact]

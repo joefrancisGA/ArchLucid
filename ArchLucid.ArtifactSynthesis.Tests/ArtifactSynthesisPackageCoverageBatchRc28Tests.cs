@@ -73,6 +73,35 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
     }
 
     [Fact]
+    public void MermaidDiagramRenderer_Render_strips_control_chars_from_labels()
+    {
+        MermaidDiagramRenderer renderer = new();
+        DiagramAst ast = new()
+        {
+            Title = "Sample",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "a", Label = "Title\u0001 break", NodeType = "Service" },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "a",
+                    ToNodeId = "a",
+                    Label = "edge\u200E spoof",
+                },
+            ],
+        };
+
+        string mermaid = renderer.Render(ast);
+
+        mermaid.Should().Contain("a[\"Title break\"]");
+        mermaid.Should().NotContain("\u0001");
+        mermaid.Should().NotContain("\u200E");
+    }
+
+    [Fact]
     public void MermaidDiagramRenderer_Render_escapes_pipes_in_edge_labels()
     {
         MermaidDiagramRenderer renderer = new();
