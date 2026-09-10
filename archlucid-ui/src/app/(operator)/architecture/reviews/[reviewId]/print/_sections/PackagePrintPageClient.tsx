@@ -26,7 +26,10 @@ import {
   buildPackagePrintBackHref,
   buildPackagePrintPresentation,
   PACKAGE_PRINT_BACK_LABEL,
+  resolvePackagePrintSemanticSupportBandStampLine,
 } from "@/lib/package-print-view";
+import { extractSealedQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-finding-stream-resolver";
+import type { RunDetail } from "@/types/authority";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { cn } from "@/lib/utils";
 
@@ -98,6 +101,31 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     }).headerLines.join("\n");
   }, [coverageHonestyQuery.data, summaryQuery.data, workingDesk]);
 
+  const semanticSupportBandStampLine = useMemo(() => {
+    if (!workingDesk || summaryQuery.data === undefined || coverageHonestyQuery.data === undefined) {
+      return null;
+    }
+
+    const buyerSummary = coverageHonestyQuery.data.buyerSummary as
+      | (Record<string, unknown> & { findingsSnapshot?: unknown })
+      | undefined;
+    const pseudoDetail = {
+      findingsSnapshot: buyerSummary?.findingsSnapshot ?? null,
+      run: { runId: summaryQuery.data.runId },
+      results: [],
+    } as RunDetail;
+    const findings = extractSealedQuickDecisionFindingsFromRunDetail(pseudoDetail);
+
+    if (findings.length === 0) {
+      return null;
+    }
+
+    return resolvePackagePrintSemanticSupportBandStampLine(
+      findings,
+      summaryQuery.data.structuralExecutionMode ?? null,
+    );
+  }, [coverageHonestyQuery.data, summaryQuery.data, workingDesk]);
+
   if (summaryQuery.isPending) {
     return (
       <p
@@ -132,6 +160,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
         ? coverageHonestyLine
         : null,
+    semanticSupportBandStampLine,
     transparencyTrail:
       workingDesk && coverageHonestyQuery.data !== undefined
         ? coverageHonestyQuery.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null

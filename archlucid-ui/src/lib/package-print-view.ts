@@ -12,6 +12,9 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-revi
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { ReviewMeetingCaptureEntry } from "@/lib/reviews/review-meeting-capture-export";
 import type { RunSummary } from "@/types/authority";
+import { buildSemanticSupportBandExportStamp } from "@/lib/findings/finding-semantic-support-band-export";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 /** Document title / H1 for the print stylesheet view. */
@@ -36,6 +39,7 @@ export const PACKAGE_PRINT_BACK_LABEL = "Back to review";
 
 export const PACKAGE_PRINT_STATUS_HEADING = "Status";
 export const PACKAGE_PRINT_FINDINGS_HEADING = "Key findings summary";
+export const PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING = "Semantic support";
 export const PACKAGE_PRINT_SYNOPSIS_HEADING = "Sponsor synopsis";
 export const PACKAGE_PRINT_META_CREATED_LABEL = "Created";
 export const PACKAGE_PRINT_LOADING_LABEL = "Loading review for print…";
@@ -93,6 +97,7 @@ export type PackagePrintPresentation = {
   readonly createdUtc: string;
   readonly runId: string;
   readonly coverageHonestyLine?: string | null;
+  readonly semanticSupportBandStampLine?: string | null;
   readonly manifestVersionForGuard?: string | null;
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
   readonly transparencyTrail?: TransparencyTrail | null;
@@ -211,12 +216,21 @@ export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | 
   return `Sponsor synopsis for "${title}": finalized architecture review with ${findingsPhrase}.${warningsPhrase}`;
 }
 
+/** Stamp line aligned with review-package semantic support counts (AS-071). */
+export function resolvePackagePrintSemanticSupportBandStampLine(
+  findings: readonly QuickDecisionFinding[],
+  structuralExecutionMode?: StructuralExecutionModeInput,
+): string | null {
+  return buildSemanticSupportBandExportStamp(findings, structuralExecutionMode).stampLine;
+}
+
 /** Maps a run summary into the print view presentation model. */
 export function buildPackagePrintPresentation(
   summary: RunSummary,
   options?: {
     readonly findingsListedCount?: number | null;
     readonly coverageHonestyLine?: string | null;
+    readonly semanticSupportBandStampLine?: string | null;
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
     readonly transparencyTrail?: TransparencyTrail | null;
     readonly showQuietEnginesHint?: boolean;
@@ -247,6 +261,7 @@ export function buildPackagePrintPresentation(
     createdUtc: summary.createdUtc,
     runId: summary.runId,
     coverageHonestyLine: options?.coverageHonestyLine ?? null,
+    semanticSupportBandStampLine: options?.semanticSupportBandStampLine ?? null,
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
     transparencyTrail: options?.transparencyTrail ?? null,
     showQuietEnginesHint: options?.showQuietEnginesHint ?? false,

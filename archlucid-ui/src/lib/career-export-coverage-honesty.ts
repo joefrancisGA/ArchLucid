@@ -18,6 +18,7 @@ import { formatArchitectureInventoryEstateGapCareerExportMarkdown } from "@/lib/
 import { formatArchitectureInventorySnapshotFreshnessCareerExportMarkdown } from "@/lib/architecture/architecture-inventory-snapshot-freshness";
 import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import { formatCareerExportFindingTrustMarkdownSection } from "@/lib/findings/format-career-export-finding-trust-markdown-section";
+import { formatCareerExportSemanticSupportBandMarkdownSection } from "@/lib/findings/finding-semantic-support-band-export";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
@@ -229,6 +230,15 @@ export function formatCareerExportHonestyMarkdown(input: CareerExportCoverageHon
 
   if (findingTrustMarkdown.trim().length > 0) {
     sections.push(findingTrustMarkdown.trim());
+  }
+
+  const semanticSupportMarkdown = formatCareerExportSemanticSupportBandMarkdownSection(
+    input.exportFindings ?? [],
+    input.structuralExecutionMode,
+  );
+
+  if (semanticSupportMarkdown.trim().length > 0) {
+    sections.push(semanticSupportMarkdown.trim());
   }
 
   if (honesty.blockedForWorkingCareerExport && honesty.measurementFloorBlockedReason !== null) {
