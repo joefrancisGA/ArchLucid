@@ -28,7 +28,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [EnableRateLimiting("fixed")]
-public sealed class OperationsController(
+public sealed partial class OperationsController(
   IOperationQueryService operationQueryService,
   IOperationCancelService operationCancelService,
   IScopeContextProvider scopeContextProvider,
@@ -112,7 +112,7 @@ public sealed class OperationsController(
     }
     catch (ConflictException ex)
     {
-      return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+      return MapOperationsSealedManifestConflict(ex);
     }
   }
 

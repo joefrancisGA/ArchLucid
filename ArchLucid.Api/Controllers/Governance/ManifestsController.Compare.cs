@@ -176,7 +176,7 @@ public sealed partial class ManifestsController
         {
             return new LoadedManifestPair
             {
-                Error = this.ConflictProblem(ex.Message, ProblemTypes.Conflict),
+                Error = MapGoldenManifestReadSealedManifestConflict(ex),
             };
         }
 

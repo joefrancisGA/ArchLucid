@@ -100,7 +100,7 @@ public sealed partial class AuthorityCompareController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapCompareSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
 
         if (result is null)
