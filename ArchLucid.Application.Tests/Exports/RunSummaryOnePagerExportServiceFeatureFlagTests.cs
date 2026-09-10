@@ -41,6 +41,7 @@ public sealed class RunSummaryOnePagerExportServiceFeatureFlagTests
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
 
+
         Func<Task> act = () => sut.GenerateMarkdownAsync("run-1", CancellationToken.None);
 
         await act.Should().ThrowAsync<ConflictException>()

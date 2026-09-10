@@ -10,6 +10,7 @@ using ArchLucid.Core.Scim;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.TestSupport.SealedManifest;
 
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -37,6 +38,7 @@ public sealed class CrossTenantPortfolioEndpointTests
             Mock.Of<ITenantRepository>(),
             Mock.Of<IScimUserRepository>(),
             ArchLucid.Api.Tests.RoiControllerTestSupport.CreateRunCollector());
+
 
         DefaultHttpContext httpContext = new();
         httpContext.Request.Path = "/v1/roi/cross-tenant-portfolio";

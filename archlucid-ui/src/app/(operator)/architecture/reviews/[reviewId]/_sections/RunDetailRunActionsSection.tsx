@@ -21,11 +21,14 @@ import {
   verifyRunExportLineage,
 } from "@/lib/exports/run-export-lineage-verify";
 import { showError } from "@/lib/toast";
+
 import { buildCompareTwoReviewsHref } from "@/lib/compare-two-reviews-route";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
-import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { showError } from "@/lib/toast";
+
 
 import { RunDetailRunGovernanceDispositionActions } from "@/components/runs/RunDetailRunGovernanceDispositionActions";
 
@@ -59,6 +62,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
   const [traceabilityRecovery, setTraceabilityRecovery] = useState<ErrorRecoveryContractPresentation | null>(null);
 
   const onDownloadTraceabilityBundle = useCallback(async () => {
+
     if (collateralExportBlockedReason !== null) {
       return;
     }
@@ -87,6 +91,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
       setTraceabilityBusy(false);
     }
   }, [collateralExportBlockedReason, props.isSample, runId, workingDesk]);
+
 
   return (
     <section id="run-actions" className="scroll-mt-24">
@@ -156,6 +161,7 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
                   />
                 ) : null}
               </div>
+
             )}
             {evalChromeShell ? null : (
             <Button variant="outline" size="sm" asChild>

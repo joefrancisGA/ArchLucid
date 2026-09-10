@@ -66,6 +66,17 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
         validateConfig.Should().Contain("Career path");
     }
 
+    [Fact]
+    public void As083_validate_config_mode_check_mentions_cli_doors()
+    {
+        string evaluator = File.ReadAllText(Path.Combine(RepoRoot, ValidateConfigAgentsRelativePath));
+
+        evaluator.Should().Contain("Career door");
+        evaluator.Should().Contain("Rehearsal door");
+        evaluator.Should().Contain("archlucid try --real");
+        evaluator.Should().Contain("archlucid try --rehearse");
+    }
+
     private static string FindRepoRoot()
     {
         DirectoryInfo? dir = new(AppContext.BaseDirectory);
