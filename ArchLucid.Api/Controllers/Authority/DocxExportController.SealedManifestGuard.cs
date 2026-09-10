@@ -12,6 +12,9 @@ namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class DocxExportController
 {
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
     private async Task<IActionResult?> EnsureArchitecturePackageDocxSealedManifestAllowedAsync(
         Guid runId,
         ScopeContext scope,

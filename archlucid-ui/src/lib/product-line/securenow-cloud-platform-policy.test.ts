@@ -38,6 +38,22 @@ describe("securenow-cloud-platform-policy", () => {
     expect(isHelpSearchTopicExcludedForProductLine("connect-azure", "security")).toBe(false);
   });
 
+  it("excludes architecture-process and billing help from SecureNow", () => {
+    expect(isHelpTopicExcludedForProductLine("billing-and-plans", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("first-architecture-review", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("evidence-intake", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("review-packages", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("review-guide", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("choose-your-next-step", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("accelerator-chooser", "security")).toBe(true);
+    expect(isHelpTopicExcludedForProductLine("findings", "security")).toBe(false);
+    expect(isHelpTopicExcludedForProductLine("billing-and-plans", "architecture")).toBe(false);
+    expect(isHelpSearchTopicExcludedForProductLine("first-review-guide", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("first-review-guide", "architecture")).toBe(false);
+    expect(isHelpSearchTopicExcludedForProductLine("create-first-review", "security")).toBe(true);
+    expect(isHelpSearchTopicExcludedForProductLine("how-archlucid-works", "security")).toBe(true);
+  });
+
   it("blocks AWS and GCP integration routes in the Security shell", () => {
     expect(
       isCloudConnectionPathExcludedForProductLine("/integrations/cloud-connections/aws", "security"),

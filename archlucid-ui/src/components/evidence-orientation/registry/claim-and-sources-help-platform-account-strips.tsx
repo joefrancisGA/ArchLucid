@@ -54,12 +54,14 @@ import {
   NOTIFICATIONS_HELP_SOURCES,
   NOTIFICATIONS_HELP_SOURCES_INTRO,
 } from "@/lib/notifications-help-evidence-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   PREFERENCES_HELP_CLAIM_DISCIPLINE,
   PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING,
   PREFERENCES_HELP_FOLLOW_UPS_TITLE,
-  PREFERENCES_HELP_SOURCES,
   PREFERENCES_HELP_SOURCES_INTRO,
+  preferencesHelpSources,
 } from "@/lib/preferences-help-evidence-copy";
 import { PREFERENCES_HELP_CLAIM_HEADING_ID } from "@/lib/preferences-help-guide-content";
 import {
@@ -165,12 +167,15 @@ export function AiUsageHelpEvidenceOrientationStrip(): React.JSX.Element {
 }
 
 export type PreferencesHelpEvidenceOrientationStripProps = {
+  readonly productLineId?: ProductLineId;
   readonly readingBodyClassName?: string;
 };
 
 export function PreferencesHelpEvidenceOrientationStrip(
   props: PreferencesHelpEvidenceOrientationStripProps = {},
 ): React.JSX.Element {
+  const productLineId = props.productLineId ?? resolveProductLineIdFromEnv();
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-preferences"
@@ -179,7 +184,7 @@ export function PreferencesHelpEvidenceOrientationStrip(
       claimHeadingId={PREFERENCES_HELP_CLAIM_HEADING_ID}
       sourcesTitle={PREFERENCES_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={PREFERENCES_HELP_SOURCES_INTRO}
-      sources={PREFERENCES_HELP_SOURCES}
+      sources={preferencesHelpSources(productLineId)}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />

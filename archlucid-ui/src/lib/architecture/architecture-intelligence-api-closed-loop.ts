@@ -32,9 +32,16 @@ export async function fetchArchitectureIntelligenceProductSourceContext(
 export async function fetchArchitectureIntelligenceRunModel(
   runId: string,
 ): Promise<ArchitectureKnowledgeModel> {
-  return apiGetSealedManifestAware<ArchitectureKnowledgeModel>(
-    `/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}`,
-  );
+  try {
+    return await apiGet<ArchitectureKnowledgeModel>(
+      `/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureIntelligenceRunModelBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function fetchArchitectureIntelligenceRunModel(

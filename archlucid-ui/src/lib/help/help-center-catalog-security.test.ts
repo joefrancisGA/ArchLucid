@@ -12,8 +12,10 @@ describe("help-center-catalog-security", () => {
   it("features security-relevant topics instead of architecture review walkthroughs", () => {
     expect(HELP_CENTER_SECURITY_FEATURED_SLUGS).toContain("cloud-connections");
     expect(HELP_CENTER_SECURITY_FEATURED_SLUGS).toContain("security-trust");
+    expect(HELP_CENTER_SECURITY_FEATURED_SLUGS).toContain("findings");
     expect(HELP_CENTER_SECURITY_FEATURED_SLUGS).not.toContain("first-architecture-review");
     expect(HELP_CENTER_SECURITY_FEATURED_SLUGS).not.toContain("review-packages");
+    expect(HELP_CENTER_SECURITY_FEATURED_SLUGS).not.toContain("billing-and-plans");
   });
 
   it("lists SecureNow copy on the security help hub grid", () => {
@@ -32,7 +34,10 @@ describe("help-center-catalog-security", () => {
 
     expect(slugs).not.toContain("cloud-connections-aws");
     expect(slugs).not.toContain("cloud-connections-gcp");
+    expect(slugs).not.toContain("billing-and-plans");
+    expect(slugs).not.toContain("first-architecture-review");
     expect(slugs).toContain("cloud-connections-azure");
+    expect(slugs).toContain("findings");
   });
 
   it("keeps ArchLucid company wording in subprocessors security summary", () => {

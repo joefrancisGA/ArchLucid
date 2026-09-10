@@ -28,15 +28,6 @@ vi.mock("@/lib/use-user-appearance-preference", () => ({
   }),
 }));
 
-vi.mock("@/lib/use-cloud-platform-scope", () => ({
-  useCloudPlatformScope: () => ({
-    scope: { "evidence-only": true, azure: true, aws: true, gcp: true },
-    mounted: true,
-    accountSyncState: "idle",
-    setAndPersist: vi.fn(),
-  }),
-}));
-
 vi.mock("@/lib/use-iana-time-zone-preference", () => ({
   useIanaTimeZonePreference: () => ({
     ianaTimeZoneId: "America/New_York",
@@ -68,22 +59,14 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
 }));
 
-vi.mock("@/components/SampleReviewsOnOverviewPreferenceProvider", () => ({
-  useSampleReviewsOnOverviewPreference: () => ({
-    enabled: true,
-    mounted: true,
-    accountSyncState: "idle",
-    setAndPersist: vi.fn(),
-  }),
-  useSampleReviewsOnOverviewVisible: () => true,
-}));
-
-vi.mock("@/components/WorkspaceModeProvider", () => ({
-  useWorkspaceMode: () => ({
-    mode: "guided",
-    mounted: true,
-    accountSyncState: "idle",
-    setAndPersist: vi.fn(),
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({
+    productLine: "security",
+    assignmentOverrides: {},
+    setProductLine: vi.fn(),
+    setHrefAssignment: vi.fn(),
+    resetHrefAssignment: vi.fn(),
+    resetAllAssignments: vi.fn(),
   }),
 }));
 
@@ -95,11 +78,13 @@ import {
   PREFERENCES_SETTINGS_SKIP_LINK_LABEL,
   PREFERENCES_SETTINGS_SKIP_TARGET_ID,
 } from "@/lib/preferences-page-copy";
+import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import {
   PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE,
-  PREFERENCES_SETTINGS_SOURCES,
+  preferencesSettingsSources,
 } from "@/lib/preferences-settings-evidence-copy";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 describe("PreferencesSettingsPageView buyer-polished shell (ADR)", () => {
@@ -127,7 +112,10 @@ describe("PreferencesSettingsPageView buyer-polished shell (ADR)", () => {
     expect(firstViewport).toContainElement(appearanceCard);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(PREFERENCES_SETTINGS_SOURCES)) {
+    for (const source of filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(preferencesSettingsSources("security")),
+      ACCOUNT_PREFERENCES_PATH,
+    )) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
