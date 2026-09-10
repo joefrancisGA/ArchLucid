@@ -7545,6 +7545,17 @@
         },
         "type": "object"
       },
+      "BuildSecurityEvidencePathExplanationRequest": {
+        "properties": {
+          "allowInsufficientEvidence": {
+            "type": "boolean"
+          },
+          "useSimulator": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "BuyerFindingSummaryDto": {
         "properties": {
           "category": {
@@ -22779,6 +22790,7 @@
             ]
           },
           "expectedUpdatedUtc": {
+            "description": "Required unless forceOverwrite is true. Must match the current draft updatedUtc. Omit returns HTTP 409 with code draft_cas_token_missing, not last-write-wins (ADR 0088).",
             "format": "date-time",
             "type": [
               "null",
@@ -22792,6 +22804,7 @@
             ]
           },
           "forceOverwrite": {
+            "description": "When true, skips CAS and overwrites the server draft (Keep mine). Never defaults to true. Writes a Required audit event. JSON Schema cannot express required-unless-forceOverwrite.",
             "type": [
               "null",
               "boolean"
@@ -33186,6 +33199,12 @@
             },
             "type": "array"
           },
+          "routing": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathRoutingResponse"
+            },
+            "type": "array"
+          },
           "snapshotId": {
             "format": "uuid",
             "type": "string"
@@ -33210,9 +33229,83 @@
         },
         "type": "object"
       },
+      "SecurityEvidencePathExplanationResponse": {
+        "properties": {
+          "businessImpactHypotheses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "citedEvidenceRefs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "executiveSummary": {
+            "type": "string"
+          },
+          "explanationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "proposedRemediation": {
+            "$ref": "#/components/schemas/SecurityEvidencePathProposedRemediationResponse"
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "simulatorLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathExplanationResultResponse": {
+        "properties": {
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecurityEvidencePathExplanationResponse"
+              }
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "SecurityEvidencePathExplanationTemplateResponse": {
         "properties": {
           "actor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "architectSentence": {
             "type": [
               "null",
               "string"
@@ -33231,6 +33324,12 @@
             ]
           },
           "network": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "proposedChange": {
             "type": [
               "null",
               "string"
@@ -33287,6 +33386,35 @@
           },
           "toNodeLabel": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathProposedRemediationResponse": {
+        "properties": {
+          "preconditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "recommendedChange": {
+            "type": "string"
+          },
+          "recommendedChangeSource": {
+            "type": "string"
+          },
+          "suggestedPatternKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "verificationQueries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -33515,6 +33643,32 @@
           "totalCount": {
             "format": "int32",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathRoutingResponse": {
+        "properties": {
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "principalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "sourceReference": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -176222,6 +176376,239 @@
               }
             },
             "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "OperationalSecurityPaths"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/operational-security/paths/{pathId}/explanations": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pathId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BuildSecurityEvidencePathExplanationRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BuildSecurityEvidencePathExplanationRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BuildSecurityEvidencePathExplanationRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityEvidencePathExplanationResultResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityEvidencePathExplanationResultResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityEvidencePathExplanationResultResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
           },
           "401": {
             "content": {

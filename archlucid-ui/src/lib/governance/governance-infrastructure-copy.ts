@@ -64,6 +64,25 @@ export const GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXT_LABEL = "Grounded to" as cons
 
 export const GOVERNANCE_INFRASTRUCTURE_ASK_QUESTION_LABEL = "Question" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_STATUS_LABEL = "Simulated" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_CANNED_PROMPTS_LABEL = "Canned prompts" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_SHORTCUT_LABEL = "Ctrl+Enter" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_READINESS_EMPTY =
+  "Enter a question before asking." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_READINESS_BUSY = "Waiting for the current answer…" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_BLOCKED_LABEL = "Ask blocked" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_FAILED_LABEL = "Ask failed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SCOPE_BACK_LINKS_LABEL = "Related workbenches" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_TRANSCRIPT_INDEX_LABEL = "Ask transcript" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE =
   OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile;
 
@@ -117,7 +136,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID = "infra-diag
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagram viewer" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
-  "Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability thresholds." as const;
+  "Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability thresholds. Choose a snapshot and diagram mode before exporting PNG or Mermaid. Partitioned views default to Executive when the full graph exceeds readability thresholds." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE =
   "Diagram renders reflect inventory snapshot evidence — server PNG export applies tenant branding on the container only, never inside graph nodes." as const;

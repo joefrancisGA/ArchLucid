@@ -83,6 +83,7 @@ function draftResponse(
       actorSet: responseActorSet,
       workflowIntent: "create-architecture",
       structuredBrief: fields.structuredBrief,
+      openQuestions: fields.openQuestions,
     },
     createdUtc: "2026-08-11T11:00:00.000Z",
     updatedUtc,
@@ -110,6 +111,7 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "",
       systemName: "Claims intake",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
 
     createDraftRequest.mockResolvedValueOnce({
@@ -125,6 +127,7 @@ describe("useArchitectureDraftAutosave", () => {
         actorSet,
         workflowIntent: "create-architecture",
         structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
       },
       createdUtc: "2026-08-11T11:00:00.000Z",
       updatedUtc: "2026-08-11T11:00:00.000Z",
@@ -165,6 +168,7 @@ describe("useArchitectureDraftAutosave", () => {
             businessOutcome: "",
             systemName: "",
             structuredBrief: emptyArchitectureDraftStructuredBrief(),
+            openQuestions: "",
           },
         },
       },
@@ -199,6 +203,7 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "",
       systemName: "Cl",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
     const fullName: ArchitectureDraftFieldState = {
       ...partialName,
@@ -250,6 +255,7 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
 
     const { result, rerender } = renderHook(
@@ -259,7 +265,7 @@ describe("useArchitectureDraftAutosave", () => {
           fields: props.fields,
           actorSet,
         }),
-      { initialProps: { fields: { freeTextIntent: "", businessOutcome: "", systemName: "", structuredBrief: emptyArchitectureDraftStructuredBrief() } } },
+      { initialProps: { fields: { freeTextIntent: "", businessOutcome: "", systemName: "", structuredBrief: emptyArchitectureDraftStructuredBrief(), openQuestions: "" } } },
     );
 
     act(() => {
@@ -282,12 +288,14 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "",
       systemName: "",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
     const complete: ArchitectureDraftFieldState = {
       freeTextIntent: intentOnly.freeTextIntent,
       businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
 
     let resolveFirstPatch: ((value: unknown) => void) | null = null;
@@ -365,6 +373,7 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
 
     getDraftRequest.mockResolvedValueOnce(draftResponse(fields, "2026-08-11T12:00:00.000Z"));
@@ -393,6 +402,7 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
 
     getDraftRequest.mockResolvedValue(draftResponse(fields, "2026-08-11T12:00:00.000Z"));
@@ -426,12 +436,14 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "",
       systemName: "",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
     const complete: ArchitectureDraftFieldState = {
       freeTextIntent: intentOnly.freeTextIntent,
       businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
 
     let resolveFirstPatch: ((value: unknown) => void) | null = null;
@@ -498,6 +510,7 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
     const updatedActorSet: ActorSet = {
       actors: [
@@ -553,6 +566,7 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
 
     getDraftRequest.mockResolvedValue(draftResponse(fields, "2026-08-11T12:00:30.000Z"));
@@ -586,6 +600,7 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
 
     const onImmutableDraftDetected = vi.fn();
@@ -620,6 +635,7 @@ describe("useArchitectureDraftAutosave", () => {
       businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "Recovered architecture",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
     };
 
     readArchitectureNewDraftRecovery.mockReturnValue({
@@ -642,6 +658,7 @@ describe("useArchitectureDraftAutosave", () => {
         actorSet,
         workflowIntent: "create-architecture",
         structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
       },
       createdUtc: "2026-09-08T12:00:00.000Z",
       updatedUtc: "2026-09-08T12:00:00.000Z",
@@ -681,5 +698,140 @@ describe("useArchitectureDraftAutosave", () => {
     await waitFor(() => {
       expect(result.current.recoveredLocally).toBe(false);
     });
+  });
+
+  it("sends expectedUpdatedUtc on an online persist PATCH (LW-029)", async () => {
+    const fields: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent(),
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
+    };
+
+    getDraftRequest.mockResolvedValueOnce(draftResponse(fields, "2026-08-11T12:00:00.000Z"));
+    patchDraftRequest.mockResolvedValueOnce(draftResponse(fields, "2026-08-11T12:00:30.000Z"));
+
+    const { result } = renderHook(() =>
+      useArchitectureDraftAutosave({
+        draftId: "draft-001",
+        fields,
+        actorSet,
+      }),
+    );
+
+    act(() => {
+      result.current.acceptServerBaseline(fields, "2026-08-11T12:00:00.000Z", actorSet);
+    });
+
+    await act(async () => {
+      await result.current.saveDraft();
+    });
+
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    const patchBody = patchDraftRequest.mock.calls[0]?.[1] as {
+      expectedUpdatedUtc?: string;
+      forceOverwrite?: boolean;
+    };
+    expect(patchBody.expectedUpdatedUtc).toBe("2026-08-11T12:00:00.000Z");
+    expect(patchBody.forceOverwrite).toBeUndefined();
+  });
+
+  it("sends the GET updatedUtc on the first PATCH after deferred create (LW-032)", async () => {
+    const fields: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent("deferred-create"),
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "Deferred create architecture",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
+    };
+
+    createDraftRequest.mockResolvedValueOnce({
+      draftId: "draft-created",
+      architectureId: "arch-created",
+      tenantId: "tenant",
+      workspaceId: "ws",
+      projectId: "default",
+      status: "Drafting",
+      document: {
+        freeTextIntent: fields.freeTextIntent,
+        businessOutcome: fields.businessOutcome,
+        systemName: fields.systemName,
+        actorSet,
+        workflowIntent: "create-architecture",
+        structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
+      },
+      createdUtc: "2026-08-11T11:00:00.000Z",
+      updatedUtc: "2026-08-11T11:00:00.000Z",
+    });
+    getDraftRequest.mockResolvedValueOnce(draftResponse(fields, "2026-08-11T12:00:00.000Z"));
+    patchDraftRequest.mockResolvedValueOnce(draftResponse(fields, "2026-08-11T12:00:30.000Z"));
+
+    const { result } = renderHook(() =>
+      useArchitectureDraftAutosave({
+        draftId: "new",
+        fields,
+        actorSet,
+        deferCreateUntilFirstSave: true,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.saveDraft();
+    });
+
+    expect(createDraftRequest).toHaveBeenCalledTimes(1);
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    const patchBody = patchDraftRequest.mock.calls[0]?.[1] as { expectedUpdatedUtc?: string };
+    expect(patchBody.expectedUpdatedUtc).toBe("2026-08-11T12:00:00.000Z");
+  });
+
+  it("sends forceOverwrite on Keep mine without expectedUpdatedUtc (LW-030)", async () => {
+    const fields: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent(),
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      openQuestions: "",
+    };
+
+    getDraftRequest
+      .mockResolvedValueOnce(draftResponse(fields, "2026-08-11T12:00:30.000Z"))
+      .mockResolvedValueOnce(draftResponse(fields, "2026-08-11T12:00:30.000Z"));
+    patchDraftRequest.mockResolvedValueOnce(draftResponse(fields, "2026-08-11T12:01:00.000Z"));
+
+    const { result } = renderHook(() =>
+      useArchitectureDraftAutosave({
+        draftId: "draft-001",
+        fields,
+        actorSet,
+      }),
+    );
+
+    act(() => {
+      result.current.acceptServerBaseline(fields, "2026-08-11T12:00:00.000Z", actorSet);
+    });
+
+    await act(async () => {
+      const saved = await result.current.saveDraft();
+      expect(saved).toBe(false);
+    });
+
+    expect(patchDraftRequest).not.toHaveBeenCalled();
+    expect(result.current.conflictMessage).toMatch(/another session|offline replay/i);
+
+    await act(async () => {
+      const kept = await result.current.keepLocalDraftOnConflict();
+      expect(kept).toBe(true);
+    });
+
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    const patchBody = patchDraftRequest.mock.calls[0]?.[1] as {
+      expectedUpdatedUtc?: string;
+      forceOverwrite?: boolean;
+    };
+    expect(patchBody.forceOverwrite).toBe(true);
+    expect(patchBody.expectedUpdatedUtc).toBeUndefined();
   });
 });

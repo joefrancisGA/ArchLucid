@@ -21,17 +21,25 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<JsonElement> roleAssignments,
         IReadOnlyList<JsonElement> networkAssociations,
         IReadOnlyList<JsonElement> policyAssignments,
-        IReadOnlyList<JsonElement> diagnosticSettings)
+        IReadOnlyList<JsonElement> diagnosticSettings,
+        IReadOnlyList<AzureInventoryFederatedCredentialRow> federatedCredentials,
+        bool federatedCredentialsFilePresent)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
         ArgumentNullException.ThrowIfNull(networkAssociations);
         ArgumentNullException.ThrowIfNull(policyAssignments);
         ArgumentNullException.ThrowIfNull(diagnosticSettings);
+        ArgumentNullException.ThrowIfNull(federatedCredentials);
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
         HashSet<string> relationshipKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        if (!federatedCredentialsFilePresent)
+        {
+            warnings.Add(SecurityEvidenceFederatedCredentialAdapterWarnings.MissingFile);
+        }
 
         foreach (AzureExtractorExtendedResourceRow resource in resources)
         {
@@ -44,6 +52,7 @@ public static class AzureInventorySecurityEdgeMaterializer
         }
 
         AddRoleAssignmentEdges(roleAssignments, relationships, relationshipKeys, warnings);
+        AddFederatedCredentialEdges(federatedCredentials, relationships, relationshipKeys);
         AddNetworkAssociationEdges(networkAssociations, relationships, relationshipKeys);
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
         AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys);
@@ -287,6 +296,34 @@ public static class AzureInventorySecurityEdgeMaterializer
                     DerivedFactConfidence,
                     GraphEdgeInferenceSources.InventoryRbacDataPlaneMap);
             }
+        }
+    }
+
+    private static void AddFederatedCredentialEdges(
+        IReadOnlyList<AzureInventoryFederatedCredentialRow> federatedCredentials,
+        List<AzureInventoryResourceRelationshipWrite> relationships,
+        HashSet<string> relationshipKeys)
+    {
+        foreach (AzureInventoryFederatedCredentialRow credential in federatedCredentials)
+        {
+            if (string.IsNullOrWhiteSpace(credential.Issuer)
+                || string.IsNullOrWhiteSpace(credential.Subject)
+                || string.IsNullOrWhiteSpace(credential.PrincipalId))
+            {
+                continue;
+            }
+
+            AddRelationship(
+                relationships,
+                relationshipKeys,
+                credential.NodeId,
+                credential.PrincipalNodeId,
+                GraphEdgeTypes.FederatesAs,
+                credential.ProvenanceKind,
+                credential.ProvenanceKind == ProvenanceKind.ObservedFact
+                    ? ObservedFactConfidence
+                    : DerivedFactConfidence,
+                GraphEdgeInferenceSources.InventoryFederatedCredential);
         }
     }
 

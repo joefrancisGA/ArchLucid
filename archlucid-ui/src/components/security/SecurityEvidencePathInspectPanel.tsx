@@ -20,6 +20,7 @@ import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-eviden
 import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 import {
   SECURENOW_PATH_INSPECT_ADVISORY_INSTANCE_LINK,
+  SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE,
   SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE,
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
   SECURENOW_PATH_INSPECT_ERROR,
@@ -146,6 +147,19 @@ export function SecurityEvidencePathInspectPanel(props: {
               label={formatSecurityEvidencePathConfidenceBandLabel(pathQuery.data.pathConfidenceBand)}
             />
           </div>
+
+          {pathQuery.data.explanationTemplate?.architectSentence != null
+          && pathQuery.data.explanationTemplate.architectSentence.trim().length > 0 ? (
+            <div
+              className="rounded border border-border bg-muted/30 p-3"
+              data-testid="security-evidence-path-architect-sentence"
+            >
+              <h3 className={OPERATOR_TYPOGRAPHY.cardTitle}>{SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE}</h3>
+              <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.body)}>
+                {pathQuery.data.explanationTemplate.architectSentence}
+              </p>
+            </div>
+          ) : null}
 
           {pathQuery.data.weakestHop != null ? (
             <div

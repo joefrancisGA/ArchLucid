@@ -38,6 +38,17 @@ export type SecurityEvidencePathRoutingRow = {
   sourceReference: string;
 };
 
+export type SecurityEvidencePathExplanationTemplate = {
+  actor: string | null;
+  identity: string | null;
+  network: string | null;
+  asset: string | null;
+  weakControl: string | null;
+  proposedChange: string | null;
+  verify: string | null;
+  architectSentence: string | null;
+};
+
 export type SecurityEvidencePathDetail = {
   pathId: string;
   snapshotId: string;
@@ -47,6 +58,7 @@ export type SecurityEvidencePathDetail = {
   weakestHopReason: string;
   hops: ReadonlyArray<SecurityEvidencePathHop>;
   weakestHop: SecurityEvidencePathWeakestHop | null;
+  explanationTemplate: SecurityEvidencePathExplanationTemplate | null;
   relatedCutPoints: ReadonlyArray<SecurityEvidencePathCutPoint>;
   routing: ReadonlyArray<SecurityEvidencePathRoutingRow>;
 };

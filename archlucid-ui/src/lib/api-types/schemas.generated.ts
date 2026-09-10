@@ -2219,6 +2219,10 @@ export interface components {
             processUptimeSeconds?: number;
             runtimeFramework?: string;
         };
+        BuildSecurityEvidencePathExplanationRequest: {
+            allowInsufficientEvidence?: boolean;
+            useSimulator?: boolean;
+        };
         BuyerFindingSummaryDto: {
             category?: string;
             engineType?: string;
@@ -6615,9 +6619,13 @@ export interface components {
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
             businessOutcome?: null | string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Required unless forceOverwrite is true. Must match the current draft updatedUtc. Omit returns HTTP 409 with code draft_cas_token_missing, not last-write-wins (ADR 0088).
+             */
             expectedUpdatedUtc?: null | string;
             focusedPilotModeEnabled?: null | boolean;
+            /** @description When true, skips CAS and overwrites the server draft (Keep mine). Never defaults to true. Writes a Required audit event. JSON Schema cannot express required-unless-forceOverwrite. */
             forceOverwrite?: null | boolean;
             freeTextIntent?: null | string;
             openQuestions?: null | string;
@@ -9687,12 +9695,32 @@ export interface components {
             pathId?: string;
             pathKind?: string;
             relatedCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
+            routing?: components["schemas"]["SecurityEvidencePathRoutingResponse"][];
             /** Format: uuid */
             snapshotId?: string;
             weakestHop?: null | components["schemas"]["SecurityEvidencePathWeakestHopResponse"];
             /** Format: int32 */
             weakestHopOrdinal?: number;
             weakestHopReason?: string;
+        };
+        SecurityEvidencePathExplanationResponse: {
+            businessImpactHypotheses?: string[];
+            citedEvidenceRefs?: string[];
+            /** Format: date-time */
+            createdUtc?: string;
+            executiveSummary?: string;
+            /** Format: uuid */
+            explanationId?: string;
+            /** Format: uuid */
+            pathId?: string;
+            proposedRemediation?: components["schemas"]["SecurityEvidencePathProposedRemediationResponse"];
+            provenanceKind?: string;
+            simulatorLabel?: null | string;
+        };
+        SecurityEvidencePathExplanationResultResponse: {
+            errorMessage?: null | string;
+            explanation?: null | components["schemas"]["SecurityEvidencePathExplanationResponse"];
+            succeeded?: boolean;
         };
         SecurityEvidencePathExplanationTemplateResponse: {
             actor?: null | string;
@@ -9714,6 +9742,13 @@ export interface components {
             inferenceSource?: null | string;
             provenanceKind?: string;
             toNodeLabel?: string;
+        };
+        SecurityEvidencePathProposedRemediationResponse: {
+            preconditions?: string[];
+            recommendedChange?: string;
+            recommendedChangeSource?: string;
+            suggestedPatternKey?: null | string;
+            verificationQueries?: string[];
         };
         SecurityEvidencePathRankDetailResponse: {
             /** Format: double */
@@ -9787,6 +9822,13 @@ export interface components {
             topCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
             /** Format: int32 */
             totalCount?: number;
+        };
+        SecurityEvidencePathRoutingResponse: {
+            displayName?: null | string;
+            principalId?: null | string;
+            provenanceKind?: string;
+            role?: string;
+            sourceReference?: string;
         };
         SecurityEvidencePathSummaryResponse: {
             /** Format: date-time */

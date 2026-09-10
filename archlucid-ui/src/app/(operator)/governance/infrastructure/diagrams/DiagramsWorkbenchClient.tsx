@@ -92,7 +92,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
 import { cn } from "@/lib/utils";
@@ -619,7 +618,7 @@ export function DiagramsWorkbenchClient() {
       </a>
 
       <OperatorPageHeader
-        navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH}
+        navHref={pathname}
         title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
         claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE}
@@ -635,8 +634,6 @@ export function DiagramsWorkbenchClient() {
           </div>
         }
       />
-
-      {!buyerPolishedShell ? <LayerHeader pageKey="infrastructure-diagrams" /> : null}
 
       <main
         id={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID}

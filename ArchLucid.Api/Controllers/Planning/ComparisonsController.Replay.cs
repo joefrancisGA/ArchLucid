@@ -56,6 +56,10 @@ public sealed partial class ComparisonsController
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+        catch (ConflictException ex)
+        {
+            return MapComparisonReplaySealedManifestConflict(ex);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry

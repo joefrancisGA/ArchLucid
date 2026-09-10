@@ -75,21 +75,29 @@ describe("lost-write 401 resume inventory (LW-003)", () => {
   it("keeps yes-row wrappers in source", () => {
     const disposition = readRepoFile("lib/api/governance-stickiness-api-dispositions.ts");
     const correction = readRepoFile("lib/governance/governance-mutation-correction-api.ts");
+    const resumeCore = readRepoFile("lib/auth/livelihood-mutation-401-resume.ts");
 
     expect(disposition).toContain("recordFindingDispositionWith401Resume");
     expect(correction).toContain("recordGovernanceMutationCorrectionWith401Resume");
+    expect(disposition).toContain("withLivelihood401Resume");
+    expect(correction).toContain("withLivelihood401Resume");
+    expect(resumeCore).toContain("export async function withLivelihood401Resume");
   });
 });
 
 describe("lost-write browser WIP keys (LW-005)", () => {
-  it("records pending mutation as sessionStorage and v1 offline queue as localStorage without expectedUtc", () => {
-    const pending = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "pending-mutation-v1");
+  it("records pending mutation v2 as localStorage and v1 offline queue as localStorage without expectedUtc", () => {
+    const pendingV1 = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "pending-mutation-v1");
+    const pendingV2 = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "pending-mutation-v2");
     const queueV1 = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "offline-draft-queue-v1");
 
-    expect(pending?.storage).toBe("sessionStorage");
-    expect(pending?.survivesTabClose).toBe(false);
-    expect(pending?.crossDevice).toBe(false);
-    expect(pending?.key).toBe(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY);
+    expect(pendingV1?.storage).toBe("sessionStorage");
+    expect(pendingV1?.survivesTabClose).toBe(false);
+
+    expect(pendingV2?.storage).toBe("localStorage");
+    expect(pendingV2?.survivesTabClose).toBe(true);
+    expect(pendingV2?.crossDevice).toBe(false);
+    expect(pendingV2?.key).toBe(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY);
 
     expect(queueV1?.storage).toBe("localStorage");
     expect(queueV1?.key).toBe(ARCHITECTURE_DRAFT_OFFLINE_QUEUE_KEY_V1);
@@ -128,6 +136,14 @@ describe("lost-write CAS compat matrix (LW-009 / LW-010)", () => {
     expect(compat).toMatch(/409/);
     expect(breaking).toMatch(/2026-09-10/);
     expect(breaking).toMatch(/draft_cas_token_missing/);
+
+    const startReview = readFileSync(
+      join(REPO_ROOT, "docs/architecture/LOST_WRITE_START_REVIEW_VS_PATCH_CAS.md"),
+      "utf8",
+    );
+    expect(startReview).toMatch(/DraftPatchStaleUpdatedUtcGuard/);
+    expect(startReview).toMatch(/DraftStartReviewStaleUpdatedUtcGuard/);
+    expect(startReview).toMatch(/Do not merge/i);
   });
 
   it("snapshots generated PatchDraftRequest fields as JSON-optional", () => {
@@ -139,6 +155,21 @@ describe("lost-write CAS compat matrix (LW-009 / LW-010)", () => {
 
     expect(patchBlock).toMatch(/expectedUpdatedUtc\?:/);
     expect(patchBlock).toMatch(/forceOverwrite\?:/);
+  });
+
+  it("documents fail-closed CAS on the OpenAPI PatchDraftRequest snapshot (LW-024)", () => {
+    const snapshot = readFileSync(
+      join(REPO_ROOT, "ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json"),
+      "utf8",
+    );
+    const patchBlock = snapshot.slice(
+      snapshot.indexOf('"PatchDraftRequest"'),
+      snapshot.indexOf('"PatchDraftRequest"') + 2500,
+    );
+
+    expect(patchBlock).toMatch(/draft_cas_token_missing/);
+    expect(patchBlock).toMatch(/Never defaults to true/);
+    expect(patchBlock).toMatch(/required-unless-forceOverwrite/);
   });
 });
 

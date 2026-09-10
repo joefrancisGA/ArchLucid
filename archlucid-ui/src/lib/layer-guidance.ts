@@ -352,7 +352,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "infrastructure-ask": {
     layerBadge: "Advanced operations",
-    headline: "Ask grounded questions about inventory evidence.",
+    headline: "Grounded Q&A over structured inventory rows with citation-backed answers.",
     useWhen: "Use canned prompts or your own question when citations and InsufficientEvidence states are acceptable.",
     firstPilotNote: "Answers cite structured inventory rows in scope — insufficient-evidence outcomes are honest.",
     omitReviewPackageScopeHelp: true,

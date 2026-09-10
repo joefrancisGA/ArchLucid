@@ -6,8 +6,12 @@ import {
   consumeLivelihoodPendingMutationForReturnPath,
   executeIdempotentLivelihoodMutation,
   isLivelihoodMutation401RedirectError,
+  LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY,
+  LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY_V1,
   LivelihoodMutation401RedirectError,
+  migrateLivelihoodPendingMutationV1ToV2,
   readLivelihoodPendingMutation,
+  withLivelihood401Resume,
   writeLivelihoodPendingMutation,
 } from "@/lib/auth/livelihood-mutation-401-resume";
 import { replayLivelihoodPendingMutation } from "@/lib/auth/livelihood-mutation-401-resume-replay";
@@ -30,10 +34,11 @@ vi.mock("@/lib/governance/governance-mutation-correction-api", () => ({
   recordGovernanceMutationCorrection: (...args: unknown[]) => recordGovernanceMutationCorrection(...args),
 }));
 
-describe("livelihood-mutation-401-resume (LP-19)", () => {
+describe("livelihood-mutation-401-resume (LP-19 / LW-051)", () => {
   const assignMock = vi.fn();
 
   beforeEach(() => {
+    localStorage.clear();
     sessionStorage.clear();
     persistIdleDeskRestoreBeforeSessionClear.mockReset();
     recordFindingDisposition.mockReset();
@@ -45,7 +50,7 @@ describe("livelihood-mutation-401-resume (LP-19)", () => {
     });
   });
 
-  it("persists pending mutation and redirects on 401 with the same idempotency key", async () => {
+  it("persists pending mutation in localStorage and redirects on 401 with the same idempotency key", async () => {
     const idempotencyKey = "11111111-1111-4111-8111-111111111111";
     const execute = vi.fn().mockRejectedValue(
       new ApiRequestError("Unauthorized", {
@@ -75,11 +80,39 @@ describe("livelihood-mutation-401-resume (LP-19)", () => {
     expect(persistIdleDeskRestoreBeforeSessionClear).toHaveBeenCalledWith(
       "/architecture/reviews/run-1/findings/f-1",
     );
+    expect(localStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY)).not.toBeNull();
     expect(readLivelihoodPendingMutation()?.idempotencyKey).toBe(idempotencyKey);
+    expect(sessionStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY_V1)).toBeNull();
     expect(assignMock).toHaveBeenCalledWith(
       "/auth/session-expired?reason=idle-timeout&returnUrl=%2Farchitecture%2Freviews%2Frun-1%2Ffindings%2Ff-1",
     );
     expect(isLivelihoodMutation401RedirectError(new LivelihoodMutation401RedirectError())).toBe(true);
+  });
+
+  it("migrates sessionStorage v1 into localStorage v2 once", () => {
+    const idempotencyKey = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+    const payload = {
+      kind: "finding_disposition" as const,
+      idempotencyKey,
+      returnPath: "/architecture/reviews/run-m/findings/f-m",
+      savedAtUtc: "2026-09-10T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: {
+        findingId: "f-m",
+        body: {
+          disposition: "Accepted" as const,
+          runId: "run-m",
+        },
+      },
+    };
+
+    sessionStorage.setItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY_V1, JSON.stringify(payload));
+
+    migrateLivelihoodPendingMutationV1ToV2();
+
+    expect(localStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY)).not.toBeNull();
+    expect(readLivelihoodPendingMutation()?.idempotencyKey).toBe(idempotencyKey);
+    expect(sessionStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY_V1)).toBeNull();
   });
 
   it("replays a stored disposition once with the same idempotency key and row version", async () => {
@@ -145,5 +178,27 @@ describe("livelihood-mutation-401-resume (LP-19)", () => {
     expect(consumeLivelihoodPendingMutationForReturnPath("/architecture/reviews/run-3")).toBeNull();
     expect(readLivelihoodPendingMutation()).not.toBeNull();
     clearLivelihoodPendingMutation();
+  });
+
+  it("withLivelihood401Resume delegates to executeIdempotentLivelihoodMutation", async () => {
+    const execute = vi.fn().mockResolvedValue({ ok: true });
+
+    const result = await withLivelihood401Resume({
+      kind: "governance_mutation_correction",
+      returnPath: "/governance/findings",
+      idempotencyKey: "44444444-4444-4444-8444-444444444444",
+      payload: {
+        body: {
+          mutationKind: "governance_keyboard_finding_disposition",
+          subjectId: "f-4",
+          runId: "run-4",
+          rationale: "Replay once",
+        },
+      },
+      execute,
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(execute).toHaveBeenCalledTimes(1);
   });
 });
