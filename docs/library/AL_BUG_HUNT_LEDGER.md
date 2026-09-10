@@ -7981,11 +7981,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 16
-- **bugs-found:** 6
+- **hunts:** 17
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — array-root manifest.json threw during ZipValidator schema read instead of schema rejection
+- **last-bug:** 2026-09-10 — PackageInventoryReader kept padded location values and omitted companion entry names on malformed JSON errors
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8146,6 +8146,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `RedactStructuredJson` preserves sensitive boolean scalar values — **cheap-disproof 2026-09-10 seed hunt #1606:** sensitive boolean scalars redacted; regression `RedactStructuredJson_redacts_sensitive_boolean_scalar_values`.
 
 2026-09-10 seed hunt #1606 (hit): reseeded core-azure-extractor after #1605; proved array-root manifest validation throw; cheap-disproof closed missing schemaVersion rejection, empty companion arrays, resourceId/resourceType precedence, mixed-case ARM resource-group extraction, name trimming, and RedactStructuredJson boolean scalar redaction; 992 scoped `AzureExtractor` tests passed.
+
+- [x] (proven) `AzureExtractorPackageInventoryReader.MapResourceRow` — `location` persisted with surrounding whitespace while `name`/`resourceType` were trimmed — **hit 2026-09-10 seed hunt #1607:** `Location` assigned without trim/null guard; fixed with whitespace normalization matching other scalar fields; regression `TryReadFromZip_trims_whitespace_from_location_on_resource_row`.
+- [x] (proven) `AzureExtractorPackageInventoryReader.ReadOptionalArray` — malformed companion JSON surfaced raw `JsonException` text without entry name — **hit 2026-09-10 seed hunt #1607:** parse failures omitted `role-assignments.json` context unlike ZipValidator; fixed by wrapping parse errors with `{entryName} is not valid JSON.`; regression `TryReadFromZip_fails_on_malformed_role_assignments_companion_json`.
+- [x] (valid-no-repro) Negative `schemaVersion` values pass ZipValidator — **cheap-disproof 2026-09-10 seed hunt #1607:** below-minimum rejection; regression `Validate_rejects_negative_schemaVersion`.
+- [x] (valid-no-repro) Schema rejection omits `FileEntryCount` — **cheap-disproof 2026-09-10 seed hunt #1607:** entry count populated on failure; regression `Validate_schema_rejection_reports_file_entry_count`.
+- [x] (valid-no-repro) Numeric `sku` property values coerce to SKU name — **cheap-disproof 2026-09-10 seed hunt #1607:** non-string/object SKU ignored; regression `TryReadFromZip_treats_numeric_sku_property_as_null`.
+- [x] (valid-no-repro) `RedactStructuredJson` preserves sensitive number scalar values — **cheap-disproof 2026-09-10 seed hunt #1607:** sensitive number scalars redacted; regression `RedactStructuredJson_redacts_sensitive_number_scalar_values`.
+- [x] (valid-no-repro) Property names starting with `secret`/`password` fragments bypass `IsSensitiveKey` — **cheap-disproof 2026-09-10 seed hunt #1607:** prefix fragment match; regression `IsSensitiveKey_detects_secret_prefix_at_start_of_property_name`.
+- [x] (valid-no-repro) String `"1"` `schemaVersion` fails manifest upgrader v1→v2 hop — **cheap-disproof 2026-09-10 seed hunt #1607:** string whole-number upgrade; regression `TryUpgradeManifestJson_upgrades_string_one_schema_version`.
+
+2026-09-10 seed hunt #1607 (hit): reseeded core-azure-extractor after #1606; proved location trim gap and companion malformed-JSON error context; cheap-disproof closed negative schemaVersion rejection, schema-rejection file counts, numeric SKU handling, RedactStructuredJson number scalar redaction, secret-prefix key detection, and string schema-1 upgrade; 1002 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
