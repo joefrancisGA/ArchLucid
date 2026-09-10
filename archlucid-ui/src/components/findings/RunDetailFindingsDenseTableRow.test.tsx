@@ -64,6 +64,6 @@ describe("RunDetailFindingsDenseTableRow", () => {
     );
 
     expect(screen.queryByTestId("run-detail-findings-density-honesty-finding-1")).toBeNull();
-    expect(screen.queryByTestId("finding-semantic-support-band-finding-1")).toBeNull();
+    expect(screen.queryByTestId("working-finding-semantic-support-band")).toBeNull();
   });
 });
