@@ -46,7 +46,7 @@ export function useGovernanceFindingsQueueMode({ mode }: UseGovernanceFindingsQu
     buyerPolishedShell,
     productLine,
   );
-  const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe);
+  const navHref = resolveGovernanceFindingsNavHref(isAssignedToMe, productLine);
   const currentJobId: GovernanceJobId = isAssignedToMe ? "assigned-to-me-findings" : "triage-findings";
   const loadFailedPreset = resolveGovernanceFindingsLoadFailedPreset(isAssignedToMe);
 

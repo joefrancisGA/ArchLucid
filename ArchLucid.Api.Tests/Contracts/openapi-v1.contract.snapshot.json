@@ -22688,6 +22688,32 @@
         },
         "type": "object"
       },
+      "PagedResponseOfSecurityEvidencePathSummaryResponse": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathSummaryResponse"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PatchArchitectureIdentityRequest": {
         "properties": {
           "archived": {
@@ -22872,6 +22898,12 @@
           }
         },
         "type": "object"
+      },
+      "PathConfidenceBand": {
+        "type": "integer"
+      },
+      "PathKind": {
+        "type": "integer"
       },
       "PatternEvidence": {
         "properties": {
@@ -32888,6 +32920,201 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathDetailResponse": {
+        "properties": {
+          "citingFindingIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "crownJewelAssertionId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "explanationTemplate": {
+            "$ref": "#/components/schemas/SecurityEvidencePathExplanationTemplateResponse"
+          },
+          "hops": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathHopResponse"
+            },
+            "type": "array"
+          },
+          "pathConfidenceBand": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathKind": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "weakestHop": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecurityEvidencePathWeakestHopResponse"
+              }
+            ]
+          },
+          "weakestHopOrdinal": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "weakestHopReason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathExplanationTemplateResponse": {
+        "properties": {
+          "actor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "asset": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "identity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "network": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "verify": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "weakControl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathHopResponse": {
+        "properties": {
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "edgeType": {
+            "type": "string"
+          },
+          "evidenceReference": {
+            "type": "string"
+          },
+          "fromNodeLabel": {
+            "type": "string"
+          },
+          "hopConfidenceBand": {
+            "type": "string"
+          },
+          "hopOrdinal": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "inferenceSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "toNodeLabel": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathSummaryResponse": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "pathConfidenceBand": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathKind": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "weakestHopOrdinal": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "weakestHopReason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathWeakestHopResponse": {
+        "properties": {
+          "edgeType": {
+            "type": "string"
+          },
+          "hopConfidenceBand": {
+            "type": "string"
+          },
+          "hopOrdinal": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -174918,6 +175145,362 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/operational-security/paths": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "snapshotId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pathKind",
+            "schema": {
+              "$ref": "#/components/schemas/PathKind"
+            }
+          },
+          {
+            "in": "query",
+            "name": "confidenceBand",
+            "schema": {
+              "$ref": "#/components/schemas/PathConfidenceBand"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cloudResourceId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "default": 50,
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfSecurityEvidencePathSummaryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfSecurityEvidencePathSummaryResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfSecurityEvidencePathSummaryResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "OperationalSecurityPaths"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/operational-security/paths/{pathId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pathId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityEvidencePathDetailResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityEvidencePathDetailResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecurityEvidencePathDetailResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "OperationalSecurityPaths"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/operational-security/remediation-metrics": {
       "get": {
         "parameters": [
@@ -210204,6 +210787,9 @@
     },
     {
       "name": "OperationalSecurityFindings"
+    },
+    {
+      "name": "OperationalSecurityPaths"
     },
     {
       "name": "Operations"

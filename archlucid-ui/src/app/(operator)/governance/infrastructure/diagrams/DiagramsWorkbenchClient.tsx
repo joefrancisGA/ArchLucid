@@ -49,6 +49,7 @@ import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
 import { formatInfraEvidenceDiagramsApiError } from "@/lib/infra-evidence/infra-evidence-diagrams-api";
+import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import {
@@ -72,7 +73,7 @@ import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHub
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
@@ -99,13 +100,6 @@ const cnCard =
 
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
-
-function formatSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
-  const captured = snapshot.capturedUtc != null ? new Date(snapshot.capturedUtc).toLocaleString() : "unknown time";
-  const subscription = snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription";
-
-  return `${subscription} · ${captured} · ${snapshot.resourceCount} resources`;
-}
 
 function resolveDefaultFallbackKey(
   artifacts: readonly InfraEvidenceMermaidFallbackArtifactSummary[],
@@ -648,14 +642,17 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      <section className={cn("grid gap-4 md:grid-cols-2", cnCard)} aria-label="Snapshot and mode selection">
+      <section
+        className={cn("grid gap-4 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]", cnCard)}
+        aria-label="Snapshot and mode selection"
+      >
         {buyerPolishedShell ? (
           <>
-            <div className="grid gap-2">
+            <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL}</Label>
               <select
                 id="infra-diagrams-snapshot-picker"
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
                 disabled={loadingSnapshots || snapshots.length === 0}
                 value={selectedSnapshotId}
@@ -666,17 +663,17 @@ export function DiagramsWorkbenchClient() {
                 ) : (
                   snapshots.map((snapshot) => (
                     <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                      {formatSnapshotLabel(snapshot)}
+                      {formatInfraEvidenceSnapshotLabel(snapshot)}
                     </option>
                   ))
                 )}
               </select>
             </div>
-            <div className="grid gap-2">
+            <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-mode-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL}</Label>
               <select
                 id="infra-diagrams-mode-picker"
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-mode-picker"
                 disabled={loadingPreview || selectedSnapshotId.length === 0}
                 value={selectedMode}
@@ -692,10 +689,10 @@ export function DiagramsWorkbenchClient() {
           </>
         ) : (
           <>
-            <label className="flex flex-col gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>Snapshot</span>
+            <label className="flex min-w-0 flex-col gap-1">
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>Snapshot</span>
               <select
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
                 disabled={loadingSnapshots || snapshots.length === 0}
                 value={selectedSnapshotId}
@@ -706,16 +703,16 @@ export function DiagramsWorkbenchClient() {
                 ) : (
                   snapshots.map((snapshot) => (
                     <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                      {formatSnapshotLabel(snapshot)}
+                      {formatInfraEvidenceSnapshotLabel(snapshot)}
                     </option>
                   ))
                 )}
               </select>
             </label>
-            <label className="flex flex-col gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>Diagram mode</span>
+            <label className="flex min-w-0 flex-col gap-1">
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>Diagram mode</span>
               <select
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-mode-picker"
                 disabled={loadingPreview || selectedSnapshotId.length === 0}
                 value={selectedMode}

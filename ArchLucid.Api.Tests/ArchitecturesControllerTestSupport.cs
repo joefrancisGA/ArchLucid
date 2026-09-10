@@ -1,4 +1,6 @@
 using ArchLucid.Api.Controllers.Architecture;
+using ArchLucid.Api.Support;
+using ArchLucid.Api.Tests.Support;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
@@ -26,13 +28,16 @@ internal static class ArchitecturesControllerTestSupport
         Mock<IRunRepository> runRepository,
         Mock<IGoldenManifestRepository> goldenManifestRepository,
         Mock<IArchitectureShareService>? shareService = null,
-        Mock<ArchitectureShareAuditSupport>? shareAuditSupport = null)
+        Mock<ArchitectureShareAuditSupport>? shareAuditSupport = null,
+        Mock<IArchitectureShareAccessGate>? shareAccessGate = null)
     {
         Mock<IArchitectureShareService> resolvedShareService = shareService ?? new Mock<IArchitectureShareService>();
         ArchitectureShareAuditSupport resolvedShareAuditSupport = shareAuditSupport?.Object
             ?? new ArchitectureShareAuditSupport(
                 auditService.Object,
                 NullLogger<ArchitectureShareAuditSupport>.Instance);
+        Mock<IArchitectureShareAccessGate> resolvedShareAccessGate =
+            shareAccessGate ?? ArchitectureShareAccessGateTestDefaults.CreatePermissiveGate();
 
         return new ArchitecturesController(
             scopeProvider.Object,
@@ -44,6 +49,7 @@ internal static class ArchitecturesControllerTestSupport
                 NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
             resolvedShareService.Object,
             resolvedShareAuditSupport,
+            resolvedShareAccessGate.Object,
             sealDeltaService.Object,
             auditService.Object,
             runRepository.Object,
