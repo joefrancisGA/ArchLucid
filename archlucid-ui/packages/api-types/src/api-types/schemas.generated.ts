@@ -6366,6 +6366,8 @@ export interface components {
             inventoryDiffId?: null | string;
             /** Format: date-time */
             lastObservedUtc?: string;
+            /** Format: uuid */
+            pathId?: null | string;
             /** Format: byte */
             payloadHashSha256?: string;
             /** Format: uuid */
