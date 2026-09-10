@@ -1813,7 +1813,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1835,6 +1835,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Text filter or buyer scope chip narrows `filteredSorted` but `selectedRun` stays on a hidden row so the docked inspector shows a review no longer in the list — **hit 2026-09-09 seed hunt #1468 (seed→hit):** `useRunsList` clears selection when the selected run drops out of `filteredSorted`; regression `narrows text filter closes inspector when selected run is filtered out`.
 - [x] (proven) Client text filter matches `description` and `runId` only while `buyerFacingReviewTitleFromSummary` renders `displayName` when it differs from the run id — **hit 2026-09-10 seed hunt #1556 (seed→hit):** operator search by visible title missed rows with empty/different description; fixed `useRunsList` filter to include `displayName`; regression `filters reviews by displayName when the visible title differs from description`.
 - [x] (proven) `compareRuns` URL selection persists when `showBuyerPackageCards` hides compare UI (`showCompareSelection = safeRuns.length >= 2 && !showBuyerPackageCards`) — **hit 2026-09-10 thorough hunt #1580:** deep-linked `compareRuns` stayed in URL/state while buyer card layout hid compare chrome; `useRunsList` now clears selection when `showCompareSelection` is false; regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`.
+- [x] (valid-no-repro) `inspectorRunId` URL param persists after text filter closes the docked inspector — **cheap-disproof 2026-09-10 seed hunt #1585:** `setSelectedRun(null)` syncs URL via `runsListCompareInspectorHrefFromSearch`; regression `clears inspectorRunId from the URL when text filter closes the inspector`.
+- [x] (valid-no-repro) Buyer `scope=finalized` deep link with `inspectorRunId` for an in-flight run keeps inspector open on a hidden row — **cheap-disproof 2026-09-10 seed hunt #1585:** `useRunsList` clears selection when run drops out of `filteredSorted`; regression `buyer-polished: scope filter closes inspector when the selected run is hidden`.
+- [x] (valid-no-repro) `inspectorRunId` deep link fails on buyer package card layout (`showBuyerPackageCards`) — **cheap-disproof 2026-09-10 seed hunt #1585:** url-driven selection resolves from `safeRuns`; regression `buyer-polished: inspectorRunId deep link opens inspector on card layout`.
+- [x] (invalid) Text filter should prune `compareRuns` when one compared row is hidden — **cheap-disproof 2026-09-10 seed hunt #1585:** compare selection is page-level; hidden rows remain valid compare targets; regression `keeps compareRuns selection when text filter hides one selected row`.
+
+2026-09-10 seed hunt #1585 (seed-only): reseeded ui-runs-list after #1580; cheap-disproof closed inspectorRunId URL sync, scope-filter inspector stale state, card-layout deep link, and compareRuns filter-prune candidates; 25 scoped `RunsListClient` tests passed.
 
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 
