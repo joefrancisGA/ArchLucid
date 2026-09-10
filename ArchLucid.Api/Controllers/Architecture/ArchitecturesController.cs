@@ -49,7 +49,10 @@ public sealed partial class ArchitecturesController(
     IGoldenManifestRepository goldenManifestRepository,
     IManifestHashService manifestHashService,
     IRunDetailQueryService runDetailQueryService,
-    IAuthorityQueryService authorityQueryService) : ControllerBase
+    IAuthorityQueryService authorityQueryService,
+    IArchitectureShareAccessService architectureShareAccessService,
+    IAuthenticatedPlatformUserResolver platformUserResolver,
+    IArchitectureRestrictToSharesService architectureRestrictToSharesService) : ControllerBase
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
@@ -95,6 +98,15 @@ public sealed partial class ArchitecturesController(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IArchitectureShareAccessService _architectureShareAccessService =
+        architectureShareAccessService ?? throw new ArgumentNullException(nameof(architectureShareAccessService));
+
+    private readonly IAuthenticatedPlatformUserResolver _platformUserResolver =
+        platformUserResolver ?? throw new ArgumentNullException(nameof(platformUserResolver));
+
+    private readonly IArchitectureRestrictToSharesService _architectureRestrictToSharesService =
+        architectureRestrictToSharesService ?? throw new ArgumentNullException(nameof(architectureRestrictToSharesService));
 
     /// <summary>Lists architecture identities in the current tenant/workspace/project scope.</summary>
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
