@@ -2337,4 +2337,90 @@ public sealed class FindingInspectReadRepositoryCoreTests
         projection.LatestDispositionReviewerUserId.Should().Be("reviewer-2");
         projection.RevisitDueUtc.Should().NotBeNull();
     }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_when_include_typed_payload_true_prefers_deserialized_payload_over_metadata()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: true,
+            payloadJson: """{"resourceId":"vm-1"}""",
+            title: "Encrypt at rest",
+            rationale: "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("resourceId").GetString().Should().Be("vm-1");
+        typed!.Value.TryGetProperty("title", out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_when_include_typed_payload_true_returns_null_for_whitespace_only_payload_even_with_metadata()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: true,
+            payloadJson: "   ",
+            title: "Encrypt at rest",
+            rationale: "Missing TLS").Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_number_for_scientific_notation()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("1e3");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.ValueKind.Should().Be(JsonValueKind.Number);
+        parsed!.Value.GetDouble().Should().Be(1000);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_whitespace_padded_deferred_string()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "  Deferred  ",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Deferred);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_whitespace_padded_remediated_string()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "  Remediated  ",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Remediated);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_preserves_pointer_metadata_when_disposition_is_negative_numeric()
+    {
+        DateTimeOffset occurredAt = new(2026, 10, 7, 11, 0, 0, TimeSpan.Zero);
+        Guid eventId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "-1",
+            hasDispositionRow: true,
+            occurredAtUtc: occurredAt,
+            revisitDueUtc: new DateTime(2026, 11, 3, 0, 0, 0, DateTimeKind.Unspecified),
+            eventId: eventId,
+            reviewerUserId: "reviewer-3",
+            rowVersionStamp: [0x04]);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionOccurredAtUtc.Should().Be(occurredAt);
+        projection.LatestDispositionEventId.Should().Be(eventId);
+        projection.LatestDispositionReviewerUserId.Should().Be("reviewer-3");
+        projection.RevisitDueUtc.Should().NotBeNull();
+    }
 }
