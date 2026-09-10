@@ -172,21 +172,21 @@ public sealed partial class AuthorityCompareController(
             ScopedRunPairLoadOutcome.RightManifestNotFound => this.NotFoundProblem(
                 $"Manifest for run '{loadResult.MissingRunId}' was not found.",
                 ProblemTypes.ManifestNotFound),
-            ScopedRunPairLoadOutcome.PinFingerprintMismatch => this.ConflictProblem(
-                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
-                ProblemTypes.Conflict),
+            ScopedRunPairLoadOutcome.PinFingerprintMismatch => MapCompareSealedManifestConflict(
+                new ConflictException(
+                    "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
             ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => MapCompareSealedManifestConflict(
                 new ConflictException(
                     "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.")),
             ScopedRunPairLoadOutcome.SealedManifestHashMismatch => MapCompareSealedManifestConflict(
                 new ConflictException(
                     "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
-            ScopedRunPairLoadOutcome.LeftLifecycleIncomplete => this.ConflictProblem(
-                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
-                ProblemTypes.Conflict),
-            ScopedRunPairLoadOutcome.RightLifecycleIncomplete => this.ConflictProblem(
-                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
-                ProblemTypes.Conflict),
+            ScopedRunPairLoadOutcome.LeftLifecycleIncomplete => MapCompareSealedManifestConflict(
+                new ConflictException(
+                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
+            ScopedRunPairLoadOutcome.RightLifecycleIncomplete => MapCompareSealedManifestConflict(
+                new ConflictException(
+                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
             _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
         };
 

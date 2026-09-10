@@ -83,24 +83,31 @@ export type ExecuteArchitectureRunAsyncResult = {
 export async function executeArchitectureRunAsync(
   runId: string,
 ): Promise<ExecuteArchitectureRunAsyncResult> {
-  const accepted = await apiPostAcceptedWithLocation(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/execute/async`,
-    {},
-    { suppressErrorToast: true },
-  );
-  const operationId =
-    parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
+  try {
+    const accepted = await apiPostAcceptedWithLocation(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/execute/async`,
+      {},
+      { suppressErrorToast: true },
+    );
+    const operationId =
+      parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
 
-  trackInFlightOperation({
-    operationId,
-    title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
-    href: reviewPipelineDetailHref(runId),
-    runId,
-    stepLabel: "Queued",
-    state: "Pending",
-  });
+    trackInFlightOperation({
+      operationId,
+      title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+      href: reviewPipelineDetailHref(runId),
+      runId,
+      stepLabel: "Queued",
+      state: "Pending",
+    });
 
-  return { operationId, location: accepted.location };
+    return { operationId, location: accepted.location };
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewExecuteMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export type ReplayArchitectureRunAsyncResult = {

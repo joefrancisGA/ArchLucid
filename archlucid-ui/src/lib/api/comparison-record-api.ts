@@ -64,7 +64,14 @@ export async function getComparisonRecord(comparisonRecordId: string): Promise<C
 
 /** Loads the markdown summary for a persisted comparison record. */
 export async function getComparisonSummary(comparisonRecordId: string): Promise<ComparisonSummaryResponse> {
-  return apiGetSealedManifestAware<ComparisonSummaryResponse>(
-    `/v1/architecture/comparisons/${encodeURIComponent(comparisonRecordId)}/summary`,
-  );
+  try {
+    return await apiGetSealedManifestAware<ComparisonSummaryResponse>(
+      `/v1/architecture/comparisons/${encodeURIComponent(comparisonRecordId)}/summary`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = comparisonRecordBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
