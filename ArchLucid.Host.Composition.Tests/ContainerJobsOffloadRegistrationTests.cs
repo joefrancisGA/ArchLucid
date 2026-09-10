@@ -10,6 +10,7 @@ using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Integration;
 using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.TestSupport;
@@ -805,6 +806,52 @@ public sealed class ContainerJobsOffloadRegistrationTests
         hasJob.Should().BeTrue(
             "trial-email-scan must resolve via ArchLucidJobRunner when offloaded from the worker host");
         hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_audit_retry_drain_still_registers_hosted_service_not_job()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.AuditRetryDrain;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType is not null
+            && d.ImplementationType.Name.Contains("AuditRetry", StringComparison.Ordinal));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AuditRetryDrainHostedService));
+
+        hasJob.Should().BeFalse("audit-retry-drain has no IArchLucidJob until a durable cross-replica queue exists");
+        hasHosted.Should().BeTrue(
+            "InMemoryAuditRetryQueue is per-process; each host must drain its own retry buffer locally");
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_advisory_scan_still_registers_architecture_review_recurrence_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.AdvisoryScan;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasRecurrence = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ArchitectureReviewRecurrenceHostedService));
+
+        hasRecurrence.Should().BeTrue(
+            "architecture-review recurrence is leader-elected in-process scheduling and is not gated by advisory-scan container offload");
     }
 
     [Fact]

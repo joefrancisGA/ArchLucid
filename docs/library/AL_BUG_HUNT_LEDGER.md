@@ -8783,7 +8783,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8830,6 +8830,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `DataConsistencyHealthCheck` / `DataHealthJobsCompositionModule.RegisterArchLucidHealthChecks` — readiness returned Unhealthy when local `DataConsistencyReconciliationHealthState` never recorded a run while `DataConsistencyReconciliationHostedService` is leader-elected cluster-wide — **hit 2026-09-10 seed hunt #1528:** non-leader Worker/Combined replicas permanently failed `/health/ready`; aligned never-run with `DataArchivalHostHealthCheck` tolerance; regression `Healthy_when_reconciliation_not_run_yet_on_leader_elected_replica`
 - [x] (proven) `RetrievalIndexFreshnessHealthCheck` / `DataHealthJobsCompositionModule.RegisterArchLucidHealthChecks` — readiness returned Degraded on leader-elected non-leader replicas with startup corpus indexing enabled while `PolicyPackCorpusStartupIndexerHostedService` et al. use `ILeaderElectionWorkRunner` one-shot leases and `InMemoryRetrievalDocumentIndexCatalog` is process-local — **hit 2026-09-10 seed hunt #1559:** non-leader Api/Worker replicas permanently failed `/health/ready` with AzureSearch vector index; aligned empty-catalog tolerance with `DataConsistencyHealthCheck`; regressions `RetrievalIndexFreshnessHealthCheck_healthy_when_empty_catalog_on_leader_elected_replica` and `RetrievalIndexFreshnessHealthCheck_healthy_when_startup_indexing_disabled_and_empty_catalog`
+- [x] (valid-no-repro) `audit-retry-drain` container offload drops `AuditRetryDrainHostedService` — `AgentLlmSupportCompositionModule.PromptAndToken.cs` registers `InMemoryAuditRetryQueue` + drain on every role; `ArchLucidJobNames.AuditRetryDrain` is reserved with no `IArchLucidJob` until a durable queue exists (`ArchLucidJobNames` comment); regression `AddArchLucidApplicationServices_Worker_offloads_audit_retry_drain_still_registers_hosted_service_not_job` (2026-09-10 seed hunt #1560)
+- [x] (valid-no-repro) `advisory-scan` container offload drops `ArchitectureReviewRecurrenceHostedService` — `AdvisoryDigestSchedulingRegistrar` gates only `AdvisoryScanHostedService` on `ArchLucidJobNames.AdvisoryScan`; recurrence uses separate leader-elected `ArchitectureReviewRecurrenceHostedService` with no container job slug; regression `AddArchLucidApplicationServices_Worker_offloads_advisory_scan_still_registers_architecture_review_recurrence_hosted_service` (2026-09-10 seed hunt #1560)
+- [x] (valid-no-repro) `LlmCostEstimationUsdRateOverrideWarmupHostedService` registered on Api without `ArchLucidHostingRole` gate — `CoordinatorArtifactsCompositionModule.Explanation.Services.cs` warms process-local `LlmCostEstimationUsdRateOverrideCache` on SQL storage; Api replicas need rates for request-time LLM cost estimation; regression `AddArchLucidApplicationServices_Api_role_registers_llm_cost_rate_override_warmup_for_sql_storage` (2026-09-10 seed hunt #1560)
+
+2026-09-10 seed hunt #1560 (seed-only): reseeded host-composition after #1559; cheap-disproved audit-retry-drain offload, advisory-scan/recurrence coupling, and Api LLM rate warmup role-gate candidates; 343/345 scoped host-composition tests passed (2 pre-existing unrelated failures).
 
 2026-09-10 seed hunt #1559 (hit): reseeded host-composition; proved retrieval index freshness readiness false-negative on leader-elected replicas; 3 scoped RetrievalIndexFreshnessHealthCheck tests passed; 340/342 scoped host-composition tests passed (2 pre-existing unrelated failures).
 

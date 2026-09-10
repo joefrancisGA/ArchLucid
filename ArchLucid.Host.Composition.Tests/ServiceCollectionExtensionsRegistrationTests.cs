@@ -80,6 +80,24 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
     }
 
     [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_llm_cost_rate_override_warmup_for_sql_storage()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(LlmCostEstimationUsdRateOverrideWarmupHostedService));
+
+        registered.Should().BeTrue(
+            "Api replicas need the process-local LlmCostEstimationUsdRateOverrideCache warmed for request-time cost estimation");
+    }
+
+    [Fact]
     public void CosmosGraphSnapshotOutboxHostedService_is_not_registered_for_Api_role_even_when_GraphSnapshotsEnabled()
     {
         IConfiguration configuration = CreateSqlCompositionTestConfiguration(
