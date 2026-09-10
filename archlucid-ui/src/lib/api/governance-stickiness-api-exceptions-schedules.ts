@@ -1,6 +1,7 @@
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { recurrenceScheduleMutationBlockedReason } from "@/lib/governance/recurrence-schedule-mutation-blocked-reason";
 import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
@@ -44,7 +45,17 @@ export async function listRiskExceptions(projectId?: string): Promise<RiskExcept
 }
 
 export async function revokeRiskException(riskExceptionId: string): Promise<void> {
-  await apiPostNoContent(`${governanceStickinessBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/revoke`, {});
+  try {
+    await apiPostNoContent(
+      `${governanceStickinessBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/revoke`,
+      {},
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = riskExceptionMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function renewRiskException(
@@ -70,7 +81,17 @@ export async function createArchitectureReviewRecurrenceSchedule(body: {
   cronExpression?: string;
   isEnabled: boolean;
 }): Promise<ArchitectureReviewRecurrenceSchedule> {
-  return apiPostJson<ArchitectureReviewRecurrenceSchedule>(`${governanceStickinessBase()}/recurrence-schedules`, body);
+  try {
+    return await apiPostJson<ArchitectureReviewRecurrenceSchedule>(
+      `${governanceStickinessBase()}/recurrence-schedules`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = recurrenceScheduleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function previewRecurrenceScheduleRuns(body: {

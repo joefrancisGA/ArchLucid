@@ -58,21 +58,21 @@ public sealed partial class ExplanationController
             ManifestCompareLoadOutcome.TargetManifestNotFound => this.NotFoundProblem(
                 $"Run '{loadResult.RunId}' does not have a committed golden manifest.",
                 ProblemTypes.ManifestNotFound),
-            ManifestCompareLoadOutcome.BaseLifecycleIncomplete => this.ConflictProblem(
-                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
-                ProblemTypes.Conflict),
-            ManifestCompareLoadOutcome.TargetLifecycleIncomplete => this.ConflictProblem(
-                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
-                ProblemTypes.Conflict),
-            ManifestCompareLoadOutcome.PinFingerprintMismatch => this.ConflictProblem(
-                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
-                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.BaseLifecycleIncomplete => MapExplanationSealedManifestConflict(
+                new ConflictException(
+                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
+            ManifestCompareLoadOutcome.TargetLifecycleIncomplete => MapExplanationSealedManifestConflict(
+                new ConflictException(
+                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
+            ManifestCompareLoadOutcome.PinFingerprintMismatch => MapExplanationSealedManifestConflict(
+                new ConflictException(
+                    "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
             ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
                 "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
                 ProblemTypes.CommittedArtifactInventoryMismatch),
-            ManifestCompareLoadOutcome.SealedManifestHashMismatch => this.ConflictProblem(
-                "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
-                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.SealedManifestHashMismatch => MapExplanationSealedManifestConflict(
+                new ConflictException(
+                    "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
             _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {loadResult.Outcome}."),
         };
     }

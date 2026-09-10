@@ -137,7 +137,14 @@ export async function promoteManifest(body: {
   approvalRequestId?: string;
   notes?: string;
 }): Promise<GovernancePromotionRecord> {
-  return apiPostJson<GovernancePromotionRecord>(`${governanceBase()}/promotions`, body);
+  try {
+    return await apiPostJson<GovernancePromotionRecord>(`${governanceBase()}/promotions`, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Lists promotion audit rows for a run. */
