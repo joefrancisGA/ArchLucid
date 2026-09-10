@@ -1455,4 +1455,69 @@ public sealed class FindingInspectReadRepositoryCoreTests
         typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
         typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
     }
+
+    [Fact]
+    public void BuildMetadataTypedPayload_builds_title_only_payload_when_rationale_is_whitespace()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.BuildMetadataTypedPayload("Encrypt at rest", "   ");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("whyThisMatters").ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_null_for_json_null_literal()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("null");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
+    [Fact]
+    public void FilterNonBlankTrimmedStrings_preserves_duplicate_entries()
+    {
+        IReadOnlyList<string> filtered = FindingInspectReadRepositoryCore.FilterNonBlankTrimmedStrings(
+            ["node-a", "node-a"]);
+
+        filtered.Should().Equal("node-a", "node-a");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_only_without_trace_returns_rule_id()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["cost-guardrail"]""",
+            firstRuleText: null);
+
+        ruleId.Should().Be("cost-guardrail");
+        ruleName.Should().Be("cost-guardrail");
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_converts_unspecified_revisit_due_to_utc_offset()
+    {
+        DateTime unspecified = new(2026, 11, 1, 0, 0, 0, DateTimeKind.Unspecified);
+
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Deferred",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: unspecified,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.RevisitDueUtc.Should().Be(new DateTimeOffset(DateTime.SpecifyKind(unspecified, DateTimeKind.Utc)));
+    }
+
+    [Fact]
+    public void EncodeRowVersionStampBase64_encodes_multi_byte_stamp()
+    {
+        byte[] stamp = [0x01, 0x02, 0x03];
+
+        FindingInspectReadRepositoryCore.EncodeRowVersionStampBase64(stamp).Should().Be(Convert.ToBase64String(stamp));
+    }
 }

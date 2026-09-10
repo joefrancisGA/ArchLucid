@@ -280,4 +280,16 @@ public sealed class FindingInspectReadModelMapperTests
     {
         FindingInspectReadModelMapper.ParseDisposition("5").Should().BeNull();
     }
+
+    [Fact]
+    public void ParseFindingSeverity_maps_defined_numeric_string_to_warning()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("1").Should().Be(FindingSeverity.Warning);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_defined_numeric_string_zero_as_high()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("0").Should().Be(FindingConfidenceLevel.High);
+    }
 }

@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1578,6 +1578,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-10 seed hunt #1654 (seed-only): reseeded finding-inspect-sql after #1653; cheap-disproof closed null trace fallback, recommended-action filter parity, object/null applied-rule JSON fallback, empty disposition mapping, zero-byte row-version encoding, JSON zero payload parse, negative severity defaulting, and pointer row-version SQL source; 255 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 2026-09-10 seed hunt #1655 (seed-only): reseeded finding-inspect-sql after #1654; cheap-disproof closed positive undefined numeric enum parsing, null recommended-action/evidence entries, whitespace-only finding-id normalization, applied-rule JSON precedence over trace text, and whitespace-title metadata payload edges; 259 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` returns null when rationale is whitespace-only and title is present — **cheap-disproof 2026-09-10 seed hunt #1656:** whitespace rationale trims to null while title still builds slim metadata; regression `BuildMetadataTypedPayload_builds_title_only_payload_when_rationale_is_whitespace`.
+- [x] (valid-no-repro) `ParseFindingSeverity` rejects defined numeric strings like `"1"` — **cheap-disproof 2026-09-10 seed hunt #1656:** defined ordinals parse via `Enum.TryParse` + `Enum.IsDefined`; regression `ParseFindingSeverity_maps_defined_numeric_string_to_warning`.
+- [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` rejects defined numeric string `"0"` — **cheap-disproof 2026-09-10 seed hunt #1656:** defined ordinals parse to `High`; regression `TryParseEvaluationConfidenceLevel_parses_defined_numeric_string_zero_as_high`.
+- [x] (valid-no-repro) `TryParsePayloadJson` treats JSON `null` literal as corrupt and returns null — **cheap-disproof 2026-09-10 seed hunt #1656:** valid `null` root deserializes to `JsonValueKind.Null`; regression `TryParsePayloadJson_returns_deserialized_null_for_json_null_literal`.
+- [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` deduplicates repeated related-node ids — **cheap-disproof 2026-09-10 seed hunt #1656:** helper preserves duplicate survivors in source order; regression `FilterNonBlankTrimmedStrings_preserves_duplicate_entries`.
+- [x] (valid-no-repro) `ResolveRuleFields` returns null when `AppliedRuleIdsJson` is present but trace text is absent — **cheap-disproof 2026-09-10 seed hunt #1656:** non-empty JSON array supplies rule id/name without trace fallback; regression `ResolveRuleFields_when_applied_rule_ids_json_only_without_trace_returns_rule_id`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` preserves local offset for unspecified `RevisitDueUtc` — **cheap-disproof 2026-09-10 seed hunt #1656:** `ToUtcDateTimeOffset` labels unspecified SQL timestamps as UTC; regression `MapDispositionPointerProjection_converts_unspecified_revisit_due_to_utc_offset`.
+- [x] (valid-no-repro) `EncodeRowVersionStampBase64` truncates multi-byte row-version stamps — **cheap-disproof 2026-09-10 seed hunt #1656:** multi-byte stamps base64-encode in full; regression `EncodeRowVersionStampBase64_encodes_multi_byte_stamp`.
+
+2026-09-10 seed hunt #1656 (seed-only): reseeded finding-inspect-sql after #1655; cheap-disproof closed whitespace-rationale metadata payload, defined numeric enum parsing, JSON null literal parse, duplicate string preservation, JSON-only rule resolution, unspecified revisit-due UTC labeling, and multi-byte row-version encoding; 267 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
