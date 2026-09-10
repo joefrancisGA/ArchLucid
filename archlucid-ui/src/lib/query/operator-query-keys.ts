@@ -19,6 +19,7 @@ export const operatorQueryKeys = {
   billingSubscriptionStatus: ["operator", "tenant", "billing-subscription-status"] as const,
   operatorStickinessSnapshot: ["operator", "tenant", "stickiness-snapshot"] as const,
   adminConfigLintSummary: ["operator", "admin", "config-lint-summary"] as const,
+  adminUsersDirectory: ["operator", "admin", "users-directory"] as const,
   adminIdentityProvidersPageBundle: ["operator", "admin", "identity-providers-page-bundle"] as const,
   adminPrerequisitesCloudSummary: ["operator", "admin", "prerequisites-cloud-summary"] as const,
   adminOutboxDiagnostics: ["operator", "admin", "outbox-diagnostics"] as const,

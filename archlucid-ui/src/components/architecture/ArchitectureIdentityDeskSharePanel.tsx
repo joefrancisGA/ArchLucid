@@ -39,7 +39,10 @@ import {
   type ArchitectureShareRole,
 } from "@/lib/architecture/architecture-share-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { useLivelihoodDocumentGuards } from "@/hooks/use-livelihood-document-guards";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { formatVerboseApiFailureMessage } from "@/lib/resolve-api-error-message";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
@@ -94,7 +97,7 @@ export function ArchitectureIdentityDeskSharePanel(
     [confirmRestrict, restrictToShares, savedConfirmRestrict, savedRestrictToShares, targetActorOid],
   );
 
-  useLivelihoodDocumentGuards({ when: hasUnsavedEdits });
+  const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedEdits });
 
   const invalidateShares = async (): Promise<void> => {
     await queryClient.invalidateQueries({
@@ -406,6 +409,13 @@ export function ArchitectureIdentityDeskSharePanel(
         lastSavedUtc={lastSavedUtc}
         inlineSaveError={null}
         testId="architecture-identity-desk-share-save-status"
+      />
+
+      <LivelihoodDocumentGuardDialog
+        open={documentGuards.dialogOpen}
+        message={documentGuards.dialogMessage}
+        onConfirmLeave={documentGuards.confirmLeave}
+        onCancelLeave={documentGuards.cancelLeave}
       />
     </section>
   );

@@ -1,4 +1,7 @@
-import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_REMEDIATION_FACTORY_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
@@ -11,13 +14,13 @@ export const SECURENOW_SECURITY_HOME_SECTION_LEAD =
 /** SecureNow home — operational security destinations (integration links live under Integration nav). */
 export const SECURENOW_SECURITY_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
-    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
     summary: "Open findings assigned to you for remediation and follow-up.",
     recommendedFirst: true,
   },
   {
-    href: "/governance/remediation-factory",
+    href: SECURENOW_REMEDIATION_FACTORY_PATH,
     label: OPERATOR_NAV_LINK_LABELS.remediationFactory,
     summary: "Prioritize remediation waves and review executive remediation metrics.",
   },
