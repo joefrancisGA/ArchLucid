@@ -90,7 +90,10 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
             correlationId={content.failure.correlationId}
           />
           {content.bootstrapBlockedReason ?? advisoryRunReadBlockedReason(content.failure) ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="advisory-run-read-blocked-reason"
+            >
               {content.bootstrapBlockedReason ?? advisoryRunReadBlockedReason(content.failure)}
             </p>
           ) : null}

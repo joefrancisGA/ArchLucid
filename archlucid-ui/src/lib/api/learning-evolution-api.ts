@@ -14,16 +14,30 @@ import type {
   EvolutionSimulateResponse,
 } from "@/types/evolution";
 import { apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders, type ApiGetOptions } from "./http";
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { advisoryRunReadBlockedReason } from "@/lib/advisory/advisory-run-read-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 /** Generates an AI-driven improvement plan for a run, optionally compared to another run. */
 export async function getImprovementPlan(runId: string, compareToRunId?: string): Promise<ImprovementPlan> {
   const params = new URLSearchParams();
-  if (compareToRunId?.trim()) params.set("compareToRunId", compareToRunId.trim());
+
+  if (compareToRunId?.trim()) {
+    params.set("compareToRunId", compareToRunId.trim());
+  }
+
   const q = params.toString();
-  return apiGetSealedManifestAware<ImprovementPlan>(
-    `/v1/advisory/runs/${encodeURIComponent(runId)}/improvements${q ? `?${q}` : ""}`,
-  );
+
+  try {
+    return await apiGet<ImprovementPlan>(
+      `/v1/advisory/runs/${encodeURIComponent(runId)}/improvements${q ? `?${q}` : ""}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = advisoryRunReadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Fetches the most recent recommendation learning profile, or null if none exists (404). */

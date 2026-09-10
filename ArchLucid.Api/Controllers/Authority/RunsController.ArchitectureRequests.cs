@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -36,24 +37,31 @@ public sealed partial class RunsController
         [FromServices] IManifestHashService manifestHashService,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(requestId))
-            return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
+        try
+        {
+            if (string.IsNullOrWhiteSpace(requestId))
+                return this.BadRequestProblem("requestId is required.", ProblemTypes.ValidationFailed);
 
-        ArchitectureRequest? request =
-            await LoadScopedArchitectureRequestAsync(requestId, requestRepository, cancellationToken);
+            ArchitectureRequest? request =
+                await LoadScopedArchitectureRequestAsync(requestId, requestRepository, cancellationToken);
 
-        if (request is null)
-            return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
+            if (request is null)
+                return this.NotFoundProblem($"Request '{requestId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        IActionResult? sealedGuardResult = await EnsureArchitectureRequestSealedManifestReadAllowedAsync(
-            requestId,
-            manifestHashService,
-            cancellationToken);
+            IActionResult? sealedGuardResult = await EnsureArchitectureRequestSealedManifestReadAllowedAsync(
+                requestId,
+                manifestHashService,
+                cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        return Ok(request);
+            return Ok(request);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
