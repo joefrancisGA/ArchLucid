@@ -7981,11 +7981,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 17
-- **bugs-found:** 8
+- **hunts:** 18
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — PackageInventoryReader kept padded location values and omitted companion entry names on malformed JSON errors
+- **last-bug:** 2026-09-10 — PackageInventoryReader ignored PascalCase location/resourceGroup fields and omitted resources.json context on malformed JSON errors
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8157,6 +8157,16 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) String `"1"` `schemaVersion` fails manifest upgrader v1→v2 hop — **cheap-disproof 2026-09-10 seed hunt #1607:** string whole-number upgrade; regression `TryUpgradeManifestJson_upgrades_string_one_schema_version`.
 
 2026-09-10 seed hunt #1607 (hit): reseeded core-azure-extractor after #1606; proved location trim gap and companion malformed-JSON error context; cheap-disproof closed negative schemaVersion rejection, schema-rejection file counts, numeric SKU handling, RedactStructuredJson number scalar redaction, secret-prefix key detection, and string schema-1 upgrade; 1002 scoped `AzureExtractor` tests passed.
+
+- [x] (proven) `AzureExtractorPackageInventoryReader.MapResourceRow` — PascalCase `Location`/`ResourceGroup` properties ignored — **hit 2026-09-10 seed hunt #1608:** only lowercase property names bound; fixed with PascalCase fallbacks matching ResourceInventoryReader; regressions `TryReadFromZip_reads_pascal_case_location_on_resource_row`, `TryReadFromZip_reads_pascal_case_resource_group_on_row`.
+- [x] (proven) `AzureExtractorPackageInventoryReader.ReadResources` — malformed `resources.json` surfaced raw `JsonException` text without entry name — **hit 2026-09-10 seed hunt #1608:** parse failures omitted `resources.json` context unlike ZipValidator; fixed by wrapping parse errors; regression `TryReadFromZip_fails_on_malformed_resources_json`.
+- [x] (proven) `AzureExtractorPackageInventoryReader.MapResourceRow` — explicit `resourceGroup` values kept surrounding whitespace — **hit 2026-09-10 seed hunt #1608:** row-level resource group assigned without trim; fixed with trim after explicit/derived resolution; regression `TryReadFromZip_trims_whitespace_from_explicit_resource_group_on_row`.
+- [x] (valid-no-repro) Malformed `diagnostic-settings.json` companion errors omit entry name — **cheap-disproof 2026-09-10 seed hunt #1608:** wrapped parse error parity from #1607; regression `TryReadFromZip_fails_on_malformed_diagnostic_settings_companion_json`.
+- [x] (valid-no-repro) Whitespace-only `location` persists as empty string — **cheap-disproof 2026-09-10 seed hunt #1608:** normalized to null after #1607 trim guard; regression `TryReadFromZip_treats_whitespace_only_location_as_null`.
+- [x] (valid-no-repro) Sensitive `null` scalar values in `RedactStructuredJson` leak as JSON null — **cheap-disproof 2026-09-10 seed hunt #1608:** `RedactValue` maps null/whitespace to empty string; regression `RedactStructuredJson_serializes_sensitive_null_scalar_values_as_empty_string`.
+- [x] (valid-no-repro) Missing `resources.json` ZIP validation omits `FileEntryCount` — **cheap-disproof 2026-09-10 seed hunt #1608:** entry count populated on failure; regression `Validate_missing_resources_reports_file_entry_count`.
+
+2026-09-10 seed hunt #1608 (hit): reseeded core-azure-extractor after #1607; proved PascalCase field binding gap, resources.json malformed-JSON error context, and explicit resourceGroup trim; cheap-disproof closed diagnostic-settings malformed parity, whitespace-only location nulling, sensitive-null RedactStructuredJson behavior, and missing-resources file counts; 1009 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
