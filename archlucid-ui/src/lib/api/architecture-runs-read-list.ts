@@ -101,6 +101,20 @@ export async function getRunStageTimeline(runId: string): Promise<StageTimelineS
   }
 }
 
+/** Audit events associated with this run, oldest-first (`GET /v1/runs/{runId}/review-trail`). */
+export async function getReviewTrail(runId: string): Promise<PipelineTimelineItem[]> {
+  try {
+    return await apiGetSealedManifestAware<PipelineTimelineItem[]>(
+      `/v1/runs/${encodeURIComponent(runId)}/review-trail`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runReviewTrailBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+}
+
 /** Run-scoped audit events oldest-first (pipeline / lifecycle timeline for operators). */
 export async function getRunPipelineTimeline(runId: string): Promise<PipelineTimelineItem[]> {
   try {
