@@ -280,9 +280,9 @@ public sealed partial class ExportsController(
         ExportRecordLoadOutcome.RightIdRequired => this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed),
         ExportRecordLoadOutcome.LeftNotFound or ExportRecordLoadOutcome.ExportRecordNotFound => this.NotFoundProblem($"Export record '{missingId}' was not found.", ProblemTypes.ResourceNotFound),
         ExportRecordLoadOutcome.RightNotFound => this.NotFoundProblem($"Export record '{missingId}' was not found.", ProblemTypes.ResourceNotFound),
-        ExportRecordLoadOutcome.LineageUnverified => this.ConflictProblem(
-            $"Export record '{missingId}' is blocked until export lineage and sealed-manifest verification succeeds.",
-            ProblemTypes.Conflict),
+        ExportRecordLoadOutcome.LineageUnverified => MapExportReplaySealedManifestConflict(
+            new ConflictException(
+                $"Export record '{missingId}' is blocked until export lineage and sealed-manifest verification succeeds.")),
         _ => throw new InvalidOperationException($"Unexpected export record load outcome: {outcome}."),
     };
 }
