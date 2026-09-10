@@ -239,10 +239,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-08 — WorkspaceAllowedEngineSetService allowed-engine JSON exceeded TenantSettings NVARCHAR(512)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
@@ -288,6 +288,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `CachingTenantSettingsRepository` should invalidate all tenant keys when `HotPathCacheEviction` fires — **invalid 2026-09-09 seed hunt #1482:** generation-stamped keys already invalidate per-tenant on wrapper upsert/delete; #1359 cheap-disproof closed out-of-band SQL bypass as out of contract
 
 2026-09-09 seed hunt #1482 (seed-only): reseeded tenant-settings-sql; cheap-disproved HotPathCacheEviction global invalidation candidate; 23 scoped SqlTenantSettingsRepository tests passed.
+
+- [x] (invalid) Thirteen-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-10 seed hunt #1547:** thirteen `managed-azure-openai-alias-*` ids still fit under the 512-char budget (fourteen exceeds per #1323); regression `Serialized_allowed_engine_set_with_thirteen_aliases_fits_migration_setting_value_limit`
+- [x] (valid-no-repro) `TenantSettingsWriteGuard` rejects payloads longer than 512 but not exactly 512 characters — **cheap-disproof 2026-09-10 seed hunt #1547:** boundary accepts exact limit; regression `EnsureSettingValueLength_accepts_value_at_exact_migration_nvarchar_512_limit`
+- [x] (valid-no-repro) `CachingTenantSettingsRepository.DeleteAsync` on an absent key poisons cached reads for other tenant-setting keys — **cheap-disproof 2026-09-10 seed hunt #1547:** generation bumps are per `(tenantId, settingKey)` slot; regression `TenantSettings_TryGetAsync_returns_null_after_delete_on_absent_key_without_poisoning_other_cached_keys`
+- [x] (valid-no-repro) Concurrent `DeleteAsync` on the same key clears `WriteInFlightKeys` before the first wrapper completes — **cheap-disproof 2026-09-10 seed hunt #1547:** symmetric to prior upsert write-in-flight rows (#1322/#1358); inner delete idempotency plus generation bumps still expose absent final state; covered by `TenantSettings_TryGetAsync_reflects_delete_after_cached_hit_before_generation_bump`
+
+2026-09-10 seed hunt #1547 (seed-only): reseeded tenant-settings-sql after #1482; cheap-disproof closed thirteen-alias JSON budget boundary, exact-512 write guard, absent-key delete cache isolation, and concurrent-delete write-in-flight parity; 33 scoped TenantSettings tests passed.
 
 2026-09-08 seed hunt #1358 (seed-only): reseeded after #1347; cheap-disproof closed failed-delete generation-bump and empty-tenant-id cache-poison candidates; seeded out-of-band SQL cache staleness and multi-key partial-write candidates; no hunt-ready row reproduces.
 
