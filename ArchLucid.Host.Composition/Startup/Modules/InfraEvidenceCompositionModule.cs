@@ -61,6 +61,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<ICutPointAnalysisEngine, CutPointAnalysisEngine>();
         services.AddScoped<ISecurityEvidencePathInspectorQueryService, SecurityEvidencePathInspectorQueryService>();
         services.AddScoped<ISecurityEvidencePathRankQueryService, SecurityEvidencePathRankQueryService>();
+        services.AddScoped<ISecureNowArchitectMetricsQueryService, SecureNowArchitectMetricsQueryService>();
         services.AddScoped<IOperationalSecurityExceptionService, OperationalSecurityExceptionService>();
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
         services.AddScoped<IRemediationPatternMatcherService, RemediationPatternMatcherService>();
