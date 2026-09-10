@@ -67,11 +67,18 @@ public sealed partial class GraphController
             RunDetailDto? anchorCompareDetail =
                 await authorityQueryService.GetRunDetailForManifestCompareAsync(scope, runId, ct);
 
-            GraphSnapshotComparePinInventoryGuard.EnsureTemporalPairPinInventoryReadyOrThrow(
-                anchor,
-                resolved,
-                anchorCompareDetail?.GoldenManifest,
-                detail.GoldenManifest);
+            try
+            {
+                GraphSnapshotComparePinInventoryGuard.EnsureTemporalPairPinInventoryReadyOrThrow(
+                    anchor,
+                    resolved,
+                    anchorCompareDetail?.GoldenManifest,
+                    detail.GoldenManifest);
+            }
+            catch (ConflictException ex)
+            {
+                return MapGraphSealedManifestConflict(ex);
+            }
 
             if (anchorCompareDetail?.GoldenManifest is not null)
             {
