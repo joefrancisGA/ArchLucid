@@ -115,9 +115,10 @@ public static class AzureExtractorPackageInventoryReader
         if (!string.IsNullOrWhiteSpace(resourceGroup))
             resourceGroup = resourceGroup.Trim();
         string? skuName = ExtractSku(row);
-        IReadOnlyDictionary<string, string> tags = ReadStringDictionary(row, "tags");
+        IReadOnlyDictionary<string, string> tags = ReadStringDictionary(row, "tags", "Tags");
         IReadOnlyDictionary<string, string> properties = ReadProperties(row);
-        bool isUnknown = row.TryGetProperty("isUnknownType", out JsonElement unknownFlag)
+        bool isUnknown = (row.TryGetProperty("isUnknownType", out JsonElement unknownFlag)
+                          || row.TryGetProperty("IsUnknownType", out unknownFlag))
                          && unknownFlag.ValueKind is JsonValueKind.True;
 
         return new AzureExtractorExtendedResourceRow
@@ -204,11 +205,24 @@ public static class AzureExtractorPackageInventoryReader
         return null;
     }
 
-    private static IReadOnlyDictionary<string, string> ReadStringDictionary(JsonElement row, string propertyName)
+    private static IReadOnlyDictionary<string, string> ReadStringDictionary(JsonElement row, params string[] propertyNames)
     {
-        if (!row.TryGetProperty(propertyName, out JsonElement dictionary) || dictionary.ValueKind is not JsonValueKind.Object)
-            return new Dictionary<string, string>();
+        foreach (string propertyName in propertyNames)
+        {
+            if (!row.TryGetProperty(propertyName, out JsonElement dictionary))
+                continue;
 
+            if (dictionary.ValueKind is not JsonValueKind.Object)
+                return new Dictionary<string, string>();
+
+            return ReadStringDictionaryValues(dictionary);
+        }
+
+        return new Dictionary<string, string>();
+    }
+
+    private static IReadOnlyDictionary<string, string> ReadStringDictionaryValues(JsonElement dictionary)
+    {
         Dictionary<string, string> values = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (JsonProperty property in dictionary.EnumerateObject())
@@ -229,7 +243,11 @@ public static class AzureExtractorPackageInventoryReader
 
     private static IReadOnlyDictionary<string, string> ReadProperties(JsonElement row)
     {
-        if (!row.TryGetProperty("properties", out JsonElement properties) || properties.ValueKind is not JsonValueKind.Object)
+        if (!row.TryGetProperty("properties", out JsonElement properties)
+            && !row.TryGetProperty("Properties", out properties))
+            return new Dictionary<string, string>();
+
+        if (properties.ValueKind is not JsonValueKind.Object)
             return new Dictionary<string, string>();
 
         Dictionary<string, string> values = new(StringComparer.OrdinalIgnoreCase);

@@ -264,6 +264,16 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_corrupted_bytes_reports_zero_file_entry_count()
+    {
+        using MemoryStream stream = new([0x01, 0x02, 0x03, 0x04]);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.FileEntryCount.Should().Be(0);
+    }
+
+    [Fact]
     public void Validate_string_schemaVersion_succeeds()
     {
         byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 1, includeResources: true, stringSchemaVersion: true);
