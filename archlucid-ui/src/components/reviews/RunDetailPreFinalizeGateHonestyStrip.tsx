@@ -3,7 +3,13 @@
 import type { ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
+import {
+  WORKING_REHEARSAL_READY_SUPPRESSED_COPY,
+  WORKING_REHEARSAL_READY_SUPPRESSED_TITLE,
+} from "@/lib/governance/working-career-rehearsal-door-copy";
+import { shouldSuppressReadyToFinalizeForWorkingRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door";
 import {
   PRE_COMMIT_GATE_DISABLED_CAREER_COPY,
   PRE_COMMIT_GATE_DISABLED_TITLE,
@@ -39,6 +45,7 @@ export function RunDetailPreFinalizeGateHonestyStrip(
   props: RunDetailPreFinalizeGateHonestyStripProps,
 ): ReactElement | null {
   const { isWorkingMode } = useWorkspaceMode();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const healthQuery = useHealthReadySummaryQuery({ enabled: isWorkingMode });
   const preCommitGateEnabled = healthQuery.data?.preCommitGateEnabled;
   const hostQualityGateMode = healthQuery.data?.agentOutputQualityGateMode ?? null;
@@ -48,6 +55,10 @@ export function RunDetailPreFinalizeGateHonestyStrip(
   const manifestFinalized = props.manifestFinalized === true;
 
   const showPreCommitGateHonesty = isWorkingMode && preCommitGateEnabled === false;
+  const showRehearsalDoorReadySuppressedHonesty = shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
+    workingDesk: isWorkingMode,
+    effectiveWorkingCareerRehearsalDoor: effectiveDoor,
+  });
   const showUncheckedSemanticSupportHonesty = shouldShowUncheckedSemanticSupportFinalizeWarning({
     workingDesk: isWorkingMode,
     manifestFinalized,
@@ -78,6 +89,7 @@ export function RunDetailPreFinalizeGateHonestyStrip(
 
   if (
     !showPreCommitGateHonesty
+    && !showRehearsalDoorReadySuppressedHonesty
     && !showUncheckedSemanticSupportHonesty
     && !showUnsupportedHoldOffHonesty
     && !showUnsupportedHoldBlocking
@@ -101,6 +113,20 @@ export function RunDetailPreFinalizeGateHonestyStrip(
           </p>
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             {PRE_COMMIT_GATE_DISABLED_CAREER_COPY}
+          </p>
+        </div>
+      ) : null}
+      {showRehearsalDoorReadySuppressedHonesty ? (
+        <div
+          className={cn(DESIGN_TOKENS.callout.info, "p-4")}
+          data-testid="run-detail-pre-finalize-rehearsal-door-honesty-strip"
+          role="status"
+        >
+          <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            {WORKING_REHEARSAL_READY_SUPPRESSED_TITLE}
+          </p>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {WORKING_REHEARSAL_READY_SUPPRESSED_COPY}
           </p>
         </div>
       ) : null}

@@ -67,6 +67,13 @@ public interface IArchitectureIdentityRepository
         int page,
         int pageSize,
         bool includeArchived = false,
+        string? actorOidForShareFilter = null,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> TrySetRestrictToSharesAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        bool restrictToShares,
         CancellationToken cancellationToken = default);
 
     Task<ArchitectureIdentityDetail?> GetDetailAsync(

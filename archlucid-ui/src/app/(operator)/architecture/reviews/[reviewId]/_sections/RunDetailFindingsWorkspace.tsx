@@ -360,7 +360,7 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         <RunDetailFindingsListViewToggle workingMode={architectWorkspaceChrome} />
       ) : null}
       {architectWorkspaceChrome ? (
-        <WorkingCareerRehearsalChooser structuralExecutionMode={props.structuralExecutionMode} />
+        <WorkingCareerRehearsalChooser />
       ) : null}
       <RunDetailFindingsToolbar
       findings={confidenceGatedForCounts}

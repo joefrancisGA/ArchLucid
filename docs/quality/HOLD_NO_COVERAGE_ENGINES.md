@@ -29,6 +29,17 @@ Owner strategy [`../architecture/INSIGHT_DENSITY_EXCELLENCE_STRATEGY.md`](../arc
 
 Coverage-shaped engines (resilience/DR *presence*, IAM *depth as node-exists*, observability completeness, capacity planning) remain held.
 
+## Exception — SecureNow architect operational path engines (2026-09-10)
+
+Owner-facing contract [`../library/SECURENOW_ARCHITECT_PLANE.md`](../library/SECURENOW_ARCHITECT_PLANE.md) and prompts [`../architecture/SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md) (**SA-01–SA-21**) authorize **operational** path runners over `AzureInventorySnapshot` (privilege, intended reachability, capability-to-flow, shared-control blast radius, toxic combination, four-reality drift). They write `SecurityEvidencePath` + `OperationalSecurityFinding` (cite `PathId`). They must **not**:
+
+- Register `IFindingEngine` / grow the insight-density denominator
+- Emit “node type X is absent” coverage findings
+- Treat control-plane capability as observed data flow
+- Apply customer Azure
+
+Coverage-shaped review engines remain held. **SA-22** is the written hold.
+
 ## Related
 
 - [`INSIGHT_DENSITY_MISS_CLAUSE.md`](INSIGHT_DENSITY_MISS_CLAUSE.md)
@@ -41,5 +52,6 @@ Coverage-shaped engines (resilience/DR *presence*, IAM *depth as node-exists*, o
 - [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX63.md) — **DX-64** authorized as security-semantic prior-graph contradiction; other DX-63–DX-68 prompts add no EngineType
 - [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX69.md) — **DX-69–DX-72** (no new EngineType)
 - [`../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md`](../architecture/INSIGHT_DENSITY_EXCELLENCE_COMPOSER_PROMPTS_DX73.md) — **DX-73–DX-76** (no new EngineType)
+- [`../architecture/SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_ARCHITECT_COMPOSER_PROMPTS.md) — **SA-01–SA-22** operational path engines (not `IFindingEngine`)
 - [`../architecture/INSIGHT_DENSITY_COMPOSER_PROMPTS.md`](../architecture/INSIGHT_DENSITY_COMPOSER_PROMPTS.md) — ID-01–07 archive; do not re-run
 - [`../go-to-market/GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) — **G-REAL-06**

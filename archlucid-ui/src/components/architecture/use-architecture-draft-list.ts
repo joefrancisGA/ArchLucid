@@ -4,11 +4,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
+import { useArchitectureIdentitiesListQuery } from "@/hooks/use-architecture-identities-list-query";
 import {
   selectArchitectureDraftRegistryEntries,
   useArchitectureDraftListQuery,
 } from "@/hooks/use-architecture-draft-list-query";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { filterDraftRegistryEntriesByShareVisibility } from "@/lib/architecture/share-visible-architecture-inventory";
 import {
   ARCHITECTURES_HUB_FILTER_OPTIONS,
   architecturesHubClearSearchHrefFromSearch,
@@ -85,8 +87,19 @@ export function useArchitectureDraftList() {
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const draftListQuery = useArchitectureDraftListQuery();
+  const shareVisibleIdentitiesQuery = useArchitectureIdentitiesListQuery(1, 200);
   const isHydrated = draftListQuery.isFetched;
-  const entries = selectArchitectureDraftRegistryEntries(draftListQuery);
+  const rawEntries = selectArchitectureDraftRegistryEntries(draftListQuery);
+  const entries = useMemo((): readonly ArchitectureDraftRegistryEntry[] => {
+    if (!shareVisibleIdentitiesQuery.isFetched || shareVisibleIdentitiesQuery.data === undefined) {
+      return rawEntries;
+    }
+
+    return filterDraftRegistryEntriesByShareVisibility(
+      rawEntries,
+      shareVisibleIdentitiesQuery.data.items,
+    );
+  }, [rawEntries, shareVisibleIdentitiesQuery.data, shareVisibleIdentitiesQuery.isFetched]);
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const scopeRecord = useOperatorScopeRecord();
   const workspaceScopeTeaching = resolveWorkspaceScopeEmptyTeachingForHub({

@@ -14,3 +14,11 @@ export const WORKING_REHEARSAL_DOOR_DETAIL =
 
 export const WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_DESCRIPTION =
   "Cycle Working execution door between Career and Rehearsal";
+
+export const WORKING_REHEARSAL_READY_SUPPRESSED_TITLE =
+  "Rehearsal door — not ready to finalize";
+
+export const WORKING_REHEARSAL_READY_SUPPRESSED_COPY =
+  "Ready-to-finalize labels stay off in Rehearsal so screenshots cannot borrow career proof. Switch to Career when live AI is ready.";
+
+export const WORKING_CAREER_REHEARSAL_HELP_LEARN_MORE_LABEL = "Learn about Career and Rehearsal doors";
