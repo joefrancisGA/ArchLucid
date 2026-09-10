@@ -162,7 +162,9 @@ public sealed class ArchitectureIntelligenceControllerTests
             productPublishService: Mock.Of<IArchitectureIntelligenceProductPublishService>(),
             productRunSourceContextLoader ?? Mock.Of<IArchitectureIntelligenceProductRunSourceContextLoader>(),
             scopeProvider.Object,
-            Mock.Of<IAuthorityQueryService>(),
+authorityQueryService: Mock.Of<IAuthorityQueryService>(),
+            manifestHashService: Mock.Of<IManifestHashService>(),
+Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IRunDetailQueryService>(),
             Mock.Of<IManifestHashService>(),
             auditService.Object)
