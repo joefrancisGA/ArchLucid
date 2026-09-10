@@ -90,6 +90,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
+  formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -574,12 +575,11 @@ export function DiagramsWorkbenchClient() {
         seedNodeId: selectedMode === "dependencyNeighborhood" ? seedNodeId : null,
       });
     } catch (error: unknown) {
-      const detail = formatInfraEvidenceMermaidApiError(error);
-
       setPngExportError(
-        detail.length > 0
-          ? `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE} — ${detail}`
-          : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
+        formatGovernanceInfrastructureInlineActionError(
+          GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_EXPORT_ERROR_TITLE,
+          formatInfraEvidenceMermaidApiError(error),
+        ),
       );
     } finally {
       setExportBusy(false);

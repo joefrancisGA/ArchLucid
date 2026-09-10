@@ -84,6 +84,30 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SCOPE_LABEL = "Scoped t
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE =
   "Diagram reconciliation unavailable" as const;
 
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_MODEL_ERROR_TITLE =
+  "Could not load diagram model" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_REVIEW_ID_REQUIRED_ERROR =
+  "Review id required — Enter a sealed review record id before ingesting a diagram." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_DIAGRAM_SOURCE_REQUIRED_ERROR =
+  "Diagram source required — Paste Mermaid diagram text before ingesting." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_INGEST_ERROR_TITLE =
+  "Diagram ingest failed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_SNAPSHOT_REQUIRED_ERROR =
+  "Run and snapshot required — Select a sealed run and inventory snapshot before reconciling." as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RECONCILE_ERROR_TITLE =
+  "Reconciliation failed" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_FINDING_ERROR_TITLE =
+  "Could not create operational finding" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_COPY_ERROR_TITLE =
+  "Copy failed" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_RUN_ID_LABEL = "Sealed review record id" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams;
@@ -126,6 +150,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CLAIM_DISCIPLINE =
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SCOPE_LABEL = "Scoped to resource" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_LOAD_ERROR_TITLE = "Drift workbench unavailable" as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_EXPORT_ERROR_TITLE =
+  "Could not download Terraform advisory export" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_LABEL = "Current snapshot" as const;
 
@@ -296,3 +323,13 @@ export const INFRASTRUCTURE_WORKBENCH_ROWS: readonly InfrastructureWorkbenchRow[
     summary: "Track remediation instances and waves with advisory-only execute honesty.",
   },
 ];
+
+export function formatGovernanceInfrastructureInlineActionError(title: string, detail?: string | null): string {
+  const trimmed = detail?.trim() ?? "";
+
+  if (trimmed.length > 0) {
+    return `${title} — ${trimmed}`;
+  }
+
+  return title;
+}
