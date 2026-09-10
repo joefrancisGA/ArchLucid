@@ -423,15 +423,17 @@ Do not re-author the import dedupe; merge the PR.
 **8. TB-603 AWS/GCP retail-price grounding** — Hold until a real multi-cloud cost review exists.  
 **9. Further typed engines** — Do not add until a live run shows a missing theme.
 
-No new Cursor prompt batch: #2830 and #2829 already exist.
+Paste-ready quality-ROI pack (post-v13, one prompt per chat): [`../architecture/V13_QUALITY_ROI_COMPOSER_PROMPTS.md`](../architecture/V13_QUALITY_ROI_COMPOSER_PROMPTS.md) · index [`.cursor/prompts/v13-quality-roi-00-index.md`](../../.cursor/prompts/v13-quality-roi-00-index.md). Deltas in that pack are **expected scoring effects**, not a rescore of this pass. **#2829** is already on trunk — skip V13-02 if the audit-matrix assert is green. **#2830** remains the Gate 5 merge (V13-01).
 
 ---
 
 ## 18. Prompt Batching Guidance
 
-**First batch:** merge hygiene only (#2830, #2829) — **safe-for-Composer**.  
-**Second batch:** Gate 1 staging runbook execution notes — **safe-for-Composer** (script exists); owner runs the review.  
-**Third batch:** none until Gate 5 PASS. Do not commission Wave 111+ as a quality-ROI batch.
+**First batch (V13-01, V13-02):** land #2830 (typecheck); skip #2829 if `assert_openapi_mutations_in_audit_matrix.py` exits 0 — **safe-for-Composer**.  
+**Second batch (V13-03):** four leftover No-anchor golden citations — **safe-for-Composer**; do not invent ARM/ARN.  
+**Third batch (V13-04):** `ci.yml` matrix triage on a SHA that already has 01+02 — **safe-for-Composer**; do not disable checks.  
+**Owner (V13-05):** Gate 1 `archlucid pilot ship-gate-evidence --run-id <guid>` — Composer verifies the CLI; owner runs the tenant.  
+Do not commission Wave 111+ or SecureNow SA packs as quality-ROI. Full paste files: [`../architecture/V13_QUALITY_ROI_COMPOSER_PROMPTS.md`](../architecture/V13_QUALITY_ROI_COMPOSER_PROMPTS.md).
 
 ---
 
