@@ -1,17 +1,17 @@
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { getRunSummary } from "@/lib/api/architecture-runs";
+import { apiGet, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
 import { architectureGraphReadBlockedReason, architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
 import { provenanceGraphAliasBlockedReason } from "@/lib/graph/provenance-graph-alias-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
 import type { components } from "@/lib/openapi-schemas";
 import type { GraphNodesPageResponse, GraphViewModel } from "@/types/graph";
 
 /** Fetches the full provenance graph for a run (all decisions, findings, rules, artifacts). */
 export async function getProvenanceGraph(runId: string): Promise<GraphViewModel> {
   try {
-    return await apiGetSealedManifestAware<GraphViewModel>(`/v1/provenance/runs/${encodeURIComponent(runId)}/graph`);
+    return await apiGet<GraphViewModel>(`/v1/provenance/runs/${encodeURIComponent(runId)}/graph`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = provenanceGraphAliasBlockedReason(failure);
@@ -202,7 +202,7 @@ export async function getDecisionSubgraph(
   const key = encodeURIComponent(decisionId);
 
   try {
-    return await apiGetSealedManifestAware<GraphViewModel>(
+    return await apiGet<GraphViewModel>(
       `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/decision/${key}`,
     );
   } catch (error: unknown) {
@@ -220,7 +220,7 @@ export async function getNodeNeighborhood(
   depth = 1,
 ): Promise<GraphViewModel> {
   try {
-    return await apiGetSealedManifestAware<GraphViewModel>(
+    return await apiGet<GraphViewModel>(
       `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/node/${encodeURIComponent(nodeId)}?depth=${depth}`,
     );
   } catch (error: unknown) {
