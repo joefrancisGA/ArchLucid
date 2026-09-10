@@ -8847,9 +8847,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-10 — retrieval index freshness readiness Degraded on leader-elected non-leader replicas
 - **related-pd-tb:** none
@@ -8911,6 +8911,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `OperationalErrorsCompositionRegistrar` registers `OperationalErrorRetentionHostedService` on Api — **cheap-disproof 2026-09-10 seed hunt #1565:** retention purge is Worker+Combined gated (`OperationalErrorsCompositionRegistrar.cs` line 36); regression `AddArchLucidApplicationServices_Api_role_does_not_register_operational_error_retention_hosted_service`
 
 2026-09-10 seed hunt #1565 (seed-only): reseeded host-composition after #1564; cheap-disproved Api audit-retry drain, finding-engine startup validator, retrieval embedding drift validator, configuration validation probe, and Api operational-error retention candidates; 355/357 scoped host-composition tests passed (2 pre-existing unrelated failures).
+
+- [x] (valid-no-repro) `RegisterHostedStartupProbes` registers `OidcAuthorityStartupProbeHostedService` on Api without `ArchLucidHostingRole` gate — **cheap-disproof 2026-09-10 seed hunt #1575:** `ServiceCollectionExtensions.HostedStartupProbes.cs` lines 16–18 run OIDC reachability probes on every replica before traffic; regression `AddArchLucidApplicationServices_Api_role_registers_oidc_authority_startup_probe`.
+- [x] (valid-no-repro) `RegisterHostedStartupProbes` registers `SamlSigningCertificateStartupWarningHostedService` on Api without role gate — **cheap-disproof 2026-09-10 seed hunt #1575:** same startup-probe module warns each replica about SAML signing cert expiry at boot; regression `AddArchLucidApplicationServices_Api_role_registers_saml_signing_certificate_startup_warning`.
+- [x] (valid-no-repro) `SqlOperationalSingletonsRegistrar` registers `OutboxOperationalMetricsHostedService` on Api without role narrowing — **cheap-disproof 2026-09-10 seed hunt #1575:** service uses `HostLeaderElectionCoordinator` (`OutboxOperationalMetricsHostedService.cs`); registration on Api is intentional; regression `AddArchLucidApplicationServices_Api_role_registers_leader_elected_outbox_operational_metrics`.
+- [x] (invalid) `HostedServicesCompositionRegistrar.RegisterExtractorAutoPull` registers cloud extractor auto-pull on Api — **cheap-disproof 2026-09-10 seed hunt #1575:** `HostedServicesCompositionRegistrar.ExtractorAutoPull.cs` returns early unless Worker+Combined; regression `AddArchLucidApplicationServices_Api_role_does_not_register_extractor_auto_pull_hosted_services`.
+- [x] (invalid) `RegisterInternalCrossTenantAnalytics` registers `InternalCrossTenantRollupHostedService` on Api — **cheap-disproof 2026-09-10 seed hunt #1575:** `ServiceCollectionExtensions.InternalCrossTenantAnalytics.cs` lines 17–18 gate Worker+Combined only; regression `AddArchLucidApplicationServices_Api_role_does_not_register_internal_cross_tenant_rollup_hosted_service`.
+- [x] (valid-no-repro) `ArchLucidReferenceDataHotPathRegistrar.RegisterHotPathReadCaching` omits `HotPathMemoryReplicaCoherenceHostedLogger` when memory provider is used with `ExpectedApiReplicaCount > 1` — **cheap-disproof 2026-09-10 seed hunt #1575:** lines 40–42 register coherence warning logger for multi-replica memory L1; regression `RegisterHotPathReadCaching_memory_provider_with_multi_replica_warning_registers_coherence_logger`.
+
+2026-09-10 seed hunt #1575 (seed-only): reseeded host-composition; cheap-disproof closed startup OIDC/SAML probes, outbox metrics leader-election, extractor auto-pull Api gate, internal cross-tenant rollup gate, and hot-path memory replica logger candidates.
 
 2026-09-10 seed hunt #1564 (seed-only): reseeded host-composition after #1563; cheap-disproved Api-role wallet settlement, evidence re-review drain, operational-error capture drain, and SQL pool warmup candidates; 350/352 scoped host-composition tests passed (2 pre-existing unrelated failures).
 
