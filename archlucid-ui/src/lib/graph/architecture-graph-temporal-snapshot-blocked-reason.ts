@@ -5,3 +5,8 @@ import { compareRunPairBlockedReason } from "@/lib/compare/compare-run-pair-bloc
 export function architectureGraphTemporalSnapshotBlockedReason(failure: ApiLoadFailureState | null): string | null {
   return compareRunPairBlockedReason(failure);
 }
+
+/** Wave-109 suggestion 1303: surface lifecycle/sealed-hash evidence graph page 409 copy. */
+export function architectureGraphReadBlockedReason(failure: ApiLoadFailureState | null): string | null {
+  return compareRunPairBlockedReason(failure);
+}
