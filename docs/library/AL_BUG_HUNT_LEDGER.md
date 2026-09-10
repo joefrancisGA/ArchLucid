@@ -566,11 +566,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 14
-- **bugs-found:** 10
+- **hunts:** 15
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — Hourly request rate limit counted delivery-failed challenge rows
+- **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -616,6 +616,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CountRecentRequestsForRateLimitAsync` counts delivery-failed invalidated challenges so hourly email cap blocks retry — **hit 2026-09-10 seed hunt #1540:** `EmailOtpRequestFlow` invalidated undelivered rows that still counted toward `MaxCodeRequestsPerEmailPerHour`; fixed by deleting active rows on send failure via `DeleteActiveChallengesForEmailAsync`; regression `RequestCodeAsync_retries_after_email_delivery_failure_despite_hourly_email_rate_limit`
 
 2026-09-10 seed hunt #1540 (seed→hit): reseeded after #1539; proved hourly rate limit blocked retry when first send failed with cap=1; 24 scoped EmailOtp tests passed.
+
+- [x] (proven) `EmailOtpVerifyFlow.ResolveNextStepAsync` — single active membership returned `Complete` before checking pending invitations to other workspaces, routing users past bootstrap invitation acceptance — **hit 2026-09-10 seed hunt #1545:** consult `TryGetPendingInvitationForNonMemberWorkspaceAsync` before the one-membership `Complete` shortcut; regression in `VerifyCodeAsync_returns_accept_invitation_when_user_has_one_membership_and_pending_invite_elsewhere`.
+
+2026-09-10 seed hunt #1545 (seed→hit): proved verify next-step skipped pending invitation when user already had one workspace membership; 25 scoped EmailOtp tests passed.
 
 ---
 
