@@ -3088,11 +3088,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 15
-- **bugs-found:** 20
+- **hunts:** 16
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-07
-- **last-bug:** 2026-09-07 — non-http(s) end_session_endpoint accepted at discovery parse and used for RP-initiated logout redirect
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — BFF session sync mapped zero expires_in to 3600 while client session honored zero
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3126,9 +3126,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-05 seed hunt #805 (hit): reseeded zone; proved authority hash-fragment discovery URL bug and non-http(s) endpoint scheme gap.
 
 - [x] (proven) `parseDiscoveryDocument` accepted non-http(s) `end_session_endpoint` values such as `javascript:` — **hit 2026-09-07 hunt #1234 (seed→hit):** optional logout URL was validated with `new URL()` only, so a compromised discovery payload could supply a script-scheme RP-initiated logout redirect via `resolveRpLogoutUrlFromBffSession`; fixed by requiring `http:` or `https:` for optional logout endpoints (`discovery.test.ts` omits javascript scheme on end_session).
-- [ ] (candidate) `bff-session-sync.resolveExpiresInSeconds` maps `expires_in` zero/negative to default 3600 while `session.resolveExpiresInSeconds` honors zero — client expiry hint can disagree with BFF cookie TTL until the next successful refresh.
-- [ ] (candidate) `resolveRpLogoutUrlFromBffSession` returns BFF-built logout URLs without client-side scheme validation before `window.location.assign` — defense-in-depth gap if server-side discovery parsing regresses.
+- [x] (proven) `bff-session-sync.resolveExpiresInSeconds` maps `expires_in` zero/negative to default 3600 while `session.resolveExpiresInSeconds` honors zero — **hit 2026-09-10 (#1577):** zero `expires_in` left client hints expired while BFF cookie synced with 3600s TTL; aligned BFF resolver with session parity (zero honored, negative defaulted); regression in `bff-session-sync.test.ts`.
+- [x] (valid-no-repro) `resolveRpLogoutUrlFromBffSession` returns BFF-built logout URLs without client-side scheme validation before `window.location.assign` — **cheap-disproof 2026-09-10 (#1577):** `GET /api/auth/bff-session/rp-logout-url` builds from `loadDiscoveryDocument` / `parseDiscoveryDocument`, which already omits non-http(s) `end_session_endpoint`; client trusts same-origin BFF output — defense-in-depth only without reachable attacker input.
 - [x] (valid-no-repro) `CallbackClient` skips id_token nonce binding when the token response omits `id_token` — primary OIDC scopes request `openid`; supplemental Google flow uses the same nonce check when `id_token` is present; absent id_token is treated as provider non-compliance rather than a reachable cross-flow bypass in these files.
+
+2026-09-10 thorough hunt #1577 (hit): proved BFF zero expires_in skew vs client session hints; cheap-disproved client logout URL scheme re-validation as server-gated; 28 scoped ui-oidc tests passed.
 
 2026-09-07 seed hunt #1234 (hit): reseeded ui-oidc zone; proved end_session_endpoint scheme gap (parity with #805 authorization_endpoint fix); cheap-disproved id_token-absent nonce bypass; seeded BFF expiry skew and client logout URL validation candidates.
 
