@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 10
+- **hunts:** 11
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8080,6 +8080,19 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `RedactValue` returns `[REDACTED]` for null/whitespace inputs — **cheap-disproof 2026-09-10 seed hunt #1600:** empty string returned; regression `RedactValue_returns_empty_for_null_or_whitespace`.
 
 2026-09-10 seed hunt #1600 (seed-only): reseeded core-azure-extractor after #1599; cheap-disproof closed ARM name derivation, location mapping, scalar sensitive-property redaction, empty tag/property defaults, schema-0 scriptVersion preservation, v2 validator success, malformed companion JSON rejection, nameless resource-row skip, and RedactValue whitespace handling; 930 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) Malformed `resources.json` in PackageInventoryReader returns empty resources instead of failure — **cheap-disproof 2026-09-10 seed hunt #1601:** `JsonException` mapped to failed result; regression `TryReadFromZip_fails_on_malformed_resources_json`.
+- [x] (valid-no-repro) Corrupt ZIP bytes in PackageInventoryReader return empty inventory — **cheap-disproof 2026-09-10 seed hunt #1601:** `InvalidDataException` mapped to failed result; regression `TryReadFromZip_fails_on_invalid_zip_payload`.
+- [x] (valid-no-repro) Boolean `false` property values are omitted or throw during serialization — **cheap-disproof 2026-09-10 seed hunt #1601:** serialized as `"false"`; regression `TryReadFromZip_serializes_false_property_values`.
+- [x] (valid-no-repro) Non-sensitive array property values are redacted or dropped — **cheap-disproof 2026-09-10 seed hunt #1601:** array JSON preserved via `RedactStructuredJson`; regression `TryReadFromZip_serializes_non_sensitive_array_property_values`.
+- [x] (valid-no-repro) Schema 0 upgrade overwrites existing `switchesUsed` array — **cheap-disproof 2026-09-10 seed hunt #1601:** existing array preserved; regression `TryUpgradeManifestJson_preserves_existing_switches_used_on_schema_zero_upgrade`.
+- [x] (valid-no-repro) Schema 1 upgrade overwrites existing `warnings`/`errors`/`completenessScore` — **cheap-disproof 2026-09-10 seed hunt #1601:** existing metadata preserved; regression `TryUpgradeManifestJson_preserves_existing_warnings_and_errors_on_schema_one_upgrade`.
+- [x] (valid-no-repro) Missing `resources.json` is classified as schema rejection — **cheap-disproof 2026-09-10 seed hunt #1601:** `IsSchemaRejection` false by design; regression `Validate_rejects_zip_missing_resources_json`.
+- [x] (valid-no-repro) ZipValidator misses optional companion files when entry casing differs — **cheap-disproof 2026-09-10 seed hunt #1601:** ordinal-ignore-case fallback; regression `Validate_resolves_optional_companion_entry_case_insensitively`.
+- [x] (valid-no-repro) Whitespace-only `location` in ResourceInventoryReader persists as empty string — **cheap-disproof 2026-09-10 seed hunt #1601:** normalized to null; regression `TryReadFromZip_treats_whitespace_only_location_as_null`.
+- [x] (valid-no-repro) `IsSensitiveKey` returns true for null/whitespace property names — **cheap-disproof 2026-09-10 seed hunt #1601:** returns false; regression `IsSensitiveKey_returns_false_for_null_or_whitespace`.
+
+2026-09-10 seed hunt #1601 (seed-only): reseeded core-azure-extractor after #1600; cheap-disproof closed PackageInventoryReader malformed/invalid-ZIP failure paths, false/array property serialization, manifest metadata preservation on v0/v1 upgrade, missing-resources rejection classification, optional companion case-insensitivity, whitespace location normalization, and IsSensitiveKey null guard; 941 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
