@@ -243,6 +243,7 @@ const conflict = readFindingDispositionConflictFromError(err);
         setInlineErrorMessage(null);
         return;
       }
+
       const failure = toApiLoadFailure(err);
       const blockedReason = findingBulkDispositionBlockedReason(failure);
       setInlineErrorMessage(
