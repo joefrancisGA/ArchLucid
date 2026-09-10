@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8116,6 +8116,16 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `*tokenless` / `*tokenizer` property names are treated as credential keys — **cheap-disproof 2026-09-10 seed hunt #1603:** negated suffixes ignored; regression `IsSensitiveKey_ignores_tokenless_and_tokenizer_suffix_false_positives`.
 
 2026-09-10 seed hunt #1603 (seed-only): reseeded core-azure-extractor after #1602; cheap-disproof closed null-input guards, empty resources-array handling, numeric resourceType coercion, v1 upgrade default metadata, RedactStructuredJson nested scalar redaction, and tokenless/tokenizer false-positive guard; 961 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) Missing optional companion files leave stale/non-empty lists on PackageInventoryReader result — **cheap-disproof 2026-09-10 seed hunt #1604:** all companion collections empty when absent; regression `TryReadFromZip_returns_empty_companion_arrays_when_optional_files_missing`.
+- [x] (valid-no-repro) Non-sensitive object property values are dropped instead of serialized — **cheap-disproof 2026-09-10 seed hunt #1604:** nested object JSON preserved; regression `TryReadFromZip_serializes_non_sensitive_object_property_values`.
+- [x] (valid-no-repro) Whitespace-only `name` rows are ingested by ResourceInventoryReader — **cheap-disproof 2026-09-10 seed hunt #1604:** rows skipped; regression `TryReadFromZip_skips_resource_rows_with_whitespace_only_name`.
+- [x] (valid-no-repro) Hyphenated secret key names bypass `IsSensitiveKey` normalization — **cheap-disproof 2026-09-10 seed hunt #1604:** hyphen/underscore stripped before fragment match; regression `IsSensitiveKey_detects_hyphenated_connection_string_key_names`.
+- [x] (valid-no-repro) `non-secret` property names are flagged as sensitive — **cheap-disproof 2026-09-10 seed hunt #1604:** `non` prefix negation; regression `IsSensitiveKey_ignores_non_prefixed_secret_fragment`.
+- [x] (valid-no-repro) `RedactStructuredJson` skips sensitive keys inside array elements — **cheap-disproof 2026-09-10 seed hunt #1604:** array walk redacts object keys; regression `RedactStructuredJson_redacts_sensitive_keys_inside_array_elements`.
+- [x] (valid-no-repro) Schema v2 ZIP with all optional companion arrays fails validation — **cheap-disproof 2026-09-10 seed hunt #1604:** all five optional companions accepted; regression `Validate_accepts_schema_v2_with_all_valid_optional_companions`.
+
+2026-09-10 seed hunt #1604 (seed-only): reseeded core-azure-extractor after #1603; cheap-disproof closed absent-companion empty lists, non-sensitive object property serialization, whitespace-name skip, hyphenated key normalization, non-secret negation, array-element RedactStructuredJson walk, and full optional-companion validator success; 968 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
