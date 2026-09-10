@@ -20,7 +20,7 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [Route("v{version:apiVersion}/infra-evidence/audit-assessments")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class AuditEvidencePackageController(
+public sealed partial class AuditEvidencePackageController(
     IAuditEvidencePackageExportService exportService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
@@ -58,7 +58,7 @@ public sealed class AuditEvidencePackageController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAuditEvidencePackageSealedManifestConflict(ex);
         }
     }
 }
