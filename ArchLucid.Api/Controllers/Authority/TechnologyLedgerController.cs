@@ -7,6 +7,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.TechnologyLedger;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -97,6 +98,22 @@ public sealed class TechnologyLedgerController(
     {
         if (request is null || !request.HasChanges())
             return this.BadRequestProblem("At least one patch field must be provided.", ProblemTypes.ValidationFailed);
+
+        if (request.Rationale is not null
+            && DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(request.Rationale))
+        {
+            return this.BadRequestProblem(
+                $"Rationale must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (request.TechnologyName is not null
+            && DraftIntakeValidation.ExceedsMaximumFreeTextIntentLength(request.TechnologyName))
+        {
+            return this.BadRequestProblem(
+                $"TechnologyName must not exceed {DraftIntakeValidation.MaximumFreeTextIntentLength} characters.",
+                ProblemTypes.ValidationFailed);
+        }
 
         try
         {
