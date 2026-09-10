@@ -56,6 +56,9 @@ public static class GraphEdgeTypes
 
     /// <summary>CI federated credential adapter edge (SA-19); emitted when optional ZIP sibling is present.</summary>
     public const string FederatesAs = "FEDERATES_AS";
+
+    /// <summary>Entra group membership adapter edge (SA-20); emitted when optional ZIP sibling or Graph GET is present.</summary>
+    public const string MemberOf = "MEMBER_OF";
 }
 
 /// <summary>
