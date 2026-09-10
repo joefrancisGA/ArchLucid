@@ -2,13 +2,13 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { sponsorValueReportDocxMutationBlockedReason } from "@/lib/pilots/sponsor-value-report-docx-mutation-blocked-reason";
 import { sponsorPackSentMutationBlockedReason } from "@/lib/pilots/sponsor-pack-sent-mutation-blocked-reason";
-
 import { comparisonReplayMutationBlockedReason } from "@/lib/compare/comparison-replay-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
   apiPostNoContent,
   ensureOidcBearerReady,
+  getBearerToken,
   isBrowser,
 } from "./http";
 import {
@@ -32,7 +32,8 @@ export async function downloadComparisonReplayPdf(comparisonRecordId: string): P
   const headers = new Headers();
   headers.set("Accept", "application/pdf, application/json");
   headers.set("Content-Type", "application/json");
-
+  const bearer = getBearerToken();
+  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
   const init = mergeRegistrationScopeForProxy({
     method: "POST",
     headers,
@@ -71,7 +72,8 @@ export async function createAndDownloadComparisonPdf(leftRunId: string, rightRun
   const headers = new Headers();
   headers.set("Accept", "application/json");
   headers.set("Content-Type", "application/json");
-
+  const bearer = getBearerToken();
+  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
   const init = mergeRegistrationScopeForProxy({
     method: "POST",
     headers,
@@ -128,7 +130,8 @@ export async function downloadValueReportDocx(fromIso: string, toIso: string): P
     "Accept",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/json",
   );
-
+  const bearer = getBearerToken();
+  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
   const init = mergeRegistrationScopeForProxy({
     method: "POST",
     headers,

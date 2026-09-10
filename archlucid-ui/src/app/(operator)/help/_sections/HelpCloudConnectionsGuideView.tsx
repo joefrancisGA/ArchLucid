@@ -25,7 +25,7 @@ import {
   cloudConnectionsHelpClaimDiscipline,
   cloudConnectionsHelpPageIntro,
   cloudConnectionsHelpPageSubtitle,
-  cloudConnectionsHelpPrimaryActions,
+  cloudConnectionsHelpPrimaryCta,
   cloudConnectionsHelpStartHereCardTitle,
 } from "@/lib/cloud-connections-help-guide-content";
 import {
@@ -64,15 +64,7 @@ type HelpCloudConnectionsGuideViewProps = {
 };
 
 function CloudConnectionsStartHereActionPanel(props: { readonly productLineId: ProductLineId }): React.ReactElement {
-  const primaryActions = cloudConnectionsHelpPrimaryActions(props.productLineId);
-  const secureNowShell = isSecureNowProductLine(props.productLineId);
-  const primaryCta = secureNowShell
-    ? "openExtractUpload" in primaryActions
-      ? primaryActions.openExtractUpload
-      : primaryActions.openHub
-    : "startEvidenceOnlyReview" in primaryActions
-      ? primaryActions.startEvidenceOnlyReview
-      : primaryActions.openHub;
+  const primaryCta = cloudConnectionsHelpPrimaryCta(props.productLineId);
 
   return (
     <section

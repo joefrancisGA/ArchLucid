@@ -1,4 +1,4 @@
-> **Scope:** Placeholder — wave-104 robustness controls (1233–1244) when opened.
+> **Scope:** Placeholder — wave-104 robustness controls (1233–1244).
 
 # Architecture create/review robustness — wave 104
 

@@ -21,6 +21,7 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import { deriveDecisionSnapshotSuppressedReason, isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
+import { resolveRunDetailOutcomeCardsFindingCountDisplay } from "./run-detail-outcome-cards-finding-count";
 import { isAssertedTransparencyTrailEmpty } from "@/lib/feasibility/transparency-trail-completeness";
 
 export type RunDetailOverviewTabCompositionInput = {
@@ -142,14 +143,17 @@ export function buildRunDetailOutcomeCards(
   model: RunDetailPageModel,
   presentation: RunDetailPresentation,
 ): React.JSX.Element {
-  const { findingCoverageSummary, showcasePolicyPackStrip } = presentation;
+  const { findingCoverageSummary, quickDecisionFindings, showcasePolicyPackStrip } = presentation;
 
   return (
     <RunDetailOutcomeCardsDeferred
       runId={model.resolvedDetail.run.runId}
       manifestId={model.manifestId}
       artifactCount={model.artifacts.length}
-      findingCountDisplay={model.findingCountDisplay}
+      findingCountDisplay={resolveRunDetailOutcomeCardsFindingCountDisplay(
+        model.findingCountDisplay,
+        quickDecisionFindings,
+      )}
       warningCountDisplay={model.warningCountDisplay}
       hasGoldenManifest={Boolean(model.manifestId)}
       unresolvedIssueCountDisplay={model.manifestSummary?.unresolvedIssueCount ?? null}

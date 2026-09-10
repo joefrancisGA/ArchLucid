@@ -3,7 +3,6 @@ import type { components } from "@/lib/openapi-schemas";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { exportLineageVerifyBlockedReason } from "@/lib/exports/export-lineage-verify-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 export type RunExportLineageVerificationResponse =
@@ -21,5 +20,4 @@ export async function verifyRunExportLineage(runId: string): Promise<RunExportLi
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }

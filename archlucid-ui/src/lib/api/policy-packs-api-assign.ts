@@ -7,7 +7,6 @@ import type {
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { policyPackAssignMutationBlockedReason } from "@/lib/policy/policy-pack-assign-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-
 import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
 
 /** Assigns a specific policy pack version to the current scope (project/workspace/tenant). */
@@ -46,7 +45,6 @@ export async function archivePolicyPackAssignment(assignmentId: string): Promise
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }
 
 /** Enables or disables one policy pack assignment for the current workspace. */
