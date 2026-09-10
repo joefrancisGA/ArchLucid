@@ -7,6 +7,7 @@
     "dbo.AlertRoutingSubscriptions",
     "dbo.AlertRules",
     "dbo.ArchitectureDigests",
+    "dbo.ArchitectureInventoryBindings",
     "dbo.ArchitectureReviewRecurrenceSchedules",
     "dbo.ArchitectureRunIdempotency",
     "dbo.ArchitectureVersions",

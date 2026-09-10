@@ -45,6 +45,9 @@ public sealed class InfrastructureDeclarationRequestValidatorTests
     [InlineData("arm-json")]
     [InlineData("kubernetes-json")]
     [InlineData("kubernetes-yaml")]
+    [InlineData("helm")]
+    [InlineData("kustomize")]
+    [InlineData("bicep-param")]
     public void Validate_Succeeds_for_each_supported_format_case_insensitive(string format)
     {
         InfrastructureDeclarationRequest decl = ValidDecl();

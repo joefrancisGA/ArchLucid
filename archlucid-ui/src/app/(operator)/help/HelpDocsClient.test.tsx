@@ -173,4 +173,109 @@ describe("HelpDocsClient", () => {
 
     vi.unstubAllGlobals();
   });
+
+  it("filters entries by category name when title and summary omit the token", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "security" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("filters entries by documentation url path when title summary and category omit the token", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Indexed search" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "search-review-evidence" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Indexed search" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("uses valid html id tokens for category section headings", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    const { container } = renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("heading", { name: "Getting Started" });
+
+    for (const heading of container.querySelectorAll("section[aria-labelledby] h2[id]")) {
+      const id = heading.id;
+
+      expect(id.length).toBeGreaterThan(0);
+      expect(id).not.toMatch(/\s/);
+      expect(document.getElementById(id)).toBe(heading);
+    }
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows fetched index matches for an active search after the index load completes", async () => {
+    let resolveFetch: ((value: Response) => void) | undefined;
+    const fetchPromise = new Promise<Response>((resolve) => {
+      resolveFetch = resolve;
+    });
+
+    vi.stubGlobal("fetch", vi.fn(async () => fetchPromise));
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "unicorn compliance" } });
+
+    expect(screen.getByText("No results")).toBeInTheDocument();
+
+    resolveFetch?.({
+      ok: true,
+      json: async () => [
+        {
+          title: "Unicorn compliance topic",
+          summary: "Fetched-only help row.",
+          category: "Compliance",
+          url: "/help/unicorn-compliance",
+        },
+      ],
+    } as Response);
+
+    expect(await screen.findByRole("link", { name: "Unicorn compliance topic" })).toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
 });

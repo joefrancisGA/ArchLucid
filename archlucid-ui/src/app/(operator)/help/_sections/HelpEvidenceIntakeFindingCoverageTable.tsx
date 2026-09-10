@@ -1,3 +1,8 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
+
 import {
   EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_DISCLOSURE_LABEL,
   EVIDENCE_INTAKE_HELP_FINDING_COVERAGE_TITLE,
@@ -7,6 +12,10 @@ import {
   listEvidenceCoverageReferenceRows,
 } from "@/lib/evidence-gap-forecast";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  helpEvidenceIntakeFindingCoverageDisclosureHrefFromSearch,
+  parseHelpEvidenceIntakeFindingCoverageOpenFromSearch,
+} from "@/lib/help/help-evidence-intake-finding-coverage-disclosure-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -14,8 +23,37 @@ import { cn } from "@/lib/utils";
  * Durable explanation behind the "Expected finding coverage" disclosure on intake and evidence
  * surfaces. Rows come from the same map the in-product forecast uses, so the two cannot drift.
  */
-export function HelpEvidenceIntakeFindingCoverageTable(): React.ReactElement {
+export function HelpEvidenceIntakeFindingCoverageTable(): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/help/evidence-intake";
+  const searchParams = useSearchParams();
+  const helpEvidenceIntakeFindingCoverageOpenParam = searchParams.get("helpEvidenceIntakeFindingCoverageOpen");
+  const [coverageOpen, setCoverageOpenState] = useState(() =>
+    parseHelpEvidenceIntakeFindingCoverageOpenFromSearch(helpEvidenceIntakeFindingCoverageOpenParam),
+  );
   const rows = listEvidenceCoverageReferenceRows();
+
+  const syncCoverageOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        helpEvidenceIntakeFindingCoverageDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setCoverageOpen = useCallback(
+    (open: boolean) => {
+      setCoverageOpenState(open);
+      syncCoverageOpenToUrl(open);
+    },
+    [syncCoverageOpenToUrl],
+  );
+
+  useEffect(() => {
+    setCoverageOpenState(parseHelpEvidenceIntakeFindingCoverageOpenFromSearch(helpEvidenceIntakeFindingCoverageOpenParam));
+  }, [helpEvidenceIntakeFindingCoverageOpenParam]);
 
   return (
     <section
@@ -23,7 +61,13 @@ export function HelpEvidenceIntakeFindingCoverageTable(): React.ReactElement {
       data-testid="help-evidence-intake-finding-coverage"
       id="finding-coverage"
     >
-      <details className={HELP_PAGE_LAYOUT.details}>
+      <details
+        className={HELP_PAGE_LAYOUT.details}
+        open={coverageOpen}
+        onToggle={(event) => {
+          setCoverageOpen(event.currentTarget.open);
+        }}
+      >
         <summary
           id="help-evidence-intake-coverage-heading"
           className={cn("cursor-pointer list-none marker:content-none [&::-webkit-details-marker]:hidden", OPERATOR_TYPOGRAPHY.sectionTitle, "text-al-text-primary")}

@@ -3,8 +3,8 @@ import {
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import {
   POLICY_PACKS_HUB_FOLLOW_UPS_TITLE,
-  POLICY_PACKS_HUB_SOURCES,
   POLICY_PACKS_HUB_SOURCES_INTRO,
+  POLICY_PACKS_ORIENTATION_SOURCES,
 } from "@/lib/policy/policy-packs-hub-evidence-copy";
 
 
@@ -16,7 +16,7 @@ export function PolicyPacksClaimOrientationStrip(): React.JSX.Element {
       slug="policy-packs-hub"
       sourcesTitle={POLICY_PACKS_HUB_FOLLOW_UPS_TITLE}
       sourcesIntro={POLICY_PACKS_HUB_SOURCES_INTRO}
-      sources={POLICY_PACKS_HUB_SOURCES}
+      sources={POLICY_PACKS_ORIENTATION_SOURCES}
       hubSecondary
     />
   );

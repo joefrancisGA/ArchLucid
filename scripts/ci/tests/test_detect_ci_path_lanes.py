@@ -96,6 +96,18 @@ class DetectCiPathLanesTests(unittest.TestCase):
         self.assertTrue(lanes["run_terraform"])
         self.assertEqual(lanes["reason"], "empty_or_unknown_diff_fail_open")
 
+    def test_merge_group_forces_all_lanes(self) -> None:
+        payload = DETECT.detect_ci_path_lanes(
+            base_ref="origin/master",
+            event_name="merge_group",
+            root=_REPO,
+        )
+
+        self.assertTrue(payload["run_openapi"])
+        self.assertTrue(payload["run_dotnet"])
+        self.assertTrue(payload["run_terraform"])
+        self.assertEqual(payload["reason"], "merge_group_semantic_conflict_guard")
+
     def test_non_pull_request_forces_all_lanes(self) -> None:
         payload = DETECT.detect_ci_path_lanes(
             base_ref="origin/master",

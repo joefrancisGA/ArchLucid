@@ -13,6 +13,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: () => false,
   useNavCallerAuthorityRank: () => useNavCallerAuthorityRank(),
 }));
 

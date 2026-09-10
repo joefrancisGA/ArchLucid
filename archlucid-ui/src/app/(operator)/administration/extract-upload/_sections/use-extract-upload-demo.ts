@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -16,7 +16,10 @@ import {
 } from "@/lib/administration/extract-upload-demo-scenario-url";
 
 export type UseExtractUploadDemoInput = {
-  readonly onUpload: (file: File) => Promise<void>;
+  readonly router: AppRouterInstance;
+  readonly pathname: string;
+  readonly searchParams: Readonly<URLSearchParams>;
+  readonly onUpload: (file: File, fileLabel: string) => Promise<void>;
   readonly clearUploadState: () => void;
   readonly setUploadError: (error: {
     message: string;
@@ -28,23 +31,27 @@ export type UseExtractUploadDemoInput = {
 };
 
 export function useExtractUploadDemo({
+  router,
+  pathname,
+  searchParams,
   onUpload,
   clearUploadState,
   setUploadError,
   clearSelectionState,
   setSelectedFileLabel,
 }: UseExtractUploadDemoInput) {
-  const router = useRouter();
-  const pathname = usePathname() ?? "/administration/extract-upload";
-  const searchParams = useSearchParams();
   const urlDemoScenario = parseExtractUploadDemoScenarioFromSearch(searchParams.get("demoScenario"));
   const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<AzureExtractorDemoScenarioId>(
     urlDemoScenario ?? DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
+  );
+  const [demoScenarioExplicitlySelected, setDemoScenarioExplicitlySelected] = useState(
+    urlDemoScenario !== null,
   );
 
   const setSelectedDemoScenarioId = useCallback(
     (scenarioId: AzureExtractorDemoScenarioId) => {
       setSelectedDemoScenarioIdState(scenarioId);
+      setDemoScenarioExplicitlySelected(true);
       router.replace(extractUploadDemoScenarioHrefFromSearch(searchParams.toString(), scenarioId, pathname), {
         scroll: false,
       });
@@ -57,6 +64,7 @@ export function useExtractUploadDemo({
 
     if (fromUrl !== null) {
       setSelectedDemoScenarioIdState(fromUrl);
+      setDemoScenarioExplicitlySelected(true);
     }
   }, [searchParams]);
 
@@ -81,13 +89,15 @@ export function useExtractUploadDemo({
     const demoFile = new File([new Uint8Array(bytes)], scenario.zipFilename, {
       type: "application/zip",
     });
-    setSelectedFileLabel(`${demoFile.name} (bundled demo)`);
-    await onUpload(demoFile);
+    const fileLabel = `${demoFile.name} (bundled demo)`;
+    setSelectedFileLabel(fileLabel);
+    await onUpload(demoFile, fileLabel);
   }
 
   return {
     selectedDemoScenarioId,
     setSelectedDemoScenarioId,
+    demoScenarioExplicitlySelected,
     onTryDemoData,
   };
 }

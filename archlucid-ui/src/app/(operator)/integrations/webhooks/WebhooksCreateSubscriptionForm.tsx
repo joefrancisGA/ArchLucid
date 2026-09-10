@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { Controller, type Control, type FieldErrors, type UseFormRegister } from "react-hook-form";
-import type { Dispatch, SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 import { IntegrationConnectChecklist, type IntegrationConnectChecklistStep } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -44,6 +45,15 @@ import {
 } from "@/lib/webhooks-page-copy";
 import { whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import { webhookOutboundEventCatalog, type WebhookSettingsFormValues } from "@/lib/webhook-settings-form-schema";
+import {
+  parseWebhooksDeliveryContractOpenFromSearch,
+  webhooksDeliveryContractDisclosureHrefFromSearch,
+} from "@/lib/integrations/webhooks-delivery-contract-disclosure-url";
+import {
+  parseWebhooksTechnicalEventNameEventIdFromSearch,
+  webhooksTechnicalEventNameDisclosureHrefFromSearch,
+} from "@/lib/integrations/webhooks-technical-event-name-disclosure-url";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 
 export type WebhooksCreateSubscriptionFormProps = {
   readonly register: UseFormRegister<WebhookSettingsFormValues>;
@@ -64,6 +74,51 @@ export type WebhooksCreateSubscriptionFormProps = {
 };
 
 export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscriptionFormProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const webhooksDeliveryContractOpenParam = searchParams.get("webhooksDeliveryContractOpen");
+  const webhooksTechnicalEventNameEventIdParam = searchParams.get("webhooksTechnicalEventNameEventId");
+  const [deliveryContractOpen, setDeliveryContractOpenState] = useState(() =>
+    parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam),
+  );
+
+  const syncDeliveryContractOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        webhooksDeliveryContractDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setDeliveryContractOpen = useCallback(
+    (open: boolean) => {
+      setDeliveryContractOpenState(open);
+      syncDeliveryContractOpenToUrl(open);
+    },
+    [syncDeliveryContractOpenToUrl],
+  );
+
+  useEffect(() => {
+    setDeliveryContractOpenState(parseWebhooksDeliveryContractOpenFromSearch(webhooksDeliveryContractOpenParam));
+  }, [webhooksDeliveryContractOpenParam]);
+
+  const syncTechnicalEventNameOpenToUrl = useCallback(
+    (eventId: string | null) => {
+      router.replace(
+        webhooksTechnicalEventNameDisclosureHrefFromSearch(searchParams.toString(), eventId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const technicalEventNameOpenId = parseWebhooksTechnicalEventNameEventIdFromSearch(
+    webhooksTechnicalEventNameEventIdParam,
+  );
+
   const {
     register,
     control,
@@ -81,6 +136,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
     webhooksCreateSteps,
     webhooksCreateEmphasizedStepId,
   } = props;
+  const { localize } = useLocalizedProductCopy();
 
   return (
     <section
@@ -155,7 +211,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
               {...register("webhookUrl")}
             />
             <p id="webhook-url-helper" className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {WEBHOOKS_DESTINATION_URL_HELPER}
+              {localize(WEBHOOKS_DESTINATION_URL_HELPER)}
             </p>
             {errors.webhookUrl?.message !== undefined ? (
               <p
@@ -195,7 +251,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
               </Button>
             </div>
             <p id="webhook-secret-helper" className={cn("mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              {WEBHOOKS_SIGNING_SECRET_HELPER}
+              {localize(WEBHOOKS_SIGNING_SECRET_HELPER)}
             </p>
             {errors.secret?.message !== undefined ? (
               <p
@@ -215,6 +271,10 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
             OPERATOR_TYPOGRAPHY.body,
           )}
           data-testid="webhooks-delivery-contract-disclosure"
+          open={deliveryContractOpen}
+          onToggle={(event) => {
+            setDeliveryContractOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
         >
           <summary
             className={cn(
@@ -225,9 +285,9 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
             {WEBHOOKS_DELIVERY_CONTRACT_HEADING}
           </summary>
           <div className={cn("mt-3 space-y-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <p className="m-0">{WEBHOOKS_ABOUT_WHEN_TO_USE}</p>
-            <p className="m-0">{WEBHOOKS_ABOUT_WHAT_WE_SEND}</p>
-            <p className="m-0">{WEBHOOKS_ABOUT_SECURITY}</p>
+            <p className="m-0">{localize(WEBHOOKS_ABOUT_WHEN_TO_USE)}</p>
+            <p className="m-0">{localize(WEBHOOKS_ABOUT_WHAT_WE_SEND)}</p>
+            <p className="m-0">{localize(WEBHOOKS_ABOUT_SECURITY)}</p>
             <p className="m-0">{WEBHOOKS_ABOUT_DEVELOPERS}</p>
             <p className="m-0">{WEBHOOKS_CLOUD_EVENTS_ENVELOPE_NOTE}</p>
             <div>
@@ -252,7 +312,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
               </p>
               <p className="m-0 mt-2">{WEBHOOKS_SIGNATURE_ALGORITHM}</p>
               <p className="m-0 mt-2">{WEBHOOKS_SIGNATURE_VERIFICATION}</p>
-              <p className="m-0 mt-2 text-al-text-primary">{WEBHOOKS_SIGNATURE_KEY_SCOPE_NOTE}</p>
+              <p className="m-0 mt-2 text-al-text-primary">{localize(WEBHOOKS_SIGNATURE_KEY_SCOPE_NOTE)}</p>
             </div>
           </div>
         </details>
@@ -260,7 +320,7 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
 
       <div className={OPERATOR_LAYOUT.sectionStack}>
         <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{WEBHOOKS_FORM_EVENTS_HEADING}</h3>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{WEBHOOKS_EVENTS_HELPER}</p>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{localize(WEBHOOKS_EVENTS_HELPER)}</p>
 
         {showAlertSeverityFilter ? (
           <div>
@@ -323,7 +383,14 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
                         <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                           {option.description}
                         </span>
-                        <details className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        <details
+                          className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                          open={technicalEventNameOpenId === option.id}
+                          onToggle={(event) => {
+                            const open = (event.currentTarget as HTMLDetailsElement).open;
+                            syncTechnicalEventNameOpenToUrl(open ? option.id : null);
+                          }}
+                        >
                           <summary
                             className={cn(
                               "cursor-pointer select-none outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",

@@ -52,6 +52,11 @@ internal static class AgentOutputTraceRejectionSummaryBuilder
                 semantic.AgentResultFaithfulnessSupportRatio is { } faithRatio &&
                 faithRatio < faithFloor)
                 parts.Add("agent_result_faithfulness_below_floor");
+
+            if (options.PilotStrictMinCitationCoverageRatio is { } citationFloor &&
+                semantic.FindingCitationCoverageRatio is { } citationRatio &&
+                citationRatio < citationFloor)
+                parts.Add("finding_citation_coverage_below_floor");
         }
 
         if (faithfulnessOptions.Enabled

@@ -58,23 +58,31 @@ public sealed class OutboundWebhookDryRunController(
             Error = outcome.Error
         };
 
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.OutboundWebhookDryRunProbeExecuted,
-                DataJson = JsonSerializer.Serialize(new
+        try
+        {
+            await auditService.LogAsync(
+                new AuditEvent
                 {
-                    targetAuthority = body.TargetUrl.GetLeftPart(UriPartial.Authority),
-                    path = body.TargetUrl.AbsolutePath,
-                    scheme = body.TargetUrl.Scheme,
-                    hasSharedSecret = body.SharedSecret is { Length: > 0 },
-                    transportSucceeded = outcome.TransportSucceeded,
-                    statusCode = outcome.StatusCode,
-                    reasonPhrase = outcome.ReasonPhrase,
-                    error = outcome.Error
-                })
-            },
-            cancellationToken);
+                    EventType = AuditEventTypes.OutboundWebhookDryRunProbeExecuted,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        targetAuthority = body.TargetUrl.GetLeftPart(UriPartial.Authority),
+                        path = body.TargetUrl.AbsolutePath,
+                        scheme = body.TargetUrl.Scheme,
+                        hasSharedSecret = !string.IsNullOrEmpty(body.SharedSecret?.Trim()),
+                        transportSucceeded = outcome.TransportSucceeded,
+                        statusCode = outcome.StatusCode,
+                        reasonPhrase = outcome.ReasonPhrase,
+                        responseBodyTruncated = outcome.ResponseBodyTruncated,
+                        error = outcome.Error
+                    })
+                },
+                cancellationToken);
+        }
+        catch (Exception)
+        {
+            // Probe already reached the subscriber; audit is best-effort for operator forensics.
+        }
 
         return Ok(response);
     }

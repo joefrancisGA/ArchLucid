@@ -42,7 +42,7 @@ export function mapReadinessStatusToStatusTagLabel(status: FirstPilotReadinessSt
       return ENTERPRISE_STATUS_LABELS.blocked;
 
     case "unknown":
-      return "Pending";
+      return "Check unavailable";
 
     default: {
       const exhaustive: never = status;

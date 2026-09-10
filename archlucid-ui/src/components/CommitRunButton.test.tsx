@@ -4,14 +4,17 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   const searchParams = new URLSearchParams();
+  const routerPushMock = vi.fn();
+  const routerReplaceMock = vi.fn();
   return {
     ...actual,
     usePathname: () => "/architecture/reviews/run-1",
     useSearchParams: () => searchParams,
     useRouter: (): { push: (path: string) => void; replace: (path: string) => void } => ({
-      push: vi.fn(),
-      replace: vi.fn(),
+      push: routerPushMock,
+      replace: routerReplaceMock,
     }),
+    __routerPushMock: routerPushMock,
     redirect: vi.fn(),
     permanentRedirect: vi.fn(),
     notFound: vi.fn(),
@@ -54,8 +57,10 @@ vi.mock("@/lib/api", () => ({
 
 import { commitArchitectureRun, getRunSummary } from "@/lib/api";
 import { syncArchitectureDraftRegistryForFinalizedReview } from "@/lib/architecture/architecture-draft-registry-finalize-sync";
+import { FINALIZE_SUCCESS_HIGHLIGHT_REVIEW_QUERY_PARAM } from "@/lib/architecture/finalize-success-desk-href";
 import { ApiRequestError } from "@/lib/api-request-error";
 import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-invalidation";
+import * as nextNavigation from "next/navigation";
 
 import { CommitRunButton } from "./CommitRunButton";
 
@@ -211,6 +216,33 @@ describe("CommitRunButton", () => {
       "Add a private endpoint before finalizing.",
     );
   });
+  it("AO-35: navigates to architecture desk after Working finalize when parent architecture is known", async () => {
+    mockCommit.mockResolvedValue({});
+    const routerPushMock = (nextNavigation as { __routerPushMock?: ReturnType<typeof vi.fn> }).__routerPushMock;
+
+    render(
+      <CommitRunButton
+        runId="run-1"
+        disabled={false}
+        parentArchitectureId="architecture-identity-001"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /^finalize review$/i }));
+
+    const dialog = await screen.findByRole("alertdialog");
+
+    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize review$/i }));
+
+    await waitFor(() => {
+      expect(routerPushMock).toHaveBeenCalledWith(
+        `/architecture/architectures/architecture-identity-001?${FINALIZE_SUCCESS_HIGHLIGHT_REVIEW_QUERY_PARAM}=run-1`,
+      );
+    });
+
+    expect(screen.queryByText(/decisions are now searchable in Ask/i)).not.toBeInTheDocument();
+  });
+
   it("shows finalize consequence preview in the confirm dialog (TB-2224)", async () => {
     render(<CommitRunButton runId="run-1" disabled={false} />);
 

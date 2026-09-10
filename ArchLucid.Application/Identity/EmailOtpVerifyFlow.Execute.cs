@@ -151,7 +151,7 @@ public sealed partial class EmailOtpVerifyFlow
                 request.InvitationToken,
                 cancellationToken).ConfigureAwait(false);
 
-        (EmailOtpAuthNextStep nextStep, Guid? tenantId, Guid? workspaceId, Guid? invitationId) =
+        (EmailOtpAuthNextStep nextStep, Guid? tenantId, Guid? workspaceId, Guid? invitationId, string verifyRole) =
             await ResolveNextStepAsync(
                     user.Id,
                     normalizedEmail,
@@ -181,7 +181,7 @@ public sealed partial class EmailOtpVerifyFlow
             Succeeded = true,
             PlatformUserId = user.Id,
             DisplayEmail = displayEmail,
-            Role = ArchLucidRoles.Reader,
+            Role = verifyRole,
             NextStep = nextStep,
             TenantId = tenantId,
             WorkspaceId = workspaceId,
@@ -190,7 +190,7 @@ public sealed partial class EmailOtpVerifyFlow
         };
     }
 
-    private async Task<(EmailOtpAuthNextStep NextStep, Guid? TenantId, Guid? WorkspaceId, Guid? InvitationId)>
+    private async Task<(EmailOtpAuthNextStep NextStep, Guid? TenantId, Guid? WorkspaceId, Guid? InvitationId, string Role)>
         ResolveNextStepAsync(
             Guid platformUserId,
             string normalizedEmail,
@@ -210,19 +210,25 @@ public sealed partial class EmailOtpVerifyFlow
                 EmailOtpAuthNextStep.Complete,
                 acceptedInvitation.TenantId,
                 acceptedInvitation.WorkspaceId,
-                acceptedInvitation.InvitationId);
+                acceptedInvitation.InvitationId,
+                ResolveMembershipRole(acceptedInvitation.AppRole));
         }
 
         if (activeMemberships.Count == 1)
         {
             WorkspaceMembershipRecord only = activeMemberships[0];
 
-            return (EmailOtpAuthNextStep.Complete, only.TenantId, only.WorkspaceId, null);
+            return (
+                EmailOtpAuthNextStep.Complete,
+                only.TenantId,
+                only.WorkspaceId,
+                null,
+                ResolveMembershipRole(only.Role));
         }
 
         if (activeMemberships.Count > 1)
         {
-            return (EmailOtpAuthNextStep.SelectWorkspace, null, null, null);
+            return (EmailOtpAuthNextStep.SelectWorkspace, null, null, null, ArchLucidRoles.Reader);
         }
 
         if (challengeLinkedInvitationId is Guid invitationId)
@@ -234,7 +240,12 @@ public sealed partial class EmailOtpVerifyFlow
                 && IdentityEmailNormalizer.TryNormalize(linked.Email, out string normalizedInviteeEmail, out _)
                 && string.Equals(normalizedInviteeEmail, normalizedEmail, StringComparison.Ordinal))
             {
-                return (EmailOtpAuthNextStep.AcceptInvitation, linked.TenantId, linked.WorkspaceId, linked.Id);
+                return (
+                    EmailOtpAuthNextStep.AcceptInvitation,
+                    linked.TenantId,
+                    linked.WorkspaceId,
+                    linked.Id,
+                    ArchLucidRoles.Reader);
             }
         }
 
@@ -245,10 +256,25 @@ public sealed partial class EmailOtpVerifyFlow
         {
             UserInvitationRecord first = openInvitations[0];
 
-            return (EmailOtpAuthNextStep.AcceptInvitation, first.TenantId, first.WorkspaceId, first.Id);
+            return (
+                EmailOtpAuthNextStep.AcceptInvitation,
+                first.TenantId,
+                first.WorkspaceId,
+                first.Id,
+                ArchLucidRoles.Reader);
         }
 
-        return (EmailOtpAuthNextStep.CreateWorkspace, null, null, null);
+        return (EmailOtpAuthNextStep.CreateWorkspace, null, null, null, ArchLucidRoles.Reader);
+    }
+
+    private static string ResolveMembershipRole(string? role)
+    {
+        if (string.IsNullOrWhiteSpace(role))
+        {
+            return ArchLucidRoles.Reader;
+        }
+
+        return role.Trim();
     }
 
     private static ExternalIdentityKey BuildEmailOtpIdentityKey(string normalizedEmail) =>

@@ -19,6 +19,14 @@ vi.mock("@/components/QuickDecisionSummary", () => ({
   QuickDecisionSummary: () => <div data-testid="quick-decision-summary-stub" />,
 }));
 
+vi.mock("@/components/findings/RunDetailFindingsCardViewLazy", () => ({
+  RunDetailFindingsCardViewLazy: () => <div data-testid="quick-decision-summary-stub" />,
+}));
+
+vi.mock("@/components/findings/RunDetailFindingsDenseTable", () => ({
+  RunDetailFindingsDenseTable: () => <div data-testid="run-detail-findings-dense-table-stub" />,
+}));
+
 vi.mock("@/components/findings/FindingsItsmExportToolbar", () => ({
   FindingsItsmExportToolbar: () => null,
 }));
@@ -35,10 +43,10 @@ const simulatorNoticeMocks = vi.hoisted(() => ({
   isSimulator: false,
 }));
 
-vi.mock("@/components/usability/SimulatorModeAiOperationNotice", () => ({
-  SimulatorModeAiOperationNotice: (props: { testId?: string }) =>
-    simulatorNoticeMocks.isSimulator ? (
-      <div data-testid={props.testId ?? "simulator-mode-ai-operation-notice"}>Simulator notice</div>
+vi.mock("@/components/usability/SimulatorRunRehearsalCaption", () => ({
+  SimulatorRunRehearsalCaption: (props: { testId?: string; structuralExecutionMode?: string }) =>
+    props.structuralExecutionMode === "Simulator" || simulatorNoticeMocks.isSimulator ? (
+      <div data-testid={props.testId ?? "simulator-run-rehearsal-caption"}>Simulator rehearsal caption</div>
     ) : null,
 }));
 
@@ -153,6 +161,26 @@ describe("RunDetailFindingsWorkspace", () => {
     );
   });
 
+  it("hides create-home orientation strip in buyer-polished shell", () => {
+    const findings: QuickDecisionFinding[] = [
+      finding({ findingId: "f-medium-1", severityValue: 1, findingOrder: 0 }),
+    ];
+
+    render(
+      <RunDetailFindingsWorkspace
+        runId="run-1"
+        findings={findings}
+        packageCommitted={false}
+        analysisStagesComplete={false}
+        triageVisibleCount={1}
+        buyerPolishedShell
+      />,
+    );
+
+    expect(screen.queryByTestId("architecture-findings-orientation")).not.toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-findings-assessment-metric")).toBeInTheDocument();
+  });
+
   it("renders create-home orientation strip and assessment metric without governance queue labels", () => {
     const findings: QuickDecisionFinding[] = [
       finding({ findingId: "f-medium-1", severityValue: 1, findingOrder: 0 }),
@@ -196,12 +224,16 @@ describe("RunDetailFindingsWorkspace", () => {
     ).toHaveAttribute("href", "/governance/findings?runId=run-abc");
   });
 
-  it("shows simulator rehearsal notice on the findings workspace when mode is simulator", () => {
-    simulatorNoticeMocks.isSimulator = true;
+  it("shows simulator rehearsal caption on the findings workspace when run mode is simulator", () => {
+    render(
+      <RunDetailFindingsWorkspace
+        runId="run-1"
+        findings={[]}
+        structuralExecutionMode="Simulator"
+      />,
+    );
 
-    render(<RunDetailFindingsWorkspace runId="run-1" findings={[]} />);
-
-    expect(screen.getByTestId("run-detail-findings-simulator-notice")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-findings-simulator-rehearsal-caption")).toBeInTheDocument();
   });
 
   it("shows actor-engine quiet hint in the toolbar hero when analysis is complete and graph has no actors", () => {

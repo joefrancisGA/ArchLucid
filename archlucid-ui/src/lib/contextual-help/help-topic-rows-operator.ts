@@ -1,6 +1,7 @@
 /** Operator workflow and onboarding help topics (`/help/**`). */
 
-import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
+import type { PageContextualHelpEntry, PageContextualHelpRow } from "@/lib/contextual-help/types";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { ACCELERATOR_CHOOSER_HELP_PAGE_TITLE } from "@/lib/accelerator-chooser-help-guide-content";
 import { SPONSOR_REPORT_HELP_TOPIC_LABEL } from "@/lib/sponsor/sponsor-report-help-evidence-copy";
 import { PATH_CHOOSER_HELP_TOPIC_LABEL } from "@/lib/path-chooser-help-evidence-copy";
@@ -8,6 +9,31 @@ import { PILOT_FEEDBACK_HELP_TOPIC_LABEL } from "@/lib/pilot-feedback-help-evide
 import { PILOT_GUIDE_HELP_TOPIC_LABEL } from "@/lib/pilot-guide-help-evidence-copy";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
+
+/** SecureNow help hub landing — featured topics for security operators, not architecture review walkthroughs. */
+export const SECURENOW_HELP_HUB_CONTEXTUAL_HELP_ENTRY: PageContextualHelpEntry = {
+  whatIsThisPage:
+    "Help hub — curated SecureNow product documentation for security operators in this workspace.",
+  whatToDoNext:
+    "Browse featured topics, then open Getting started, Troubleshooting, or Security and trust when you need the next step.",
+  whyEmpty:
+    "Help topics are always available; live workspace data appears on operator surfaces after cloud evidence and findings exist.",
+  whereToConfigurePrerequisite:
+    "Workspace and project scope come from the shell header switcher once you are signed in.",
+  whatToDoNextAction: {
+    label: "Open Getting started",
+    href: "/help/getting-started",
+  },
+  whereToConfigureAction: {
+    label: "Open Security and trust",
+    href: "/help/security-trust",
+  },
+  taskSteps: [
+    "Browse featured topics for cloud evidence, findings, and assurance.",
+    "Open Getting started for SecureNow orientation.",
+    "Open Troubleshooting when something is blocked.",
+  ],
+};
 
 export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS_OPERATOR: readonly PageContextualHelpRow[] = [
   {
@@ -145,16 +171,16 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS_OPERATOR: readonly PageContextualHe
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:
-        "Getting started guide — how ArchLucid turns evidence into findings, decisions, and export-ready review outputs.",
+        "Getting started guide — how ArchLucid helps you work from named architecture identities through review jobs to export-ready outputs.",
       whatToDoNext:
-        "Start a review, open the sample walkthrough, or pick a path from Choose your next step when you know your goal.",
+        "Open an architecture identity, resume a child draft, inspect a package, or start a new review when evidence is ready.",
       whyEmpty: "This guide is always available; review metrics appear after you create or finalize reviews.",
       whereToConfigurePrerequisite:
-        "Choose a workspace in the header scope switcher before starting a real (non-sample) review.",
+        "Choose a workspace in the header scope switcher before starting a real review job.",
       taskSteps: [
         "Choose workspace scope in the header switcher.",
-        "Start a review or open the sample walkthrough.",
-        "Use Choose your next step when your goal is not first-run intake.",
+        "Open Architectures for named identity desks or Reviews for package hubs.",
+        "Start a review job when the architecture evidence is ready to evaluate.",
       ],
     },
   },

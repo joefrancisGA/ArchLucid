@@ -14,9 +14,10 @@
   Prerequisites — stack doctor + prerequisite report (no spend).
   CollectRun1 — proof packet for Run 1 (Core Pilot path).
   CollectRun2 — Run 2 with -CompareBaseRunId (policy pack delta on same architecture).
+  CollectRun2b — optional overlay run (FinOps requireBudgetCap or CIS identity extra); same -CompareBaseRunId as Run 2.
   CollectRun3 — Run 3 compare vs Run 1 (repeat / second review).
   Rollup — Invoke-RealLlmEvidenceGate.ps1 (quad-agent gate JSON).
-  Interactive — prerequisites, then prompt for each run id and collect.
+  Interactive — prerequisites, then prompt for each run id and collect (optional Run 2b).
   All — Interactive plus Rollup when all three runs collected.
 
 .PARAMETER RunId
@@ -41,7 +42,7 @@
   .\scripts\Run-GReal06ProofRuns.ps1 -Phase Interactive
 #>
 param(
-    [ValidateSet('Prerequisites', 'CollectRun1', 'CollectRun2', 'CollectRun3', 'Rollup', 'Interactive', 'All')]
+    [ValidateSet('Prerequisites', 'CollectRun1', 'CollectRun2', 'CollectRun2b', 'CollectRun3', 'Rollup', 'Interactive', 'All')]
     [string] $Phase = 'Interactive',
     [string] $RunId = '',
     [string] $CompareBaseRunId = '',
@@ -189,8 +190,19 @@ function Invoke-InteractivePhase {
 
     Write-GReal06Banner 'Manual steps — Run 2 (same architecture, different policy pack)'
     Write-Host 'Use the SAME evidence as Run 1. Change governance posture (e.g. SOC 2 vs CIS Azure).'
+    Write-Host 'Optional offline rehearsal (no spend): .\scripts\demo-policy-pack-delta.ps1 -OfflineFindingDelta'
+    Write-Host 'After commit, capture delta: .\scripts\demo-policy-pack-delta.ps1 -RunId <guid> -ShowFindingDelta -DeclarationPriorityFloor P1'
     $run2 = Read-Host 'Enter committed Run 2 GUID'
     Invoke-CollectProofPhase -RunNumber 2 -CommittedRunId $run2 -CompareRunId $run1
+
+    Write-GReal06Banner 'Optional — Run 2b (expectation overlay on same architecture)'
+    Write-Host 'Assign FinOps (cost.requireBudgetCap) or CIS Azure (identity topology extra). Press Enter to skip.'
+    $run2bResponse = Read-Host 'Run 2b committed GUID (blank to skip)'
+    if (-not [string]::IsNullOrWhiteSpace($run2bResponse)) {
+        $run2b = $run2bResponse.Trim()
+        Invoke-CollectProofPhase -RunNumber 2 -CommittedRunId $run2b -CompareRunId $run1
+        Write-Host 'Run 2b collected. Record overlay pack id in CLAIM_READINESS_STATUS Notes (FinOps or CIS Azure).'
+    }
 
     Write-GReal06Banner 'Manual steps — Run 3 (repeat / compare vs Run 1)'
     Write-Host 'Second review or compare path; attach compare output in proof collection.'
@@ -198,7 +210,9 @@ function Invoke-InteractivePhase {
     Invoke-CollectProofPhase -RunNumber 3 -CommittedRunId $run3 -CompareRunId $run1
 
     Write-Host ''
-    Write-Host 'G-REAL-06 complete when three log rows are Real + Clean. Stage 1 rule: >=2 READY/WARN, zero BLOCK sponsor handoff.'
+    Write-Host 'G-REAL-06 complete when three log rows are Real + Clean (Run 2b does not replace Run 3).'
+    Write-Host 'Stage 1 rule: >=2 READY/WARN, zero BLOCK sponsor handoff. Log: CLAIM_READINESS_STATUS.md#proof-packet-run-log'
+    Write-Host 'Agents: do not append G4 rows or label Simulator output as Real.'
 }
 
 switch ($Phase) {
@@ -218,6 +232,17 @@ switch ($Phase) {
             $base = Read-Host 'Enter Run 1 GUID (CompareBaseRunId)'
         }
 
+        Invoke-CollectProofPhase -RunNumber 2 -CommittedRunId $id -CompareRunId $base
+    }
+
+    'CollectRun2b' {
+        $id = Read-RequiredRunId 'RunId required for CollectRun2b'
+        $base = $CompareBaseRunId
+        if ([string]::IsNullOrWhiteSpace($base)) {
+            $base = Read-Host 'Enter Run 1 GUID (CompareBaseRunId)'
+        }
+
+        Write-Host 'Run 2b: record FinOps cost.requireBudgetCap or CIS identity overlay in G4 Notes.'
         Invoke-CollectProofPhase -RunNumber 2 -CommittedRunId $id -CompareRunId $base
     }
 

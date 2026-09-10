@@ -4,7 +4,8 @@ import Link from "next/link";
 
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { Button } from "@/components/ui/button";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { listArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,10 @@ export function RecurrenceScheduleWorkspaceActiveReviewStrip(
 ): React.JSX.Element | null {
   const workspaceRun = useWorkspaceActiveRun();
   const runId = workspaceRun?.activeRunId?.trim() ?? "";
+  const reviewHref = resolveWorkingRunReviewLocator({
+    runId,
+    draftRegistryEntries: listArchitectureDraftRegistryEntries(),
+  }).href;
 
   if (runId.length === 0) {
     return null;
@@ -51,7 +56,7 @@ export function RecurrenceScheduleWorkspaceActiveReviewStrip(
           Create schedule
         </Button>
         <Button type="button" variant="outline" size="sm" asChild data-testid="recurrence-schedule-workspace-active-open">
-          <Link href={reviewDetailPath(runId)}>Open review</Link>
+          <Link href={reviewHref}>Open review</Link>
         </Button>
       </div>
     </section>

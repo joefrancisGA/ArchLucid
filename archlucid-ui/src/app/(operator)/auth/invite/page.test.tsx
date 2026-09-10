@@ -5,6 +5,8 @@ import InvitationAcceptPage, { metadata } from "@/app/(operator)/auth/invite/pag
 import {
   AUTH_INVITE_PAGE_DESCRIPTION,
   AUTH_INVITE_PAGE_TITLE,
+  AUTH_INVITE_SKIP_LINK_LABEL,
+  AUTH_INVITE_SKIP_TARGET_ID,
 } from "@/lib/auth/auth-invite-page-copy";
 
 vi.mock("@/app/(operator)/auth/invite/InvitationAcceptPageClient", () => ({
@@ -21,11 +23,18 @@ describe("InvitationAcceptPage (TB-1472)", () => {
     expect(metadata.description).toBe(AUTH_INVITE_PAGE_DESCRIPTION);
   });
 
-  it("wraps the client in Suspense with branded auth-flow loading chrome", () => {
+  it("wraps the client in Suspense with buyer chrome on the loading fallback", () => {
     render(<InvitationAcceptPage />);
 
-    expect(screen.getByTestId("auth-flow-shell")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: AUTH_INVITE_SKIP_LINK_LABEL })).toHaveAttribute(
+      "href",
+      `#${AUTH_INVITE_SKIP_TARGET_ID}`,
+    );
+    expect(screen.getByTestId("auth-invite-primary-content")).toBeInTheDocument();
+    expect(screen.getByTestId("auth-invite-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("auth-invite-orientation-bottom")).toBeInTheDocument();
     expect(screen.getByTestId("invitation-accept-loading")).toBeInTheDocument();
     expect(screen.getByTestId("invitation-accept-loading-skeleton-card")).toBeInTheDocument();
+    expect(screen.queryByTestId("auth-invite-breadcrumb")).not.toBeInTheDocument();
   });
 });

@@ -4,12 +4,30 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const createRun = vi.fn();
 const uploadDocuments = vi.fn();
 const push = vi.fn();
+const replace = vi.fn();
+const workspaceModeMock = vi.hoisted(() => ({ value: "working" as "guided" | "working" }));
+
+vi.mock("@/components/WorkspaceModeProvider", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/components/WorkspaceModeProvider")>();
+
+  return {
+    ...actual,
+    useWorkspaceModeOrDefault: () => workspaceModeMock.value,
+    useWorkspaceMode: () => ({
+      mode: workspaceModeMock.value,
+      mounted: true,
+      accountSyncState: "synced" as const,
+      isWorkingMode: workspaceModeMock.value === "working",
+      setAndPersist: vi.fn(),
+    }),
+  };
+});
 
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
     ...actual,
-  useRouter: () => ({ push }),
+  useRouter: () => ({ push, replace }),
   useSearchParams: () => new URLSearchParams(),
   redirect: vi.fn(),
     permanentRedirect: vi.fn(),
@@ -103,9 +121,11 @@ function prepareQuickStartEvidenceReady(): void {
 
 describe("FirstPilotIntakeWizard", () => {
   beforeEach(() => {
+    workspaceModeMock.value = "working";
     createRun.mockReset();
     uploadDocuments.mockReset();
     push.mockReset();
+    replace.mockReset();
     vi.mocked(showError).mockReset();
   });
 
@@ -116,13 +136,24 @@ describe("FirstPilotIntakeWizard", () => {
     expect(FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE.toLowerCase()).not.toContain("evidence file");
   });
 
-  it("states the evidence-or-context rule once on the workflow panel (TB-747, TB-1874)", () => {
+  it("states the evidence-or-context rule once on the workflow panel for Guided (TB-747, TB-1874)", () => {
+    workspaceModeMock.value = "guided";
     render(<FirstPilotIntakeWizard />);
 
     expect(screen.getByTestId("first-pilot-intake-panel")).toBeInTheDocument();
     expect(screen.getAllByText(REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD)).toHaveLength(1);
     expect(screen.queryByTestId("first-pilot-intake-progress")).not.toBeInTheDocument();
     expect(screen.queryByTestId("first-run-intake-step-guide")).not.toBeInTheDocument();
+  });
+
+  it("LP-13: Working intake uses expert posture without localStorage", () => {
+    workspaceModeMock.value = "working";
+    window.localStorage.removeItem("archlucid.expert-intake-posture.v1.enabled");
+
+    render(<FirstPilotIntakeWizard />);
+
+    expect(screen.getByText(/Expert intake: paste your brief first/i)).toBeInTheDocument();
+    expect(window.localStorage.getItem("archlucid.expert-intake-posture.v1.enabled")).toBeNull();
   });
 
   it("does not require Card chrome for the quick-start intake panel (TB-1874)", () => {

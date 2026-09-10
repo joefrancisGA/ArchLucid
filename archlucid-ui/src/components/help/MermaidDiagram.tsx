@@ -3,8 +3,15 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 
 import { HelpMarkdownCodeBlock } from "@/components/help/HelpMarkdownCodeBlock";
+import {
+  HELP_MERMAID_DIAGRAM_SOURCE_OPEN_PARAM,
+  helpMermaidDiagramSourceDisclosureHrefFromSearch,
+  parseHelpMermaidDiagramSourceOpenFromSearch,
+} from "@/lib/help/help-mermaid-diagram-source-disclosure-url";
 import {
   fitMermaidSvgElementToHost,
   prepareMermaidSvgForResponsiveLayout,
@@ -84,6 +91,29 @@ function useHasBeenVisible(targetRef: RefObject<HTMLElement | null>): boolean {
 
 /** Client-rendered Mermaid diagram for trusted in-app help markdown. */
 export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpMermaidDiagramSourceParam = searchParams.get(HELP_MERMAID_DIAGRAM_SOURCE_OPEN_PARAM);
+  const [helpMermaidDiagramSourceOpen, setHelpMermaidDiagramSourceOpenState] = useState(() =>
+    parseHelpMermaidDiagramSourceOpenFromSearch(helpMermaidDiagramSourceParam),
+  );
+  const syncHelpMermaidDiagramSourceOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        helpMermaidDiagramSourceDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setHelpMermaidDiagramSourceOpen = useCallback(
+    (open: boolean) => {
+      setHelpMermaidDiagramSourceOpenState(open);
+      syncHelpMermaidDiagramSourceOpenToUrl(open);
+    },
+    [syncHelpMermaidDiagramSourceOpenToUrl],
+  );
   const { source, accessibleName, description, themeVariables } = props;
   const reactId = useId();
   const renderId = useMemo(() => sanitizeMermaidRenderId(`help-mermaid-${reactId}`), [reactId]);
@@ -93,6 +123,10 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
   const dark = useDocumentDarkMode();
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setHelpMermaidDiagramSourceOpenState(parseHelpMermaidDiagramSourceOpenFromSearch(helpMermaidDiagramSourceParam));
+  }, [helpMermaidDiagramSourceParam]);
 
   useEffect(() => {
     if (!hasBeenVisible) {
@@ -215,7 +249,11 @@ export function MermaidDiagram(props: MermaidDiagramProps): React.JSX.Element {
           {description}
         </figcaption>
       ) : null}
-      <details className="mt-2">
+      <details
+        className="mt-2"
+        open={helpMermaidDiagramSourceOpen}
+        onToggle={(event) => setHelpMermaidDiagramSourceOpen(event.currentTarget.open)}
+      >
         <summary className={cn("cursor-pointer font-medium text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           View diagram source
         </summary>

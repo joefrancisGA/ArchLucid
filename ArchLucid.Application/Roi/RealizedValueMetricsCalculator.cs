@@ -118,6 +118,7 @@ internal static class RealizedValueMetricsCalculator
         };
 
         string json = JsonSerializer.Serialize(attestation);
+        RealizedValueAttestationUpsertValidation.EnsureSerializedAttestationFitsOrThrow(json);
         await tenantSettingsRepository.UpsertAsync(
                 tenantId,
                 ResolveAttestationSettingKey(workspaceId),

@@ -107,6 +107,14 @@ public static class InsightDensityEngineFindingEvidenceSummary
             }
         }
 
+        foreach (string reference in finding.EvidenceRefs)
+        {
+            if (!string.IsNullOrWhiteSpace(reference))
+            {
+                allowedRefs.Add(reference.Trim());
+            }
+        }
+
         return allowedRefs;
     }
 }

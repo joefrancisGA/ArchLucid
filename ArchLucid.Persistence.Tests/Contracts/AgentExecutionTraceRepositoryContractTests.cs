@@ -542,6 +542,31 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         list[0].TraceId.Should().Be("second-trace");
     }
 
+    [SkippableFact]
+    public async Task CreateAsync_upserts_same_attempt_when_task_id_differs_only_by_outer_whitespace()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-ws-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-ws");
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+
+        await repo.CreateAsync(
+            NewTrace(runId, " task-ws ", "first-trace", TimeProvider.System.UtcNowDateTime().AddMinutes(-1), attemptIndex: 2),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            NewTrace(runId, task.TaskId, "second-trace", TimeProvider.System.UtcNowDateTime(), attemptIndex: 2),
+            CancellationToken.None);
+
+        IReadOnlyList<AgentExecutionTrace> list =
+            await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
+
+        list.Should().ContainSingle();
+        list[0].TraceId.Should().Be("second-trace");
+    }
+
     private static AgentTask NewTask(string runId, string taskId)
     {
         return new AgentTask

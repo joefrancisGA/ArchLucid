@@ -65,4 +65,76 @@ public sealed class BackgroundJobStuckRunningWatchdogHostedServiceTests
         notifySender.Verify(n => n.SendJobIdAsync("job-a", It.IsAny<CancellationToken>()), Times.Once);
         notifySender.Verify(n => n.SendJobIdAsync("job-b", It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task RunSinglePassAsync_continues_notifying_after_mid_batch_notify_failure()
+    {
+        Mock<IBackgroundJobRepository> repository = new();
+        Mock<IBackgroundJobQueueNotifySender> notifySender = new();
+
+        repository
+            .Setup(r => r.ResetStaleRunningJobsOlderThanAsync(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { "job-a", "job-b", "job-c" });
+
+        notifySender
+            .Setup(n => n.SendJobIdAsync("job-a", It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        notifySender
+            .Setup(n => n.SendJobIdAsync("job-b", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("queue unavailable"));
+
+        notifySender
+            .Setup(n => n.SendJobIdAsync("job-c", It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ServiceCollection services = new();
+        services.AddSingleton(repository.Object);
+        services.AddSingleton(notifySender.Object);
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        await BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new BackgroundJobsOptions { ProcessorVisibilityMinutes = 15 }),
+            NullLogger.Instance,
+            CancellationToken.None);
+
+        notifySender.Verify(n => n.SendJobIdAsync("job-a", It.IsAny<CancellationToken>()), Times.Once);
+        notifySender.Verify(n => n.SendJobIdAsync("job-b", It.IsAny<CancellationToken>()), Times.Once);
+        notifySender.Verify(n => n.SendJobIdAsync("job-c", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RunSinglePassAsync_marks_job_failed_when_queue_notify_fails_after_reclaim()
+    {
+        Mock<IBackgroundJobRepository> repository = new();
+        Mock<IBackgroundJobQueueNotifySender> notifySender = new();
+
+        repository
+            .Setup(r => r.ResetStaleRunningJobsOlderThanAsync(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new[] { "job-b" });
+
+        notifySender
+            .Setup(n => n.SendJobIdAsync("job-b", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("queue unavailable"));
+
+        ServiceCollection services = new();
+        services.AddSingleton(repository.Object);
+        services.AddSingleton(notifySender.Object);
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        await BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new BackgroundJobsOptions { ProcessorVisibilityMinutes = 15 }),
+            NullLogger.Instance,
+            CancellationToken.None);
+
+        repository.Verify(
+            r => r.MarkFailedTerminalAsync(
+                "job-b",
+                It.Is<string>(message => message.Contains("Queue notification failed", StringComparison.Ordinal)),
+                0,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "archlucid_findings_keyboard_triage_coach_dismissed_v1";
 
-/** One-time coach for findings keyboard triage on the governance findings queue. */
+/** One-time coach for findings keyboard triage on the policy findings queue. */
 export function FindingsKeyboardTriageCoach(): React.JSX.Element | null {
   const [visible, setVisible] = useState(false);
 

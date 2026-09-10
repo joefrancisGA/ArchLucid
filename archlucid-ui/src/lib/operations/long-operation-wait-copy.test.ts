@@ -61,6 +61,9 @@ describe("long-operation-wait-copy", () => {
     expect(formatQueueStatusElapsedSuffix(42_000)).toBe(" (42s)");
     expect(formatQueueStatusElapsedSuffix(65_000)).toBe(" (1m 5s)");
     expect(formatQueueStatusElapsedSuffix(120_000)).toBe(" (2m)");
+    expect(formatQueueStatusElapsedSuffix(3 * 60 * 60 * 1000 + 5 * 60 * 1000 + 28_000)).toBe(
+      " (3h 5m 28s)",
+    );
 
     expect(resolveLongOperationQueueStatusValue("Queued", 9_000)).toBe("Queued");
     expect(resolveLongOperationQueueStatusValue("Queued", 10_000)).toBe("Queued (10s)");

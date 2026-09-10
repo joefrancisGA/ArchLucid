@@ -147,5 +147,9 @@ describe("HelpWorkspaceSettingsGuideView", () => {
     for (const heading of guideHeadings) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
+
+    expect(
+      screen.queryAllByRole("link", { name: WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING }),
+    ).toHaveLength(0);
   });
 });

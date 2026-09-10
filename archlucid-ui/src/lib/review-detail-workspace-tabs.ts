@@ -1,3 +1,4 @@
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { RUN_DETAIL_SECTION_TAB } from "@/lib/runs/run-detail-section-tab-map";
 import { resolveUnifiedReviewWorkspaceTab, ARCH_TAB_TO_REVIEW_TAB } from "@/lib/unified-review-workspace-tabs";
 
@@ -117,6 +118,8 @@ export function buildReviewDetailTabHref(
     readonly findingId?: string | null;
     readonly workbenchFocus?: ReviewWorkbenchFocusColumnId | null;
     readonly presenter?: boolean;
+    /** Working nested review workspace base when architecture id is known (AO-33). */
+    readonly architectureId?: string | null;
   },
 ): string {
   const params = new URLSearchParams({ [REVIEW_DETAIL_TAB_PARAM]: tab });
@@ -134,7 +137,7 @@ export function buildReviewDetailTabHref(
     params.set("presenter", "1");
   }
 
-  const base = `/architecture/reviews/${encodeURIComponent(runId.trim())}?${params.toString()}`;
+  const base = `${resolveArchitectureReviewHref(runId.trim(), options?.architectureId)}?${params.toString()}`;
   const hash = options?.hash?.trim() ?? "";
 
   if (hash.length === 0) {

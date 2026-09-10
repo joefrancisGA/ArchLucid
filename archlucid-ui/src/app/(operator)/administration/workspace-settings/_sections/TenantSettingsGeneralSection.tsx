@@ -8,13 +8,17 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { TenantSettingsOrganizationCards } from "./TenantSettingsOrganizationCards";
 import type { TenantSettingsPageContentModel } from "./tenant-settings-page-view-model";
 
-type SectionHeadingProps = { readonly children: ReactNode };
+type SectionHeadingProps = {
+  readonly children: ReactNode;
+  readonly id: string;
+};
 
-function SectionHeading({ children }: SectionHeadingProps) {
+function SectionHeading({ id, children }: SectionHeadingProps) {
   return (
     <h2
+      id={id}
       className={cn(
-        "m-0 border-b border-neutral-200 pb-1 dark:border-neutral-800",
+        "m-0 scroll-mt-24 border-b border-neutral-200 pb-1 dark:border-neutral-800",
         OPERATOR_TYPOGRAPHY.sectionTitle,
       )}
     >
@@ -33,7 +37,7 @@ type Props = {
 export function TenantSettingsGeneralSection({ tenantDisplayName, scope, model, buyerPolishedShell = false }: Props) {
   return (
     <>
-      <SectionHeading>General</SectionHeading>
+      <SectionHeading id="tenant-settings-section-general">General</SectionHeading>
       <TenantSettingsOrganizationCards
         tenantDisplayName={tenantDisplayName}
         scope={scope}

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 
@@ -19,7 +20,6 @@ public sealed class EmailOtpEmailNotifier(
     Microsoft.Extensions.Options.IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
     Microsoft.Extensions.Logging.ILogger<EmailOtpEmailNotifier> logger) : IEmailOtpEmailNotifier
 {
-    private const string DefaultProductName = "ArchLucid";
     private const string TemplateId = "email-otp-sign-in";
 
     private readonly IEmailProvider _emailProvider =
@@ -41,9 +41,7 @@ public sealed class EmailOtpEmailNotifier(
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName)
-            ? DefaultProductName
-            : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
         string subject = $"{productName} sign-in code";
         string text = BuildTextBody(productName, code, lifetimeMinutes);

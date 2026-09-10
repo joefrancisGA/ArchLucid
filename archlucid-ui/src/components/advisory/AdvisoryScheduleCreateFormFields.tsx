@@ -1,5 +1,8 @@
 "use client";
 
+import { useCallback, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -23,6 +26,11 @@ import {
   normalizeIanaTimeZoneForSelect,
   toStoredIanaTimeZoneId,
 } from "@/lib/iana-time-zone-select";
+import {
+  ADVISORY_SCHEDULE_ADVANCED_OPEN_PARAM,
+  advisoryScheduleAdvancedDisclosureHrefFromSearch,
+  parseAdvisoryScheduleAdvancedOpenFromSearch,
+} from "@/lib/advisory/advisory-schedule-advanced-disclosure-url";
 
 import { ADVISORY_SCHEDULE_SELECT_CLASS } from "./use-advisory-schedule-create-form";
 
@@ -35,6 +43,10 @@ export type AdvisoryScheduleCreateFormFieldsProps = {
 };
 
 export function AdvisoryScheduleCreateFormFields({ viewModel }: AdvisoryScheduleCreateFormFieldsProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const advisoryScheduleAdvancedOpenParam = searchParams.get(ADVISORY_SCHEDULE_ADVANCED_OPEN_PARAM);
   const {
     form,
     advancedOpen,
@@ -47,6 +59,35 @@ export function AdvisoryScheduleCreateFormFields({ viewModel }: AdvisorySchedule
     canEdit,
     setCustomCronValid,
   } = viewModel;
+
+  const syncAdvancedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(advisoryScheduleAdvancedDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAdvancedOpenWithUrl = useCallback(
+    (open: boolean) => {
+      setAdvancedOpen(open);
+      syncAdvancedOpenToUrl(open);
+    },
+    [setAdvancedOpen, syncAdvancedOpenToUrl],
+  );
+
+  useEffect(() => {
+    if (parseAdvisoryScheduleAdvancedOpenFromSearch(advisoryScheduleAdvancedOpenParam)) {
+      setAdvancedOpen(true);
+
+      return;
+    }
+
+    if (advisoryScheduleAdvancedOpenParam !== null) {
+      setAdvancedOpen(false);
+    }
+  }, [advisoryScheduleAdvancedOpenParam, setAdvancedOpen]);
 
   return (
     <>
@@ -202,7 +243,7 @@ export function AdvisoryScheduleCreateFormFields({ viewModel }: AdvisorySchedule
       <details
         className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
         open={advancedOpen || form.frequency === "custom"}
-        onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}
+        onToggle={(event) => setAdvancedOpenWithUrl(event.currentTarget.open)}
       >
         <summary
           className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
@@ -225,7 +266,7 @@ export function AdvisoryScheduleCreateFormFields({ viewModel }: AdvisorySchedule
                 value={form.frequency === "custom" ? form.customCron : cronExpression}
                 onChange={(next) => {
                   updateForm({ frequency: "custom", customCron: next, nameTouched: form.nameTouched });
-                  setAdvancedOpen(true);
+                  setAdvancedOpenWithUrl(true);
                 }}
                 disabled={!canEdit}
                 advancedOnly

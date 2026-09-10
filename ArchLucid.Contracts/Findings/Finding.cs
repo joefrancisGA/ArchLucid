@@ -67,6 +67,13 @@ public class Finding
         set;
     } = [];
 
+    /// <summary>Package-resolvable citation refs for insight-density dismiss scoring (ADR 0070).</summary>
+    public List<string> EvidenceRefs
+    {
+        get;
+        set;
+    } = [];
+
     public List<string> RecommendedActions
     {
         get;
@@ -255,6 +262,13 @@ public class Finding
 
     /// <summary>Whether this observation is a decision-grade finding or checklist coverage (TB-384).</summary>
     public FindingClassification? Classification
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Semantic support band for Working career surfaces (AS-059 / ADR 0085).</summary>
+    public FindingSemanticSupportBand? SemanticSupportBand
     {
         get;
         set;

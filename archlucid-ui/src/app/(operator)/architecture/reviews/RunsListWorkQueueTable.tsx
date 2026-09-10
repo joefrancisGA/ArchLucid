@@ -39,6 +39,7 @@ import {
   runRowOutputReadinessLine,
   runRowOutputReadinessLineBuyer,
 } from "./runs-list-row-presentation";
+import { shouldIgnoreRunsListRowActivation } from "./runs-list-row-activation";
 
 export type RunsListWorkQueueTableProps = {
   readonly sections: readonly RunWorkQueueSection[];
@@ -61,11 +62,7 @@ function activateRowKeyboard(
     return;
   }
 
-  if ((e.target as HTMLElement).closest("a")) {
-    return;
-  }
-
-  if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
+  if (shouldIgnoreRunsListRowActivation(e.target)) {
     return;
   }
 

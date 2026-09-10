@@ -6,13 +6,17 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 
 const recordBulkFindingDisposition = vi.fn();
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh: vi.fn() }),
-  useSearchParams: () => new URLSearchParams(),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/governance/findings",
+  });
+});
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
   recordBulkFindingDisposition: (...args: unknown[]) => recordBulkFindingDisposition(...args),
+  listFindingDispositions: vi.fn(async () => []),
 }));
 
 vi.mock("@/app/(operator)/governance/findings/GovernanceFindingsQueueDesktopTable", () => ({

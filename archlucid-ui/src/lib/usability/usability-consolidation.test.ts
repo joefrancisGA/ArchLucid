@@ -6,6 +6,8 @@ import {
   PACKAGES_NAV_HREF,
   PACKAGES_NAV_LABEL,
   PRIORITY_FINDINGS_DISPLAY_LIMIT,
+  WORKING_PACKAGES_NAV_HREF,
+  resolvePackagesNavHref,
   splitReviewWorkspaceTabsByStage,
 } from "@/lib/usability/usability-consolidation";
 
@@ -13,6 +15,13 @@ describe("usability-consolidation", () => {
   it("points packages nav at the reviews hub", () => {
     expect(PACKAGES_NAV_LABEL).toBe("Packages");
     expect(PACKAGES_NAV_HREF).toBe("/architecture/reviews");
+  });
+
+  it("SY-35: Working packages nav home is the architectures portfolio", () => {
+    expect(resolvePackagesNavHref(true)).toBe(WORKING_PACKAGES_NAV_HREF);
+    expect(resolvePackagesNavHref(true)).toBe("/architecture/architectures");
+    expect(resolvePackagesNavHref(true)).not.toBe(PACKAGES_NAV_HREF);
+    expect(resolvePackagesNavHref(false)).toBe(PACKAGES_NAV_HREF);
   });
 
   it("defines the needs-attention inbox path", () => {

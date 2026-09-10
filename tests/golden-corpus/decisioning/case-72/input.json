@@ -1,0 +1,77 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000072",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000072",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000072-0000-4000-8000-000000000072",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000072",
+    "runId": "20000000-0000-4000-8000-000000000072",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "diagram-trust-boundary:0",
+        "nodeType": "TrustBoundary",
+        "label": "Corporate network",
+        "category": null,
+        "sourceType": "structured-diagram-subgraph",
+        "sourceId": "corp",
+        "properties": {},
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "diagram-node:api",
+        "nodeType": "TopologyResource",
+        "label": "Orders API",
+        "category": null,
+        "sourceType": "structured-diagram",
+        "sourceId": "api",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse",
+          "appSettings": "KeyVaultUri=https://payments-kv.vault.azure.net/secrets/db-connection"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "diagram-node:db",
+        "nodeType": "TopologyResource",
+        "label": "SQL Database",
+        "category": null,
+        "sourceType": "structured-diagram",
+        "sourceId": "db",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "obj-payments-kv",
+        "nodeType": "TopologyResource",
+        "label": "payments-kv",
+        "category": null,
+        "sourceType": "InfrastructureDeclaration",
+        "sourceId": "decl-kv",
+        "properties": {
+          "name": "payments-kv"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": null,
+        "fromNodeId": "diagram-node:api",
+        "toNodeId": "diagram-node:db",
+        "edgeType": "CONNECTS_TO",
+        "label": null,
+        "weight": 1,
+        "inferenceSource": "structured-parse",
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null,
+  "priorGraphFixture": null
+}

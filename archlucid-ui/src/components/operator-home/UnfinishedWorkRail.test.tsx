@@ -287,7 +287,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
 
     expect(screen.getByTestId("unfinished-work-rail")).toBeInTheDocument();
     expect(screen.getByText("Edge review in flight")).toBeInTheDocument();
-    expect(screen.getByText("In progress")).toBeInTheDocument();
+    expect(screen.getByText("Draft")).toBeInTheDocument();
   });
 
   it("prefers the refreshed reviews snapshot over the server-rendered runs prop", () => {
@@ -326,7 +326,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
 
     expect(screen.queryByText("Stale first paint review")).toBeNull();
     expect(screen.getByText("Refreshed review awaiting disposition")).toBeInTheDocument();
-    expect(screen.getByText("Ready for review")).toBeInTheDocument();
+    expect(screen.getByText("Action needed")).toBeInTheDocument();
   });
 
   it("hides once the refreshed snapshot reports no unfinished reviews", () => {

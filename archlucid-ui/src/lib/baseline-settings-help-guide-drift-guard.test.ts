@@ -5,6 +5,11 @@ import {
   BASELINE_SETTINGS_HELP_SOURCES,
 } from "@/lib/baseline-settings-help-evidence-copy";
 import {
+  BASELINE_SETTINGS_HELP_BUYER_OVERVIEW,
+  BASELINE_SETTINGS_HELP_PAGE_LEAD,
+  BASELINE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER,
+} from "@/lib/baseline-settings-help-page-copy";
+import {
   BASELINE_SETTINGS_HELP_GUIDE_HEADINGS,
   BASELINE_SETTINGS_HELP_NEGATION_DRIFT_MARKERS,
   BASELINE_SETTINGS_HELP_OVERVIEW,
@@ -28,6 +33,13 @@ describe("baseline settings help drift guard", () => {
 
   it("keeps overview distinct from the page subtitle", () => {
     expect(BASELINE_SETTINGS_HELP_OVERVIEW).not.toBe(BASELINE_SETTINGS_HELP_PAGE_SUBTITLE);
+  });
+
+  it("keeps buyer shell copy distinct from operator overview and subtitle", () => {
+    expect(BASELINE_SETTINGS_HELP_PAGE_LEAD).not.toBe(BASELINE_SETTINGS_HELP_OVERVIEW);
+    expect(BASELINE_SETTINGS_HELP_BUYER_OVERVIEW).not.toBe(BASELINE_SETTINGS_HELP_OVERVIEW);
+    expect(BASELINE_SETTINGS_HELP_PAGE_SUBTITLE_BUYER).not.toBe(BASELINE_SETTINGS_HELP_PAGE_SUBTITLE);
+    expect(BASELINE_SETTINGS_HELP_PAGE_LEAD).not.toBe(BASELINE_SETTINGS_HELP_BUYER_OVERVIEW);
   });
 
   it("lists five guide headings including claim discipline", () => {

@@ -15,10 +15,24 @@ export const ALERT_RULES_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to the default alert-rules hub path. */
 export const ALERT_RULES_SOURCES: readonly EvidenceSourceLink[] = [
+  { label: "Alert rules hub", href: GOVERNANCE_ALERT_RULES_PATH },
   { label: "Alert inbox", href: GOVERNANCE_ALERTS_PATH },
+  { label: "Conditions tab", href: GOVERNANCE_ALERT_RULES_PATH },
   { label: "Notifications tab", href: governanceAlertRulesTabHref("notifications") },
+  { label: "Advanced rules tab", href: governanceAlertRulesTabHref("advanced-rules") },
   { label: "Test alerts tab", href: governanceAlertRulesTabHref("test-alerts") },
   { label: "Integrations (webhooks)", href: "/integrations/webhooks" },
   { label: "How alerts work", href: inAppHelpHref("alerts") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
+
+const ALERT_RULES_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([
+  GOVERNANCE_ALERT_RULES_PATH,
+  governanceAlertRulesTabHref("notifications"),
+  governanceAlertRulesTabHref("test-alerts"),
+]);
+
+/** Hub orientation Sources — excludes self-href and in-tab destinations (SAX). */
+export const ALERT_RULES_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = ALERT_RULES_SOURCES.filter(
+  (source) => !ALERT_RULES_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+);

@@ -8,6 +8,7 @@ vi.mock("next/navigation", async (importOriginal) => {
 });
 
 import { FindingInsightDensityDisclosure } from "./FindingInsightDensityDisclosure";
+import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 
 describe("FindingInsightDensityDisclosure", () => {
   it("renders score and rationale inside disclosure", () => {
@@ -18,6 +19,9 @@ describe("FindingInsightDensityDisclosure", () => {
     expect(screen.getByTestId("finding-insight-density-disclosure")).toBeInTheDocument();
     expect(screen.getByText("72")).toBeInTheDocument();
     expect(screen.getByText("Cites a specific subnet gap.")).toBeInTheDocument();
+    expect(screen.getByTestId("finding-insight-density-typed-engine-honesty")).toHaveTextContent(
+      INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE,
+    );
   });
 
   it("renders nothing when all fields absent", () => {

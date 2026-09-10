@@ -127,6 +127,11 @@ export const EVIDENCE_INTAKE_HELP_VERIFY_STEPS: readonly EvidenceIntakeHelpVerif
     body: "Resolve upload or ZIP validation messages before you commit or finalize.",
     action: { label: "Review guide", href: inAppHelpHref("review-guide") },
   },
+  {
+    title: "Inspect stored files on the review",
+    body: "After analysis, open Submitted evidence on the review. Click a stored file name to preview it, or use Download to save a copy of the submitted source file — not the sealed package ZIP.",
+    action: { label: "Architecture reviews", href: "/architecture/reviews" },
+  },
 ] as const;
 
 export type EvidenceIntakeHelpRelatedGuide = {

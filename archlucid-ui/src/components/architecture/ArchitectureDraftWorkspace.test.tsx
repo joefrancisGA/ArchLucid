@@ -81,6 +81,21 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
   useArchitectureDraftRegistryEntries: vi.fn(() => []),
 }));
 
+const useArchitectureIdentityQueryMock = vi.fn(() => ({
+  isLoading: false,
+  isError: false,
+  data: {
+    architectureId: "architecture-identity-001",
+    displayName: "Claims intake",
+    archivedUtc: null,
+  },
+  refetch: vi.fn(),
+}));
+
+vi.mock("@/hooks/use-architecture-identity-query", () => ({
+  useArchitectureIdentityQuery: (...args: unknown[]) => useArchitectureIdentityQueryMock(...args),
+}));
+
 vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   useLlmMonthlyBudgetExecutionGate: () => ({
     loading: false,
@@ -549,14 +564,19 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByLabelText(/Architecture overview/i)).toBeDisabled();
   });
 
-  it("Working mode renders handoff panel without editable fields when spawn-locked (LK-04)", async () => {
+  it("Working mode renders handoff panel without editable fields when spawn-locked (LK-04 / AO-07)", async () => {
     workspaceModeMock.mockReturnValue({
       mode: "working",
       isWorkingMode: true,
       isGuidedMode: false,
     });
 
-    render(<ArchitectureDraftWorkspace draftId="arch-001" />);
+    render(
+      <ArchitectureDraftWorkspace
+        draftId="arch-001"
+        parentArchitectureId="architecture-identity-001"
+      />,
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-handoff-panel")).toBeInTheDocument();
@@ -566,8 +586,74 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-handoff-open-review")).toHaveAttribute(
       "href",
+      "/architecture/architectures/architecture-identity-001/reviews/run-001",
+    );
+    expect(screen.getByTestId("architecture-draft-handoff-open-review")).not.toHaveAttribute(
+      "href",
       "/architecture/reviews/run-001",
     );
+  });
+
+  it("AO-24: nested Working draft shows identity chrome, desk back link, and disables autosave when spawn-locked", async () => {
+    workspaceModeMock.mockReturnValue({
+      mode: "working",
+      isWorkingMode: true,
+      isGuidedMode: false,
+    });
+
+    render(
+      <ArchitectureDraftWorkspace
+        draftId="arch-001"
+        parentArchitectureId="architecture-identity-001"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("working-nested-architecture-identity-chrome")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("link", { name: "Back to architecture desk" })).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001",
+    );
+    expect(screen.queryByTestId("architecture-draft-save-status")).not.toBeInTheDocument();
+    expect(vi.mocked(useArchitectureDraftAutosave)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        enabled: false,
+      }),
+    );
+  });
+
+  it("AO-24: nested Working draft editor shows identity chrome and desk back link while drafting", async () => {
+    workspaceModeMock.mockReturnValue({
+      mode: "working",
+      isWorkingMode: true,
+      isGuidedMode: false,
+    });
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      architectureId: "architecture-identity-001",
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(
+      <ArchitectureDraftWorkspace
+        draftId="arch-001"
+        parentArchitectureId="architecture-identity-001"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("working-nested-architecture-identity-chrome")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("link", { name: "Back to architecture desk" })).toHaveAttribute(
+      "href",
+      "/architecture/architectures/architecture-identity-001",
+    );
+    expect(screen.getByTestId("architecture-scope-understanding-check")).toBeInTheDocument();
   });
 
   it("warns at the top and freezes the form when the draft is already in review intake", async () => {

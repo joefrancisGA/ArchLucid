@@ -7,13 +7,41 @@ const mockToggle = vi.fn();
 const mockTest = vi.fn();
 const mockDryRun = vi.fn();
 
+const navigationMocks = vi.hoisted(() => {
+  let searchParams = new URLSearchParams();
+  const replace = vi.fn((href: string) => {
+    const queryIndex = href.indexOf("?");
+
+    searchParams = new URLSearchParams(queryIndex >= 0 ? href.slice(queryIndex + 1) : "");
+  });
+
+  return {
+    replace,
+    searchParams: (): URLSearchParams => searchParams,
+    resetSearchParams: (): void => {
+      searchParams = new URLSearchParams();
+    },
+  };
+});
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/integrations/slack",
+  useRouter: () => ({ push: vi.fn(), replace: navigationMocks.replace, refresh: vi.fn() }),
+  useSearchParams: () => navigationMocks.searchParams(),
 }));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => true,
 }));
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
 
 vi.mock("@/lib/api", () => ({
   listAlertRoutingSubscriptions: (...args: unknown[]) => mockList(...args),
@@ -35,6 +63,8 @@ import {
 } from "@/lib/admin-integration-mutation-outcome-copy";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { SLACK_INTEGRATION_SOURCES } from "@/lib/slack-integration-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   SLACK_ACTION_REFRESH,
   SLACK_FIELD_DESTINATION_NAME_LABEL,
@@ -50,6 +80,7 @@ import { showSuccess } from "@/lib/toast";
 describe("SlackIntegrationPageClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    navigationMocks.resetSearchParams();
     mockList.mockResolvedValue([]);
     mockCreate.mockResolvedValue({});
     mockToggle.mockResolvedValue({});
@@ -102,13 +133,10 @@ describe("SlackIntegrationPageClient", () => {
 
     const sources = screen.getByTestId("slack-integration-sources");
 
-    for (const link of SLACK_INTEGRATION_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    for (const link of filterWhereToGoNextFollowUpLinks(SLACK_INTEGRATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
+      expect(within(sources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
     }
-
-    const readinessLinks = within(sources).getAllByRole("link", { name: "Integration readiness" });
-    expect(readinessLinks).toHaveLength(1);
-    expect(readinessLinks[0]).toHaveAttribute("href", INTEGRATIONS_READINESS_PATH);
   });
 
   it("stacks setup guidance below the connect form (TB-1575 / TB-1576 demoted single-column)", async () => {

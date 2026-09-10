@@ -110,13 +110,17 @@ public sealed class ArchitectureReviewBoardSimulatorModeExportTests
             authorityQuery,
             manifestHashService,
             Mock.Of<IGraphSnapshotRepository>(),
+            Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             analysis.Object,
             scope.Object,
             Mock.Of<ITenantRepository>(),
             Mock.Of<IRunExplanationSummaryService>(),
             tenantReviewBoardCoverLogoStore: null,
+            Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
             new ArchitectureReviewDocxBuilder(),
-            new ArchitectureReviewPdfBuilder());
+            new ArchitectureReviewPdfBuilder(),
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
 
         ExportResult result =
             await sut.GenerateReportAsync(runId, ExportFormat.Html, whitelabel: null, logoImageBytes: null, httpCorrelationId: null,
