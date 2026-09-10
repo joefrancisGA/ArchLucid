@@ -2,6 +2,8 @@ using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 
+using CoreArchitectureShareRoles = ArchLucid.Core.Persistence.ApplicationPorts.Architecture.ArchitectureShareRoles;
+
 namespace ArchLucid.Application.Architecture;
 
 /// <summary>AS-090: View / Decide / Admin share roles intersect existing authority — no parallel kernel.</summary>
@@ -25,7 +27,7 @@ public static class ArchitectureShareAccessEvaluator
             return true;
 
         return shareForActor is not null
-            && string.Equals(shareForActor.Role, ArchitectureShareRoles.Admin, StringComparison.Ordinal);
+            && string.Equals(shareForActor.Role, CoreArchitectureShareRoles.Admin, StringComparison.Ordinal);
     }
 
     public static bool CanDecide(
@@ -44,14 +46,14 @@ public static class ArchitectureShareAccessEvaluator
         if (shareForActor is null)
             return false;
 
-        return string.Equals(shareForActor.Role, ArchitectureShareRoles.Decide, StringComparison.Ordinal)
-            || string.Equals(shareForActor.Role, ArchitectureShareRoles.Admin, StringComparison.Ordinal);
+        return string.Equals(shareForActor.Role, CoreArchitectureShareRoles.Decide, StringComparison.Ordinal)
+            || string.Equals(shareForActor.Role, CoreArchitectureShareRoles.Admin, StringComparison.Ordinal);
     }
 
     public static bool RoleAllowsDecide(string role) =>
-        string.Equals(role, ArchitectureShareRoles.Decide, StringComparison.Ordinal)
-        || string.Equals(role, ArchitectureShareRoles.Admin, StringComparison.Ordinal);
+        string.Equals(role, CoreArchitectureShareRoles.Decide, StringComparison.Ordinal)
+        || string.Equals(role, CoreArchitectureShareRoles.Admin, StringComparison.Ordinal);
 
     public static bool RoleAllowsAdmin(string role) =>
-        string.Equals(role, ArchitectureShareRoles.Admin, StringComparison.Ordinal);
+        string.Equals(role, CoreArchitectureShareRoles.Admin, StringComparison.Ordinal);
 }
