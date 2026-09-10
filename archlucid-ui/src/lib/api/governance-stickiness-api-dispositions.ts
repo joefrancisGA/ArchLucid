@@ -1,7 +1,5 @@
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiPostJson } from "./http";
+import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
-
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPostJson } from "./http";
 import {

@@ -243,7 +243,6 @@ export function RunDetailReviewPackageDoThisNextResolved(
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
-        manifestVersion={props.manifestId}
         architectureRequestId={props.architectureRequestId}
         manifestVersion={props.manifestId}
         suppressMeasurementDenominator={suppressMeasurementDenominator}

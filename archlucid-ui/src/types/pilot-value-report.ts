@@ -41,4 +41,3 @@ export type PilotValueReportJson = Omit<
     averagePipelineCompletionSeconds: number | null;
     roiSourceFreshnessDisposition?: string;
   };
-    roiSourceFreshnessDisposition?: string;  };
