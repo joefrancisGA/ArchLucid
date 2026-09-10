@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8043,6 +8043,18 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `AzureExtractorPackageZipValidator` accepts malformed `resources.json` when manifest schema is valid — **cheap-disproof 2026-09-10 seed hunt #1597:** schema rejection with JSON error detail; regression `Validate_rejects_malformed_resources_json`.
 
 2026-09-10 seed hunt #1597 (seed-only): reseeded core-azure-extractor after #1596; cheap-disproof closed `type`/SKU/companion-array/null-property inventory reader paths, manifest v1→v2 upgrader defaults, ResourceInventoryReader malformed JSON handling, and ZipValidator malformed resources.json rejection; 898 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) `MapResourceRow` drops rows when `resourceId`/`id` absent even though `name` is present — **cheap-disproof 2026-09-10 seed hunt #1598:** `name` fallback populates `AzureResourceId`; regression `TryReadFromZip_uses_name_as_resource_id_when_arm_id_missing`.
+- [x] (valid-no-repro) Non-string tag values are copied verbatim into tag dictionary — **cheap-disproof 2026-09-10 seed hunt #1598:** non-string tag values skipped; regression `TryReadFromZip_skips_non_string_tag_values`.
+- [x] (valid-no-repro) Boolean/number property values throw or are omitted from `properties` map — **cheap-disproof 2026-09-10 seed hunt #1598:** scalars serialize to string tokens; regression `TryReadFromZip_serializes_boolean_and_number_property_values`.
+- [x] (valid-no-repro) Object `sku.name` values are ignored in PackageInventoryReader — **cheap-disproof 2026-09-10 seed hunt #1598:** object SKU name extracted; regression `TryReadFromZip_reads_object_sku_name_property`.
+- [x] (valid-no-repro) Explicit `resourceGroup` on row is overwritten by ARM id parsing — **cheap-disproof 2026-09-10 seed hunt #1598:** row value preferred over parsed id; regression `TryReadFromZip_prefers_explicit_resource_group_on_row`.
+- [x] (valid-no-repro) Valid `diagnostic-settings.json` companion array is dropped while resources load — **cheap-disproof 2026-09-10 seed hunt #1598:** companion arrays surface on read result; regression `TryReadFromZip_reads_valid_diagnostic_settings_companion_array`.
+- [x] (valid-no-repro) `TryUpgradeManifestJson` schema 0 upgrade omits legacy `scriptVersion`/`switchesUsed` defaults — **cheap-disproof 2026-09-10 seed hunt #1598:** zero upgrade seeds legacy defaults before v2 hop; regression `TryUpgradeManifestJson_upgrades_schema_zero_with_legacy_defaults`.
+- [x] (valid-no-repro) `AzureExtractorPackageZipValidator` misses `manifest.json` when ZIP entry casing differs — **cheap-disproof 2026-09-10 seed hunt #1598:** ordinal-ignore-case fallback; regression `Validate_resolves_manifest_entry_case_insensitively`.
+- [x] (valid-no-repro) `ValidateFile` only checks path existence and does not validate archive contents — **cheap-disproof 2026-09-10 seed hunt #1598:** on-disk ZIP validated via `Validate`; regression `ValidateFile_validates_existing_zip_on_disk`.
+
+2026-09-10 seed hunt #1598 (seed-only): reseeded core-azure-extractor after #1597; cheap-disproof closed name fallback, tag/property scalar handling, object SKU, explicit resourceGroup precedence, diagnostic-settings companion success path, schema-0 upgrader defaults, and ZipValidator case-insensitive manifest / ValidateFile success; 907 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
