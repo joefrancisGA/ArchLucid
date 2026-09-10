@@ -93,6 +93,10 @@
 | Model-promotion cohort ratios = per-run package safety | Lane C only |
 | One fused “faithfulness score” seals the package | Three-lane split |
 | PilotStrict green = Real live-model faithfulness proof | **M-166** mode honesty |
+| Support band / semantic chip = semantically verified seal | Heuristic/async Working signal; opt-in PilotStrict Unsupported hold only (**AS-065**, default off) |
+| Faithfulness-gated seal (default) | Structural provenance (0082) + optional AS-065 hold — not semantic legal truth |
+
+**Related (AS-067):** `scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py` blocks seal-truth overclaims on buyer/GTM stubs.
 
 ---
 
@@ -101,7 +105,7 @@
 | Anchor | Purpose |
 | --- | --- |
 | This contract + buyer packet **M-209**/**M-210** | Required cite near faithfulness / support-ratio lane language |
-| `scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py` | Fail buyer stubs: semantic faithfulness = commit gate / cohort ratio = package safety / PilotStrict = Real proof |
+| `scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py` | Fail buyer stubs: semantic faithfulness = commit gate / cohort ratio = package safety / PilotStrict = Real proof / support band = semantically verified seal (AS-067) |
 | Code presence | `AgentOutputQualityGate`, `GoldenCohortFineTuningPromotionGate` |
 
 ---
