@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
+import { findingSemanticSupportBandFromTypedPayload } from "@/components/findings/FindingSemanticSupportBandInspectSection";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { FindingItsmExportPanel } from "@/components/findings/FindingItsmExportPanel";
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
@@ -318,7 +319,22 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
         summaryLine="Ask, ITSM workflow, and feedback"
       >
         <div className="space-y-4">
-          <FindingAskInlinePanel findingId={decodedFindingId} runId={runId} />
+          <FindingAskInlinePanel
+            findingId={decodedFindingId}
+            runId={runId}
+            semanticSupportBand={findingSemanticSupportBandFromTypedPayload(
+              inspectPayload.typedPayload !== null && typeof inspectPayload.typedPayload === "object"
+                ? (inspectPayload.typedPayload as Record<string, unknown>)
+                : null,
+              inspectPayload.typedPayload !== null
+              && typeof inspectPayload.typedPayload === "object"
+              && ((inspectPayload.typedPayload as Record<string, unknown>).classification === "DecisionGradeFinding"
+                || (inspectPayload.typedPayload as Record<string, unknown>).classification === "ChecklistCoverage")
+                ? ((inspectPayload.typedPayload as Record<string, unknown>).classification as
+                    "DecisionGradeFinding" | "ChecklistCoverage")
+                : null,
+            )}
+          />
           <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
           {isOperatorExperienceFullShellEnv() ? (
             <ProductLearningFeedbackControls
