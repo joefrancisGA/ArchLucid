@@ -4820,6 +4820,19 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     }
 
     [Fact]
+    public void RedactStructuredJson_redacts_sensitive_boolean_scalar_values()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"settings":{"apiKey":true,"enabled":false}}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("[REDACTED]");
+        redacted.Should().NotContain("true");
+        redacted.Should().Contain("false");
+    }
+
+    [Fact]
     public void RedactStructuredJson_redacts_sensitive_scalar_in_nested_object()
     {
         using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(

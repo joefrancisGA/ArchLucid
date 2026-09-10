@@ -98,6 +98,60 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_rejects_manifest_missing_schemaVersion()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 1,
+            includeResources: true,
+            manifestJson: """{"subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}""");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("schemaVersion");
+    }
+
+    [Fact]
+    public void Validate_rejects_manifest_with_non_object_root()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 1,
+            includeResources: true,
+            manifestJson: """[]""");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("schemaVersion");
+    }
+
+    [Fact]
+    public void Validate_accepts_empty_optional_companion_array()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            optionalEntryName: AzureExtractorPackageZipEntryNames.RoleAssignments,
+            optionalEntryJson: "[]");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+        result.IsSchemaRejection.Should().BeFalse();
+    }
+
+    [Fact]
     public void Validate_unsupported_schema_is_schema_rejection()
     {
         byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 99, includeResources: true);
@@ -559,6 +613,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
         bool pascalCaseSchemaVersion = false,
         bool stringSchemaVersion = false,
         string? rawSchemaVersion = null,
+        string? manifestJson = null,
         string resourcesJson = "[]",
         string? optionalEntryName = null,
         string? optionalEntryJson = null)
@@ -576,6 +631,10 @@ public sealed class AzureExtractorPackageZipValidatorTests
                 if (malformedManifest)
                 {
                     writer.Write("{ not-valid-json");
+                }
+                else if (manifestJson is not null)
+                {
+                    writer.Write(manifestJson);
                 }
                 else
                 {
