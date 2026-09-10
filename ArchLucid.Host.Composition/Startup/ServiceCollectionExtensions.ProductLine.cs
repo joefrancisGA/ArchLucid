@@ -1,4 +1,5 @@
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.ProductCapability;
 using ArchLucid.Core.ProductLine;
 using ArchLucid.Host.Core.ProductLine;
 
@@ -14,5 +15,6 @@ public static partial class ServiceCollectionExtensions
 
         services.Configure<ProductLineDeploymentOptions>(configuration.GetSection(ProductLineDeploymentOptions.SectionName));
         services.AddSingleton<IProductLineRequestAccessor, ProductLineRequestAccessor>();
+        services.AddSingleton<IProductCapabilityControllerCatalog, ProductCapabilityControllerCatalog>();
     }
 }
