@@ -1788,3 +1788,4 @@
 {"at":"2026-09-10T15:24:13.3245047Z","zoneId":"email-otp-auth","outcome":"seed-only"}
 {"at":"2026-09-10T15:30:50.1983798Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
 {"at":"2026-09-10T15:37:30.2201718Z","zoneId":"email-otp-auth","outcome":"seed-only"}
+{"at":"2026-09-10T15:41:04.0495612Z","zoneId":"core-authority-runs","outcome":"seed-only"}
