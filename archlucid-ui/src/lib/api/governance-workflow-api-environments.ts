@@ -1,6 +1,6 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
-import { governanceEnvironmentCatalogBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
+import { governanceActivationsBlockedReason, governanceEnvironmentCatalogBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
 import { governanceEnvironmentCatalogMutationBlockedReason } from "@/lib/governance/governance-environment-catalog-mutation-blocked-reason";
 import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/governance-workflow-mutation-blocked-reason";
 
@@ -48,9 +48,16 @@ export async function listActivations(runId: string): Promise<GovernanceEnvironm
     return [];
   }
 
-  return apiGetSealedManifestAware<GovernanceEnvironmentActivation[]>(
-    `${governanceBase()}/runs/${encodeURIComponent(runId)}/activations`,
-  );
+  try {
+    return await apiGetSealedManifestAware<GovernanceEnvironmentActivation[]>(
+      `${governanceBase()}/runs/${encodeURIComponent(runId)}/activations`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceActivationsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Returns the administrator-defined governance environment catalog for the current scope. */

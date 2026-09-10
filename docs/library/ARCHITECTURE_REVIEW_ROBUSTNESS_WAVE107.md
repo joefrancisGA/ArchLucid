@@ -23,4 +23,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave107Ar
 
 **Hasher baseline note:** wave 107 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** wave 86/90 guard-partial action-level mapper follow-ups — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE108.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE108.md) (1281–1292) when opened.
+**Deferred:** wave 86/90 guard-partial action-level mapper follow-ups — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE109.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE109.md) (1293–1304) when opened.
