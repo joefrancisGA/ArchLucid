@@ -33,4 +33,14 @@ public sealed class EvalCorpusFindingSeverityJsonConverterTests
         act.Should().Throw<JsonException>()
             .WithMessage("*Unknown finding severity value*");
     }
+
+    [Theory]
+    [InlineData("\"\"", FindingSeverity.Info)]
+    [InlineData("\"   \"", FindingSeverity.Info)]
+    public void Read_whitespace_only_severity_defaults_to_info(string json, FindingSeverity expected)
+    {
+        FindingSeverity value = JsonSerializer.Deserialize<FindingSeverity>(json, Options);
+
+        value.Should().Be(expected);
+    }
 }

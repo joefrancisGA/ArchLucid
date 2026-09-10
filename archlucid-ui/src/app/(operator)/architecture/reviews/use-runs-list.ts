@@ -335,6 +335,15 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
   const showCompareSelection = safeRuns.length >= 2 && !showBuyerPackageCards;
 
+  useEffect(() => {
+    if (showCompareSelection || compareSelection.length === 0) {
+      return;
+    }
+
+    setCompareSelection([]);
+    setCompareSelectionNotice(null);
+  }, [compareSelection.length, setCompareSelection, showCompareSelection]);
+
   const toggleCompareSelection = useCallback((runId: string) => {
     setCompareSelection((current) => {
       if (current.includes(runId)) {

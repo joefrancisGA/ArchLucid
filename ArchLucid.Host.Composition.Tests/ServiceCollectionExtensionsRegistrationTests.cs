@@ -288,6 +288,60 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
     }
 
     [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_oidc_authority_startup_probe()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(OidcAuthorityStartupProbeHostedService));
+
+        registered.Should().BeTrue(
+            "OIDC authority reachability probe runs on every replica before accepting traffic");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_saml_signing_certificate_startup_warning()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(SamlSigningCertificateStartupWarningHostedService));
+
+        registered.Should().BeTrue(
+            "SAML signing certificate expiry warning runs on every replica at startup");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_leader_elected_outbox_operational_metrics()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(OutboxOperationalMetricsHostedService));
+
+        registered.Should().BeTrue(
+            "OutboxOperationalMetricsHostedService registers on Api but scrapes SQL only under HostLeaderElectionCoordinator");
+    }
+
+    [Fact]
     public void CosmosGraphSnapshotOutboxHostedService_is_not_registered_for_Api_role_even_when_GraphSnapshotsEnabled()
     {
         IConfiguration configuration = CreateSqlCompositionTestConfiguration(

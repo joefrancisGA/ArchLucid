@@ -68,12 +68,23 @@ public static class FindingDispositionValidation
                     nameof(request));
             }
         }
-        else if (!string.IsNullOrWhiteSpace(request.Rationale)
-            && request.Rationale.Trim().Length > MaximumRationaleLength)
+        else if (!string.IsNullOrWhiteSpace(request.Rationale))
         {
-            throw new ArgumentException(
-                $"Rationale must not exceed {MaximumRationaleLength} characters.",
-                nameof(request));
+            string normalizedOptionalRationale = request.Rationale.Trim();
+
+            if (!HasSubstantiveText(normalizedOptionalRationale))
+            {
+                throw new ArgumentException(
+                    "Rationale must contain visible characters when provided.",
+                    nameof(request));
+            }
+
+            if (normalizedOptionalRationale.Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Rationale must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
         }
 
         if (request.Disposition == Disposition.Accepted)
@@ -129,12 +140,23 @@ public static class FindingDispositionValidation
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(request.ArchitectRestatement)
-            && request.ArchitectRestatement.Trim().Length > MaximumRationaleLength)
+        if (!string.IsNullOrWhiteSpace(request.ArchitectRestatement))
         {
-            throw new ArgumentException(
-                $"Architect restatement must not exceed {MaximumRationaleLength} characters.",
-                nameof(request));
+            string normalizedArchitectRestatement = request.ArchitectRestatement.Trim();
+
+            if (!HasSubstantiveText(normalizedArchitectRestatement))
+            {
+                throw new ArgumentException(
+                    "Architect restatement must contain visible characters when provided.",
+                    nameof(request));
+            }
+
+            if (normalizedArchitectRestatement.Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Architect restatement must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
         }
     }
 
