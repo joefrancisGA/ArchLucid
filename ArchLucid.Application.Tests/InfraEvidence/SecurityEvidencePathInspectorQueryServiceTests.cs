@@ -30,7 +30,11 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         InMemoryFindingRepository findingRepository = new();
         findingRepository.StoredFindings.Add(CreateFinding(FindingId, PathId, CloudResourceId));
 
-        SecurityEvidencePathInspectorQueryService sut = new(pathRepository, findingRepository, new InMemoryCutPointRepository());
+        SecurityEvidencePathInspectorQueryService sut = new(
+            pathRepository,
+            findingRepository,
+            new InMemoryCutPointRepository(),
+            new InMemoryRoutingRepository());
 
         SecurityEvidencePathDetailResponse? detail = await sut.TryGetPathDetailAsync(scope, PathId, CancellationToken.None);
 
@@ -50,6 +54,42 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
     }
 
     [Fact]
+    public async Task TryGetPathDetailAsync_includes_routing_rows_from_repository()
+    {
+        ScopeContext scope = CreateScope();
+        InMemoryPathRepository pathRepository = CreateSamplePathRepository();
+        InMemoryFindingRepository findingRepository = new();
+        InMemoryRoutingRepository routingRepository = new();
+        routingRepository.StoredRows.Add(new SecurityEvidencePathRoutingRecord
+        {
+            RoutingRowId = Guid.NewGuid(),
+            TenantId = TenantId,
+            PathId = PathId,
+            Role = SecurityEvidencePathRoutingRole.BusinessOwner,
+            PrincipalId = "platform@contoso.com",
+            DisplayName = "platform@contoso.com",
+            ProvenanceKind = ProvenanceKind.DerivedFact,
+            SourceReference = "tag:owner@/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        });
+
+        SecurityEvidencePathInspectorQueryService sut = new(
+            pathRepository,
+            findingRepository,
+            new InMemoryCutPointRepository(),
+            routingRepository);
+
+        SecurityEvidencePathDetailResponse? detail = await sut.TryGetPathDetailAsync(scope, PathId, CancellationToken.None);
+
+        detail.Should().NotBeNull();
+        detail!.Routing.Should().ContainSingle();
+        detail.Routing[0].Role.Should().Be(SecurityEvidencePathRoutingRole.BusinessOwner.ToString());
+        detail.Routing[0].PrincipalId.Should().Be("platform@contoso.com");
+        detail.Routing[0].ProvenanceKind.Should().Be(ProvenanceKind.DerivedFact.ToString());
+    }
+
+    [Fact]
     public async Task TryGetPathDetailAsync_foreign_tenant_returns_null()
     {
         ScopeContext ownerScope = CreateScope();
@@ -63,7 +103,8 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         SecurityEvidencePathInspectorQueryService sut = new(
             CreateSamplePathRepository(),
             new InMemoryFindingRepository(),
-            new InMemoryCutPointRepository());
+            new InMemoryCutPointRepository(),
+            new InMemoryRoutingRepository());
 
         SecurityEvidencePathDetailResponse? detail = await sut.TryGetPathDetailAsync(
             foreignScope,
@@ -81,7 +122,11 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         InMemoryFindingRepository findingRepository = new();
         findingRepository.StoredFindings.Add(CreateFinding(FindingId, PathId, CloudResourceId));
 
-        SecurityEvidencePathInspectorQueryService sut = new(pathRepository, findingRepository, new InMemoryCutPointRepository());
+        SecurityEvidencePathInspectorQueryService sut = new(
+            pathRepository,
+            findingRepository,
+            new InMemoryCutPointRepository(),
+            new InMemoryRoutingRepository());
 
         PagedResponse<SecurityEvidencePathSummaryResponse> filtered = await sut.ListPathsAsync(
             scope,
@@ -117,7 +162,11 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         InMemoryFindingRepository findingRepository = new();
         findingRepository.StoredFindings.Add(CreateFinding(FindingId, PathId, CloudResourceId));
 
-        SecurityEvidencePathInspectorQueryService sut = new(pathRepository, findingRepository, new InMemoryCutPointRepository());
+        SecurityEvidencePathInspectorQueryService sut = new(
+            pathRepository,
+            findingRepository,
+            new InMemoryCutPointRepository(),
+            new InMemoryRoutingRepository());
 
         SecurityEvidencePathDetailResponse? detail = await sut.TryGetPathDetailAsync(scope, PathId, CancellationToken.None);
 
@@ -413,5 +462,30 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
             IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
+    }
+
+    private sealed class InMemoryRoutingRepository : ISecurityEvidencePathRoutingRepository
+    {
+        public List<SecurityEvidencePathRoutingRecord> StoredRows { get; } = [];
+
+        public Task<IReadOnlyList<SecurityEvidencePathRoutingRecord>> ListByPathIdAsync(
+            Guid tenantId,
+            Guid pathId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<SecurityEvidencePathRoutingRecord>>(
+                StoredRows
+                    .Where(row => row.TenantId == tenantId && row.PathId == pathId)
+                    .ToList());
+
+        public Task ReplaceRoutingForPathAsync(
+            Guid tenantId,
+            Guid pathId,
+            IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows,
+            CancellationToken cancellationToken = default)
+        {
+            StoredRows.RemoveAll(row => row.TenantId == tenantId && row.PathId == pathId);
+            StoredRows.AddRange(routingRows);
+            return Task.CompletedTask;
+        }
     }
 }

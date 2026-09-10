@@ -1,6 +1,8 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Contracts.InfraEvidence;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
@@ -25,6 +27,7 @@ namespace ArchLucid.Api.Controllers.OperationalSecurity;
 public sealed class OperationalSecurityPathsController(
     ISecurityEvidencePathInspectorQueryService pathInspectorQueryService,
     ISecurityEvidencePathRankQueryService pathRankQueryService,
+    ISecurityEvidencePathExplanationService pathExplanationService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
     [HttpGet]
@@ -143,5 +146,56 @@ public sealed class OperationalSecurityPathsController(
         }
 
         return Ok(detail);
+    }
+
+    [HttpPost("{pathId:guid}/explanations")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Path explanations are persisted AiInference artifacts with cited hop evidence refs.")]
+    [ProducesResponseType(typeof(SecurityEvidencePathExplanationResultResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> BuildPathExplanation(
+        Guid pathId,
+        [FromBody] BuildSecurityEvidencePathExplanationRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (pathId == Guid.Empty)
+        {
+            return this.BadRequestProblem("PathId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (request is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        SecurityEvidencePathExplanationResult result = await pathExplanationService.TryBuildExplanationAsync(
+            scope,
+            pathId,
+            request.UseSimulator,
+            request.AllowInsufficientEvidence,
+            cancellationToken);
+
+        if (!result.Succeeded)
+        {
+            if (result.ErrorMessage?.Contains("not found", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return this.NotFoundProblem(result.ErrorMessage, ProblemTypes.ResourceNotFound);
+            }
+
+            return this.BadRequestProblem(
+                result.ErrorMessage ?? "Path explanation generation failed.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return Ok(new SecurityEvidencePathExplanationResultResponse
+        {
+            Succeeded = true,
+            Explanation = result.Explanation is null
+                ? null
+                : SecurityEvidencePathExplanationBuilder.MapResponse(result.Explanation),
+        });
     }
 }
