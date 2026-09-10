@@ -45,6 +45,18 @@ public sealed class RemediationInstanceSummary
         init;
     }
 
+    public Guid? PathId
+    {
+        get;
+        init;
+    }
+
+    public RemediationPathNarrative? PathNarrative
+    {
+        get;
+        init;
+    }
+
     public Guid? WaveId
     {
         get;
@@ -283,6 +295,8 @@ public sealed class RemediationInstanceQueryService(
             Status = instance.Status,
             AutomationLevel = instance.AutomationLevel,
             CloudResourceId = instance.CloudResourceId,
+            PathId = instance.PathId,
+            PathNarrative = RemediationPathNarrativeJson.TryDeserialize(instance.PathNarrativeJson),
             WaveId = instance.WaveId,
             PreflightSnapshotId = instance.PreflightSnapshotId,
             ExecutionSnapshotId = instance.ExecutionSnapshotId,

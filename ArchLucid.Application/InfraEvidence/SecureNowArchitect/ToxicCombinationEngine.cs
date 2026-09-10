@@ -17,7 +17,8 @@ public sealed class ToxicCombinationEngine(
         ScopeContext scope,
         Guid snapshotId,
         string actorId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        SecureNowArchitectEngineRunScope? runScope = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -73,6 +74,27 @@ public sealed class ToxicCombinationEngine(
             reachabilityPaths,
             privilegePaths,
             egressBySubnetArmId);
+
+        if (runScope is { IsFullEstate: false })
+        {
+            IReadOnlyDictionary<string, Guid> cloudResourceIdByArmId =
+                SecureNowArchitectNeighborhoodFilter.BuildCloudResourceIdByArmId(snapshot);
+
+            Dictionary<Guid, ToxicCombinationPathSnapshot> reachabilityByPathId = reachabilityPaths
+                .ToDictionary(path => path.Path.PathId);
+
+            Dictionary<Guid, ToxicCombinationPathSnapshot> privilegeByPathId = privilegePaths
+                .ToDictionary(path => path.Path.PathId);
+
+            candidates = candidates
+                .Where(candidate => SecureNowArchitectNeighborhoodFilter.ToxicCombinationTouchesSeeds(
+                    candidate,
+                    runScope.SeedCloudResourceIds,
+                    reachabilityByPathId,
+                    privilegeByPathId,
+                    cloudResourceIdByArmId))
+                .ToList();
+        }
 
         if (candidates.Count == 0)
         {
