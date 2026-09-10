@@ -88,32 +88,40 @@ public sealed partial class ExplanationController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AggregateRunExplanation(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
 
-        if (detail?.GoldenManifest is null)
-            return this.NotFoundProblem(
-                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
-                ProblemTypes.RunNotFound);
+            if (detail?.GoldenManifest is null)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                    ProblemTypes.RunNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        RunExplanationSummary? summary = await runExplanationSummary.GetSummaryAsync(scope, runId, ct);
-        if (summary is null)
-            return this.NotFoundProblem(
-                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
-                ProblemTypes.RunNotFound);
+            RunExplanationSummary? summary = await runExplanationSummary.GetSummaryAsync(scope, runId, ct);
 
-        FindingsListAccessTelemetry.LogFindingSnapshotExpose(
-            _logger,
-            scope,
-            runId,
-            nameof(AggregateRunExplanation),
-            summary.FindingCount);
+            if (summary is null)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                    ProblemTypes.RunNotFound);
 
-        return Ok(summary);
+            FindingsListAccessTelemetry.LogFindingSnapshotExpose(
+                _logger,
+                scope,
+                runId,
+                nameof(AggregateRunExplanation),
+                summary.FindingCount);
+
+            return Ok(summary);
+        }
+        catch (ConflictException ex)
+        {
+            return MapExplanationSealedManifestConflict(ex);
+        }
     }
 }
