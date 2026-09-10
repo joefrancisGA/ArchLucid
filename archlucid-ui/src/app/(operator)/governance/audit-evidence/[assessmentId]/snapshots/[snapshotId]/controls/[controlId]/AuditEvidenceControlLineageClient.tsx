@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -33,6 +34,7 @@ import {
   AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_RETRY_ACTION,
   AUDIT_EVIDENCE_CONTROL_LINEAGE_SKIP_LINK_LABEL,
+  AUDIT_EVIDENCE_PACKAGE_DOWNLOAD_ERROR_TITLE,
 } from "@/lib/audit-evidence-page-copy";
 
 import {
@@ -40,8 +42,8 @@ import {
   parseAuditEvidenceLineageChainOpenFromSearch,
 } from "@/lib/governance/audit-evidence-lineage-chain-url";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatGovernanceInfrastructureInlineActionError } from "@/lib/governance/governance-infrastructure-copy";
 
-import { showError } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 import { AuditEvidenceControlLineageBreadcrumb } from "./AuditEvidenceControlLineageBreadcrumb";
@@ -63,6 +65,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const lineageChainOpenParam = searchParams.get("lineageChainOpen");
   const lineageQuery = useAuditEvidenceLineageQuery(props.assessmentId, props.snapshotId, props.controlId);
   const [packageDownloadBusy, setPackageDownloadBusy] = useState(false);
+  const [packageDownloadError, setPackageDownloadError] = useState<string | null>(null);
   const [chainExpanded, setChainExpandedState] = useState(() =>
     parseAuditEvidenceLineageChainOpenFromSearch(lineageChainOpenParam),
   );
@@ -105,6 +108,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
 
   const onDownloadEvidencePackage = useCallback(async () => {
     setPackageDownloadBusy(true);
+    setPackageDownloadError(null);
 
     try {
       await downloadAuditEvidencePackageZip(props.assessmentId, props.snapshotId);
@@ -112,9 +116,11 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
       const failure = toApiLoadFailure(error);
       const blocked = auditEvidencePackageBlockedReason(failure);
 
-      showError(
-        "Audit evidence package download failed",
-        blocked ?? (error instanceof Error ? error.message : String(error)),
+      setPackageDownloadError(
+        formatGovernanceInfrastructureInlineActionError(
+          AUDIT_EVIDENCE_PACKAGE_DOWNLOAD_ERROR_TITLE,
+          blocked ?? (error instanceof Error ? error.message : String(error)),
+        ),
       );
     } finally {
       setPackageDownloadBusy(false);
@@ -141,6 +147,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
             size="sm"
             disabled={packageDownloadBusy}
             data-testid="audit-evidence-package-download"
+            aria-describedby={packageDownloadError != null ? "audit-evidence-package-download-error" : undefined}
             onClick={() => {
               void onDownloadEvidencePackage();
             }}
@@ -148,6 +155,12 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
             {packageDownloadBusy ? "Preparing package…" : "Download evidence package (ZIP)"}
           </Button>
         </div>
+        {packageDownloadError != null ? (
+          <OperatorMutationInlineError
+            message={packageDownloadError}
+            testId="audit-evidence-package-download-error"
+          />
+        ) : null}
       </header>
 
       <main

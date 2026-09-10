@@ -5,3 +5,6 @@ export const GOVERNANCE_ENVIRONMENTS_PAGE_TITLE = "Approval environments" as con
 
 export const GOVERNANCE_ENVIRONMENTS_PAGE_SUBTITLE =
   "Define environment slots and the allowed transitions reviewers can request in the approval queue." as const;
+
+export const GOVERNANCE_ENVIRONMENTS_SAVE_ERROR_TITLE =
+  "Could not save approval environments" as const;
