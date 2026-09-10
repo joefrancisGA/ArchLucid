@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8093,6 +8093,18 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `IsSensitiveKey` returns true for null/whitespace property names — **cheap-disproof 2026-09-10 seed hunt #1601:** returns false; regression `IsSensitiveKey_returns_false_for_null_or_whitespace`.
 
 2026-09-10 seed hunt #1601 (seed-only): reseeded core-azure-extractor after #1600; cheap-disproof closed PackageInventoryReader malformed/invalid-ZIP failure paths, false/array property serialization, manifest metadata preservation on v0/v1 upgrade, missing-resources rejection classification, optional companion case-insensitivity, whitespace location normalization, and IsSensitiveKey null guard; 941 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) Numeric `resourceId` values fail PackageInventoryReader row mapping — **cheap-disproof 2026-09-10 seed hunt #1602:** non-string tokens coerced via `GetRawText`; regression `TryReadFromZip_coerces_numeric_resource_id_to_string`.
+- [x] (valid-no-repro) Explicit `isUnknownType:false` is treated as unknown type — **cheap-disproof 2026-09-10 seed hunt #1602:** only JSON `true` sets flag; regression `TryReadFromZip_treats_explicit_false_is_unknown_type_as_false`.
+- [x] (valid-no-repro) Already-current schema v2 manifests are re-upgraded and lose metadata — **cheap-disproof 2026-09-10 seed hunt #1602:** no-op success preserves payload; regression `TryUpgradeManifestJson_accepts_already_current_schema_two_without_mutation`.
+- [x] (valid-no-repro) Whitespace-only manifest JSON is upgraded instead of rejected — **cheap-disproof 2026-09-10 seed hunt #1602:** `ArgumentException` from `ThrowIfNullOrWhiteSpace`; regression `TryUpgradeManifestJson_rejects_whitespace_manifest_json`.
+- [x] (valid-no-repro) Zip-slip entry paths pass AzureExtractorPackageZipValidator — **cheap-disproof 2026-09-10 seed hunt #1602:** `ZipArchiveSafety` rejects unsafe paths; regression `Validate_rejects_unsafe_zip_entry_path`.
+- [x] (valid-no-repro) ResourceInventoryReader ingests rows missing `resourceType`/`ResourceType` — **cheap-disproof 2026-09-10 seed hunt #1602:** rows without type skipped; regression `TryReadFromZip_skips_resource_rows_missing_resource_type`.
+- [x] (valid-no-repro) Null zip stream in ResourceInventoryReader returns empty resources — **cheap-disproof 2026-09-10 seed hunt #1602:** `ArgumentNullException`; regression `TryReadFromZip_throws_when_stream_is_null`.
+- [x] (valid-no-repro) `RedactStructuredJson` redacts all nested object values regardless of key — **cheap-disproof 2026-09-10 seed hunt #1602:** non-sensitive nested scalars preserved; regression `RedactStructuredJson_preserves_non_sensitive_nested_object_values`.
+- [x] (valid-no-repro) `AzureArmResourceCostMapper` misses `Microsoft.Sql/managedInstances/*/databases/*` paths — **cheap-disproof 2026-09-10 seed hunt #1602:** `StartsWith` prefix match; regression `TryInferPlatform_RecognizedType_ReturnsCostingPlatform` managed-instance database segment case.
+
+2026-09-10 seed hunt #1602 (seed-only): reseeded core-azure-extractor after #1601; cheap-disproof closed numeric resourceId coercion, explicit isUnknownType false handling, schema-2 no-op upgrade, whitespace manifest guard, zip-slip rejection, resourceType-less row skip, null-stream guard, RedactStructuredJson non-sensitive preservation, and SQL managed-instance database ARM prefix; 950 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
