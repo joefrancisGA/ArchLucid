@@ -1709,4 +1709,66 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
             .Should().BeEmpty(
                 "rank ladder prefers clean Accepted duplicate over QualityRejected+Accepted drift row");
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_same_attempt_quality_rejected_rejected_outcome_and_warned_duplicates_does_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime sharedUtc = new(2026, 12, 5, 23, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace qualityRejectedRejectedDuplicate = new()
+        {
+            TraceId = "trace-qr-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace warnedDuplicate = new()
+        {
+            TraceId = "trace-w-warned",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [qualityRejectedRejectedDuplicate, warnedDuplicate])
+            .Should().BeEmpty(
+                "Warned duplicate intentionally wins same-attempt upsert-drift tie over QR+Rejected sibling");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_simulator_mode_receives_rejected_traces_without_blocking()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Simulator };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace rejectedTrace = new()
+        {
+            TraceId = "trace-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [rejectedTrace])
+            .Should().BeEmpty(
+                "CommitOutputIntegrityService still fetches traces; non-Real bypass is intentional in the evaluator");
+    }
 }

@@ -375,9 +375,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-10 — selector treated null RecordedQualityGateOutcome as Accepted rank on duplicate rows
 - **related-pd-tb:** TB-2226
@@ -448,8 +448,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` null `run`/`options`/`traces` — **cheap-disproof 2026-09-10 seed hunt #1624:** `ArgumentNullException` on null inputs (`GetBlockingReasons_throws_when_run_null`, `GetBlockingReasons_throws_when_options_null`, `GetBlockingReasons_throws_when_traces_null`)
 - [x] (valid-no-repro) distinct tasks where every latest-per-task winner is unevaluated — **cheap-disproof 2026-09-10 seed hunt #1624:** TB-2226 blocks only recorded rejections (`GetBlockingReasons_when_distinct_tasks_all_unevaluated_does_not_block`)
 - [x] (valid-no-repro) same-attempt duplicate with `QualityRejected=true` + `Accepted` vs clean `Accepted` sibling — **cheap-disproof 2026-09-10 seed hunt #1624:** rank ladder prefers clean Accepted (rank 3) over QR+Accepted drift row (rank 1); regressions `Select_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted`, `GetBlockingReasons_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted_does_not_block`
-- [ ] (candidate) same-attempt duplicate with `QualityRejected=true` + `RecordedQualityGateOutcome.Rejected` vs sibling `Warned` — rank ladder may prefer Warned and suppress blocking on the reject duplicate
-- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-`Real` `StructuralExecutionMode` returns before trace fetch so persisted rejections are never evaluated at the integrity layer
+- [x] (valid-no-repro) same-attempt duplicate with `QualityRejected=true` + `RecordedQualityGateOutcome.Rejected` vs sibling `Warned` — rank ladder may prefer Warned and suppress blocking on the reject duplicate — **cheap-disproof 2026-09-10 thorough hunt #1626:** intentional Warned-over-blocking-duplicate policy extends #1549/#1615 (`Select_when_same_attempt_quality_rejected_rejected_outcome_and_warned_prefers_warned_trace`, `GetBlockingReasons_when_same_attempt_quality_rejected_rejected_outcome_and_warned_duplicates_does_not_block`)
+- [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-`Real` `StructuralExecutionMode` returns before trace fetch so persisted rejections are never evaluated at the integrity layer — **cheap-disproof 2026-09-10 thorough hunt #1626:** `EnsurePassOrThrowAsync` fetches traces before calling `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` (`CommitOutputIntegrityService.cs` lines 109–119); non-`Real` bypass is intentional in the evaluator (`GetBlockingReasons_when_simulator_mode_returns_empty`, `GetBlockingReasons_when_simulator_mode_receives_rejected_traces_without_blocking`)
+- [ ] (candidate) same-attempt duplicate with `QualityRejected=true` + `RecordedQualityGateOutcome.Rejected` vs sibling `Accepted` — rank ladder may prefer Accepted and clear blocking on the QR+Rejected drift row
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `StructuralExecutionMode.Mixed`/`Fallback` structural guard throws before quality-gate evaluation, so persisted rejections on otherwise-complete runs are never surfaced
+
+2026-09-10 thorough hunt #1626 (dry): cheap-disproof closed QR+Rejected vs Warned duplicate policy and invalid trace-fetch-order candidate; 85 scoped commit-output-integrity tests passed; reseeded QR+Rejected vs Accepted duplicate and structural-mode pre-gate candidates.
 
 2026-09-10 seed hunt #1624 (seed-only): reseeded commit-output-integrity after #1623; cheap-disproof on null evaluator guards, all-unevaluated multi-task non-blocking, and QR+Accepted vs clean Accepted duplicate rank; 82 scoped commit-output-integrity tests passed; removed duplicate Core `ArchitectureShareRoles` and stale `ArchitectureShareManagementService` merge fallout blocking compile.
 

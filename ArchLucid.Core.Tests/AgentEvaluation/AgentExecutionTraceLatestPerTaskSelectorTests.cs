@@ -930,4 +930,37 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
         latest.Should().ContainSingle();
         latest[0].TraceId.Should().Be("trace-clean-accepted");
     }
+
+    [Fact]
+    public void Select_when_same_attempt_quality_rejected_rejected_outcome_and_warned_prefers_warned_trace()
+    {
+        DateTime sharedUtc = new(2026, 12, 5, 23, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace qualityRejectedRejectedDuplicate = new()
+        {
+            TraceId = "trace-qr-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace warnedDuplicate = new()
+        {
+            TraceId = "trace-w-warned",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+            QualityRejected = false,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select(
+                [qualityRejectedRejectedDuplicate, warnedDuplicate]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-w-warned");
+    }
 }
