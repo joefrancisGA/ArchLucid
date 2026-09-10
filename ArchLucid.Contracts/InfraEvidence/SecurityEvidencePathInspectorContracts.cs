@@ -124,6 +124,45 @@ public sealed class SecurityEvidencePathDetailResponse
         get;
         init;
     } = [];
+
+    public IReadOnlyList<SecurityEvidencePathRoutingResponse> Routing
+    {
+        get;
+        init;
+    } = [];
+}
+
+public sealed class SecurityEvidencePathRoutingResponse
+{
+    public string Role
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string? PrincipalId
+    {
+        get;
+        init;
+    }
+
+    public string? DisplayName
+    {
+        get;
+        init;
+    }
+
+    public string ProvenanceKind
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string SourceReference
+    {
+        get;
+        init;
+    } = string.Empty;
 }
 
 public sealed class SecurityEvidencePathHopResponse

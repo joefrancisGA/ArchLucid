@@ -203,7 +203,8 @@ public sealed class SecureNowArchitectPostMaterializeCoordinatorTests
             sharedEngine.Object,
             driftEngine.Object,
             rankingEngine.Object,
-            cutPointEngine.Object);
+            cutPointEngine.Object,
+            Mock.Of<ISecurityEvidencePathRoutingSyncService>());
     }
 
     private static void SetupSuccessfulEngine(Mock<IPrivilegePathEngine> engine) =>
