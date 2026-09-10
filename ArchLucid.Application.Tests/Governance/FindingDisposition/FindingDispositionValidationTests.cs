@@ -456,6 +456,38 @@ public sealed class FindingDispositionValidationTests
     }
 
     [Fact]
+    public void Validate_rejects_zero_width_space_only_architect_restatement()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Remediated,
+            ArchitectRestatement = new string('\u200B', FindingDispositionValidation.MinimumRationaleLength),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Architect restatement*");
+    }
+
+    [Fact]
+    public void Validate_deferred_rejects_zero_width_space_only_optional_rationale()
+    {
+        DateTimeOffset nowUtc = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Deferred,
+            RevisitDueUtc = nowUtc.AddDays(30),
+            Rationale = new string('\u200B', FindingDispositionValidation.MinimumRationaleLength),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request, nowUtc);
+
+        act.Should().Throw<ArgumentException>().WithMessage("*Rationale must contain visible characters*");
+    }
+
+    [Fact]
     public void Validate_working_remediated_rejects_overlong_preview_override_reason()
     {
         RecordFindingDispositionRequest request = new()
