@@ -22688,32 +22688,6 @@
         },
         "type": "object"
       },
-      "PagedResponseOfSecurityEvidencePathRankSummaryResponse": {
-        "properties": {
-          "hasMore": {
-            "type": "boolean"
-          },
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/SecurityEvidencePathRankSummaryResponse"
-            },
-            "type": "array"
-          },
-          "page": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "pageSize": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "totalCount": {
-            "format": "int32",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "PagedResponseOfSecurityEvidencePathSummaryResponse": {
         "properties": {
           "hasMore": {
@@ -32950,6 +32924,77 @@
         },
         "type": "object"
       },
+      "SecurityEvidenceCutPointSummaryResponse": {
+        "properties": {
+          "collapsedPathIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "cutKind": {
+            "type": "string"
+          },
+          "cutOrder": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "cutPointId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "edgeType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "evidenceReferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "explanationSummary": {
+            "type": "string"
+          },
+          "fromNodeLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "leverageScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "operationalCostClass": {
+            "type": "string"
+          },
+          "pathsCollapsedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "suggestedPatternKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "toNodeLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "SecurityEvidencePathDetailResponse": {
         "properties": {
           "citingFindingIds": {
@@ -32984,6 +33029,12 @@
           },
           "pathKind": {
             "type": "string"
+          },
+          "relatedCutPoints": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidenceCutPointSummaryResponse"
+            },
+            "type": "array"
           },
           "snapshotId": {
             "format": "uuid",
@@ -33265,6 +33316,12 @@
             "format": "int32",
             "type": "integer"
           },
+          "relatedCutPoints": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidenceCutPointSummaryResponse"
+            },
+            "type": "array"
+          },
           "ruleVersion": {
             "type": "string"
           },
@@ -33279,6 +33336,35 @@
               "number",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathRankedPageResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathRankSummaryResponse"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "topCutPoints": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidenceCutPointSummaryResponse"
+            },
+            "type": "array"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -166983,17 +167069,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagedResponseOfSecurityEvidencePathRankSummaryResponse"
+                  "$ref": "#/components/schemas/SecurityEvidencePathRankedPageResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagedResponseOfSecurityEvidencePathRankSummaryResponse"
+                  "$ref": "#/components/schemas/SecurityEvidencePathRankedPageResponse"
                 }
               },
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/PagedResponseOfSecurityEvidencePathRankSummaryResponse"
+                  "$ref": "#/components/schemas/SecurityEvidencePathRankedPageResponse"
                 }
               }
             },

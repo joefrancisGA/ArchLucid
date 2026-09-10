@@ -30,7 +30,7 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         InMemoryFindingRepository findingRepository = new();
         findingRepository.StoredFindings.Add(CreateFinding(FindingId, PathId, CloudResourceId));
 
-        SecurityEvidencePathInspectorQueryService sut = new(pathRepository, findingRepository);
+        SecurityEvidencePathInspectorQueryService sut = new(pathRepository, findingRepository, new InMemoryCutPointRepository());
 
         SecurityEvidencePathDetailResponse? detail = await sut.TryGetPathDetailAsync(scope, PathId, CancellationToken.None);
 
@@ -62,7 +62,8 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
 
         SecurityEvidencePathInspectorQueryService sut = new(
             CreateSamplePathRepository(),
-            new InMemoryFindingRepository());
+            new InMemoryFindingRepository(),
+            new InMemoryCutPointRepository());
 
         SecurityEvidencePathDetailResponse? detail = await sut.TryGetPathDetailAsync(
             foreignScope,
@@ -80,7 +81,7 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         InMemoryFindingRepository findingRepository = new();
         findingRepository.StoredFindings.Add(CreateFinding(FindingId, PathId, CloudResourceId));
 
-        SecurityEvidencePathInspectorQueryService sut = new(pathRepository, findingRepository);
+        SecurityEvidencePathInspectorQueryService sut = new(pathRepository, findingRepository, new InMemoryCutPointRepository());
 
         PagedResponse<SecurityEvidencePathSummaryResponse> filtered = await sut.ListPathsAsync(
             scope,
@@ -116,7 +117,7 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         InMemoryFindingRepository findingRepository = new();
         findingRepository.StoredFindings.Add(CreateFinding(FindingId, PathId, CloudResourceId));
 
-        SecurityEvidencePathInspectorQueryService sut = new(pathRepository, findingRepository);
+        SecurityEvidencePathInspectorQueryService sut = new(pathRepository, findingRepository, new InMemoryCutPointRepository());
 
         SecurityEvidencePathDetailResponse? detail = await sut.TryGetPathDetailAsync(scope, PathId, CancellationToken.None);
 
@@ -388,5 +389,29 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
             OperationalSecurityFindingObservationRecord? observation,
             CancellationToken cancellationToken = default) =>
             Task.CompletedTask;
+    }
+
+    private sealed class InMemoryCutPointRepository : ISecurityEvidenceCutPointRepository
+    {
+        public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
+            Guid tenantId,
+            Guid workspaceId,
+            Guid projectId,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
+
+        public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListByPathIdAsync(
+            Guid tenantId,
+            Guid pathId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
+
+        public Task ReplaceCutPointsForSnapshotAsync(
+            Guid tenantId,
+            Guid snapshotId,
+            IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints,
+            CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
     }
 }

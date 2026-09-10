@@ -29,7 +29,7 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
         InMemoryRankRepository rankRepository = new();
         rankRepository.StoredRanks[(TenantId, PathId)] = CreateSampleRank();
 
-        SecurityEvidencePathRankQueryService sut = new(pathRepository, rankRepository);
+        SecurityEvidencePathRankQueryService sut = new(pathRepository, rankRepository, new InMemoryCutPointRepository());
 
         SecurityEvidencePathRankDetailResponse? detail =
             await sut.TryGetPathRankAsync(scope, PathId, CancellationToken.None);
@@ -50,14 +50,15 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
         InMemoryRankRepository rankRepository = new();
         rankRepository.StoredRanks[(TenantId, PathId)] = CreateSampleRank();
 
-        SecurityEvidencePathRankQueryService sut = new(pathRepository, rankRepository);
+        SecurityEvidencePathRankQueryService sut = new(pathRepository, rankRepository, new InMemoryCutPointRepository());
 
-        PagedResponse<SecurityEvidencePathRankSummaryResponse> page =
+        SecurityEvidencePathRankedPageResponse page =
             await sut.ListRankedPathsAsync(scope, SnapshotId, page: 1, pageSize: 50, CancellationToken.None);
 
         page.Items.Should().ContainSingle();
         page.Items[0].RankOrder.Should().Be(1);
         page.Items[0].PathKind.Should().Be(PathKind.Privilege.ToString());
+        page.TopCutPoints.Should().NotBeNull();
     }
 
     private static ScopeContext CreateScope() =>
@@ -249,6 +250,30 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
 
         public Task UpsertWeightsAsync(
             SecurityEvidencePathRankWeightsRecord weights,
+            CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
+    }
+
+    private sealed class InMemoryCutPointRepository : ISecurityEvidenceCutPointRepository
+    {
+        public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
+            Guid tenantId,
+            Guid workspaceId,
+            Guid projectId,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
+
+        public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListByPathIdAsync(
+            Guid tenantId,
+            Guid pathId,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
+
+        public Task ReplaceCutPointsForSnapshotAsync(
+            Guid tenantId,
+            Guid snapshotId,
+            IReadOnlyList<SecurityEvidenceCutPointRecord> cutPoints,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
     }
