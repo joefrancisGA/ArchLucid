@@ -1167,10 +1167,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-09
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-08 — inspect `TryParseEvaluationConfidenceLevel` accepted undefined numeric confidence strings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1212,6 +1212,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-09-07 seed hunt #1233 (hit): reseeded inspect SQL zone; proved deferred disposition `RevisitDueUtc` gap; cheap-disproved archived-run stale fallback; seeded corrupt-payload and run-level rule-id candidates.
 2026-09-07 thorough hunt #1230 (hit): proved ADR 0076 disposition pointer fields missing on inspect read; fixed FollowUpBatch join through `FindingCurrentDispositions`.
+
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` is empty array `[]` — **cheap-disproof 2026-09-10 seed hunt #1572:** empty array has `Count == 0` so helper falls through to `firstRuleText` when present or `(null, null)` when both absent; parity with missing/blank JSON per `DecisionTraceRepositoryCore` array serialization; regressions `ResolveRuleFields_when_applied_rule_ids_json_is_empty_array_falls_back_to_trace_text` and `ResolveRuleFields_when_applied_rule_ids_json_is_empty_array_and_trace_missing_returns_nulls`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` when `PayloadJson` is JSON literal `null` — **cheap-disproof 2026-09-10 seed hunt #1572:** non-empty valid JSON `null` deserializes to `JsonValueKind.Null` without metadata fallback; distinct from corrupt non-JSON #1238 and aligned with `FindingInspectResponse.TypedPayload` contract; regression `ResolveTypedPayloadForInspect_returns_json_null_element_when_payload_is_null_literal`.
+- [x] (invalid) `MainInspect*` `DecisioningTraces` join without tenant/workspace/project predicates leaks sibling-tenant `AppliedRuleIdsJson` — **cheap-disproof 2026-09-10 seed hunt #1572:** `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` already bind `dt.TenantId`/`WorkspaceId`/`ProjectId` to the run scope; regression `MainInspect_scopes_decisioning_trace_join_to_request_scope`.
+
+2026-09-10 seed hunt #1572 (seed-only): reseeded finding-inspect-sql; cheap-disproof closed empty `AppliedRuleIdsJson` array, JSON-null payload, and unscoped DecisioningTraces join candidates; 52 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

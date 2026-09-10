@@ -1786,3 +1786,4 @@
 {"at":"2026-09-10T15:13:19.9669622Z","zoneId":"api-tenancy-workspaces","outcome":"seed-only"}
 {"at":"2026-09-10T15:19:43.8020827Z","zoneId":"application-pilots","outcome":"seed-only"}
 {"at":"2026-09-10T15:24:13.3245047Z","zoneId":"email-otp-auth","outcome":"seed-only"}
+{"at":"2026-09-10T15:30:50.1983798Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
