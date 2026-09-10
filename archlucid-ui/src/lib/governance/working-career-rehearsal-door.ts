@@ -162,3 +162,19 @@ export function cycleWorkingCareerRehearsalDoor(
 
   return "career";
 }
+
+export type WorkingRehearsalDoorReadySuppressionInput = {
+  readonly workingDesk?: boolean;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
+};
+
+/** AS-079 — Rehearsal door must not present Ready-to-finalize on Working desks. */
+export function shouldSuppressReadyToFinalizeForWorkingRehearsalDoor(
+  input: WorkingRehearsalDoorReadySuppressionInput,
+): boolean {
+  if (input.workingDesk !== true) {
+    return false;
+  }
+
+  return input.effectiveWorkingCareerRehearsalDoor === "rehearsal";
+}

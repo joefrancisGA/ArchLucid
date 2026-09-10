@@ -1,3 +1,5 @@
+> **Scope:** v12 strategic release and market readiness assessment snapshot (post wave 22). Contributor-reference scoring desk output — not a buyer assurance attestation or live cohort proof.
+
 # ArchLucid Strategic Release and Market Readiness Assessment (v12 — post wave 22)
 
 **Pass date:** 2026-09-10. **Computed fresh** against branch `cursor/as-prompt-queue-close-97a4` (9 commits ahead of `origin/master` `2d14bb66fe`). v11 remains archived context at [`LATEST_GPT55.md`](LATEST_GPT55.md) (2026-09-09, trunk `420205b38d`).

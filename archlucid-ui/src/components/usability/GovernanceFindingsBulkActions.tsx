@@ -236,14 +236,12 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
       setPendingDisposition(null);
       router.refresh();
     } catch (err) {
-      const conflict = readFindingDispositionConflictFromError(err);
-
+const conflict = readFindingDispositionConflictFromError(err);
       if (conflict !== null) {
         setDispositionConflict(conflict);
         setInlineErrorMessage(null);
         return;
       }
-
       const failure = toApiLoadFailure(err);
       const blockedReason = findingBulkDispositionBlockedReason(failure);
       setInlineErrorMessage(

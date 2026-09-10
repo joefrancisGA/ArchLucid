@@ -31,11 +31,10 @@ export type SemanticSupportBandExportStamp = {
 export type FindingSemanticSupportBandExportInput = Pick<
   QuickDecisionFinding,
   "classification" | "semanticSupportBand"
-> & {
-  readonly insightDensityScore?: QuickDecisionFinding["insightDensityScore"];
-};
+> &
+  Partial<Pick<QuickDecisionFinding, "insightDensityScore">>;
 
-function isDecisionGradeFindingForSemanticExport(
+function isDecisionGradeForSemanticSupportExport(
   finding: FindingSemanticSupportBandExportInput,
 ): boolean {
   if (finding.classification === FINDING_CLASSIFICATION_DECISION_GRADE) {
@@ -58,7 +57,7 @@ function isDecisionGradeFindingForSemanticExport(
 export function resolveFindingSemanticSupportBandExportFields(
   finding: FindingSemanticSupportBandExportInput,
 ): FindingSemanticSupportBandExportFields | null {
-  if (!isDecisionGradeFindingForSemanticExport(finding)) {
+  if (!isDecisionGradeForSemanticSupportExport(finding)) {
     return null;
   }
 
