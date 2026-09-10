@@ -34,6 +34,29 @@ public sealed class ArchitectureSpineAs059SupportBandWireArchitectureTests
         stage.Should().Contain("FindingSemanticSupportBandDefaultsApplicator.Apply");
     }
 
+    [Fact]
+    public void As059_emission_applicator_runs_in_findings_merge_stage()
+    {
+        string stage = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "ArchLucid.Decisioning",
+                "Services",
+                "Findings",
+                "FindingsMergeAndGateStage.cs"));
+
+        stage.Should().Contain("FindingSemanticSupportBandEmissionApplicator.Apply");
+    }
+
+    [Fact]
+    public void As059_density_gate_does_not_reference_semantic_support_band()
+    {
+        string densityGate = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Core", "Findings", "DeterministicInsightDensityGate.cs"));
+
+        densityGate.Should().NotContain("SemanticSupportBand");
+    }
+
     private static string FindRepoRoot()
     {
         DirectoryInfo? dir = new(AppContext.BaseDirectory);

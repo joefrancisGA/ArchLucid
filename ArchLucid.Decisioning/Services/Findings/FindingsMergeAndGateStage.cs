@@ -115,6 +115,8 @@ public sealed class FindingsMergeAndGateStage(
 
         FindingSemanticSupportBandDefaultsApplicator.Apply(snapshot.Findings);
 
+        FindingSemanticSupportBandEmissionApplicator.Apply(snapshot.Findings);
+
         snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
 
         FindingsSnapshotWithheldAdvisoryEngineFailuresApplicator.Apply(snapshot);
