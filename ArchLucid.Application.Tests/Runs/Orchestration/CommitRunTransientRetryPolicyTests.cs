@@ -52,4 +52,11 @@ public sealed class CommitRunTransientRetryPolicyTests
 
         interPollDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
     }
+
+    [Fact]
+    public void RetryDelay_and_manifest_poll_delay_reject_non_positive_poll_or_attempt()
+    {
+        CommitRunTransientRetryPolicy.RetryDelay(0).Should().Be(TimeSpan.Zero);
+        CommitRunTransientRetryPolicy.ManifestReconcilePollDelay(0).Should().Be(TimeSpan.Zero);
+    }
 }

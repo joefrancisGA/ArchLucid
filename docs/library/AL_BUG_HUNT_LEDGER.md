@@ -565,10 +565,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -586,6 +586,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-07 thorough hunt #1259 (dry): cheap-disproof closed three hunt-ready rows as intentional layered retry design; ten scoped unit tests passed.
 
 - [x] (invalid) `OrchestratorTransientDbRetry` should fail-fast on first permanent inner without retrying transient wrapper — **invalid 2026-09-09 seed hunt #1481:** mixed aggregate retry semantics documented in #1259; regression `ExecuteAsync_retries_deadlock_when_aggregate_exception_lists_it_after_non_transient_sql` covers intentional behavior
+- [x] (invalid) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` — nested `AggregateException` (wrapper exception with aggregate inner) masks a later deadlock sibling because only top-level aggregates flatten — **cheap-disproof 2026-09-10 seed hunt #1582:** orchestrator persist lambdas are single repository calls; parallel `Task.WhenAll` surfaces top-level `AggregateException` handled by flatten; regression `ExecuteAsync_does_not_retry_when_aggregate_is_nested_in_wrapper_exception` documents current behavior.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` retries `OperationCanceledException` — **cheap-disproof 2026-09-10 seed hunt #1582:** Polly does not treat cancellation as transient SQL; regression `ExecuteAsync_does_not_retry_operation_canceled`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.ExecuteAsync<T>` diverges from void overload retry semantics — **cheap-disproof 2026-09-10 seed hunt #1582:** both overloads share the same pipeline; regression `ExecuteAsync_generic_overload_retries_transient_sql_deadlock`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.RetryDelay(0)` / `ManifestReconcilePollDelay(0)` undefined for authority commit loop — **cheap-disproof 2026-09-10 seed hunt #1582:** commit/reconcile loops start at attempt/poll 1; regression `RetryDelay_and_manifest_poll_delay_reject_non_positive_poll_or_attempt`.
+
+2026-09-10 seed hunt #1582 (seed-only): reseeded orchestrator-transient-retry after #1481; cheap-disproof closed nested-aggregate wrapper, cancellation retry, generic overload parity, and zero-index delay candidates; 13 scoped transient-retry tests passed.
 
 2026-09-09 seed hunt #1481 (seed-only): reseeded orchestrator-transient-retry; cheap-disproved mixed-aggregate fail-fast candidate; 10 scoped transient-retry tests passed.
 

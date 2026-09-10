@@ -110,4 +110,65 @@ public sealed class OrchestratorTransientDbRetryTests
         await act.Should().ThrowAsync<SqlException>();
         attempts.Should().Be(2);
     }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_operation_canceled()
+    {
+        int attempts = 0;
+        using CancellationTokenSource cancellation = new();
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            ct =>
+            {
+                attempts++;
+                cancellation.Cancel();
+                throw new OperationCanceledException(ct);
+            },
+            cancellation.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_when_aggregate_is_nested_in_wrapper_exception()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException(
+                    "parallel persist failed",
+                    new AggregateException(fkViolation, deadlock));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_generic_overload_retries_transient_sql_deadlock()
+    {
+        int attempts = 0;
+
+        int result = await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(1205);
+
+                return Task.FromResult(42);
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+        result.Should().Be(42);
+    }
 }
