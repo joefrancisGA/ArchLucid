@@ -1,4 +1,3 @@
-using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
