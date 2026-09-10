@@ -34,18 +34,32 @@ export async function listPolicyPackWorkspaceSelection(): Promise<PolicyPackWork
 
 /** Marks one policy pack assignment archived for the current tenant (row retained for audit). */
 export async function archivePolicyPackAssignment(assignmentId: string): Promise<void> {
-  await apiPostNoContent(
-    `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/archive`,
-    {},
-  );
+  try {
+    await apiPostNoContent(
+      `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/archive`,
+      {},
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = policyPackAssignMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Enables or disables one policy pack assignment for the current workspace. */
 export async function setPolicyPackAssignmentEnabled(assignmentId: string, isEnabled: boolean): Promise<void> {
-  await apiPutNoContent(
-    `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/enabled`,
-    { isEnabled },
-  );
+  try {
+    await apiPutNoContent(
+      `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/enabled`,
+      { isEnabled },
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = policyPackAssignMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Marks or clears organization-required lock on one policy pack assignment. */
