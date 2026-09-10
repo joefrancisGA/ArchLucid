@@ -9,10 +9,6 @@ import {
   extractUploadAdvancedCommandDisclosureHrefFromSearch,
   parseExtractUploadAdvancedCommandOpenFromSearch,
 } from "@/lib/administration/extract-upload-advanced-command-disclosure-url";
-import {
-  extractUploadValidateDisclosureHrefFromSearch,
-  parseExtractUploadValidateDisclosureOpenFromSearch,
-} from "@/lib/administration/extract-upload-validate-disclosure-url";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -32,14 +28,10 @@ export type UseExtractUploadPageClientInput = {
 };
 
 export function useExtractUploadPageClient({ router, pathname, searchParams }: UseExtractUploadPageClientInput) {
-  const extractUploadValidateDisclosureOpenParam = searchParams.get("extractUploadValidateDisclosureOpen");
   const extractUploadAdvancedCommandOpenParam = searchParams.get("extractUploadAdvancedCommandOpen");
   const associateRunId = searchParams.get("runId");
   const { productLine } = useProductLine();
   const extractorScriptDownloadUrl = extractorScriptCdnUrl(productLine);
-  const [validateDisclosureOpen, setValidateDisclosureOpenState] = useState(() =>
-    parseExtractUploadValidateDisclosureOpenFromSearch(extractUploadValidateDisclosureOpenParam),
-  );
   const [advancedCommandOpen, setAdvancedCommandOpenState] = useState(() =>
     parseExtractUploadAdvancedCommandOpenFromSearch(extractUploadAdvancedCommandOpenParam),
   );
@@ -90,30 +82,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
     [demo.selectedDemoScenarioId, folderZip.selectedFileLabel, hasBaselineArtifacts, upload.packageId],
   );
 
-  const syncValidateDisclosureOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        extractUploadValidateDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-
-  const setValidateDisclosureOpen = useCallback(
-    (open: boolean) => {
-      setValidateDisclosureOpenState(open);
-      syncValidateDisclosureOpenToUrl(open);
-    },
-    [syncValidateDisclosureOpenToUrl],
-  );
-
-  useEffect(() => {
-    setValidateDisclosureOpenState(
-      parseExtractUploadValidateDisclosureOpenFromSearch(extractUploadValidateDisclosureOpenParam),
-    );
-  }, [extractUploadValidateDisclosureOpenParam]);
-
   const syncAdvancedCommandOpenToUrl = useCallback(
     (open: boolean) => {
       router.replace(
@@ -141,8 +109,6 @@ export function useExtractUploadPageClient({ router, pathname, searchParams }: U
   return {
     productLine,
     extractorScriptDownloadUrl,
-    validateDisclosureOpen,
-    setValidateDisclosureOpen,
     advancedCommandOpen,
     setAdvancedCommandOpen,
     buyerPolishedShell,
