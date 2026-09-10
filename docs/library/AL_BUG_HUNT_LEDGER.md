@@ -2006,7 +2006,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -2035,6 +2035,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` padded mailbox strings fail normalization and skip send — **cheap-disproof 2026-09-10 seed hunt #1593:** dispatcher trims before `MultiRecipientEmailDispatch`; regression `WeeklySponsorReportEmailDispatcher_trims_padded_mailbox_addresses`.
 - [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` blank recipient list still renders templates before returning false — **cheap-disproof 2026-09-10 seed hunt #1593:** early return before render; regression `WeeklySponsorReportEmailDispatcher_skips_template_render_when_all_mailboxes_blank`.
 - [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` omits `weekly-sponsor-report` telemetry tag on outbound messages — **cheap-disproof 2026-09-10 seed hunt #1593:** `EmailMessageTags.EventType` set; regression `WeeklySponsorReportEmailDispatcher_tags_outbound_message_with_weekly_sponsor_report_event_type`.
+
+- [x] (valid-no-repro) `WeeklySponsorSummaryEmailDispatcher.TryDispatchAsync` accepts `Guid.Empty` tenant — **cheap-disproof 2026-09-10 seed hunt #1681:** throws `ArgumentException` for empty tenant; regression `WeeklySponsorSummaryEmailDispatcher_throws_for_empty_tenant_id`.
+- [x] (valid-no-repro) `WeeklySponsorSummaryEmailDispatcher` whitespace-only `isoWeekIdempotencyKey` bypasses trim guard — **cheap-disproof 2026-09-10 seed hunt #1681:** rejects whitespace-only keys before ledger scope; regression `WeeklySponsorSummaryEmailDispatcher_throws_for_whitespace_only_iso_week_key`.
+- [x] (valid-no-repro) `WeeklySponsorSummaryEmailDispatcher` omits `weekly-sponsor-summary` telemetry tag — **cheap-disproof 2026-09-10 seed hunt #1681:** `EmailMessageTags.EventType` set; regression `WeeklySponsorSummaryEmailDispatcher_tags_outbound_message_with_weekly_sponsor_summary_event_type`.
+
+2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
 2026-09-10 seed hunt #1593 (seed-only): reseeded weekly-digest-email; cheap-disproof closed tenant guard, whitespace ISO-week rejection, model trim, mailbox trim, blank-list render skip, and event-type tag candidates; 26 scoped digest/job tests passed.
 
