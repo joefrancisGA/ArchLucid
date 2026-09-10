@@ -1,6 +1,10 @@
 import type { components } from "@/lib/openapi-schemas";
 
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { exportRecordCompareBlockedReason } from "@/lib/exports/export-record-compare-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
+import { apiGet } from "./http";
 
 export type ExportRecordDiffResponse = components["schemas"]["ExportRecordDiffResponse"];
 
@@ -14,7 +18,14 @@ export async function compareExportRecords(
     rightExportRecordId: rightExportRecordId.trim(),
   });
 
-  return apiGetSealedManifestAware<ExportRecordDiffResponse>(
-    `/v1/architecture/review/exports/compare?${query.toString()}`,
-  );
+  try {
+    return await apiGet<ExportRecordDiffResponse>(
+      `/v1/architecture/review/exports/compare?${query.toString()}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = exportRecordCompareBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

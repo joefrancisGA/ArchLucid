@@ -28,7 +28,16 @@ public sealed partial class RunQueryController
             return null;
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;

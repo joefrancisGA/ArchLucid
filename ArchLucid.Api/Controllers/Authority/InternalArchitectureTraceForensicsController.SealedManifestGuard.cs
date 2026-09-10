@@ -16,7 +16,16 @@ public sealed partial class InternalArchitectureTraceForensicsController
         Guid runId,
         CancellationToken cancellationToken)
     {
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapTraceForensicsSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;

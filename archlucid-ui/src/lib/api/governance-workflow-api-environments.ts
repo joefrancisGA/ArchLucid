@@ -15,8 +15,6 @@ import type {
   ReplaceGovernanceEnvironmentCatalogRequest,
 } from "@/types/governance-environment-catalog";
 
-
-
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
 /**

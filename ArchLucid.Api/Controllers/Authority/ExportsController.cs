@@ -124,24 +124,31 @@ public sealed partial class ExportsController(
         [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
-        IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
-            leftExportRecordId,
-            exportRecordRepository,
-            cancellationToken);
+        try
+        {
+            IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                leftExportRecordId,
+                exportRecordRepository,
+                cancellationToken);
 
-        if (leftGuardResult is not null)
-            return leftGuardResult;
+            if (leftGuardResult is not null)
+                return leftGuardResult;
 
-        IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
-            rightExportRecordId,
-            exportRecordRepository,
-            cancellationToken);
+            IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                rightExportRecordId,
+                exportRecordRepository,
+                cancellationToken);
 
-        if (rightGuardResult is not null)
-            return rightGuardResult;
+            if (rightGuardResult is not null)
+                return rightGuardResult;
 
-        return MapExportRecordDiffResult(
-            await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
+            return MapExportRecordDiffResult(
+                await _runExportQueryFacade.CompareExportRecordsAsync(leftExportRecordId, rightExportRecordId, cancellationToken));
+        }
+        catch (ConflictException ex)
+        {
+            return MapExportReplaySealedManifestConflict(ex);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
@@ -158,30 +165,37 @@ public sealed partial class ExportsController(
         [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
-        IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
-            leftExportRecordId,
-            exportRecordRepository,
-            cancellationToken);
+        try
+        {
+            IActionResult? leftGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                leftExportRecordId,
+                exportRecordRepository,
+                cancellationToken);
 
-        if (leftGuardResult is not null)
-            return leftGuardResult;
+            if (leftGuardResult is not null)
+                return leftGuardResult;
 
-        IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
-            rightExportRecordId,
-            exportRecordRepository,
-            cancellationToken);
+            IActionResult? rightGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                rightExportRecordId,
+                exportRecordRepository,
+                cancellationToken);
 
-        if (rightGuardResult is not null)
-            return rightGuardResult;
+            if (rightGuardResult is not null)
+                return rightGuardResult;
 
-        request ??= new PersistComparisonRequest();
-        ExportRecordDiffSummaryQueryResult result = await _runExportQueryFacade.CompareExportRecordsSummaryAsync(
-            leftExportRecordId, rightExportRecordId, request.Persist, cancellationToken);
-        if (result.Outcome is not ExportRecordLoadOutcome.Success)
-            return MapExportRecordLoadOutcome(result.Outcome, result.MissingId);
-        if (!string.IsNullOrWhiteSpace(result.ComparisonRecordId))
-            Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = result.ComparisonRecordId;
-        return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = result.SummaryMarkdown! });
+            request ??= new PersistComparisonRequest();
+            ExportRecordDiffSummaryQueryResult result = await _runExportQueryFacade.CompareExportRecordsSummaryAsync(
+                leftExportRecordId, rightExportRecordId, request.Persist, cancellationToken);
+            if (result.Outcome is not ExportRecordLoadOutcome.Success)
+                return MapExportRecordLoadOutcome(result.Outcome, result.MissingId);
+            if (!string.IsNullOrWhiteSpace(result.ComparisonRecordId))
+                Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = result.ComparisonRecordId;
+            return Ok(new ExportRecordDiffSummaryResponse { Format = "markdown", Summary = result.SummaryMarkdown! });
+        }
+        catch (ConflictException ex)
+        {
+            return MapExportReplaySealedManifestConflict(ex);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
