@@ -82,7 +82,7 @@
 
 **Trade-offs:** Opt-in fail-closed for tenants that want it; global default-on would false-reject V1 packages. Unsupported band is heuristic — hold is discipline, not semantic legal truth.
 
-**Related:** ADR 0085 (semantic support band on Working desk); AS-064 unchecked warn-only strip.
+**Related:** ADR 0085 (semantic support band on Working desk); [`FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md`](FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md) (what **Supported** / **Unsupported** mean on the desk — AS-075); AS-064 unchecked warn-only strip.
 
 ---
 

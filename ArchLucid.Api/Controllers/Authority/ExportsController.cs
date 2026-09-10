@@ -64,9 +64,9 @@ public sealed partial class ExportsController(
         {
             ExportRecordLoadOutcome.Success => Ok(new RunExportHistoryResponse { Exports = result.Exports!.ToList() }),
             ExportRecordLoadOutcome.RunNotFound => this.NotFoundProblem($"Run '{result.MissingRunId}' was not found.", ProblemTypes.RunNotFound),
-            ExportRecordLoadOutcome.LineageUnverified => this.ConflictProblem(
-                $"Run export history for '{result.MissingRunId}' is blocked until export lineage verification succeeds.",
-                ProblemTypes.Conflict),
+            ExportRecordLoadOutcome.LineageUnverified => MapExportReplaySealedManifestConflict(
+                new ConflictException(
+                    $"Run export history for '{result.MissingRunId}' is blocked until export lineage verification succeeds.")),
             _ => throw new InvalidOperationException($"Unexpected export history outcome: {result.Outcome}."),
         };
     }
@@ -93,9 +93,9 @@ public sealed partial class ExportsController(
         {
             ExportRecordLoadOutcome.Success => Ok(new RunExportRecordResponse { Record = result.Record! }),
             ExportRecordLoadOutcome.ExportRecordNotFound => this.NotFoundProblem($"Export record '{result.MissingId}' was not found.", ProblemTypes.ResourceNotFound),
-            ExportRecordLoadOutcome.LineageUnverified => this.ConflictProblem(
-                $"Export record '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds.",
-                ProblemTypes.Conflict),
+            ExportRecordLoadOutcome.LineageUnverified => MapExportReplaySealedManifestConflict(
+                new ConflictException(
+                    $"Export record '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds.")),
             _ => throw new InvalidOperationException($"Unexpected export record outcome: {result.Outcome}."),
         };
     }
@@ -209,9 +209,9 @@ public sealed partial class ExportsController(
 
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
         {
-            return this.ConflictProblem(
-                $"Export replay for '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds.",
-                ProblemTypes.Conflict);
+            return MapExportReplaySealedManifestConflict(
+                new ConflictException(
+                    $"Export replay for '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds."));
         }
 
         if (result.Outcome is not ExportRecordLoadOutcome.Success)
@@ -258,9 +258,9 @@ public sealed partial class ExportsController(
 
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
         {
-            return this.ConflictProblem(
-                $"Export replay for '{result.MissingId}' is blocked until export lineage verification succeeds.",
-                ProblemTypes.Conflict);
+            return MapExportReplaySealedManifestConflict(
+                new ConflictException(
+                    $"Export replay for '{result.MissingId}' is blocked until export lineage verification succeeds."));
         }
 
         if (result.Outcome is not ExportRecordLoadOutcome.Success)
@@ -280,9 +280,9 @@ public sealed partial class ExportsController(
         ExportRecordLoadOutcome.RightIdRequired => this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed),
         ExportRecordLoadOutcome.LeftNotFound or ExportRecordLoadOutcome.ExportRecordNotFound => this.NotFoundProblem($"Export record '{missingId}' was not found.", ProblemTypes.ResourceNotFound),
         ExportRecordLoadOutcome.RightNotFound => this.NotFoundProblem($"Export record '{missingId}' was not found.", ProblemTypes.ResourceNotFound),
-        ExportRecordLoadOutcome.LineageUnverified => this.ConflictProblem(
-            $"Export record '{missingId}' is blocked until export lineage and sealed-manifest verification succeeds.",
-            ProblemTypes.Conflict),
+        ExportRecordLoadOutcome.LineageUnverified => MapExportReplaySealedManifestConflict(
+            new ConflictException(
+                $"Export record '{missingId}' is blocked until export lineage and sealed-manifest verification succeeds.")),
         _ => throw new InvalidOperationException($"Unexpected export record load outcome: {outcome}."),
     };
 }

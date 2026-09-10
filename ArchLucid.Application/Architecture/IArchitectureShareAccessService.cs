@@ -7,7 +7,7 @@ public interface IArchitectureShareAccessService
     Task<ArchitectureShareAccessEvaluation> EvaluateAsync(
         ScopeContext scope,
         Guid architectureId,
-        Guid? actorUserId,
+        string? actorOid,
         bool hasReadAuthority,
         bool hasExecuteAuthority,
         bool hasWorkspaceAdminAuthority,

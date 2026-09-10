@@ -138,7 +138,8 @@ public sealed partial class PilotsController
                 return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
             }
 
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message));
+
         }
         catch (CareerArtifactExportBlockedException ex)
         {
@@ -179,9 +180,9 @@ public sealed partial class PilotsController
             SponsorPackSentOutcome.RunNotFound => this.NotFoundProblem(
                 $"Run '{runId}' was not found (or is out of scope).",
                 ProblemTypes.RunNotFound),
-            SponsorPackSentOutcome.NotCommitted => this.ConflictProblem(
-                "Sponsor pack delivery can only be recorded after the review is committed.",
-                ProblemTypes.Conflict),
+            SponsorPackSentOutcome.NotCommitted => MapPilotPackSealedManifestConflict(
+                new ConflictException(
+                    "Sponsor pack delivery can only be recorded after the review is committed.")),
             SponsorPackSentOutcome.Recorded => NoContent(),
             _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
         };
@@ -219,9 +220,9 @@ public sealed partial class PilotsController
             SponsorPreliminaryShareOutcome.RunNotFound => this.NotFoundProblem(
                 $"Run '{runId}' was not found (or is out of scope).",
                 ProblemTypes.RunNotFound),
-            SponsorPreliminaryShareOutcome.OverrideRequired => this.ConflictProblem(
-                "Preliminary sponsor sharing requires explicit override acknowledgement when readiness is not Ready.",
-                ProblemTypes.Conflict),
+            SponsorPreliminaryShareOutcome.OverrideRequired => MapPilotPackSealedManifestConflict(
+                new ConflictException(
+                    "Preliminary sponsor sharing requires explicit override acknowledgement when readiness is not Ready.")),
             SponsorPreliminaryShareOutcome.Recorded => NoContent(),
             _ => throw new InvalidOperationException($"Unexpected outcome {result.Outcome}."),
         };
@@ -251,6 +252,16 @@ public sealed partial class PilotsController
                 ? this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound)
                 : File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
         }
+        catch (SponsorFirstValuePdfBlockedException ex)
+        {
+            if (!string.IsNullOrWhiteSpace(ex.BlockReasonCode))
+            {
+                return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+            }
+
+            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
+        }
+
         catch (ConflictException ex)
         {
             return MapPilotPackSealedManifestConflict(ex);

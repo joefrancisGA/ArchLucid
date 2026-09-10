@@ -1,84 +1,57 @@
+using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 
 namespace ArchLucid.Application.Architecture;
 
-/// <summary>
-///     AS-090: intersects ADR 0087 share roles with existing Read/Execute/Admin workspace authority.
-///     Share is an additional gate on restricted architectures — not a replacement for ExecuteAuthority.
-/// </summary>
+/// <summary>AS-090: View / Decide / Admin share roles intersect existing authority — no parallel kernel.</summary>
 public static class ArchitectureShareAccessEvaluator
 {
-    public static ArchitectureShareAccessEvaluation Evaluate(
-        bool restrictToShares,
-        string? shareRole,
-        bool hasReadAuthority,
-        bool hasExecuteAuthority,
-        bool hasWorkspaceAdminAuthority)
+    public static bool CanView(ArchitectureIdentityRecord architecture, ArchitectureShareRecord? shareForActor)
     {
-        if (!restrictToShares)
-        {
-            return new ArchitectureShareAccessEvaluation
-            {
-                ArchitectureFound = true,
-                RestrictToShares = false,
-                ShareRole = shareRole,
-                CanRead = hasReadAuthority,
-                CanDecide = hasExecuteAuthority,
-                CanAdmin = hasExecuteAuthority,
-            };
-        }
+        ArgumentNullException.ThrowIfNull(architecture);
 
-        if (hasWorkspaceAdminAuthority)
-        {
-            return new ArchitectureShareAccessEvaluation
-            {
-                ArchitectureFound = true,
-                RestrictToShares = true,
-                ShareRole = shareRole,
-                CanRead = hasReadAuthority,
-                CanDecide = hasExecuteAuthority,
-                CanAdmin = true,
-            };
-        }
+        if (!architecture.RestrictToShares)
+            return true;
 
-        if (!MeetsMinimumRole(shareRole, ArchitectureShareRoles.View))
-        {
-            return new ArchitectureShareAccessEvaluation
-            {
-                ArchitectureFound = true,
-                RestrictToShares = true,
-                ShareRole = shareRole,
-                CanRead = false,
-                CanDecide = false,
-                CanAdmin = false,
-            };
-        }
-
-        return new ArchitectureShareAccessEvaluation
-        {
-            ArchitectureFound = true,
-            RestrictToShares = true,
-            ShareRole = shareRole,
-            CanRead = hasReadAuthority,
-            CanDecide = hasExecuteAuthority && MeetsMinimumRole(shareRole, ArchitectureShareRoles.Decide),
-            CanAdmin = MeetsMinimumRole(shareRole, ArchitectureShareRoles.Admin),
-        };
+        return shareForActor is not null;
     }
 
-    public static bool MeetsMinimumRole(string? shareRole, string minimumRole)
+    public static bool CanAdmin(ArchitectureIdentityRecord architecture, ArchitectureShareRecord? shareForActor)
     {
-        if (string.IsNullOrWhiteSpace(shareRole))
+        ArgumentNullException.ThrowIfNull(architecture);
+
+        if (!architecture.RestrictToShares)
+            return true;
+
+        return shareForActor is not null
+            && string.Equals(shareForActor.Role, ArchitectureShareRoles.Admin, StringComparison.Ordinal);
+    }
+
+    public static bool CanDecide(
+        ArchitectureIdentityRecord architecture,
+        ArchitectureShareRecord? shareForActor,
+        bool hasExecuteAuthority)
+    {
+        ArgumentNullException.ThrowIfNull(architecture);
+
+        if (!hasExecuteAuthority)
             return false;
 
-        return RoleRank(shareRole) >= RoleRank(minimumRole);
+        if (!architecture.RestrictToShares)
+            return true;
+
+        if (shareForActor is null)
+            return false;
+
+        return string.Equals(shareForActor.Role, ArchitectureShareRoles.Decide, StringComparison.Ordinal)
+            || string.Equals(shareForActor.Role, ArchitectureShareRoles.Admin, StringComparison.Ordinal);
     }
 
-    private static int RoleRank(string role) =>
-        role switch
-        {
-            ArchitectureShareRoles.View => 1,
-            ArchitectureShareRoles.Decide => 2,
-            ArchitectureShareRoles.Admin => 3,
-            _ => 0,
-        };
+    public static bool RoleAllowsDecide(string role) =>
+        string.Equals(role, ArchitectureShareRoles.Decide, StringComparison.Ordinal)
+        || string.Equals(role, ArchitectureShareRoles.Admin, StringComparison.Ordinal);
+
+    public static bool RoleAllowsAdmin(string role) =>
+        string.Equals(role, ArchitectureShareRoles.Admin, StringComparison.Ordinal);
 }

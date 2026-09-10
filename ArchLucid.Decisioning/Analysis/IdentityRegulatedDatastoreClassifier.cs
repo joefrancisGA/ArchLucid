@@ -39,22 +39,40 @@ public static class IdentityRegulatedDatastoreClassifier
     {
         string combined = $"{node.Label} {node.SourceId}".ToLowerInvariant();
 
-        if (combined.Contains("pci", StringComparison.Ordinal)
-            || combined.Contains("sensitive", StringComparison.Ordinal))
+        if (ContainsAffirmativeSensitiveKeyword(combined, "pci")
+            || ContainsAffirmativeSensitiveKeyword(combined, "sensitive"))
         {
             return true;
         }
 
         foreach (KeyValuePair<string, string> property in node.Properties)
         {
-            if (property.Value.Contains("pci", StringComparison.OrdinalIgnoreCase)
-                || property.Value.Contains("sensitive", StringComparison.OrdinalIgnoreCase))
+            string normalizedValue = property.Value.ToLowerInvariant();
+
+            if (ContainsAffirmativeSensitiveKeyword(normalizedValue, "pci")
+                || ContainsAffirmativeSensitiveKeyword(normalizedValue, "sensitive"))
             {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private static bool ContainsAffirmativeSensitiveKeyword(string text, string keyword)
+    {
+        if (!DecisioningTextTokenMatcher.ContainsStandaloneToken(text, keyword))
+        {
+            return false;
+        }
+
+        if (text.Contains($"non-{keyword}", StringComparison.Ordinal)
+            || text.Contains($"non {keyword}", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static bool HasDataBearingSensitivity(GraphNode node)

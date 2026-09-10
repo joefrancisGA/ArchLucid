@@ -123,6 +123,7 @@ const cnCard =
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
 
+
 function formatRemediationWorkbenchApiError(error: unknown): string {
   const failure = toApiLoadFailure(error);
   const blocked = remediationInstanceMutationBlockedReason(failure);

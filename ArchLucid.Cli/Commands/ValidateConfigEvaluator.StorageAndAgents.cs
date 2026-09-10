@@ -98,7 +98,7 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Error,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                $"Invalid value '{agentMode}' — must be Simulator or Real."));
+                $"Invalid value '{agentMode}' — must be Simulator (Rehearsal door) or Real (Career path)."));
 
         else
 

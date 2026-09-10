@@ -12,22 +12,33 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import { extractMarkdownSectionsByAnchor } from "@/lib/help/help-markdown-sections";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+
+
 import {
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_ID,
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO,
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_TITLE,
   CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE,
-  CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE,
   CLOUD_CONNECTIONS_HELP_ORIENTATION_ID,
   CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE,
-  CLOUD_CONNECTIONS_HELP_PAGE_INTRO,
-  CLOUD_CONNECTIONS_HELP_PAGE_SUBTITLE,
   CLOUD_CONNECTIONS_HELP_PAGE_TITLE,
   CLOUD_CONNECTIONS_HELP_PATH,
-  CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
   CLOUD_CONNECTIONS_HELP_RELATED_TOPICS_HEADING,
-  CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE,
-  CLOUD_CONNECTIONS_HELP_START_HERE_HELPER,
+  cloudConnectionsHelpClaimDiscipline,
+  cloudConnectionsHelpPageIntro,
+  cloudConnectionsHelpPageSubtitle,
+  cloudConnectionsHelpPrimaryCta,
+  cloudConnectionsHelpStartHereCardTitle,
 } from "@/lib/cloud-connections-help-guide-content";
 import {
   CLOUD_CONNECTIONS_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -41,13 +52,15 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
-import { extractMarkdownSectionsByAnchor } from "@/lib/help/help-markdown-sections";
-import { HELP_PAGE_LAYOUT, HELP_PAGE_MIN_TOC_HEADINGS, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
-import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
-import { cn } from "@/lib/utils";
-import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
+
+
+
+
+
+
+
+
+
 
 const CLOUD_CONNECTIONS_HELP_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: CLOUD_CONNECTIONS_HELP_ORIENTATION_ID, title: CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE, level: 2 },
@@ -61,7 +74,9 @@ type HelpCloudConnectionsGuideViewProps = {
   readonly markdown: string;
 };
 
-function CloudConnectionsStartHereActionPanel(): React.ReactElement {
+function CloudConnectionsStartHereActionPanel(props: { readonly productLineId: ProductLineId }): React.ReactElement {
+  const primaryCta = cloudConnectionsHelpPrimaryCta(props.productLineId);
+
   return (
     <section
       className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -72,18 +87,16 @@ function CloudConnectionsStartHereActionPanel(): React.ReactElement {
         id="help-cloud-connections-start-here-heading"
         className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
       >
-        {CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE}
+        {cloudConnectionsHelpStartHereCardTitle(props.productLineId)}
       </h2>
       <Button asChild size="sm" variant="primary" data-testid="help-cloud-connections-start-here-primary-cta">
-        <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.href}>
-          {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.label}
-        </Link>
+        <Link href={primaryCta.href}>{primaryCta.label}</Link>
       </Button>
       <p
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="help-cloud-connections-start-here-helper"
       >
-        {CLOUD_CONNECTIONS_HELP_START_HERE_HELPER}
+        {cloudConnectionsHelpPageIntro(props.productLineId)}
       </p>
     </section>
   );
@@ -120,6 +133,7 @@ export function HelpCloudConnectionsGuideView(
   props: HelpCloudConnectionsGuideViewProps,
 ): React.ReactElement {
   const { entry, markdown } = props;
+  const productLineId = resolveProductLineIdFromEnv();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   // Related topics only — React owns intro/tiers/next-actions (avoids duplicate doc intro).
@@ -148,10 +162,10 @@ export function HelpCloudConnectionsGuideView(
         <HelpTopicGuidePageHeader
           title={CLOUD_CONNECTIONS_HELP_PAGE_TITLE}
           titleTestId="help-cloud-connections-page-title"
-          subtitle={CLOUD_CONNECTIONS_HELP_PAGE_SUBTITLE}
+          subtitle={cloudConnectionsHelpPageSubtitle(productLineId)}
           navHref={CLOUD_CONNECTIONS_HELP_PATH}
           headingLevel="h1"
-          claimDiscipline={buyerPolishedShell ? CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE : undefined}
+          claimDiscipline={buyerPolishedShell ? cloudConnectionsHelpClaimDiscipline(productLineId) : undefined}
           claimDisciplineTestId={
             buyerPolishedShell ? CLOUD_CONNECTIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
           }
@@ -170,7 +184,7 @@ export function HelpCloudConnectionsGuideView(
               OPERATOR_LAYOUT.sectionStack,
             )}
           >
-            <CloudConnectionsStartHereActionPanel />
+            <CloudConnectionsStartHereActionPanel productLineId={productLineId} />
           </div>
         ) : null}
 
@@ -178,7 +192,7 @@ export function HelpCloudConnectionsGuideView(
           className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="help-cloud-connections-intro"
         >
-          {CLOUD_CONNECTIONS_HELP_PAGE_INTRO}
+          {cloudConnectionsHelpPageIntro(productLineId)}
         </p>
 
         <div className={contentGridClass}>

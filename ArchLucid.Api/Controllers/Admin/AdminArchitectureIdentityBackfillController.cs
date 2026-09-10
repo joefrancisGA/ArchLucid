@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Authorization;
@@ -38,10 +39,10 @@ public sealed class AdminArchitectureIdentityBackfillController(
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenant is null)
-            return NotFound();
+            return this.NotFoundProblem("Tenant was not found.", ProblemTypes.ResourceNotFound);
 
         if (request.WorkspaceId == Guid.Empty || request.ProjectId == Guid.Empty)
-            return BadRequest("WorkspaceId and ProjectId are required.");
+            return this.BadRequestProblem("WorkspaceId and ProjectId are required.", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = new()
         {
