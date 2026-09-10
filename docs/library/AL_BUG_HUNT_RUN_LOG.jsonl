@@ -1807,3 +1807,4 @@
 {"at":"2026-09-10T17:11:44.7476364Z","zoneId":"ui-runs-list","outcome":"seed-only"}
 {"at":"2026-09-10T17:17:39.2546212Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
 {"at":"2026-09-10T17:20:59.9259861Z","zoneId":"ui-form-validation","outcome":"seed-only"}
+{"at":"2026-09-10T17:24:47.5218945Z","zoneId":"weekly-digest-email","outcome":"seed-only"}
