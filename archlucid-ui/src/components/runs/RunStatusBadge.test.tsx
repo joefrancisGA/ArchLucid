@@ -3,6 +3,22 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 const runStatusVocabularyPassForced = vi.hoisted(() => ({ on: null as boolean | null }));
 
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: "career",
+    effectiveDoor: "career",
+    mounted: true,
+  }),
+}));
+
+vi.mock("@/hooks/use-health-ready-summary-query", () => ({
+  useHealthReadySummaryQuery: () => ({
+    data: undefined,
+    isPending: false,
+    isSuccess: false,
+  }),
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -61,6 +77,23 @@ describe("deriveRunListPipelineLabel", () => {
             inferred: [],
             skipped: [{ questionKey: "drRpo", tier: "Must" }],
           },
+        },
+      ),
+    ).toBe("In pipeline");
+  });
+
+  it("suppresses Ready to finalize on Working Rehearsal door (AS-079)", () => {
+    expect(
+      deriveRunListPipelineLabel(
+        {
+          ...base,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: "Real",
+        },
+        {
+          workingDesk: true,
+          effectiveWorkingCareerRehearsalDoor: "rehearsal",
         },
       ),
     ).toBe("In pipeline");

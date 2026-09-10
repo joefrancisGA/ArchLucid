@@ -4,6 +4,7 @@ import {
   DEFAULT_WORKING_CAREER_REHEARSAL_DOOR,
   readWorkingCareerRehearsalDoorFromStorage,
   resolveWorkingCareerRehearsalDoorScope,
+  shouldSuppressReadyToFinalizeForWorkingRehearsalDoor,
   WORKING_CAREER_REHEARSAL_TENANT_STORAGE_KEY,
   workingCareerRehearsalArchitectureStorageKey,
   writeWorkingCareerRehearsalDoorToStorage,
@@ -50,6 +51,27 @@ describe("working-career-rehearsal-door", () => {
         architectureId: "architecture-002",
       }),
     ).toBe("career");
+  });
+
+  it("suppresses Ready labels on Working Rehearsal door (AS-079)", () => {
+    expect(
+      shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
+        workingDesk: true,
+        effectiveWorkingCareerRehearsalDoor: "rehearsal",
+      }),
+    ).toBe(true);
+    expect(
+      shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
+        workingDesk: true,
+        effectiveWorkingCareerRehearsalDoor: "career",
+      }),
+    ).toBe(false);
+    expect(
+      shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
+        workingDesk: false,
+        effectiveWorkingCareerRehearsalDoor: "rehearsal",
+      }),
+    ).toBe(false);
   });
 
   it("resolves architecture scope when architecture id is present", () => {

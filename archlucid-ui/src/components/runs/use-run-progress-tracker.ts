@@ -31,7 +31,8 @@ import {
   type ReviewPipelineDiagnosticContext,
 } from "@/lib/review-pipeline-stall-diagnosis";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
-import { shouldSuppressReadyToFinalizeForPreCommitGateHonesty } from "@/lib/governance/pre-commit-gate-career-honesty";
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
+import { shouldSuppressReadyToFinalizeForCareerHonesty } from "@/lib/runs/run-pipeline-finalize-blocked-honesty";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import { formatWorkspaceReviewDurationBand } from "@/lib/workspace-review-duration-estimate";
@@ -68,13 +69,19 @@ export function useRunProgressTracker({
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const pipelineDebugEnabled = isReviewPipelineDebugEnabled();
   const workingDesk = useProductionDeskChrome();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
   const [preFinalizeTerminal, setPreFinalizeTerminal] = useState(() =>
     resolvePreFinalizeTerminal(initialSummary, preFinalizeReadyToFinalize),
   );
-  const gateSuppressesReady = shouldSuppressReadyToFinalizeForPreCommitGateHonesty({
+  const gateSuppressesReady = shouldSuppressReadyToFinalizeForCareerHonesty({
     workingDesk,
     preCommitGateEnabled: healthQuery.data?.preCommitGateEnabled,
+    structuralExecutionMode: initialSummary?.structuralExecutionMode,
+    isSample: initialSummary?.isSample,
+    hostAgentExecutionMode: healthQuery.data?.agentExecutionMode,
+    hostQualityGateMode: healthQuery.data?.agentOutputQualityGateMode,
+    effectiveWorkingCareerRehearsalDoor: workingDesk ? effectiveDoor : undefined,
   });
   const effectivePreFinalizeTerminal = preFinalizeTerminal && !gateSuppressesReady;
   const pipelineTerminalFailure = isReviewPipelineTerminalFailure(diagnosticContext);

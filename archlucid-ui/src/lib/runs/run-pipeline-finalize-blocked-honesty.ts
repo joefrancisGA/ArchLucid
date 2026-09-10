@@ -2,6 +2,8 @@ import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trai
 import { shouldSuppressReadyToFinalizeForPreCommitGateHonesty } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { shouldSuppressReadyToFinalizeForQualityGateHonesty } from "@/lib/governance/agent-output-quality-gate-career-honesty";
 import { shouldSuppressReadyToFinalizeForSimulatorRehearsal } from "@/lib/governance/simulator-career-honesty";
+import { shouldSuppressReadyToFinalizeForWorkingRehearsalDoor } from "@/lib/governance/working-career-rehearsal-door";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import { countSkippedMustQuestions } from "@/lib/review-quality/count-skipped-must-questions";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { QualityGateModeInput } from "@/lib/governance/agent-output-quality-gate-career-honesty";
@@ -16,6 +18,7 @@ export type RunPipelineFinalizeBlockedHonestyInput = {
   readonly hostQualityGateMode?: QualityGateModeInput;
   readonly aggregateQualityGateOutcome?: number | null;
   readonly transparencyTrail?: TransparencyTrail | null;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
 };
 
 /** FC-70 — suppress Ready-to-finalize when career honesty would block sealing. */
@@ -23,6 +26,10 @@ export function shouldSuppressReadyToFinalizeForCareerHonesty(
   input: RunPipelineFinalizeBlockedHonestyInput,
 ): boolean {
   if (shouldSuppressReadyToFinalizeForPreCommitGateHonesty(input)) {
+    return true;
+  }
+
+  if (shouldSuppressReadyToFinalizeForWorkingRehearsalDoor(input)) {
     return true;
   }
 

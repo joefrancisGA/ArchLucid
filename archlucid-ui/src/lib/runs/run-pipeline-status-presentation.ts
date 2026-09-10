@@ -47,6 +47,7 @@ export function deriveRunListPipelineLabel(
         hostQualityGateMode: qualityGateHonesty?.hostQualityGateMode,
         aggregateQualityGateOutcome: qualityGateHonesty?.aggregateQualityGateOutcome,
         transparencyTrail: qualityGateHonesty?.transparencyTrail,
+        effectiveWorkingCareerRehearsalDoor: qualityGateHonesty?.effectiveWorkingCareerRehearsalDoor,
       })
     ) {
       return PIPELINE_STATUS_LABELS.inPipeline;

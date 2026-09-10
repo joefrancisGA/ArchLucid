@@ -162,3 +162,17 @@ export function cycleWorkingCareerRehearsalDoor(
 
   return "career";
 }
+
+/** AS-079 / LP-18 — Rehearsal Working door cannot show Ready-to-finalize chrome (Career-only). */
+export function shouldSuppressReadyToFinalizeForWorkingRehearsalDoor(input: {
+  readonly workingDesk?: boolean;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
+}): boolean {
+  if (input.workingDesk !== true) {
+    return false;
+  }
+
+  const effectiveDoor = input.effectiveWorkingCareerRehearsalDoor ?? DEFAULT_WORKING_CAREER_REHEARSAL_DOOR;
+
+  return effectiveDoor !== "career";
+}

@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 
+import { useEffectiveWorkingCareerRehearsalDoor } from "@/hooks/use-effective-working-career-rehearsal-door";
 import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { cn } from "@/lib/utils";
@@ -28,11 +29,13 @@ export type RunStatusBadgeProps = {
 export function RunStatusBadge({ run, className, finalizeHonesty }: RunStatusBadgeProps): ReactElement {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const workingDesk = useProductionDeskChrome();
+  const { effectiveDoor } = useEffectiveWorkingCareerRehearsalDoor();
   const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
   const presentation = resolveRunPipelineStatusPresentation({
     run,
     workingDesk,
     preCommitGateEnabled: healthQuery.data?.preCommitGateEnabled ?? finalizeHonesty?.preCommitGateEnabled,
+    effectiveWorkingCareerRehearsalDoor: workingDesk ? effectiveDoor : finalizeHonesty?.effectiveWorkingCareerRehearsalDoor,
     ...finalizeHonesty,
   });
   const ariaPrefix = resolvePipelineStatusAriaPrefix();
