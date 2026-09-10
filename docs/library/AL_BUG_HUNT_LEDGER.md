@@ -1801,11 +1801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — text filter ignored API displayName while list title prefers displayName over description
+- **last-bug:** 2026-09-10 — stale compareRuns URL persisted when buyer package cards hid compare UI
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1822,7 +1822,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Space on the baseline menu `<summary>` bubbled to `activateRowKeyboard` and opened the inspector while toggling More — **hit 2026-09-09 seed hunt #1427:** extracted shared `shouldIgnoreRunsListRowActivation` (also ignores `button` and `summary`) for work-queue keyboard, buyer card shell, and `onRowActivate`; regression `does not open inspector when Space activates the baseline menu summary`.
 - [x] (proven) Text filter or buyer scope chip narrows `filteredSorted` but `selectedRun` stays on a hidden row so the docked inspector shows a review no longer in the list — **hit 2026-09-09 seed hunt #1468 (seed→hit):** `useRunsList` clears selection when the selected run drops out of `filteredSorted`; regression `narrows text filter closes inspector when selected run is filtered out`.
 - [x] (proven) Client text filter matches `description` and `runId` only while `buyerFacingReviewTitleFromSummary` renders `displayName` when it differs from the run id — **hit 2026-09-10 seed hunt #1556 (seed→hit):** operator search by visible title missed rows with empty/different description; fixed `useRunsList` filter to include `displayName`; regression `filters reviews by displayName when the visible title differs from description`.
-- [ ] (candidate) `compareRuns` URL selection persists when `showBuyerPackageCards` hides compare UI (`showCompareSelection = safeRuns.length >= 2 && !showBuyerPackageCards`) — operator may carry stale compare ids after buyer-polished card layout activates on a single finalized page.
+- [x] (proven) `compareRuns` URL selection persists when `showBuyerPackageCards` hides compare UI (`showCompareSelection = safeRuns.length >= 2 && !showBuyerPackageCards`) — **hit 2026-09-10 thorough hunt #1580:** deep-linked `compareRuns` stayed in URL/state while buyer card layout hid compare chrome; `useRunsList` now clears selection when `showCompareSelection` is false; regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`.
+
+2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 
 2026-09-10 seed hunt #1556 (seed→hit): reseeded ui-runs-list; proved displayName filter gap; seeded compareRuns persistence under buyer card layout; 20 scoped `RunsListClient` tests passed.
 
