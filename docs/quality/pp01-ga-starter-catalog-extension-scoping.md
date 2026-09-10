@@ -4,7 +4,7 @@
 
 **Audience:** Founder / principal architect deciding whether to fund full framework rule coverage in the merged file catalog.
 
-**Status:** Option **B** pilot slice **shipped** (2026-08-28) — twelve previously unbacked declaration-mapped ids added to `ga-starter-compliance.rules.json` (`soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021`). **QR-12 (2026-09-09)** extended the HIPAA clinical boundary slice (`hipaa-011`..`hipaa-025`) and wired `hipaa-architecture.json` keys so the pack emits declaration themes at **P1**. **QR-20 (2026-09-09, `#2689`)** extended ISO 27001 P1 (`iso27001-010`..`iso27001-025`). **QR-31 (2026-09-10)** extended PCI DSS P1 (`pci-007`, `pci-009`). Full Option A (~144 rules) remains deferred; Zero Trust mapped stubs remain open.
+**Status:** Option **B** pilot slice **shipped** (2026-08-28) — twelve previously unbacked declaration-mapped ids added to `ga-starter-compliance.rules.json` (`soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021`). **QR-12 (2026-09-09)** extended the HIPAA clinical boundary slice (`hipaa-011`..`hipaa-025`) and wired `hipaa-architecture.json` keys so the pack emits declaration themes at **P1**. **QR-20 (2026-09-09, `#2689`)** extended ISO 27001 P1 (`iso27001-010`..`iso27001-025`). **QR-31 (2026-09-10)** extended PCI DSS P1 (`pci-007`, `pci-009`). **ZTA P1 (2026-09-10)** extended Zero Trust mapped ids (`zta-007`, `zta-008`). Full Option A (~144 rules) remains deferred; remaining ZTA catalog stubs stay open.
 
 ## Problem statement
 
@@ -17,7 +17,7 @@
 - **18 of 28** declared keys in **18** bundled packs resolve to **nothing** at any floor.
 - Mapped ids such as `soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021` can **never fire** until catalog rows exist with real `appliesToCategory` / `requiredNodeType` / `requiredEdgeType`.
 
-HIPAA, ISO 27001, and PCI DSS P1 slices ship (QR-12 / QR-20 / QR-31). Zero Trust mapped ids remain declaration-silent at **P1** until those catalog rows exist or packs stop advertising those keys.
+HIPAA, ISO 27001, PCI DSS, and Zero Trust P1 mapped slices ship (QR-12 / QR-20 / QR-31 / ZTA P1). Remaining ZTA catalog stubs stay declaration-silent at **P1** until those rows exist or packs stop advertising those keys.
 
 ## What PP-01 already fixed (do not re-do)
 

@@ -58,9 +58,16 @@ export async function compareAgentResultsSummary(
 
 /** Legacy flat-diff comparison between two runs (run-level + optional manifest diffs). */
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
-  return apiGetSealedManifestAware<RunComparison>(
-    `/v1/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<RunComparison>(
+      `/v1/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = compareRunsLoadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Structured golden manifest comparison (decision/requirement/security/topology/cost deltas). */
