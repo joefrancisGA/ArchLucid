@@ -719,9 +719,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 19
+- **hunts:** 20
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
@@ -800,7 +800,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ResolveNextStepAsync` — expired challenge-linked invitation still routes to `AcceptInvitation` after OTP verify — **cheap-disproof 2026-09-10 seed hunt #1630:** `GetPendingByIdAsync` filters `ExpiresUtc`; regression `VerifyCodeAsync_routes_past_expired_challenge_linked_invitation_to_create_workspace`.
 - [x] (valid-no-repro) `IsEmailOtpVerificationRateLimitedAsync` — rate-limited verify emits duplicate `EmailOtpVerificationFailed` audits — **cheap-disproof 2026-09-10 seed hunt #1630:** second failure logs `EmailOtpRateLimitTriggered` only; first wrong code still emits one `EmailOtpVerificationFailed`; regression `VerifyCodeAsync_rate_limit_emits_rate_limit_audit_not_verification_failed`.
 
-- [ ] (candidate) `InMemoryUserInvitationRepository.GetPendingByIdAsync` — uses `TimeProvider.System` while `EmailOtpVerifyFlow` uses injected `TimeProvider`, so fake-clock tests can observe `AcceptInvitation` after invitation expiry until repository clock alignment is fixed (test-infra reachability only)
+- [x] (invalid) `InMemoryUserInvitationRepository.GetPendingByIdAsync` — uses `TimeProvider.System` while `EmailOtpVerifyFlow` uses injected `TimeProvider`, so fake-clock tests can observe `AcceptInvitation` after invitation expiry until repository clock alignment is fixed (test-infra reachability only) — **cheap-disproof 2026-09-10 thorough hunt #1680:** production `DapperUserInvitationRepository` filters `ExpiresUtc > SYSUTCDATETIME()` with host-injected `TimeProvider`; `TryAcceptInvitationAsync` rejects `ExpiresUtc <= _timeProvider.GetUtcNow()` before accept; in-memory repo skew is test-infra only; regressions `InMemoryUserInvitationRepository_GetPendingByIdAsync_filters_expired_rows_using_system_utc` and existing `VerifyCodeAsync_routes_past_expired_challenge_linked_invitation_to_create_workspace`.
+
+2026-09-10 thorough hunt #1680 (dry): cheap-disproof closed in-memory invitation clock-skew candidate as test-infra only; 42 scoped EmailOtp tests + 1 persistence regression passed.
 
 2026-09-10 seed hunt #1630 (seed-only): reseeded email-otp-auth after #1573; cheap-disproof closed challenge-linked accept without verify token, SelectWorkspace placeholder role, inactive membership filtering, expired linked-invitation routing, and verify rate-limit audit pairing; 41 scoped EmailOtp tests passed.
 
