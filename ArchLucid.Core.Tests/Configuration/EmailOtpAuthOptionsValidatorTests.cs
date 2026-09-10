@@ -2,6 +2,7 @@ using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -76,18 +77,59 @@ public sealed class EmailOtpAuthOptionsValidatorTests
         result.Failures.Should().Contain(f => f.Contains("SecretKey", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void Validate_saas_environment_requires_hash_pepper_when_enabled()
+    {
+        EmailOtpAuthOptionsValidator sut = CreateValidator(environmentName: "SaaS");
+
+        ValidateOptionsResult result = sut.Validate(
+            Options.DefaultName,
+            new EmailOtpAuthOptions { Enabled = true, HashPepper = "short" });
+
+        result.Failed.Should().BeTrue();
+        result.Failures.Should().Contain(f => f.Contains("HashPepper", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Validate_archlucid_environment_production_requires_hash_pepper_when_enabled()
+    {
+        EmailOtpAuthOptionsValidator sut = CreateValidator(
+            environmentName: Environments.Development,
+            configuration: new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?> { ["ARCHLUCID_ENVIRONMENT"] = "Production" })
+                .Build());
+
+        ValidateOptionsResult result = sut.Validate(
+            Options.DefaultName,
+            new EmailOtpAuthOptions { Enabled = true, HashPepper = "short" });
+
+        result.Failed.Should().BeTrue();
+        result.Failures.Should().Contain(f => f.Contains("HashPepper", StringComparison.Ordinal));
+    }
+
     private static EmailOtpAuthOptionsValidator CreateValidator(bool isDevelopment, bool isProduction)
+    {
+        string environmentName = isProduction
+            ? Environments.Production
+            : isDevelopment
+                ? Environments.Development
+                : Environments.Staging;
+
+        return CreateValidator(environmentName);
+    }
+
+    private static EmailOtpAuthOptionsValidator CreateValidator(
+        string environmentName,
+        IConfiguration? configuration = null)
     {
         TestHostEnvironment hostEnvironment = new()
         {
-            EnvironmentName = isProduction
-                ? Environments.Production
-                : isDevelopment
-                    ? Environments.Development
-                    : "Staging"
+            EnvironmentName = environmentName
         };
 
-        return new EmailOtpAuthOptionsValidator(hostEnvironment);
+        IConfiguration resolvedConfiguration = configuration ?? new ConfigurationBuilder().Build();
+
+        return new EmailOtpAuthOptionsValidator(hostEnvironment, resolvedConfiguration);
     }
 
     private sealed class TestHostEnvironment : IHostEnvironment

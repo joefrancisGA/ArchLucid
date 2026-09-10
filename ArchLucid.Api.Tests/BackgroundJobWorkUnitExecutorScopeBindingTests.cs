@@ -1,4 +1,5 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Application.Tenancy;
@@ -104,6 +105,7 @@ public sealed class BackgroundJobWorkUnitExecutorScopeBindingTests
             Mock.Of<IAuditService>(),
             Mock.Of<ITenantDeletionService>(),
             Mock.Of<IItsmOutboundIssueCreationService>(),
+            Mock.Of<IFindingVerificationService>(),
             new BackgroundJobWorkUnitScopeResolver(runs.Object));
 
         AnalysisReportDocxWorkUnit unit = new(

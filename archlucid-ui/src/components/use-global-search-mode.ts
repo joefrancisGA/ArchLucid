@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   GLOBAL_SEARCH_ARIA_LABEL,
   GLOBAL_SEARCH_PLACEHOLDER,
@@ -32,6 +33,7 @@ export function useGlobalSearchMode() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useProductLine();
 
   const routeLocalSearchMode = useMemo((): RouteLocalSearchMode => {
     const path = pathname ?? "";
@@ -64,16 +66,24 @@ export function useGlobalSearchMode() {
   }, [routeLocalSearchMode, searchParams]);
 
   const searchPlaceholder = useMemo(
-    () =>
-      buyerPolishedShell
-        ? resolveShellHeaderSearchPlaceholder(pathname ?? "")
-        : GLOBAL_SEARCH_PLACEHOLDER,
-    [buyerPolishedShell, pathname],
+    () => {
+      if (productLine === "security") {
+        return resolveShellHeaderSearchPlaceholder(pathname ?? "", productLine);
+      }
+
+      return buyerPolishedShell
+        ? resolveShellHeaderSearchPlaceholder(pathname ?? "", productLine)
+        : GLOBAL_SEARCH_PLACEHOLDER;
+    },
+    [buyerPolishedShell, pathname, productLine],
   );
 
   const searchAriaLabel = useMemo(
-    () => (buyerPolishedShell ? resolveShellHeaderSearchLabel(pathname ?? "") : GLOBAL_SEARCH_ARIA_LABEL),
-    [buyerPolishedShell, pathname],
+    () =>
+      buyerPolishedShell || productLine === "security"
+        ? resolveShellHeaderSearchLabel(pathname ?? "", productLine)
+        : GLOBAL_SEARCH_ARIA_LABEL,
+    [buyerPolishedShell, pathname, productLine],
   );
 
   const replaceRouteLocalSearchQuery = useCallback(

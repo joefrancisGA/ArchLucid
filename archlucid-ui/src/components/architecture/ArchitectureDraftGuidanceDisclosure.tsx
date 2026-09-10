@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { InAppHelpLink } from "@/components/InAppHelpLink";
@@ -15,6 +15,10 @@ import {
   isArchitectureDraftGuidanceDismissed,
   persistArchitectureDraftGuidanceDismissed,
 } from "@/lib/architecture/architecture-draft-guidance-dismiss";
+import {
+  architectureDraftGuidanceDisclosureHrefFromSearch,
+  parseArchitectureDraftGuidanceOpenFromSearch,
+} from "@/lib/architecture/architecture-draft-guidance-disclosure-url";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 import { cn } from "@/lib/utils";
@@ -27,11 +31,39 @@ export type ArchitectureDraftGuidanceDisclosureProps = {
 export function ArchitectureDraftGuidanceDisclosure(
   props: ArchitectureDraftGuidanceDisclosureProps,
 ): React.JSX.Element | null {
-  const pathname = usePathname();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureDraftGuidanceOpenParam = searchParams.get("architectureDraftGuidanceOpen");
   const headerTopicSlug = pageHelpTopicForPathname(pathname ?? "")?.slug;
   // Skip getting-started when the page header Help button already maps to that topic.
   const showGettingStartedHelpLink = headerTopicSlug !== "getting-started";
   const [visible, setVisible] = useState(false);
+  const [open, setOpenState] = useState(() =>
+    parseArchitectureDraftGuidanceOpenFromSearch(architectureDraftGuidanceOpenParam),
+  );
+
+  const syncOpenToUrl = useCallback(
+    (detailsOpen: boolean) => {
+      router.replace(
+        architectureDraftGuidanceDisclosureHrefFromSearch(searchParams.toString(), detailsOpen, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpen = useCallback(
+    (detailsOpen: boolean) => {
+      setOpenState(detailsOpen);
+      syncOpenToUrl(detailsOpen);
+    },
+    [syncOpenToUrl],
+  );
+
+  useEffect(() => {
+    setOpenState(parseArchitectureDraftGuidanceOpenFromSearch(architectureDraftGuidanceOpenParam));
+  }, [architectureDraftGuidanceOpenParam]);
 
   useEffect(() => {
     if (isArchitectureDraftGuidanceDismissed()) {
@@ -59,6 +91,10 @@ export function ArchitectureDraftGuidanceDisclosure(
         className={cn(
           "min-w-0 flex-1 rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40",
         )}
+        open={open}
+        onToggle={(event) => {
+          setOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
           {ARCHITECTURE_DRAFT_GUIDANCE_DISCLOSURE_SUMMARY}

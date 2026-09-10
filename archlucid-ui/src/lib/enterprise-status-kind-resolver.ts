@@ -37,6 +37,16 @@ function resolvePipelineStatusKind(display: string): EnterpriseStatusKind | null
     case normalizeStatusKey(PIPELINE_STATUS_BUYER_DISPLAY_LABELS.starting):
       return "neutral";
 
+    case normalizeStatusKey(PIPELINE_STATUS_LABELS.failed):
+    case normalizeStatusKey(PIPELINE_STATUS_BUYER_DISPLAY_LABELS.failed):
+    case "stopped":
+      return "blocked";
+
+    case normalizeStatusKey(PIPELINE_STATUS_LABELS.partiallyFailed):
+    case normalizeStatusKey(PIPELINE_STATUS_BUYER_DISPLAY_LABELS.partiallyFailed):
+    case "incomplete":
+      return "needs-attention";
+
     default:
       return null;
   }

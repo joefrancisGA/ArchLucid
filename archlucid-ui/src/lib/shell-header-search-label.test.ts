@@ -18,4 +18,10 @@ describe("shell header search copy", () => {
     expect(resolveShellHeaderSearchPlaceholder("/architecture/reviews")).toContain("Filter reviews");
     expect(resolveShellHeaderSearchPlaceholder("/architecture/reviews/run-abc")).toContain("section");
   });
+
+  it("uses a short Search placeholder in the SecureNow shell", () => {
+    expect(resolveShellHeaderSearchPlaceholder("/", "security")).toBe("Search");
+    expect(resolveShellHeaderSearchPlaceholder("/governance/findings", "security")).toBe("Search");
+    expect(resolveShellHeaderSearchLabel("/", "security")).toBe("Search");
+  });
 });

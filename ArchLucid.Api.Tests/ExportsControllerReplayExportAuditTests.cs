@@ -6,9 +6,11 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -57,6 +59,21 @@ public sealed class ExportsControllerReplayExportAuditTests
 
         Mock<IAuditService> audit = new();
 
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        });
+
+        IAuthorityQueryService authorityQuery = SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun();
+        IManifestHashService manifestHashService = SealedManifestHashTestSupport.CreateManifestHashService();
+        Mock<IRunExportLineageVerifier> lineageVerifier = new();
+        lineageVerifier
+            .Setup(v => v.VerifyAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportLineageVerificationResult { Status = RunExportLineageVerificationStatus.Match });
+
         RunExportQueryFacade facade = new(
             runDetails.Object,
             exports.Object,
@@ -65,12 +82,16 @@ public sealed class ExportsControllerReplayExportAuditTests
             Mock.Of<IExportRecordDiffService>(),
             Mock.Of<IExportRecordDiffSummaryFormatter>(),
             audit.Object,
-            Mock.Of<IRunExportLineageVerifier>(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
-            Mock.Of<IScopeContextProvider>());
+            lineageVerifier.Object,
+            authorityQuery,
+            manifestHashService,
+            scopeProvider.Object);
 
-        ExportsController sut = new(facade);
+        ExportsController sut = new(
+            facade,
+            authorityQuery,
+            scopeProvider.Object,
+            manifestHashService);
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u")])),
@@ -81,6 +102,7 @@ public sealed class ExportsControllerReplayExportAuditTests
         await sut.ReplayExportRecord(
             "source-export",
             new ReplayExportRequest { RecordReplayExport = true },
+            exports.Object,
             CancellationToken.None);
 
         audit.Verify(

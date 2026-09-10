@@ -11,6 +11,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/first-value-20-minutes",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpFirstValue20GuideView } from "@/app/(operator)/help/_sections/HelpFirstValue20GuideView";

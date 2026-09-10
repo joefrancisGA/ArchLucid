@@ -117,6 +117,20 @@ public sealed class LlmTenantWalletRefillStage(
         return LlmTenantWalletCreditResult.Conflict();
     }
 
+    public int VisibleAutoRefillsThisUtcMonth(LlmTenantWalletStateReadModel state)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+
+        int utcYearMonth = GetUtcYearMonth();
+
+        if (state.AutoRefillsThisUtcMonthYearMonth != utcYearMonth)
+        {
+            return 0;
+        }
+
+        return state.AutoRefillsThisUtcMonthCount;
+    }
+
     private bool CanAutoRefill(LlmTenantWalletStateReadModel state)
     {
         if (!state.AutoReplenishEnabled)
@@ -128,10 +142,7 @@ public sealed class LlmTenantWalletRefillStage(
         if (state.BalanceUsd >= state.RefillTriggerThresholdUsd)
             return false;
 
-        int utcYearMonth = GetUtcYearMonth();
-        int monthRefillCount = state.AutoRefillsThisUtcMonthYearMonth == utcYearMonth
-            ? state.AutoRefillsThisUtcMonthCount
-            : 0;
+        int monthRefillCount = VisibleAutoRefillsThisUtcMonth(state);
 
         decimal spentThisMonth = monthRefillCount * state.RefillIncrementUsd;
 

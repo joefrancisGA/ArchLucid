@@ -55,6 +55,8 @@ export type UseArchitectureDraftAutosaveResult = {
   /** Align revision tracking after a PATCH from outside this hook (e.g. scope confirmation). */
   readonly syncServerUpdatedUtc: (serverUpdatedUtc: string) => void;
   readonly hasPersistedDraft: boolean;
+  /** True when fields were hydrated from this-browser recovery before server create (WS-15). */
+  readonly recoveredLocally: boolean;
   /** LK-12: overwrite server copy with this tab's unsaved edits after a conflict. */
   readonly keepLocalDraftOnConflict: () => Promise<boolean>;
 };
@@ -64,6 +66,7 @@ export function fieldsAreEqual(left: ArchitectureDraftFieldState, right: Archite
     left.freeTextIntent === right.freeTextIntent &&
     left.businessOutcome === right.businessOutcome &&
     left.systemName === right.systemName &&
+    left.openQuestions === right.openQuestions &&
     JSON.stringify(left.structuredBrief) === JSON.stringify(right.structuredBrief)
   );
 }

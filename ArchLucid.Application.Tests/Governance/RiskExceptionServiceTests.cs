@@ -79,6 +79,8 @@ public sealed class RiskExceptionServiceTests
                 {
                     EventId = Guid.NewGuid(),
                     TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
                     FindingId = findingId,
                     ReviewerUserId = "reviewer",
                     Action = FindingReviewAction.RecordDisposition,
@@ -481,6 +483,8 @@ public sealed class RiskExceptionServiceTests
                 {
                     EventId = Guid.NewGuid(),
                     TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
                     FindingId = canonicalFindingId,
                     ReviewerUserId = "reviewer",
                     Action = FindingReviewAction.RecordDisposition,

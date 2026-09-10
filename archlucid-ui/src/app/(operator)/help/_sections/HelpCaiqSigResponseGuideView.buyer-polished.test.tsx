@@ -28,11 +28,13 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/caiq-sig-response",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpCaiqSigResponseGuideView } from "@/app/(operator)/help/_sections/HelpCaiqSigResponseGuideView";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
   CAIQ_SIG_RESPONSE_HELP_CLAIM_DISCIPLINE,
   CAIQ_SIG_RESPONSE_HELP_FOLLOW_UPS_TITLE,
@@ -87,10 +89,7 @@ describe("HelpCaiqSigResponseGuideView buyer-polished shell (ECA)", () => {
       within(actionPanel).getByRole("link", { name: CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS.openTrustCenter.label }),
     ).toHaveAttribute("href", CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTIONS.openTrustCenter.href);
 
-    for (const source of CAIQ_SIG_RESPONSE_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), CAIQ_SIG_RESPONSE_HELP_SOURCES, "/help/caiq-sig-response");
 
     expect(screen.getByTestId("caiq-sig-response-help-posture-summary")).toBeInTheDocument();
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

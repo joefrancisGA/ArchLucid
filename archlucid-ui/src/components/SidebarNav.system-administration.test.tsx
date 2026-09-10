@@ -293,7 +293,7 @@ describe("SidebarNav — Internal section", () => {
     expect(ragLink).not.toHaveTextContent("per-corpus");
   });
 
-  it("does not render the legacy governance view checkbox", () => {
+  it("does not render the legacy approval view checkbox", () => {
     render(<SidebarNav />);
 
     expect(screen.queryByTestId("governance-mode-toggle")).toBeNull();

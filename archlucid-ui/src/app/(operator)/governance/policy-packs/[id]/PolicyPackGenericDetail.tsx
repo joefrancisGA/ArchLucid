@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-import { CopyIdButton } from "@/components/CopyIdButton";
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import {
@@ -15,7 +13,6 @@ import {
   POLICY_PACKS_REVIEW_ID_QUERY_PARAM,
 } from "@/lib/policy-packs-review-handoff";
 import {
-  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
@@ -30,14 +27,14 @@ import { resolveResponsibleAiPolicyRuleRows } from "@/lib/policy/responsible-ai-
 import type { PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
 
 import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
-import { PolicyPackDetailBuyerChrome } from "./PolicyPackDetailBuyerChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { PolicyPackGenericTechnicalDetailsDisclosure } from "./PolicyPackGenericTechnicalDetailsDisclosure";
 import { PolicyPackRulesTableSection } from "./PolicyPackRulesTableSection";
 import {
   RESPONSIBLE_AI_ACTION_GOVERNANCE,
   RESPONSIBLE_AI_ACTION_ASSIGN_TO_WORKSPACE,
   RESPONSIBLE_AI_ACTION_OPEN_LIBRARY,
   RESPONSIBLE_AI_ACTION_START_REVIEW,
-  RESPONSIBLE_AI_VIEW_TECHNICAL_DETAILS,
 } from "@/lib/responsible-ai-policy-pack-detail-content";
 
 const GENERIC_RULES_INTRO =
@@ -88,6 +85,7 @@ function resolveEnablementStatusTag(isEnabled: boolean, isGloballyActive: boolea
 
 export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): React.JSX.Element {
   const { policyPackId, packRecord, packContent, isEnabled, isGloballyActive } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const scopedReviewId = (props.scopedReviewId ?? "").trim();
   const policyPacksHubHref =
     scopedReviewId.length > 0 ? buildPolicyPacksHrefWithReviewId(scopedReviewId) : GOVERNANCE_POLICY_PACKS_PATH;
@@ -106,7 +104,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
   });
 
   return (
-    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="policy-pack-generic-detail">
+    <OperatorPageContainer variant={buyerPolishedShell ? "workflow" : "dashboard"} className={OPERATOR_LAYOUT.sectionStack} data-testid="policy-pack-generic-detail">
       <OperatorPageHeader
         navHref={policyPacksHubHref}
         title={packName}
@@ -126,8 +124,6 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
           </Button>
         }
       />
-
-      <PolicyPackDetailBuyerChrome />
 
       <Card>
         <CardContent className={cn("space-y-2 pt-6 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
@@ -160,17 +156,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
         </Link>
       </nav>
 
-      <Collapsible>
-        <CollapsibleTrigger className={cn(OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.optional)}>
-          {RESPONSIBLE_AI_VIEW_TECHNICAL_DETAILS}
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-2">
-          <p className={cn("m-0 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-            Pack reference: {policyPackId}
-          </p>
-          <CopyIdButton value={policyPackId} aria-label="Copy policy pack ID" />
-        </CollapsibleContent>
-      </Collapsible>
+      <PolicyPackGenericTechnicalDetailsDisclosure policyPackId={policyPackId} />
     </OperatorPageContainer>
   );
 }

@@ -35,4 +35,25 @@ public sealed class SponsorEvidenceBasisVerdictMarkdownFormatterTests
         md.Should().Contain("not legal, compliance, SOC 2");
         md.Should().Contain("product evidence posture");
     }
+
+    [Fact]
+    public void AppendMarkdownSection_DeferredScopePresent_IncludesDeferredScopeLabel()
+    {
+        StringBuilder sb = new();
+        ProofPackageCompletenessResponse proof = new()
+        {
+            AgentOutputPilotStrictEvidenceSatisfied = true,
+            RoiEvidenceConfidence = PilotRoiEvidenceConfidence.Strong,
+            DeferredBuyerRequirementsPresent = true,
+        };
+
+        PilotRunDeltas deltas = new();
+        ArchitectureRun run = new();
+
+        SponsorEvidenceBasisVerdictMarkdownFormatter.AppendMarkdownSection(sb, proof, deltas, run, deferredScopePresent: true);
+
+        string md = sb.ToString();
+        md.Should().Contain("**Deferred scope**");
+        md.Should().Contain("**Labels applied:** **Deferred scope**");
+    }
 }

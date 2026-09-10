@@ -16,6 +16,9 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $false)]
+    [string] $TenantId = "",
+
+    [Parameter(Mandatory = $false)]
     [string] $SubscriptionId = "",
 
     [Parameter(Mandatory = $false)]
@@ -49,12 +52,19 @@ if (-not (Test-Path -LiteralPath $extractorScript))
 
 Ensure-ArchLucidAzModules -SkipModuleInstall:$SkipModuleInstall
 [string]$resolvedSubscriptionId = Resolve-ArchLucidAzureExtractorSubscriptionId `
+    -TenantId $TenantId `
     -SubscriptionId $SubscriptionId `
     -SkipConnect:$SkipConnect
 
 [string]$resolvedOutputPath = Resolve-ArchLucidAzureExtractorOutputPath -OutputPath $OutputPath
 
 Write-Host "ArchLucid Azure extractor quick start" -ForegroundColor Cyan
+
+if (-not ([string]::IsNullOrWhiteSpace($TenantId)))
+{
+    Write-Host ("  Tenant:       {0}" -f $TenantId.Trim())
+}
+
 Write-Host ("  Subscription: {0}" -f $resolvedSubscriptionId)
 Write-Host ("  Output ZIP:   {0}" -f $resolvedOutputPath)
 
@@ -71,6 +81,11 @@ Write-Host ""
     IncludeCost = $true
 }
 
+if (-not ([string]::IsNullOrWhiteSpace($TenantId)))
+{
+    $extractorParams["TenantId"] = $TenantId.Trim()
+}
+
 if (-not ([string]::IsNullOrWhiteSpace($ResourceGroupScope)))
 {
     $extractorParams["ResourceGroupScope"] = $ResourceGroupScope.Trim()
@@ -82,4 +97,15 @@ if ($DryRun)
 }
 
 & $extractorScript @extractorParams
-exit $LASTEXITCODE
+
+if (-not $?)
+{
+    exit 1
+}
+
+if (Test-Path -Path 'Variable:LASTEXITCODE')
+{
+    exit $LASTEXITCODE
+}
+
+exit 0

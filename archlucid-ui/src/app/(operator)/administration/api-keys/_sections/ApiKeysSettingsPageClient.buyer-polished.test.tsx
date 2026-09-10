@@ -1,15 +1,14 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const usePathnameMock = vi.hoisted(() => vi.fn(() => "/"));
 
 vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
-  return {
-    ...actual,
+  return extendNextNavigationVitestMock(importOriginal, {
     usePathname: () => usePathnameMock(),
-  };
+  });
 });
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -35,15 +34,27 @@ vi.mock("@/components/DeveloperApiContractsApiKeysVocabularyRail", () => ({
   ),
 }));
 
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+}));
+
 import { ApiKeysSettingsPageClient } from "./ApiKeysSettingsPageClient";
 import {
   API_KEYS_PAGE_SUBTITLE,
   API_KEYS_ENTERPRISE_ONLY_NOTICE,
 } from "@/lib/api-keys-settings-copy";
 import {
+  API_KEYS_SETTINGS_FOLLOW_UPS_TITLE,
+  API_KEYS_SETTINGS_SOURCES,
+} from "@/lib/api-keys-settings-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import {
+  API_KEYS_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   API_KEYS_SETTINGS_PAGE_SUBTITLE_BUYER,
   API_KEYS_SETTINGS_PRIMARY_CONTENT_ID,
   API_KEYS_SETTINGS_SKIP_LINK_LABEL,
+  API_KEYS_SETTINGS_SKIP_TARGET_ID,
 } from "./api-keys-settings-page-copy";
 
 vi.mock("@/lib/api-keys-settings-access", () => ({
@@ -60,7 +71,7 @@ describe("ApiKeysSettingsPageClient buyer-polished shell (ADP)", () => {
     usePathnameMock.mockReturnValue("/");
   });
 
-  it("renders skip link, breadcrumb, orientation above summary, buyer subtitle, and hides vocabulary rails", async () => {
+  it("renders skip link, first-viewport band, orientation above summary, buyer subtitle, and hides vocabulary rails", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -82,24 +93,33 @@ describe("ApiKeysSettingsPageClient buyer-polished shell (ADP)", () => {
 
     expect(screen.getByRole("link", { name: API_KEYS_SETTINGS_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${API_KEYS_SETTINGS_PRIMARY_CONTENT_ID}`,
+      `#${API_KEYS_SETTINGS_SKIP_TARGET_ID}`,
     );
     expect(screen.queryByTestId("api-keys-settings-page-breadcrumb")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByText(API_KEYS_SETTINGS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.queryByText(API_KEYS_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.queryByText(API_KEYS_ENTERPRISE_ONLY_NOTICE)).not.toBeInTheDocument();
-    expect(screen.getByTestId("api-keys-settings-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("api-keys-settings-sources")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: API_KEYS_SETTINGS_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByTestId("api-keys-users-vocabulary-rail")).not.toBeInTheDocument();
     expect(screen.queryByTestId("webhooks-api-keys-vocabulary-rail")).not.toBeInTheDocument();
     expect(screen.queryByTestId("developer-api-contracts-api-keys-vocabulary-rail")).not.toBeInTheDocument();
 
-    const primaryContent = screen.getByTestId("api-keys-settings-primary-content");
-    const orderedLandmarks = ["api-keys-settings-orientation-top", "api-keys-summary-row"]
-      .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
-      .filter((node): node is HTMLElement => node !== null)
-      .map((node) => node.getAttribute("data-testid"));
+    const primaryContent = screen.getByTestId(API_KEYS_SETTINGS_PRIMARY_CONTENT_ID);
+    const firstViewport = screen.getByTestId(API_KEYS_SETTINGS_FIRST_VIEWPORT_TEST_ID);
+    const orientationTop = screen.getByTestId("api-keys-settings-orientation-top");
+    const summaryRow = screen.getByTestId("api-keys-summary-row");
+    const sourcesSection = screen.getByTestId("api-keys-settings-sources");
 
-    expect(orderedLandmarks).toEqual(["api-keys-settings-orientation-top", "api-keys-summary-row"]);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).toContainElement(orientationTop);
+    expect(firstViewport).toContainElement(summaryRow);
+    expect(orientationTop).toContainElement(sourcesSection);
+    expect(orientationTop.compareDocumentPosition(summaryRow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(API_KEYS_SETTINGS_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Governance;
 
 using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
@@ -31,6 +33,9 @@ public static class FindingDispositionValidation
 
         string normalizedFindingId = request.FindingId.Trim();
 
+        if (!HasSubstantiveText(normalizedFindingId))
+            throw new ArgumentException("Finding id is required.", nameof(request));
+
         if (normalizedFindingId.Length > MaxFindingIdLength)
         {
             throw new ArgumentException(
@@ -46,12 +51,17 @@ public static class FindingDispositionValidation
             if (string.IsNullOrWhiteSpace(request.Rationale))
                 throw new ArgumentException("Rationale is required for this disposition.", nameof(request));
 
-            if (request.Rationale.Trim().Length < MinimumRationaleLength)
+            string normalizedRationale = request.Rationale.Trim();
+
+            if (!HasSubstantiveText(normalizedRationale))
+                throw new ArgumentException("Rationale is required for this disposition.", nameof(request));
+
+            if (normalizedRationale.Length < MinimumRationaleLength)
                 throw new ArgumentException(
                     "Rationale must be at least 10 characters for this disposition.",
                     nameof(request));
 
-            if (request.Rationale.Trim().Length > MaximumRationaleLength)
+            if (normalizedRationale.Length > MaximumRationaleLength)
             {
                 throw new ArgumentException(
                     $"Rationale must not exceed {MaximumRationaleLength} characters.",
@@ -73,12 +83,19 @@ public static class FindingDispositionValidation
                     "Trade-off acknowledgment is required when accepting a finding.",
                     nameof(request));
 
-            if (request.TradeOffAcknowledgment.Trim().Length < MinimumRationaleLength)
+            string normalizedTradeOffAcknowledgment = request.TradeOffAcknowledgment.Trim();
+
+            if (!HasSubstantiveText(normalizedTradeOffAcknowledgment))
+                throw new ArgumentException(
+                    "Trade-off acknowledgment is required when accepting a finding.",
+                    nameof(request));
+
+            if (normalizedTradeOffAcknowledgment.Length < MinimumRationaleLength)
                 throw new ArgumentException(
                     "Trade-off acknowledgment must be at least 10 characters.",
                     nameof(request));
 
-            if (request.TradeOffAcknowledgment.Trim().Length > MaximumRationaleLength)
+            if (normalizedTradeOffAcknowledgment.Length > MaximumRationaleLength)
             {
                 throw new ArgumentException(
                     $"Trade-off acknowledgment must not exceed {MaximumRationaleLength} characters.",
@@ -101,6 +118,9 @@ public static class FindingDispositionValidation
             if (string.IsNullOrWhiteSpace(request.EvidenceRequestText))
                 throw new ArgumentException("Evidence request text is required.", nameof(request));
 
+            if (!HasSubstantiveText(request.EvidenceRequestText.Trim()))
+                throw new ArgumentException("Evidence request text is required.", nameof(request));
+
             if (request.EvidenceRequestText.Trim().Length > MaximumRationaleLength)
             {
                 throw new ArgumentException(
@@ -108,5 +128,76 @@ public static class FindingDispositionValidation
                     nameof(request));
             }
         }
+
+        if (!string.IsNullOrWhiteSpace(request.ArchitectRestatement)
+            && request.ArchitectRestatement.Trim().Length > MaximumRationaleLength)
+        {
+            throw new ArgumentException(
+                $"Architect restatement must not exceed {MaximumRationaleLength} characters.",
+                nameof(request));
+        }
+    }
+
+    /// <summary>Working desk Remediated requires server-attested impact preview completion or an explicit override (LP-14).</summary>
+    public static void ValidateWorkingRemediatedImpactPreviewAttestation(
+        RecordFindingDispositionRequest request,
+        bool isWorkingDesk)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (!isWorkingDesk || request.Disposition != Disposition.Remediated)
+        {
+            return;
+        }
+
+        if (request.ImpactPreviewCompleted == true)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.PreviewOverrideReason)
+            && request.PreviewOverrideReason.Trim().Length >= MinimumRationaleLength)
+        {
+            if (request.PreviewOverrideReason.Trim().Length > MaximumRationaleLength)
+            {
+                throw new ArgumentException(
+                    $"Preview override reason must not exceed {MaximumRationaleLength} characters.",
+                    nameof(request));
+            }
+
+            return;
+        }
+
+        throw new ArgumentException(
+            "Impact preview attestation is required when marking a finding remediated on a Working desk.",
+            nameof(request));
+    }
+
+    /// <summary>
+    /// Rejects blank and invisible-only ids (for example U+200B) that pass
+    /// <see cref="string.IsNullOrWhiteSpace(string?)"/> but are not usable finding ids.
+    /// </summary>
+    private static bool HasSubstantiveText(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        bool hasSubstantive = false;
+
+        foreach (char character in value)
+        {
+
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            UnicodeCategory category = char.GetUnicodeCategory(character);
+
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control)
+                return false;
+
+            hasSubstantive = true;
+        }
+
+        return hasSubstantive;
     }
 }

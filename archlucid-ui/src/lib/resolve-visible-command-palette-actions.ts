@@ -12,15 +12,14 @@ import {
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import { WORKING_MODE_SECONDARY_REPORTING_HREFS } from "@/lib/workspace-mode/working-mode-nav-filter";
+import {
+  WORKING_PALETTE_HELP_ALLOWLIST,
+  isWorkingPaletteNavHrefAllowed,
+} from "@/lib/filter-working-palette-nav-hrefs";
 
 export type VisibleCommandPaletteAction = CommandPaletteHrefAction | CommandPaletteHandlerAction;
 
 const WORKING_MODE_HIDDEN_ACTION_IDS = new Set(["action-finish-setup"]);
-
-const WORKING_MODE_PALETTE_NAV_ALLOWLIST = new Set<string>([
-  "/help",
-  "/help/report-problem",
-]);
 
 export type ResolveVisibleCommandPaletteHrefActionsInput = {
   readonly workingMode: boolean;
@@ -30,6 +29,8 @@ export type ResolveVisibleCommandPaletteHrefActionsInput = {
   readonly workingStartHref?: string;
   /** Sidebar-visible href set — Working palette nav rows must agree (SD-11). */
   readonly visibleNavHrefs?: ReadonlySet<string>;
+  /** Last-open architecture identity for bind-tool palette gates (AO-41). */
+  readonly lastOpenArchitectureId?: string | null;
 };
 
 const GUIDED_FIRST_SESSION_HIDDEN_HREFS = new Set<string>([
@@ -77,11 +78,15 @@ export function resolveVisibleCommandPaletteHrefActions(
         return false;
       }
 
+      if (!isWorkingPaletteNavHrefAllowed(action.href)) {
+        return false;
+      }
+
       if (visibleNavHrefs === undefined) {
         return true;
       }
 
-      if (WORKING_MODE_PALETTE_NAV_ALLOWLIST.has(action.href)) {
+      if (WORKING_PALETTE_HELP_ALLOWLIST.has(action.href)) {
         return true;
       }
 

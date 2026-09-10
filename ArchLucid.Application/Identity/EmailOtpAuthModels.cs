@@ -116,6 +116,12 @@ public sealed class AcceptedEmailOtpInvitation
         get;
         init;
     }
+
+    public string AppRole
+    {
+        get;
+        init;
+    } = ArchLucidRoles.Reader;
 }
 
 public sealed class EmailOtpVerifyResult

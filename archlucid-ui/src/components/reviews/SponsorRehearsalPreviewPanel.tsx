@@ -1,8 +1,15 @@
 "use client";
 
 import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM,
+  parseSponsorRehearsalPreviewOpenFromSearch,
+  sponsorRehearsalPreviewDisclosureHrefFromSearch,
+} from "@/lib/reviews/sponsor-rehearsal-preview-disclosure-url";
 import {
   buildSponsorRehearsalPreview,
   type SponsorRehearsalPreviewInput,
@@ -24,6 +31,32 @@ export function SponsorRehearsalPreviewPanel(
   props: SponsorRehearsalPreviewPanelProps,
 ): ReactElement {
   const collapsedByDefault = props.collapsedByDefault !== false;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const sponsorRehearsalPreviewOpenParam = searchParams.get(SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM);
+  const [panelOpen, setPanelOpenState] = useState(() =>
+    parseSponsorRehearsalPreviewOpenFromSearch(sponsorRehearsalPreviewOpenParam),
+  );
+  const syncPanelOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        sponsorRehearsalPreviewDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setPanelOpen = useCallback(
+    (open: boolean) => {
+      setPanelOpenState(open);
+      syncPanelOpenToUrl(open);
+    },
+    [syncPanelOpenToUrl],
+  );
+  useEffect(() => {
+    setPanelOpenState(parseSponsorRehearsalPreviewOpenFromSearch(sponsorRehearsalPreviewOpenParam));
+  }, [sponsorRehearsalPreviewOpenParam]);
   const preview = buildSponsorRehearsalPreview(props.input ?? {});
 
   const body = (
@@ -83,6 +116,8 @@ export function SponsorRehearsalPreviewPanel(
         props.className,
       )}
       data-testid="sponsor-rehearsal-preview"
+      open={panelOpen}
+      onToggle={(event) => setPanelOpen(event.currentTarget.open)}
     >
       <summary
         className={cn("cursor-pointer select-none font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

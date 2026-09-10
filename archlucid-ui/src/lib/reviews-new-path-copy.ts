@@ -5,7 +5,7 @@ import {
 
 export type ReviewsNewPathMode = "quick-review" | "guided-intake" | "detailed";
 
-/** Deep link for born-governed creation intake (guided clarifying questions). */
+/** Deep link for approval-ready creation intake (guided clarifying questions). */
 export const REVIEWS_NEW_GUIDED_INTAKE_HREF = "/architecture/reviews/new?path=guided-intake" as const;
 
 /** URL path query token for the Guided questions tab (product label: {@link REVIEWS_NEW_GUIDED_QUESTIONS_LABEL}). */

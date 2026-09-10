@@ -19,7 +19,7 @@ describe("first-pilot-operator-status-vocabulary", () => {
     expect(mapReadinessStatusToEnterpriseKind("ready")).toBe("ready");
     expect(mapReadinessStatusToEnterpriseKind("attention")).toBe("needs-attention");
     expect(mapReadinessStatusToEnterpriseKind("unknown")).toBe("neutral");
-    expect(mapReadinessStatusToStatusTagLabel("unknown")).toBe("Pending");
+    expect(mapReadinessStatusToStatusTagLabel("unknown")).toBe("Check unavailable");
     expect(mapReadinessStatusToStatusTagLabel("attention")).toBe("Action needed");
   });
 

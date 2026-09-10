@@ -12,11 +12,13 @@ import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabul
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 export type FindingDetailOperationalActionsProps = {
   readonly runId: string;
   readonly findingId: string;
   readonly payload: FindingInspectPayload;
+  readonly transparencyTrail?: TransparencyTrail | null;
   readonly graphEvidenceHref: string | null;
   readonly linkedManifestHref: string | null;
   readonly inspectHref: string;
@@ -53,6 +55,7 @@ export function FindingDetailOperationalActions(props: FindingDetailOperationalA
           runId={props.runId}
           findingId={props.findingId}
           payload={props.payload}
+          transparencyTrail={props.transparencyTrail ?? null}
           compact
         />
       </div>

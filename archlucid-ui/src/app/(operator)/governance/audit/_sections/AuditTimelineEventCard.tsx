@@ -1,13 +1,28 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { AuditEvent } from "@/lib/api";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { pipelineEventTypeBuyerMilestoneSubtitle, pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
-import { auditBuyerEventIsSystemRecordedActor } from "@/app/(operator)/governance/audit/audit-ui-helpers";
+import { auditBuyerEventIsSystemRecordedActor, formatAuditActorDisplayName } from "@/app/(operator)/governance/audit/audit-ui-helpers";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { auditTrailGovernanceEventLabel } from "@/lib/audit-trail-page-helpers";
 import { formatActionActorName } from "@/lib/action-actor-display";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  auditTimelineTechnicalDetailsDisclosureHrefFromSearch,
+  parseAuditTimelineTechnicalDetailsEventIdFromSearch,
+} from "@/lib/governance/audit-timeline-technical-details-disclosure-url";
+import {
+  auditTimelineDataJsonDisclosureHrefFromSearch,
+  parseAuditTimelineDataJsonEventIdFromSearch,
+} from "@/lib/governance/audit-timeline-data-json-disclosure-url";
 import { auditBuyerActorRoleLine, formatUtc, tryFormatDataJson } from "./audit-page-helpers";
+import { useAuditTrailReviewHref } from "@/hooks/use-audit-trail-review-href";
 
 type AuditTimelineEventCardProps = {
   ev: AuditEvent;
@@ -17,7 +32,75 @@ type AuditTimelineEventCardProps = {
 
 export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
   const { ev, buyerPolishedShell, uniformRunId } = props;
+  const { productLine } = useProductLine();
+  const router = useRouter();
+  const pathname = usePathname() ?? "/governance/audit";
+  const searchParams = useSearchParams();
+  const auditTimelineTechnicalDetailsEventIdParam = searchParams.get("auditTimelineTechnicalDetailsEventId");
+  const auditTimelineDataJsonEventIdParam = searchParams.get("auditTimelineDataJsonEventId");
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(
+    () => parseAuditTimelineTechnicalDetailsEventIdFromSearch(auditTimelineTechnicalDetailsEventIdParam) === ev.eventId,
+  );
+  const [dataJsonOpen, setDataJsonOpenState] = useState(
+    () => parseAuditTimelineDataJsonEventIdFromSearch(auditTimelineDataJsonEventIdParam) === ev.eventId,
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        auditTimelineTechnicalDetailsDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? ev.eventId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [ev.eventId, pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  const syncDataJsonOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        auditTimelineDataJsonDisclosureHrefFromSearch(
+          searchParams.toString(),
+          open ? ev.eventId : null,
+          pathname,
+        ),
+        { scroll: false },
+      );
+    },
+    [ev.eventId, pathname, router, searchParams],
+  );
+
+  const setDataJsonOpen = useCallback(
+    (open: boolean) => {
+      setDataJsonOpenState(open);
+      syncDataJsonOpenToUrl(open);
+    },
+    [syncDataJsonOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(
+      parseAuditTimelineTechnicalDetailsEventIdFromSearch(auditTimelineTechnicalDetailsEventIdParam) === ev.eventId,
+    );
+  }, [auditTimelineTechnicalDetailsEventIdParam, ev.eventId]);
+
+  useEffect(() => {
+    setDataJsonOpenState(parseAuditTimelineDataJsonEventIdFromSearch(auditTimelineDataJsonEventIdParam) === ev.eventId);
+  }, [auditTimelineDataJsonEventIdParam, ev.eventId]);
+
   const runKey = ev.runId?.trim() ?? "";
+  const reviewHref = useAuditTrailReviewHref(runKey);
   const hideBuyerReviewLine =
     buyerPolishedShell &&
     uniformRunId !== null &&
@@ -90,7 +173,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
         {buyerPolishedShell ? (
           <div>
             <span className="font-medium text-al-text-primary">
-              {formatActionActorName(ev.actorUserName)}
+              {formatActionActorName(formatAuditActorDisplayName(ev.actorUserName, productLine))}
             </span>
             <span className="text-al-text-secondary">
               {" "}
@@ -108,7 +191,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
           Review:{" "}
           {ev.runId ? (
             <Link
-              href={`/architecture/reviews/${ev.runId}`}
+              href={reviewHref}
               className={OPERATOR_LINK.nav}
             >
               {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
@@ -133,7 +216,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
             Review:{" "}
             {ev.runId ? (
               <Link
-                href={`/architecture/reviews/${ev.runId}`}
+                href={reviewHref}
                 className={OPERATOR_LINK.nav}
               >
                 {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
@@ -148,7 +231,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
         buyerPolishedShell ? null : (
           <div className={cn("mt-1.5", OPERATOR_TYPOGRAPHY.body)}>
             <Link
-              href={`/architecture/reviews/${ev.runId}#agent-traces`}
+              href={`${reviewHref}#agent-traces`}
               className={OPERATOR_LINK.nav}
             >
               View agent traces →
@@ -157,7 +240,13 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
         )
       ) : null}
       {!buyerPolishedShell ? (
-        <details className="mt-2.5">
+        <details
+          className="mt-2.5"
+          open={dataJsonOpen}
+          onToggle={(event) => {
+            setDataJsonOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>Data JSON</summary>
           <pre
             className={cn(
@@ -170,7 +259,14 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
         </details>
       ) : null}
       {buyerPolishedShell ? (
-        <details className="mt-2.5" data-testid="audit-timeline-technical-details">
+        <details
+          className="mt-2.5"
+          data-testid="audit-timeline-technical-details"
+          open={technicalDetailsOpen}
+          onToggle={(event) => {
+            setTechnicalDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>Technical details</summary>
           <div className={cn("mt-2 space-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
             <p className="m-0">

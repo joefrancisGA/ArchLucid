@@ -6,6 +6,10 @@ import { RunsListClient } from "./RunsListClient";
 vi.mock("next/navigation", () => ({
   usePathname: () => "/architecture/reviews",
   useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({
+    replace: vi.fn(),
+    push: vi.fn(),
+  }),
 }));
 
 vi.mock("./use-runs-list", () => ({

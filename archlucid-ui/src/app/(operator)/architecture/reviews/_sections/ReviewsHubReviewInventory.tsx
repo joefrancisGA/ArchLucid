@@ -18,6 +18,7 @@ import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operatio
 import { useRehydrateInFlightFromWorkingContinuity } from "@/hooks/use-rehydrate-in-flight-from-architecture";
 import { collectInFlightReviewRunIds, mapInFlightOperationsToDeskRows } from "@/lib/operations/map-in-flight-desk-rows";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
@@ -45,6 +46,7 @@ import {
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE,
+  WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL,
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import {
@@ -163,8 +165,11 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     [archivedRuns, props.runs],
   );
   const rows = useMemo(
-    () => mergedRuns.map((run) => toReviewsHubReviewRowDisplay(run, ownerContext, mergedRuns)),
-    [mergedRuns, ownerContext],
+    () =>
+      mergedRuns.map((run) =>
+        toReviewsHubReviewRowDisplay(run, ownerContext, mergedRuns, { isWorkingMode }),
+      ),
+    [isWorkingMode, mergedRuns, ownerContext],
   );
   const draftCount = draftEntries.length;
   const hasDrafts = draftCount > 0;
@@ -235,7 +240,11 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 
   const sampleHref = showcaseSampleReviewPackageHref();
-  const showSampleExploreCta = !isLiveOperatorShellRecoveryContext();
+  const showSampleExploreCta = !isLiveOperatorShellRecoveryContext() && !isWorkingMode;
+  const emptyPrimaryHref = isWorkingMode ? ARCHITECTURES_LIST_PATH : "/architecture/reviews/new";
+  const emptyPrimaryLabel = isWorkingMode
+    ? WORKING_REVIEWS_HUB_OPEN_ARCHITECTURES_LABEL
+    : REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL;
   const scopeRecord = useSyncExternalStore(
     subscribeOperatorScopeRecord,
     readOperatorScopeFromStorage,
@@ -267,11 +276,11 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             <EnterpriseCompactEmptyState
               testId="reviews-hub-recent-empty"
               title={hasDrafts ? REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE : REVIEWS_HUB_RECENT_EMPTY_TITLE}
-              description={emptyInventoryDescription(draftCount)}
+              description={emptyInventoryDescription(draftCount, isWorkingMode)}
               actions={[
                 {
-                  label: REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
-                  href: "/architecture/reviews/new",
+                  label: emptyPrimaryLabel,
+                  href: emptyPrimaryHref,
                   variant: "outline",
                 },
                 ...(showSampleExploreCta
@@ -336,6 +345,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             runs={sortedFilteredRuns}
             siblingRuns={mergedRuns}
             ownerContext={ownerContext}
+            isWorkingMode={isWorkingMode}
             ariaLabel={REVIEWS_HUB_PAGE_TITLE}
             tableTestId="reviews-hub-packages-table"
             virtualizedTestId="reviews-hub-packages-virtualized"

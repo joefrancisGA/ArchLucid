@@ -9,4 +9,7 @@ export const CONNECT_AZURE_SECURELY_HELP_SKIP_LINK_LABEL = "Skip to Azure setup 
 export const CONNECT_AZURE_SECURELY_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-connect-azure-securely-header-claim-discipline" as const;
 
+export const CONNECT_AZURE_SECURELY_HELP_ORIENTATION_BOTTOM_TEST_ID =
+  "help-connect-azure-securely-orientation-bottom" as const;
+
 export const CONNECT_AZURE_SECURELY_HELP_ACTION_PANEL_TITLE = "Configure Azure connection" as const;

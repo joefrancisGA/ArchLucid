@@ -20,6 +20,7 @@ import { PolicyPacksNextReviewFooterClient } from "../_sections/PolicyPacksNextR
 import { HealthcareClaimsPolicyPackDetail } from "./HealthcareClaimsPolicyPackDetail";
 import { PolicyPackDetailEvidenceChrome } from "./PolicyPackDetailEvidenceChrome";
 import { PolicyPackDetailLoadError } from "./PolicyPackDetailLoadError";
+import { PolicyPackDetailLoadingSkeleton } from "./PolicyPackDetailLoadingSkeleton";
 import { PolicyPackDetailNextPackFooterClient } from "./PolicyPackDetailNextPackFooterClient";
 import { PolicyPackGenericDetail } from "./PolicyPackGenericDetail";
 import { PolicyPackDetailNotFound } from "./PolicyPackDetailNotFound";
@@ -119,9 +120,9 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
 
   if (detailQuery.isPending) {
     return (
-      <div className="p-4" data-testid="policy-pack-detail-loading">
-        <p className="m-0 text-al-text-secondary">Loading policy pack…</p>
-      </div>
+      <PolicyPackDetailEvidenceChrome>
+        <PolicyPackDetailLoadingSkeleton />
+      </PolicyPackDetailEvidenceChrome>
     );
   }
 

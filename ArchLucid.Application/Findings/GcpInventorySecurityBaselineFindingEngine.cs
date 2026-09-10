@@ -4,6 +4,9 @@ using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -18,6 +21,7 @@ namespace ArchLucid.Application.Findings;
 public sealed class GcpInventorySecurityBaselineFindingEngine(
     IScopeContextProvider scopeContextProvider,
     ICloudInventoryExtractorPackageRepository packageRepository,
+    IComplianceRulePackProvider rulePackProvider,
     TimeProvider clock,
     IOptions<RoiCostEvidenceFreshnessOptions> freshnessOptions) : IEffectfulFindingEngine
 {
@@ -26,6 +30,9 @@ public sealed class GcpInventorySecurityBaselineFindingEngine(
 
     private readonly ICloudInventoryExtractorPackageRepository _packageRepository =
         packageRepository ?? throw new ArgumentNullException(nameof(packageRepository));
+
+    private readonly IComplianceRulePackProvider _rulePackProvider =
+        rulePackProvider ?? throw new ArgumentNullException(nameof(rulePackProvider));
 
     private readonly TimeProvider _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
@@ -37,7 +44,9 @@ public sealed class GcpInventorySecurityBaselineFindingEngine(
     public string Category => "Security";
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(
+        GraphSnapshot graphSnapshot,
+        FindingAnalysisContext? analysisContext,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
@@ -73,19 +82,33 @@ public sealed class GcpInventorySecurityBaselineFindingEngine(
             return [];
         }
 
+        ComplianceRulePack rulePack = await _rulePackProvider.GetRulePackAsync(ct).ConfigureAwait(false);
+        HashSet<string> activeRuleIds = DeclarationSignalPolicyKeyMap.CollectActiveRuleIds(rulePack);
+
         IReadOnlyList<InventorySecurityBaselineFinding> gaps =
             GcpInventorySecurityBaselineClassifier.ClassifyFromResourcesJson(resourcesJson);
 
         InventoryTopologyResourceNodeIndex topologyNodes =
             InventoryTopologyResourceNodeIndex.Build(graphSnapshot, InventoryTopologyCloudProvider.Gcp);
 
-        return gaps
-            .Select(gap => InventorySecurityBaselineFindingMapper.ToFinding(
+        List<Finding> findings = [];
+
+        foreach (InventorySecurityBaselineFinding gap in gaps)
+        {
+            if (!DeclarationSignalPolicyGate.ShouldEmitTheme(gap.ControlFamily, activeRuleIds))
+                continue;
+
+            string? policyRuleId = DeclarationSignalPolicyGate.TryGetPolicyRuleId(gap.ControlFamily, activeRuleIds);
+
+            findings.Add(InventorySecurityBaselineFindingMapper.ToFinding(
                 gap,
                 EngineType,
                 "GcpInventorySecurityBaseline",
                 "GCP",
-                topologyNodes))
-            .ToList();
+                topologyNodes,
+                policyRuleId));
+        }
+
+        return findings;
     }
 }

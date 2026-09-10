@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { findSidebarNavGroupIdsForActivePath } from "@/lib/sidebar-nav-active-group-expansion";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
@@ -9,11 +10,41 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
     vi.unstubAllEnvs();
   });
 
-  it("returns the system-admin group when an internal route is active", () => {
+  it("returns the system-admin group when an internal route is active in Architecture", () => {
     vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
-    const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, 3, "all", true);
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      AUTHORITY_RANK.PlatformInternalOperationsAuthority,
+      "all",
+      true,
+      false,
+      {
+        productLine: "architecture",
+        showVendorInternalNav: true,
+      },
+    );
 
     expect(findSidebarNavGroupIdsForActivePath(rows, "/internal/rag-health")).toEqual(["operator-system-admin"]);
+  });
+
+  it("returns administration when an internal route is active in Security", () => {
+    vi.stubEnv("NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV", "true");
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      AUTHORITY_RANK.PlatformInternalOperationsAuthority,
+      "all",
+      true,
+      false,
+      {
+        productLine: "security",
+        showVendorInternalNav: true,
+      },
+    );
+
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/internal/health")).toEqual(["operator-admin"]);
+    expect(rows.some((row) => row.group.id === "operator-system-admin")).toBe(false);
   });
 
   it("returns governance when a governance child route is active", () => {

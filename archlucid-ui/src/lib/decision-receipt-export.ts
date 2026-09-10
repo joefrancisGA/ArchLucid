@@ -2,6 +2,7 @@ import {
   buildTransparencyTrailExportSection,
   type TransparencyTrailExportSection,
 } from "@/lib/feasibility/export-transparency-trail-section";
+import { resolveHardInfeasibleCitationExportBlockedReason } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import type { FeasibilityVerdictKind, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 export const DECISION_RECEIPT_SCHEMA_VERSION = "archlucid.decision-receipt.v2";
@@ -50,6 +51,12 @@ export function isExportableDecisionVerdict(kind: FeasibilityVerdictKind): boole
   return kind === "SoftInfeasible" || kind === "HardInfeasible";
 }
 
+export function resolveDecisionReceiptExportBlockedReason(
+  context: DecisionReceiptContext,
+): string | null {
+  return resolveHardInfeasibleCitationExportBlockedReason(context.verdict);
+}
+
 export function buildDecisionReceiptDocument(context: DecisionReceiptContext): DecisionReceiptDocument {
   return {
     schemaVersion: DECISION_RECEIPT_SCHEMA_VERSION,
@@ -89,6 +96,12 @@ export function buildDecisionReceiptFilename(context: DecisionReceiptContext): s
 }
 
 export function triggerDecisionReceiptDownload(context: DecisionReceiptContext): void {
+  const blockedReason = resolveDecisionReceiptExportBlockedReason(context);
+
+  if (blockedReason !== null) {
+    return;
+  }
+
   const document = buildDecisionReceiptDocument(context);
   const json = JSON.stringify(document, null, 2);
   const blob = new Blob([json], { type: "application/json;charset=utf-8" });

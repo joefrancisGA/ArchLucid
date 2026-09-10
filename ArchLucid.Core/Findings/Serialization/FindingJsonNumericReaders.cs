@@ -49,13 +49,6 @@ internal static class FindingJsonNumericReaders
         {
             string? raw = element.GetString();
 
-            if (FindingJsonStringReaders.TryParseBooleanString(raw, out bool boolean))
-            {
-                value = boolean ? 1.0 : 0.0;
-
-                return true;
-            }
-
             if (double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
                 && double.IsFinite(parsed))
             {
@@ -63,13 +56,6 @@ internal static class FindingJsonNumericReaders
 
                 return true;
             }
-        }
-
-        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
-        {
-            value = element.ValueKind == JsonValueKind.True ? 1.0 : 0.0;
-
-            return true;
         }
 
         value = default;
@@ -86,22 +72,8 @@ internal static class FindingJsonNumericReaders
         {
             string? raw = element.GetString();
 
-            if (FindingJsonStringReaders.TryParseBooleanString(raw, out bool boolean))
-            {
-                value = boolean ? 1 : 0;
-
-                return true;
-            }
-
             if (TryParseWholeNumberString(raw, out value))
                 return true;
-        }
-
-        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
-        {
-            value = element.ValueKind == JsonValueKind.True ? 1 : 0;
-
-            return true;
         }
 
         value = default;
@@ -180,22 +152,8 @@ internal static class FindingJsonNumericReaders
         {
             string? raw = element.GetString();
 
-            if (FindingJsonStringReaders.TryParseBooleanString(raw, out bool boolean))
-            {
-                value = boolean ? 1m : 0m;
-
-                return true;
-            }
-
             if (decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out value))
                 return true;
-        }
-
-        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
-        {
-            value = element.ValueKind == JsonValueKind.True ? 1m : 0m;
-
-            return true;
         }
 
         value = default;
