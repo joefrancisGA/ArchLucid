@@ -25,7 +25,8 @@ public static class HostedAzureExtractorZipBuilder
         string subscriptionId,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         bool includeCostRequested,
-        DateTimeOffset collectionTimestampUtc)
+        DateTimeOffset collectionTimestampUtc,
+        string? subscriptionName = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionId);
 
@@ -41,6 +42,7 @@ public static class HostedAzureExtractorZipBuilder
             ["scriptVersion"] = HostedScriptVersion,
             ["collectionTimestamp"] = collectionTimestampUtc.ToString("o"),
             ["subscriptionId"] = subscriptionId.Trim(),
+            ["subscriptionName"] = AzureExtractorSubscriptionDisplayName.Normalize(subscriptionName),
             ["scope"] = scope,
             ["switchesUsed"] = switchesUsed,
             ["azModuleVersion"] = "hosted-extractor",
