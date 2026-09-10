@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -40,6 +41,18 @@ public sealed class RemediationInstanceSummary
     }
 
     public Guid? CloudResourceId
+    {
+        get;
+        init;
+    }
+
+    public Guid? PathId
+    {
+        get;
+        init;
+    }
+
+    public RemediationPathNarrative? PathNarrative
     {
         get;
         init;
@@ -283,6 +296,8 @@ public sealed class RemediationInstanceQueryService(
             Status = instance.Status,
             AutomationLevel = instance.AutomationLevel,
             CloudResourceId = instance.CloudResourceId,
+            PathId = instance.PathId,
+            PathNarrative = RemediationPathNarrativeJson.TryDeserialize(instance.PathNarrativeJson),
             WaveId = instance.WaveId,
             PreflightSnapshotId = instance.PreflightSnapshotId,
             ExecutionSnapshotId = instance.ExecutionSnapshotId,
