@@ -132,7 +132,7 @@ public sealed partial class PilotsController
         }
         catch (SponsorFirstValuePdfBlockedException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
         catch (ConflictException ex)
         {
@@ -240,6 +240,10 @@ public sealed partial class PilotsController
             return pdf is null
                 ? this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound)
                 : File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
+        }
+        catch (SponsorFirstValuePdfBlockedException ex)
+        {
+            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
         catch (ConflictException ex)
         {
