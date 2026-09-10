@@ -1,6 +1,7 @@
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { preFinalizeSyntheticSimulationBlockedReason } from "@/lib/runs/pre-finalize-synthetic-simulation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiPostJson } from "./http";
 import type { components } from "@/lib/openapi-schemas";
 
@@ -20,4 +21,5 @@ export async function simulatePreCommitSyntheticFindings(
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
+
 }
