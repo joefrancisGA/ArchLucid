@@ -10,8 +10,6 @@ import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPostJson, apiPutJson } from "./http";
 
-import { governanceEnvironmentCatalogBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
-
 import type {
   GovernanceEnvironmentCatalog,
   ReplaceGovernanceEnvironmentCatalogRequest,
