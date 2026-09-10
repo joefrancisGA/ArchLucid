@@ -12,7 +12,7 @@
 
 Architects defend **cited findings that follow from the evidence**. ADR 0082 closes the structural hole — decision-grade rows need ProvenanceKind A or B before persist/commit eligibility. Structural refs prove **where** a claim points, not **whether** the cited text actually supports the finding sentence.
 
-TB-1228 rejected fusing semantic/RAG faithfulness into a **sync LLM judge on commit** — false rejects on paraphrase, latency, and correlated model failure. [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](../../library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md) records the durable three-lane split:
+TB-1228 rejected fusing semantic/RAG faithfulness into a **sync LLM judge on commit** — false rejects on paraphrase, latency, and correlated model failure. [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](../../library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md) records the durable three-lane split. Per-finding band semantics, scorer rules, warn vs hold, Simulator presentation, and honesty examples: [`FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md`](../../library/FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md) (**AS-075**).
 
 | Lane | Role |
 |------|------|

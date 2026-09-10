@@ -267,6 +267,77 @@ public sealed class GovernanceLineageServiceTests
         result.TopFindings.Should().BeEmpty();
     }
 
+    [SkippableFact]
+    public async Task GetApprovalRequestLineageAsync_When_manifest_unsealed_omits_top_findings()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runN = runGuid.ToString("N");
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+
+        ManifestDocument unsealedManifest = PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateSealedGoldenManifest(
+            scope,
+            runGuid);
+        unsealedManifest.ManifestHash = "tampered-hash";
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        Mock<IGovernancePromotionRecordRepository> promotions = new();
+        Mock<IRunDetailQueryService> runQuery = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        GovernanceApprovalRequest approval = new() { RunId = runN };
+        approvals
+            .Setup(r => r.GetByIdAsync("req-unsealed-findings", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approval);
+
+        runQuery
+            .Setup(r => r.GetRunDetailAsync(runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = runN, Status = ArchitectureRunStatus.Committed } });
+
+        promotions
+            .Setup(p => p.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IAuthorityQueryService authority = CreateAuthorityWithManifestAndFindings(
+            scope,
+            runGuid,
+            unsealedManifest,
+            new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new()
+                    {
+                        Category = "c",
+                        EngineType = "e",
+                        FindingId = "leaked",
+                        FindingType = "t",
+                        Rationale = "r",
+                        Severity = FindingSeverity.Critical,
+                        Title = "Should not leak on tampered manifest",
+                        Trace = new ExplainabilityTrace(),
+                    },
+                ],
+            });
+
+        GovernanceLineageService sut = CreateSut(
+            approvals.Object,
+            promotions.Object,
+            runQuery.Object,
+            authority,
+            scopeProvider.Object,
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateManifestHashService(
+                PolicyPackGovernanceDryRunSealedManifestTestSupport.SealedManifestHash));
+
+        GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync("req-unsealed-findings");
+
+        result.Should().NotBeNull();
+        result!.Manifest.Should().BeNull();
+        result.RiskPosture.Should().BeNull();
+        result.TopFindings.Should().BeEmpty();
+    }
+
     private static IAuthorityQueryService CreateAuthorityWithManifest(
         ScopeContext scope,
         Guid runGuid,
@@ -278,6 +349,34 @@ public sealed class GovernanceLineageServiceTests
             Run = new RunRecord { RunId = runGuid },
             GoldenManifest = goldenManifest,
             FindingsSnapshot = new FindingsSnapshot { Findings = [] },
+        };
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        authority
+            .Setup(a => a.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                runGuid,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        return authority.Object;
+    }
+
+    private static IAuthorityQueryService CreateAuthorityWithManifestAndFindings(
+        ScopeContext scope,
+        Guid runGuid,
+        ManifestDocument goldenManifest,
+        FindingsSnapshot findingsSnapshot)
+    {
+        Mock<IAuthorityQueryService> authority = new();
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord { RunId = runGuid },
+            GoldenManifest = goldenManifest,
+            FindingsSnapshot = findingsSnapshot,
         };
 
         authority

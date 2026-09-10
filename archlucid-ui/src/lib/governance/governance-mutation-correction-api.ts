@@ -1,5 +1,4 @@
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
-import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import { governanceMutationCorrectionBlockedReason } from "@/lib/governance/governance-mutation-correction-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
@@ -27,20 +26,13 @@ export async function recordGovernanceMutationCorrection(
   body: GovernanceMutationCorrectionTarget & { rationale: string },
   options?: { readonly idempotencyKey?: string },
 ): Promise<GovernanceMutationCorrectionRecorded> {
-  const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
-  const headers = { "Idempotency-Key": idempotencyKey };
-
   try {
-    return await apiPostJson<GovernanceMutationCorrectionRecorded>(
-      "/v1/governance/mutation-corrections",
-      {
-        mutationKind: body.mutationKind,
-        subjectId: body.subjectId,
-        runId: body.runId,
-        rationale: body.rationale,
-      },
-      { extraHeaders: headers },
-    );
+    return await apiPostJson<GovernanceMutationCorrectionRecorded>("/v1/governance/mutation-corrections", {
+      mutationKind: body.mutationKind,
+      subjectId: body.subjectId,
+      runId: body.runId,
+      rationale: body.rationale,
+    });
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceMutationCorrectionBlockedReason(failure);
@@ -64,7 +56,6 @@ export async function recordGovernanceMutationCorrectionWith401Resume(
     execute: () => recordGovernanceMutationCorrection(body, { idempotencyKey }),
   });
 }
-
 
 export const GOVERNANCE_MUTATION_CORRECTION_RATIONALE_REQUIRED =
   "Enter a rationale before recording a correction.";

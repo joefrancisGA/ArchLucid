@@ -109,7 +109,7 @@ export async function replayArchitectureRunAsync(
     readonly manifestVersionOverride?: string | null;
   } = {},
 ): Promise<ReplayArchitectureRunAsyncResult> {
-try {
+  try {
     const accepted = await apiPostAcceptedWithLocation(
       `/v1/architecture/review/${encodeURIComponent(runId)}/replay/async`,
       {
@@ -121,6 +121,7 @@ try {
     );
     const operationId =
       parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
+
     trackInFlightOperation({
       operationId,
       title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
@@ -129,10 +130,12 @@ try {
       stepLabel: "Replay queued",
       state: "Pending",
     });
+
     return { operationId, location: accepted.location };
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = reviewAsyncReplayMutationBlockedReason(failure);
+
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 }
