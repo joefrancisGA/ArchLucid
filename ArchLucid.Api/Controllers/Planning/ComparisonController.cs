@@ -96,15 +96,15 @@ public sealed partial class ComparisonController(
             ManifestCompareLoadOutcome.TargetLifecycleIncomplete => this.ConflictProblem(
                 $"Run '{result.RunId}' authority lifecycle must be Complete before compare.",
                 ProblemTypes.Conflict),
-            ManifestCompareLoadOutcome.PinFingerprintMismatch => this.ConflictProblem(
-                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
-                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.PinFingerprintMismatch => MapComparisonSealedManifestConflict(
+                new ConflictException(
+                    "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
             ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
                 "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
                 ProblemTypes.CommittedArtifactInventoryMismatch),
-            ManifestCompareLoadOutcome.SealedManifestHashMismatch => this.ConflictProblem(
-                "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
-                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.SealedManifestHashMismatch => MapComparisonSealedManifestConflict(
+                new ConflictException(
+                    "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
             _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {result.Outcome}."),
         };
     }

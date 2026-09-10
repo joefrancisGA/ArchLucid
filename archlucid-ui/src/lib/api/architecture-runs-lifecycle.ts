@@ -252,5 +252,12 @@ export async function archiveArchitectureRequest(requestId: string): Promise<voi
 
 /** Soft-deletes an architecture request (DELETE /v1/architecture/request/{requestId}). */
 export async function deleteArchitectureRequest(requestId: string): Promise<void> {
-  await apiDelete(`/v1/architecture/request/${encodeURIComponent(requestId)}`);
+  try {
+    await apiDelete(`/v1/architecture/request/${encodeURIComponent(requestId)}`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureRequestLifecycleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
