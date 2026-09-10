@@ -2,6 +2,7 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models.Runs;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Runs;
@@ -24,54 +25,61 @@ public sealed partial class RunDetailPageBundleController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetTimelinesBundle(Guid runId, CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-
-        RunDetailDto? detail =
-            await _queryService.GetRunDetailAsync(scope, runId, cancellationToken).ConfigureAwait(false);
-
-        if (detail is null)
+        try
         {
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        IActionResult? sealedGuardResult = EnsureSealedManifestReadAllowed(detail, runId);
+            RunDetailDto? detail =
+                await _queryService.GetRunDetailAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        Task<IReadOnlyList<RunPipelineTimelineItemDto>?> pipelineTask =
-            _pipelineAuditTimeline.GetTimelineAsync(scope, runId, cancellationToken);
-
-        Task<IReadOnlyList<StageTimelineSummary>> stageTask =
-            LoadStageTimelineAsync(scope, runId, cancellationToken);
-
-        await Task.WhenAll(pipelineTask, stageTask).ConfigureAwait(false);
-
-        IReadOnlyList<RunPipelineTimelineItemDto>? pipelineItems = await pipelineTask.ConfigureAwait(false);
-
-        if (pipelineItems is null)
-        {
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
-
-        IReadOnlyList<RunPipelineTimelineItemResponse> pipeline = pipelineItems
-            .Select(static i => new RunPipelineTimelineItemResponse
+            if (detail is null)
             {
-                EventId = i.EventId,
-                OccurredUtc = i.OccurredUtc,
-                EventType = i.EventType,
-                ActorUserName = i.ActorUserName,
-                CorrelationId = i.CorrelationId,
-            })
-            .ToList();
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            }
 
-        RunDetailTimelinesBundleResponse body = new()
+            IActionResult? sealedGuardResult = EnsureSealedManifestReadAllowed(detail, runId);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            Task<IReadOnlyList<RunPipelineTimelineItemDto>?> pipelineTask =
+                _pipelineAuditTimeline.GetTimelineAsync(scope, runId, cancellationToken);
+
+            Task<IReadOnlyList<StageTimelineSummary>> stageTask =
+                LoadStageTimelineAsync(scope, runId, cancellationToken);
+
+            await Task.WhenAll(pipelineTask, stageTask).ConfigureAwait(false);
+
+            IReadOnlyList<RunPipelineTimelineItemDto>? pipelineItems = await pipelineTask.ConfigureAwait(false);
+
+            if (pipelineItems is null)
+            {
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            }
+
+            IReadOnlyList<RunPipelineTimelineItemResponse> pipeline = pipelineItems
+                .Select(static i => new RunPipelineTimelineItemResponse
+                {
+                    EventId = i.EventId,
+                    OccurredUtc = i.OccurredUtc,
+                    EventType = i.EventType,
+                    ActorUserName = i.ActorUserName,
+                    CorrelationId = i.CorrelationId,
+                })
+                .ToList();
+
+            RunDetailTimelinesBundleResponse body = new()
+            {
+                PipelineTimeline = pipeline,
+                StageTimeline = await stageTask.ConfigureAwait(false),
+            };
+
+            return Ok(body);
+        }
+        catch (ConflictException ex)
         {
-            PipelineTimeline = pipeline,
-            StageTimeline = await stageTask.ConfigureAwait(false),
-        };
-
-        return Ok(body);
+            return MapRunDetailPageBundleSealedManifestConflict(ex);
+        }
     }
 
     private async Task<IReadOnlyList<StageTimelineSummary>> LoadStageTimelineAsync(

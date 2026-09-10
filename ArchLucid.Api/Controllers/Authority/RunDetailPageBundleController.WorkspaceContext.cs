@@ -23,79 +23,86 @@ public sealed partial class RunDetailPageBundleController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetWorkspaceContextBundle(Guid runId, CancellationToken cancellationToken)
     {
-        ScopeContext scope = _scopeProvider.GetCurrentScope();
-
-        RunDetailDto? currentDetail =
-            await _queryService.GetRunDetailAsync(scope, runId, cancellationToken).ConfigureAwait(false);
-
-        if (currentDetail is null)
+        try
         {
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
+            ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        IActionResult? sealedGuardResult = EnsureSealedManifestReadAllowed(currentDetail, runId);
+            RunDetailDto? currentDetail =
+                await _queryService.GetRunDetailAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (currentDetail is null)
+            {
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            }
 
-        RunSummaryDto? currentRun =
-            await _queryService.GetRunSummaryAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+            IActionResult? sealedGuardResult = EnsureSealedManifestReadAllowed(currentDetail, runId);
 
-        if (currentRun is null)
-        {
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        IReadOnlyList<RunSummaryDto> projectRuns = await _queryService
-            .ListRunsByProjectAsync(scope, currentRun.ProjectId, DeferredProjectRunTake, cancellationToken)
-            .ConfigureAwait(false);
+            RunSummaryDto? currentRun =
+                await _queryService.GetRunSummaryAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
-        RunSummaryDto? priorCommittedRun = await _queryService
-            .GetPriorCommittedRunSummaryBeforeCurrentAsync(
-                scope,
-                runId,
-                currentRun.ProjectId,
-                currentRun.CreatedUtc,
-                cancellationToken)
-            .ConfigureAwait(false);
+            if (currentRun is null)
+            {
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            }
 
-        RunComparisonResponse? priorComparison = null;
-        string? priorComparisonBlockedReason = null;
+            IReadOnlyList<RunSummaryDto> projectRuns = await _queryService
+                .ListRunsByProjectAsync(scope, currentRun.ProjectId, DeferredProjectRunTake, cancellationToken)
+                .ConfigureAwait(false);
 
-        if (priorCommittedRun is not null)
-        {
-            ScopedRunPairLoadResult loadResult = await _compareRunsFacade
-                .LoadScopedRunPairAsync(
-                    priorCommittedRun.RunId.ToString("N"),
-                    runId.ToString("N"),
+            RunSummaryDto? priorCommittedRun = await _queryService
+                .GetPriorCommittedRunSummaryBeforeCurrentAsync(
+                    scope,
+                    runId,
+                    currentRun.ProjectId,
+                    currentRun.CreatedUtc,
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            priorComparisonBlockedReason = MapPriorCompareBlockedReason(loadResult);
+            RunComparisonResponse? priorComparison = null;
+            string? priorComparisonBlockedReason = null;
 
-            if (priorComparisonBlockedReason is null && loadResult.Outcome == ScopedRunPairLoadOutcome.Success)
+            if (priorCommittedRun is not null)
             {
-                RunComparisonResult? comparison = await _compareService
-                    .CompareRunsAsync(scope, priorCommittedRun.RunId, runId, cancellationToken)
+                ScopedRunPairLoadResult loadResult = await _compareRunsFacade
+                    .LoadScopedRunPairAsync(
+                        priorCommittedRun.RunId.ToString("N"),
+                        runId.ToString("N"),
+                        cancellationToken)
                     .ConfigureAwait(false);
 
-                if (comparison is not null)
+                priorComparisonBlockedReason = MapPriorCompareBlockedReason(loadResult);
+
+                if (priorComparisonBlockedReason is null && loadResult.Outcome == ScopedRunPairLoadOutcome.Success)
                 {
-                    priorComparison = MapRunComparison(comparison);
+                    RunComparisonResult? comparison = await _compareService
+                        .CompareRunsAsync(scope, priorCommittedRun.RunId, runId, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    if (comparison is not null)
+                    {
+                        priorComparison = MapRunComparison(comparison);
+                    }
                 }
             }
+
+            RunDetailWorkspaceContextBundleResponse body = new()
+            {
+                RecentProjectRuns = projectRuns.Select(ToRunSummaryResponse).ToList(),
+                PriorCommittedRunComparison = priorComparison,
+                PriorCommittedRunId = priorCommittedRun?.RunId,
+                PriorCommittedRunCreatedUtc = priorCommittedRun?.CreatedUtc,
+                PriorCommittedRunComparisonBlockedReason = priorComparisonBlockedReason,
+            };
+
+            return Ok(body);
         }
-
-        RunDetailWorkspaceContextBundleResponse body = new()
+        catch (ConflictException ex)
         {
-            RecentProjectRuns = projectRuns.Select(ToRunSummaryResponse).ToList(),
-            PriorCommittedRunComparison = priorComparison,
-            PriorCommittedRunId = priorCommittedRun?.RunId,
-            PriorCommittedRunCreatedUtc = priorCommittedRun?.CreatedUtc,
-            PriorCommittedRunComparisonBlockedReason = priorComparisonBlockedReason,
-        };
-
-        return Ok(body);
+            return MapRunDetailPageBundleSealedManifestConflict(ex);
+        }
     }
 
     private static string? MapPriorCompareBlockedReason(ScopedRunPairLoadResult loadResult) =>
