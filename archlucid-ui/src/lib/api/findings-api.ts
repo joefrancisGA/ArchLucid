@@ -6,6 +6,7 @@
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { mapFindingInspectApiPayload } from "@/lib/findings/finding-inspect-payload-map";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { findingFeedbackMutationBlockedReason } from "@/lib/findings/finding-feedback-mutation-blocked-reason";
 import { runFindingsCsvExportBlockedReason } from "@/lib/findings/run-findings-csv-export-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
@@ -82,10 +83,17 @@ export async function postFindingFeedback(
 ): Promise<void> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  await apiPostJson(
-    `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/feedback`,
-    { score },
-  );
+  try {
+    await apiPostJson(
+      `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/feedback`,
+      { score },
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingFeedbackMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Records thumbs feedback via the architecture surface (ExecuteAuthority). */
@@ -97,11 +105,18 @@ export async function postArchitectureFindingFeedback(
 ): Promise<void> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  await apiPostJson(`/v1/architecture/finding/${encodedFinding}/feedback`, {
-    runId,
-    isHelpful,
-    comment: comment ?? null,
-  });
+  try {
+    await apiPostJson(`/v1/architecture/finding/${encodedFinding}/feedback`, {
+      runId,
+      isHelpful,
+      comment: comment ?? null,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingFeedbackMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Downloads findings CSV for a run (browser only). */
