@@ -1274,11 +1274,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 10
-- **bugs-found:** 6
+- **hunts:** 11
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — zero-width-only preview override reason passed Working desk Remediated attestation
+- **last-bug:** 2026-09-10 — invisible-only architect restatement and optional rationale bypassed HasSubstantiveText
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1324,6 +1324,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ValidateWorkingRemediatedImpactPreviewAttestation` — overlong `PreviewOverrideReason` not capped at `MaximumRationaleLength` — **cheap-disproof 2026-09-10 seed hunt #1566:** max-length check at lines 171–176; regression `Validate_working_remediated_rejects_overlong_preview_override_reason`.
 
 2026-09-10 seed hunt #1566 (seed-only): reseeded finding-disposition after #1529 hit; cheap-disproved invisible NeedsEvidence/Accepted/Rejected rationale and overlong preview override candidates; 29 scoped `FindingDispositionValidationTests` passed.
+
+- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only `ArchitectRestatement` passed max-length check without `HasSubstantiveText` — **hit 2026-09-10 seed hunt #1578 (seed→hit):** invisible restatement persisted via `BuildReviewEventRecord`; added substantive-text guard; regression `Validate_rejects_zero_width_space_only_architect_restatement`.
+- [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only optional `Rationale` on `Deferred` bypassed audit bar — **hit 2026-09-10 seed hunt #1578 (seed→hit):** same invisible-text class as #1470; added substantive-text guard on optional rationale branch; regression `Validate_deferred_rejects_zero_width_space_only_optional_rationale`.
+- [ ] (candidate) `FindingDispositionService.TryDecodeRowVersion` — whitespace-only `ExpectedCurrentDispositionRowVersionBase64` returns null like an omitted token — needs cheap-disproof on whether first-disposition vs lost concurrency is reachable.
+
+2026-09-10 seed hunt #1578 (seed→hit): reseeded finding-disposition; proved invisible architect restatement and optional rationale gaps; seeded whitespace row-version concurrency candidate; 33 scoped finding-disposition tests passed.
 
 ---
 
