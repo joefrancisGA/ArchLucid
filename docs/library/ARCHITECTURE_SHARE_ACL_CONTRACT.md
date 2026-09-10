@@ -68,4 +68,4 @@ Server helper: `ArchitectureShareAccessEvaluator` (AS-090). Enforcement on HTTP 
 | AS-090 | Role matrix + evaluator (this contract) |
 | AS-091 | IDOR tests |
 | AS-093 | Required durable audit co-commit |
-| AS-095 | 404 policy for unshared principals |
+| AS-095 | 404 policy for unshared principals (`ArchitectureShareNotVisibleAsNotFoundResponsePolicy`) |
