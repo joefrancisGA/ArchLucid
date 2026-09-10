@@ -13,7 +13,7 @@ export type PreFinalizeChecklistResult = Omit<PreFinalizeChecklistResultSchema, 
   Required<
     Pick<
       PreFinalizeChecklistResultSchema,
-      "runId" | "readyToFinalize" | "advisoryCount" | "blockingCount"
+      "runId" | "readyToFinalize" | "advisoryCount" | "blockingCount" | "preCommitGateEnabled"
     >
   > & {
     items: PreFinalizeChecklistItem[];

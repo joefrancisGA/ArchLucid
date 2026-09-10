@@ -20,7 +20,7 @@ function normalizedEvaluationScore(score: number): number {
   return score;
 }
 
-/** Policy violations that are not dispositioned still block governance approval. */
+/** Policy violations that are not dispositioned still block approval. */
 export function isApprovalBlockingFinding(finding: QuickDecisionFinding): boolean {
   if (finding.isMuted) {
     return false;

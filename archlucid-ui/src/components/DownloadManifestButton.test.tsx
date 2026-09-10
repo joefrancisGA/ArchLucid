@@ -3,6 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { DownloadManifestButton } from "@/components/DownloadManifestButton";
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: vi.fn(() => false),
+}));
+
 vi.mock("@/lib/manifest-json-fetch", () => ({
   fetchManifestJsonText: vi.fn(),
   manifestJsonDownloadFileName: vi.fn((runId: string) => `${runId}-manifest.json`),
@@ -36,6 +40,15 @@ describe("DownloadManifestButton", () => {
     expect(anchor.download).toBe("run-abc-123-manifest.json");
     expect(clickSpy).toHaveBeenCalledTimes(1);
     expect(createObjectUrl).toHaveBeenCalledTimes(1);
+    const blobArg = createObjectUrl.mock.calls[0]?.[0];
+    expect(blobArg).toBeInstanceOf(Blob);
+
+    if (blobArg instanceof Blob) {
+      const blobText = await blobArg.text();
+      expect(blobText).toContain('"_careerExportHonesty"');
+      expect(blobText).toContain('"manifestId": "m-1"');
+    }
+
     expect(revokeObjectUrl).toHaveBeenCalledWith("blob:mock");
 
     createElement.mockRestore();

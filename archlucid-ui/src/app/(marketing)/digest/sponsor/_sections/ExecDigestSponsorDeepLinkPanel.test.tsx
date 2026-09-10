@@ -4,9 +4,9 @@ import { describe, expect, it } from "vitest";
 import {
   DIGEST_SPONSOR_LEAD,
   DIGEST_SPONSOR_OVERVIEW_TITLE,
-  DIGEST_SPONSOR_PRIMARY_CONTENT_ID,
   DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL,
   DIGEST_SPONSOR_SKIP_LINK_LABEL,
+  DIGEST_SPONSOR_SKIP_TARGET_ID,
 } from "@/lib/marketing/digest-sponsor-page-copy";
 import type { ExecDigestSponsorDeepLinkView } from "@/lib/digest/exec-digest-sponsor-deep-link-server";
 
@@ -33,10 +33,10 @@ describe("ExecDigestSponsorDeepLinkPanel", () => {
 
     expect(screen.getByRole("link", { name: DIGEST_SPONSOR_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${DIGEST_SPONSOR_PRIMARY_CONTENT_ID}`,
+      `#${DIGEST_SPONSOR_SKIP_TARGET_ID}`,
     );
     expect(screen.getByTestId("digest-sponsor-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("digest-sponsor-orientation")).toBeInTheDocument();
+    expect(screen.getByTestId("digest-sponsor-first-viewport")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: DIGEST_SPONSOR_OVERVIEW_TITLE })).toBeInTheDocument();
     expect(screen.getByText(DIGEST_SPONSOR_LEAD)).toBeInTheDocument();
     expect(screen.getByText("Payments edge")).toBeInTheDocument();
@@ -49,5 +49,26 @@ describe("ExecDigestSponsorDeepLinkPanel", () => {
       "href",
       "/auth/signin?returnUrl=%2Fdigest%2Fsponsor",
     );
+  });
+
+  it("run collateral sign-in preserves tokenized deep link return path (DIU)", () => {
+    const runCollateralView: ExecDigestSponsorDeepLinkView = {
+      ...view,
+      target: "run-collateral",
+      runSummaryMarkdown: "Collateral summary",
+    };
+
+    render(
+      <ExecDigestSponsorDeepLinkPanel
+        view={runCollateralView}
+        signInReturnPath="/digest/sponsor/run/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?token=secret-token"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: DIGEST_SPONSOR_SIGN_IN_WORKSPACE_LABEL })).toHaveAttribute(
+      "href",
+      "/auth/signin?returnUrl=%2Fdigest%2Fsponsor%2Frun%2Faaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%3Ftoken%3Dsecret-token",
+    );
+    expect(screen.getByTestId("exec-digest-sponsor-run-collateral")).toBeInTheDocument();
   });
 });

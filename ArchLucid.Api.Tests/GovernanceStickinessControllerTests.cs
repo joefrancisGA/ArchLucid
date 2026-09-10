@@ -320,7 +320,13 @@ public sealed class GovernanceStickinessControllerTests
             facade.Object,
             scopeProvider.Object,
             tenants.Object,
-            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>())
+            Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
+            CreateAuthorityQueryService(),
+            CreateManifestHashService(),
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IRiskExceptionService>(),
+            Mock.Of<IFindingInspectReadRepository>(),
+            Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -1767,6 +1773,56 @@ public sealed class GovernanceStickinessControllerTests
 
         ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task RecordBulkDisposition_returns_conflict_when_disposition_cas_lost()
+    {
+        const string findingId = "finding-conflict-target";
+        FindingDispositionConflictDetail currentDisposition = new()
+        {
+            EventId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            FindingId = findingId,
+            Disposition = FindingDisposition.Accepted,
+            ReviewerUserId = "other-reviewer@test",
+            OccurredAtUtc = DateTimeOffset.Parse("2026-09-07T12:00:00Z"),
+            CurrentDispositionRowVersionBase64 = Convert.ToBase64String([1, 2, 3, 4]),
+        };
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(r => r.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                It.IsAny<FindingInspectReadOptions?>()))
+            .ReturnsAsync(new FindingInspectResponse { FindingId = findingId });
+
+        Mock<IFindingDispositionService> dispositions = new();
+        dispositions
+            .Setup(d => d.RecordBulkAsync(
+                It.IsAny<IReadOnlyList<RecordFindingDispositionRequest>>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new FindingDispositionConflictException(findingId, currentDisposition));
+
+        GovernanceStickinessController controller = BuildSut(
+            dispositionService: dispositions,
+            findingInspect: findingInspect);
+        SetIdempotencyKey(controller);
+
+        RecordBulkFindingDispositionRequest request = new()
+        {
+            FindingIds = [findingId],
+            Disposition = FindingDisposition.Remediated,
+            Rationale = "bulk remediation after peer review",
+        };
+
+        IActionResult action = await controller.RecordBulkDisposition(request, CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
 
     [Fact]

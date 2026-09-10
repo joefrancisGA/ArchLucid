@@ -1,6 +1,6 @@
 using ArchLucid.Application.Planning.AdvisoryDraft;
 using ArchLucid.Application.Runs.Async;
-using ArchLucid.Application.Scim.Tokens;
+using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Metering;
@@ -11,6 +11,7 @@ using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Integration;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Cosmos;
+using ArchLucid.Retrieval.Indexing;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -256,6 +257,126 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
     [Fact]
     public void
+        AddArchLucidApplicationServices_Api_role_with_cosmos_audit_does_not_register_AuditEventChangeFeedHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+        data["CosmosDb:AuditEventsEnabled"] = "true";
+        data["CosmosDb:ConnectionString"] = "AccountEndpoint=https://unit-test.documents.azure.com:443/;AccountKey=dGVzdA==";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AuditEventChangeFeedHostedService));
+
+        hasHosted.Should().BeFalse(
+            "split Api+Worker deployments must not start Cosmos audit change feed processors on Api replicas");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_DataConsistencyReconciliationHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(DataConsistencyReconciliationHostedService));
+
+        hasHosted.Should().BeFalse(
+            "data-consistency reconciliation loops are Worker+Combined only; RegisterDataConsistencyReconciliation gates hostingRole");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_leader_elected_orphan_probe_hosted_services()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasOrphanProbe = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(DataConsistencyOrphanProbeHostedService));
+
+        bool hasRequiredAuditTrailProbe = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(RequiredAuditTrailOrphanProbeHostedService));
+
+        hasOrphanProbe.Should().BeTrue(
+            "orphan probes register on all SQL-capable roles; execution is leader-elected cluster-wide");
+        hasRequiredAuditTrailProbe.Should().BeTrue(
+            "required-audit-trail orphan probes register on all SQL-capable roles; execution is leader-elected cluster-wide");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_QuickScanBudgetReconciliationHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(QuickScanBudgetReconciliationHostedService));
+
+        hasHosted.Should().BeTrue(
+            "Quick Scan budget reconciliation registers on Api; HostLeaderElectionCoordinator prevents duplicate work");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_leader_elected_retrieval_corpus_startup_indexers()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasPolicyPackIndexer = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(PolicyPackCorpusStartupIndexerHostedService));
+
+        bool hasPlatformDocIndexer = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(PlatformDocCorpusStartupIndexerHostedService));
+
+        bool hasExemplarIndexer = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ExemplarCorpusStartupIndexerHostedService));
+
+        bool hasRetrievalOutbox = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(RetrievalIndexingOutboxHostedService));
+
+        hasPolicyPackIndexer.Should().BeTrue(
+            "corpus startup indexers register on Api; ILeaderElectionWorkRunner runs one-shot indexing cluster-wide");
+        hasPlatformDocIndexer.Should().BeTrue();
+        hasExemplarIndexer.Should().BeTrue();
+        hasRetrievalOutbox.Should().BeFalse(
+            "continuous retrieval outbox pumpers remain Worker+Combined only");
+    }
+
+    [Fact]
+    public void
         AddArchLucidApplicationServices_Worker_offloads_data_archival_does_not_register_DataArchivalHostHealthCheck()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
@@ -277,7 +398,7 @@ public sealed class ContainerJobsOffloadRegistrationTests
     }
 
     [Fact]
-    public void AddArchLucidApplicationServices_Api_role_does_not_register_ScimTokenRotationReminderJob()
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_ScimTokenRotationReminderHostedService()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
         data["Hosting:Role"] = "Api";
@@ -289,9 +410,23 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
         bool hasHosted = services.Any(static d =>
             d.ServiceType == typeof(IHostedService)
-            && d.ImplementationType == typeof(ScimTokenRotationReminderJob));
+            && d.ImplementationType == typeof(ScimTokenRotationReminderHostedService));
 
         hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ScimTokenRotationReminderHostedService_constructor_requires_leader_election_coordinator()
+    {
+        typeof(ScimTokenRotationReminderHostedService)
+            .GetConstructors()
+            .Should()
+            .ContainSingle()
+            .Which
+            .GetParameters()
+            .Select(static p => p.ParameterType)
+            .Should()
+            .Contain(typeof(HostLeaderElectionCoordinator));
     }
 
     [Fact]
@@ -554,6 +689,121 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
         hasJob.Should().BeTrue(
             "weekly-architecture-digest must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        OperationalErrorRetentionHostedService_constructor_requires_leader_election_coordinator()
+    {
+        typeof(OperationalErrorRetentionHostedService)
+            .GetConstructors()
+            .Should()
+            .ContainSingle()
+            .Which
+            .GetParameters()
+            .Select(static p => p.ParameterType)
+            .Should()
+            .Contain(typeof(HostLeaderElectionCoordinator));
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_sponsor_digest_weekly_still_registers_job_not_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.SponsorDigestWeekly;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(SponsorDigestWeeklyArchLucidJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(SponsorDigestWeeklyHostedService));
+
+        hasJob.Should().BeTrue(
+            "sponsor-digest-weekly must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_weekly_sponsor_report_still_registers_job_not_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.WeeklySponsorReport;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(WeeklySponsorReportJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(WeeklySponsorReportHostedService));
+
+        hasJob.Should().BeTrue(
+            "weekly-sponsor-report must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_compliance_drift_escalation_still_registers_job_not_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.ComplianceDriftEscalation;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(ComplianceDriftEscalationArchLucidJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ComplianceDriftEscalationHostedService));
+
+        hasJob.Should().BeTrue(
+            "compliance-drift-escalation must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_trial_email_scan_still_registers_job_not_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.TrialEmailScan;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(TrialEmailScanArchLucidJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(TrialLifecycleEmailScanHostedService));
+
+        hasJob.Should().BeTrue(
+            "trial-email-scan must resolve via ArchLucidJobRunner when offloaded from the worker host");
         hasHosted.Should().BeFalse();
     }
 

@@ -81,4 +81,11 @@ public sealed class FindingReviewEventRecord
         get;
         init;
     }
+
+    /// <summary>Operator restatement for ARB narrative when <see cref="Action" /> is <see cref="FindingReviewAction.RecordDisposition" /> (LP-15).</summary>
+    public string? ArchitectRestatement
+    {
+        get;
+        init;
+    }
 }

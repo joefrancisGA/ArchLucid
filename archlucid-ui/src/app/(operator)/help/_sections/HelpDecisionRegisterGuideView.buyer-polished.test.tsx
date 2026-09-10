@@ -28,10 +28,11 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/decision-register",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpDecisionRegisterGuideView } from "@/app/(operator)/help/_sections/HelpDecisionRegisterGuideView";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   DECISION_REGISTER_HELP_PRIMARY_ACTION,
   DECISION_REGISTER_HELP_START_HERE_CARD_TITLE,
@@ -48,6 +49,7 @@ import {
   DECISION_REGISTER_HELP_SKIP_TARGET_ID,
 } from "@/lib/decision-register-help-page-copy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpDecisionRegisterGuideView buyer-polished shell (HDE)", () => {
   const entry = getProductDocumentationEntry("decision-register");
@@ -91,10 +93,7 @@ describe("HelpDecisionRegisterGuideView buyer-polished shell (HDE)", () => {
       screen.getByRole("heading", { level: 2, name: DECISION_REGISTER_HELP_START_HERE_CARD_TITLE }),
     ).toBeInTheDocument();
 
-    for (const source of DECISION_REGISTER_HELP_SOURCES) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), DECISION_REGISTER_HELP_SOURCES, "/help/decision-register");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

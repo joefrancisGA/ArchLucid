@@ -3,8 +3,8 @@ import { strFromU8, unzipSync } from "fflate";
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
 import { archLucidAzurePackageManifestSchema } from "@/lib/arch-lucid-azure-package-manifest";
 import {
-  ARCH_LUCID_AZURE_EXTRACTOR_SUPPORTED_SCHEMA_VERSION,
   formatUnsupportedAzureExtractorSchemaVersionMessage,
+  isSupportedAzureExtractorSchemaVersion,
 } from "@/lib/arch-lucid-azure-extractor-schema-version";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import { findZipEntryName } from "@/lib/zip-entry-names";
@@ -112,7 +112,7 @@ export function readArchLucidAzurePackageZipFromBytes(bytes: Uint8Array): ReadAr
     };
   }
 
-  if (parsed.data.schemaVersion !== ARCH_LUCID_AZURE_EXTRACTOR_SUPPORTED_SCHEMA_VERSION) {
+  if (!isSupportedAzureExtractorSchemaVersion(parsed.data.schemaVersion)) {
     return {
       ok: false,
       message: formatUnsupportedAzureExtractorSchemaVersionMessage(parsed.data.schemaVersion),

@@ -10,9 +10,22 @@ vi.mock("@/hooks/use-run-summary-query", () => ({
   useRunSummaryQuery: () => ({
     isPending: true,
     isError: false,
+    isSuccess: false,
     data: undefined,
     error: null,
     refetch: vi.fn(),
+  }),
+}));
+
+vi.mock("@/hooks/use-ask-run-coverage-honesty-query", () => ({
+  useAskRunCoverageHonestyQuery: () => ({
+    data: undefined,
+  }),
+}));
+
+vi.mock("@/hooks/use-package-print-meeting-capture-query", () => ({
+  usePackagePrintMeetingCaptureQuery: () => ({
+    data: undefined,
   }),
 }));
 

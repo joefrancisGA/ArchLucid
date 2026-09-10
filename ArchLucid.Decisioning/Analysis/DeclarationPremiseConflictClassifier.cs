@@ -125,7 +125,9 @@ public static partial class DeclarationPremiseConflictClassifier
             {
                 int index = normalizedIntentText.IndexOf(phrase, searchStart, StringComparison.Ordinal);
                 if (index < 0) break;
-                if (!IsPhraseNegated(normalizedIntentText, index)) return true;
+                if (!IsPhraseNegated(normalizedIntentText, index)
+                    && !IsPhrasePrefixNegated(normalizedIntentText, index, phrase))
+                    return true;
                 searchStart = index + phrase.Length;
             }
         }
@@ -138,15 +140,37 @@ public static partial class DeclarationPremiseConflictClassifier
         int windowStart = Math.Max(0, phraseStartIndex - maxNegationLookback);
         string prefix = normalizedIntentText[windowStart..phraseStartIndex].TrimEnd().TrimEnd(NegationLookbackTrimChars);
         if (prefix.Length == 0) return false;
-        ReadOnlySpan<string> negationSuffixes = ["no requirement to","no need to","not required to","not obliged to","do not","don't","does not","doesn't","must not","mustn't","shall not","should not","shouldn't","will not","won't","cannot","can't","never","not"];
+        ReadOnlySpan<string> negationSuffixes = ["no requirement to","no need to","not required to","not obliged to","do not","don't","does not","doesn't","must not","mustn't","shall not","should not","shouldn't","will not","won't","cannot","can't","never","not","no"];
         foreach (string negationSuffix in negationSuffixes)
         {
             if (!prefix.EndsWith(negationSuffix, StringComparison.Ordinal)) continue;
-            if (string.Equals(negationSuffix, "not", StringComparison.Ordinal) && !HasNegationWordBoundary(prefix, negationSuffix.Length)) continue;
+
+            if (RequiresNegationWordBoundary(negationSuffix)
+                && !HasNegationWordBoundary(prefix, negationSuffix.Length))
+            {
+                continue;
+            }
+
             return true;
         }
         return false;
     }
+
+    private static bool IsPhrasePrefixNegated(string normalizedIntentText, int phraseStartIndex, string phrase)
+    {
+        if (!phrase.StartsWith("block ", StringComparison.Ordinal))
+            return false;
+
+        if (phraseStartIndex < 2)
+            return false;
+
+        return normalizedIntentText.AsSpan(phraseStartIndex - 2, 2)
+            .Equals("un".AsSpan(), StringComparison.Ordinal);
+    }
+
+    private static bool RequiresNegationWordBoundary(string negationSuffix) =>
+        string.Equals(negationSuffix, "not", StringComparison.Ordinal)
+        || string.Equals(negationSuffix, "no", StringComparison.Ordinal);
 
     private static bool HasNegationWordBoundary(string prefix, int negationLength)
     {

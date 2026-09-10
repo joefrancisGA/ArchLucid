@@ -22,6 +22,7 @@ export type GovernanceMutationCorrectionRecorded = {
 /** Records an append-only governance mutation correction on the audit trail (LI-05). */
 export async function recordGovernanceMutationCorrection(
   body: GovernanceMutationCorrectionTarget & { rationale: string },
+  options?: { readonly idempotencyKey?: string },
 ): Promise<GovernanceMutationCorrectionRecorded> {
   try {
     return await apiPostJson<GovernanceMutationCorrectionRecorded>("/v1/governance/mutation-corrections", {

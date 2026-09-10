@@ -28,3 +28,10 @@ export const POLICY_PACKS_HUB_SOURCES: readonly EvidenceSourceLink[] = [
  { label: "Policy packs help", href: inAppHelpHref("policy-packs") },
  { label: "Assurance status", href: "/assurance-status" },
 ] as const;
+
+const POLICY_PACKS_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([POLICY_PACKS_HUB_CANONICAL_PATH]);
+
+/** Operator orientation Sources — excludes self-href to `/governance/policy-packs` (GPP). */
+export const POLICY_PACKS_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = POLICY_PACKS_HUB_SOURCES.filter(
+  (source) => !POLICY_PACKS_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+);

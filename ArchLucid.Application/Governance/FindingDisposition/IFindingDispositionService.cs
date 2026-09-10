@@ -11,6 +11,12 @@ public interface IFindingDispositionService
         string reviewerUserId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<FindingDispositionEventDto>> RecordBulkAsync(
+        IReadOnlyList<RecordFindingDispositionRequest> requests,
+        ScopeContext scope,
+        string reviewerUserId,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<FindingDispositionEventDto>> ListHistoryAsync(
         ScopeContext scope,
         string findingId,

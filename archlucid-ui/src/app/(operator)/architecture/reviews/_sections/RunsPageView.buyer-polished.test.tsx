@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
@@ -13,8 +13,15 @@ vi.mock("next/navigation", async (importOriginal) => {
   };
 });
 
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import {
+  REVIEWS_HUB_CLAIM_DISCIPLINE,
+  REVIEWS_HUB_SOURCES,
+} from "@/lib/reviews-hub-evidence-copy";
 import {
   REVIEWS_HUB_FIRST_VIEWPORT_ID,
+  REVIEWS_HUB_PRIMARY_CONTENT_ID,
   REVIEWS_HUB_SKIP_LINK_LABEL,
   REVIEWS_HUB_SKIP_TARGET_ID,
 } from "@/lib/reviews-hub-page-copy";
@@ -107,8 +114,8 @@ function baseModel(overrides: Partial<RunsPageModel> = {}): RunsPageModel {
   };
 }
 
-describe("RunsPageView buyer-polished shell", () => {
-  it("exposes skip link, claim discipline, and sources orientation after inventory", () => {
+describe("RunsPageView buyer-polished shell (RE)", () => {
+  it("renders skip link, first-viewport band, orientation above inventory, claim discipline, and Sources links", () => {
     render(
       <RunsPageView
         model={baseModel({
@@ -130,15 +137,30 @@ describe("RunsPageView buyer-polished shell", () => {
       "href",
       `#${REVIEWS_HUB_SKIP_TARGET_ID}`,
     );
-    expect(screen.getByTestId(REVIEWS_HUB_FIRST_VIEWPORT_ID)).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-claim-discipline")).toBeInTheDocument();
+    expect(screen.getByTestId(REVIEWS_HUB_PRIMARY_CONTENT_ID)).toHaveAttribute("id", REVIEWS_HUB_PRIMARY_CONTENT_ID);
+    expect(screen.getByTestId("reviews-hub-claim-discipline").textContent).toContain(
+      REVIEWS_HUB_CLAIM_DISCIPLINE.slice(0, 40),
+    );
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
 
+    const primaryContent = screen.getByTestId(REVIEWS_HUB_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(REVIEWS_HUB_FIRST_VIEWPORT_ID);
-    const orientation = screen.getByTestId("reviews-hub-orientation");
+    const pageTitle = screen.getByTestId("reviews-hub-page-title");
+    const orientationTop = screen.getByTestId("reviews-hub-orientation-top");
+    const recentPackages = screen.getByTestId("reviews-hub-recent-packages");
+    const sourcesSection = screen.getByTestId("reviews-hub-sources");
 
-    expect(
-      firstViewport.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(primaryContent).toContainElement(pageTitle);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).not.toContainElement(pageTitle);
+    expect(firstViewport).toContainElement(orientationTop);
+    expect(firstViewport).toContainElement(recentPackages);
+    expect(orientationTop).toContainElement(sourcesSection);
+    expect(orientationTop.compareDocumentPosition(recentPackages) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(REVIEWS_HUB_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

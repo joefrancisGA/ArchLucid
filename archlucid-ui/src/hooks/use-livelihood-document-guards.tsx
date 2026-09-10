@@ -1,8 +1,16 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+
 import { InAppNavigationGuardDialog } from "@/components/navigation/InAppNavigationGuardDialog";
 import { useInAppNavigationGuard } from "@/hooks/use-in-app-navigation-guard";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { consumeIdleDeskRestoreFormSnapshot } from "@/lib/auth/idle-desk-restore";
+import {
+  buildLivelihoodIdleFormSnapshotKey,
+  registerLivelihoodIdleFormSnapshot,
+} from "@/lib/auth/livelihood-idle-form-snapshot";
 
 export const LIVELIHOOD_DOCUMENT_UNSAVED_MESSAGE =
   "You have unsaved changes. Leave this page without saving?";
@@ -13,6 +21,61 @@ export type UseLivelihoodDocumentGuardsArgs = {
 };
 
 /** Reuses architecture-draft guard stack for other livelihood-grade operator forms (PT-18). */
+export type UseLivelihoodIdleFormSnapshotPersistenceArgs = {
+  readonly surfaceId: string;
+  readonly entityKey: string;
+  readonly when: boolean;
+  readonly fields: Readonly<Record<string, string>>;
+  readonly onRestore?: (fields: Readonly<Record<string, string>>) => void;
+};
+
+/** Registers dirty livelihood fields for idle restore and rehydrates after session-expired sign-in (WS-18). */
+export function useLivelihoodIdleFormSnapshotPersistence(
+  args: UseLivelihoodIdleFormSnapshotPersistenceArgs,
+): void {
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const restoredRef = useRef(false);
+  const onRestoreRef = useRef(args.onRestore);
+  const snapshotKey = buildLivelihoodIdleFormSnapshotKey(args.surfaceId, args.entityKey);
+  const returnPath = searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+
+  onRestoreRef.current = args.onRestore;
+
+  useEffect(() => {
+    if (restoredRef.current) {
+      return;
+    }
+
+    restoredRef.current = true;
+    const restored = consumeIdleDeskRestoreFormSnapshot(snapshotKey, returnPath);
+
+    if (restored !== null) {
+      onRestoreRef.current?.(restored.fields);
+    }
+  }, [returnPath, snapshotKey]);
+
+  useEffect(() => {
+    if (!args.when) {
+      registerLivelihoodIdleFormSnapshot(snapshotKey, null);
+
+      return;
+    }
+
+    registerLivelihoodIdleFormSnapshot(snapshotKey, {
+      surfaceId: args.surfaceId,
+      returnPath,
+      entityKey: args.entityKey,
+      fields: args.fields,
+      savedAtUtc: new Date().toISOString(),
+    });
+
+    return () => {
+      registerLivelihoodIdleFormSnapshot(snapshotKey, null);
+    };
+  }, [args.entityKey, args.fields, args.surfaceId, args.when, returnPath, snapshotKey]);
+}
+
 export function useLivelihoodDocumentGuards(args: UseLivelihoodDocumentGuardsArgs): {
   readonly dialogOpen: boolean;
   readonly dialogMessage: string;

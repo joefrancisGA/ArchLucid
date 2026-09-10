@@ -7,14 +7,25 @@ export const INVITE_REVIEWER_PATH = "/administration/users/invite-reviewer";
 /** Query param prefilling invite context from a finalized architecture package handoff. */
 export const INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM = "reviewId";
 
-export function buildInviteReviewerHref(reviewId?: string | null): string {
-  const trimmed = reviewId?.trim() ?? "";
+/** Query param carrying parent architecture identity for Working nested return links (SY-23). */
+export const INVITE_REVIEWER_ARCHITECTURE_ID_QUERY_PARAM = "architectureId";
 
-  if (trimmed.length === 0) {
+export function buildInviteReviewerHref(
+  reviewId?: string | null,
+  architectureId?: string | null,
+): string {
+  const trimmedReviewId = reviewId?.trim() ?? "";
+  const trimmedArchitectureId = architectureId?.trim() ?? "";
+
+  if (trimmedReviewId.length === 0) {
     return INVITE_REVIEWER_PATH;
   }
 
-  const params = new URLSearchParams({ [INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM]: trimmed });
+  const params = new URLSearchParams({ [INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM]: trimmedReviewId });
+
+  if (trimmedArchitectureId.length > 0) {
+    params.set(INVITE_REVIEWER_ARCHITECTURE_ID_QUERY_PARAM, trimmedArchitectureId);
+  }
 
   return `${INVITE_REVIEWER_PATH}?${params.toString()}`;
 }

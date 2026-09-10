@@ -43,4 +43,14 @@ public class DeclarationPremiseConflictFindingPayload
         get;
         set;
     } = null!;
+
+    /// <summary>
+    ///     Optional provenance discriminator (e.g. <c>prose-assumption</c> for DX-55). Null or empty for
+    ///     declaration-driven conflicts.
+    /// </summary>
+    public string? Source
+    {
+        get;
+        set;
+    }
 }

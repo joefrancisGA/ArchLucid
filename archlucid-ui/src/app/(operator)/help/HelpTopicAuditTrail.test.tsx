@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { HelpAuditTrailGuideView } from "@/app/(operator)/help/_sections/HelpAuditTrailGuideView";
@@ -18,6 +18,12 @@ vi.mock("@/components/help/HelpTopicPdfDownloadButton", () => ({
 
 vi.mock("@/components/help/HelpTopicPrintButton", () => ({
   HelpTopicPrintButton: () => null,
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help/audit-trail",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 const AUDIT_TRAIL_HELP_BANNED_SUBSTRINGS = [
@@ -97,7 +103,9 @@ describe("HelpTopicAuditTrail", () => {
 
     fireEvent.click(within(technicalReference).getByText("Technical reference"));
 
-    expect(await screen.findByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();
+    });
   });
 
   it("mounts technical reference body when hash navigation opens details without a toggle event", async () => {
@@ -105,15 +113,13 @@ describe("HelpTopicAuditTrail", () => {
       throw new Error("Expected audit-trail documentation to load.");
     }
 
+    window.location.hash = "#technical-reference";
     render(<HelpAuditTrailGuideView entry={loaded.entry} markdown={loaded.markdown} />);
-
-    const technicalReference = screen.getByTestId(
-      "help-audit-trail-technical-reference",
-    ) as HTMLDetailsElement;
-    technicalReference.open = true;
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
-    expect(await screen.findByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("help-audit-trail-technical-reference-body")).toBeInTheDocument();
+    });
   });
 
   it("opens technical reference when the immutability-enforcement hash is present", async () => {

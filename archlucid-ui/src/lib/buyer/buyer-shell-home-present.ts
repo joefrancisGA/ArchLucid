@@ -244,7 +244,7 @@ export function shellHealthReadinessSummary(healthLoadFailed: boolean, healthSta
 }
 
 const BUYER_FILTER_CHIP_DISABLED_CLASS =
-  "cursor-not-allowed border-neutral-300 bg-neutral-50 text-neutral-500 opacity-80 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-500";
+  "cursor-not-allowed border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-400";
 
 /** Selectable but currently empty — muted vs populated, still WCAG AA on light surfaces. */
 const BUYER_FILTER_CHIP_EMPTY_CLASS =

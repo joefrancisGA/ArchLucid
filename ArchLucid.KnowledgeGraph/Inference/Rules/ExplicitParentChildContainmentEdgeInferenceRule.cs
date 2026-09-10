@@ -16,11 +16,11 @@ internal sealed class ExplicitParentChildContainmentEdgeInferenceRule : IGraphEd
             if (string.IsNullOrWhiteSpace(parentId))
                 continue;
 
-            if (!context.NodeById.ContainsKey(parentId))
+            if (!context.NodeById.TryGetValue(parentId, out GraphNode? parentNode))
                 continue;
 
             edges.Add(GraphEdgeInferenceHelpers.CreateEdge(
-                parentId,
+                parentNode.NodeId,
                 node.NodeId,
                 GraphEdgeTypes.ContainsResource,
                 "contains resource",

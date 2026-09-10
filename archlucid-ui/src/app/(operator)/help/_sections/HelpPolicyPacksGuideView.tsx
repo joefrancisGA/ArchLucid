@@ -28,9 +28,10 @@ import {
   POLICY_PACKS_HELP_PRIMARY_ACTION,
 } from "@/lib/policy/policy-packs-help-evidence-copy";
 import {
-  POLICY_PACKS_HELP_DIAGRAM_SOURCE,
-  POLICY_PACKS_HELP_DIAGRAM_SUMMARY,
+  policyPacksHelpDiagramSource,
+  policyPacksHelpDiagramSummary,
 } from "@/lib/policy/policy-packs-help-guide-content";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   POLICY_PACKS_HELP_FIRST_VIEWPORT_TEST_ID,
   POLICY_PACKS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
@@ -49,6 +50,7 @@ type HelpPolicyPacksGuideViewProps = {
 /** Customer policy packs help — buyer-polished shell for `/help/policy-packs` (HEO). */
 export function HelpPolicyPacksGuideView(props: HelpPolicyPacksGuideViewProps): React.ReactElement {
   const { entry, markdown } = props;
+  const productLineId = resolveProductLineIdFromEnv();
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
@@ -112,7 +114,7 @@ export function HelpPolicyPacksGuideView(props: HelpPolicyPacksGuideViewProps): 
             >
               How packs merge across scope
             </h2>
-            <p className={cn("m-0", readingBodyClass)}>{POLICY_PACKS_HELP_DIAGRAM_SUMMARY}</p>
+            <p className={cn("m-0", readingBodyClass)}>{policyPacksHelpDiagramSummary(productLineId)}</p>
             <div
               className={cn(
                 "space-y-3 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800",
@@ -121,7 +123,7 @@ export function HelpPolicyPacksGuideView(props: HelpPolicyPacksGuideViewProps): 
               data-testid="help-policy-packs-mermaid-diagram"
             >
               <MermaidDiagram
-                source={POLICY_PACKS_HELP_DIAGRAM_SOURCE}
+                source={policyPacksHelpDiagramSource(productLineId)}
                 accessibleName="Policy pack hierarchical merge diagram"
               />
             </div>

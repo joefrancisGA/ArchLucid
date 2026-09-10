@@ -4,7 +4,7 @@ import {
 
 import {
   RECURRENCE_SCHEDULES_FOLLOW_UPS_TITLE,
-  RECURRENCE_SCHEDULES_SOURCES,
+  RECURRENCE_SCHEDULES_ORIENTATION_SOURCES,
   RECURRENCE_SCHEDULES_SOURCES_INTRO,
 } from "@/lib/recurrence-schedules-evidence-copy";
 
@@ -15,7 +15,7 @@ export function RecurrenceSchedulesClaimOrientationStrip(): React.JSX.Element {
       slug="recurrence-schedules"
       sourcesTitle={RECURRENCE_SCHEDULES_FOLLOW_UPS_TITLE}
       sourcesIntro={RECURRENCE_SCHEDULES_SOURCES_INTRO}
-      sources={RECURRENCE_SCHEDULES_SOURCES}
+      sources={RECURRENCE_SCHEDULES_ORIENTATION_SOURCES}
       hubSecondary
     />
   );

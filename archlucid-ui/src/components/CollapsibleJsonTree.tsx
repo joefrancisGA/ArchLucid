@@ -10,13 +10,35 @@ type JsonNodeProps = {
   value: unknown;
   depth: number;
   propertyKey?: string;
+  nodePath: string;
+  expandPath: string | null;
 };
+
+function shouldExpandPath(nodePath: string, expandPath: string | null): boolean {
+  if (expandPath === null || expandPath.length === 0) {
+    return false;
+  }
+
+  return (
+    expandPath === nodePath
+    || expandPath.startsWith(`${nodePath}.`)
+    || expandPath.startsWith(`${nodePath}[`)
+  );
+}
+
+function childObjectPath(parentPath: string, key: string): string {
+  return parentPath.length === 0 ? key : `${parentPath}.${key}`;
+}
+
+function childArrayPath(parentPath: string, index: number): string {
+  return `${parentPath}[${index}]`;
+}
 
 /**
  * Renders JSON as a navigable, collapsible tree. Depth ≥ DEFAULT_COLLAPSE_DEPTH starts
  * collapsed to avoid huge object/array walls.
  */
-function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
+function JsonNode({ value, depth, propertyKey, nodePath, expandPath }: JsonNodeProps) {
   const keyPrefix = propertyKey ? (
     <span className="font-mono text-sky-800 dark:text-sky-200">{JSON.stringify(propertyKey)}: </span>
   ) : null;
@@ -52,7 +74,7 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
       return (
         <div className="pl-2">
           {keyPrefix}
-          <Collapsible defaultOpen={false} className="w-full min-w-0">
+          <Collapsible defaultOpen={shouldExpandPath(nodePath, expandPath)} className="w-full min-w-0">
             <CollapsibleTrigger
               className={cn("text-left text-sky-700 underline dark:text-sky-300", OPERATOR_TYPOGRAPHY.helper)}
               type="button"
@@ -64,7 +86,12 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
               <ul className="list-none space-y-1 border-l border-neutral-200 pl-3 dark:border-neutral-600">
                 {value.map((item, i) => (
                   <li key={i} className="min-w-0 break-words">
-                    <JsonNode value={item} depth={depth + 1} />
+                    <JsonNode
+                      value={item}
+                      depth={depth + 1}
+                      nodePath={childArrayPath(nodePath, i)}
+                      expandPath={expandPath}
+                    />
                   </li>
                 ))}
               </ul>
@@ -81,7 +108,12 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
           {value.map((item, i) => (
             <li key={i} className="min-w-0 break-words">
               <span className="text-neutral-400">[{i}] </span>
-              <JsonNode value={item} depth={depth + 1} />
+              <JsonNode
+                value={item}
+                depth={depth + 1}
+                nodePath={childArrayPath(nodePath, i)}
+                expandPath={expandPath}
+              />
             </li>
           ))}
         </ul>
@@ -104,7 +136,7 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
       return (
         <div className="pl-2">
           {keyPrefix}
-          <Collapsible defaultOpen={false} className="w-full min-w-0">
+          <Collapsible defaultOpen={shouldExpandPath(nodePath, expandPath)} className="w-full min-w-0">
             <CollapsibleTrigger
               className={cn("text-left text-sky-700 underline dark:text-sky-300", OPERATOR_TYPOGRAPHY.helper)}
               type="button"
@@ -116,7 +148,13 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
               <div className="space-y-1 border-l border-neutral-200 pl-3 dark:border-neutral-600">
                 {entries.map(([k, v]) => (
                   <div key={k} className={cn("min-w-0 break-words", OPERATOR_TYPOGRAPHY.helper)}>
-                    <JsonNode value={v} depth={depth + 1} propertyKey={k} />
+                    <JsonNode
+                      value={v}
+                      depth={depth + 1}
+                      propertyKey={k}
+                      nodePath={childObjectPath(nodePath, k)}
+                      expandPath={expandPath}
+                    />
                   </div>
                 ))}
               </div>
@@ -132,7 +170,13 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
         <div className="space-y-1 border-l border-neutral-200 pl-3 dark:border-neutral-600">
           {entries.map(([k, v]) => (
             <div key={k} className={cn("min-w-0 break-words", OPERATOR_TYPOGRAPHY.helper)}>
-              <JsonNode value={v} depth={depth + 1} propertyKey={k} />
+              <JsonNode
+                value={v}
+                depth={depth + 1}
+                propertyKey={k}
+                nodePath={childObjectPath(nodePath, k)}
+                expandPath={expandPath}
+              />
             </div>
           ))}
         </div>
@@ -151,10 +195,12 @@ function JsonNode({ value, depth, propertyKey }: JsonNodeProps) {
 export function CollapsibleJsonTree({
   value,
   className,
+  expandPath = null,
   "aria-label": ariaLabel = "JSON payload",
 }: {
   value: unknown;
   className?: string;
+  expandPath?: string | null;
   "aria-label"?: string;
 }) {
   return (
@@ -163,7 +209,7 @@ export function CollapsibleJsonTree({
       role="region"
       aria-label={ariaLabel}
     >
-      <JsonNode value={value} depth={0} />
+      <JsonNode value={value} depth={0} nodePath="" expandPath={expandPath} />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { HelpTroubleshootingClaimOrientationStrip } from "@/app/(operator)/help/
 import { HelpTroubleshootingHeaderActions } from "@/app/(operator)/help/_sections/HelpTroubleshootingHeaderActions";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTroubleshootingAdvancedDiagnostics } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnostics";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
+import { HelpTroubleshootingAdvancedDiagnosticsDisclosure } from "@/app/(operator)/help/_sections/HelpTroubleshootingAdvancedDiagnosticsDisclosure";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -40,13 +40,14 @@ import {
   TROUBLESHOOTING_BEFORE_CONTACT_ITEMS,
   TROUBLESHOOTING_DECISION_TREE_STEPS,
   TROUBLESHOOTING_GUIDE_HEADINGS,
-  TROUBLESHOOTING_HELP_OVERVIEW,
   TROUBLESHOOTING_HELP_PAGE_TITLE,
   TROUBLESHOOTING_HELP_PRIMARY_ACTION,
   TROUBLESHOOTING_HELP_START_HERE_CARD_TITLE,
   TROUBLESHOOTING_PRIMARY_ACTIONS,
-  TROUBLESHOOTING_START_HERE_ITEMS,
+  troubleshootingHelpOverview,
+  troubleshootingStartHereItems,
 } from "@/lib/troubleshooting-help-guide-content";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   TROUBLESHOOTING_HELP_FIRST_VIEWPORT_TEST_ID,
   TROUBLESHOOTING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
@@ -73,6 +74,9 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Buyer-safe troubleshooting guide for `/help/troubleshooting`. */
 export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const productLineId = resolveProductLineIdFromEnv();
+  const overview = troubleshootingHelpOverview(productLineId);
+  const startHereItems = troubleshootingStartHereItems(productLineId);
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-troubleshooting",
     TROUBLESHOOTING_GUIDE_HEADINGS,
@@ -117,7 +121,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
           )}
         >
           <p className={readingBodyClass} data-testid="help-troubleshooting-overview">
-            {TROUBLESHOOTING_HELP_OVERVIEW}
+            {overview}
           </p>
 
           <section
@@ -137,7 +141,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
             </h2>
             <TroubleshootingStartHerePlatformStatus />
             <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-              {TROUBLESHOOTING_START_HERE_ITEMS.map((item) => (
+              {startHereItems.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
@@ -242,10 +246,8 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
               </p>
             </section>
 
-            <HelpLazyDetails
-              id="advanced-diagnostics"
+            <HelpTroubleshootingAdvancedDiagnosticsDisclosure
               className={cn(HELP_PAGE_LAYOUT.details, OPERATOR_SHELL_SCROLL_OFFSET_CLASS)}
-              data-testid="troubleshooting-advanced-diagnostics"
               summaryClassName={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}
               summary="Advanced diagnostics"
               bodyClassName={cn(HELP_PAGE_LAYOUT.detailsBody, "space-y-4")}
@@ -255,7 +257,7 @@ export function HelpTroubleshootingGuideView(props: HelpTroubleshootingGuideView
                 and decision tree above.
               </p>
               <HelpTroubleshootingAdvancedDiagnostics />
-            </HelpLazyDetails>
+            </HelpTroubleshootingAdvancedDiagnosticsDisclosure>
 
             <EvidenceOrientationMetaLine
               testId="troubleshooting-help-freshness"

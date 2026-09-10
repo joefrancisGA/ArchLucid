@@ -20,7 +20,6 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
 {
     public const string TemplateId = "FindingRemediationAssignment";
 
-    private const string DefaultProductName = "ArchLucid";
 
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
@@ -62,9 +61,7 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         mailbox = normalizedMailbox;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName)
-            ? DefaultProductName
-            : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
         string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
             ? null

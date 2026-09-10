@@ -1,3 +1,7 @@
+using System.Text.Json.Nodes;
+
+using ArchLucid.ContextIngestion;
+
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
@@ -229,7 +233,25 @@ public sealed class PublicHttpContractSchemasOpenApiDocumentTransformer : IOpenA
 
         OpenApiSchemaContractMutator.SetDescriptionIfMissing(
             schema,
-            "When present in ArchitectureRequest.documents[], name, contentType, and content are required by FluentValidation (empty arrays are allowed on the parent request).");
+            "When present in ArchitectureRequest.documents[], name, contentType, and content are required by FluentValidation (empty arrays are allowed on the parent request). "
+            + "Structured diagram documents use application/vnd.archlucid.diagram+json (ArchitectureDiagramModelRecord JSON), "
+            + "text/vnd.mermaid, application/vnd.archlucid.diagram+svg, or application/vnd.jgraph.mxfile. "
+            + "Raster image/* MIME types are forbidden.");
+
+        schema.Properties ??= new Dictionary<string, IOpenApiSchema>(StringComparer.Ordinal);
+
+        if (schema.Properties.TryGetValue("contentType", out IOpenApiSchema? contentTypeSchema)
+            && contentTypeSchema is OpenApiSchema mutableContentType)
+        {
+            mutableContentType.Type = JsonSchemaType.String;
+            mutableContentType.Enum = SupportedContextDocumentContentTypes.All
+                .Select(static value => (JsonNode)JsonValue.Create(value)!)
+                .ToList();
+
+            OpenApiSchemaContractMutator.SetDescriptionIfMissing(
+                mutableContentType,
+                "Supported inline context document MIME type. See docs/library/ARCHITECTURE_REVIEW_DIAGRAM_INPUT_CONTRACT.md.");
+        }
     }
 
     private static void ApplyProductFeedbackRequest(OpenApiDocument document)

@@ -6,6 +6,7 @@ using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Clarifications;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
 
@@ -141,7 +142,7 @@ public sealed class ReviewClarificationQuestionsControllerTests
             audit ?? Mock.Of<IAuditService>(),
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<ArchLucid.Decisioning.Interfaces.IManifestHashService>())
+Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

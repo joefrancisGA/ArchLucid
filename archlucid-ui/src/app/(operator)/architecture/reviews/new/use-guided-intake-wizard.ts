@@ -8,7 +8,10 @@ import { useWorkspaceSystemNameAvailability } from "@/hooks/use-workspace-system
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { architectureDraftDisplayName } from "@/lib/architecture/architecture-draft-status";
-import { SOURCE_ARCHITECTURE_QUERY_PARAM } from "@/lib/architecture/architecture-routes";
+import {
+  parseArchitectureNestedStartReviewArchitectureId,
+  SOURCE_ARCHITECTURE_QUERY_PARAM,
+} from "@/lib/architecture/architecture-routes";
 import {
   isCreateArchitectureIntent,
   resolveArchitectureWorkflowIntent,
@@ -59,7 +62,10 @@ export function useGuidedIntakeWizard() {
     [searchParams],
   );
   const isCreateArchitectureFlow = isCreateArchitectureIntent(workflowIntent);
-  const sourceArchitectureId = searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ?? "";
+  const sourceArchitectureIdFromNestedRoute = parseArchitectureNestedStartReviewArchitectureId(pathname) ?? "";
+  const sourceArchitectureId =
+    searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ??
+    sourceArchitectureIdFromNestedRoute;
   const deeplinkPolicyPackId = searchParams?.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
   const priorRunId = readPriorRunIdFromSearch(searchParams);
 
@@ -175,13 +181,21 @@ export function useGuidedIntakeWizard() {
 
   const handleSessionRestore = useCallback(
     (snapshot: { stepIndex: number; state: GuidedIntakeSessionState }) => {
-      setStep(snapshot.stepIndex);
       form.setFreeTextIntent(snapshot.state.freeTextIntent);
       form.setBusinessOutcome(snapshot.state.businessOutcome);
       form.setSystemName(snapshot.state.systemName);
       form.setActorSet(snapshot.state.actorSet);
       workflow.setAnswers(snapshot.state.answers);
       workflow.setDraftId(snapshot.state.draftId);
+
+      if (snapshot.stepIndex >= 2 && snapshot.state.draftId !== null) {
+        setStep(1);
+        void workflow.hydrateClarificationsFromDraft(snapshot.state.draftId);
+
+        return;
+      }
+
+      setStep(snapshot.stepIndex);
     },
     [form, setStep, workflow],
   );
@@ -211,6 +225,14 @@ export function useGuidedIntakeWizard() {
     setStep(1);
   }, [step, setStep, workflow.isSubmitBlocked]);
 
+  useEffect(() => {
+    if (step < 2 || workflow.clarificationsPersistedForSubmit) {
+      return;
+    }
+
+    setStep(1);
+  }, [setStep, step, workflow.clarificationsPersistedForSubmit]);
+
   const policyPackCloudMismatch = useMemo(
     () =>
       deriveGuidedIntakePolicyPackCloudMismatch(
@@ -239,6 +261,7 @@ export function useGuidedIntakeWizard() {
   const canSubmit =
     workflow.draftId !== null &&
     workflow.allClarificationsHandled &&
+    workflow.clarificationsPersistedForSubmit &&
     !workflow.busy &&
     !workflow.isSubmitBlocked &&
     !blocksLlmExecution &&

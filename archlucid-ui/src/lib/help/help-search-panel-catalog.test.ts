@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   filterHelpSearchPanelTopics,
+  helpSearchPanelEmptyHint,
   HELP_SEARCH_PANEL_MAX_RECOMMENDED,
   HELP_SEARCH_PANEL_SUPPORT_FOOTER_LABEL,
   helpSearchPanelTopicHasBannedPublicCopy,
@@ -14,6 +15,7 @@ import {
   shouldCollapseHelpStartHereGroup,
   splitHelpSearchPanelDoThisNow,
 } from "@/lib/help/help-search-panel-catalog";
+import { localizeHelpSearchPanelTopics } from "@/lib/help/help-product-copy";
 
 describe("help-search-panel-catalog", () => {
   it("uses slash-canonical cloud connection help hrefs (TB-748)", () => {
@@ -245,5 +247,48 @@ describe("help-search-panel-catalog", () => {
     const insightsGroup = listHelpSearchPanelGroups(false).find((group) => group.id === "insights");
 
     expect(insightsGroup?.topics.map((row) => row.id)).toContain("improvement-planning-help");
+  });
+
+  it("uses SecureNow search groups without architecture first-review or AWS entries", () => {
+    const securityTopics = localizeHelpSearchPanelTopics(listHelpSearchPanelTopics(false, "security"), "security");
+    const topicIds = securityTopics.map((topic) => topic.id);
+
+    expect(topicIds).not.toContain("first-review-guide");
+    expect(topicIds).not.toContain("connect-aws");
+    expect(topicIds).toContain("findings-help");
+    expect(topicIds).toContain("assigned-to-me-findings");
+    expect(topicIds).toContain("connect-azure");
+
+    const startHereGroup = listHelpSearchPanelGroups(false, "security").find(
+      (group) => group.id === "start-here",
+    );
+    const findingsWorkGroup = listHelpSearchPanelGroups(false, "security").find(
+      (group) => group.id === "findings-work",
+    );
+
+    expect(startHereGroup?.topics.map((topic) => topic.id)).toEqual([
+      "getting-started-help",
+      "connect-azure",
+      "findings-help",
+      "assigned-to-me-findings",
+      "authentication-sign-in",
+    ]);
+    expect(findingsWorkGroup?.heading).toBe("Findings and remediation");
+    expect(listHelpSearchPanelGroups(false, "security").map((group) => group.id)).not.toContain("review-work");
+  });
+
+  it("keeps architecture search groups and first-review topics for Architecture", () => {
+    const architectureTopics = listHelpSearchPanelTopics(false, "architecture");
+    const topicIds = architectureTopics.map((topic) => topic.id);
+
+    expect(topicIds).toContain("first-review-guide");
+    expect(topicIds).toContain("connect-aws");
+    expect(listHelpSearchPanelGroups(false, "architecture").map((group) => group.id)).toContain("review-work");
+  });
+
+  it("uses product-line-aware empty search hints", () => {
+    expect(helpSearchPanelEmptyHint("security")).toContain("assigned to me");
+    expect(helpSearchPanelEmptyHint("security")).not.toContain("review, evidence");
+    expect(helpSearchPanelEmptyHint("architecture")).toContain("review, evidence");
   });
 });

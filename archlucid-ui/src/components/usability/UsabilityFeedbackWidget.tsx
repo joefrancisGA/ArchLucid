@@ -2,8 +2,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { submitProductFeedback } from "@/lib/api/tenant-customer-success";
 import { showError, showSuccess } from "@/lib/toast";
+import {
+  parseUsabilityFeedbackOpenFromSearch,
+  usabilityFeedbackDisclosureHrefFromSearch,
+} from "@/lib/usability/usability-feedback-disclosure-url";
 
 type UsabilityFeedbackWidgetProps = {
   readonly runId?: string | null;
@@ -28,8 +32,13 @@ type UsabilityFeedbackWidgetProps = {
 
 /** Lightweight in-app feedback — posts to customer-success product-feedback. */
 export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
+  const router = useRouter();
   const pathname = usePathname() ?? "/";
-  const [internalOpen, setInternalOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const usabilityFeedbackOpenParam = searchParams.get("usabilityFeedbackOpen");
+  const [internalOpen, setInternalOpenState] = useState(() =>
+    parseUsabilityFeedbackOpenFromSearch(usabilityFeedbackOpenParam),
+  );
   const isControlled = props.open !== undefined;
   const open = isControlled ? props.open : internalOpen;
   const showTrigger = props.showTrigger !== false;
@@ -37,13 +46,36 @@ export function UsabilityFeedbackWidget(props: UsabilityFeedbackWidgetProps) {
   const [score, setScore] = useState<number>(4);
   const [busy, setBusy] = useState(false);
 
-  function setOpen(next: boolean): void {
+  const syncOpenToUrl = useCallback(
+    (nextOpen: boolean) => {
+      if (isControlled) {
+        return;
+      }
+
+      router.replace(usabilityFeedbackDisclosureHrefFromSearch(searchParams.toString(), nextOpen, pathname), {
+        scroll: false,
+      });
+    },
+    [isControlled, pathname, router, searchParams],
+  );
+
+  useEffect(() => {
     if (isControlled) {
-      props.onOpenChange?.(next);
       return;
     }
 
-    setInternalOpen(next);
+    setInternalOpenState(parseUsabilityFeedbackOpenFromSearch(usabilityFeedbackOpenParam));
+  }, [isControlled, usabilityFeedbackOpenParam]);
+
+  function setOpen(next: boolean): void {
+    if (isControlled) {
+      props.onOpenChange?.(next);
+
+      return;
+    }
+
+    setInternalOpenState(next);
+    syncOpenToUrl(next);
   }
 
   async function submit(): Promise<void> {
