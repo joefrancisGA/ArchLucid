@@ -86,7 +86,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE,
@@ -317,6 +316,23 @@ export function DiagramReconcileWorkbenchClient() {
       .querySelector(`[data-testid="infra-diagram-reconcile-row-${urlCorrespondenceId}"]`)
       ?.scrollIntoView({ block: "nearest" });
   }, [filteredRows.length, selectedCorrespondenceId, urlCorrespondenceId]);
+
+  useEffect(() => {
+    if (selectedCorrespondenceId === null || selectedCorrespondenceId.length === 0) {
+      return;
+    }
+
+    if (loadingReconciliation) {
+      return;
+    }
+
+    const stillVisible = filteredRows.some((row) => row.correspondenceId === selectedCorrespondenceId);
+
+    if (!stillVisible) {
+      setSelectedCorrespondenceId(null);
+      syncUrl({ correspondenceId: "" });
+    }
+  }, [filteredRows, loadingReconciliation, selectedCorrespondenceId, syncUrl]);
 
   useEffect(() => {
     let cancelled = false;

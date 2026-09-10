@@ -1,5 +1,6 @@
-using ArchLucid.Application.Runs;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Runs;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.ProblemDetails;
@@ -42,9 +43,10 @@ public sealed partial class RunsController
             ArchitectureRunArchiveOutcome.NotFound => this.NotFoundProblem(
                 $"Review '{runId:D}' was not found.",
                 ProblemTypes.ResourceNotFound),
-            ArchitectureRunArchiveOutcome.SealedReviewBlocked => this.ConflictProblem(
-                "Sealed reviews cannot be archived. Committed architecture packages and audit history remain until tenant offboarding.",
-                ProblemTypes.Conflict),
+            ArchitectureRunArchiveOutcome.SealedReviewBlocked => MapRunsSealedManifestConflict(
+                new ConflictException(
+                    "Sealed reviews cannot be archived. Committed architecture packages and audit history remain until tenant offboarding.")),
+
             ArchitectureRunArchiveOutcome.OwnershipDeleteForbidden => this.ForbiddenProblemWithErrorCode(
                 "Archive not permitted",
                 "Only the review creator or a workspace administrator may archive this in-flight review.",

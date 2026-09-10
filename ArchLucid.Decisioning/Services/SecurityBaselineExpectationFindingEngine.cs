@@ -49,6 +49,9 @@ public sealed class SecurityBaselineExpectationFindingEngine(IGraphCoverageAnaly
                 "Add or extend security baseline PROTECTS mappings for resources in the missing categories."
             ],
             RelatedNodeIds = scopeNodeIds,
+            EvidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+                graphSnapshot,
+                scopeNodeIds),
             Trace = new ExplainabilityTrace
             {
                 GraphNodeIdsExamined = scopeNodeIds,

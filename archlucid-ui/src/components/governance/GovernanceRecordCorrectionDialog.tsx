@@ -21,6 +21,7 @@ import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-muta
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { governanceMutationCorrectionBlockedReason } from "@/lib/governance/governance-mutation-correction-blocked-reason";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+
 import {
   GOVERNANCE_MUTATION_CORRECTION_FAILURE_MESSAGE,
   GOVERNANCE_MUTATION_CORRECTION_RATIONALE_REQUIRED,
@@ -101,6 +102,7 @@ export function GovernanceRecordCorrectionDialog(
       if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }
+
 
       setErrorMessage(
         governanceMutationCorrectionBlockedReason(failure)

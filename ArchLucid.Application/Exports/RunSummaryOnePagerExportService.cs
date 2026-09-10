@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -39,6 +40,7 @@ public sealed class RunSummaryOnePagerExportService(
     IConfiguration configuration,
     IRunRepository runRepository,
     IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : IRunSummaryOnePagerExportService
+
 {
     private const string SponsorReportPrompt =
         "You are an enterprise architect writing a board-ready brief. "
@@ -83,6 +85,7 @@ public sealed class RunSummaryOnePagerExportService(
 
     private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
         architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
+
 
     public async Task<RunSummaryOnePagerExportResult> GenerateMarkdownAsync(string runId, CancellationToken cancellationToken)
     {
@@ -164,7 +167,6 @@ public sealed class RunSummaryOnePagerExportService(
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
 
-
         RunSummaryOnePagerDocumentModel model =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
                 detail,
@@ -173,6 +175,7 @@ public sealed class RunSummaryOnePagerExportService(
                 activeTrialExportNotice,
                 careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty),
                 architectRestatementMarkdown: architectRestatementMarkdownText);
+
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
         string safeStem = SanitizeRunIdForFileName(model.RunId);

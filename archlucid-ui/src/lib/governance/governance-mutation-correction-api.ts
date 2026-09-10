@@ -1,5 +1,9 @@
 import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+
+import { governanceMutationCorrectionBlockedReason } from "@/lib/governance/governance-mutation-correction-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "@/lib/api/http";
 
 export type GovernanceMutationCorrectionTarget = {
@@ -26,16 +30,24 @@ export async function recordGovernanceMutationCorrection(
   const idempotencyKey = options?.idempotencyKey?.trim() || createGovernanceMutationIdempotencyKey();
   const headers = { "Idempotency-Key": idempotencyKey };
 
-  return apiPostJson<GovernanceMutationCorrectionRecorded>(
-    "/v1/governance/mutation-corrections",
-    {
-      mutationKind: body.mutationKind,
-      subjectId: body.subjectId,
-      runId: body.runId,
-      rationale: body.rationale,
-    },
-    { extraHeaders: headers },
-  );
+  try {
+    return await apiPostJson<GovernanceMutationCorrectionRecorded>(
+      "/v1/governance/mutation-corrections",
+      {
+        mutationKind: body.mutationKind,
+        subjectId: body.subjectId,
+        runId: body.runId,
+        rationale: body.rationale,
+      },
+      { extraHeaders: headers },
+    );
+
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceMutationCorrectionBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Record-correction POST with 401 session-recovery redirect and single idempotent replay (LP-19). */
@@ -52,6 +64,7 @@ export async function recordGovernanceMutationCorrectionWith401Resume(
     payload: { body },
     execute: () => recordGovernanceMutationCorrection(body, { idempotencyKey }),
   });
+
 }
 
 export const GOVERNANCE_MUTATION_CORRECTION_RATIONALE_REQUIRED =

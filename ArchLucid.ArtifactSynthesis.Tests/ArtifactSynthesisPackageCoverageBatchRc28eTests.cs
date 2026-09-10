@@ -268,6 +268,80 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
     }
 
     [Fact]
+    public async Task ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            RuleSetId = "core-default",
+            RuleSetVersion = "1",
+            ManifestHash = "requirements-hash",
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Requirements = new RequirementsCoverageSection
+            {
+                Covered =
+                [
+                    new RequirementCoverageItem
+                    {
+                        RequirementName = "Encrypt data at rest",
+                        RequirementText = "Data must be encrypted",
+                        CoverageStatus = "Met",
+                        IsMandatory = true,
+                    },
+                ],
+                Uncovered =
+                [
+                    new RequirementCoverageItem
+                    {
+                        RequirementName = "Disaster recovery region",
+                        RequirementText = "Secondary region required",
+                        CoverageStatus = "Gap",
+                        IsMandatory = false,
+                    },
+                ],
+            },
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("- Covered: Encrypt data at rest (Met; mandatory: yes)");
+        artifact.Content.Should().Contain("- Uncovered: Disaster recovery region (Gap; mandatory: no)");
+    }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Requirements = new RequirementsCoverageSection
+            {
+                Covered =
+                [
+                    new RequirementCoverageItem
+                    {
+                        RequirementName = "Encrypt data at rest",
+                        RequirementText = "Data must be encrypted",
+                        CoverageStatus = "Met",
+                        IsMandatory = true,
+                    },
+                ],
+            },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("- Covered: Encrypt data at rest (Met; mandatory: yes)");
+    }
+
+    [Fact]
     public async Task ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_cost_notes()
     {
         ManifestDocument manifest = new()

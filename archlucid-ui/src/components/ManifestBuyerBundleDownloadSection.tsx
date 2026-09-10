@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +20,7 @@ import {
   manifestBuyerBundleDownloadDisclosureHrefFromSearch,
   parseManifestBuyerBundleDownloadOpenFromSearch,
 } from "@/lib/governance/manifest-buyer-bundle-download-disclosure-url";
+
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { whyDisabledNeedsPrerequisite } from "@/lib/why-disabled-cta";
 import { showError } from "@/lib/toast";
@@ -71,6 +73,7 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
   const [bundleOpen, setBundleOpenState] = useState(() =>
     parseManifestBuyerBundleDownloadOpenFromSearch(manifestBuyerBundleDownloadOpenParam),
   );
+
   const { manifestId, runId, expanded } = props;
   const [busy, setBusy] = useState(false);
   const sealedManifestBlockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -122,6 +125,7 @@ export function ManifestBuyerBundleDownloadSection(props: ManifestBuyerBundleDow
   useEffect(() => {
     setBundleOpenState(parseManifestBuyerBundleDownloadOpenFromSearch(manifestBuyerBundleDownloadOpenParam));
   }, [manifestBuyerBundleDownloadOpenParam]);
+
 
   const action = bundleDownloadCopyAndAction(manifestId, blockedHintId, downloadsDisabled, busy, onDownload);
 

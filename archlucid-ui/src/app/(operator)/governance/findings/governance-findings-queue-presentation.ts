@@ -11,8 +11,9 @@ import {
 } from "@/lib/governance-findings-page-copy";
 import {
   BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
-  BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD,
 } from "@/lib/buyer/buyer-polish-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveGovernanceAssignedToMePageSubtitle } from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 import {
   comparePageHrefWithLifecycleAnchor,
   COMPARE_FINDING_LIFECYCLE_ANCHOR,
@@ -242,11 +243,10 @@ export function resolveGovernanceFindingsPageTitle(
 export function resolveGovernanceFindingsPageSubtitle(
   isAssignedToMe: boolean,
   buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
 ): string {
   if (isAssignedToMe) {
-    return buyerPolishedShell
-      ? BUYER_GOVERNANCE_ASSIGNED_TO_ME_PAGE_LEAD
-      : "Open findings assigned to you for remediation across reviews in this workspace.";
+    return resolveGovernanceAssignedToMePageSubtitle(productLineId, buyerPolishedShell);
   }
 
   return buyerPolishedShell
