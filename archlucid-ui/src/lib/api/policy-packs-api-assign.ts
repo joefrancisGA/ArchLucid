@@ -45,7 +45,6 @@ export async function archivePolicyPackAssignment(assignmentId: string): Promise
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }
 
 /** Enables or disables one policy pack assignment for the current workspace. */
@@ -86,15 +85,8 @@ export async function setPlatformBundledPolicyPackActivation(
   bundleContentFile: string,
   isGloballyActive: boolean,
 ): Promise<PlatformBundledPolicyPackRegistryEntry> {
-  try {
-    return await apiPutJson(
-      `/v1/admin/platform-bundled-policy-packs/${encodeURIComponent(bundleContentFile)}/activation`,
-      { isGloballyActive },
-    );
-  } catch (error: unknown) {
-    const failure = toApiLoadFailure(error);
-    const blockedReason = policyPackAssignMutationBlockedReason(failure);
-
-    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-  }
+  return apiPutJson(
+    `/v1/admin/platform-bundled-policy-packs/${encodeURIComponent(bundleContentFile)}/activation`,
+    { isGloballyActive },
+  );
 }
