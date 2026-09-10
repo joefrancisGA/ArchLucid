@@ -1328,10 +1328,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-07 — findings snapshot anchor ids not bound to golden manifest
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -1351,6 +1351,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (valid-no-repro) `BuildContextAsync` synthesizes empty findings when `FindingsSnapshot` is null so alert simulation skips manifest-bound findings — **cheap-disproof 2026-09-09 seed hunt #1471:** `CreateEmptyFindings` copies manifest anchor ids; `FindingsSnapshotMatchesGoldenManifest` passes; intentional empty-findings simulation when snapshot row is absent.
 - [x] (valid-no-repro) `comparedToRunId` equal to primary `runId` builds a self-comparison context — **cheap-disproof 2026-09-09 seed hunt #1471:** `IComparisonService.Compare` on identical manifests is benign; no foreign data path.
+- [x] (valid-no-repro) `RunMatchesCallerScope` omits foreign `ScopeProjectId` check — **cheap-disproof 2026-09-10 seed hunt #1551:** `RunMatchesCallerScope` rejects mismatched `ScopeProjectId`; regression `GetContextsAsync_when_authority_returns_foreign_project_run_returns_empty`
+- [x] (valid-no-repro) `FindingsSnapshotMatchesGoldenManifest` only binds `FindingsSnapshotId` and ignores `ContextSnapshotId` / `GraphSnapshotId` drift — **cheap-disproof 2026-09-10 seed hunt #1551:** anchor ids must all match manifest; regressions `GetContextsAsync_when_findings_context_snapshot_id_mismatches_golden_manifest_returns_empty` and `GetContextsAsync_when_findings_graph_snapshot_id_mismatches_golden_manifest_returns_empty`
+- [x] (valid-no-repro) `BuildContextAsync` with null `FindingsSnapshot` simulates unscoped findings — **cheap-disproof 2026-09-10 seed hunt #1551:** `CreateEmptyFindings` copies manifest anchor ids; regression `GetContextsAsync_when_findings_snapshot_null_synthesizes_manifest_bound_empty_findings`
+- [x] (valid-no-repro) `comparedToRunId` pointing at a foreign-tenant run still builds comparison context — **cheap-disproof 2026-09-10 seed hunt #1551:** `RunMatchesCallerScope` drops compare-to branch; primary plan only; regression `GetContextsAsync_when_compared_to_run_is_foreign_tenant_builds_primary_without_comparison`
+- [x] (valid-no-repro) explicit `runId` path with sealed-hash failure returns empty like recent-run batch — **cheap-disproof 2026-09-10 seed hunt #1551:** intentional wave-27 fail-closed: `skipOnSealedHashFailure: false` throws `InvalidOperationException` for controller `409 Conflict` mapping; regression `GetContextsAsync_when_explicit_run_has_sealed_hash_failure_throws`
+
+2026-09-10 seed hunt #1551 (seed-only): reseeded alert-simulation after #1471; cheap-disproof closed foreign-project scope, context/graph snapshot anchor binding, null-findings synthesis, foreign compare-to tenant, and explicit-run sealed-hash throw semantics; 14 scoped `AlertSimulationContextProviderTests` passed.
 
 2026-09-09 seed hunt #1471 (seed-only): reseeded alert-simulation after #1258 dry; cheap-disproof closed null-findings synthesis and self-compare candidates; 8 scoped `AlertSimulationContextProviderTests` passed.
 
