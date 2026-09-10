@@ -86,6 +86,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         // Scoped, not singleton: unlike pure correlation this reads the tenant's finding review trail (TB-2194).
         services.AddScoped<ICrossReviewFindingLifecycleService, CrossReviewFindingLifecycleService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.AddScoped<IFindingSemanticSupportBandLaneBComposeService, FindingSemanticSupportBandLaneBComposeService>();
         services.AddScoped<IFindingReviewTrailAppendService, FindingReviewTrailAppendService>();
         services.AddScoped<IFindingDispositionService, FindingDispositionService>();
         services.AddScoped<IRunOperatorGovernanceDispositionService, RunOperatorGovernanceDispositionService>();
