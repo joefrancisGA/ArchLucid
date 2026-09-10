@@ -591,7 +591,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `OrchestratorTransientDbRetry.ExecuteAsync<T>` diverges from void overload retry semantics — **cheap-disproof 2026-09-10 seed hunt #1582:** both overloads share the same pipeline; regression `ExecuteAsync_generic_overload_retries_transient_sql_deadlock`.
 - [x] (valid-no-repro) `CommitRunTransientRetryPolicy.RetryDelay(0)` / `ManifestReconcilePollDelay(0)` undefined for authority commit loop — **cheap-disproof 2026-09-10 seed hunt #1582:** commit/reconcile loops start at attempt/poll 1; regression `RetryDelay_and_manifest_poll_delay_reject_non_positive_poll_or_attempt`.
 
-2026-09-10 seed hunt #1582 (seed-only): reseeded orchestrator-transient-retry after #1481; cheap-disproof closed nested-aggregate wrapper, cancellation retry, generic overload parity, and zero-index delay candidates; 13 scoped transient-retry tests passed.
+2026-09-10 seed hunt #1582 (seed-only): reseeded orchestrator-transient-retry after #1481; cheap-disproof closed nested-aggregate wrapper, cancellation retry, generic overload parity, and zero-index delay candidates; 14 scoped transient-retry tests passed.
 
 2026-09-09 seed hunt #1481 (seed-only): reseeded orchestrator-transient-retry; cheap-disproved mixed-aggregate fail-fast candidate; 10 scoped transient-retry tests passed.
 
