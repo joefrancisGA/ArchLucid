@@ -23,10 +23,6 @@ import type { ProductDocumentationEntry } from "@/lib/product-documentation-regi
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
-import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
-
-
-
 import {
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_ID,
   CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO,
@@ -55,15 +51,6 @@ import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-
-
-
-
-
-
-
-
-
 
 const CLOUD_CONNECTIONS_HELP_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: CLOUD_CONNECTIONS_HELP_ORIENTATION_ID, title: CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE, level: 2 },
