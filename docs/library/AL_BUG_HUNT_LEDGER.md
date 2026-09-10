@@ -1805,7 +1805,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1833,6 +1833,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ParsePowerShellStringArray` test helper breaks when `apply-saas.ps1` arrays are single-line — **cheap-disproof 2026-09-10 seed hunt #1583:** arrays are multiline by design for `scripts/ci/assert_terraform_root_ordering_sync.py` parsing; existing live ps1 parse tests pass.
 
 2026-09-10 seed hunt #1583 (seed-only): reseeded cli-terraform-evidence after #1436; cheap-disproof closed hosted-wave flatten, pilot path-order drift, em-dash delimiter, and single-line ps1 parse candidates; 9 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` lists duplicate Terraform root paths — **cheap-disproof 2026-09-10 seed hunt #1594:** paths are unique; regression `DefaultApplyOrderRoots_contains_no_duplicate_paths`.
+- [x] (valid-no-repro) Evidence paths omit `infra/` prefix or use repo-absolute paths — **cheap-disproof 2026-09-10 seed hunt #1594:** every line starts with `infra/`; regression `DefaultApplyOrderRoots_all_paths_start_with_infra_prefix`.
+- [x] (valid-no-repro) Evidence cites Terraform roots that do not exist on disk — **cheap-disproof 2026-09-10 seed hunt #1594:** each listed path resolves to a directory; regression `DefaultApplyOrderRoots_every_listed_root_directory_exists_on_disk`.
+- [x] (valid-no-repro) Composition root order drifts from `terraform-pilot` `root_path` blocks — **cheap-disproof 2026-09-10 seed hunt #1594:** evidence matches pilot `root_path` order; regression `DefaultApplyOrderRoots_composition_roots_match_terraform_pilot_root_path_order`.
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` mutates shared list state across calls — **cheap-disproof 2026-09-10 seed hunt #1594:** repeated calls return equal sequences; regression `DefaultApplyOrderRoots_returns_equal_lists_on_repeated_calls`.
+- [x] (valid-no-repro) `DocumentationRelativePath` uses Windows-style separators or drifts from `docs/library/REFERENCE_SAAS_STACK_ORDER.md` — **cheap-disproof 2026-09-10 seed hunt #1594:** constant stays forward-slash repo-relative; regression `DocumentationRelativePath_uses_docs_library_relative_forward_slashes`.
+
+2026-09-10 seed hunt #1594 (seed-only): reseeded cli-terraform-evidence; cheap-disproof closed duplicate paths, path prefix, on-disk root existence, pilot composition sync, list immutability, and documentation path shape; 15 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
