@@ -61,7 +61,7 @@ export async function getGovernanceDashboard(
   });
 
   try {
-    return await apiGetSealedManifestAware<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
+    return await apiGet<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceDashboardBlockedReason(failure);
@@ -83,7 +83,7 @@ export async function getComplianceDriftTrend(
   });
 
   try {
-    return await apiGetSealedManifestAware<ComplianceDriftTrendPoint[]>(
+    return await apiGet<ComplianceDriftTrendPoint[]>(
       `${governanceBase()}/compliance-drift-trend?${query.toString()}`,
     );
   } catch (error: unknown) {

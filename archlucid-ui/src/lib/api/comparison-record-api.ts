@@ -4,7 +4,7 @@ import { formatExportSealedManifestAwareApiError } from "./export-sealed-manifes
 import { comparisonRecordBlockedReason } from "@/lib/compare/comparison-record-blocked-reason";
 import { comparisonSearchBlockedReason } from "@/lib/compare/comparison-search-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiGet } from "./http";
 
 export type ComparisonRecordResponse = components["schemas"]["ComparisonRecordResponse"];
 export type ComparisonSummaryResponse = components["schemas"]["ComparisonSummaryResponse"];
@@ -39,7 +39,7 @@ export async function searchComparisonRecords(
   const suffix = params.size > 0 ? `?${params.toString()}` : "";
 
   try {
-    return await apiGetSealedManifestAware<ComparisonHistoryResponse>(`/v1/architecture/comparisons${suffix}`);
+    return await apiGet<ComparisonHistoryResponse>(`/v1/architecture/comparisons${suffix}`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = comparisonSearchBlockedReason(failure);
@@ -51,7 +51,7 @@ export async function searchComparisonRecords(
 /** Loads one persisted comparison audit row. */
 export async function getComparisonRecord(comparisonRecordId: string): Promise<ComparisonRecordResponse> {
   try {
-    return await apiGetSealedManifestAware<ComparisonRecordResponse>(
+    return await apiGet<ComparisonRecordResponse>(
       `/v1/architecture/comparisons/${encodeURIComponent(comparisonRecordId)}`,
     );
   } catch (error: unknown) {
@@ -65,7 +65,7 @@ export async function getComparisonRecord(comparisonRecordId: string): Promise<C
 /** Loads the markdown summary for a persisted comparison record. */
 export async function getComparisonSummary(comparisonRecordId: string): Promise<ComparisonSummaryResponse> {
   try {
-    return await apiGetSealedManifestAware<ComparisonSummaryResponse>(
+    return await apiGet<ComparisonSummaryResponse>(
       `/v1/architecture/comparisons/${encodeURIComponent(comparisonRecordId)}/summary`,
     );
   } catch (error: unknown) {
