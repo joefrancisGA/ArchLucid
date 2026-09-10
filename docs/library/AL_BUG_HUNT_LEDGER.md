@@ -8664,11 +8664,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 16
-- **bugs-found:** 13
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-08 — `AuditEventChangeFeedHostedService` registered on Api role when Cosmos audit enabled
+- **hunts:** 17
+- **bugs-found:** 14
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — data consistency readiness Unhealthy on leader-elected non-leader replicas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8709,6 +8709,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `RetrievalCompositionModule.Register` / `RegisterIndexing` — module lacks `ArchLucidHostingRole` parameter while sibling composition modules gate Worker+Combined hosted services — **cheap-disproof 2026-09-09 hunt #1430:** continuous retrieval pumpers (`RetrievalIndexingOutboxHostedService`, `AuthorityPipelineWorkHostedService`) are Worker+Combined gated in `OutboxProcessorsCompositionRegistrar.RetrievalIndexing.cs`; Api-role startup indexers use `ILeaderElectionWorkRunner` one-shot leases; no reachable wrong outcome without adding an ungated hosted service; regression `AddArchLucidApplicationServices_Api_role_registers_leader_elected_retrieval_corpus_startup_indexers`
 - [x] (valid-no-repro) `RetrievalCompositionModule.RegisterIndexing` — policy/platform/exemplar corpus startup indexers register on Api while `RetrievalIndexingOutboxHostedService` is Worker+Combined-only — **cheap-disproof 2026-09-09 seed hunt #1395:** startup indexers use `ILeaderElectionWorkRunner` one-shot leases (`hosted:policy-pack-corpus-startup-indexer`, etc.) cluster-wide; continuous outbox pumpers stay Worker+Combined; regression `AddArchLucidApplicationServices_Api_role_registers_leader_elected_retrieval_corpus_startup_indexers`
 
+- [x] (proven) `DataConsistencyHealthCheck` / `DataHealthJobsCompositionModule.RegisterArchLucidHealthChecks` — readiness returned Unhealthy when local `DataConsistencyReconciliationHealthState` never recorded a run while `DataConsistencyReconciliationHostedService` is leader-elected cluster-wide — **hit 2026-09-10 seed hunt #1528:** non-leader Worker/Combined replicas permanently failed `/health/ready`; aligned never-run with `DataArchivalHostHealthCheck` tolerance; regression `Healthy_when_reconciliation_not_run_yet_on_leader_elected_replica`
+
+2026-09-10 seed hunt #1528 (hit): reseeded host-composition; proved data consistency readiness false-negative on leader-elected replicas; 5 scoped DataConsistencyHealthCheck tests passed.
 2026-09-09 thorough hunt #1430 (dry): cheap-disproved RetrievalCompositionModule hostingRole plumbing candidate; systematic registration scan found no new hunt-ready gaps after #1366 audit change-feed fix; 336/338 scoped host-composition tests passed (2 pre-existing unrelated failures: `StorageProviderRegistrationParityTests`, `ExecDigestWeeklyArchLucidJobTests`).
 
 2026-09-08 thorough hunt #1367 (dry): cheap-disproved both seeded Api-role candidates; systematic scan found no new hunt-ready registration gaps after #1366 audit change-feed fix.
