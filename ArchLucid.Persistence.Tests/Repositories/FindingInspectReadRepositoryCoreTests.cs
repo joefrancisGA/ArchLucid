@@ -613,4 +613,64 @@ public sealed class FindingInspectReadRepositoryCoreTests
     {
         FindingInspectReadRepositoryCore.TryParsePayloadJson(string.Empty).Should().BeNull();
     }
+
+    [Fact]
+    public void BuildInspectResponse_preserves_run_structural_execution_mode_fields()
+    {
+        FindingInspectResponse response = FindingInspectReadRepositoryCore.BuildInspectResponse(
+            findingId: "finding-1",
+            severity: FindingSeverity.Warning,
+            typedPayload: null,
+            ruleId: null,
+            ruleName: null,
+            evidence: [],
+            recommendedActions: [],
+            auditRowId: null,
+            runId: Guid.NewGuid(),
+            manifestVersion: "1.0",
+            modelDeploymentName: null,
+            modelAlias: null,
+            promptTemplateVersion: null,
+            confidenceScore: null,
+            evaluationConfidenceScore: null,
+            confidenceLevel: null,
+            humanReviewStatus: FindingHumanReviewStatus.NotRequired,
+            isMuted: false,
+            muteReason: null,
+            reasoningTrace: null,
+            reasoningTraceDigestSha256: null,
+            latestDisposition: null,
+            latestDispositionOccurredAtUtc: null,
+            hasActiveWaiver: false,
+            assignedToUserId: null,
+            remediationDueUtc: null,
+            runStructuralExecutionMode: StructuralExecutionMode.Real,
+            runRealModeFellBackToSimulator: true);
+
+        response.RunStructuralExecutionMode.Should().Be(StructuralExecutionMode.Real);
+        response.RunRealModeFellBackToSimulator.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_metadata_only_returns_null_when_metadata_is_blank()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: false,
+            payloadJson: """{"resourceId":"vm-1"}""",
+            title: "   ",
+            rationale: "   ").Should().BeNull();
+    }
+
+    [Fact]
+    public void MapLatestDisposition_returns_null_when_disposition_raw_is_whitespace_with_row_present()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition("   ", hasDispositionRow: true).Should().BeNull();
+    }
+
+    [Fact]
+    public void HasActiveWaiver_returns_false_for_non_positive_counts()
+    {
+        FindingInspectReadRepositoryCore.HasActiveWaiver(0).Should().BeFalse();
+        FindingInspectReadRepositoryCore.HasActiveWaiver(-1).Should().BeFalse();
+    }
 }

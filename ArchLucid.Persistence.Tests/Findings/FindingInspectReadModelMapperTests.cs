@@ -242,4 +242,12 @@ public sealed class FindingInspectReadModelMapperTests
 
         actual.Should().Be(FindingConfidenceLevel.High);
     }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_case_insensitive_critical_value()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("critical");
+
+        actual.Should().Be(FindingSeverity.Critical);
+    }
 }

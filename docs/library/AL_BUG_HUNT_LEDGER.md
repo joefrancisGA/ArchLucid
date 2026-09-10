@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1461,6 +1461,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MainInspect*` omits `Runs` inner join and can return orphan finding rows — **cheap-disproof 2026-09-10 seed hunt #1643:** both main inspect queries inner join runs through snapshots; regression `MainInspect_inner_joins_runs_table`.
 
 2026-09-10 seed hunt #1643 (seed-only): reseeded finding-inspect-sql after #1642; cheap-disproof closed evidence ordering, response collection passthrough, absent typed-payload routing, empty-string payload guard, remaining case-insensitive enum parsing, follow-up snapshot joins, related-node run join, and main inspect run join; 173 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `BuildInspectResponse` drops run structural execution mode fields — **cheap-disproof 2026-09-10 seed hunt #1644:** response builder passes through `RunStructuralExecutionMode` and `RunRealModeFellBackToSimulator`; regression `BuildInspectResponse_preserves_run_structural_execution_mode_fields`.
+- [x] (valid-no-repro) `includeTypedPayload=false` still builds metadata typed payload when title/rationale are whitespace-only — **cheap-disproof 2026-09-10 seed hunt #1644:** metadata-only path with blank fields returns null; regression `ResolveTypedPayloadForInspectRead_metadata_only_returns_null_when_metadata_is_blank`.
+- [x] (valid-no-repro) `MapLatestDisposition` returns whitespace disposition values when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1644:** whitespace disposition strings parse to null; regression `MapLatestDisposition_returns_null_when_disposition_raw_is_whitespace_with_row_present`.
+- [x] (valid-no-repro) `HasActiveWaiver` is true for zero or negative waiver counts — **cheap-disproof 2026-09-10 seed hunt #1644:** non-positive counts return false; regression `HasActiveWaiver_returns_false_for_non_positive_counts`.
+- [x] (valid-no-repro) `ParseFindingSeverity` is case-sensitive for `Critical` — **cheap-disproof 2026-09-10 seed hunt #1644:** mapper trims and uses `Enum.TryParse(..., ignoreCase: true)`; regression `ParseFindingSeverity_parses_case_insensitive_critical_value`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule and recommended-action subqueries omit `Runs` join — **cheap-disproof 2026-09-10 seed hunt #1644:** both batches join `dbo.Runs r`; regressions `FollowUpBatch_trace_rules_joins_runs_table` and `FollowUpBatch_recommended_actions_joins_runs_table`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule and recommended-action subqueries omit `r.ScopeProjectId` filter — **cheap-disproof 2026-09-10 seed hunt #1644:** both batches bind `r.ScopeProjectId = @ScopeProjectId`; regressions `FollowUpBatch_trace_rules_scopes_run_to_scope_project_id` and `FollowUpBatch_recommended_actions_scopes_run_to_scope_project_id`.
+- [x] (valid-no-repro) Audit-event lookup joins `FindingRecords` and can return another finding's commit row — **cheap-disproof 2026-09-10 seed hunt #1644:** audit subquery is run-scoped only; regression `FollowUpBatch_audit_event_scoped_by_run_without_finding_records_join`.
+
+2026-09-10 seed hunt #1644 (seed-only): reseeded finding-inspect-sql after #1643; cheap-disproof closed structural execution mode passthrough, blank metadata-only payload, whitespace disposition mapping, non-positive waiver counts, critical severity parsing, follow-up run joins/scoping, and run-only audit lookup; 183 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

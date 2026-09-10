@@ -586,6 +586,47 @@ public sealed class FindingInspectReadSqlTests
         FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("INNER JOIN dbo.Runs r ON r.RunId = fs.RunId");
     }
 
+    [Fact]
+    public void FollowUpBatch_trace_rules_joins_runs_table()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().Contain("INNER JOIN dbo.Runs r ON r.RunId = fs.RunId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_recommended_actions_joins_runs_table()
+    {
+        string actionsSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRecommendedActions");
+
+        actionsSql.Should().Contain("INNER JOIN dbo.Runs r ON r.RunId = fs.RunId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_trace_rules_scopes_run_to_scope_project_id()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().Contain("r.ScopeProjectId = @ScopeProjectId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_recommended_actions_scopes_run_to_scope_project_id()
+    {
+        string actionsSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRecommendedActions");
+
+        actionsSql.Should().Contain("r.ScopeProjectId = @ScopeProjectId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_audit_event_scoped_by_run_without_finding_records_join()
+    {
+        string auditSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.AuditEvents");
+
+        auditSql.Should().Contain("ae.RunId = @RunId");
+        auditSql.Should().NotContain("FindingRecords");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
