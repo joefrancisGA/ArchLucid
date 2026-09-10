@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8013,6 +8013,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `TryUpgradeManifestJson` accepts manifests missing `schemaVersion` or with non-object root — **cheap-disproof 2026-09-10 seed hunt #1588:** rejects with explicit error detail; regressions `TryUpgradeManifestJson_rejects_missing_schemaVersion`, `TryUpgradeManifestJson_rejects_non_object_root`.
 
 2026-09-10 seed hunt #1588 (seed-only): reseeded core-azure-extractor after #1300 companion-array hit; cheap-disproof closed array-nested redaction, clientSecret, property truncation, non-object row skip, diagnostic-settings fail-closed parity, and manifest upgrader guardrails; 872 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) `network-associations.json` / `policy-assignments.json` / `defender-summary.json` non-array roots silently return empty companion inventory — **cheap-disproof 2026-09-10 seed hunt #1595:** `ReadOptionalArray` fail-closed parity with role-assignments/diagnostic-settings; regressions `TryReadFromZip_fails_on_non_array_network_associations_json`, `TryReadFromZip_fails_on_non_array_policy_assignments_json`, `TryReadFromZip_fails_on_non_array_defender_summary_json`, `Validate_rejects_non_array_network_associations_json`, `Validate_rejects_non_array_policy_assignments_json`, `Validate_rejects_non_array_defender_summary_json`.
+- [x] (valid-no-repro) `FindEntry` misses `resources.json` when ZIP entry name casing differs — **cheap-disproof 2026-09-10 seed hunt #1595:** ordinal-ignore-case fallback; regression `TryReadFromZip_resolves_resources_entry_case_insensitively`.
+- [x] (valid-no-repro) Missing `resources.json` fails inventory read instead of returning empty resources — **cheap-disproof 2026-09-10 seed hunt #1595:** absent entry yields empty list by design; regression `TryReadFromZip_returns_empty_resources_when_resources_json_missing`.
+- [x] (valid-no-repro) `MapResourceRow` omits `resourceGroup` when only ARM id is present — **cheap-disproof 2026-09-10 seed hunt #1595:** `ExtractResourceGroup` parses `/resourceGroups/{name}/`; regression `TryReadFromZip_extracts_resource_group_from_arm_id_when_not_on_row`.
+
+2026-09-10 seed hunt #1595 (seed-only): reseeded core-azure-extractor after #1588; cheap-disproof closed remaining companion-array fail-closed parity, case-insensitive entry lookup, missing resources.json behavior, and ARM resource-group extraction; 881 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
