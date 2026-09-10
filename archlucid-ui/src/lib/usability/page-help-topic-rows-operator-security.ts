@@ -19,14 +19,9 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";
 import { EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/extract-upload-settings-evidence-copy";
 
-import type { PageHelpTopic } from "./page-help-topic-rows-operator";
+import type { PageHelpTopic, PageHelpTopicRow } from "./page-help-topic-rows-operator";
 
-export type PageHelpTopicRow = {
-  readonly prefix: string;
-  readonly topic: PageHelpTopic;
-  /** When true, only `path === prefix` matches (not child routes). */
-  readonly exactMatchOnly?: boolean;
-};
+export type { PageHelpTopicRow };
 
 export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[] = [
   {
@@ -79,7 +74,7 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
-    topic: { label: EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL },
+    topic: { slug: "cloud-connections-azure", label: EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_PATH,

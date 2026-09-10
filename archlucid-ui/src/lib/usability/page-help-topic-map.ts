@@ -74,6 +74,10 @@ function pathMatchesPageHelpTopicRow(path: string, row: PageHelpTopicRow): boole
     return path === row.prefix;
   }
 
+  if (row.prefix.length > 1 && row.prefix.endsWith("/")) {
+    return path.startsWith(row.prefix);
+  }
+
   return path === row.prefix || path.startsWith(`${row.prefix}/`);
 }
 

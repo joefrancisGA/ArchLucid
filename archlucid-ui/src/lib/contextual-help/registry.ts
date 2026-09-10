@@ -197,6 +197,22 @@ export function allPageContextualHelpRows(): readonly PageContextualHelpRow[] {
   return PAGE_CONTEXTUAL_HELP;
 }
 
+function pathMatchesContextualHelpPrefix(
+  path: string,
+  prefix: string,
+  exactPathOnly?: boolean,
+): boolean {
+  if (exactPathOnly === true) {
+    return path === prefix;
+  }
+
+  if (prefix.length > 1 && prefix.endsWith("/")) {
+    return path.startsWith(prefix);
+  }
+
+  return path === prefix || path.startsWith(`${prefix}/`);
+}
+
 /** Strips the query string and rewrites retired operator paths to their canonical route. */
 function normalizePathname(pathname: string): string {
   const rawPath = (pathname ?? "").split("?")[0] ?? "";
@@ -223,13 +239,9 @@ export function contextualHelpForPathname(
     return localizePageContextualHelpEntry(parameterized.entry, productLineId);
   }
 
-  const row = PAGE_CONTEXTUAL_HELP_BY_SPECIFICITY.find((candidate) => {
-    if (candidate.exactPathOnly === true) {
-      return path === candidate.prefix;
-    }
-
-    return path === candidate.prefix || path.startsWith(`${candidate.prefix}/`);
-  });
+  const row = PAGE_CONTEXTUAL_HELP_BY_SPECIFICITY.find((candidate) =>
+    pathMatchesContextualHelpPrefix(path, candidate.prefix, candidate.exactPathOnly),
+  );
 
   if (row === undefined) {
     return null;
@@ -285,6 +297,13 @@ export function contextualHelpForPathname(
         productLineId,
       );
     }
+  }
+
+  if (row.prefix === GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH) {
+    return localizePageContextualHelpEntry(
+      governanceInfrastructureDriftHubContextualHelpEntry(productLineId),
+      productLineId,
+    );
   }
 
   return localizePageContextualHelpEntry(row.entry, productLineId);
