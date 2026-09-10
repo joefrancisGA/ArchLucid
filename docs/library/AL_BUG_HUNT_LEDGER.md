@@ -2870,7 +2870,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -2899,7 +2899,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `InMemoryTenantIdentityProviderConfigurationRepository` — accepts `Guid.Empty` tenant id and round-trips caller `UpdatedUtc` — dev/test parity drift only; SQL validates `TenantId` and stamps `SYSUTCDATETIME()`; no production path through in-memory store.
 - [x] (valid-no-repro) `DapperEmailOtpChallengeRepository.TryCompleteSingleAttemptAsync` — correct-code UPDATE on `RowVersion` conflict returns `AlreadyCompleted` without retry — fail-path retry proven (#314); success path uses `UPDLOCK` and no concurrent repro in integration tests.
 - [x] (proven) `InMemoryAuthenticationIdentityRepository.DisableAsync` — idempotent disable on an already-disabled row unconditionally `TryRemove`d the external-key index entry, orphaning a replacement active identity — **hit 2026-09-10 seed hunt #1543:** early-return when `DisabledUtc` is set, remove index only when occupant matches, lifecycle lock on insert/disable/re-enable; regression in `DisableAsync_on_already_disabled_identity_does_not_unclaim_active_external_key`.
-- [ ] (candidate) `InMemoryTenantSignInEmailDomainRepository.InsertAsync` — soft-removed domain row still occupies `_byDomain` key so re-insert throws while SQL would require update path; no repro on current tenant-domain lifecycle callers.
+- [x] (invalid) `InMemoryTenantSignInEmailDomainRepository.InsertAsync` — soft-removed domain row still occupies `_byDomain` key so blind re-insert throws — **cheap-disproved 2026-09-10 seed hunt #1544:** mirrors SQL `UX_TenantSignInEmailDomains_NormalizedDomain`; `TenantAuthDomainVerificationService.ProposeDomainAsync` must update the removed row (application layer), not persistence insert parity.
+- [ ] (candidate) `TenantAuthDomainVerificationService.ProposeDomainAsync` — after `RemoveDomainAsync`, `FindByNormalizedDomainAsync` hides the removed row but `InsertAsync` fails on both stores; re-propose path needs update-not-insert (application zone, out of persistence-identity scope).
+
+2026-09-10 seed hunt #1544: cheap-disproved soft-removed domain blind re-insert as cross-layer concern; shipped #1543 `DisableAsync` fix to `bugsmash`.
 
 2026-09-10 seed hunt #1543: proved in-memory idempotent `DisableAsync` external-key corruption; seeded soft-removed domain re-insert parity candidate.
 
