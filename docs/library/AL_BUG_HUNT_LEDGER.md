@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1672,6 +1672,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `NormalizeFindingId` collapses internal whitespace in finding ids — **cheap-disproof 2026-09-10 seed hunt #1665:** helper trims surrounding whitespace only; regression `NormalizeFindingId_preserves_internal_whitespace`.
 
 2026-09-10 seed hunt #1665 (seed-only): reseeded finding-inspect-sql after #1664; cheap-disproof closed remaining numeric disposition pointer projection (`"2"`/`"3"`/`"4"`), case-insensitive string disposition mapping, run-real-mode fallback passthrough, and finding-id internal spacing; 332 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MapDispositionPointerProjection` is case-sensitive for `Accepted` string disposition — **cheap-disproof 2026-09-10 seed hunt #1666:** mapper trims and uses case-insensitive `Enum.TryParse`; regression `MapDispositionPointerProjection_maps_case_insensitive_accepted_string`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` is case-sensitive for `Deferred` string disposition — **cheap-disproof 2026-09-10 seed hunt #1666:** mapper trims and uses case-insensitive `Enum.TryParse`; regression `MapDispositionPointerProjection_maps_case_insensitive_deferred_string`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` is case-sensitive for `Remediated` string disposition — **cheap-disproof 2026-09-10 seed hunt #1666:** mapper trims and uses case-insensitive `Enum.TryParse`; regression `MapDispositionPointerProjection_maps_case_insensitive_remediated_string`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` is case-sensitive for `RejectedAsNotApplicable` string disposition — **cheap-disproof 2026-09-10 seed hunt #1666:** mapper trims and uses case-insensitive `Enum.TryParse`; regression `MapDispositionPointerProjection_maps_case_insensitive_rejected_as_not_applicable_string`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` accepts numeric disposition string `"5"` when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1666:** undefined ordinals return null via `Enum.IsDefined` guard; regression `MapDispositionPointerProjection_returns_null_disposition_for_undefined_numeric_string_five`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` accepts negative numeric disposition strings — **cheap-disproof 2026-09-10 seed hunt #1666:** negative ordinals fail `Enum.TryParse`; regression `MapDispositionPointerProjection_returns_null_disposition_for_negative_numeric_string`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspectRead` metadata-only path still deserializes `PayloadJson` when title and rationale are present — **cheap-disproof 2026-09-10 seed hunt #1666:** metadata-only mode ignores payload column and builds slim metadata; regression `ResolveTypedPayloadForInspectRead_metadata_only_builds_full_metadata_when_both_title_and_rationale_present`.
+
+2026-09-10 seed hunt #1666 (seed-only): reseeded finding-inspect-sql after #1665; cheap-disproof closed remaining case-insensitive disposition pointer projection, undefined/negative numeric disposition guards, and metadata-only full title+rationale payload; 339 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
