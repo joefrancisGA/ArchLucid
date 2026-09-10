@@ -1905,10 +1905,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-09 — category section headings used raw category text in invalid HTML id tokens
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1938,6 +1938,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `mergeDocIndex` URL dedupe drops fetched rows that share a title with a static row but use a different path — **cheap-disproof 2026-09-09 seed hunt #1474:** dedupe is keyed on full `category|title|url` plus `seenUrls`; distinct URLs with the same title both render.
 
 2026-09-09 seed hunt #1474 (seed-only): reseeded ui-help-docs after #1401 hit; cheap-disproof closed localized-haystack and title-collision candidates; 9 scoped `HelpDocsClient` tests passed.
+
+- [x] (valid-no-repro) External doc-index URLs open in the same tab without `rel="noreferrer"` — **cheap-disproof 2026-09-10 seed hunt #1589:** `linkProps` adds `target="_blank"` and `rel="noreferrer"` for `https://` rows; regression `opens external documentation links in a new tab with noreferrer`.
+- [x] (valid-no-repro) Doc-index fetch failure hides static quick links — **cheap-disproof 2026-09-10 seed hunt #1589:** `HELP_DOCS_STATIC_ENTRIES` remain rendered with amber refresh error; regression `keeps static quick links visible when the doc-index fetch fails`.
+- [x] (valid-no-repro) Pending doc-index refresh hides static quick links — **cheap-disproof 2026-09-10 seed hunt #1589:** `mergedEntries` falls back to static rows while `entries` is null; regression `keeps static quick links visible while the doc-index refresh is pending`.
+- [x] (valid-no-repro) Escape does not clear the search box or URL — **cheap-disproof 2026-09-10 seed hunt #1589:** Escape calls `clearSearch` with immediate `router.replace`; regression `clears the search box when Escape is pressed`.
+- [x] (valid-no-repro) `?q=` URL parameter is ignored on initial render — **cheap-disproof 2026-09-10 seed hunt #1589:** `useEffect` syncs `urlQuery` into controlled input; regression `initializes the search box from the q URL parameter`.
+- [x] (valid-no-repro) Search input changes do not debounce `router.replace` for `?q=` — **cheap-disproof 2026-09-10 seed hunt #1589:** 250ms timeout writes `helpHubSearchHrefFromSearch`; regression `debounces router replace when the search query changes`.
+
+2026-09-10 seed hunt #1589 (seed-only): reseeded ui-help-docs after #1474; cheap-disproof closed external-link safety, fetch-failure/pending static fallback, Escape clear, URL init, and debounced search sync; 15 scoped `HelpDocsClient` tests passed.
 
 ## Zone: ui-webhooks-settings
 
