@@ -599,9 +599,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-10 — Verify skipped pending invitation when user had one existing membership
 - **related-pd-tb:** none
@@ -667,6 +667,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RequestCodeAsync` with `Enabled=false` still audits `EmailOtpCodeRequested` — **cheap-disproof 2026-09-10 seed hunt #1571:** disabled guard returns neutral before email normalization without identity audit; regression `RequestCodeAsync_returns_neutral_result_when_otp_auth_disabled`
 
 2026-09-10 seed hunt #1571 (seed-only): reseeded email-otp-auth; cheap-disproof closed verify input guards, bot-challenge gate, and disabled-request audit candidates; 33 scoped EmailOtp tests passed.
+
+- [x] (invalid) OTP verify rate limit keyed only by challenge id allows unlimited guesses by requesting new challenges for the same email — **cheap-disproof 2026-09-10 seed hunt #1573:** restored missing regression `VerifyCodeAsync_rate_limits_repeated_failures_per_email`; `IsEmailOtpVerificationRateLimitedAsync` counts failed verifications per normalized email before `TryCompleteAsync` on any challenge id.
+- [x] (valid-no-repro) `EmailOtpRequestFlow.ResolveInvitationIdAsync` links expired invitation tokens to the challenge — **cheap-disproof 2026-09-10 seed hunt #1573:** `invitation.ExpiresUtc <= now` returns null so challenge rows omit `InvitationId`; regression `RequestCodeAsync_omits_invitation_link_when_token_is_expired`.
+- [x] (valid-no-repro) `EmailOtpRequestFlow.ResolveInvitationIdAsync` links invitation tokens when invitee email differs from sign-in email — **cheap-disproof 2026-09-10 seed hunt #1573:** normalized email equality guard returns null; regression `RequestCodeAsync_omits_invitation_link_when_token_email_mismatches_sign_in_email`.
+
+2026-09-10 seed hunt #1573 (seed-only): reseeded email-otp-auth; restored per-email verify rate-limit regression and cheap-disproof closed invitation-token linkage candidates; 36 scoped EmailOtp tests passed.
 
 ---
 
