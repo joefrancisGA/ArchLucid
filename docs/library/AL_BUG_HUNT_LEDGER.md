@@ -2178,11 +2178,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 16
-- **bugs-found:** 26
+- **hunts:** 17
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — export guard parity gaps (manifest hash, metadata lifecycle, replay career gate)
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — sponsor review packet omitted career export gate for sample workspace runs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2230,6 +2230,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SponsorReviewPacketBuilder` — sealed receipt guard only; omitted `RunExportSealedManifestHashGuard` present on `FirstValueReportBuilder` sibling — **hit 2026-09-09 (#1396):** tampered manifest hash exported sponsor packet markdown; aligned guard chain with first-value report builder; regression `BuildMarkdownAsync_throws_conflict_when_sealed_manifest_hash_mismatches`.
 
 2026-09-09 thorough hunt #1396: proved four seed-hunt #1307 export guard parity gaps (manifest hash on one-pager/sponsor packet, lifecycle on export-record get, career gate on replay).
+
+- [x] (proven) `SponsorReviewPacketBuilder.BuildMarkdownAsync` — loaded `CareerExportCoverageHonestyMaterialLoader` but omitted `CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial` present on `ArchitectureReviewExportService` and `RunSummaryOnePagerExportService` — **hit 2026-09-10 seed hunt #1527:** sample-workspace runs exported sponsor packet markdown while board/one-pager paths throw `sample_workspace_export_block`; regression `BuildMarkdownAsync_throws_career_blocked_for_sample_workspace_run`
+
+2026-09-10 seed hunt #1527 (hit): reseeded tenant-data-export; proved sponsor packet career gate parity gap; 7 scoped SponsorReviewPacketBuilder tests passed.
 
 2026-09-08 seed hunt #1307: reseeded from export surfaces after career-honesty integration; proved ADR 0078 gate parity gap on board PDF/DOCX/HTML and one-pager markdown; seeded manifest-hash, replay, metadata lifecycle, and sponsor-packet parity candidates.
 

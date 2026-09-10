@@ -1736,4 +1736,5 @@
 {"at":"2026-09-10T01:42:20.1766812Z","zoneId":"host-core-coordination","outcome":"hit"}
 {"at":"2026-09-10T01:45:08.2661899Z","zoneId":"ui-review-detail-workspace","outcome":"hit"}
 {"at":"2026-09-10T01:48:29.0432057Z","zoneId":"ui-review-intake-wizards","outcome":"hit"}
-{"at":"2026-09-10T01:53:05.0555190Z","zoneId":"api-governance-stickiness","outcome":"hit"}
+{"at":"2026-09-10T01:53:05.055519Z","zoneId":"api-governance-stickiness","outcome":"hit"}
+{"at":"2026-09-10T02:00:52.1036590Z","zoneId":"tenant-data-export","outcome":"hit"}
