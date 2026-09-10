@@ -1796,3 +1796,4 @@
 {"at":"2026-09-10T16:15:10.0679069Z","zoneId":"finding-disposition","outcome":"dry"}
 {"at":"2026-09-10T16:20:50.3382224Z","zoneId":"ui-runs-list","outcome":"hit"}
 {"at":"2026-09-10T16:25:07.5875334Z","zoneId":"archlucid-contracts","outcome":"dry"}
+{"at":"2026-09-10T16:33:05.1133113Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
