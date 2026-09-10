@@ -67,10 +67,17 @@ export async function setPolicyPackAssignmentOrganizationRequired(
   assignmentId: string,
   isOrganizationRequired: boolean,
 ): Promise<void> {
-  await apiPutNoContent(
-    `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/organization-required`,
-    { isOrganizationRequired },
-  );
+  try {
+    await apiPutNoContent(
+      `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/organization-required`,
+      { isOrganizationRequired },
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = policyPackAssignMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Activates or deactivates a bundled policy pack platform-wide (internal admin). */
