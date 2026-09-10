@@ -18,6 +18,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
@@ -44,7 +45,7 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
   },
   {
     prefix: SECURENOW_REMEDIATION_FACTORY_PATH,
-    topic: { slug: "remediation-factory", label: OPERATOR_NAV_LINK_LABELS.remediationFactory },
+    topic: { slug: "security-evidence-paths", label: OPERATOR_NAV_LINK_LABELS.remediationFactory },
   },
   {
     prefix: "/governance/remediation-factory",
@@ -69,6 +70,10 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
     topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform },
+  },
+  {
+    prefix: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,

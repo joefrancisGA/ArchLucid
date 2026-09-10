@@ -37,7 +37,11 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [ParseJson($$"""{"scope":"{{scope}}","principalId":"{{principalId}}","roleDefinitionId":"{{readerRoleId}}"}""")],
                 [],
                 [],
-                []);
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false);
 
         result.Relationships.Should().Contain(r =>
             r.RelationshipType == GraphEdgeTypes.HasRole
@@ -62,7 +66,11 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [ParseJson("""{"scope":"/subscriptions/sub","principalId":"22222222-2222-2222-2222-222222222222","roleDefinitionId":"/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000099"}""")],
                 [],
                 [],
-                []);
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false);
 
         result.Relationships.Should().ContainSingle(r => r.RelationshipType == GraphEdgeTypes.HasRole);
         result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.CanRead);
@@ -79,7 +87,11 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 [],
                 [],
-                []);
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false);
 
         result.Relationships.Should().NotContain(r =>
             r.ProvenanceKind == ProvenanceKind.ObservedFact
@@ -102,13 +114,162 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                           }
                           """)],
                 [],
-                []);
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false);
 
         result.Relationships.Should().ContainSingle(r =>
             r.RelationshipType == GraphEdgeTypes.RoutesTo
             && r.ProvenanceKind == ProvenanceKind.DeterministicInference
             && r.Confidence < 1.0m
             && r.InferenceSource == GraphEdgeInferenceSources.InventoryNsgAllowRule);
+    }
+
+    [Fact]
+    public void Materialize_missing_federated_credentials_file_adds_completeness_warning_and_no_edges()
+    {
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false);
+
+        result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.FederatesAs);
+        result.CompletenessWarnings.Should().ContainSingle(w =>
+            w == SecurityEvidenceFederatedCredentialAdapterWarnings.MissingFile);
+    }
+
+    [Fact]
+    public void Materialize_federated_credential_and_contributor_role_emits_federates_as_and_write_path_edges()
+    {
+        const string principalId = "33333333-3333-3333-3333-333333333333";
+        const string scope =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string contributorRoleId =
+            "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c";
+
+        AzureInventoryFederatedCredentialRow credential = new()
+        {
+            Issuer = "https://token.actions.githubusercontent.com",
+            Subject = "repo:example-org/example-repo:environment:production",
+            PrincipalId = principalId,
+            AppId = "44444444-4444-4444-4444-444444444444",
+            ProvenanceKind = ProvenanceKind.ObservedFact,
+        };
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [ParseJson($$"""{"scope":"{{scope}}","principalId":"{{principalId}}","roleDefinitionId":"{{contributorRoleId}}"}""")],
+                [],
+                [],
+                [],
+                [credential],
+                federatedCredentialsFilePresent: true,
+                [],
+                entraGroupMembershipsFilePresent: false);
+
+        result.Relationships.Should().Contain(r =>
+            r.RelationshipType == GraphEdgeTypes.FederatesAs
+            && r.FromAzureResourceId == credential.NodeId
+            && r.ToAzureResourceId == credential.PrincipalNodeId
+            && r.ProvenanceKind == ProvenanceKind.ObservedFact
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryFederatedCredential);
+
+        result.Relationships.Should().Contain(r =>
+            r.RelationshipType == GraphEdgeTypes.CanWrite
+            && r.FromAzureResourceId == credential.PrincipalNodeId
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(scope));
+    }
+
+    [Fact]
+    public void Materialize_missing_entra_group_memberships_file_adds_completeness_warning_and_no_edges()
+    {
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false);
+
+        result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.MemberOf);
+        result.CompletenessWarnings.Should().Contain(w =>
+            w == SecurityEvidenceEntraGroupAdapterWarnings.MissingFile);
+    }
+
+    [Fact]
+    public void Materialize_entra_group_membership_emits_member_of_edge()
+    {
+        const string memberId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        const string groupId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+        AzureInventoryEntraGroupMembershipRow membership = new()
+        {
+            MemberId = memberId,
+            GroupId = groupId,
+            ProvenanceKind = ProvenanceKind.ObservedFact,
+        };
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [membership],
+                entraGroupMembershipsFilePresent: true);
+
+        result.Relationships.Should().ContainSingle(r =>
+            r.RelationshipType == GraphEdgeTypes.MemberOf
+            && r.FromAzureResourceId == membership.MemberNodeId
+            && r.ToAzureResourceId == membership.GroupNodeId
+            && r.ProvenanceKind == ProvenanceKind.ObservedFact
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryEntraGroupMembership);
+    }
+
+    [Fact]
+    public void Materialize_pim_eligibility_unknown_skips_derived_can_read_and_marks_has_role()
+    {
+        const string scope =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string principalId = "11111111-1111-1111-1111-111111111111";
+        const string readerRoleId =
+            "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f60684581c14";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [ParseJson($$"""{"scope":"{{scope}}","principalId":"{{principalId}}","roleDefinitionId":"{{readerRoleId}}","pimEligibilityKind":"unknown"}""")],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false);
+
+        result.Relationships.Should().ContainSingle(r =>
+            r.RelationshipType == GraphEdgeTypes.HasRole
+            && r.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown
+            && r.ProvenanceKind == ProvenanceKind.DeterministicInference);
+        result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.CanRead);
+        result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.CanWrite);
     }
 
     private static JsonElement ParseJson(string json)
@@ -354,6 +515,7 @@ public sealed class AzureInventorySnapshotMaterializerSecurityEdgeIntegrationTes
             WriteZipEntry(archive, AzureExtractorPackageZipEntryNames.NetworkAssociations, networkAssociationsJson);
             WriteZipEntry(archive, AzureExtractorPackageZipEntryNames.PolicyAssignments, "[]");
             WriteZipEntry(archive, AzureExtractorPackageZipEntryNames.DiagnosticSettings, "[]");
+            WriteZipEntry(archive, AzureExtractorPackageZipEntryNames.EntraGroupMemberships, "[]");
         }
 
         return ms.ToArray();

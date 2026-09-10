@@ -2,6 +2,10 @@ import { Home } from "lucide-react";
 
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
+import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
@@ -114,8 +118,25 @@ const SECURENOW_SECURITY_NAV_HREF_BY_GOVERNANCE_HREF: Readonly<Record<string, st
   [GOVERNANCE_REMEDIATION_PATTERNS_PATH]: SECURENOW_REMEDIATION_PATTERNS_PATH,
 };
 
+const SECURENOW_INFRASTRUCTURE_NAV_HREF_BY_GOVERNANCE_HREF: Readonly<Record<string, string>> = {
+  [GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH]: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+};
+
 function remapSecureNowSecurityNavLink(link: NavLinkItem): NavLinkItem {
   const remappedHref = SECURENOW_SECURITY_NAV_HREF_BY_GOVERNANCE_HREF[link.href];
+
+  if (remappedHref === undefined) {
+    return link;
+  }
+
+  return {
+    ...link,
+    href: remappedHref,
+  };
+}
+
+function remapSecureNowInfrastructureNavLink(link: NavLinkItem): NavLinkItem {
+  const remappedHref = SECURENOW_INFRASTRUCTURE_NAV_HREF_BY_GOVERNANCE_HREF[link.href];
 
   if (remappedHref === undefined) {
     return link;
@@ -202,7 +223,14 @@ export function reshapeNavGroupsForSecureNow(
     );
   }
 
-  reshaped.push(infrastructureRow);
+  reshaped.push({
+    ...infrastructureRow,
+    group: {
+      ...infrastructureRow.group,
+      links: infrastructureRow.group.links.map(remapSecureNowInfrastructureNavLink),
+    },
+    visibleLinks: infrastructureRow.visibleLinks.map(remapSecureNowInfrastructureNavLink),
+  });
 
   if (integrationLinks.length > 0) {
     reshaped.push(

@@ -90,6 +90,11 @@ const HELP_CENTER_SECURITY_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, He
     summary:
       "Configure an enterprise SecureNow tenant — SSO, roles, audit export, and optional cloud connector evidence.",
   },
+  "security-evidence-paths": {
+    title: "Security evidence paths",
+    summary:
+      "Understand architect path summaries, ordinal confidence bands, weakest hops, and cut points in Path inspect — not percentages or observed exfiltration.",
+  },
   "caiq-sig-response": {
     title: CAIQ_SIG_RESPONSE_HELP_PAGE_TITLE,
     summary: CAIQ_SIG_RESPONSE_HELP_CENTER_SUMMARY,

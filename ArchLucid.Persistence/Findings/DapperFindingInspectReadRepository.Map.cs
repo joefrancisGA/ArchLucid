@@ -19,16 +19,25 @@ public sealed partial class DapperFindingInspectReadRepository
         FindingConfidenceLevel? evaluationLevel =
             FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel(row.EvaluationConfidenceLevel);
 
-        List<FindingInspectEvidenceItem> evidence = joinResult.RelatedNodes
-            .Where(static n => !string.IsNullOrWhiteSpace(n))
-            .Select(static n =>
-                new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = n.Trim() })
+        List<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore
+            .BuildEvidenceFromRelatedNodes(joinResult.RelatedNodes)
             .ToList();
 
-        JsonElement? typed = includeTypedPayload
-            ? FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(row.PayloadJson, row.Title, row.Rationale)
-            : FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(row.Title, row.Rationale);
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload,
+            row.PayloadJson,
+            row.Title,
+            row.Rationale);
         FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
+
+        DispositionPointerProjection dispositionPointer = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            joinResult.DispositionRow?.Disposition,
+            joinResult.DispositionRow is not null,
+            joinResult.DispositionRow?.OccurredAtUtc,
+            joinResult.DispositionRow?.RevisitDueUtc,
+            joinResult.DispositionRow?.EventId,
+            joinResult.DispositionRow?.ReviewerUserId,
+            joinResult.DispositionRow?.RowVersionStamp);
 
         return new FindingInspectResponse
         {
@@ -36,7 +45,7 @@ public sealed partial class DapperFindingInspectReadRepository
             Severity = recordSeverity,
             TypedPayload = typed,
             DecisionRuleId = ruleId,
-            DecisionRuleName = ruleName ?? ruleId,
+            DecisionRuleName = FindingInspectReadRepositoryCore.ResolveDecisionRuleName(ruleName, ruleId),
             Evidence = evidence,
             RecommendedActions = joinResult.RecommendedActions,
             AuditRowId = joinResult.AuditRowId,
@@ -53,24 +62,15 @@ public sealed partial class DapperFindingInspectReadRepository
             MuteReason = row.MuteReason,
             ReasoningTrace = row.ReasoningTrace,
             ReasoningTraceDigestSha256 = row.ReasoningTraceDigestSha256,
-            LatestDisposition = joinResult.DispositionRow is null
-                ? null
-                : FindingInspectReadModelMapper.ParseDisposition(joinResult.DispositionRow.Disposition),
-            LatestDispositionOccurredAtUtc = joinResult.DispositionRow?.OccurredAtUtc,
-            LatestDispositionEventId = joinResult.DispositionRow?.EventId,
-            LatestDispositionRowVersionBase64 = joinResult.DispositionRow?.RowVersionStamp is null
-                ? null
-                : Convert.ToBase64String(joinResult.DispositionRow.RowVersionStamp),
-            LatestDispositionReviewerUserId = joinResult.DispositionRow?.ReviewerUserId,
-            RevisitDueUtc = joinResult.DispositionRow?.RevisitDueUtc is null
-                ? null
-                : new DateTimeOffset(
-                    DateTime.SpecifyKind(joinResult.DispositionRow.RevisitDueUtc.Value, DateTimeKind.Utc)),
-            HasActiveWaiver = joinResult.ActiveWaiverCount > 0,
+            LatestDisposition = dispositionPointer.LatestDisposition,
+            LatestDispositionOccurredAtUtc = dispositionPointer.LatestDispositionOccurredAtUtc,
+            LatestDispositionEventId = dispositionPointer.LatestDispositionEventId,
+            LatestDispositionRowVersionBase64 = dispositionPointer.LatestDispositionRowVersionBase64,
+            LatestDispositionReviewerUserId = dispositionPointer.LatestDispositionReviewerUserId,
+            RevisitDueUtc = dispositionPointer.RevisitDueUtc,
+            HasActiveWaiver = FindingInspectReadRepositoryCore.HasActiveWaiver(joinResult.ActiveWaiverCount),
             AssignedToUserId = row.AssignedToUserId,
-            RemediationDueUtc = row.RemediationDueUtc is null
-                ? null
-                : new DateTimeOffset(DateTime.SpecifyKind(row.RemediationDueUtc.Value, DateTimeKind.Utc)),
+            RemediationDueUtc = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(row.RemediationDueUtc),
             RunStructuralExecutionMode = row.StructuralExecutionMode,
             RunRealModeFellBackToSimulator = row.RealModeFellBackToSimulator,
         };

@@ -21,17 +21,33 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<JsonElement> roleAssignments,
         IReadOnlyList<JsonElement> networkAssociations,
         IReadOnlyList<JsonElement> policyAssignments,
-        IReadOnlyList<JsonElement> diagnosticSettings)
+        IReadOnlyList<JsonElement> diagnosticSettings,
+        IReadOnlyList<AzureInventoryFederatedCredentialRow> federatedCredentials,
+        bool federatedCredentialsFilePresent,
+        IReadOnlyList<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships,
+        bool entraGroupMembershipsFilePresent)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
         ArgumentNullException.ThrowIfNull(networkAssociations);
         ArgumentNullException.ThrowIfNull(policyAssignments);
         ArgumentNullException.ThrowIfNull(diagnosticSettings);
+        ArgumentNullException.ThrowIfNull(federatedCredentials);
+        ArgumentNullException.ThrowIfNull(entraGroupMemberships);
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<string> warnings = [];
         HashSet<string> relationshipKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        if (!federatedCredentialsFilePresent)
+        {
+            warnings.Add(SecurityEvidenceFederatedCredentialAdapterWarnings.MissingFile);
+        }
+
+        if (!entraGroupMembershipsFilePresent)
+        {
+            warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.MissingFile);
+        }
 
         foreach (AzureExtractorExtendedResourceRow resource in resources)
         {
@@ -44,6 +60,8 @@ public static class AzureInventorySecurityEdgeMaterializer
         }
 
         AddRoleAssignmentEdges(roleAssignments, relationships, relationshipKeys, warnings);
+        AddFederatedCredentialEdges(federatedCredentials, relationships, relationshipKeys);
+        AddEntraGroupMembershipEdges(entraGroupMemberships, relationships, relationshipKeys);
         AddNetworkAssociationEdges(networkAssociations, relationships, relationshipKeys);
         AddPolicyAssignmentEdges(policyAssignments, relationships, relationshipKeys);
         AddDiagnosticEdges(diagnosticSettings, relationships, relationshipKeys);
@@ -235,6 +253,15 @@ public static class AzureInventorySecurityEdgeMaterializer
 
             string normalizedScope = ArmResourceIdNormalizer.Normalize(scopeValue);
             string principalNodeId = AzureInventoryPrincipalNodeId.Format(principalId);
+            string? pimEligibilityKind = TryReadJsonString(assignment, "pimEligibilityKind");
+            string inferenceSource = GraphEdgeInferenceSources.InventoryRbacAssignment;
+            ProvenanceKind provenanceKind = ProvenanceKind.ObservedFact;
+
+            if (IsPimEligibilityUnknown(pimEligibilityKind))
+            {
+                inferenceSource = GraphEdgeInferenceSources.PimEligibilityUnknown;
+                provenanceKind = ProvenanceKind.DeterministicInference;
+            }
 
             AddRelationship(
                 relationships,
@@ -242,9 +269,9 @@ public static class AzureInventorySecurityEdgeMaterializer
                 principalNodeId,
                 normalizedScope,
                 GraphEdgeTypes.HasRole,
-                ProvenanceKind.ObservedFact,
-                ObservedFactConfidence,
-                GraphEdgeInferenceSources.InventoryRbacAssignment);
+                provenanceKind,
+                provenanceKind == ProvenanceKind.ObservedFact ? ObservedFactConfidence : DeterministicInferenceConfidence,
+                inferenceSource);
 
             string? roleName = AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromAssignment(
                 assignment,
@@ -257,6 +284,11 @@ public static class AzureInventorySecurityEdgeMaterializer
             {
                 warnings.Add($"rbac-role-unmapped:{roleDefinitionId}");
 
+                continue;
+            }
+
+            if (IsPimEligibilityUnknown(pimEligibilityKind))
+            {
                 continue;
             }
 
@@ -287,6 +319,71 @@ public static class AzureInventorySecurityEdgeMaterializer
                     DerivedFactConfidence,
                     GraphEdgeInferenceSources.InventoryRbacDataPlaneMap);
             }
+        }
+    }
+
+    private static void AddEntraGroupMembershipEdges(
+        IReadOnlyList<AzureInventoryEntraGroupMembershipRow> memberships,
+        List<AzureInventoryResourceRelationshipWrite> relationships,
+        HashSet<string> relationshipKeys)
+    {
+        foreach (AzureInventoryEntraGroupMembershipRow membership in memberships)
+        {
+            if (string.IsNullOrWhiteSpace(membership.MemberId) || string.IsNullOrWhiteSpace(membership.GroupId))
+            {
+                continue;
+            }
+
+            AddRelationship(
+                relationships,
+                relationshipKeys,
+                membership.MemberNodeId,
+                membership.GroupNodeId,
+                GraphEdgeTypes.MemberOf,
+                membership.ProvenanceKind,
+                membership.ProvenanceKind == ProvenanceKind.ObservedFact
+                    ? ObservedFactConfidence
+                    : DerivedFactConfidence,
+                GraphEdgeInferenceSources.InventoryEntraGroupMembership);
+        }
+    }
+
+    private static bool IsPimEligibilityUnknown(string? pimEligibilityKind)
+    {
+        if (string.IsNullOrWhiteSpace(pimEligibilityKind))
+        {
+            return false;
+        }
+
+        return pimEligibilityKind.Equals("unknown", StringComparison.OrdinalIgnoreCase)
+               || pimEligibilityKind.Equals("eligible", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void AddFederatedCredentialEdges(
+        IReadOnlyList<AzureInventoryFederatedCredentialRow> federatedCredentials,
+        List<AzureInventoryResourceRelationshipWrite> relationships,
+        HashSet<string> relationshipKeys)
+    {
+        foreach (AzureInventoryFederatedCredentialRow credential in federatedCredentials)
+        {
+            if (string.IsNullOrWhiteSpace(credential.Issuer)
+                || string.IsNullOrWhiteSpace(credential.Subject)
+                || string.IsNullOrWhiteSpace(credential.PrincipalId))
+            {
+                continue;
+            }
+
+            AddRelationship(
+                relationships,
+                relationshipKeys,
+                credential.NodeId,
+                credential.PrincipalNodeId,
+                GraphEdgeTypes.FederatesAs,
+                credential.ProvenanceKind,
+                credential.ProvenanceKind == ProvenanceKind.ObservedFact
+                    ? ObservedFactConfidence
+                    : DerivedFactConfidence,
+                GraphEdgeInferenceSources.InventoryFederatedCredential);
         }
     }
 

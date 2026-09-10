@@ -1,3 +1,4 @@
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
@@ -6,11 +7,22 @@ internal static class PrivilegePathNarrative
 {
     public static string BuildTitle(PrivilegePathCandidate candidate)
     {
-        string start = ShortNodeLabel(candidate.Hops[0].FromNodeId);
         string action = candidate.HasInsufficientEvidenceHop
             ? "unknown role actions"
             : ResolveActionLabel(candidate);
         string scope = ShortNodeLabel(candidate.TerminalScopeNodeId);
+
+        if (candidate.IsFederatedDeploymentPath)
+        {
+            return $"Federated deployment identity → {action} → {scope}";
+        }
+
+        if (candidate.IsGroupNestedPath)
+        {
+            return $"Group-nested privilege path → {action} → {scope}";
+        }
+
+        string start = ShortNodeLabel(candidate.Hops[0].FromNodeId);
 
         return $"Privilege path: {start} → {action} → {scope}";
     }
@@ -21,6 +33,17 @@ internal static class PrivilegePathNarrative
             $"{ShortNodeLabel(hop.FromNodeId)} -[{hop.EdgeType}]-> {ShortNodeLabel(hop.ToNodeId)}");
 
         string pathSummary = string.Join("; ", hopDescriptions);
+
+        if (candidate.IsFederatedDeploymentPath)
+        {
+            return
+                $"Federated CI identity may assume deployment privileges via Entra federated credential. {pathSummary}.";
+        }
+
+        if (candidate.IsGroupNestedPath)
+        {
+            return $"Transitive privilege path via Entra group membership. {pathSummary}.";
+        }
 
         if (candidate.Hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.UsesIdentity))
         {
@@ -51,7 +74,12 @@ internal static class PrivilegePathNarrative
 
     private static string ShortNodeLabel(string nodeId)
     {
-        if (nodeId.StartsWith("azure-ad://principal/", StringComparison.Ordinal))
+        if (nodeId.StartsWith(AzureInventoryFederatedCredentialNodeId.Prefix, StringComparison.Ordinal))
+        {
+            return "federated deployment identity";
+        }
+
+        if (nodeId.StartsWith(AzureInventoryPrincipalNodeId.Prefix, StringComparison.Ordinal))
         {
             return $"principal:{nodeId[^8..]}";
         }

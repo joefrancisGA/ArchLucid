@@ -138,13 +138,15 @@ internal static class PrivilegePathEnumerator
                 Hops = hops,
                 TerminalScopeNodeId = scopeNodeId,
                 EffectiveRoleName = roleName,
-                HasInsufficientEvidenceHop = false,
+                HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hops),
                 TerminalCloudResourceId = terminalResource?.CloudResourceId,
                 TerminalResourceType = terminalResource?.ResourceType,
                 ScopeTaggedProduction = InventoryPrivilegePathGraph.IsScopeTaggedProduction(
                     scopeNodeId,
                     graph.ResourcesByArmId,
                     graph.TagsByResourceRowId),
+                IsFederatedDeploymentPath = IsFederatedDeploymentPath(hops),
+                IsGroupNestedPath = IsGroupNestedPath(hops),
             };
 
             return true;
@@ -182,13 +184,15 @@ internal static class PrivilegePathEnumerator
             Hops = hopsWithInsufficient,
             TerminalScopeNodeId = hasRoleHop.ToNodeId,
             EffectiveRoleName = mappedRole,
-            HasInsufficientEvidenceHop = true,
+            HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithInsufficient),
             TerminalCloudResourceId = scopeResource?.CloudResourceId,
             TerminalResourceType = scopeResource?.ResourceType,
             ScopeTaggedProduction = InventoryPrivilegePathGraph.IsScopeTaggedProduction(
                 hasRoleHop.ToNodeId,
                 graph.ResourcesByArmId,
                 graph.TagsByResourceRowId),
+            IsFederatedDeploymentPath = IsFederatedDeploymentPath(hopsWithInsufficient),
+            IsGroupNestedPath = IsGroupNestedPath(hopsWithInsufficient),
         };
 
         return true;
@@ -226,13 +230,15 @@ internal static class PrivilegePathEnumerator
             Hops = hopsWithAction,
             TerminalScopeNodeId = hasRoleHop.ToNodeId,
             EffectiveRoleName = mappedRole,
-            HasInsufficientEvidenceHop = false,
+            HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithAction),
             TerminalCloudResourceId = scopeResource?.CloudResourceId,
             TerminalResourceType = scopeResource?.ResourceType,
             ScopeTaggedProduction = InventoryPrivilegePathGraph.IsScopeTaggedProduction(
                 hasRoleHop.ToNodeId,
                 graph.ResourcesByArmId,
                 graph.TagsByResourceRowId),
+            IsFederatedDeploymentPath = IsFederatedDeploymentPath(hopsWithAction),
+            IsGroupNestedPath = IsGroupNestedPath(hopsWithAction),
         };
 
         return true;
@@ -242,4 +248,14 @@ internal static class PrivilegePathEnumerator
         string.Join(
             ">",
             hops.Select(static hop => $"{hop.FromNodeId}|{hop.EdgeType}|{hop.ToNodeId}"));
+
+    private static bool IsFederatedDeploymentPath(IReadOnlyList<PrivilegePathEdge> hops) =>
+        hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.FederatesAs);
+
+    private static bool IsGroupNestedPath(IReadOnlyList<PrivilegePathEdge> hops) =>
+        hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.MemberOf);
+
+    private static bool HasInsufficientEvidenceHop(IReadOnlyList<PrivilegePathEdge> hops) =>
+        hops.Any(static hop => hop.EdgeType == "unknown-role-actions")
+        || hops.Any(static hop => hop.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown);
 }

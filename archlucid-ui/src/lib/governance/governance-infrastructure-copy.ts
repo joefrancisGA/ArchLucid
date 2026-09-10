@@ -112,7 +112,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID = "infra-diag
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL = "Skip to diagram viewer" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD =
-  "Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability thresholds." as const;
+  "Render inventory diagrams from snapshot evidence with partitioned fallbacks when graphs exceed readability thresholds. Choose a snapshot and diagram mode before exporting PNG or Mermaid. Partitioned views default to Executive when the full graph exceeds readability thresholds." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE =
   "Diagram renders reflect inventory snapshot evidence — server PNG export applies tenant branding on the container only, never inside graph nodes." as const;

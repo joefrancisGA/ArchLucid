@@ -1883,6 +1883,354 @@ public sealed class EmailOtpAuthServiceTests
         Assert.Null(latestRequest);
     }
 
+    [Fact]
+    public async Task VerifyCodeAsync_accepts_challenge_linked_invitation_without_verify_invitation_token()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out InMemoryWorkspaceMembershipRepository memberships,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        const string rawToken = "challenge-linked-token";
+        byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash(rawToken);
+
+        await invitations.InsertAsync(
+            tenantId,
+            workspaceId,
+            "linked@example.com",
+            ArchLucidRoles.WorkspaceAdmin,
+            "admin",
+            null,
+            tokenHash,
+            DateTimeOffset.UtcNow.AddDays(7),
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest
+            {
+                Email = "linked@example.com",
+                InvitationToken = rawToken
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        Assert.NotNull(challenge.InvitationId);
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = challenge.Id,
+                Code = RecoverCodeForTests(challenge)
+            },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(EmailOtpAuthNextStep.Complete, verified.NextStep);
+        Assert.Equal(ArchLucidRoles.WorkspaceAdmin, verified.Role);
+
+        IReadOnlyList<WorkspaceMembershipRecord> rows =
+            await memberships.ListByUserIdAsync(verified.PlatformUserId!.Value, CancellationToken.None);
+
+        Assert.Single(rows);
+        Assert.Equal(ArchLucidRoles.WorkspaceAdmin, rows[0].Role);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_select_workspace_returns_reader_placeholder_role()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out InMemoryWorkspaceMembershipRepository memberships,
+            out _,
+            out _,
+            out _,
+            out _,
+            new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 });
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceA = Guid.NewGuid();
+        Guid workspaceB = Guid.NewGuid();
+        const string email = "multi-role@example.com";
+
+        EmailOtpChallengeRequestResult bootstrap = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = email },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord bootstrapChallenge =
+            (await challenges.GetByIdAsync(bootstrap.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult bootstrapVerified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = bootstrapChallenge.Id,
+                Code = RecoverCodeForTests(bootstrapChallenge)
+            },
+            CancellationToken.None);
+
+        Guid userId = bootstrapVerified.PlatformUserId!.Value;
+        DateTimeOffset createdUtc = DateTimeOffset.UtcNow;
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceA,
+                Role = ArchLucidRoles.WorkspaceAdmin,
+                Status = WorkspaceMembershipStatus.Active
+            },
+            createdUtc,
+            CancellationToken.None);
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceB,
+                Role = ArchLucidRoles.WorkspaceAdmin,
+                Status = WorkspaceMembershipStatus.Active
+            },
+            createdUtc.AddMinutes(1),
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = email },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = challenge.Id,
+                Code = RecoverCodeForTests(challenge)
+            },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(EmailOtpAuthNextStep.SelectWorkspace, verified.NextStep);
+        Assert.Equal(ArchLucidRoles.Reader, verified.Role);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_completes_when_user_has_one_active_and_one_inactive_membership()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out InMemoryWorkspaceMembershipRepository memberships,
+            out _,
+            out _,
+            out _,
+            out _,
+            new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 });
+
+        Guid tenantId = Guid.NewGuid();
+        Guid activeWorkspaceId = Guid.NewGuid();
+        Guid suspendedWorkspaceId = Guid.NewGuid();
+        const string email = "active-only@example.com";
+
+        EmailOtpChallengeRequestResult bootstrap = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = email },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord bootstrapChallenge =
+            (await challenges.GetByIdAsync(bootstrap.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult bootstrapVerified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = bootstrapChallenge.Id,
+                Code = RecoverCodeForTests(bootstrapChallenge)
+            },
+            CancellationToken.None);
+
+        Guid userId = bootstrapVerified.PlatformUserId!.Value;
+        DateTimeOffset createdUtc = DateTimeOffset.UtcNow;
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = activeWorkspaceId,
+                Role = ArchLucidRoles.WorkspaceAdmin,
+                Status = WorkspaceMembershipStatus.Active
+            },
+            createdUtc,
+            CancellationToken.None);
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = suspendedWorkspaceId,
+                Role = ArchLucidRoles.Reader,
+                Status = WorkspaceMembershipStatus.Suspended
+            },
+            createdUtc.AddMinutes(1),
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = email },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = challenge.Id,
+                Code = RecoverCodeForTests(challenge)
+            },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(EmailOtpAuthNextStep.Complete, verified.NextStep);
+        Assert.Equal(activeWorkspaceId, verified.WorkspaceId);
+        Assert.Equal(ArchLucidRoles.WorkspaceAdmin, verified.Role);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_routes_past_expired_challenge_linked_invitation_to_create_workspace()
+    {
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            ResendCooldownSeconds = 0,
+            CodeLifetimeMinutes = 30
+        };
+
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out InMemoryWorkspaceMembershipRepository memberships,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _,
+            options);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid invitationId = Guid.NewGuid();
+        const string email = "late@example.com";
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset expiredInvitationUtc = now.AddMinutes(-5);
+
+        await invitations.SeedPendingForTestsAsync(
+            new UserInvitationRecord
+            {
+                Id = invitationId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                Email = email,
+                AppRole = ArchLucidRoles.WorkspaceAdmin,
+                InvitedByActorId = "admin",
+                Status = UserInvitationStatus.Pending,
+                CreatedUtc = expiredInvitationUtc.AddDays(-1),
+                ExpiresUtc = expiredInvitationUtc
+            },
+            EmailOtpInvitationTokenHasher.Hash("expired-linked-token"));
+
+        Guid challengeId = Guid.NewGuid();
+        string rawCode = EmailOtpCodeGenerator.GenerateNumericCode(options.CodeLength);
+        string codeHash = EmailOtpCodeHasher.Hash(challengeId, rawCode, options.HashPepper);
+
+        await challenges.ReplaceActiveChallengeForEmailAsync(
+            new EmailOtpChallengeInsert
+            {
+                Id = challengeId,
+                NormalizedEmail = email,
+                CodeHash = codeHash,
+                ExpiresUtc = now.AddMinutes(options.CodeLifetimeMinutes),
+                InvitationId = invitationId
+            },
+            now,
+            CancellationToken.None);
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = challengeId,
+                Code = rawCode
+            },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(EmailOtpAuthNextStep.CreateWorkspace, verified.NextStep);
+
+        IReadOnlyList<WorkspaceMembershipRecord> rows =
+            await memberships.ListByUserIdAsync(verified.PlatformUserId!.Value, CancellationToken.None);
+
+        Assert.Empty(rows);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_rate_limit_emits_rate_limit_audit_not_verification_failed()
+    {
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            ResendCooldownSeconds = 0,
+            MaxVerificationAttemptsPerEmailPerHour = 1
+        };
+
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IAuditService> audit,
+            options);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "ratelimit-audit@example.com" },
+            CancellationToken.None);
+
+        Guid challengeId = requested.ChallengeId!.Value;
+
+        await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challengeId, Code = "000000" },
+            CancellationToken.None);
+
+        await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challengeId, Code = "000001" },
+            CancellationToken.None);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(row => row.EventType == AuditEventTypes.EmailOtpRateLimitTriggered),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        audit.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(row => row.EventType == AuditEventTypes.EmailOtpVerificationFailed),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static string RecoverCodeForTests(EmailOtpChallengeRecord challenge)
     {
         for (int candidate = 0; candidate < 1_000_000; candidate++)

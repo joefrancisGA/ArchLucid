@@ -43,4 +43,16 @@ public sealed class PrivilegePathCandidate
         get;
         init;
     }
+
+    public bool IsFederatedDeploymentPath
+    {
+        get;
+        init;
+    }
+
+    public bool IsGroupNestedPath
+    {
+        get;
+        init;
+    }
 }
