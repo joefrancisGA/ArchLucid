@@ -455,4 +455,47 @@ public sealed class FindingInspectReadModelMapperTests
     {
         FindingInspectReadModelMapper.ParseDisposition("  -1  ").Should().BeNull();
     }
+
+    [Fact]
+    public void ParseFindingSeverity_trims_whitespace_from_fractional_numeric_string_before_defaulting_to_info()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("  1.5  ").Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public void ParseHumanReview_trims_whitespace_from_fractional_numeric_string_before_defaulting_to_not_required()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("  2.5  ").Should().Be(FindingHumanReviewStatus.NotRequired);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_whitespace_from_fractional_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  1.5  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_fractional_numeric_string_before_rejecting_for_all_fractional_inputs()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  0.5  ").Should().BeNull();
+        FindingInspectReadModelMapper.ParseDisposition("  1.5  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_whitespace_from_positive_undefined_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("  5  ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ParseFindingSeverity_trims_whitespace_from_positive_undefined_numeric_string_before_defaulting_to_info()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("  4  ").Should().Be(FindingSeverity.Info);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_whitespace_from_positive_undefined_numeric_string_before_rejecting()
+    {
+        FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  3  ").Should().BeNull();
+    }
 }

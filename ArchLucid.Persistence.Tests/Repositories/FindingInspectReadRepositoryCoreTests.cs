@@ -2570,4 +2570,46 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         projection.LatestDisposition.Should().BeNull();
     }
+
+    [Fact]
+    public void MapLatestDisposition_returns_null_for_whitespace_padded_fractional_numeric_string()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition("  1.5  ", hasDispositionRow: true).Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_returns_null_disposition_for_whitespace_padded_fractional_numeric_string()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "  0.5  ",
+            hasDispositionRow: true,
+            occurredAtUtc: new DateTimeOffset(2026, 10, 8, 14, 30, 0, TimeSpan.Zero),
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapLatestDisposition_returns_null_for_whitespace_padded_undefined_numeric_string_five()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition("  5  ", hasDispositionRow: true).Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_returns_null_disposition_for_whitespace_padded_undefined_numeric_string_five()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "  5  ",
+            hasDispositionRow: true,
+            occurredAtUtc: new DateTimeOffset(2026, 10, 8, 14, 30, 0, TimeSpan.Zero),
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().BeNull();
+    }
 }
