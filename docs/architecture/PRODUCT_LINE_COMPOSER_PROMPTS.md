@@ -11,7 +11,7 @@ One Next.js app and **one** `ArchLucid.Api`. Local loop: `.\scripts\start-local-
 
 Paste **one** `.cursor/prompts/product-line-NN-*.md` file per Composer session. **Do not implement from this document’s tables.**
 
-Related (do not mix into a PL session): Security **display name** SecureNow is **SN-01–SN-08** — [`SECURENOW_CONSUMER_BRAND_COMPOSER_PROMPTS.md`](SECURENOW_CONSUMER_BRAND_COMPOSER_PROMPTS.md). **SN-01** replaces PL-02’s `ArchLucid Security` wordmark with **SecureNow**.
+Related (do not mix into a PL session): Security **display name** SecureNow is **SN-01–SN-08** — [`SECURENOW_CONSUMER_BRAND_COMPOSER_PROMPTS.md`](SECURENOW_CONSUMER_BRAND_COMPOSER_PROMPTS.md). **SN-01** replaces PL-02’s `ArchLucid Security` wordmark with **SecureNow**. Backend extract option (still one host): **OP-01–OP-08** — [`OPTION_PRESERVING_API_SPLIT_COMPOSER_PROMPTS.md`](OPTION_PRESERVING_API_SPLIT_COMPOSER_PROMPTS.md).
 
 ## Diagnosis → prompt
 
@@ -35,7 +35,7 @@ Related (do not mix into a PL session): Security **display name** SecureNow is *
 
 ## Intentional — do not “fix”
 
-- Do **not** add a second composition root, split migrations, or change INV-006 unless the owner explicitly reopens that hold **in that session**.
+- Do **not** add a second composition root, split migrations, or change INV-006 unless the owner explicitly reopens that hold **in that session** via **OP-07** / **OP-08** ([`.cursor/prompts/option-preserving-api-00-index.md`](../../.cursor/prompts/option-preserving-api-00-index.md)).
 - Do **not** use two long-lived git branches as Architecture vs Security.
 - Do **not** call `npm run dev:security` from Windows `Start-Process powershell.exe` (Unix env prefixes). Set `$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT` in the spawned window.
 - Do **not** hide desktop review workspace tabs behind **More**.

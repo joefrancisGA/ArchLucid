@@ -5,6 +5,16 @@ import {
   reviewPipelineDetailHref,
   reviewPipelineOperationId,
 } from "@/lib/operations/review-pipeline-in-flight";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { reviewExecuteMutationBlockedReason } from "@/lib/runs/review-execute-mutation-blocked-reason";
+import { reviewAsyncReplayMutationBlockedReason } from "@/lib/runs/review-async-replay-mutation-blocked-reason";
+import { reviewFinalizeMutationBlockedReason } from "@/lib/runs/review-finalize-mutation-blocked-reason";
+import { reviewArchiveMutationBlockedReason } from "@/lib/runs/review-archive-mutation-blocked-reason";
+import { reviewPinMutationBlockedReason } from "@/lib/runs/review-pin-mutation-blocked-reason";
+import { reviewSelectiveExecuteMutationBlockedReason } from "@/lib/runs/review-selective-execute-mutation-blocked-reason";
+import { architectureRequestLifecycleMutationBlockedReason } from "@/lib/runs/architecture-request-lifecycle-mutation-blocked-reason";
+
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   apiPatchJson,
   apiPostAcceptedWithLocation,
@@ -18,10 +28,17 @@ export async function pinArchitectureRun(
   runId: string,
   body: { readonly isPinned?: boolean } = {},
 ): Promise<{ runId: string; isPinned: boolean }> {
-  return apiPatchJson<{ runId: string; isPinned: boolean }>(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/pin`,
-    body,
-  );
+  try {
+    return await apiPatchJson<{ runId: string; isPinned: boolean }>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/pin`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewPinMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Finalizes agent results into a Finalized review record (POST /v1/architecture/review/{runId}/finalize). */
@@ -32,15 +49,29 @@ export async function commitArchitectureRun(
     readonly acknowledgedAssumptionIds?: readonly string[];
   },
 ): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/finalize`, {
-    notifySponsor: options?.notifySponsor === true,
-    acknowledgedAssumptionIds: options?.acknowledgedAssumptionIds ?? undefined,
-  });
+  try {
+    return await apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/finalize`, {
+      notifySponsor: options?.notifySponsor === true,
+      acknowledgedAssumptionIds: options?.acknowledgedAssumptionIds ?? undefined,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewFinalizeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Runs agent pipeline for an architecture review (POST /v1/architecture/review/{runId}/execute). */
 export async function executeArchitectureRun(runId: string): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute`, {});
+  try {
+    return await apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute`, {});
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewExecuteMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export type ExecuteArchitectureRunAsyncResult = {
@@ -55,24 +86,31 @@ export type ExecuteArchitectureRunAsyncResult = {
 export async function executeArchitectureRunAsync(
   runId: string,
 ): Promise<ExecuteArchitectureRunAsyncResult> {
-  const accepted = await apiPostAcceptedWithLocation(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/execute/async`,
-    {},
-    { suppressErrorToast: true },
-  );
-  const operationId =
-    parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
+  try {
+    const accepted = await apiPostAcceptedWithLocation(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/execute/async`,
+      {},
+      { suppressErrorToast: true },
+    );
+    const operationId =
+      parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
 
-  trackInFlightOperation({
-    operationId,
-    title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
-    href: reviewPipelineDetailHref(runId),
-    runId,
-    stepLabel: "Queued",
-    state: "Pending",
-  });
+    trackInFlightOperation({
+      operationId,
+      title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+      href: reviewPipelineDetailHref(runId),
+      runId,
+      stepLabel: "Queued",
+      state: "Pending",
+    });
 
-  return { operationId, location: accepted.location };
+    return { operationId, location: accepted.location };
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewExecuteMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export type ReplayArchitectureRunAsyncResult = {
@@ -89,28 +127,35 @@ export async function replayArchitectureRunAsync(
     readonly manifestVersionOverride?: string | null;
   } = {},
 ): Promise<ReplayArchitectureRunAsyncResult> {
-  const accepted = await apiPostAcceptedWithLocation(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/replay/async`,
-    {
-      executionMode: body.executionMode,
-      commitReplay: body.commitReplay,
-      manifestVersionOverride: body.manifestVersionOverride ?? undefined,
-    },
-    { suppressErrorToast: true },
-  );
-  const operationId =
-    parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
+  try {
+    const accepted = await apiPostAcceptedWithLocation(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/replay/async`,
+      {
+        executionMode: body.executionMode,
+        commitReplay: body.commitReplay,
+        manifestVersionOverride: body.manifestVersionOverride ?? undefined,
+      },
+      { suppressErrorToast: true },
+    );
+    const operationId =
+      parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
 
-  trackInFlightOperation({
-    operationId,
-    title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
-    href: reviewPipelineDetailHref(runId),
-    runId,
-    stepLabel: "Replay queued",
-    state: "Pending",
-  });
+    trackInFlightOperation({
+      operationId,
+      title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+      href: reviewPipelineDetailHref(runId),
+      runId,
+      stepLabel: "Replay queued",
+      state: "Pending",
+    });
 
-  return { operationId, location: accepted.location };
+    return { operationId, location: accepted.location };
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewAsyncReplayMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** TB-938: re-execute selected agents only (POST /v1/architecture/review/{runId}/execute/selective). */
@@ -122,11 +167,18 @@ export async function executeArchitectureRunSelective(
     readonly includeDependents?: boolean;
   },
 ): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute/selective`, {
-    agentTypes: body.agentTypes ?? [],
-    taskIds: body.taskIds ?? [],
-    includeDependents: body.includeDependents !== false,
-  });
+  try {
+    return await apiPostJson<unknown>(`/v1/architecture/review/${encodeURIComponent(runId)}/execute/selective`, {
+      agentTypes: body.agentTypes ?? [],
+      taskIds: body.taskIds ?? [],
+      includeDependents: body.includeDependents !== false,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewSelectiveExecuteMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /**
@@ -165,20 +217,48 @@ export async function seedFakeArchitectureRunResults(runId: string): Promise<{ r
 
 /** Restores a soft-archived architecture request (POST /v1/architecture/request/{requestId}/restore). */
 export async function restoreArchitectureRequest(requestId: string): Promise<void> {
-  return apiPostNoContent(`/v1/architecture/request/${encodeURIComponent(requestId)}/restore`, {});
+  try {
+    await apiPostNoContent(`/v1/architecture/request/${encodeURIComponent(requestId)}/restore`, {});
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureRequestLifecycleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Clones an architecture request as a new template (POST /v1/architecture/request/{requestId}/clone). */
 export async function cloneArchitectureRequest(requestId: string): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/clone`, {});
+  try {
+    return await apiPostJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/clone`, {});
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureRequestLifecycleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Archives an architecture request (PATCH /v1/architecture/request/{requestId}/archive). */
 export async function archiveArchitectureRequest(requestId: string): Promise<void> {
-  await apiPatchJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/archive`, {});
+  try {
+    await apiPatchJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/archive`, {});
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewArchiveMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Soft-deletes an architecture request (DELETE /v1/architecture/request/{requestId}). */
 export async function deleteArchitectureRequest(requestId: string): Promise<void> {
-  await apiDelete(`/v1/architecture/request/${encodeURIComponent(requestId)}`);
+  try {
+    await apiDelete(`/v1/architecture/request/${encodeURIComponent(requestId)}`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureRequestLifecycleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

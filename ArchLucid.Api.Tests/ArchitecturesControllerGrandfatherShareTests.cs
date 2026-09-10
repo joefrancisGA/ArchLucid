@@ -1,4 +1,3 @@
-using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Controllers.Architecture;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
@@ -40,16 +39,14 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
     private readonly Mock<IAuditService> _auditService = new();
     private readonly Mock<IArchitectureIdentityService> _service = new();
     private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
-    private readonly Mock<IArchitectureRestrictToSharesService> _restrictToSharesService = new();
-    private readonly Mock<IAuthenticatedPlatformUserResolver> _platformUserResolver = new();
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IGoldenManifestRepository> _goldenManifestRepository = new();
-    private readonly Mock<IManifestHashService> _manifestHashService = new();
 
     public ArchitecturesControllerGrandfatherShareTests()
     {
         _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
+        _actorContext.Setup(static a => a.GetActorId()).Returns("actor-oid");
     }
 
     [Fact]
@@ -84,7 +81,7 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
         };
 
         _service
-            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, false, It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, false, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(page);
 
         ArchitecturesController sut = BuildSut();
@@ -106,7 +103,7 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
         };
 
         _service
-            .Setup(s => s.GetIdentityAsync(Scope, GrandfatheredArchitectureId, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetIdentityAsync(Scope, GrandfatheredArchitectureId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         ArchitecturesController sut = BuildSut();
@@ -119,24 +116,13 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
     }
 
     private ArchitecturesController BuildSut() =>
-        new(
-            _scopeProvider.Object,
-            _actorContext.Object,
-            _service.Object,
-            _bindingService.Object,
-            new ArchitectureInventoryBindingAuditSupport(
-                _auditService.Object,
-                Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
-            _restrictToSharesService.Object,
-            _platformUserResolver.Object,
-            _sealDeltaService.Object,
-            _auditService.Object,
-            _runRepository.Object,
-            _goldenManifestRepository.Object,
-            _manifestHashService.Object,
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
-            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        ArchitecturesControllerTestSupport.BuildController(
+            _scopeProvider,
+            _actorContext,
+            _service,
+            _bindingService,
+            _sealDeltaService,
+            _auditService,
+            _runRepository,
+            _goldenManifestRepository);
 }

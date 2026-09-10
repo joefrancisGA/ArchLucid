@@ -40,6 +40,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         string? activeTrialExportNotice = null,
         string? careerExportHonestyPlainText = null,
         string? architectRestatementMarkdown = null)
+
         => RunSummaryOnePagerDocumentFactory.Create(
             detail,
             SponsorReport,
@@ -47,6 +48,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             activeTrialExportNotice,
             careerExportHonestyPlainText: careerExportHonestyPlainText,
             architectRestatementMarkdown: architectRestatementMarkdown);
+
 
     /// <summary>Selects top High/Critical findings for the one-pager LLM prompt.</summary>
     public static IReadOnlyList<ArchitectureFinding> SelectRunSummaryTopFindings(ArchitectureRunDetail detail, int maxCount)

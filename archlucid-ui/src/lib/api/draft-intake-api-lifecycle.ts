@@ -9,16 +9,27 @@ import type {
 } from "@/types/draft-intake";
 import type { CloneSnapshotDraftResponse } from "@/types/draft-intake-clone-snapshot";
 
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiPostJson } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 const DRAFT_BASE = "/v1/architecture/draft";
 
 export async function admitDraftRequest(draftId: string): Promise<DraftAdmissionResponse> {
-  return apiPostJson<DraftAdmissionResponse>(
-    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/admit`,
-    {},
-  );
+  try {
+    return await apiPostJson<DraftAdmissionResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/admit`,
+      {},
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function submitDraftRequest(
@@ -30,20 +41,41 @@ export async function submitDraftRequest(
       ? {}
       : { expectedUpdatedUtc };
 
-  return apiPostJson<SubmitDraftResponse>(
-    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`,
-    body,
-  );
+  try {
+    return await apiPostJson<SubmitDraftResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Return an admitted draft to drafting so the architecture brief can be edited again. */
 export async function reopenDraftRequest(draftId: string): Promise<DraftRequestResponse> {
-  return apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/reopen`, {});
+  try {
+    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/reopen`, {});
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Permanently abandons a draft in Drafting or Admitted — not reversible. */
 export async function abandonDraftRequest(draftId: string): Promise<DraftRequestResponse> {
-  return apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/abandon`, {});
+  try {
+    return await apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/abandon`, {});
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Pre-run manifest-free reasoning on an admitted or drafting intake (SAQ-013). */
@@ -69,16 +101,30 @@ export async function branchDraftRequest(
   draftId: string,
   body: BranchDraftRequest,
 ): Promise<BranchDraftResponse> {
-  return apiPostJson<BranchDraftResponse>(
-    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch`,
-    body,
-  );
+  try {
+    return await apiPostJson<BranchDraftResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Clone a run-spawned draft into a new editable architecture id (WA-10). */
 export async function cloneDraftSnapshot(draftId: string): Promise<CloneSnapshotDraftResponse> {
-  return apiPostJson<CloneSnapshotDraftResponse>(
-    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/clone-snapshot`,
-    {},
-  );
+  try {
+    return await apiPostJson<CloneSnapshotDraftResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/clone-snapshot`,
+      {},
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

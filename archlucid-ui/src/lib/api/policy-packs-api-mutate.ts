@@ -7,6 +7,11 @@ import {
   type PolicyPackDryRunResponse,
 } from "@/types/policy-pack-dry-run";
 import type { PolicyPack, PolicyPackVersion } from "@/types/policy-packs";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { policyPackDryRunMutationBlockedReason } from "@/lib/policy/policy-pack-dry-run-mutation-blocked-reason";
+import { policyPackMutationBlockedReason } from "@/lib/policy/policy-pack-mutation-blocked-reason";
+import { policyPackSimulateBlockedReason } from "@/lib/policy/policy-pack-simulate-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "./http";
 
 /** Creates a new policy pack with an initial content document. */
@@ -16,7 +21,14 @@ export async function createPolicyPack(body: {
   packType: string;
   initialContentJson?: string;
 }): Promise<PolicyPack> {
-  return apiPostJson<PolicyPack>(`/${ApiV1Routes.policyPacks}`, body);
+  try {
+    return await apiPostJson<PolicyPack>(`/${ApiV1Routes.policyPacks}`, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = policyPackMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Publishes a new version of a policy pack with optional updated content. */
@@ -24,10 +36,17 @@ export async function publishPolicyPackVersion(
   policyPackId: string,
   body: { version: string; contentJson?: string },
 ): Promise<PolicyPackVersion> {
-  return apiPostJson<PolicyPackVersion>(
-    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/publish`,
-    body,
-  );
+  try {
+    return await apiPostJson<PolicyPackVersion>(
+      `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/publish`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = policyPackMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /**
@@ -43,10 +62,17 @@ export async function dryRunPolicyPack(
   const page = clampDryRunPage(options?.page);
   const query = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
 
-  return apiPostJson<PolicyPackDryRunResponse>(
-    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/dry-run?${query.toString()}`,
-    body,
-  );
+  try {
+    return await apiPostJson<PolicyPackDryRunResponse>(
+      `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/dry-run?${query.toString()}`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = policyPackDryRunMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 function clampDryRunPageSize(input: number | undefined): number {
@@ -76,8 +102,15 @@ function clampDryRunPage(input: number | undefined): number {
 export async function simulatePolicyPackAgainstRun(
   body: components["schemas"]["PolicyPackSimulateRequest"],
 ): Promise<components["schemas"]["PolicyPackGovernanceDryRunResult"]> {
-  return apiPostJson<components["schemas"]["PolicyPackGovernanceDryRunResult"]>(
-    `/${ApiV1Routes.policyPacks}/simulate`,
-    body,
-  );
+  try {
+    return await apiPostJson<components["schemas"]["PolicyPackGovernanceDryRunResult"]>(
+      `/${ApiV1Routes.policyPacks}/simulate`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = policyPackSimulateBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
