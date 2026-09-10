@@ -43,7 +43,16 @@ public sealed partial class ArchitectureIntelligenceController
             return null;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await _authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapArchitectureIntelligenceSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;
