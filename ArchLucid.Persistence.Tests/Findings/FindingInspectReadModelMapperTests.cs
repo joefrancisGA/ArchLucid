@@ -130,4 +130,12 @@ public sealed class FindingInspectReadModelMapperTests
 
         actual.Should().Be(FindingHumanReviewStatus.Pending);
     }
+
+    [Fact]
+    public void ParseFindingSeverity_parses_case_insensitive_warning_value()
+    {
+        FindingSeverity actual = FindingInspectReadModelMapper.ParseFindingSeverity("warning");
+
+        actual.Should().Be(FindingSeverity.Warning);
+    }
 }

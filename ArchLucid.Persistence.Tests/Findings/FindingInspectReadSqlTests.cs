@@ -348,6 +348,69 @@ public sealed class FindingInspectReadSqlTests
         actionsSql.Should().Contain("fra.ProjectId = @ScopeProjectId");
     }
 
+    [Fact]
+    public void MainInspect_projects_finding_severity_title_and_rationale()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.Severity");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.Title");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.Rationale");
+    }
+
+    [Fact]
+    public void MainInspect_projects_reasoning_trace_fields()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.ReasoningTrace");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.ReasoningTraceDigestSha256");
+    }
+
+    [Fact]
+    public void MainInspect_projects_applied_rule_ids_json_from_decisioning_trace()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("dt.AppliedRuleIdsJson");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("dt.AppliedRuleIdsJson");
+    }
+
+    [Fact]
+    public void MainInspect_projects_run_id_and_manifest_version()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.RunId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.CurrentManifestVersion");
+    }
+
+    [Fact]
+    public void MainInspect_projects_confidence_review_and_mute_fields()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.ConfidenceScore");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.EvaluationConfidenceScore");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.EvaluationConfidenceLevel");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.HumanReviewStatus");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.IsMuted");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.MuteReason");
+    }
+
+    [Fact]
+    public void MainInspect_projects_assignment_and_remediation_fields()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.AssignedToUserId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.RemediationDueUtc");
+    }
+
+    [Fact]
+    public void FollowUpBatch_related_nodes_selects_node_id()
+    {
+        string relatedNodesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRelatedNodes");
+
+        relatedNodesSql.Should().Contain("SELECT frn.NodeId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_audit_event_selects_event_id()
+    {
+        string auditSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.AuditEvents");
+
+        auditSql.Should().Contain("SELECT TOP 1 ae.EventId");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

@@ -370,4 +370,74 @@ public sealed class FindingInspectReadRepositoryCoreTests
         response.DecisionRuleId.Should().Be("cost-guardrail");
         response.DecisionRuleName.Should().Be("cost-guardrail");
     }
+
+    [Fact]
+    public void FilterNonBlankTrimmedStrings_drops_whitespace_entries_and_trims_survivors()
+    {
+        IReadOnlyList<string> filtered = FindingInspectReadRepositoryCore.FilterNonBlankTrimmedStrings(
+            ["  node-a  ", "   ", "", "node-b"]);
+
+        filtered.Should().Equal("node-a", "node-b");
+    }
+
+    [Fact]
+    public void HasActiveWaiver_returns_true_only_when_count_is_positive()
+    {
+        FindingInspectReadRepositoryCore.HasActiveWaiver(0).Should().BeFalse();
+        FindingInspectReadRepositoryCore.HasActiveWaiver(1).Should().BeTrue();
+    }
+
+    [Fact]
+    public void EncodeRowVersionStampBase64_returns_null_for_missing_stamp()
+    {
+        FindingInspectReadRepositoryCore.EncodeRowVersionStampBase64(null).Should().BeNull();
+    }
+
+    [Fact]
+    public void EncodeRowVersionStampBase64_encodes_stamp_bytes()
+    {
+        byte[] stamp = [0x01, 0x02, 0x03];
+
+        FindingInspectReadRepositoryCore.EncodeRowVersionStampBase64(stamp).Should().Be(Convert.ToBase64String(stamp));
+    }
+
+    [Fact]
+    public void ToUtcDateTimeOffset_specifies_utc_kind_for_unspecified_database_timestamps()
+    {
+        DateTime unspecified = new(2026, 10, 1, 12, 0, 0, DateTimeKind.Unspecified);
+
+        DateTimeOffset? actual = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(unspecified);
+
+        actual.Should().NotBeNull();
+        actual!.Value.Offset.Should().Be(TimeSpan.Zero);
+        actual!.Value.UtcDateTime.Should().Be(unspecified);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_deserialized_boolean_false_when_payload_is_json_false()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "false",
+            "Encrypt at rest",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.ValueKind.Should().Be(JsonValueKind.False);
+        typed!.Value.GetBoolean().Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_null_for_whitespace_only_payload()
+    {
+        FindingInspectReadRepositoryCore.TryParsePayloadJson("   ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_trace_text_is_whitespace_only_returns_nulls()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(null, "   ");
+
+        ruleId.Should().BeNull();
+        ruleName.Should().BeNull();
+    }
 }

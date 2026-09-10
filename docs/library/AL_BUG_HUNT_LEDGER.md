@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1395,6 +1395,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ParseDisposition` / `ParseHumanReview` are case-sensitive on DB enum strings — **cheap-disproof 2026-09-10 seed hunt #1638:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseDisposition_parses_case_insensitive_enum_value` and `ParseHumanReview_parses_case_insensitive_enum_value`.
 
 2026-09-10 seed hunt #1638 (seed-only): reseeded finding-inspect-sql after #1637; cheap-disproof closed boolean/string JSON payloads, whitespace-only rule-id arrays, rule-name fallback, golden-manifest projection, structural execution mode fields, payload column selection, child-table tenant scoping, and case-insensitive enum parsing; 104 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MapInspectResponse` includes whitespace-only related-node rows as evidence excerpts — **cheap-disproof 2026-09-10 seed hunt #1639:** `FilterNonBlankTrimmedStrings` drops blank entries and trims survivors before evidence mapping; regression `FilterNonBlankTrimmedStrings_drops_whitespace_entries_and_trims_survivors`.
+- [x] (valid-no-repro) `LoadDispositionJoinAsync` returns whitespace-only recommended actions — **cheap-disproof 2026-09-10 seed hunt #1639:** same non-blank trim filter applied to recommended actions; regression `FilterNonBlankTrimmedStrings_drops_whitespace_entries_and_trims_survivors`.
+- [x] (valid-no-repro) `HasActiveWaiver` is true when waiver count is zero — **cheap-disproof 2026-09-10 seed hunt #1639:** `HasActiveWaiver` requires `activeWaiverCount > 0`; regression `HasActiveWaiver_returns_true_only_when_count_is_positive`.
+- [x] (valid-no-repro) `LatestDispositionRowVersionBase64` encodes empty stamp as empty string instead of null — **cheap-disproof 2026-09-10 seed hunt #1639:** null stamp returns null; non-null bytes base64-encode; regressions `EncodeRowVersionStampBase64_returns_null_for_missing_stamp` and `EncodeRowVersionStampBase64_encodes_stamp_bytes`.
+- [x] (valid-no-repro) `RevisitDueUtc` / `RemediationDueUtc` preserve local offset from unspecified SQL timestamps — **cheap-disproof 2026-09-10 seed hunt #1639:** `ToUtcDateTimeOffset` uses `DateTimeKind.Utc`; regression `ToUtcDateTimeOffset_specifies_utc_kind_for_unspecified_database_timestamps`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` mishandles JSON `false` literals — **cheap-disproof 2026-09-10 seed hunt #1639:** boolean false deserializes to `JsonValueKind.False`; regression `ResolveTypedPayloadForInspect_returns_deserialized_boolean_false_when_payload_is_json_false`.
+- [x] (valid-no-repro) `TryParsePayloadJson` treats whitespace-only `PayloadJson` as valid empty object — **cheap-disproof 2026-09-10 seed hunt #1639:** whitespace-only input returns null; regression `TryParsePayloadJson_returns_null_for_whitespace_only_payload`.
+- [x] (valid-no-repro) `ResolveRuleFields` returns whitespace trace text when applied-rule JSON is absent — **cheap-disproof 2026-09-10 seed hunt #1639:** whitespace-only trace text yields null rule fields; regression `ResolveRuleFields_when_trace_text_is_whitespace_only_returns_nulls`.
+- [x] (valid-no-repro) `MainInspect*` omits severity/title/rationale/reasoning/confidence/mute/assignment projections — **cheap-disproof 2026-09-10 seed hunt #1639:** main inspect selects core finding and run metadata columns; regressions `MainInspect_projects_finding_severity_title_and_rationale`, `MainInspect_projects_reasoning_trace_fields`, `MainInspect_projects_confidence_review_and_mute_fields`, and `MainInspect_projects_assignment_and_remediation_fields`.
+- [x] (valid-no-repro) `MainInspect*` omits `AppliedRuleIdsJson`, `RunId`, and manifest version — **cheap-disproof 2026-09-10 seed hunt #1639:** main inspect projects `dt.AppliedRuleIdsJson`, `r.RunId`, and `r.CurrentManifestVersion`; regressions `MainInspect_projects_applied_rule_ids_json_from_decisioning_trace` and `MainInspect_projects_run_id_and_manifest_version`.
+- [x] (valid-no-repro) `FollowUpBatch` related-node and audit subqueries omit `NodeId` / `EventId` projections — **cheap-disproof 2026-09-10 seed hunt #1639:** follow-up batch selects `frn.NodeId` and `ae.EventId`; regressions `FollowUpBatch_related_nodes_selects_node_id` and `FollowUpBatch_audit_event_selects_event_id`.
+- [x] (valid-no-repro) `ParseFindingSeverity` is case-sensitive for `Warning` — **cheap-disproof 2026-09-10 seed hunt #1639:** mapper trims and uses `Enum.TryParse(..., ignoreCase: true)`; regression `ParseFindingSeverity_parses_case_insensitive_warning_value`.
+
+2026-09-10 seed hunt #1639 (seed-only): reseeded finding-inspect-sql after #1638; extracted shared inspect mapping helpers; cheap-disproof closed evidence/action whitespace filtering, waiver/row-version/UTC mapping, false JSON payload, whitespace trace fallback, SQL metadata projections, and case-insensitive severity parsing; 121 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

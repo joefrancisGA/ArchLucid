@@ -1852,4 +1852,5 @@
 {"at":"2026-09-10T21:01:00.5131066Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
 {"at":"2026-09-10T21:03:25.0046224Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
 {"at":"2026-09-10T21:05:56.105792Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
-{"at":"2026-09-10T21:10:25.3041530Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
+{"at":"2026-09-10T21:10:25.304153Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
+{"at":"2026-09-10T21:13:25.7253506Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}

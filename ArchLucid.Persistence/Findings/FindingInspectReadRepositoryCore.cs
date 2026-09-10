@@ -7,6 +7,20 @@ namespace ArchLucid.Persistence.Findings;
 
 internal static class FindingInspectReadRepositoryCore
 {
+    public static IReadOnlyList<string> FilterNonBlankTrimmedStrings(IEnumerable<string> values) =>
+        values
+            .Where(static value => !string.IsNullOrWhiteSpace(value))
+            .Select(static value => value.Trim())
+            .ToList();
+
+    public static bool HasActiveWaiver(long activeWaiverCount) => activeWaiverCount > 0;
+
+    public static string? EncodeRowVersionStampBase64(byte[]? rowVersionStamp) =>
+        rowVersionStamp is null ? null : Convert.ToBase64String(rowVersionStamp);
+
+    public static DateTimeOffset? ToUtcDateTimeOffset(DateTime? value) =>
+        value is null ? null : new DateTimeOffset(DateTime.SpecifyKind(value.Value, DateTimeKind.Utc));
+
     public static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson, string? firstRuleText)
     {
         if (string.IsNullOrWhiteSpace(appliedRuleIdsJson))

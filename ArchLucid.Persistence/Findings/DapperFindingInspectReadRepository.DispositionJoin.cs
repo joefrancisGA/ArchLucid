@@ -73,8 +73,8 @@ public sealed partial class DapperFindingInspectReadRepository
         List<string> relatedNodes = (await multi.ReadAsync<string>()).ToList();
         string? firstRuleText = await multi.ReadSingleOrDefaultAsync<string>();
 
-        List<string> recommendedActions = (await multi.ReadAsync<string>())
-            .Where(static a => !string.IsNullOrWhiteSpace(a))
+        List<string> recommendedActions = FindingInspectReadRepositoryCore
+            .FilterNonBlankTrimmedStrings(await multi.ReadAsync<string>())
             .ToList();
 
         Guid? auditRowId = await multi.ReadSingleOrDefaultAsync<Guid?>();

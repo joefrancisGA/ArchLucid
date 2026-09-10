@@ -19,10 +19,10 @@ public sealed partial class DapperFindingInspectReadRepository
         FindingConfidenceLevel? evaluationLevel =
             FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel(row.EvaluationConfidenceLevel);
 
-        List<FindingInspectEvidenceItem> evidence = joinResult.RelatedNodes
-            .Where(static n => !string.IsNullOrWhiteSpace(n))
+        List<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore
+            .FilterNonBlankTrimmedStrings(joinResult.RelatedNodes)
             .Select(static n =>
-                new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = n.Trim() })
+                new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = n })
             .ToList();
 
         JsonElement? typed = includeTypedPayload
@@ -58,19 +58,14 @@ public sealed partial class DapperFindingInspectReadRepository
                 : FindingInspectReadModelMapper.ParseDisposition(joinResult.DispositionRow.Disposition),
             LatestDispositionOccurredAtUtc = joinResult.DispositionRow?.OccurredAtUtc,
             LatestDispositionEventId = joinResult.DispositionRow?.EventId,
-            LatestDispositionRowVersionBase64 = joinResult.DispositionRow?.RowVersionStamp is null
-                ? null
-                : Convert.ToBase64String(joinResult.DispositionRow.RowVersionStamp),
+            LatestDispositionRowVersionBase64 = FindingInspectReadRepositoryCore.EncodeRowVersionStampBase64(
+                joinResult.DispositionRow?.RowVersionStamp),
             LatestDispositionReviewerUserId = joinResult.DispositionRow?.ReviewerUserId,
-            RevisitDueUtc = joinResult.DispositionRow?.RevisitDueUtc is null
-                ? null
-                : new DateTimeOffset(
-                    DateTime.SpecifyKind(joinResult.DispositionRow.RevisitDueUtc.Value, DateTimeKind.Utc)),
-            HasActiveWaiver = joinResult.ActiveWaiverCount > 0,
+            RevisitDueUtc = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(
+                joinResult.DispositionRow?.RevisitDueUtc),
+            HasActiveWaiver = FindingInspectReadRepositoryCore.HasActiveWaiver(joinResult.ActiveWaiverCount),
             AssignedToUserId = row.AssignedToUserId,
-            RemediationDueUtc = row.RemediationDueUtc is null
-                ? null
-                : new DateTimeOffset(DateTime.SpecifyKind(row.RemediationDueUtc.Value, DateTimeKind.Utc)),
+            RemediationDueUtc = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(row.RemediationDueUtc),
             RunStructuralExecutionMode = row.StructuralExecutionMode,
             RunRealModeFellBackToSimulator = row.RealModeFellBackToSimulator,
         };
