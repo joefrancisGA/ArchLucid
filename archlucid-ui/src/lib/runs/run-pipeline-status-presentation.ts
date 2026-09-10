@@ -5,6 +5,7 @@ import { PIPELINE_STATUS_LABELS, type RunPipelineInternalLabel } from "@/lib/pip
 import { resolvePipelineStatusDisplayLabel } from "@/lib/resolve-pipeline-status-display-label";
 import { resolveTerminalPipelineLabelFromLegacyStatus } from "@/lib/runs/run-pipeline-legacy-terminal-label";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
+import type { WorkingCareerRehearsalDoorId } from "@/lib/governance/working-career-rehearsal-door";
 import type { RunSummary } from "@/types/authority";
 
 export type RunPipelineLabel = RunPipelineInternalLabel;
@@ -17,6 +18,7 @@ export type RunPipelineStatusPresentationInput = {
   readonly hostQualityGateMode?: string | null;
   readonly aggregateQualityGateOutcome?: number | null;
   readonly transparencyTrail?: TransparencyTrail | null;
+  readonly effectiveWorkingCareerRehearsalDoor?: WorkingCareerRehearsalDoorId | null;
 };
 
 /**

@@ -63,7 +63,7 @@ export type UseWebhooksSettingsResult = {
   readonly showAlertSeverityFilter: boolean;
   readonly webhookRows: AlertRoutingSubscription[];
   readonly activeSubscriptionCount: number;
-  readonly load: () => Promise<void>;
+  readonly load: () => Promise<boolean>;
   readonly onTestWebhook: (routingSubscriptionId: string) => Promise<void>;
   readonly onToggle: (routingSubscriptionId: string, subscriptionName: string, isEnabled: boolean) => Promise<void>;
   readonly confirmEnableSubscription: () => Promise<void>;
@@ -117,8 +117,10 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     setError,
     handleSubmit,
     webhookRows: loadState.webhookRows,
+    loading: loadState.loading,
     scopeGenerationRef: loadState.scopeGenerationRef,
     load: loadState.load,
+    getLastLoadFailure: loadState.getLastLoadFailure,
     setFailure: loadState.setFailure,
   });
   mutationResetRef.current = mutations.resetMutationState;

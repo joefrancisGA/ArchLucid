@@ -195,14 +195,15 @@ public sealed class DataConsistencyHealthCheckTests
     }
 
     [SkippableFact]
-    public async Task Unhealthy_when_never_run()
+    public async Task Healthy_when_reconciliation_not_run_yet_on_leader_elected_replica()
     {
         DataConsistencyReconciliationHealthState state = new();
         DataConsistencyHealthCheck sut = CreateHealthCheck(state);
 
         HealthCheckResult r = await sut.CheckHealthAsync(new HealthCheckContext());
 
-        r.Status.Should().Be(HealthStatus.Unhealthy);
+        r.Status.Should().Be(HealthStatus.Healthy);
+        r.Description.Should().Contain("no iteration has run on this replica yet");
     }
 
     [SkippableFact]

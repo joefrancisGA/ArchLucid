@@ -165,6 +165,7 @@ public sealed class ArchitectureIntelligenceControllerTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IRunDetailQueryService>(),
             Mock.Of<IManifestHashService>(),
+
             auditService.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },

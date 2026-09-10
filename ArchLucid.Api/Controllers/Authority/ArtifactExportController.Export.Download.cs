@@ -44,16 +44,16 @@ public sealed partial class ArtifactExportController
 
         if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedHashMismatch)
         {
-            return this.ConflictProblem(
-                $"Decision receipt for run '{runId}' failed sealed-hash verification.",
-                ProblemTypes.DecisionReceiptSealedHashMismatch);
+            return MapArtifactExportSealedManifestConflict(
+                new ConflictException(
+                    $"Decision receipt for run '{runId}' failed sealed-hash verification."));
         }
 
         if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.SealedReceiptIncomplete)
         {
-            return this.ConflictProblem(
-                $"Decision receipt for run '{runId}' is missing sealed receipt fields required for export.",
-                ProblemTypes.DecisionReceiptSealedIncomplete);
+            return MapArtifactExportSealedManifestConflict(
+                new ConflictException(
+                    $"Decision receipt for run '{runId}' is missing sealed receipt fields required for export."));
         }
 
         if (buildResult.Outcome == DecisionReceiptRunBuildOutcome.CareerArtifactBlocked)
@@ -162,9 +162,8 @@ public sealed partial class ArtifactExportController
         {
             if (packageResult.IsConflict)
             {
-                return this.ConflictProblem(
-                    packageResult.NotFoundReason!,
-                    packageResult.ProblemType ?? ProblemTypes.DecisionReceiptSealedHashMismatch);
+                return MapArtifactExportSealedManifestConflict(
+                    new ConflictException(packageResult.NotFoundReason!));
             }
 
             return this.NotFoundProblem(packageResult.NotFoundReason!, packageResult.ProblemType);

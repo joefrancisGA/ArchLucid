@@ -12,7 +12,7 @@
 
 Architects defend **cited findings that follow from the evidence**. ADR 0082 closes the structural hole — decision-grade rows need ProvenanceKind A or B before persist/commit eligibility. Structural refs prove **where** a claim points, not **whether** the cited text actually supports the finding sentence.
 
-TB-1228 rejected fusing semantic/RAG faithfulness into a **sync LLM judge on commit** — false rejects on paraphrase, latency, and correlated model failure. [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](../../library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md) records the durable three-lane split:
+TB-1228 rejected fusing semantic/RAG faithfulness into a **sync LLM judge on commit** — false rejects on paraphrase, latency, and correlated model failure. [`FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md`](../../library/FAITHFULNESS_SUPPORT_RATIO_SCORING_LANE_POSITIONING_CONTRACT.md) records the durable three-lane split. Per-finding band semantics, scorer rules, warn vs hold, Simulator presentation, and honesty examples: [`FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md`](../../library/FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md) (**AS-075**).
 
 | Lane | Role |
 |------|------|
@@ -22,7 +22,7 @@ TB-1228 rejected fusing semantic/RAG faithfulness into a **sync LLM judge on com
 
 **Livelihood risk:** A finding with real citations can still be **Unsupported** semantically — e.g. quote mismatch, invented regulation, or paraphrase the architect cannot defend in ARB. That risk is **career-surface honesty**, not a reason to block seal on every Working finalize with an LLM faithfulness score.
 
-**Related (not rewritten):** ADR 0070 (insight-density demotion — separate predicate), ADR 0078 (career artifact honesty), ADR 0082 (structural provenance fail-closed), ADR 0084 (diagram/inventory decide inputs), TB-1228 / TB-1229, `AgentOutputQualityGate`, `AgentResultEvidenceFaithfulnessChecker`, `RetrievalFaithfulnessEvaluator`, `GoldenCohortFineTuningPromotionGate`.
+**Related (not rewritten):** ADR 0070 (insight-density demotion — separate predicate), ADR 0078 (career artifact honesty), ADR 0082 (structural provenance fail-closed), ADR 0084 (diagram/inventory decide inputs), TB-1228 / TB-1229, `AgentOutputQualityGate`, `AgentResultEvidenceFaithfulnessChecker`, `RetrievalFaithfulnessEvaluator`, `GoldenCohortFineTuningPromotionGate`, [`FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md`](../../library/FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md) (AS-075 PA-facing enum/scorer contract).
 
 ## Decision
 
@@ -71,7 +71,7 @@ TB-1228 rejected fusing semantic/RAG faithfulness into a **sync LLM judge on com
 
 - **Positive:** 0085 becomes the merge-blocking question for “block seal on LLM faithfulness?”; wave 22 semantic cluster can parallel inventory bind after 0084; TB-1228 gains an ADR anchor for desk visibility.
 - **Negative:** 0085 alone is contract-only — no band on wire until AS-059; heuristic misses paraphrase by design; warn-only finalize may feel weak until PilotStrict opt-in ships.
-- **Follow-ups:** AS-057 heuristic quote-overlap scorer; AS-058 async support-ratio job; AS-059 support band enum; AS-065 PilotStrict optional hold on Unsupported; AS-066 do-not-fuse insight-density (**ratchet:** `ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTests`); AS-067 honesty CI not legal truth; AS-074 LLM judge default off; AS-075 semantic contract doc completeness.
+- **Follow-ups:** AS-057 heuristic quote-overlap scorer; AS-058 async support-ratio job; AS-059 support band enum; AS-065 PilotStrict optional hold on Unsupported; AS-066 do-not-fuse insight-density (**ratchet:** `ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTests`); AS-067 honesty CI not legal truth; AS-074 LLM judge default off (**ratchet:** `ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests`, `EnableSemanticSupportBandLlmJudge` defaults false); AS-075 semantic contract doc completeness (**ratchet:** [`FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md`](../../library/FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md), `ArchitectureSpineAs075SemanticContractDocArchitectureTests`).
 
 ## Follow-up (AS-066)
 

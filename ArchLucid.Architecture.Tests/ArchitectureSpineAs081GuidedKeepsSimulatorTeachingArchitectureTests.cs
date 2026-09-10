@@ -23,6 +23,9 @@ public sealed class ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectu
     private const string SimulatorHonestyTestRelativePath =
         "archlucid-ui/src/lib/governance/simulator-career-honesty.test.ts";
 
+    private const string WorkingCareerRehearsalChromeTestRelativePath =
+        "archlucid-ui/src/lib/governance/working-career-rehearsal-chrome.test.ts";
+
     [Fact]
     public void As081_chooser_is_working_only_not_guided_teaching()
     {
@@ -31,6 +34,16 @@ public sealed class ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectu
         chooser.Should().Contain("isWorkingWorkspaceMode");
         chooser.Should().Contain("Hidden on Guided seats");
         chooser.Should().Contain("return null");
+    }
+
+    [Fact]
+    public void As081_operator_modes_doc_states_guided_excludes_career_rehearsal_chooser()
+    {
+        string modesDoc = File.ReadAllText(Path.Combine(RepoRoot, OperatorExperienceModesDocRelativePath));
+
+        modesDoc.Should().Contain("Guided");
+        modesDoc.Should().Contain("No Career / Rehearsal chooser");
+        modesDoc.Should().Contain("AS-081");
     }
 
     [Fact]
@@ -62,6 +75,15 @@ public sealed class ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectu
 
         simulatorHonestyTest.Should().Contain("does not block guided simulator paths");
         simulatorHonestyTest.Should().Contain("workingDesk: false");
+    }
+
+    [Fact]
+    public void As081_vitest_matrix_requires_guided_without_career_door()
+    {
+        string vitest = File.ReadAllText(Path.Combine(RepoRoot, WorkingCareerRehearsalChromeTestRelativePath));
+
+        vitest.Should().Contain("AS-081 Guided mode must not require Working Career/Rehearsal chooser");
+        vitest.Should().Contain("workspaceMode: \"guided\"");
     }
 
     private static string FindRepoRoot()

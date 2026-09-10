@@ -26,6 +26,7 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
   const runId = props.context.runId?.trim() ?? "";
   const draftId = props.context.draftId?.trim() ?? "";
   const citationBlockedReason = resolveDecisionReceiptExportBlockedReason(props.context);
+
   const sealedManifestBlockedReason =
     runId.length > 0
       ? runCollateralSealedManifestCopyBlockedReason({
@@ -36,7 +37,8 @@ export function DecisionReceiptExportButton(props: DecisionReceiptExportButtonPr
   const exportBlockedReason = citationBlockedReason ?? sealedManifestBlockedReason;
 
   if (runId.length > 0) {
-    const exportBlocked = exportBlockedReason !== null;
+    const exportBlocked = sealedManifestBlockedReason !== null;
+
 
     return (
       <div className="flex flex-col gap-1">
