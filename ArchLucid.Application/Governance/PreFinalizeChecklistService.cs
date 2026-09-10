@@ -1,4 +1,5 @@
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
@@ -31,6 +32,7 @@ public sealed partial class PreFinalizeChecklistService(
     IArchitectureIntelligenceFinalizeTrustEvaluator? finalizeTrustEvaluator = null,
     IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
     ISpecialistReviewService? specialistReviewService = null,
+    IAgentOutputQualityGateOptionsResolver? qualityGateOptionsResolver = null,
     TimeProvider? timeProvider = null) : IPreFinalizeChecklistService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
@@ -79,6 +81,8 @@ public sealed partial class PreFinalizeChecklistService(
     private readonly IBlockedReviewCheckProjector? _blockedReviewCheckProjector = blockedReviewCheckProjector;
 
     private readonly ISpecialistReviewService? _specialistReviewService = specialistReviewService;
+
+    private readonly IAgentOutputQualityGateOptionsResolver? _qualityGateOptionsResolver = qualityGateOptionsResolver;
 
     private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
@@ -129,6 +133,7 @@ public sealed partial class PreFinalizeChecklistService(
             blocking: false));
 
         items.Add(BuildEvidenceLinkageItem(runId, findings, latestDispositions));
+        items.Add(BuildUnsupportedSemanticSupportHoldItem(run, findings));
 
         PreCommitGateResult gateResult =
             await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken).ConfigureAwait(false);

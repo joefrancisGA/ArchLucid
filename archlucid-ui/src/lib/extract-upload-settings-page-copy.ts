@@ -48,17 +48,6 @@ export const EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL = "Evidence graph" as cons
 
 export const EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF = EVIDENCE_GRAPH_PATH;
 
-export const EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY = "Validate before upload (CLI)" as const;
-
-export const EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND =
-  "archlucid azure validate-zip --path <your-package.zip>" as const;
-
-export const EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND =
-  "archlucid aws validate-zip --path <your-package.zip>" as const;
-
-export const EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND =
-  "archlucid gcp validate-zip --path <your-package.zip>" as const;
-
 export const EXTRACT_UPLOAD_DEMO_ASIDE_TITLE = "Try demo data" as const;
 
 export const EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION =

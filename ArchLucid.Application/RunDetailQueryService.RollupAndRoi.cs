@@ -84,16 +84,12 @@ public sealed partial class RunDetailQueryService
         if (muteFlags.Count > 0)
             FindingMuteFlagApplier.Apply(detail.Results, muteFlags);
 
-        if (_semanticSupportBandOverlayRepository is not null)
-        {
-            IReadOnlyDictionary<string, FindingSemanticSupportBandOverlayRecord> supportBandOverlays =
-                await _semanticSupportBandOverlayRepository
-                    .GetBySnapshotAsync(findingsSnapshotId, scope, cancellationToken)
-                    .ConfigureAwait(false);
-
-            if (supportBandOverlays.Count > 0)
-                FindingSemanticSupportBandOverlayApplier.ApplyToAgentResults(detail.Results, supportBandOverlays);
-        }
+        await ApplySemanticSupportBandOverlaysAndLaneBComposeAsync(
+            runId,
+            scope,
+            detail.Results,
+            detail.Run.FindingsSnapshotId,
+            cancellationToken).ConfigureAwait(false);
 
         return detail;
     }

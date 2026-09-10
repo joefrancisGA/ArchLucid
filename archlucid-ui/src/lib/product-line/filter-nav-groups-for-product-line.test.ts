@@ -45,7 +45,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     vi.unstubAllEnvs();
   });
 
-  it("puts Security first with Home, then Integration, ARC-AMPE compliance, and Infrastructure without Infrastructure overview", () => {
+  it("puts Security first with Home, then ARC-AMPE compliance, Infrastructure, and Integration without Infrastructure overview", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       AUTHORITY_RANK.AdminAuthority,
@@ -57,11 +57,11 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
 
     expect(rows[0]?.group.id).toBe(SECURENOW_SECURITY_NAV_GROUP_ID);
     expect(rows[0]?.group.label).toBe(OPERATOR_NAV_GROUP_LABELS.security);
-    expect(rows[1]?.group.id).toBe(SECURENOW_INTEGRATION_NAV_GROUP_ID);
-    expect(rows[1]?.group.label).toBe(SECURENOW_INTEGRATION_NAV_GROUP_LABEL);
-    expect(rows[2]?.group.id).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_ID);
-    expect(rows[2]?.group.label).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_LABEL);
-    expect(rows[3]?.group.id).toBe("operate-infrastructure");
+    expect(rows[1]?.group.id).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_ID);
+    expect(rows[1]?.group.label).toBe(SECURENOW_COMPLIANCE_NAV_GROUP_LABEL);
+    expect(rows[2]?.group.id).toBe("operate-infrastructure");
+    expect(rows[3]?.group.id).toBe(SECURENOW_INTEGRATION_NAV_GROUP_ID);
+    expect(rows[3]?.group.label).toBe(SECURENOW_INTEGRATION_NAV_GROUP_LABEL);
 
     const groupIds = rows.map((row) => row.group.id);
 

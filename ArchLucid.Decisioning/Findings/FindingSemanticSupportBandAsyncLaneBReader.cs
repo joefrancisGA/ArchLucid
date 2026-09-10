@@ -5,7 +5,9 @@ namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
 ///     AS-058: consume existing Lane B async semantic scores (RAG-V1-005 / agent evaluation) when present.
-///     Does not enqueue jobs or block execute.
+///     Lane B row shape: <see cref="AgentOutputSemanticScore.FindingCitationCoverageRatio" /> or
+///     <see cref="AgentOutputSemanticScore.AgentResultFaithfulnessSupportRatio" /> keyed by trace id.
+///     Missing row → compose returns Unchecked (not Supported). Does not enqueue jobs or block execute.
 /// </summary>
 public static class FindingSemanticSupportBandAsyncLaneBReader
 {

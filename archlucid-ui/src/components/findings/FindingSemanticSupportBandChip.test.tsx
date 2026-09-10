@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
 import {
   FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
   FINDING_CLASSIFICATION_DECISION_GRADE,
@@ -38,7 +39,45 @@ describe("FindingSemanticSupportBandChip (AS-061)", () => {
       />,
     );
 
+    expect(screen.getByTestId("working-finding-semantic-support-band")).toBeInTheDocument();
     expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent("Supported");
+  });
+
+  it("renders Not yet scored when wire band is Unchecked", () => {
+    render(
+      <FindingSemanticSupportBandChip
+        finding={sampleFinding({ semanticSupportBand: "Unchecked" })}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent("Not yet scored");
+  });
+
+  it("renders Unsupported when wire band is Unsupported", () => {
+    render(
+      <FindingSemanticSupportBandChip
+        finding={sampleFinding({ semanticSupportBand: "Unsupported" })}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent("Unsupported");
+  });
+
+  it("shows rehearsal label on Simulator instead of Supported", () => {
+    render(
+      <FindingSemanticSupportBandChip
+        finding={sampleFinding({ semanticSupportBand: "Supported" })}
+        structuralExecutionMode={StructuralExecutionModeWire.Simulator}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent(
+      "Rehearsal — not career support",
+    );
+    expect(screen.getByTestId("working-finding-semantic-support-band")).toHaveAttribute(
+      "data-finding-semantic-support-band-rehearsal",
+      "true",
+    );
   });
 
   it("does not render Supported chip for checklist coverage rows", () => {
@@ -51,6 +90,6 @@ describe("FindingSemanticSupportBandChip (AS-061)", () => {
       />,
     );
 
-    expect(screen.queryByTestId("finding-semantic-support-band-finding-1")).toBeNull();
+    expect(screen.queryByTestId("working-finding-semantic-support-band")).toBeNull();
   });
 });

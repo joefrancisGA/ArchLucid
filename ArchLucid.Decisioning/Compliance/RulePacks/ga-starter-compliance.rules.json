@@ -1942,13 +1942,13 @@
     {
       "ruleId": "pci-007",
       "controlId": "PCI-007",
-      "controlName": "GA Payments starter rule (catalog stub)",
+      "controlName": "PAN encryption at rest in CDE",
       "appliesToCategory": "payments",
-      "requiredNodeType": "SecurityBaseline",
-      "requiredEdgeType": "PROTECTS",
-      "severity": "Warning",
-      "description": "Stub for pci-007; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
-      "priority": "P2"
+      "requiredNodeType": "TopologyResource",
+      "requiredEdgeType": "STORES",
+      "severity": "Critical",
+      "description": "Cardholder data stores in the CDE must use strong cryptography and restrict weak TLS or public SQL posture (QR-31 PCI DSS P1 architecture slice).",
+      "priority": "P1"
     },
     {
       "ruleId": "pci-008",
@@ -1964,13 +1964,13 @@
     {
       "ruleId": "pci-009",
       "controlId": "PCI-009",
-      "controlName": "GA Payments starter rule (catalog stub)",
+      "controlName": "TLS for PAN transmission over open networks",
       "appliesToCategory": "payments",
-      "requiredNodeType": "SecurityBaseline",
-      "requiredEdgeType": "PROTECTS",
-      "severity": "Warning",
-      "description": "Stub for pci-009; see docs/samples/policy-packs/pci-dss-architecture-rules-v1.json for narrative.",
-      "priority": "P2"
+      "requiredNodeType": "TopologyResource",
+      "requiredEdgeType": "CONNECTS",
+      "severity": "Critical",
+      "description": "Application endpoints transmitting PAN over open networks must enforce HTTPS-only and modern TLS (QR-31 PCI DSS P1 architecture slice).",
+      "priority": "P1"
     },
     {
       "ruleId": "pci-010",
