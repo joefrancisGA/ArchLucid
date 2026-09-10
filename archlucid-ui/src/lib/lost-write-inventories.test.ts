@@ -128,6 +128,14 @@ describe("lost-write CAS compat matrix (LW-009 / LW-010)", () => {
     expect(compat).toMatch(/409/);
     expect(breaking).toMatch(/2026-09-10/);
     expect(breaking).toMatch(/draft_cas_token_missing/);
+
+    const startReview = readFileSync(
+      join(REPO_ROOT, "docs/architecture/LOST_WRITE_START_REVIEW_VS_PATCH_CAS.md"),
+      "utf8",
+    );
+    expect(startReview).toMatch(/DraftPatchStaleUpdatedUtcGuard/);
+    expect(startReview).toMatch(/DraftStartReviewStaleUpdatedUtcGuard/);
+    expect(startReview).toMatch(/Do not merge/i);
   });
 
   it("snapshots generated PatchDraftRequest fields as JSON-optional", () => {
@@ -139,6 +147,21 @@ describe("lost-write CAS compat matrix (LW-009 / LW-010)", () => {
 
     expect(patchBlock).toMatch(/expectedUpdatedUtc\?:/);
     expect(patchBlock).toMatch(/forceOverwrite\?:/);
+  });
+
+  it("documents fail-closed CAS on the OpenAPI PatchDraftRequest snapshot (LW-024)", () => {
+    const snapshot = readFileSync(
+      join(REPO_ROOT, "ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json"),
+      "utf8",
+    );
+    const patchBlock = snapshot.slice(
+      snapshot.indexOf('"PatchDraftRequest"'),
+      snapshot.indexOf('"PatchDraftRequest"') + 2500,
+    );
+
+    expect(patchBlock).toMatch(/draft_cas_token_missing/);
+    expect(patchBlock).toMatch(/Never defaults to true/);
+    expect(patchBlock).toMatch(/required-unless-forceOverwrite/);
   });
 });
 

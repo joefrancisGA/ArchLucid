@@ -19,10 +19,13 @@ import {
 } from "@/lib/architecture/architecture-draft-offline-queue";
 import { replayArchitectureDraftOfflineQueue } from "@/lib/architecture/architecture-draft-offline-queue-replay";
 import {
+  applyOnlineDraftPatchCas,
+  resolveOnlineDraftPatchCas,
+} from "@/lib/architecture/architecture-draft-patch-cas-online";
+import {
   architectureDraftCasConflictMessage,
   DRAFT_CAS_STALE_CODE,
   readDraftCasConflictCode,
-  withDraftPatchCas,
 } from "@/lib/architecture/architecture-draft-patch-cas";
 import {
   clearArchitectureNewDraftRecovery,
@@ -153,6 +156,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
       let patchFailedNonRetryable = false;
       try {
         let draftId = args.resolvedDraftIdRef.current ?? args.draftId;
+        let createdThisPersist = false;
 
         if (deferCreateUntilFirstSave && args.resolvedDraftIdRef.current === null) {
           const confirmedScopeBullets = args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined;
@@ -175,9 +179,11 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           void invalidateArchitectureDraftListQueries();
           clearArchitectureNewDraftRecovery();
           args.serverUpdatedUtcRef.current = created.updatedUtc;
+          createdThisPersist = true;
         }
 
         const latestServer = await getDraftRequest(draftId);
+
         if (latestServer.status !== "Drafting") {
           args.onImmutableDraftDetected?.(latestServer);
           args.setConflictMessage(null);
@@ -186,15 +192,22 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           return false;
         }
 
-        if (
-          !forceOverwrite &&
-          args.serverUpdatedUtcRef.current !== null &&
-          latestServer.updatedUtc !== args.serverUpdatedUtcRef.current
-        ) {
+        const casDecision = resolveOnlineDraftPatchCas({
+          forceOverwrite,
+          createdThisPersist,
+          knownUpdatedUtc: args.serverUpdatedUtcRef.current,
+          latestServerUpdatedUtc: latestServer.updatedUtc,
+        });
+
+        if (casDecision.kind === "conflict") {
           args.setConflictMessage(architectureDraftCasConflictMessage(DRAFT_CAS_STALE_CODE));
           args.setSaveState("error");
           patchFailedNonRetryable = true;
           return false;
+        }
+
+        if (casDecision.kind === "token") {
+          args.serverUpdatedUtcRef.current = casDecision.expectedUpdatedUtc;
         }
 
         const patchPayload = buildArchitectureDraftPatchPayload(
@@ -205,11 +218,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
 
         const patched = await patchDraftRequest(
           draftId,
-          forceOverwrite
-            ? withDraftPatchCas(patchPayload, { forceOverwrite: true })
-            : withDraftPatchCas(patchPayload, {
-                expectedUpdatedUtc: args.serverUpdatedUtcRef.current ?? latestServer.updatedUtc,
-              }),
+          applyOnlineDraftPatchCas(patchPayload, casDecision),
         );
 
         if (sequence !== saveSequenceRef.current) return false;
