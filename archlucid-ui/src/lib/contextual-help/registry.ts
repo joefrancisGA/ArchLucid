@@ -244,6 +244,12 @@ export function contextualHelpForPathname(
   );
 
   if (row === undefined) {
+    const secureNowOnlyOverride = secureNowContextualHelpOverrideForPath(path, productLineId);
+
+    if (secureNowOnlyOverride !== null) {
+      return localizePageContextualHelpEntry(secureNowOnlyOverride, productLineId);
+    }
+
     return null;
   }
 

@@ -82,6 +82,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0084](0084-architecture-review-inputs-include-diagrams-and-bound-inventory.md) | Architecture review **decide inputs** include structured diagrams and bound inventory snapshots — ESI inspect stays separate; pixel-only is **NotVerifiable**, not silent drop (**Status: Proposed** 2026-09-09; AS-001 / wave 22 kernel) |
 | [0085](0085-semantic-support-band-working-career-not-commit-gate.md) | Semantic **support band** on Working career surfaces — Supported / Unchecked / Unsupported / NotScored; structural provenance (0082) stays persist gate; default finalize **warns** on Unchecked, does not block on LLM faithfulness (**Status: Proposed** 2026-09-09; AS-056 / TB-1228) |
 | [0086](0086-working-career-vs-rehearsal-doors.md) | Working **Career vs Rehearsal** doors — explicit chrome; host `AgentExecution:Mode` default may stay Simulator; Working must not present Simulator as unlabeled career work (**Status: Proposed** 2026-09-10; AS-076; **not** G-REAL-06) |
+| [0087](0087-architecture-scoped-sharing-restrict-to-shares.md) | Optional **RestrictToShares** per architecture inside the tenant — View / Decide / Admin user grants; default workspace-visible; **no SQL RLS**; not chat or presence (**Status: Proposed** 2026-09-10; AS-086; amends 0074 §6 only) |
 | [**Template (strict sections)**](template.md) | **MUST** include Trade-offs, Constraints, Expected |
 | [**Template (full skeleton)**](adr-template-full.md) | Longer skeleton for new numbered ADRs *(not an ADR)* |
 

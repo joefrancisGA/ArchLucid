@@ -9,31 +9,32 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  SECURENOW_REMEDIATION_FACTORY_PATH,
+  SECURENOW_REMEDIATION_PATTERNS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
-
-const GOVERNANCE_REMEDIATION_FACTORY_PATH = "/governance/remediation-factory";
-const GOVERNANCE_REMEDIATION_PATTERNS_PATH = "/governance/remediation-patterns";
 
 describe("SecureNow governance contextual help rows", () => {
   it("does not resolve Approval copy for remediation factory", () => {
-    const entry = contextualHelpForPathname(GOVERNANCE_REMEDIATION_FACTORY_PATH, { productLineId: "security" });
+    const entry = contextualHelpForPathname(SECURENOW_REMEDIATION_FACTORY_PATH, { productLineId: "security" });
 
     expect(entry?.whatIsThisPage).toContain("Remediation factory");
     expect(entry?.whatIsThisPage).toContain("Advisory only");
     expect(entry?.whatIsThisPage).not.toContain("Approval");
     expect(entry?.whatToDoNextAction?.href).not.toContain("approval-queue");
-    expect(pageHelpTopicForPathname(GOVERNANCE_REMEDIATION_FACTORY_PATH, "security")?.slug).toBe(
+    expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_FACTORY_PATH, "security")?.slug).toBe(
       "remediation-factory",
     );
   });
 
   it("does not resolve Approval copy for remediation patterns", () => {
-    const entry = contextualHelpForPathname(GOVERNANCE_REMEDIATION_PATTERNS_PATH, { productLineId: "security" });
+    const entry = contextualHelpForPathname(SECURENOW_REMEDIATION_PATTERNS_PATH, { productLineId: "security" });
 
     expect(entry?.whatIsThisPage).toContain("Remediation patterns");
     expect(entry?.whatIsThisPage).toContain("Draft");
     expect(entry?.whatIsThisPage).not.toContain("approval queue");
-    expect(pageHelpTopicForPathname(GOVERNANCE_REMEDIATION_PATTERNS_PATH, "security")?.slug).toBe(
+    expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_PATTERNS_PATH, "security")?.slug).toBe(
       "remediation-patterns",
     );
   });
@@ -118,7 +119,7 @@ describe("SecureNow governance contextual help rows", () => {
   });
 
   it("keeps remediation factory and infrastructure remediation distinct", () => {
-    const factory = contextualHelpForPathname(GOVERNANCE_REMEDIATION_FACTORY_PATH, { productLineId: "security" });
+    const factory = contextualHelpForPathname(SECURENOW_REMEDIATION_FACTORY_PATH, { productLineId: "security" });
     const workbench = contextualHelpForPathname("/governance/infrastructure/remediation", {
       productLineId: "security",
     });

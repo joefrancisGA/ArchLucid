@@ -2,6 +2,8 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
@@ -269,6 +271,38 @@ public sealed class SponsorReviewPacketBuilderTests
     }
 
     [Fact]
+    public async Task BuildMarkdownAsync_throws_career_blocked_for_sample_workspace_run()
+    {
+        const string runId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+        Guid runGuid = Guid.Parse(runId);
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        ManifestDocument goldenManifest =
+            SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        SealedExportReceiptTestSupport.ConfigureSampleRunExportDetail(authority, runGuid, goldenManifest);
+
+        SponsorReviewPacketBuilder sut = CreateSut(
+            runDetails.Object,
+            authorityQuery: authority.Object,
+            manifestHashService: manifestHashService,
+            configuration: SealedExportReceiptTestSupport.CreateSuccessfulExportHonestyConfiguration());
+
+        Func<Task> act = async () => await sut.BuildMarkdownAsync(runId, CancellationToken.None);
+
+        CareerArtifactExportBlockedException exception =
+            (await act.Should().ThrowAsync<CareerArtifactExportBlockedException>()).Which;
+
+        exception.BlockReasonCode.Should().Be(CareerArtifactCompletenessValidator.SampleWorkspaceExportCode);
+    }
+
+    [Fact]
     public async Task BuildMarkdownAsync_throws_conflict_when_sealed_manifest_hash_mismatches()
     {
         Guid runGuid = Guid.Parse(RunId);
@@ -311,13 +345,41 @@ public sealed class SponsorReviewPacketBuilderTests
         await act.Should().ThrowAsync<ConflictException>().WithMessage("*sealed manifest hash does not match*");
     }
 
+    private static ArchitectureRunDetail CreateCommittedDetail(string runId)
+    {
+        GoldenManifest manifest = new()
+        {
+            RunId = runId,
+            SystemName = "Contoso",
+            Services = [],
+            Datastores = [],
+            Relationships = [],
+            Governance = new ManifestGovernance(),
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+        };
+
+        return new ArchitectureRunDetail
+        {
+            AuthorityLifecyclePhase = AuthorityRunLifecyclePhase.Complete,
+            Run = new ArchitectureRun
+            {
+                RunId = runId,
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = manifest,
+            HasBrokenManifestReference = false,
+        };
+    }
+
     private static SponsorReviewPacketBuilder CreateSut(
         IRunDetailQueryService runDetails,
         IScopeContextProvider? scopeContextProvider = null,
         ITenantRepository? tenantRepository = null,
         IArchitectureDecisionRegisterService? decisions = null,
         IAuthorityQueryService? authorityQuery = null,
-        IManifestHashService? manifestHashService = null)
+        IManifestHashService? manifestHashService = null,
+        IConfiguration? configuration = null)
     {
         Mock<ISponsorRoiSummaryService> roi = new();
         roi.Setup(x => x.BuildAsync(It.IsAny<CancellationToken>()))
@@ -358,7 +420,7 @@ public sealed class SponsorReviewPacketBuilderTests
             Mock.Of<IGraphSnapshotRepository>(),
             SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
             CreateEmptyFindingReviewTrailRepository(),
-            SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
+            configuration ?? SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
     }

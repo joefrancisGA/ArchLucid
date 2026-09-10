@@ -52,46 +52,73 @@ public static class AzureExtractorPackageInventoryReader
             return [];
 
         using Stream stream = entry.Open();
-        using JsonDocument document = JsonDocument.Parse(stream);
 
-        if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            throw new JsonException("resources.json root must be a JSON array.");
-
-        List<AzureExtractorExtendedResourceRow> rows = [];
-
-        foreach (JsonElement row in document.RootElement.EnumerateArray())
+        try
         {
-            if (row.ValueKind is not JsonValueKind.Object)
-                continue;
+            using JsonDocument document = JsonDocument.Parse(stream);
 
-            AzureExtractorExtendedResourceRow? mapped = MapResourceRow(row);
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+                throw new JsonException("resources.json root must be a JSON array.");
 
-            if (mapped is not null)
-                rows.Add(mapped);
+            List<AzureExtractorExtendedResourceRow> rows = [];
+
+            foreach (JsonElement row in document.RootElement.EnumerateArray())
+            {
+                if (row.ValueKind is not JsonValueKind.Object)
+                    continue;
+
+                AzureExtractorExtendedResourceRow? mapped = MapResourceRow(row);
+
+                if (mapped is not null)
+                    rows.Add(mapped);
+            }
+
+            return rows;
         }
-
-        return rows;
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException("resources.json is not valid JSON.");
+        }
     }
 
     private static AzureExtractorExtendedResourceRow? MapResourceRow(JsonElement row)
     {
-        string? azureResourceId = TryReadString(row, "resourceId") ?? TryReadString(row, "id");
+        string? azureResourceId = TryReadString(row, "resourceId")
+            ?? TryReadString(row, "ResourceId")
+            ?? TryReadString(row, "id")
+            ?? TryReadString(row, "Id");
 
         if (string.IsNullOrWhiteSpace(azureResourceId))
-            azureResourceId = TryReadString(row, "name");
+            azureResourceId = TryReadString(row, "name") ?? TryReadString(row, "Name");
 
-        string? resourceType = TryReadString(row, "resourceType") ?? TryReadString(row, "type");
+        string? resourceType = TryReadString(row, "resourceType")
+            ?? TryReadString(row, "ResourceType")
+            ?? TryReadString(row, "type")
+            ?? TryReadString(row, "Type");
 
         if (string.IsNullOrWhiteSpace(azureResourceId) || string.IsNullOrWhiteSpace(resourceType))
             return null;
 
-        string name = TryReadString(row, "name") ?? azureResourceId.Split('/').LastOrDefault() ?? azureResourceId;
-        string? location = TryReadString(row, "location");
-        string? resourceGroup = TryReadString(row, "resourceGroup") ?? ExtractResourceGroup(azureResourceId);
+        string name = TryReadString(row, "name")
+            ?? TryReadString(row, "Name")
+            ?? azureResourceId.Split('/').LastOrDefault()
+            ?? azureResourceId;
+        string? location = TryReadString(row, "location") ?? TryReadString(row, "Location");
+        string? resourceGroup = TryReadString(row, "resourceGroup")
+            ?? TryReadString(row, "ResourceGroup")
+            ?? ExtractResourceGroup(azureResourceId);
+
+        if (!string.IsNullOrWhiteSpace(resourceGroup))
+            resourceGroup = resourceGroup.Trim();
         string? skuName = ExtractSku(row);
-        IReadOnlyDictionary<string, string> tags = ReadStringDictionary(row, "tags");
+        IReadOnlyDictionary<string, string> tags = ReadStringDictionary(row, "tags", "Tags");
         IReadOnlyDictionary<string, string> properties = ReadProperties(row);
-        bool isUnknown = row.TryGetProperty("isUnknownType", out JsonElement unknownFlag)
+        bool isUnknown = (row.TryGetProperty("isUnknownType", out JsonElement unknownFlag)
+                          || row.TryGetProperty("IsUnknownType", out unknownFlag))
                          && unknownFlag.ValueKind is JsonValueKind.True;
 
         return new AzureExtractorExtendedResourceRow
@@ -99,7 +126,7 @@ public static class AzureExtractorPackageInventoryReader
             AzureResourceId = azureResourceId.Trim(),
             ResourceType = resourceType.Trim(),
             Name = name.Trim(),
-            Location = location,
+            Location = string.IsNullOrWhiteSpace(location) ? null : location.Trim(),
             ResourceGroup = resourceGroup,
             SkuName = skuName,
             Tags = tags,
@@ -116,12 +143,24 @@ public static class AzureExtractorPackageInventoryReader
             return [];
 
         using Stream stream = entry.Open();
-        using JsonDocument document = JsonDocument.Parse(stream);
 
-        if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            throw new JsonException($"{entryName} root must be a JSON array.");
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
 
-        return document.RootElement.EnumerateArray().Select(static element => element.Clone()).ToList();
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+                throw new JsonException($"{entryName} root must be a JSON array.");
+
+            return document.RootElement.EnumerateArray().Select(static element => element.Clone()).ToList();
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{entryName} is not valid JSON.");
+        }
     }
 
     private static ZipArchiveEntry? FindEntry(ZipArchive archive, string entryName) =>
@@ -143,23 +182,47 @@ public static class AzureExtractorPackageInventoryReader
 
     private static string? ExtractSku(JsonElement row)
     {
-        if (!row.TryGetProperty("sku", out JsonElement sku))
+        if (!row.TryGetProperty("sku", out JsonElement sku) && !row.TryGetProperty("Sku", out sku))
             return null;
 
         if (sku.ValueKind is JsonValueKind.String)
-            return sku.GetString();
+        {
+            string? skuText = sku.GetString();
 
-        if (sku.ValueKind is JsonValueKind.Object && sku.TryGetProperty("name", out JsonElement skuName))
-            return skuName.GetString();
+            return string.IsNullOrWhiteSpace(skuText) ? null : skuText.Trim();
+        }
+
+        if (sku.ValueKind is JsonValueKind.Object)
+        {
+            if (sku.TryGetProperty("name", out JsonElement skuName) || sku.TryGetProperty("Name", out skuName))
+            {
+                string? skuText = skuName.GetString();
+
+                return string.IsNullOrWhiteSpace(skuText) ? null : skuText.Trim();
+            }
+        }
 
         return null;
     }
 
-    private static IReadOnlyDictionary<string, string> ReadStringDictionary(JsonElement row, string propertyName)
+    private static IReadOnlyDictionary<string, string> ReadStringDictionary(JsonElement row, params string[] propertyNames)
     {
-        if (!row.TryGetProperty(propertyName, out JsonElement dictionary) || dictionary.ValueKind is not JsonValueKind.Object)
-            return new Dictionary<string, string>();
+        foreach (string propertyName in propertyNames)
+        {
+            if (!row.TryGetProperty(propertyName, out JsonElement dictionary))
+                continue;
 
+            if (dictionary.ValueKind is not JsonValueKind.Object)
+                return new Dictionary<string, string>();
+
+            return ReadStringDictionaryValues(dictionary);
+        }
+
+        return new Dictionary<string, string>();
+    }
+
+    private static IReadOnlyDictionary<string, string> ReadStringDictionaryValues(JsonElement dictionary)
+    {
         Dictionary<string, string> values = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (JsonProperty property in dictionary.EnumerateObject())
@@ -180,7 +243,11 @@ public static class AzureExtractorPackageInventoryReader
 
     private static IReadOnlyDictionary<string, string> ReadProperties(JsonElement row)
     {
-        if (!row.TryGetProperty("properties", out JsonElement properties) || properties.ValueKind is not JsonValueKind.Object)
+        if (!row.TryGetProperty("properties", out JsonElement properties)
+            && !row.TryGetProperty("Properties", out properties))
+            return new Dictionary<string, string>();
+
+        if (properties.ValueKind is not JsonValueKind.Object)
             return new Dictionary<string, string>();
 
         Dictionary<string, string> values = new(StringComparer.OrdinalIgnoreCase);

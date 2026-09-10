@@ -124,6 +124,18 @@ public sealed class FindingInspectReadSqlTests
         FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("aet.RunId = r.RunId");
     }
 
+    [Fact]
+    public void MainInspect_scopes_decisioning_trace_join_to_request_scope()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("dt.TenantId = r.TenantId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("dt.WorkspaceId = r.WorkspaceId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("dt.ProjectId = r.ScopeProjectId");
+
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("dt.TenantId = r.TenantId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("dt.WorkspaceId = r.WorkspaceId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("dt.ProjectId = r.ScopeProjectId");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

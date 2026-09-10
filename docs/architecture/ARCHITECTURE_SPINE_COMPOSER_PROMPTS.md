@@ -5,7 +5,7 @@
 
 # Architecture-spine Composer prompts (AS-001–AS-100)
 
-**Created:** 2026-09-09 · **Status:** ready to run · **Do not re-run** LP, FP, ESI, IE collector bodies, WS, SY, AO, or DX except as an AS row names a leftover.
+**Created:** 2026-09-09 · **Status:** shipped on this branch · **Close audit:** [`ARCHITECTURE_SPINE_ACCEPTANCE_2026-09-09.md`](ARCHITECTURE_SPINE_ACCEPTANCE_2026-09-09.md) · **Do not re-run** LP, FP, ESI, IE collector bodies, WS, SY, AO, or DX except as an AS row names a leftover.
 
 ArchLucid is a working-architect tool: people will sit in it much of the day, and their livelihoods may depend on the sealed record. Waves through **21** made Working an instrument (chrome, persist gates, disposition CAS). They did not change what **decide** can see.
 
