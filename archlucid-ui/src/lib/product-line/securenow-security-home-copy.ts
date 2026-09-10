@@ -1,6 +1,7 @@
 import {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   SECURENOW_REMEDIATION_FACTORY_PATH,
+  SECURENOW_REMEDIATION_PATTERNS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -25,7 +26,7 @@ export const SECURENOW_SECURITY_HOME_ROWS: readonly SecureNowHomeDestinationRow[
     summary: "Prioritize remediation waves and review executive remediation metrics.",
   },
   {
-    href: "/governance/remediation-patterns",
+    href: SECURENOW_REMEDIATION_PATTERNS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.remediationPatterns,
     summary: "Create, review, approve, and import remediation patterns for repeatable fixes.",
   },

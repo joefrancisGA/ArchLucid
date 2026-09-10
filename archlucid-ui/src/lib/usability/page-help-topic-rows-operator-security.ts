@@ -6,6 +6,7 @@ import {
   GOVERNANCE_FINDINGS_PATH,
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   SECURENOW_REMEDIATION_FACTORY_PATH,
+  SECURENOW_REMEDIATION_PATTERNS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
@@ -48,6 +49,10 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
   {
     prefix: "/governance/remediation-factory",
     topic: { slug: "remediation-factory", label: OPERATOR_NAV_LINK_LABELS.remediationFactory },
+  },
+  {
+    prefix: SECURENOW_REMEDIATION_PATTERNS_PATH,
+    topic: { slug: "remediation-patterns", label: OPERATOR_NAV_LINK_LABELS.remediationPatterns },
   },
   {
     prefix: "/governance/remediation-patterns",
