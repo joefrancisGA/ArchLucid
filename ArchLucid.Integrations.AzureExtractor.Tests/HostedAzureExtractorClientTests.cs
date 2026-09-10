@@ -1,10 +1,12 @@
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Integrations.AzureExtractor;
 
 using Azure.Core;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -49,9 +51,15 @@ public sealed class HostedAzureExtractorClientTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync("Contoso Production");
 
+        Mock<IEntraGroupMembershipGraphReader> graphReader = new();
+        Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EntraGroupMembershipGraphOptions());
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
+            graphReader.Object,
+            options.Object,
             NullLogger<HostedAzureExtractorClient>.Instance);
 
         HostedAzureExtractorCollectionRequest request = new()

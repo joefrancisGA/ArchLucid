@@ -38,6 +38,7 @@ public sealed class PrivilegePathEngineTests
     private const string ContributorRoleDefinitionId =
         "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c";
     private const string FederatedServicePrincipalId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    private const string GroupPrincipalId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
 
     [Fact]
     public async Task RunAsync_managed_identity_blob_reader_path_persists_path_and_finding_with_path_id()
@@ -142,6 +143,114 @@ public sealed class PrivilegePathEngineTests
 
         hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.FederatesAs);
         hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.CanWrite);
+    }
+
+    [Fact]
+    public async Task RunAsync_group_nested_contributor_path_persists_member_of_hop_and_title()
+    {
+        Guid storageRowId = Guid.NewGuid();
+        ScopeContext scope = CreateScope();
+
+        AzureInventorySnapshotDetailReadModel snapshot = BuildGroupNestedContributorSnapshot(storageRowId);
+
+        InMemorySecurityEvidencePathRepository pathRepository = new();
+        InMemoryOperationalSecurityFindingRepository findingRepository = new();
+        OperationalSecurityFindingIngestService ingestService = CreateIngestService(findingRepository);
+
+        PrivilegePathEngine sut = CreateEngine(
+            snapshot,
+            scope,
+            pathRepository,
+            ingestService);
+
+        PrivilegePathEngineResult result = await sut.RunAsync(
+            scope,
+            SnapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.PathsPersisted.Should().BeGreaterThan(0);
+
+        OperationalSecurityFindingRecord finding = findingRepository.StoredFindings
+            .Single(f => f.Title.StartsWith("Group-nested privilege path", StringComparison.Ordinal));
+        finding.Description.Should().Contain("MEMBER_OF");
+
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+            await pathRepository.ListHopsByPathAsync(TenantId, finding.PathId!.Value, CancellationToken.None);
+
+        hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.MemberOf);
+        hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.CanWrite);
+    }
+
+    [Fact]
+    public void Enumerate_pim_eligibility_unknown_emits_insufficient_evidence_hop()
+    {
+        const string principalNode = "azure-ad://principal/eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+        const string scopeArm = StorageAccountArm;
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    AzureResourceId = scopeArm,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                },
+            ],
+            RoleAssignments =
+            [
+                new AzureInventoryRoleAssignmentReadModel
+                {
+                    PrincipalId = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+                    Scope = scopeArm,
+                    RoleDefinitionId = ContributorRoleDefinitionId,
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = principalNode,
+                    ToAzureResourceId = scopeArm,
+                    RelationshipType = GraphEdgeTypes.HasRole,
+                    ProvenanceKind = ProvenanceKind.DeterministicInference,
+                    InferenceSource = GraphEdgeInferenceSources.PimEligibilityUnknown,
+                },
+            ],
+        };
+
+        InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot);
+        IReadOnlyList<PrivilegePathCandidate> candidates =
+            PrivilegePathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        PrivilegePathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeTrue();
+        candidate.Hops.Should().Contain(hop =>
+            hop.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown);
+    }
+
+    [Fact]
+    public void Enumerate_group_nested_contributor_path_traverses_member_of()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildGroupNestedContributorSnapshot(Guid.NewGuid());
+
+        InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot);
+        IReadOnlyList<PrivilegePathCandidate> candidates =
+            PrivilegePathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        PrivilegePathCandidate candidate = candidates
+            .Should()
+            .ContainSingle(c => c.IsGroupNestedPath)
+            .Subject;
+        candidate.IsGroupNestedPath.Should().BeTrue();
+        candidate.Hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.MemberOf);
+        candidate.Hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.CanWrite);
     }
 
     [Fact]
@@ -343,6 +452,63 @@ public sealed class PrivilegePathEngineTests
             repository,
             auditService.Object,
             NullLogger<OperationalSecurityFindingIngestService>.Instance);
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildGroupNestedContributorSnapshot(Guid storageRowId)
+    {
+        string userPrincipalNode = AzureInventoryPrincipalNodeId.Format(UserPrincipalId);
+        string groupPrincipalNode = AzureInventoryPrincipalNodeId.Format(GroupPrincipalId);
+
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = storageRowId,
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    AzureResourceId = StorageAccountArm,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                    CloudResourceId = Guid.NewGuid(),
+                },
+            ],
+            RoleAssignments =
+            [
+                new AzureInventoryRoleAssignmentReadModel
+                {
+                    PrincipalId = GroupPrincipalId,
+                    Scope = StorageAccountArm,
+                    RoleDefinitionId = ContributorRoleDefinitionId,
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = userPrincipalNode,
+                    ToAzureResourceId = groupPrincipalNode,
+                    RelationshipType = GraphEdgeTypes.MemberOf,
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryEntraGroupMembership,
+                },
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = groupPrincipalNode,
+                    ToAzureResourceId = StorageAccountArm,
+                    RelationshipType = GraphEdgeTypes.HasRole,
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                },
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = groupPrincipalNode,
+                    ToAzureResourceId = StorageAccountArm,
+                    RelationshipType = GraphEdgeTypes.CanWrite,
+                    ProvenanceKind = ProvenanceKind.DerivedFact,
+                },
+            ],
+        };
     }
 
     private static AzureInventorySnapshotDetailReadModel BuildFederatedContributorSnapshot(

@@ -108,6 +108,11 @@ export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE = "Last accepted archit
 
 export const EXTRACT_UPLOAD_ACCEPTED_REPLACE_LABEL = "Replace inventory" as const;
 
+export const EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_TITLE = "Package id" as const;
+
+export const EXTRACT_UPLOAD_PACKAGE_ID_COPY_ERROR_DETAIL =
+  "Could not write to clipboard — copy manually." as const;
+
 export const EXTRACT_UPLOAD_ACCEPTED_SUMMARY_LABEL = "Package accepted" as const;
 
 export const EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND =

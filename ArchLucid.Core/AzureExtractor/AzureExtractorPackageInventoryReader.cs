@@ -24,6 +24,8 @@ public static class AzureExtractorPackageInventoryReader
             List<JsonElement> policyAssignments = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.PolicyAssignments);
             (bool federatedCredentialsFilePresent, List<AzureInventoryFederatedCredentialRow> federatedCredentials) =
                 ReadFederatedCredentials(archive);
+            (bool entraGroupMembershipsFilePresent, List<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships) =
+                ReadEntraGroupMemberships(archive);
             List<JsonElement> defenderSummary = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderSummary);
 
             return new AzureExtractorPackageInventoryReadResult
@@ -35,6 +37,8 @@ public static class AzureExtractorPackageInventoryReader
                 PolicyAssignments = policyAssignments,
                 FederatedCredentials = federatedCredentials,
                 FederatedCredentialsFilePresent = federatedCredentialsFilePresent,
+                EntraGroupMemberships = entraGroupMemberships,
+                EntraGroupMembershipsFilePresent = entraGroupMembershipsFilePresent,
                 DefenderSummary = defenderSummary,
             };
         }
@@ -185,6 +189,55 @@ public static class AzureExtractorPackageInventoryReader
         catch (JsonException)
         {
             throw new JsonException($"{AzureExtractorPackageZipEntryNames.FederatedCredentials} is not valid JSON.");
+        }
+    }
+
+    private static (bool FilePresent, List<AzureInventoryEntraGroupMembershipRow> Rows) ReadEntraGroupMemberships(
+        ZipArchive archive)
+    {
+        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.EntraGroupMemberships);
+
+        if (entry is null)
+        {
+            return (false, []);
+        }
+
+        using Stream stream = entry.Open();
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                throw new JsonException(
+                    $"{AzureExtractorPackageZipEntryNames.EntraGroupMemberships} root must be a JSON array.");
+            }
+
+            List<AzureInventoryEntraGroupMembershipRow> rows = [];
+
+            foreach (JsonElement element in document.RootElement.EnumerateArray())
+            {
+                if (!AzureInventoryEntraGroupMembershipParser.TryParse(element, out AzureInventoryEntraGroupMembershipRow? row, out _))
+                {
+                    continue;
+                }
+
+                if (row is not null)
+                {
+                    rows.Add(row);
+                }
+            }
+
+            return (true, rows);
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{AzureExtractorPackageZipEntryNames.EntraGroupMemberships} is not valid JSON.");
         }
     }
 
@@ -395,6 +448,18 @@ public sealed class AzureExtractorPackageInventoryReadResult
     } = [];
 
     public bool FederatedCredentialsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryEntraGroupMembershipRow> EntraGroupMemberships
+    {
+        get;
+        init;
+    } = [];
+
+    public bool EntraGroupMembershipsFilePresent
     {
         get;
         init;

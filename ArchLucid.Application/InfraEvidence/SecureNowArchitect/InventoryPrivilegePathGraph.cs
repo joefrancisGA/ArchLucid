@@ -14,6 +14,7 @@ internal static class InventoryPrivilegePathGraph
         GraphEdgeTypes.CanWrite,
         GraphEdgeTypes.CanAssume,
         GraphEdgeTypes.FederatesAs,
+        GraphEdgeTypes.MemberOf,
     ];
 
     public static InventoryPrivilegePathGraphSnapshot Build(AzureInventorySnapshotDetailReadModel snapshot)
@@ -68,6 +69,7 @@ internal static class InventoryPrivilegePathGraph
                     EdgeType = relationship.RelationshipType,
                     ProvenanceKind = relationship.ProvenanceKind,
                     RoleName = roleName,
+                    InferenceSource = relationship.InferenceSource,
                 });
         }
 

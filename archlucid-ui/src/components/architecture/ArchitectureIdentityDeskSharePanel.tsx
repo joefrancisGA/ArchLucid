@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -12,11 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useArchitectureSharesQuery } from "@/hooks/use-architecture-shares-query";
-import {
-  patchArchitectureRestrictToShares,
-  putArchitectureShare,
-  revokeArchitectureShare,
-} from "@/lib/api/architecture-share-api";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { mutateArchitectureShareWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { architectureIdentityMutationBlockedReason } from "@/lib/architecture/architecture-identity-mutation-blocked-reason";
 import {
@@ -97,6 +95,11 @@ export function ArchitectureIdentityDeskSharePanel(
     [confirmRestrict, restrictToShares, savedConfirmRestrict, savedRestrictToShares, targetActorOid],
   );
 
+  const pathname = usePathname() ?? `/architecture/identity/${encodeURIComponent(architectureId)}`;
+  const searchParams = useSearchParams();
+  const livelihoodReturnPath =
+    searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+
   const documentGuards = useLivelihoodDocumentGuards({ when: hasUnsavedEdits });
 
   const invalidateShares = async (): Promise<void> => {
@@ -110,10 +113,17 @@ export function ArchitectureIdentityDeskSharePanel(
 
   const grantMutation = useMutation({
     mutationFn: () =>
-      putArchitectureShare(architectureId, {
-        actorOid: targetActorOid.trim(),
-        role,
-      }),
+      mutateArchitectureShareWith401Resume(
+        {
+          architectureId,
+          operation: "grant",
+          body: {
+            actorOid: targetActorOid.trim(),
+            role,
+          },
+        },
+        { returnPath: livelihoodReturnPath },
+      ),
     onSuccess: async () => {
       setInlineSaveError(null);
       setTargetActorOid("");
@@ -122,6 +132,10 @@ export function ArchitectureIdentityDeskSharePanel(
       await invalidateShares();
     },
     onError: (error) => {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       const failure = toApiLoadFailure(error);
       setInlineSaveError(
         architectureIdentityMutationBlockedReason(failure)
@@ -131,13 +145,25 @@ export function ArchitectureIdentityDeskSharePanel(
   });
 
   const revokeMutation = useMutation({
-    mutationFn: (actorOid: string) => revokeArchitectureShare(architectureId, actorOid),
+    mutationFn: (actorOid: string) =>
+      mutateArchitectureShareWith401Resume(
+        {
+          architectureId,
+          operation: "revoke",
+          targetActorOid: actorOid,
+        },
+        { returnPath: livelihoodReturnPath },
+      ),
     onSuccess: async () => {
       setInlineSaveError(null);
       setLastSavedUtc(new Date().toISOString());
       await invalidateShares();
     },
     onError: (error) => {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       const failure = toApiLoadFailure(error);
       setInlineSaveError(
         architectureIdentityMutationBlockedReason(failure)
@@ -148,10 +174,17 @@ export function ArchitectureIdentityDeskSharePanel(
 
   const restrictMutation = useMutation({
     mutationFn: () =>
-      patchArchitectureRestrictToShares(architectureId, {
-        restrictToShares,
-        confirmRestrict,
-      }),
+      mutateArchitectureShareWith401Resume(
+        {
+          architectureId,
+          operation: "restrict",
+          body: {
+            restrictToShares,
+            confirmRestrict,
+          },
+        },
+        { returnPath: livelihoodReturnPath },
+      ),
     onSuccess: async (response) => {
       setInlineSaveError(null);
       setShowRestrictAttempt(false);
@@ -161,6 +194,10 @@ export function ArchitectureIdentityDeskSharePanel(
       await invalidateShares();
     },
     onError: (error) => {
+      if (isLivelihoodMutation401RedirectError(error)) {
+        return;
+      }
+
       const failure = toApiLoadFailure(error);
       setInlineSaveError(
         architectureIdentityMutationBlockedReason(failure)

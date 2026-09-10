@@ -54,7 +54,8 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { formatScopeSwitcherSampleFullTitle, formatScopeSwitcherTriggerAccessibleLabel } from "@/lib/scope-switcher-display";
 
-import { ScopeSwitcher } from "@/components/ScopeSwitcher";
+import { ScopeSwitcher, SCOPE_SWITCHER_UNSAVED_MESSAGE } from "@/components/ScopeSwitcher";
+import { registerLivelihoodDocumentGuardDirty } from "@/lib/operator/livelihood-document-guard-dirty-registry";
 
 const sampleAccessibleLabel = formatScopeSwitcherTriggerAccessibleLabel({
   workspaceLabel: "Claims Intake Workspace",
@@ -227,6 +228,48 @@ describe("ScopeSwitcher — operator shell", () => {
     expect(screen.getByRole("button", { name: "Primary project" })).toHaveAttribute("aria-current", "true");
     expect(screen.queryByText(BUYER_SCOPE_SWITCHER_CONNECTED_INTRO)).not.toBeInTheDocument();
     expect(screen.queryByTestId("operator-scope-sample-info-body")).not.toBeInTheDocument();
+  });
+
+  it("prompts before switching scope when a livelihood form is dirty (LW-078)", async () => {
+    const writeScope = vi.spyOn(operatorScopeStorage, "writeOperatorScopeToStorage");
+    const unregisterDirty = registerLivelihoodDocumentGuardDirty();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            workspaces: [
+              {
+                workspaceId: DEV_WORKSPACE,
+                name: "Claims Intake Workspace",
+                projects: [
+                  { projectId: DEV_PROJECT, name: "Primary project" },
+                  { projectId: "44444444-4444-4444-4444-444444444444", name: "Secondary project" },
+                ],
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+      ),
+    );
+
+    render(<ScopeSwitcher />);
+    fireEvent.click(screen.getByTestId("operator-scope-switcher-trigger"));
+
+    fireEvent.click(await screen.findByRole("button", { name: "Secondary project" }));
+
+    expect(screen.getByTestId("in-app-navigation-guard-dialog")).toBeInTheDocument();
+    expect(screen.getByText(SCOPE_SWITCHER_UNSAVED_MESSAGE)).toBeInTheDocument();
+    expect(writeScope).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Leave without saving" }));
+
+    expect(writeScope).toHaveBeenCalled();
+
+    unregisterDirty();
+    writeScope.mockRestore();
   });
 
   it("lists single-project workspaces by workspace name and omits the data-handling link", async () => {

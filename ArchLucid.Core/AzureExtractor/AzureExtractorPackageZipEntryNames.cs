@@ -17,6 +17,8 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string FederatedCredentials = "federated-credentials.json";
 
+    public const string EntraGroupMemberships = "entra-group-memberships.json";
+
     public const string DefenderSummary = "defender-summary.json";
 
     public static IReadOnlyCollection<string> OptionalInventoryEntryNames { get; } =
@@ -26,6 +28,7 @@ public static class AzureExtractorPackageZipEntryNames
         NetworkAssociations,
         PolicyAssignments,
         FederatedCredentials,
+        EntraGroupMemberships,
         DefenderSummary,
     ];
 }

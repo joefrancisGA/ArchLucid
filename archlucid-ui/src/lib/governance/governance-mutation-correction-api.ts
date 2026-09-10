@@ -1,3 +1,4 @@
+import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { withLivelihood401Resume } from "@/lib/auth/livelihood-mutation-401-resume";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
@@ -43,6 +44,8 @@ export async function recordGovernanceMutationCorrection(
     );
 
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceMutationCorrectionBlockedReason(failure);
 

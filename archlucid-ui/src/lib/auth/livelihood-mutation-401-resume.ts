@@ -1,8 +1,30 @@
-import type { FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 import { persistIdleDeskRestoreBeforeSessionClear } from "@/lib/auth/idle-desk-restore";
+import {
+  isLivelihoodPendingMutationKind,
+  type LivelihoodPendingMutation,
+  type LivelihoodPendingMutationKind,
+  type LivelihoodPendingMutationPayload,
+} from "@/lib/auth/livelihood-mutation-401-resume-kinds";
+import { isLivelihoodMutationReplayReturnPath } from "@/lib/auth/livelihood-mutation-replay-return-path";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { buildSessionExpiredHref } from "@/lib/navigation/auth-sign-in-href";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
+
+export type {
+  ArchitectureDraftPatchPendingPayload,
+  ArchitectureReviewFinalizePendingPayload,
+  ArchitectureShareGrantPendingPayload,
+  FindingBulkDispositionPendingPayload,
+  FindingDispositionPendingPayload,
+  GovernanceMutationCorrectionPendingPayload,
+  GovernanceWorkflowTransitionPendingPayload,
+  ItsmConnectorSavePendingPayload,
+  LivelihoodPendingMutation,
+  LivelihoodPendingMutationKind,
+  LivelihoodPendingMutationPayload,
+  PolicyPackSavePendingPayload,
+  RiskExceptionWritePendingPayload,
+} from "@/lib/auth/livelihood-mutation-401-resume-kinds";
 
 /** Legacy LP-19 sessionStorage key — migrated once into {@link LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY}. */
 export const LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY_V1 =
@@ -15,44 +37,6 @@ export const LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY =
 /** Cross-tab replay guard — stores the idempotency key currently being replayed. */
 export const LIVELIHOOD_PENDING_MUTATION_REPLAY_CLAIM_KEY =
   "archlucid.livelihoodPendingMutationReplayClaim" as const;
-
-export type LivelihoodPendingMutationKind =
-  | "finding_disposition"
-  | "governance_mutation_correction";
-
-export type FindingDispositionPendingPayload = {
-  readonly findingId: string;
-  readonly body: {
-    readonly disposition: FindingDispositionKind;
-    readonly rationale?: string;
-    readonly runId: string;
-    readonly revisitDueUtc?: string;
-    readonly evidenceRequestText?: string;
-    readonly tradeOffAcknowledgment?: string;
-    readonly expectedCurrentDispositionRowVersionBase64?: string;
-    readonly impactPreviewCompleted?: boolean;
-    readonly previewOverrideReason?: string;
-    readonly architectRestatement?: string;
-  };
-};
-
-export type GovernanceMutationCorrectionPendingPayload = {
-  readonly body: {
-    readonly mutationKind: string;
-    readonly subjectId: string;
-    readonly runId: string;
-    readonly rationale: string;
-  };
-};
-
-export type LivelihoodPendingMutation = {
-  readonly kind: LivelihoodPendingMutationKind;
-  readonly idempotencyKey: string;
-  readonly returnPath: string;
-  readonly savedAtUtc: string;
-  readonly requestLeftClient: boolean;
-  readonly payload: FindingDispositionPendingPayload | GovernanceMutationCorrectionPendingPayload;
-};
 
 /** Thrown when a livelihood POST is redirecting to session recovery — not a user-visible failure. */
 export class LivelihoodMutation401RedirectError extends Error {
@@ -69,7 +53,7 @@ export function isLivelihoodMutation401RedirectError(value: unknown): value is L
 function normalizeReturnPath(returnPath: string): string | null {
   const trimmed = returnPath.trim();
 
-  if (!isSafeReturnPath(trimmed)) {
+  if (!isLivelihoodMutationReplayReturnPath(trimmed)) {
     return null;
   }
 
@@ -86,7 +70,8 @@ function parseLivelihoodPendingMutationRaw(raw: string): LivelihoodPendingMutati
     if (
       returnPath === null
       || idempotencyKey.length === 0
-      || (kind !== "finding_disposition" && kind !== "governance_mutation_correction")
+      || kind === undefined
+      || !isLivelihoodPendingMutationKind(kind)
       || parsed.payload === null
       || parsed.payload === undefined
     ) {
@@ -99,9 +84,7 @@ function parseLivelihoodPendingMutationRaw(raw: string): LivelihoodPendingMutati
       returnPath,
       savedAtUtc: String(parsed.savedAtUtc ?? new Date().toISOString()),
       requestLeftClient: parsed.requestLeftClient === true,
-      payload: parsed.payload as
-        FindingDispositionPendingPayload
-        | GovernanceMutationCorrectionPendingPayload,
+      payload: parsed.payload as LivelihoodPendingMutationPayload,
     };
   } catch {
     return null;
@@ -284,7 +267,7 @@ export type WithLivelihood401ResumeInput<T> = {
   readonly kind: LivelihoodPendingMutationKind;
   readonly returnPath: string;
   readonly idempotencyKey: string;
-  readonly payload: FindingDispositionPendingPayload | GovernanceMutationCorrectionPendingPayload;
+  readonly payload: LivelihoodPendingMutationPayload;
   readonly execute: () => Promise<T>;
 };
 

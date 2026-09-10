@@ -101,6 +101,26 @@ export const LIVELIHOOD_DOCUMENT_GUARD_SURFACES: readonly ErrorRecoveryContractG
     sourceRoots: ["components/architecture/ArchitectureIdentityDeskSharePanel.tsx"],
     requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
   },
+  {
+    id: "governance-approval-rationale",
+    sourceRoots: ["app/(operator)/governance/_sections/GovernanceApprovalRationaleGuards.tsx"],
+    requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
+  },
+  {
+    id: "architecture-identity-rename",
+    sourceRoots: ["components/architecture/ArchitectureIdentityRenameForm.tsx"],
+    requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
+  },
+  {
+    id: "architecture-intake-wizards",
+    sourceRoots: ["app/(operator)/architecture/reviews/new/SocraticIntakeWizardGuards.tsx"],
+    requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
+  },
+  {
+    id: "governance-remediation-patterns-yaml",
+    sourceRoots: ["app/(operator)/governance/remediation-patterns/RemediationPatternsGuards.tsx"],
+    requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
+  },
 ] as const;
 
 /**
@@ -126,6 +146,7 @@ export const LIVELIHOOD_DOCUMENT_GUARD_MONITORED_ARCHITECTURE_REVIEW_DIRTY_FORM_
   "app/(operator)/integrations/jira/_sections/JiraIntegrationPageClient.tsx",
   "app/(operator)/integrations/servicenow/_sections/ServiceNowIntegrationPageClient.tsx",
   "app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageClient.tsx",
+  "app/(operator)/governance/_sections/GovernanceApprovalRationaleGuards.tsx",
 ] as const;
 
 /**
@@ -139,21 +160,6 @@ export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES: readonly LivelihoodDoc
     reason: "Run pair selection syncs to URL immediately; no free-text document dirty state.",
   },
   {
-    id: "architecture-identity-rename",
-    sourceRoots: ["components/architecture/ArchitectureIdentityRenameForm.tsx"],
-    reason: "Single-field rename defers to LP-12 session keepalive sweep; autosave not yet wired.",
-  },
-  {
-    id: "governance-remediation-patterns-yaml",
-    sourceRoots: ["app/(operator)/governance/remediation-patterns/RemediationPatternsClient.tsx"],
-    reason: "YAML import draft is admin-only and ships with explicit import confirmation — LP-12 follow-up.",
-  },
-  {
-    id: "architecture-intake-wizards",
-    sourceRoots: ["app/(operator)/architecture/reviews/new/SocraticIntakeWizard.tsx"],
-    reason: "Wizard session persistence exists; navigation guard batch lands with LP-12 keepalive sweep.",
-  },
-  {
     id: "pilot-scorecard-assumptions",
     sourceRoots: ["app/(operator)/insights/architecture-scorecard/_sections/use-pilot-scorecard-page.ts"],
     reason: "Scorecard assumption overrides are exploratory analytics — defer until sponsor desk LP-14 preview gate.",
@@ -161,7 +167,7 @@ export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES: readonly LivelihoodDoc
 ] as const;
 
 /** LP-11 baseline — deferred rows may shrink or stay flat; growth requires a documented exception id. */
-export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE = 5;
+export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE = 2;
 
 /** Deferred surface ids allowed above the baseline count (must match a row in {@link LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES}). */
 export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_DOCUMENTED_EXCEPTIONS: readonly string[] = [] as const;
@@ -174,15 +180,8 @@ export type LivelihoodDocumentGuardMissingSurface = {
 
 /**
  * Dirty livelihood text that is neither guarded nor deferred (LW-004). Shrink-only: wire a guard
- * (LW-071) or move to deferred with a reason. Must not be empty of approval rationale until then.
+ * or move to deferred with a reason.
  */
-export const LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES: readonly LivelihoodDocumentGuardMissingSurface[] = [
-  {
-    id: "governance-approval-rationale",
-    sourceRoots: ["hooks/use-governance-workflow-mutations.ts"],
-    reason:
-      "reviewComment is typed livelihood text with no useLivelihoodDocumentGuards — wire in LW-071/072.",
-  },
-] as const;
+export const LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES: readonly LivelihoodDocumentGuardMissingSurface[] = [] as const;
 
-export const LIVELIHOOD_DOCUMENT_GUARD_MISSING_COUNT_BASELINE = 1;
+export const LIVELIHOOD_DOCUMENT_GUARD_MISSING_COUNT_BASELINE = 0;

@@ -117,6 +117,7 @@ export function useArchitectureDraftAutosave(
     resolvedDraftIdRef: hydrate.resolvedDraftIdRef,
     autosaveBlockedRef,
     markDirty,
+    livelihoodReturnPath: args.livelihoodReturnPath,
   });
 
   useEffect(() => {

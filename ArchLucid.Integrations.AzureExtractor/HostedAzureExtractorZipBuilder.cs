@@ -26,7 +26,8 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         bool includeCostRequested,
         DateTimeOffset collectionTimestampUtc,
-        string? subscriptionName = null)
+        string? subscriptionName = null,
+        IReadOnlyList<AzureInventoryEntraGroupMembershipRow>? entraGroupMemberships = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(subscriptionId);
 
@@ -90,6 +91,18 @@ public static class HostedAzureExtractorZipBuilder
                               Upload via POST /v1/azure-extractor/upload or the hosted run endpoint.
                               """;
 
+        object[] entraMembershipRows = (entraGroupMemberships ?? [])
+            .Select(static row => new
+            {
+                memberId = row.MemberId,
+                groupId = row.GroupId,
+                provenanceKind = row.ProvenanceKind.ToString(),
+                evidenceHashSha256 = row.EvidenceHashSha256 is null
+                    ? null
+                    : Convert.ToHexStringLower(row.EvidenceHashSha256),
+            })
+            .ToArray<object>();
+
         using MemoryStream zipStream = new();
 
         using (ZipArchive archive = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
@@ -101,6 +114,10 @@ public static class HostedAzureExtractorZipBuilder
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.NetworkAssociations, "[]");
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.PolicyAssignments, "[]");
             AddUtf8Entry(archive, AzureExtractorPackageZipEntryNames.DefenderSummary, "[]");
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.EntraGroupMemberships,
+                JsonSerializer.Serialize(entraMembershipRows, SerializerOptions));
             AddUtf8Entry(archive, "policy-compliance.json", JsonSerializer.Serialize(policyCompliance, SerializerOptions));
             AddUtf8Entry(archive, "README.txt", readme);
         }

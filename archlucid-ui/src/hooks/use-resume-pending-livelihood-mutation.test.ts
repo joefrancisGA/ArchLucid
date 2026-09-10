@@ -41,7 +41,7 @@ describe("useResumePendingLivelihoodMutation (LW-052)", () => {
   it("replays when a sibling tab writes pending mutation to localStorage", async () => {
     replayLivelihoodPendingMutation.mockResolvedValue({ eventId: "evt-1" });
 
-    renderHook(() =>
+    const { result } = renderHook(() =>
       useResumePendingLivelihoodMutation({
         enabled: true,
       }),
@@ -72,5 +72,33 @@ describe("useResumePendingLivelihoodMutation (LW-052)", () => {
     await waitFor(() => {
       expect(replayLivelihoodPendingMutation).toHaveBeenCalledTimes(1);
     });
+
+    expect(result.current.chrome).toBeNull();
+  });
+
+  it("shows confirm chrome for draft patch replay instead of auto-replaying (LW-065)", async () => {
+    writeLivelihoodPendingMutation({
+      kind: "architecture_draft_patch",
+      idempotencyKey: "99999999-9999-4999-8999-999999999999",
+      returnPath: "/architecture/reviews/run-1/findings/f-1",
+      savedAtUtc: "2026-09-10T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: {
+        draftId: "draft-1",
+        body: { expectedUpdatedUtc: "2026-09-10T12:00:00.000Z" },
+      },
+    });
+
+    const { result } = renderHook(() =>
+      useResumePendingLivelihoodMutation({
+        enabled: true,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(result.current.chrome?.presentation.requiresConfirm).toBe(true);
+    });
+
+    expect(replayLivelihoodPendingMutation).not.toHaveBeenCalled();
   });
 });
