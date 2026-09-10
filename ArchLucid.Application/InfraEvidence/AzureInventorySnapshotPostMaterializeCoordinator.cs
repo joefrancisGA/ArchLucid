@@ -17,7 +17,8 @@ public interface IAzureInventorySnapshotPostMaterializeCoordinator
 public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     IAzureInventorySnapshotRepository snapshotRepository,
     IAzureInventoryDiffService diffService,
-    IPrivilegePathEngine privilegePathEngine) : IAzureInventorySnapshotPostMaterializeCoordinator
+    IPrivilegePathEngine privilegePathEngine,
+    IIntendedReachabilityEngine intendedReachabilityEngine) : IAzureInventorySnapshotPostMaterializeCoordinator
 {
     public async Task OnSnapshotMaterializedAsync(
         ScopeContext scope,
@@ -46,6 +47,12 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
         }
 
         await privilegePathEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await intendedReachabilityEngine.RunAsync(
             scope,
             snapshotId,
             SecureNowArchitectConstants.SystemActorId,
