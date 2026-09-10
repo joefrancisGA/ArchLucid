@@ -19,7 +19,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE,
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE,
 } from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_TOPIC_LABEL } from "@/lib/governance/governance-infrastructure-drift-help-evidence-copy";
 import {
@@ -30,7 +29,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
-  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -44,10 +42,6 @@ import { RISK_EXCEPTIONS_HELP_TOPIC_LABEL } from "@/lib/risk-exceptions-evidence
 import { STANDARDS_RULES_HELP_TOPIC_LABEL } from "@/lib/standards-rules-page";
 
 import type { PageHelpTopic, PageHelpTopicRow } from "./page-help-topic-rows-operator";
-
-const GOVERNANCE_REMEDIATION_FACTORY_PATH = "/governance/remediation-factory" as const;
-
-const GOVERNANCE_REMEDIATION_PATTERNS_PATH = "/governance/remediation-patterns" as const;
 
 export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow[] = [
   {
@@ -105,14 +99,6 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow
     topic: { slug: "standards-and-rules", label: STANDARDS_RULES_HELP_TOPIC_LABEL },
   },
   {
-    prefix: GOVERNANCE_REMEDIATION_FACTORY_PATH,
-    topic: { label: OPERATOR_NAV_LINK_LABELS.remediationFactory },
-  },
-  {
-    prefix: GOVERNANCE_REMEDIATION_PATTERNS_PATH,
-    topic: { label: OPERATOR_NAV_LINK_LABELS.remediationPatterns },
-  },
-  {
     prefix: AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
     topic: { label: AUDIT_EVIDENCE_PAGE_TITLE },
   },
@@ -141,17 +127,12 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow
     topic: { label: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE },
   },
   {
-    prefix: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
-    topic: { label: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE },
-  },
-  {
     prefix: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
     topic: { slug: "governance-infrastructure-drift", label: GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_PATH,
-    exactMatchOnly: true,
-    topic: { label: GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE },
+    topic: { slug: "cloud-connections", label: GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE },
   },
   { prefix: "/governance", topic: { slug: "governance-approval", label: GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } },
   { prefix: "/architecture/digests", topic: { slug: "digests", label: DIGESTS_HELP_TOPIC_LABEL } },

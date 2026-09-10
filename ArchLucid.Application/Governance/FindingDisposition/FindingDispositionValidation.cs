@@ -155,17 +155,28 @@ public static class FindingDispositionValidation
             return;
         }
 
-        if (!string.IsNullOrWhiteSpace(request.PreviewOverrideReason)
-            && request.PreviewOverrideReason.Trim().Length >= MinimumRationaleLength)
+        if (!string.IsNullOrWhiteSpace(request.PreviewOverrideReason))
         {
-            if (request.PreviewOverrideReason.Trim().Length > MaximumRationaleLength)
+            string normalizedPreviewOverrideReason = request.PreviewOverrideReason.Trim();
+
+            if (!HasSubstantiveText(normalizedPreviewOverrideReason))
             {
                 throw new ArgumentException(
-                    $"Preview override reason must not exceed {MaximumRationaleLength} characters.",
+                    "Impact preview override reason is required when marking a finding remediated on a Working desk.",
                     nameof(request));
             }
 
-            return;
+            if (normalizedPreviewOverrideReason.Length >= MinimumRationaleLength)
+            {
+                if (normalizedPreviewOverrideReason.Length > MaximumRationaleLength)
+                {
+                    throw new ArgumentException(
+                        $"Preview override reason must not exceed {MaximumRationaleLength} characters.",
+                        nameof(request));
+                }
+
+                return;
+            }
         }
 
         throw new ArgumentException(

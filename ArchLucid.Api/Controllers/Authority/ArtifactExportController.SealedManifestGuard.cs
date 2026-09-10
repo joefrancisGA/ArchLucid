@@ -25,9 +25,9 @@ public sealed partial class ArtifactExportController
     {
         if (manifest is null)
         {
-            return this.ConflictProblem(
-                $"Signed review record read blocked for run '{runIdLabel}': committed golden manifest is missing for sealed manifest hash verification.",
-                ProblemTypes.Conflict);
+            return MapArtifactExportSealedManifestConflict(
+                new ConflictException(
+                    $"Signed review record read blocked for run '{runIdLabel}': committed golden manifest is missing for sealed manifest hash verification."));
         }
         try
         {

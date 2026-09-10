@@ -1,5 +1,7 @@
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_TOPIC_TITLE = "Data handling";
 
@@ -17,12 +19,6 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_CONTENT_ID =
   "help-data-handling-tenant-isolation-primary-content" as const;
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_SKIP_LINK_LABEL = "Skip to data handling guide" as const;
-
-export function dataHandlingTenantIsolationHelpPageSubtitle(buyerPolishedShell: boolean): string {
-  return buyerPolishedShell
-    ? DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE_BUYER
-    : DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE;
-}
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_LEAD =
   "This guide covers data flow for architecture reviews, three-layer tenant isolation, and what ArchLucid does not claim for standard SaaS.";
@@ -103,6 +99,61 @@ export function dataHandlingTenantIsolationHelpOverviewCrossCheckLinks(
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_HELP_CENTER_LABEL = "Help Center";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_BREADCRUMB_SECURITY_TRUST_LABEL = "Security and trust";
+
+export const SECURENOW_DATA_HANDLING_HELP_PAGE_SUBTITLE =
+  "How SecureNow handles cloud inventory evidence, findings, tenant scope, and AI provider processing — with links for security reviewers.";
+
+export const SECURENOW_DATA_HANDLING_HELP_OVERVIEW_LEAD =
+  "This guide covers data flow for cloud inventory evidence and ARC-AMPE findings, three-layer tenant isolation, and what SecureNow does not claim for standard SaaS.";
+
+export const SECURENOW_DATA_HANDLING_HELP_LEAVES_STAYS_CARDS: readonly DataHandlingTenantIsolationHelpLeavesStaysCard[] =
+  [
+    {
+      id: "leaves",
+      title: "What leaves your tenant",
+      summary:
+        "Finding context and inventory excerpts needed for model-assisted analysis may be sent to the configured model provider. SecureNow does not send repositories, secrets, or credentials on the standard intake path.",
+      sectionAnchor: "what-leaves-your-tenant",
+    },
+    {
+      id: "stays",
+      title: "What stays in your tenant",
+      summary:
+        "Findings, connector configuration, audit lineage, and audit log entries stay in your tenant database without product-analytics copies outside your boundary.",
+      sectionAnchor: "what-stays-in-your-tenant",
+    },
+  ] as const;
+
+function dataHandlingTenantIsolationHelpPageSubtitleLegacy(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell
+    ? DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE_BUYER
+    : DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE;
+}
+
+export function dataHandlingTenantIsolationHelpPageSubtitle(
+  buyerPolishedShell: boolean,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_DATA_HANDLING_HELP_PAGE_SUBTITLE;
+  }
+
+  return dataHandlingTenantIsolationHelpPageSubtitleLegacy(buyerPolishedShell);
+}
+
+export function dataHandlingTenantIsolationHelpOverviewLead(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_DATA_HANDLING_HELP_OVERVIEW_LEAD
+    : DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_LEAD;
+}
+
+export function dataHandlingTenantIsolationHelpLeavesStaysCards(
+  productLineId: ProductLineId = "architecture",
+): readonly DataHandlingTenantIsolationHelpLeavesStaysCard[] {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_DATA_HANDLING_HELP_LEAVES_STAYS_CARDS
+    : DATA_HANDLING_TENANT_ISOLATION_HELP_LEAVES_STAYS_CARDS;
+}
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_ACTIONS = {
   openTrustCenter: {

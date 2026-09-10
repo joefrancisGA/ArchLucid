@@ -164,7 +164,6 @@ public sealed class RunSummaryOnePagerExportService(
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
 
-
         RunSummaryOnePagerDocumentModel model =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
                 detail,

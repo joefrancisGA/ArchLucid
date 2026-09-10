@@ -9,6 +9,7 @@ import {
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { exportRecordBlockedReason } from "@/lib/exports/export-record-blocked-reason";
+import { manifestSummaryReadBlockedReason } from "@/lib/governance/manifest-summary-read-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -18,10 +19,17 @@ export async function getManifestSummary(
   manifestId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ManifestSummary> {
-  return apiGetSealedManifestAware<ManifestSummary>(
-    `/v1/authority/signed-review-records/${manifestId}/summary`,
-    options,
-  );
+  try {
+    return await apiGetSealedManifestAware<ManifestSummary>(
+      `/v1/authority/signed-review-records/${manifestId}/summary`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = manifestSummaryReadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Lists all synthesized artifacts for a manifest (metadata only, no binary content). */

@@ -89,7 +89,7 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Warning,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                "Unset — confirm the host default matches your intent (template uses Simulator / Rehearsal door; Career requires explicit Real)."));
+                "Unset — confirm the host default matches your intent (template uses Simulator / Rehearsal door)."));
 
         else if (!string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase)
                  && !string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
@@ -98,7 +98,7 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Error,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                $"Invalid value '{agentMode}' — must be Simulator or Real."));
+                $"Invalid value '{agentMode}' — must be Simulator (Rehearsal door) or Real (Career path)."));
 
         else
 
@@ -106,7 +106,9 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Ok,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                FormatAgentExecutionModeDetail(agentMode)));
+                string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase)
+                    ? "Simulator (Rehearsal door — not sponsor proof)"
+                    : "Real (Career path — live model execution)"));
 
         string? completionClient = configuration["AgentExecution:CompletionClient"]?.Trim();
 

@@ -41,14 +41,29 @@ public sealed class ArchitectureSpineAs083CliTryRealVsRehearseArchitectureTests
     }
 
     [Fact]
-    public void As083_validate_config_mode_check_mentions_cli_doors()
+    public void As083_real_mode_smoke_accepts_rehearse_alias_without_aoai_requirement()
     {
-        string evaluator = File.ReadAllText(Path.Combine(RepoRoot, ValidateConfigAgentsRelativePath));
+        string options = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Cli", "Commands", "RealModeSmokeCommandOptions.cs"));
 
-        evaluator.Should().Contain("Career door");
-        evaluator.Should().Contain("Rehearsal door");
-        evaluator.Should().Contain("archlucid try --real");
-        evaluator.Should().Contain("archlucid try --rehearse");
+        options.Should().Contain("\"--rehearse\"");
+        options.Should().Contain("allowSimulator = true");
+    }
+
+    [Fact]
+    public void As083_cli_usage_and_validate_config_use_career_rehearsal_vocabulary()
+    {
+        string usage = File.ReadAllText(
+            Path.Combine(RepoRoot, "ArchLucid.Cli", "Commands", "RealModeSmokeCommand.cs"));
+
+        usage.Should().Contain("--rehearse");
+        usage.Should().Contain("Rehearsal door");
+        usage.Should().Contain("Career path");
+
+        string validateConfig = File.ReadAllText(Path.Combine(RepoRoot, ValidateConfigAgentsRelativePath));
+
+        validateConfig.Should().Contain("Rehearsal door");
+        validateConfig.Should().Contain("Career path");
     }
 
     private static string FindRepoRoot()

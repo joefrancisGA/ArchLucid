@@ -22,16 +22,17 @@ import {
   STANDARDS_RULES_HELP_BREADCRUMB_TOPIC_TITLE,
   STANDARDS_RULES_HELP_CLAIM_HEADING_ID,
   STANDARDS_RULES_HELP_GUIDE_HEADINGS,
-  STANDARDS_RULES_HELP_HOW_TO_READ_STEPS,
-  STANDARDS_RULES_HELP_OVERVIEW,
   STANDARDS_RULES_HELP_PAGE_EYEBROW,
   STANDARDS_RULES_HELP_PAGE_TITLE,
   STANDARDS_RULES_HELP_PRIMARY_ACTION,
   STANDARDS_RULES_HELP_PRIMARY_CONTENT_ID,
   STANDARDS_RULES_HELP_SKIP_LINK_LABEL,
   STANDARDS_RULES_HELP_TABLE_ITEMS,
+  standardsRulesHelpHowToReadSteps,
+  standardsRulesHelpOverview,
   standardsRulesHelpPageSubtitle,
 } from "@/lib/standards-rules-help-guide-content";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   STANDARDS_RULES_HELP_CANONICAL_PATH,
   STANDARDS_RULES_HELP_ORIENTATION_SOURCES,
@@ -57,6 +58,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 /** Operator standards & rules orientation for `/help/standards-and-rules`. */
 export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const productLineId = resolveProductLineIdFromEnv();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-standards-rules",
@@ -85,7 +87,7 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
         eyebrow={buyerPolishedShell ? undefined : STANDARDS_RULES_HELP_PAGE_EYEBROW}
         title={STANDARDS_RULES_HELP_PAGE_TITLE}
         titleTestId="help-standards-rules-page-title"
-        subtitle={standardsRulesHelpPageSubtitle(buyerPolishedShell)}
+        subtitle={standardsRulesHelpPageSubtitle(buyerPolishedShell, productLineId)}
         navHref={STANDARDS_RULES_HELP_CANONICAL_PATH}
         headingLevel="h1"
         breadcrumb={<HelpTopicBreadcrumb topicTitle={STANDARDS_RULES_HELP_BREADCRUMB_TOPIC_TITLE} />}
@@ -112,7 +114,7 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
           </div>
 
           <p className={readingBodyClass} data-testid="help-standards-rules-overview">
-            {STANDARDS_RULES_HELP_OVERVIEW}
+            {standardsRulesHelpOverview(productLineId)}
           </p>
 
           <section
@@ -146,7 +148,7 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
               className={cn("m-0 list-decimal space-y-2 pl-5", HELP_PAGE_LAYOUT.readingBody)}
               data-testid="help-standards-rules-how-stepper"
             >
-              {STANDARDS_RULES_HELP_HOW_TO_READ_STEPS.map((step) => (
+              {standardsRulesHelpHowToReadSteps(productLineId).map((step) => (
                 <li key={step}>{step}</li>
               ))}
             </ol>

@@ -341,4 +341,35 @@ describe("SlackIntegrationPageClient", () => {
       SLACK_INTEGRATION_DISABLE_SUCCESS_MESSAGE,
     );
   });
+
+  it("clears stale slackDisableId from the URL when the subscription is missing from loaded rows", async () => {
+    navigationMocks.searchParams().set("slackDisableId", "missing-subscription");
+    mockList.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Policy alerts",
+        channelType: "SlackWebhook",
+        destination: "https://hooks.slack.com/services/SECRET/PATH",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<SlackIntegrationPageClient />);
+
+    await waitFor(() => {
+      expect(mockList).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(navigationMocks.replace).toHaveBeenCalledWith("/integrations/slack", { scroll: false });
+    });
+
+    expect(screen.queryByText(/Disable Slack destination/i)).not.toBeInTheDocument();
+  });
 });
