@@ -12,6 +12,10 @@ import {
 } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { compareAgentResultsBlockedReason } from "@/lib/compare/compare-agent-results-blocked-reason";
+import { compareExplainMutationBlockedReason } from "@/lib/compare/compare-explain-mutation-blocked-reason";
+import { explainRunBlockedReason } from "@/lib/explain/explain-run-blocked-reason";
+
 import { compareRunsLoadBlockedReason } from "@/lib/api/compare-runs-load-blocked-reason";
 import { compareAgentResultsBlockedReason } from "@/lib/compare/compare-agent-results-blocked-reason";
 import { compareExplainMutationBlockedReason } from "@/lib/compare/compare-explain-mutation-blocked-reason";
@@ -34,9 +38,16 @@ export async function compareRunsEndToEnd(
   leftRunId: string,
   rightRunId: string,
 ): Promise<EndToEndReplayComparisonWireResponse> {
-  return apiGetSealedManifestAware<EndToEndReplayComparisonWireResponse>(
-    `/v1/architecture/review/compare/end-to-end?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<EndToEndReplayComparisonWireResponse>(
+      `/v1/architecture/review/compare/end-to-end?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = compareRunsLoadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Structured agent-result diff between two runs. */
@@ -44,9 +55,16 @@ export async function compareAgentResults(
   leftRunId: string,
   rightRunId: string,
 ): Promise<components["schemas"]["AgentResultCompareResponse"]> {
-  return apiGetSealedManifestAware<components["schemas"]["AgentResultCompareResponse"]>(
-    `/v1/architecture/review/compare/agents?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<components["schemas"]["AgentResultCompareResponse"]>(
+      `/v1/architecture/review/compare/agents?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = compareAgentResultsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Markdown summary of agent-result diffs between two runs. */
