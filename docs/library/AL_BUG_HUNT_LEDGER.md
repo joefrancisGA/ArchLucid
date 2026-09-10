@@ -375,7 +375,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 20
+- **hunts:** 21
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -421,6 +421,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) higher `AttemptIndex` `Warned` supersedes lower-attempt `Rejected` — **cheap-disproof 2026-09-10 seed hunt #1617:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_warned_wins_over_lower_attempt_rejected`, `GetBlockingReasons_when_higher_attempt_warned_does_not_block_on_superseded_rejected_trace`)
 - [x] (valid-no-repro) `QualityRejected=true` with null `RecordedQualityGateOutcome` on winning trace — **cheap-disproof 2026-09-10 seed hunt #1617:** dual-flag reject blocks independently of recorded outcome (`GetBlockingReasons_when_quality_rejected_flag_set_with_null_recorded_outcome_still_blocks`)
 - [x] (valid-no-repro) same-attempt duplicate rows with `QualityRejected=true` + null outcome vs stale unevaluated — **cheap-disproof 2026-09-10 seed hunt #1617:** rank ladder prefers blocking duplicate over unevaluated snapshot (`Select_when_same_attempt_quality_rejected_null_outcome_beats_unevaluated_duplicate`, `GetBlockingReasons_when_same_attempt_quality_rejected_null_outcome_duplicate_still_blocks`)
+- [x] (valid-no-repro) higher `AttemptIndex` `Accepted` supersedes lower-attempt `Rejected` — **cheap-disproof 2026-09-10 seed hunt #1618:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_accepted_wins_over_lower_attempt_rejected`, `GetBlockingReasons_when_higher_attempt_accepted_does_not_block_on_superseded_rejected_trace`)
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator` with `Mode=WarnOnly` — **cheap-disproof 2026-09-10 seed hunt #1618:** TB-2226 commit blocking is PilotStrict-only (`GetBlockingReasons_when_warn_only_mode_returns_empty_even_with_rejected_traces`)
+- [x] (valid-no-repro) empty trace list on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1618:** no persisted rejections to evaluate (`GetBlockingReasons_when_empty_traces_returns_empty`)
+- [x] (valid-no-repro) same-attempt duplicate rows tied on `AttemptIndex`, rank, and `CreatedUtc` — **cheap-disproof 2026-09-10 seed hunt #1618:** deterministic `TraceId` lexicographic tie-break (`Select_when_same_attempt_created_utc_and_rank_tie_prefers_lexicographically_greater_trace_id`)
+
+2026-09-10 seed hunt #1618 (seed-only): reseeded commit-output-integrity after #1617; cheap-disproof on Accepted supersession over Rejected, WarnOnly bypass, empty traces, and TraceId tie-break; 50 scoped commit-output-integrity tests passed.
 
 2026-09-10 seed hunt #1617 (seed-only): reseeded commit-output-integrity after #1616; cheap-disproof on Warned supersession over Rejected, QualityRejected+null dual-flag blocking, and same-attempt QR-null vs unevaluated rank; 45 scoped commit-output-integrity tests passed.
 

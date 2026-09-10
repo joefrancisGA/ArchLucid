@@ -947,4 +947,79 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
         reasons.Should().BeEmpty(
             "duplicate same-attempt rows from whitespace TaskId upsert drift must not block commit when an accepted trace exists");
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_higher_attempt_accepted_does_not_block_on_superseded_rejected_trace()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 15, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 15, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededRejected = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace latestAccepted = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededRejected, latestAccepted])
+            .Should().BeEmpty(
+                "AttemptIndex supersedes quality rank; Accepted winning attempt is intentionally non-blocking");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_warn_only_mode_returns_empty_even_with_rejected_traces()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+        };
+        AgentExecutionTrace rejected = new()
+        {
+            TraceId = "trace-rejected",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [rejected])
+            .Should().BeEmpty("TB-2226 fail-closed commit blocking applies only to PilotStrict mode");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_empty_traces_returns_empty()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [])
+            .Should().BeEmpty("no traces means no recorded rejections to block on");
+    }
 }
