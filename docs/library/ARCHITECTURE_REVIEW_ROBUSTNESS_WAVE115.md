@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+> **Scope:** Contributor-reference — placeholder for wave-115 robustness controls (1365–1376) when opened; not buyer-facing copy.
+=======
 > **Scope:** Contributor-reference — wave-115 robustness controls for architecture create and review (branch `cursor/wave115-robustness-e14f`).
+>>>>>>> origin/master
 
 # Architecture create/review robustness — wave 115
 
