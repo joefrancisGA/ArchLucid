@@ -142,6 +142,40 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
     }
 
     [Fact]
+    public void TryUpgradeManifestJson_rejects_unsupported_legacy_schema_version()
+    {
+        string manifestJson = """{"schemaVersion":-1,"tenantId":"contoso"}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeFalse();
+        error.Should().Contain("Unsupported legacy manifest schemaVersion");
+    }
+
+    [Fact]
+    public void TryUpgradeManifestJson_accepts_schema_versions_at_or_above_current_without_mutation()
+    {
+        string manifestJson = """{"schemaVersion":99,"tenantId":"contoso"}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeTrue();
+        error.Should().BeNull();
+        manifestJson.Should().Contain("\"schemaVersion\":99");
+    }
+
+    [Fact]
+    public void TryUpgradeManifestJson_rejects_malformed_json()
+    {
+        string manifestJson = "{ not-valid-json";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeFalse();
+        error.Should().Be("manifest.json is not valid JSON.");
+    }
+
+    [Fact]
     public void TryUpgradeManifestJson_rejects_non_object_root()
     {
         string manifestJson = """["not-an-object"]""";

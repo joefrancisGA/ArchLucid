@@ -320,6 +320,20 @@ public sealed class AzureExtractorResourceInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_returns_error_when_zip_payload_is_invalid()
+    {
+        byte[] invalidZipBytes = [0x50, 0x4B, 0x03, 0x04, 0xFF, 0xFF];
+
+        using MemoryStream stream = new(invalidZipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        lines.Should().BeNull();
+        error.Should().Be("ZIP payload is invalid while reading resources.json.");
+    }
+
+    [Fact]
     public void TryReadFromZip_returns_error_when_resources_json_is_malformed()
     {
         byte[] zipBytes = BuildZip("{ not-valid-json");

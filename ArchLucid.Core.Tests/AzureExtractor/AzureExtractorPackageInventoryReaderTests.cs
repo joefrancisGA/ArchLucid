@@ -555,6 +555,156 @@ public sealed class AzureExtractorPackageInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_skips_rows_missing_resource_type()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "name": "sa1"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryReadFromZip_defaults_is_unknown_type_to_false()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].IsUnknownType.Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryReadFromZip_trims_whitespace_from_arm_ids_and_resource_types()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "  /subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1  ",
+                "resourceType": "  Microsoft.Storage/storageAccounts  ",
+                "name": "sa1"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].AzureResourceId.Should().Be(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
+        result.Resources[0].ResourceType.Should().Be("Microsoft.Storage/storageAccounts");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_valid_network_associations_companion_array()
+    {
+        byte[] zipBytes = BuildZipWithCompanion(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """,
+            AzureExtractorPackageZipEntryNames.NetworkAssociations,
+            """[{"name":"assoc1","subnetId":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default"}]""");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.NetworkAssociations.Should().ContainSingle();
+        result.NetworkAssociations[0].GetProperty("name").GetString().Should().Be("assoc1");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_valid_policy_assignments_companion_array()
+    {
+        byte[] zipBytes = BuildZipWithCompanion(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """,
+            AzureExtractorPackageZipEntryNames.PolicyAssignments,
+            """[{"name":"policy1","policyDefinitionId":"/providers/Microsoft.Authorization/policyDefinitions/audit-storage"}]""");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.PolicyAssignments.Should().ContainSingle();
+        result.PolicyAssignments[0].GetProperty("name").GetString().Should().Be("policy1");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_valid_defender_summary_companion_array()
+    {
+        byte[] zipBytes = BuildZipWithCompanion(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """,
+            AzureExtractorPackageZipEntryNames.DefenderSummary,
+            """[{"resourceId":"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1","secureScore":85}]""");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.DefenderSummary.Should().ContainSingle();
+        result.DefenderSummary[0].GetProperty("secureScore").GetInt32().Should().Be(85);
+    }
+
+    [Fact]
     public void TryReadFromZip_uses_name_as_resource_id_when_arm_id_missing()
     {
         byte[] zipBytes = BuildZip(

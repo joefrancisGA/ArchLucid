@@ -344,6 +344,39 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_resolves_resources_entry_case_insensitively()
+    {
+        byte[] zipBytes = BuildZipWithEntryNames(
+            manifestEntryName: "manifest.json",
+            resourcesEntryName: "RESOURCES.JSON",
+            schemaVersion: 2);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_accepts_valid_optional_companion_arrays()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            optionalEntryName: AzureExtractorPackageZipEntryNames.RoleAssignments,
+            optionalEntryJson: """[{"principalId":"11111111-1111-1111-1111-111111111111"}]""");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+        result.FileEntryCount.Should().Be(3);
+    }
+
+    [Fact]
     public void Validate_resolves_manifest_entry_case_insensitively()
     {
         byte[] zipBytes = BuildZipWithEntryName(
@@ -461,6 +494,13 @@ public sealed class AzureExtractorPackageZipValidatorTests
         string manifestEntryName,
         bool includeResources,
         int schemaVersion,
+        string resourcesJson = "[]") =>
+        BuildZipWithEntryNames(manifestEntryName, "resources.json", schemaVersion, resourcesJson);
+
+    private static byte[] BuildZipWithEntryNames(
+        string manifestEntryName,
+        string resourcesEntryName,
+        int schemaVersion,
         string resourcesJson = "[]")
     {
         using MemoryStream ms = new();
@@ -475,14 +515,11 @@ public sealed class AzureExtractorPackageZipValidatorTests
                     $$"""{"schemaVersion":{{schemaVersion}},"subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}""");
             }
 
-            if (includeResources)
-            {
-                ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+            ZipArchiveEntry resources = zip.CreateEntry(resourcesEntryName);
 
-                using StreamWriter writer = new(resources.Open());
+            using StreamWriter resourcesWriter = new(resources.Open());
 
-                writer.Write(resourcesJson);
-            }
+            resourcesWriter.Write(resourcesJson);
         }
 
         return ms.ToArray();
