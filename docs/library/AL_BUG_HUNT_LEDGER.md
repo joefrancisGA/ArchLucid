@@ -10586,11 +10586,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 11
-- **bugs-found:** 9
+- **hunts:** 12
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — retrieval outbox retried missing runs because sealed-hash guard ran before skip path
+- **last-bug:** 2026-09-10 — run-export outbox retried purged runs because sealed-hash guard ran before skip-as-processed path
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10619,6 +10619,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` throws when `sqlLoader.LoadAsync` returns null instead of marking processed — orphan outbox rows after `PurgeCascade_Core` graph deletion (migration **375**) retry until max attempts instead of skip-as-processed like retrieval indexing — **hit 2026-09-09 thorough hunt #1435:** mark processed with warning when SQL graph row is missing; regression `CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_marks_processed_when_sql_graph_snapshot_is_missing`
 - [x] (valid-no-repro) `RecoverableOutboxProcessorBase` sets lease only at dequeue with no heartbeat during long `ProcessEntryAsync` — **cheap-disproof 2026-09-09 thorough hunt #1435:** shared outbox drain is at-least-once by design (`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §3–§5); cosmos graph push upserts by stable id; lease expiry enabling a second worker is expected replay semantics, not a defect in this shell
 - [x] (proven) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` runs sealed-manifest hash guard before loading retrieval detail — orphan outbox rows after run purge (`GetRunDetailForManifestCompareAsync` and `GetRunDetailForRetrievalIndexingAsync` both miss) throw `ConflictException` and retry until DLQ instead of skip-as-processed — **hit 2026-09-10 seed hunt #1523:** load incomplete-detail skip before sealed-hash guard; regression `RetrievalIndexingOutboxProcessorCorrelationTests.ProcessPendingBatchAsync_marks_processed_when_run_detail_no_longer_found`
+- [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` runs sealed-manifest hash guard before `IRunExportPackageBuilder` not-found skip — purged runs (`GetRunDetailForManifestCompareAsync` returns null) throw `ConflictException` and retry until DLQ instead of skip-as-processed — **hit 2026-09-10 seed hunt #1557:** skip when manifest-compare detail is missing before sealed-hash guard; regression `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_marks_processed_when_manifest_compare_run_no_longer_found`
+- [ ] (candidate) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` runs sealed-manifest hash guard before SQL graph load — purged runs can throw on missing manifest compare before the missing-graph skip-as-processed path (`ProcessPendingBatchAsync_marks_processed_when_sql_graph_snapshot_is_missing` still mocks manifest compare present)
+- [ ] (candidate) `PostCommitProjectionOutboxProcessor.ProcessEntryAsync` runs sealed-manifest hash guard before `ProvenanceSnapshotMaterialization` null-detail benign skip — purged runs can throw when `GetRunDetailForManifestCompareAsync` returns null while `GetRunDetailAsync` is null (`ProcessPendingBatchAsync_marks_processed_when_run_detail_no_longer_found` still mocks manifest compare present)
+
+2026-09-10 seed hunt #1557 (hit): reseeded host-core-coordination; proved run-export outbox sealed-hash guard blocked skip-as-processed on purged runs; seeded cosmos/post-commit hash-guard ordering candidates; 22 scoped coordination processor tests passed.
 
 2026-09-10 seed hunt #1523 (hit): reseeded host-core-coordination; proved retrieval outbox sealed-hash guard blocked skip-as-processed on purged runs; 22 scoped coordination processor tests passed.
 
