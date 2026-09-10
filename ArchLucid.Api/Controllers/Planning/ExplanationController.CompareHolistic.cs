@@ -33,48 +33,55 @@ public sealed partial class ExplanationController
         [FromQuery] Guid targetRunId,
         CancellationToken ct = default)
     {
-        IActionResult? sealedGuardResult =
-            await EnsureCompareRunsSealedManifestReadAllowedAsync(baseRunId, targetRunId, ct);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        ManifestCompareLoadResult loadResult =
-            await compareRunsFacade.CompareManifestsAsync(baseRunId, targetRunId, ct);
-
-        return loadResult.Outcome switch
+        try
         {
-            ManifestCompareLoadOutcome.Success => Ok(
-                await explanation.ExplainComparisonAsync(loadResult.Comparison!, ct)),
-            ManifestCompareLoadOutcome.BaseRunNotFound => this.NotFoundProblem(
-                $"Run '{loadResult.RunId}' was not found.",
-                ProblemTypes.RunNotFound),
-            ManifestCompareLoadOutcome.TargetRunNotFound => this.NotFoundProblem(
-                $"Run '{loadResult.RunId}' was not found.",
-                ProblemTypes.RunNotFound),
-            ManifestCompareLoadOutcome.BaseManifestNotFound => this.NotFoundProblem(
-                $"Run '{loadResult.RunId}' does not have a committed golden manifest.",
-                ProblemTypes.ManifestNotFound),
-            ManifestCompareLoadOutcome.TargetManifestNotFound => this.NotFoundProblem(
-                $"Run '{loadResult.RunId}' does not have a committed golden manifest.",
-                ProblemTypes.ManifestNotFound),
-            ManifestCompareLoadOutcome.BaseLifecycleIncomplete => this.ConflictProblem(
-                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
-                ProblemTypes.Conflict),
-            ManifestCompareLoadOutcome.TargetLifecycleIncomplete => this.ConflictProblem(
-                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
-                ProblemTypes.Conflict),
-            ManifestCompareLoadOutcome.PinFingerprintMismatch => this.ConflictProblem(
-                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
-                ProblemTypes.Conflict),
-            ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
-                "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
-                ProblemTypes.CommittedArtifactInventoryMismatch),
-            ManifestCompareLoadOutcome.SealedManifestHashMismatch => this.ConflictProblem(
-                "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
-                ProblemTypes.Conflict),
-            _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {loadResult.Outcome}."),
-        };
+            IActionResult? sealedGuardResult =
+                await EnsureCompareRunsSealedManifestReadAllowedAsync(baseRunId, targetRunId, ct);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            ManifestCompareLoadResult loadResult =
+                await compareRunsFacade.CompareManifestsAsync(baseRunId, targetRunId, ct);
+
+            return loadResult.Outcome switch
+            {
+                ManifestCompareLoadOutcome.Success => Ok(
+                    await explanation.ExplainComparisonAsync(loadResult.Comparison!, ct)),
+                ManifestCompareLoadOutcome.BaseRunNotFound => this.NotFoundProblem(
+                    $"Run '{loadResult.RunId}' was not found.",
+                    ProblemTypes.RunNotFound),
+                ManifestCompareLoadOutcome.TargetRunNotFound => this.NotFoundProblem(
+                    $"Run '{loadResult.RunId}' was not found.",
+                    ProblemTypes.RunNotFound),
+                ManifestCompareLoadOutcome.BaseManifestNotFound => this.NotFoundProblem(
+                    $"Run '{loadResult.RunId}' does not have a committed golden manifest.",
+                    ProblemTypes.ManifestNotFound),
+                ManifestCompareLoadOutcome.TargetManifestNotFound => this.NotFoundProblem(
+                    $"Run '{loadResult.RunId}' does not have a committed golden manifest.",
+                    ProblemTypes.ManifestNotFound),
+                ManifestCompareLoadOutcome.BaseLifecycleIncomplete => MapExplanationSealedManifestConflict(
+                    new ConflictException(
+                        $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
+                ManifestCompareLoadOutcome.TargetLifecycleIncomplete => MapExplanationSealedManifestConflict(
+                    new ConflictException(
+                        $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
+                ManifestCompareLoadOutcome.PinFingerprintMismatch => MapExplanationSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
+                ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => MapExplanationSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.")),
+                ManifestCompareLoadOutcome.SealedManifestHashMismatch => MapExplanationSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
+                _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {loadResult.Outcome}."),
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapExplanationSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Unstructured holistic architecture critique (advisory; not persisted as findings).</summary>
@@ -113,6 +120,10 @@ public sealed partial class ExplanationController
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (ConflictException ex)
+        {
+            return MapExplanationSealedManifestConflict(ex);
         }
     }
 }

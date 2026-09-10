@@ -75,6 +75,7 @@ public sealed class ArchitectureReviewRobustnessWave73ArchitectureTests
         roiController.Should().Contain("GetSponsorReportBoardPackAsync");
         roiController.Should().Contain("EnsureSponsorRoiSealedManifestReadAllowedAsync");
         roiController.Should().Contain("EnsureSponsorRoiBoardPackSealedManifestReadAllowedAsync");
+
         roiController.Should().Contain("Status409Conflict");
         roiGuard.Should().Contain("SponsorRoiBoardPackSealedManifestGuard");
         analysisExport.Should().Contain("AnalyzeRun");

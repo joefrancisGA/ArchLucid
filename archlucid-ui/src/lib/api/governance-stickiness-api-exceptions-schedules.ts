@@ -1,9 +1,13 @@
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { recurrenceScheduleMutationBlockedReason } from "@/lib/governance/recurrence-schedule-mutation-blocked-reason";
+import { realizedValueAttestationMutationBlockedReason } from "@/lib/governance/realized-value-attestation-mutation-blocked-reason";
 import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import type { components } from "@/lib/openapi-schemas";
+
 import {
   type ArchitectureReviewRecurrenceSchedule,
   type PreviewRecurrenceScheduleRunsResponse,
@@ -43,17 +47,34 @@ export async function listRiskExceptions(projectId?: string): Promise<RiskExcept
 }
 
 export async function revokeRiskException(riskExceptionId: string): Promise<void> {
-  await apiPostNoContent(`${governanceStickinessBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/revoke`, {});
+  try {
+    await apiPostNoContent(
+      `${governanceStickinessBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/revoke`,
+      {},
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = riskExceptionMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function renewRiskException(
   riskExceptionId: string,
   body: { expiresAtUtc: string; rationale?: string; evidenceRef?: string },
 ): Promise<RiskExceptionRecord> {
-  return apiPostJson<RiskExceptionRecord>(
-    `${governanceStickinessBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/renew`,
-    body,
-  );
+  try {
+    return await apiPostJson<RiskExceptionRecord>(
+      `${governanceStickinessBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/renew`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = riskExceptionMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function createArchitectureReviewRecurrenceSchedule(body: {
@@ -62,7 +83,17 @@ export async function createArchitectureReviewRecurrenceSchedule(body: {
   cronExpression?: string;
   isEnabled: boolean;
 }): Promise<ArchitectureReviewRecurrenceSchedule> {
-  return apiPostJson<ArchitectureReviewRecurrenceSchedule>(`${governanceStickinessBase()}/recurrence-schedules`, body);
+  try {
+    return await apiPostJson<ArchitectureReviewRecurrenceSchedule>(
+      `${governanceStickinessBase()}/recurrence-schedules`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = recurrenceScheduleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function previewRecurrenceScheduleRuns(body: {
@@ -70,10 +101,17 @@ export async function previewRecurrenceScheduleRuns(body: {
   count?: number;
   fromUtc?: string;
 }): Promise<PreviewRecurrenceScheduleRunsResponse> {
-  return apiPostJson<PreviewRecurrenceScheduleRunsResponse>(
-    `${governanceStickinessBase()}/recurrence-schedules/preview-next-runs`,
-    body,
-  );
+  try {
+    return await apiPostJson<PreviewRecurrenceScheduleRunsResponse>(
+      `${governanceStickinessBase()}/recurrence-schedules/preview-next-runs`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = recurrenceScheduleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function listArchitectureReviewRecurrenceSchedules(): Promise<ArchitectureReviewRecurrenceSchedule[]> {
@@ -96,14 +134,28 @@ export async function updateArchitectureReviewRecurrenceSchedule(
     cronExpression?: string;
   },
 ): Promise<ArchitectureReviewRecurrenceSchedule> {
-  return apiPutJson<ArchitectureReviewRecurrenceSchedule>(
-    `${governanceStickinessBase()}/recurrence-schedules/${encodeURIComponent(scheduleId)}`,
-    body,
-  );
+  try {
+    return await apiPutJson<ArchitectureReviewRecurrenceSchedule>(
+      `${governanceStickinessBase()}/recurrence-schedules/${encodeURIComponent(scheduleId)}`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = recurrenceScheduleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function upsertRealizedValueAttestation(body: UpsertRealizedValueAttestationRequest): Promise<void> {
-  await apiPutNoContent(`${governanceStickinessBase()}/realized-value/attestation`, body);
+  try {
+    await apiPutNoContent(`${governanceStickinessBase()}/realized-value/attestation`, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = realizedValueAttestationMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Default waiver duration (90 days) used when the operator does not pick a custom expiry. */

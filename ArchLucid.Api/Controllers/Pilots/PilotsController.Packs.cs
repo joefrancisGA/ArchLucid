@@ -138,7 +138,8 @@ public sealed partial class PilotsController
                 return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
             }
 
-            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
+            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message));
+
         }
         catch (CareerArtifactExportBlockedException ex)
         {
@@ -260,6 +261,7 @@ public sealed partial class PilotsController
 
             return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
+
         catch (ConflictException ex)
         {
             return MapPilotPackSealedManifestConflict(ex);
