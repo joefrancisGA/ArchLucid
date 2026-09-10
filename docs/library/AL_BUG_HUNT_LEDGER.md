@@ -10948,11 +10948,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 6
-- **bugs-found:** 9
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — quick-start session restore dropped scope gate/bullets; path switcher preserved orphan intakeStep on guided-intake entry
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — orphan scopeGate from quick-start let guided intake skip scope confirmation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10973,6 +10973,9 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (proven) `use-guided-intake-brief-form` — `template=` example prefill re-fires on guided-intake remount after path switch and resets operator edits — **hit 2026-09-08 seed hunt #1305:** component ref reset on unmount; `template=` survived switches to detailed/quick; fixed with session-scoped `guidedIntakeExampleTemplatePrefillAppliedIds` (`applies example template prefill only once across hook remounts`)
 - [x] (proven) `use-first-pilot-intake-wizard` / `handleSessionRestore` — quick-start session restore omitted `scopeGateOpen` and `scopeBullets`; resume with URL `scopeGate=1` allowed start/submit with empty scope merge — **hit 2026-09-09 thorough hunt #1394:** session snapshot excluded scope fields; restore left bullets empty while URL scope gate stayed open; fixed by persisting and restoring scope gate + bullets; regressions in `persists scope gate and bullets in the quick-start session snapshot` and `restores scope gate and bullets from session so submit keeps merged scope`
 - [x] (proven) `ReviewsNewPathSwitcher.selectPath` + `use-guided-intake-wizard` — orphan `intakeStep` preserved on entry to guided intake (`?intakeStep=2` + disclosure click) deep-linked past clarifications until confirm clamps hydrated — **hit 2026-09-09 thorough hunt #1394:** `selectPath("guided-intake")` did not clear stale `intakeStep`; fixed by deleting `intakeStep` when entering guided intake via path switcher; regression `clears orphan intakeStep when opening guided intake from the disclosure`
+- [x] (proven) `ReviewsNewPathSwitcher.selectPath` + `useGuidedIntakeBriefForm` — orphan `scopeGate=1` from quick-start survived path switch to guided intake and cleared scope confirmation blocker while `scopeBullets` stayed empty — **hit 2026-09-10 seed hunt #1525:** clear `scopeGate` when entering guided intake; require confirmed scope bullets before advance; regressions `clears orphan scopeGate when opening guided intake from the disclosure` and `blocks advance when scopeGate URL is set but scope bullets are not confirmed`
+
+2026-09-10 seed hunt #1525 (hit): reseeded ui-review-intake-wizards; proved orphan scopeGate path-switch gap; 23 scoped intake path + brief-form unit tests passed.
 
 2026-09-09 thorough hunt #1394 (hit): proved quick-start scope session restore gap and guided-intake orphan intakeStep on path-switch entry; 23 scoped reviews/new intake path + session restore unit tests passed.
 2026-09-08 seed hunt #1305 (hit): reseeded intake wizard URL/session paths; proved invalid-inventory mixed-evidence auto-upload stall and guided-intake template remount wipe; seeded quick-start scope restore and orphan intakeStep candidates.
