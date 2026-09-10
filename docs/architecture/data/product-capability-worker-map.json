@@ -1,0 +1,431 @@
+{
+  "version": 1,
+  "hostedServices": [
+    {
+      "typeName": "ArchLucid.Application.Budgeting.LlmWalletSettlementHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Application.DataConsistency.DataConsistencyReconciliationHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Application.Evidence.EvidenceAddedIncrementalReReviewHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Application.Planning.AdvisoryDraft.AdvisoryDraftOperationHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Application.Runs.Async.ArchitectureRunAsyncOperationHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Decisioning.Hosting.FindingEngineRegistrationDistinctnessHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Composition.Metering.ApiRequestUsageEventBatchFlushHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.AdvisoryScanHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.AgentResultBlobCleanupHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.ArchitectureProjectRetentionPurgeHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.ArchitectureReviewRecurrenceHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.AuthorityPipelineWorkHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.AwsExtractorAutoPullHostedService",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.AzureExtractorAutoPullHostedService",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.ComplianceDriftEscalationHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.ConfigurationValidationHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.DataArchivalHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.DataConsistencyOrphanProbeHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.DraftIntakeReaperHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.ExecDigestWeeklyHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.FirstTenantFunnelArchivalHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.GcpExtractorAutoPullHostedService",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.HungReviewExecuteWatchdogHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.IntegrationEventDlqRetryHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.IntegrationEventOutboxHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.InternalCrossTenantRollupHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.LlmMonthlyTenantBudgetReservationReclaimHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.LlmTenantBudgetUtilizationMetricsHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.MarketingPricingQuoteAgingMetricsHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.MissingArchitectureRequestAutoRemediationHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.OidcAuthorityStartupProbeHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.OperationalErrorCaptureDrainHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.OperationalErrorRetentionHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.OrphanedTenantCleanupHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.OutboxOperationalMetricsHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.PostCommitProjectionOutboxHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.QuickScanBudgetReconciliationHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.RequiredAuditTrailOrphanProbeHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.RetrievalIndexingOutboxHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.RunExecuteOwnershipReconciliationHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.RunExecuteOwnershipShutdownReleaseHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.RunExportBlobPushOutboxHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.SamlSigningCertificateStartupWarningHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.SampleRunTtlHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.ScimTokenRotationReminderHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.SponsorDigestWeeklyHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.SponsorRoiCacheWarmupHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.SponsorRoiSavingsGaugeHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.StaleInFlightAutoRemediationHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.StaleInFlightRunMetricsHostedService",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.TenantErasureEligiblePurgeHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.TenantHealthScoringHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.TrialArchitecturePreseedHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.TrialLifecycleEmailScanHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.TrialLifecycleSchedulerHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.WaiverExpiryNotificationHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.WarmTenantCatalogReplenishHostedService",
+      "capability": "infra-evidence",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.WeeklyArchitectureDigestHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.WeeklySponsorReportHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.WeeklySponsorSummaryHostedService",
+      "capability": "governance",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosted.WorkerHostDrainHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Hosting.GracefulShutdownNotificationHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Integration.AzureServiceBusIntegrationEventConsumer",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Jobs.InMemoryBackgroundJobQueue",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Host.Core.Services.AuditRetryDrainHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Retrieval.Indexing.ExemplarCorpusStartupIndexerHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Retrieval.Indexing.PlatformDocCorpusStartupIndexerHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Retrieval.Indexing.PolicyPackCorpusStartupIndexerHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "ArchLucid.Retrieval.Indexing.RetrievalEmbeddingDriftStartupValidator",
+      "capability": "authority",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "Microsoft.AspNetCore.DataProtection.Internal.DataProtectionHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    },
+    {
+      "typeName": "Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckPublisherHostedService",
+      "capability": "platform",
+      "status": "assigned",
+      "ownerNote": null
+    }
+  ]
+}

@@ -236,6 +236,61 @@ public sealed class RunExportBlobPushOutboxProcessorTests
     }
 
     [Fact]
+    public async Task ProcessPendingBatchAsync_marks_processed_when_manifest_compare_run_no_longer_found()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExportBlobPushOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RunExportBlobPushOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    DestinationSasUrl = "https://acct.blob.core.windows.net/c/b?sas=token",
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> authorityQuery = new();
+        authorityQuery
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => authorityQuery.Object);
+        services.AddScoped(_ => Mock.Of<IRunExportPackageBuilder>());
+        services.AddScoped(_ => Mock.Of<IRunExportBlobPushService>());
+        services.AddScoped(_ => Mock.Of<IAuditService>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        RunExportBlobPushOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new RunExportBlobPushOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<RunExportBlobPushOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task ProcessPendingBatchAsync_marks_processed_when_run_export_no_longer_found()
     {
         Guid outboxId = Guid.NewGuid();

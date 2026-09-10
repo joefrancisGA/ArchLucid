@@ -80,6 +80,10 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
 );
 
+vi.mock("@/components/runs/RunStatusBadge", () => ({
+  RunStatusBadge: () => null,
+}));
+
 import { RunsListClient } from "./RunsListClient";
 
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -265,6 +269,32 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
   });
 
+  it("buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+    const committed2: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cf",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[committed, committed2]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `compareRuns=${committed.runId},${committed2.runId}`,
+    );
+
+    expect(screen.queryByTestId("runs-list-compare-selection-bar")).toBeNull();
+    expect(runsListSearchParamsHarness.state.query).not.toContain("compareRuns=");
+  });
+
   it("buyer-polished: uses finalized section heading and scope chips", () => {
     buyerPolishedShellVitestOverride.value = true;
     runsListWorkspaceModeHarness.mode = "guided";
@@ -416,6 +446,222 @@ describe("RunsListClient inspector", () => {
 
     expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
     expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+  });
+
+  it("filters reviews by displayName when the visible title differs from description", () => {
+    const displayTitledRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000aa",
+      displayName: "Q3 Platform Architecture",
+      description: "",
+    };
+    const otherRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Other review",
+    };
+
+    render(
+      <RunsListClient
+        runs={[displayTitledRun, otherRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={2}
+      />,
+    );
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Platform Architecture" } });
+
+    expect(screen.getByTestId(`runs-row-${displayTitledRun.runId}`)).toBeInTheDocument();
+    expect(screen.queryByTestId(`runs-row-${otherRun.runId}`)).toBeNull();
+  });
+
+  it("clears inspectorRunId from the URL when text filter closes the inspector", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${sampleRun.runId}`,
+    );
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Second" } });
+
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(runsListSearchParamsHarness.state.query).not.toContain("inspectorRunId=");
+  });
+
+  it("buyer-polished: scope filter closes inspector when the selected run is hidden", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const inFlight: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000dd",
+    };
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000ee",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[inFlight, committed]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${inFlight.runId}&scope=finalized`,
+    );
+
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(runsListSearchParamsHarness.state.query).not.toContain("inspectorRunId=");
+  });
+
+  it("keeps compareRuns selection when text filter hides one selected row", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `compareRuns=${sampleRun.runId},${secondRun.runId}`,
+    );
+
+    expect(screen.getByTestId("runs-list-compare-selection-bar")).toBeInTheDocument();
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Second" } });
+
+    expect(screen.queryByTestId(`runs-row-${sampleRun.runId}`)).toBeNull();
+    expect(screen.getByTestId("runs-list-compare-selection-bar")).toBeInTheDocument();
+    expect(runsListSearchParamsHarness.state.query).toContain(`compareRuns=${sampleRun.runId}`);
+  });
+
+  it("buyer-polished: inspectorRunId deep link opens inspector on card layout", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+    const committed2: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cf",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[committed, committed2]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${committed.runId}`,
+    );
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+  });
+
+  it("shows orphan-candidates context banner when filter=orphan-candidates is in the URL", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "filter=orphan-candidates",
+    );
+
+    expect(screen.getByTestId("runs-list-orphan-candidates-filter-banner")).toBeInTheDocument();
+    expect(screen.getByText(/orphan-candidates\.json/i)).toBeInTheDocument();
+  });
+
+  it("shows an empty-table message when the text filter matches no reviews", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Filter reviews by name or description/i), {
+      target: { value: "nomatch-xyz-123" },
+    });
+
+    expect(screen.getByText("No reviews match this filter.")).toBeInTheDocument();
+  });
+
+  it("exposes oldest-first sort as a link with created-asc in the href", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    const oldestFirst = screen.getByTestId("runs-list-sort-created-asc");
+
+    expect(oldestFirst).toHaveAttribute("href", expect.stringContaining("sort=created-asc"));
+  });
+
+  it("renders a Next pagination link when more pages exist", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient
+        runs={[sampleRun, secondRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={40}
+        nextCursor="cursor-page-2"
+      />,
+    );
+
+    const nextLink = screen.getByRole("link", { name: "Next" });
+
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("page=2"));
+    expect(nextLink).toHaveAttribute("href", expect.stringContaining("cursor=cursor-page-2"));
+  });
+
+  it("updates the filter status line when the text filter narrows the page", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    expect(screen.getByText("2 reviews on this page.")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/Filter reviews by name or description/i), {
+      target: { value: "Demo" },
+    });
+
+    expect(screen.getByText("Showing 1 of 2 on this page (matches filter)")).toBeInTheDocument();
   });
 
   it("Escape in the filter field clears the query without closing an open inspector", () => {

@@ -25,6 +25,8 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Models;
 
+using ArchLucid.TestSupport.SealedManifest;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -46,6 +48,28 @@ public sealed class GovernanceStickinessControllerTests
     };
 
     private const string SealedManifestHash = "abc123sealedhash";
+
+    private static void SetupNoActiveWaivers(Mock<IRiskExceptionRepository> repository)
+    {
+        repository
+            .Setup(r => r.ListActiveForTenantAsync(
+                Scope.TenantId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+    }
+
+    private static void SetupActiveWaivers(
+        Mock<IRiskExceptionRepository> repository,
+        params RiskExceptionRecord[] activeWaivers)
+    {
+        repository
+            .Setup(r => r.ListActiveForTenantAsync(
+                Scope.TenantId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(activeWaivers);
+    }
 
     private static IAuthorityQueryService CreateAuthorityQueryService()
     {
@@ -229,13 +253,13 @@ public sealed class GovernanceStickinessControllerTests
                     findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
                     CreateAuthorityQueryService(),
                     CreateManifestHashService(),
-                    Mock.Of<IRunDetailQueryService>()),
+                    SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns()),
                 scope.Object,
                 tenantRepository ?? TenantExistsRepository(),
                 nextRun.Object,
                 CreateAuthorityQueryService(),
                 CreateManifestHashService(),
-                Mock.Of<IRunDetailQueryService>(),
+                SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
                 riskExceptionService.Object,
                 findingInspect?.Object ?? Mock.Of<IFindingInspectReadRepository>(),
                 recurrenceRepository.Object)
@@ -271,13 +295,13 @@ public sealed class GovernanceStickinessControllerTests
                     Mock.Of<IFindingInspectReadRepository>(),
                     CreateAuthorityQueryService(),
                     CreateManifestHashService(),
-                    Mock.Of<IRunDetailQueryService>()),
+                    SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns()),
                 scopeProvider,
                 tenantRepository ?? TenantExistsRepository(),
                 Mock.Of<IArchitectureReviewRecurrenceNextRunCalculator>(),
                 CreateAuthorityQueryService(),
                 CreateManifestHashService(),
-                Mock.Of<IRunDetailQueryService>(),
+                SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
                 Mock.Of<IRiskExceptionService>(),
                 Mock.Of<IFindingInspectReadRepository>(),
                 Mock.Of<IArchitectureReviewRecurrenceScheduleRepository>())
@@ -1486,15 +1510,9 @@ public sealed class GovernanceStickinessControllerTests
         repository
             .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        repository
-            .Setup(r => r.GetActiveForScopeFindingAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
-                findingId,
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RiskExceptionRecord
+        SetupActiveWaivers(
+            repository,
+            new RiskExceptionRecord
             {
                 RiskExceptionId = activeExceptionId,
                 TenantId = Scope.TenantId,
@@ -1574,6 +1592,8 @@ public sealed class GovernanceStickinessControllerTests
                 {
                     EventId = Guid.NewGuid(),
                     TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
                     FindingId = findingId,
                     ReviewerUserId = "reviewer",
                     Action = FindingReviewAction.RecordDisposition,
@@ -1604,15 +1624,7 @@ public sealed class GovernanceStickinessControllerTests
         repository
             .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        repository
-            .Setup(r => r.GetActiveForScopeFindingAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
-                findingId,
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((RiskExceptionRecord?)null);
+        SetupNoActiveWaivers(repository);
 
         RiskExceptionService riskExceptionService = new(
             repository.Object,
@@ -3299,12 +3311,13 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IFindingDispositionService> dispositions = new();
         dispositions
-            .Setup(d => d.RecordAsync(
-                It.Is<RecordFindingDispositionRequest>(request => request.FindingId == "finding-1"),
+            .Setup(d => d.RecordBulkAsync(
+                It.Is<IReadOnlyList<RecordFindingDispositionRequest>>(requests =>
+                    requests.Count == 1 && requests[0].FindingId == "finding-1"),
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingDispositionEventDto { FindingId = "finding-1" });
+            .ReturnsAsync([new FindingDispositionEventDto { FindingId = "finding-1" }]);
 
         GovernanceStickinessController controller = BuildSut(
             dispositionService: dispositions,
@@ -3392,16 +3405,23 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IFindingDispositionService> dispositions = new();
         dispositions
-            .Setup(d => d.RecordAsync(
-                It.Is<RecordFindingDispositionRequest>(request =>
-                    request.FindingId == findingId
-                    && request.EvidenceRequestText == evidenceRequestText),
+            .Setup(d => d.RecordBulkAsync(
+                It.Is<IReadOnlyList<RecordFindingDispositionRequest>>(requests =>
+                    requests.Count == 1
+                    && requests[0].FindingId == findingId
+                    && requests[0].EvidenceRequestText == evidenceRequestText),
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<RecordFindingDispositionRequest, ScopeContext, string, CancellationToken>(
-                static (request, _, _, _) => FindingDispositionValidation.Validate(request))
-            .ReturnsAsync(new FindingDispositionEventDto { FindingId = findingId });
+            .Callback<IReadOnlyList<RecordFindingDispositionRequest>, ScopeContext, string, CancellationToken>(
+                static (requests, _, _, _) =>
+                {
+                    foreach (RecordFindingDispositionRequest request in requests)
+                    {
+                        FindingDispositionValidation.Validate(request);
+                    }
+                })
+            .ReturnsAsync([new FindingDispositionEventDto { FindingId = findingId }]);
 
         GovernanceStickinessController controller = BuildSut(
             dispositionService: dispositions,
@@ -3541,14 +3561,15 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IFindingDispositionService> dispositions = new();
         dispositions
-            .Setup(d => d.RecordAsync(
-                It.Is<RecordFindingDispositionRequest>(request =>
-                    request.FindingId == "finding-1"
-                    && request.TradeOffAcknowledgment == rationale),
+            .Setup(d => d.RecordBulkAsync(
+                It.Is<IReadOnlyList<RecordFindingDispositionRequest>>(requests =>
+                    requests.Count == 1
+                    && requests[0].FindingId == "finding-1"
+                    && requests[0].TradeOffAcknowledgment == rationale),
                 Scope,
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FindingDispositionEventDto { FindingId = "finding-1" });
+            .ReturnsAsync([new FindingDispositionEventDto { FindingId = "finding-1" }]);
 
         GovernanceStickinessController controller = BuildSut(
             dispositionService: dispositions,
@@ -3650,15 +3671,9 @@ public sealed class GovernanceStickinessControllerTests
             .ReturnsAsync([]);
 
         Mock<IRiskExceptionRepository> repository = new();
-        repository
-            .Setup(r => r.GetActiveForScopeFindingAsync(
-                Scope.TenantId,
-                Scope.WorkspaceId,
-                Scope.ProjectId,
-                findingId,
-                It.IsAny<DateTimeOffset>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RiskExceptionRecord
+        SetupActiveWaivers(
+            repository,
+            new RiskExceptionRecord
             {
                 RiskExceptionId = existingExceptionId,
                 TenantId = Scope.TenantId,
@@ -3676,7 +3691,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             repository.Object,
             trail.Object,
-            Mock.Of<IFindingInspectReadRepository>(),
+            findingInspect.Object,
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 
@@ -3743,6 +3758,8 @@ public sealed class GovernanceStickinessControllerTests
                 {
                     EventId = Guid.NewGuid(),
                     TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
                     FindingId = findingId,
                     ReviewerUserId = "reviewer",
                     Action = FindingReviewAction.RecordDisposition,
@@ -3752,6 +3769,10 @@ public sealed class GovernanceStickinessControllerTests
             ]);
 
         Mock<IRiskExceptionRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(r => r.MarkExpiredAsync(Scope.TenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        SetupNoActiveWaivers(repository);
 
         Mock<IRunRepository> runs = new();
         runs
@@ -3764,7 +3785,7 @@ public sealed class GovernanceStickinessControllerTests
         RiskExceptionService riskExceptionService = new(
             repository.Object,
             trail.Object,
-            Mock.Of<IFindingInspectReadRepository>(),
+            findingInspect.Object,
             Mock.Of<IAuditService>(),
             Mock.Of<Microsoft.Extensions.Logging.ILogger<RiskExceptionService>>());
 

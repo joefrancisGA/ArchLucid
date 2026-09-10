@@ -1,5 +1,24 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const helpDocsNavigation = vi.hoisted(() => {
+  const state = {
+    params: new URLSearchParams(),
+    replace: vi.fn((href: string) => {
+      const queryIndex = href.indexOf("?");
+
+      state.params = new URLSearchParams(queryIndex === -1 ? "" : href.slice(queryIndex + 1));
+    }),
+  };
+
+  return state;
+});
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/help",
+  useRouter: () => ({ replace: helpDocsNavigation.replace, push: vi.fn() }),
+  useSearchParams: () => helpDocsNavigation.params,
+}));
 
 import { renderWithOperatorQuery, useOperatorQueryTestLifecycle } from "@/testing/operator-query-test-helpers";
 
@@ -7,6 +26,11 @@ import { HelpDocsClient } from "./HelpDocsClient";
 
 describe("HelpDocsClient", () => {
   useOperatorQueryTestLifecycle();
+
+  beforeEach(() => {
+    helpDocsNavigation.params = new URLSearchParams();
+    helpDocsNavigation.replace.mockClear();
+  });
 
   it("does not list Admin-only internal-runbook titles from the shipped doc-index", async () => {
     // generate_doc_index.py used to bleed string titles from skipped runbook entries onto prior
@@ -276,6 +300,157 @@ describe("HelpDocsClient", () => {
 
     expect(await screen.findByRole("link", { name: "Unicorn compliance topic" })).toBeInTheDocument();
 
+    vi.unstubAllGlobals();
+  });
+
+  it("opens external documentation links in a new tab with noreferrer", async () => {
+    const data = [
+      {
+        title: "External alpha",
+        summary: "Hosted outside the operator shell.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "External alpha" });
+
+    expect(link).toHaveAttribute("href", "https://example.com/docs/alpha");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noreferrer");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps static quick links visible when the doc-index fetch fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: false,
+          status: 500,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByText(/Full documentation index could not be refreshed/i)).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps static quick links visible while the doc-index refresh is pending", async () => {
+    let resolveFetch: ((value: Response) => void) | undefined;
+    const fetchPromise = new Promise<Response>((resolve) => {
+      resolveFetch = resolve;
+    });
+
+    vi.stubGlobal("fetch", vi.fn(async () => fetchPromise));
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(screen.getByText("Refreshing documentation index…")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+
+    resolveFetch?.({
+      ok: true,
+      json: async () => [],
+    } as Response);
+
+    await screen.findByRole("heading", { name: "Getting Started" });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("clears the search box when Escape is pressed", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const searchbox = await screen.findByRole("searchbox");
+
+    fireEvent.change(searchbox, { target: { value: "security" } });
+    expect(searchbox).toHaveValue("security");
+
+    fireEvent.keyDown(searchbox, { key: "Escape" });
+
+    expect(searchbox).toHaveValue("");
+    expect(helpDocsNavigation.replace).toHaveBeenCalledWith("/help", { scroll: false });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("initializes the search box from the q URL parameter", async () => {
+    helpDocsNavigation.params = new URLSearchParams("q=security");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("searchbox")).toHaveValue("security");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("debounces router replace when the search query changes", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const searchbox = await screen.findByRole("searchbox");
+
+    vi.useFakeTimers();
+
+    fireEvent.change(searchbox, { target: { value: "alpha" } });
+
+    expect(helpDocsNavigation.replace).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(250);
+
+    expect(helpDocsNavigation.replace).toHaveBeenCalledWith("/help?q=alpha", { scroll: false });
+
+    vi.useRealTimers();
     vi.unstubAllGlobals();
   });
 });
