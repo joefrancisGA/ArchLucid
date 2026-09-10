@@ -32,7 +32,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [Route("v{version:apiVersion}/authority/compare")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class AuthorityCompareController(
+public sealed partial class AuthorityCompareController(
     IAuthorityCompareService compareService,
     ICompareRunsApplicationFacade compareRunsFacade,
     IGoldenManifestRepository manifestRepository,
@@ -89,7 +89,7 @@ public sealed class AuthorityCompareController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapCompareSealedManifestConflict(ex);
         }
 
         ManifestComparisonResult? result;

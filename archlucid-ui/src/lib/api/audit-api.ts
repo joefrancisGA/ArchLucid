@@ -1,4 +1,5 @@
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { auditExportBlockedReason } from "@/lib/audit/audit-export-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -125,7 +126,9 @@ export async function downloadAuditExportCsv(params: {
 
   if (!response.ok) {
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason = auditExportBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   const blob = new Blob([text], { type: "text/csv;charset=utf-8" });

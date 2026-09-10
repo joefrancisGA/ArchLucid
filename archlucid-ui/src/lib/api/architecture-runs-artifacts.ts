@@ -8,6 +8,7 @@ import {
 } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { exportRecordBlockedReason } from "@/lib/exports/export-record-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -77,7 +78,9 @@ export async function fetchArtifactContentUtf8(
   if (!response.ok) {
     const text = await response.text();
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason = exportRecordBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   const contentType = response.headers.get("content-type") ?? "application/octet-stream";
