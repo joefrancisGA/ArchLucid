@@ -2051,7 +2051,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -2093,6 +2093,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Search input changes do not debounce `router.replace` for `?q=` — **cheap-disproof 2026-09-10 seed hunt #1589:** 250ms timeout writes `helpHubSearchHrefFromSearch`; regression `debounces router replace when the search query changes`.
 
 2026-09-10 seed hunt #1589 (seed-only): reseeded ui-help-docs after #1474; cheap-disproof closed external-link safety, fetch-failure/pending static fallback, Escape clear, URL init, and debounced search sync; 15 scoped `HelpDocsClient` tests passed.
+
+- [x] (valid-no-repro) Help hub search is case-sensitive and misses uppercase queries — **cheap-disproof 2026-09-10 seed hunt #1632:** filter lowercases query and haystack; regression `filters documentation entries case-insensitively`.
+- [x] (valid-no-repro) Whitespace-only search input hides all rows — **cheap-disproof 2026-09-10 seed hunt #1632:** `query.trim().length === 0` returns full `mergedEntries`; regression `treats whitespace-only search input as no active filter`.
+- [x] (valid-no-repro) Internal `/help/` and operator routes open in a new tab — **cheap-disproof 2026-09-10 seed hunt #1632:** `linkProps` only sets `target="_blank"` for `https?://`; regression `keeps internal documentation links in the same tab`.
+- [x] (valid-no-repro) Doc-index fetch failure leaves the refreshing status line visible — **cheap-disproof 2026-09-10 seed hunt #1632:** `entries` resolves to static merge when fetch errors; regression `dismisses the refreshing status after the doc-index fetch fails`.
+- [x] (valid-no-repro) Unknown doc-index categories render before fixed `CATEGORY_ORDER` sections — **cheap-disproof 2026-09-10 seed hunt #1632:** `helpDocCategoriesForDisplay` appends sorted extras after `CATEGORY_ORDER`; regression `renders unknown categories after the fixed CATEGORY_ORDER sections`.
+- [x] (valid-no-repro) Escape on an empty search box clears the URL — **cheap-disproof 2026-09-10 seed hunt #1632:** Escape handler requires `query.trim().length > 0`; regression `does not clear the URL when Escape is pressed on an empty search box`.
+
+2026-09-10 seed hunt #1632 (seed-only): reseeded ui-help-docs after #1589; cheap-disproof closed case sensitivity, whitespace filter, internal link target, post-error refresh status, unknown category ordering, and empty Escape URL clear; 21 scoped `HelpDocsClient` tests passed.
 
 ## Zone: ui-webhooks-settings
 
