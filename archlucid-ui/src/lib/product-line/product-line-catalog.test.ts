@@ -77,8 +77,10 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/governance/findings");
     expect(hrefs).toContain("/security/assigned-to-me");
     expect(hrefs).toContain("/security/remediation-factory");
+    expect(hrefs).toContain("/security/remediation-patterns");
     expect(hrefs).not.toContain("/governance/findings/assigned-to-me");
     expect(hrefs).not.toContain("/governance/remediation-factory");
+    expect(hrefs).not.toContain("/governance/remediation-patterns");
     expect(hrefs).not.toContain("/administration/ai-usage");
     expect(hrefs).not.toContain("/administration/workspace-settings/recycle-bin");
     expect(hrefs).not.toContain("/administration/branding");

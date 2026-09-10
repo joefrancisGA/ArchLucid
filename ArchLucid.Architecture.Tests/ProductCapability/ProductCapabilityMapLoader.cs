@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.ProductCapability;
+
 namespace ArchLucid.Architecture.Tests.ProductCapability;
 
 /// <summary>Loads and validates the OP-01 product capability map JSON contract.</summary>

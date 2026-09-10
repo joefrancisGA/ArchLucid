@@ -1,10 +1,6 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
-import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
-
-
-
 import {
   FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
   FINDING_CLASSIFICATION_DECISION_GRADE,
@@ -63,7 +59,7 @@ function isDecisionGradeForSemanticSupportExport(
 export function resolveFindingSemanticSupportBandExportFields(
   finding: FindingSemanticSupportBandExportInput,
 ): FindingSemanticSupportBandExportFields | null {
-  if (!isDecisionGradeForSemanticSupportExport(finding)) {
+  if (!isDecisionGradeFinding(finding as QuickDecisionFinding)) {
     return null;
   }
 

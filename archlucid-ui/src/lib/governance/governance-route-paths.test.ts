@@ -8,6 +8,8 @@ import {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_REMEDIATION_FACTORY_PATH,
   SECURENOW_REMEDIATION_FACTORY_PATH,
+  GOVERNANCE_REMEDIATION_PATTERNS_PATH,
+  SECURENOW_REMEDIATION_PATTERNS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_WORKSPACE_HEALTH_HREF,
   buildCanonicalGovernanceAlertsInboxHref,
@@ -25,6 +27,8 @@ describe("governance-route-paths", () => {
     expect(SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH).toBe("/security/assigned-to-me");
     expect(GOVERNANCE_REMEDIATION_FACTORY_PATH).toBe("/governance/remediation-factory");
     expect(SECURENOW_REMEDIATION_FACTORY_PATH).toBe("/security/remediation-factory");
+    expect(GOVERNANCE_REMEDIATION_PATTERNS_PATH).toBe("/governance/remediation-patterns");
+    expect(SECURENOW_REMEDIATION_PATTERNS_PATH).toBe("/security/remediation-patterns");
     expect(GOVERNANCE_WORKSPACE_HEALTH_HREF).toBe("/insights/workspace-health");
   });
 

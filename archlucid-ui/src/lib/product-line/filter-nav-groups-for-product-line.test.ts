@@ -89,7 +89,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "/",
       "/security/assigned-to-me",
       "/security/remediation-factory",
-      "/governance/remediation-patterns",
+      "/security/remediation-patterns",
     ]);
     expect(integrationLinks.map((link) => link.href)).toEqual([
       "/integrations/cloud-connections",
