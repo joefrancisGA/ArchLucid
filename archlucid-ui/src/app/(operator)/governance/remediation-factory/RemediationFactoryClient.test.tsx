@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/hooks/use-remediation-factory-query", () => ({
@@ -39,15 +39,41 @@ vi.mock("@/hooks/use-remediation-factory-query", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-operational-security-finding-detail-query", () => ({
+  useOperationalSecurityFindingDetailQuery: () => ({
+    data: { findingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", pathId: null, title: "Sample" },
+    isLoading: false,
+    isError: false,
+  }),
+}));
+
+vi.mock("@/hooks/use-security-evidence-path-detail-query", () => ({
+  useSecurityEvidencePathDetailQuery: () => ({
+    data: undefined,
+    isLoading: false,
+    isError: false,
+  }),
+}));
+
+vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
+  fetchRemediationInstances: vi.fn(async () => []),
+}));
+
 import { RemediationFactoryClient } from "./RemediationFactoryClient";
+import { SECURENOW_PATH_INSPECT_PANEL_TITLE } from "@/lib/product-line/securenow-path-inspect-copy";
 
 describe("RemediationFactoryClient", () => {
-  it("renders executive cards, operator table, and simulator disclaimer", () => {
+  it("renders executive cards, operator table, simulator disclaimer, and path inspect panel", () => {
     render(<RemediationFactoryClient />);
 
     expect(screen.getByTestId("remediation-factory-page")).toBeInTheDocument();
     expect(screen.getByText("Open findings")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")).toBeInTheDocument();
     expect(screen.getByText("Simulator — not a live scanner feed")).toBeInTheDocument();
+    expect(screen.getByText(SECURENOW_PATH_INSPECT_PANEL_TITLE)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+
+    expect(screen.getByTestId("security-evidence-path-inspect-panel")).toHaveFocus();
   });
 });
