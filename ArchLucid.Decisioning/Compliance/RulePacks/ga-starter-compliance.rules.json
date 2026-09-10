@@ -2052,24 +2052,24 @@
     {
       "ruleId": "zta-007",
       "controlId": "ZTA-007",
-      "controlName": "GA Security starter rule (catalog stub)",
-      "appliesToCategory": "security",
-      "requiredNodeType": "SecurityBaseline",
-      "requiredEdgeType": "PROTECTS",
-      "severity": "Warning",
-      "description": "Stub for zta-007; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
-      "priority": "P2"
+      "controlName": "Micro-segmentation for workloads",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Network",
+      "requiredEdgeType": "CONNECTS",
+      "severity": "High",
+      "description": "Sensitive workloads must run on segmented networks with restricted east-west paths (ZTA P1 architecture slice).",
+      "priority": "P1"
     },
     {
       "ruleId": "zta-008",
       "controlId": "ZTA-008",
-      "controlName": "GA Security starter rule (catalog stub)",
-      "appliesToCategory": "security",
-      "requiredNodeType": "SecurityBaseline",
-      "requiredEdgeType": "PROTECTS",
-      "severity": "Warning",
-      "description": "Stub for zta-008; see docs/samples/policy-packs/zero-trust-architecture-rules-v1.json for narrative.",
-      "priority": "P2"
+      "controlName": "Encrypted communications everywhere",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "TopologyResource",
+      "requiredEdgeType": "CONNECTS",
+      "severity": "Critical",
+      "description": "All network paths carrying sensitive information must encrypt data in transit; HTTPS-only is required for app tiers (ZTA P1 architecture slice).",
+      "priority": "P1"
     },
     {
       "ruleId": "zta-009",

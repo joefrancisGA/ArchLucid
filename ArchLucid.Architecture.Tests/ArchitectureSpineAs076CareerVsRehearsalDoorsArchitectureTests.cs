@@ -63,6 +63,32 @@ public sealed class ArchitectureSpineAs076CareerVsRehearsalDoorsArchitectureTest
         readme.Should().Contain("AS-076");
     }
 
+    [Fact]
+    public void As076_working_chooser_component_exists_in_governance_and_workspace_mode()
+    {
+        string governanceChooser = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "archlucid-ui",
+                "src",
+                "components",
+                "governance",
+                "WorkingCareerRehearsalChooser.tsx"));
+
+        governanceChooser.Should().Contain("working-career-rehearsal-chooser");
+
+        string workspaceModeChooser = File.ReadAllText(
+            Path.Combine(
+                RepoRoot,
+                "archlucid-ui",
+                "src",
+                "components",
+                "workspace-mode",
+                "WorkingCareerRehearsalChooser.tsx"));
+
+        workspaceModeChooser.Should().Contain("WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL");
+    }
+
     private static string FindRepoRoot()
     {
         DirectoryInfo? dir = new(AppContext.BaseDirectory);
