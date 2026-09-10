@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application;

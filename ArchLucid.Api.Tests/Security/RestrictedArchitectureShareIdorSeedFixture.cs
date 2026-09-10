@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.TestSupport;
