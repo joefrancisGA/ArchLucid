@@ -147,6 +147,51 @@ public sealed class FindingDispositionConcurrentRaceTests
     }
 
     [Fact]
+    public async Task RecordAsync_whitespace_only_expected_row_version_after_pointer_exists_throws_conflict()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        FindingDispositionEventDto first = await sut.RecordAsync(
+            CreateRequest(
+                FindingDispositionKind.Accepted,
+                "first writer",
+                tradeOffAcknowledgment: "accepting first-writer trade-off for pilot scope"),
+            Scope,
+            "alice",
+            CancellationToken.None);
+
+        Func<Task> act = async () => await sut.RecordAsync(
+            CreateRequest(
+                FindingDispositionKind.Remediated,
+                "whitespace expected version",
+                expectedRowVersionBase64: "   "),
+            Scope,
+            "bob",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArchLucid.Application.Governance.FindingDisposition.FindingDispositionConflictException>();
+        trailRepository.EventCount.Should().Be(1);
+        first.CurrentDispositionRowVersionBase64.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task RecordAsync_rejects_invalid_base64_expected_row_version_before_repository()
+    {
+        ConcurrentFindingReviewTrailRepository trailRepository = new();
+        FindingDispositionService sut = CreateService(trailRepository);
+
+        RecordFindingDispositionRequest request = CreateRequest(
+            FindingDispositionKind.Remediated,
+            "invalid concurrency token",
+            expectedRowVersionBase64: "not-valid-base64!!!");
+
+        Func<Task> act = async () => await sut.RecordAsync(request, Scope, "alice", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithMessage("*base64*");
+    }
+
+    [Fact]
     public async Task RecordAsync_matching_expected_version_records_amend()
     {
         ConcurrentFindingReviewTrailRepository trailRepository = new();

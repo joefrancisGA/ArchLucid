@@ -23,6 +23,12 @@ public sealed partial class ArchitecturesController
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
+        IActionResult? shareGuardResult =
+            await EnsureArchitectureShareReadAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (shareGuardResult is not null)
+            return shareGuardResult;
+
         ArchitectureInventoryBindingResponse? binding = await _architectureInventoryBindingService.TryGetBindingAsync(
             scope,
             architectureId,
@@ -58,6 +64,12 @@ public sealed partial class ArchitecturesController
             return this.BadRequestProblem("SnapshotId is required.", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? shareGuardResult =
+            await EnsureArchitectureShareDecideAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (shareGuardResult is not null)
+            return shareGuardResult;
 
         IActionResult? sealedGuardResult =
             await EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(scope, cancellationToken);
@@ -106,6 +118,12 @@ public sealed partial class ArchitecturesController
     public async Task<IActionResult> DetachInventoryBinding(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? shareGuardResult =
+            await EnsureArchitectureShareDecideAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (shareGuardResult is not null)
+            return shareGuardResult;
 
         IActionResult? sealedGuardResult =
             await EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(scope, cancellationToken);

@@ -132,13 +132,15 @@ export function SlackIntegrationPageClient(): React.ReactElement {
       return;
     }
 
-    if (slackRows.length === 0) {
+    if (loading) {
       return;
     }
 
     const subscription = slackRows.find((row) => row.routingSubscriptionId === urlDisableId);
 
     if (subscription === undefined) {
+      syncDisableConfirmToUrl(null);
+
       return;
     }
 
@@ -151,7 +153,7 @@ export function SlackIntegrationPageClient(): React.ReactElement {
       subscriptionName: subscription.name,
       channel: "slack",
     });
-  }, [pendingDisable?.routingSubscriptionId, slackRows, urlDisableId]);
+  }, [loading, pendingDisable?.routingSubscriptionId, slackRows, syncDisableConfirmToUrl, urlDisableId]);
 
   const activeDestinationCount = useMemo(
     () => slackRows.filter((row) => row.isEnabled === true).length,

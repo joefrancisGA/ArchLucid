@@ -41,6 +41,21 @@ public static class GraphEdgeTypes
     public const string DependsOn = "DEPENDS_ON";
 
     public const string Exposes = "EXPOSES";
+
+    public const string HasRole = "HAS_ROLE";
+
+    public const string UsesIdentity = "USES_IDENTITY";
+
+    public const string CanRead = "CAN_READ";
+
+    public const string CanWrite = "CAN_WRITE";
+
+    public const string CanAssume = "CAN_ASSUME";
+
+    public const string RoutesTo = "ROUTES_TO";
+
+    /// <summary>Reserved for SA-19 federated identity adapter; no edges until that prompt ships.</summary>
+    public const string FederatesAs = "FEDERATES_AS";
 }
 
 /// <summary>

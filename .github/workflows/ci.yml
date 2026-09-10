@@ -962,11 +962,15 @@ jobs:
           python -m unittest discover -s scripts/ci/tests -p "test_report_pricing_quote_response_weekly.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_accessibility_route_evidence_freshness.py"
           python -m unittest discover -s scripts/ci/tests -p "test_assert_pilot_ui_env_posture.py"
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_agent_execution_mode_default_simulator.py"
           python -m unittest discover -s scripts/ci/tests -p "test_invoke_real_llm_evidence_gate.py"
           python -m unittest discover -s scripts/ci/tests -p "test_production_profile_preflight_md.py"
 
       - name: Pilot UI env posture (buyer-default shell)
         run: python scripts/ci/assert_pilot_ui_env_posture.py
+
+      - name: AgentExecution Mode default posture (ADR 0086 / AS-085)
+        run: python scripts/ci/assert_agent_execution_mode_default_simulator.py
 
       - name: Procurement doc freshness guard (warn-only)
         continue-on-error: true

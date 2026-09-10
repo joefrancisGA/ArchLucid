@@ -6,6 +6,7 @@ import { reviewReplayMutationBlockedReason } from "@/lib/runs/review-replay-muta
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
 
+
 export async function rebuildLearningProfile(): Promise<LearningProfile> {
   try {
     await ensureOidcBearerReady();

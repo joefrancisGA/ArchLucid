@@ -14,7 +14,7 @@ import { SEE_IT_PAGE_METADATA_TITLE, SEE_IT_PAGE_TITLE } from "@/lib/see-it-page
 import { cn } from "@/lib/utils";
 
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
-import { normalizeSeeItMarketingPayload } from "./normalize-see-it-payload";
+import { resolveSeeItMarketingRenderPlan } from "./normalize-see-it-payload";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
 import { SeeItMarketingPageChrome } from "./SeeItMarketingPageChrome";
 
@@ -31,8 +31,8 @@ export const metadata: Metadata = {
 };
 
 export default async function SeeItMarketingPage() {
-  const { source, payload } = await loadSeeItDemoPreview();
-  const normalized = normalizeSeeItMarketingPayload(payload);
+  const loadResult = await loadSeeItDemoPreview();
+  const { source, payload } = resolveSeeItMarketingRenderPlan(loadResult);
 
   return (
     <MarketingPageShell variant="default" className={MARKETING_MOTION.revealIn} data-testid="see-it-page">
@@ -52,7 +52,7 @@ export default async function SeeItMarketingPage() {
           </p>
 
           <div className="mt-8">
-            <SeeItMarketingBody source={source} payload={normalized} />
+            <SeeItMarketingBody source={source} payload={payload} />
           </div>
         </div>
       </SeeItMarketingPageChrome>

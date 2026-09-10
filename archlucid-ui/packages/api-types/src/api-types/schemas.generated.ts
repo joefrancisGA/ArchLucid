@@ -1613,6 +1613,22 @@ export interface components {
             /** Format: uuid */
             latestSealedReviewRunId?: null | string;
         };
+        ArchitectureShareListResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            restrictToShares?: boolean;
+            shares?: components["schemas"]["ArchitectureShareResponse"][];
+        };
+        ArchitectureShareResponse: {
+            actorOid?: string;
+            /** Format: uuid */
+            architectureId?: string;
+            grantedBy?: string;
+            /** Format: date-time */
+            grantedUtc?: string;
+            role?: string;
+            rowVersionBase64?: null | string;
+        };
         ArchitectureTraceTimelineEntry: {
             kind: string;
             label: string;
@@ -3779,6 +3795,8 @@ export interface components {
         /** @enum {string} */
         DraftRequestStatus: "Drafting" | "Admitted" | "Submitted" | "RunSpawned" | "Redirected" | "Abandoned";
         DraftRequestSummaryResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             createdByUserId?: string;
             /** Format: date-time */
             createdUtc?: string;
@@ -6348,6 +6366,8 @@ export interface components {
             inventoryDiffId?: null | string;
             /** Format: date-time */
             lastObservedUtc?: string;
+            /** Format: uuid */
+            pathId?: null | string;
             /** Format: byte */
             payloadHashSha256?: string;
             /** Format: uuid */
@@ -6569,6 +6589,16 @@ export interface components {
             /** Format: int32 */
             totalCount?: number;
         };
+        PagedResponseOfSecurityEvidencePathSummaryResponse: {
+            hasMore?: boolean;
+            items?: components["schemas"]["SecurityEvidencePathSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
         PatchArchitectureIdentityRequest: {
             archived?: null | boolean;
             description?: null | string;
@@ -6577,6 +6607,10 @@ export interface components {
             hasArchived?: boolean;
             hasDescription?: boolean;
             hasDisplayName?: boolean;
+        };
+        PatchArchitectureRestrictToSharesRequest: {
+            confirmRestrict?: boolean;
+            restrictToShares?: boolean;
         };
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
@@ -6605,6 +6639,8 @@ export interface components {
         PatchTechnologyLedgerEntryResponse: {
             entry?: components["schemas"]["TechnologyLedgerEntryResponse"];
         };
+        PathConfidenceBand: number;
+        PathKind: number;
         PatternEvidence: {
             applicableCapabilities?: string[];
             name?: string;
@@ -7682,6 +7718,10 @@ export interface components {
         PublishPolicyPackVersionRequest: {
             contentJson: string;
             version?: string;
+        };
+        PutArchitectureShareRequest: {
+            actorOid?: string;
+            role?: string;
         };
         PutRunCoverageAcknowledgementRequest: {
             entries?: null | components["schemas"]["RunCoverageAcknowledgementEntryRequest"][];
@@ -9558,6 +9598,32 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        SecureNowArchitectOutcomeMetricsResponse: {
+            /** Format: int32 */
+            assertedCrownJewelExposurePathsRemoved?: number;
+            /** Format: int32 */
+            criticalOrHighConfidencePathsRemoved?: number;
+            /** Format: int32 */
+            exceptionsExpired?: number;
+            /** Format: uuid */
+            fromSnapshotId?: string;
+            /** Format: int32 */
+            privilegedIdentityNodesOnPathsReduced?: number;
+            /** Format: int32 */
+            remediationRecurrenceCount?: number;
+            ruleVersion?: string;
+            /** Format: int32 */
+            sharedControlBlastRadiusPathsRemoved?: number;
+            supportingOperationalMetrics?: null | components["schemas"]["SecureNowArchitectSupportingOperationalMetricsResponse"];
+            /** Format: uuid */
+            toSnapshotId?: string;
+            /** Format: int32 */
+            unrestrictedEgressCapabilityPathsReduced?: number;
+        };
+        SecureNowArchitectSupportingOperationalMetricsResponse: {
+            /** Format: int32 */
+            openFindings?: number;
+        };
         SecurityAssessmentPublicationRequest: {
             assessmentCode?: string;
             assessorDisplayName?: null | string;
@@ -9568,6 +9634,160 @@ export interface components {
             baseStatus?: null | string;
             controlName?: string;
             targetStatus?: null | string;
+        };
+        SecurityEvidenceCutPointSummaryResponse: {
+            collapsedPathIds?: string[];
+            cutKind?: string;
+            /** Format: int32 */
+            cutOrder?: number;
+            /** Format: uuid */
+            cutPointId?: string;
+            edgeType?: null | string;
+            evidenceReferences?: string[];
+            explanationSummary?: string;
+            fromNodeLabel?: null | string;
+            /** Format: double */
+            leverageScore?: number | string;
+            operationalCostClass?: string;
+            /** Format: int32 */
+            pathsCollapsedCount?: number;
+            suggestedPatternKey?: null | string;
+            toNodeLabel?: null | string;
+        };
+        SecurityEvidencePathDetailResponse: {
+            citingFindingIds?: string[];
+            /** Format: uuid */
+            crownJewelAssertionId?: null | string;
+            explanationTemplate?: components["schemas"]["SecurityEvidencePathExplanationTemplateResponse"];
+            hops?: components["schemas"]["SecurityEvidencePathHopResponse"][];
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            relatedCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
+            /** Format: uuid */
+            snapshotId?: string;
+            weakestHop?: null | components["schemas"]["SecurityEvidencePathWeakestHopResponse"];
+            /** Format: int32 */
+            weakestHopOrdinal?: number;
+            weakestHopReason?: string;
+        };
+        SecurityEvidencePathExplanationTemplateResponse: {
+            actor?: null | string;
+            asset?: null | string;
+            identity?: null | string;
+            network?: null | string;
+            verify?: null | string;
+            weakControl?: null | string;
+        };
+        SecurityEvidencePathHopResponse: {
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            edgeType?: string;
+            evidenceReference?: string;
+            fromNodeLabel?: string;
+            hopConfidenceBand?: string;
+            /** Format: int32 */
+            hopOrdinal?: number;
+            inferenceSource?: null | string;
+            provenanceKind?: string;
+            toNodeLabel?: string;
+        };
+        SecurityEvidencePathRankDetailResponse: {
+            /** Format: double */
+            blastRadiusScore?: number | string;
+            breakdownJson?: string;
+            /** Format: double */
+            businessConsequenceScore?: null | number | string;
+            /** Format: double */
+            compositeSortScore?: number | string;
+            /** Format: date-time */
+            computedUtc?: string;
+            /** Format: double */
+            confidenceBandScore?: number | string;
+            dimensionProse?: components["schemas"]["SecurityEvidencePathRankDimensionProseResponse"];
+            explanationSummary?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            /** Format: double */
+            privilegeDepthScore?: number | string;
+            /** Format: int32 */
+            rankOrder?: number;
+            ruleVersion?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: double */
+            technicalExposureScore?: number | string;
+        };
+        SecurityEvidencePathRankDimensionProseResponse: {
+            blastRadius?: string;
+            businessConsequence?: string;
+            confidenceBand?: string;
+            overall?: string;
+            privilegeDepth?: string;
+            technicalExposure?: string;
+        };
+        SecurityEvidencePathRankSummaryResponse: {
+            /** Format: double */
+            blastRadiusScore?: number | string;
+            /** Format: double */
+            businessConsequenceScore?: null | number | string;
+            /** Format: double */
+            compositeSortScore?: number | string;
+            /** Format: date-time */
+            computedUtc?: string;
+            /** Format: double */
+            confidenceBandScore?: number | string;
+            explanationSummary?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            /** Format: double */
+            privilegeDepthScore?: number | string;
+            /** Format: int32 */
+            rankOrder?: number;
+            relatedCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
+            ruleVersion?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: double */
+            technicalExposureScore?: number | string;
+        };
+        SecurityEvidencePathRankedPageResponse: {
+            items?: components["schemas"]["SecurityEvidencePathRankSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            topCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        SecurityEvidencePathSummaryResponse: {
+            /** Format: date-time */
+            createdUtc?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: int32 */
+            weakestHopOrdinal?: number;
+            weakestHopReason?: string;
+        };
+        SecurityEvidencePathWeakestHopResponse: {
+            edgeType?: string;
+            hopConfidenceBand?: string;
+            /** Format: int32 */
+            hopOrdinal?: number;
+            provenanceKind?: string;
+            reason?: string;
         };
         SecurityPostureItem: {
             controlId?: string;
