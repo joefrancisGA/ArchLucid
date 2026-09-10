@@ -213,7 +213,7 @@ public sealed partial class RunQueryController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapProductRunQuerySealedManifestConflict(ex);
         }
     }
 
