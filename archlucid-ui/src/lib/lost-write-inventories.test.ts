@@ -8,6 +8,8 @@ import {
   LOST_WRITE_401_RESUME_KIND_INVENTORY,
   LOST_WRITE_401_RESUME_YES_KIND_IDS,
 } from "@/lib/lost-write-401-resume-inventory";
+import { findLostWrite401ResumeAuthExclusionViolations } from "@/lib/lost-write-401-resume-auth-exclusion-guard";
+import { findLostWrite401ResumeCallSiteViolations } from "@/lib/lost-write-401-resume-call-site-guard";
 import { LOST_WRITE_BROWSER_WIP_KEYS } from "@/lib/lost-write-browser-wip-inventory";
 import { LOST_WRITE_HELP_OVERWRITE_COPY } from "@/lib/lost-write-help-overwrite-copy-inventory";
 import {
@@ -87,6 +89,17 @@ describe("lost-write 401 resume inventory (LW-003 / LW-054–062)", () => {
     expect(resumeCore).toContain("export async function withLivelihood401Resume");
     expect(wrappers).toContain("patchDraftRequestWith401Resume");
     expect(wrappers).toContain("saveItsmConnectorWith401Resume");
+  });
+});
+
+describe("lost-write 401 resume ratchets (LW-069 / LW-070)", () => {
+  it("keeps inventoried mutate sites wrapped and auth routes excluded", () => {
+    const uiRoot = process.cwd();
+    const callSiteViolations = findLostWrite401ResumeCallSiteViolations(uiRoot);
+    const authExclusionViolations = findLostWrite401ResumeAuthExclusionViolations(uiRoot);
+
+    expect(callSiteViolations).toEqual([]);
+    expect(authExclusionViolations).toEqual([]);
   });
 });
 

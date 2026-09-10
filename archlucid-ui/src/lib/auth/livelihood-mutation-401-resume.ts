@@ -5,6 +5,7 @@ import {
   type LivelihoodPendingMutationKind,
   type LivelihoodPendingMutationPayload,
 } from "@/lib/auth/livelihood-mutation-401-resume-kinds";
+import { isLivelihoodMutationReplayReturnPath } from "@/lib/auth/livelihood-mutation-replay-return-path";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { buildSessionExpiredHref } from "@/lib/navigation/auth-sign-in-href";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
@@ -52,7 +53,7 @@ export function isLivelihoodMutation401RedirectError(value: unknown): value is L
 function normalizeReturnPath(returnPath: string): string | null {
   const trimmed = returnPath.trim();
 
-  if (!isSafeReturnPath(trimmed)) {
+  if (!isLivelihoodMutationReplayReturnPath(trimmed)) {
     return null;
   }
 

@@ -161,6 +161,101 @@ describe("livelihood-mutation-401-resume (LP-19 / LW-051)", () => {
     expect(readLivelihoodPendingMutation()).toBeNull();
   });
 
+  it("does not consume pending mutation on marketing or auth return paths (LW-064)", () => {
+    writeLivelihoodPendingMutation({
+      kind: "finding_disposition",
+      idempotencyKey: "66666666-6666-4666-8666-666666666666",
+      returnPath: "/architecture/reviews/run-6/findings/f-6",
+      savedAtUtc: "2026-09-08T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: {
+        findingId: "f-6",
+        body: {
+          disposition: "Accepted",
+          runId: "run-6",
+        },
+      },
+    });
+
+    expect(consumeLivelihoodPendingMutationForReturnPath("/trust")).toBeNull();
+    expect(consumeLivelihoodPendingMutationForReturnPath("/auth/signin")).toBeNull();
+    expect(readLivelihoodPendingMutation()).not.toBeNull();
+
+    expect(consumeLivelihoodPendingMutationForReturnPath("/architecture/reviews/run-6/findings/f-6")).not.toBeNull();
+    clearLivelihoodPendingMutation();
+  });
+
+  it("survives tab close via localStorage and replays with the same idempotency key (LW-067)", async () => {
+    const idempotencyKey = "77777777-7777-4777-8777-777777777777";
+
+    writeLivelihoodPendingMutation({
+      kind: "finding_disposition",
+      idempotencyKey,
+      returnPath: "/architecture/reviews/run-7/findings/f-7",
+      savedAtUtc: "2026-09-10T12:00:00.000Z",
+      requestLeftClient: true,
+      payload: {
+        findingId: "f-7",
+        body: {
+          disposition: "Accepted",
+          runId: "run-7",
+        },
+      },
+    });
+
+    expect(sessionStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY_V1)).toBeNull();
+    expect(localStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY)).not.toBeNull();
+
+    const pending = consumeLivelihoodPendingMutationForReturnPath("/architecture/reviews/run-7/findings/f-7");
+
+    expect(pending?.idempotencyKey).toBe(idempotencyKey);
+
+    recordFindingDisposition.mockResolvedValue({ eventId: "evt-7" });
+
+    await replayLivelihoodPendingMutation(pending!);
+
+    expect(recordFindingDisposition).toHaveBeenCalledWith(
+      "f-7",
+      {
+        disposition: "Accepted",
+        runId: "run-7",
+      },
+      { idempotencyKey },
+    );
+  });
+
+  it("withLivelihood401Resume persists pending mutation on apiPost-style 401 (LW-068)", async () => {
+    const execute = vi.fn().mockRejectedValue(
+      new ApiRequestError("Unauthorized", {
+        problem: null,
+        correlationId: null,
+        httpStatus: 401,
+      }),
+    );
+
+    await expect(
+      withLivelihood401Resume({
+        kind: "finding_bulk_disposition",
+        returnPath: "/governance/findings",
+        idempotencyKey: "88888888-8888-4888-8888-888888888888",
+        payload: {
+          body: {
+            findingIds: ["f-8"],
+            disposition: "Accepted",
+          },
+        },
+        execute,
+      }),
+    ).rejects.toBeInstanceOf(LivelihoodMutation401RedirectError);
+
+    expect(localStorage.getItem(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY)).toContain(
+      "88888888-8888-4888-8888-888888888888",
+    );
+    expect(assignMock).toHaveBeenCalledWith(
+      "/auth/session-expired?reason=idle-timeout&returnUrl=%2Fgovernance%2Ffindings",
+    );
+  });
+
   it("does not consume pending mutation when return path differs", () => {
     writeLivelihoodPendingMutation({
       kind: "governance_mutation_correction",
