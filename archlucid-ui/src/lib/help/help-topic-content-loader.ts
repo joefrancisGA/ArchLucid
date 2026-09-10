@@ -88,7 +88,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "integration-readiness",
   "pilot-feedback",
   "caiq-sig-response",
-  "career-vs-rehearsal",
+  "career-rehearsal-doors",
   "architecture-sharing",
   "choose-your-next-step",
   "comparison-replay",

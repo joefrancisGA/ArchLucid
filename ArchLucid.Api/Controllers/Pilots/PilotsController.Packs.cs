@@ -2,7 +2,6 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Exports;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -138,8 +137,7 @@ public sealed partial class PilotsController
                 return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
             }
 
-            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message));
-
+            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
         catch (CareerArtifactExportBlockedException ex)
         {
@@ -254,9 +252,13 @@ public sealed partial class PilotsController
         }
         catch (SponsorFirstValuePdfBlockedException ex)
         {
+            if (!string.IsNullOrWhiteSpace(ex.BlockReasonCode))
+            {
+                return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+            }
+
             return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
-
         catch (ConflictException ex)
         {
             return MapPilotPackSealedManifestConflict(ex);

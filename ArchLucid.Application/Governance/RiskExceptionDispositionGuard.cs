@@ -31,10 +31,10 @@ public static class RiskExceptionDispositionGuard
 
         Disposition? latest = ResolveLatestDisposition(scopedEvents);
 
-        if (latest == Disposition.Remediated)
+        if (latest is not null && PreFinalizeActiveFindingCounter.IsClosedForRiskRegister(latest.Value))
         {
             throw new ArgumentException(
-                "Cannot create or renew a risk exception when the finding's latest disposition is Remediated.",
+                $"Cannot create or renew a risk exception when the finding's latest disposition is {latest.Value}.",
                 nameof(findingId));
         }
     }

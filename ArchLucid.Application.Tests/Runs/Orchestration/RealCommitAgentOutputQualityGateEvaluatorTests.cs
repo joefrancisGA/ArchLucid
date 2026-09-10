@@ -396,6 +396,107 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_when_different_agent_types_share_task_id_does_not_block_on_superseded_rejected_topology()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime sharedUtc = new(2026, 11, 1, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace rejectedTopology = new()
+        {
+            TraceId = "trace-topology-rejected",
+            TaskId = "shared-task",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace acceptedCost = new()
+        {
+            TraceId = "trace-cost-accepted",
+            TaskId = "shared-task",
+            AgentType = AgentType.Cost,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [rejectedTopology, acceptedCost]);
+
+        reasons.Should().BeEmpty(
+            "selector groups by TaskId only; abnormal cross-agent TaskId collision is not reachable from GUID AgentTask ids");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_same_attempt_rejected_and_warned_duplicates_prefers_warned_and_does_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime sharedUtc = new(2026, 11, 2, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace rejectedDuplicate = new()
+        {
+            TraceId = "trace-z-rejected",
+            TaskId = "task-warn-tie",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace warnedDuplicate = new()
+        {
+            TraceId = "trace-a-warned",
+            TaskId = "task-warn-tie",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [rejectedDuplicate, warnedDuplicate]);
+
+        reasons.Should().BeEmpty(
+            "quality-preference tie-break intentionally prefers non-blocking Warned over Rejected duplicate rows");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = false,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-rejected",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [trace])
+            .Should().BeEmpty();
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };

@@ -9,6 +9,13 @@ public sealed class DraftRequestSummaryResponse
         set;
     }
 
+    /// <summary>Durable architecture identity when ensure-on-create has run (ADR 0074).</summary>
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
+
     public DraftRequestStatus Status
     {
         get;
