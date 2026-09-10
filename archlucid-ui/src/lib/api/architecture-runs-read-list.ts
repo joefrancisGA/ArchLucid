@@ -4,14 +4,17 @@ import type { StageTimelineSummary } from "@/types/stage-timeline";
 
 import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
 
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { buyerRunDetailSummaryBlockedReason } from "@/lib/runs/buyer-run-detail-summary-blocked-reason";
 import { runOperatorGovernanceDispositionMutationBlockedReason } from "@/lib/runs/run-operator-governance-disposition-mutation-blocked-reason";
 import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeline-blocked-reason";
 import { runReviewTrailBlockedReason } from "@/lib/runs/run-review-trail-blocked-reason";
+import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   type ApiResponseWithTrace,
+  apiGet,
   apiPostJson,
 } from "./http";
 import type {
@@ -39,7 +42,14 @@ export async function getRunSummary(
     throw new Error(`Run id "${runId.trim()}" is not a live authority key.`);
   }
 
-  return apiGetSealedManifestAware<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
+  try {
+    return await apiGet<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runSummaryBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Buyer-proof run detail — whitelisted fields only (TB-283). */
@@ -47,9 +57,16 @@ export async function getBuyerRunDetailSummary(
   runId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ApiResponseWithTrace<RunDetail>> {
-  return apiGetSealedManifestAware<RunDetail>(`/v1/authority/reviews/${runId}/buyer-summary`, options).then(
-    (data) => ({ data, traceId: null }),
-  );
+  try {
+    const data = await apiGet<RunDetail>(`/v1/authority/reviews/${runId}/buyer-summary`, options);
+
+    return { data, traceId: null };
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = buyerRunDetailSummaryBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** TB-112: record run-level approve / reject / request-remediation. */
