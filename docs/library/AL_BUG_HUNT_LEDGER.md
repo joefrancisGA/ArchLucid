@@ -1350,7 +1350,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1385,6 +1385,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ComputeNextRunsUtc` — batch preview loops forever when underlying returns null after first occurrence — **cheap-disproof 2026-09-10 seed hunt #1567:** loop breaks on null `ComputeNextRunUtc`; regression `ComputeNextRunsUtc_stops_when_underlying_returns_null_after_first_occurrence`.
 
 2026-09-10 seed hunt #1567 (seed-only): reseeded review-recurrence after #1469; cheap-disproof closed null/invalid/padded cron, single-run UTC kind, and partial-batch null-stop candidates; 23 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
+
+- [x] (valid-no-repro) Empty-string cron slips through `IsSupportedCronExpression` / `ComputeNextRunUtc` / `ComputeNextRunsUtc` — **cheap-disproof 2026-09-10 seed hunt #1586:** `SimpleScanScheduleCalculator` rejects `string.IsNullOrWhiteSpace`; regressions `IsSupportedCronExpression_rejects_empty_cron`, `ComputeNextRunUtc_returns_null_for_empty_cron_expression`, `ComputeNextRunsUtc_returns_empty_for_empty_cron_expression`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` batch preview still returns instants for whitespace-only cron — **cheap-disproof 2026-09-10 seed hunt #1586:** first loop iteration returns null; regression `ComputeNextRunsUtc_returns_empty_for_whitespace_only_cron`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` batch path omits `NormalizeReferenceUtc` for `DateTimeKind.Local` references — **cheap-disproof 2026-09-10 seed hunt #1586:** batch path calls `NormalizeReferenceUtc` before loop; regression `ComputeNextRunsUtc_normalizes_local_reference_kind`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` emits duplicate instants when underlying calculator returns the same occurrence on every cursor advance — **cheap-disproof 2026-09-10 seed hunt #1586:** `NormalizeNextRunUtc` null-break stops batch after first unique instant; regression `ComputeNextRunsUtc_does_not_emit_duplicate_instants_when_underlying_repeats_same_occurrence`.
+- [x] (valid-no-repro) Constructor accepts null `IScanScheduleCalculator` — **cheap-disproof 2026-09-10 seed hunt #1586:** `ArgumentNullException` on null dependency; regression `Constructor_throws_when_schedule_calculator_is_null`.
+
+2026-09-10 seed hunt #1586 (seed-only): reseeded review-recurrence after #1567; cheap-disproof closed empty/whitespace batch cron, Local reference normalization in batch path, duplicate-instant loop, and null-constructor guard; 30 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 ---
 
