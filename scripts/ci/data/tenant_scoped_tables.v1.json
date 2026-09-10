@@ -8,6 +8,7 @@
     "dbo.AlertRules",
     "dbo.ArchitectureDigests",
     "dbo.ArchitectureInventoryBindings",
+    "dbo.ArchitectureShares",
     "dbo.ArchitectureReviewRecurrenceSchedules",
     "dbo.ArchitectureRunIdempotency",
     "dbo.ArchitectureVersions",

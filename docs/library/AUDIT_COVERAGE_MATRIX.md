@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:433 -->
+<!-- audit-core-const-count:437 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -598,6 +598,10 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ArchitectureIdentityRestored` | `ArchitectureIdentity.Restored` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}` — `archived: false`) |
 | `ArchitectureInventorySnapshotBound` | `ArchitectureIdentity.InventorySnapshotBound` | `ArchitecturesController` (`POST /v1/architectures/{architectureId}/inventory-binding`) — **Required** (`LogOrThrowAsync`) |
 | `ArchitectureInventorySnapshotDetached` | `ArchitectureIdentity.InventorySnapshotDetached` | `ArchitecturesController` (`DELETE /v1/architectures/{architectureId}/inventory-binding`) — **Required** (`LogOrThrowAsync`) |
+| `ArchitectureShareGranted` | `ArchitectureIdentity.ShareGranted` | `ArchitectureShareAuditSupport` / `ArchitecturesController` (`PUT /v1/architectures/{architectureId}/shares/{actorOid}`) — **Required** (`LogOrThrowAsync`) |
+| `ArchitectureShareRevoked` | `ArchitectureIdentity.ShareRevoked` | `ArchitectureShareAuditSupport` / `ArchitecturesController` (`DELETE /v1/architectures/{architectureId}/shares/{actorOid}`) — **Required** (`LogOrThrowAsync`) |
+| `ArchitectureRestrictToSharesEnabled` | `ArchitectureIdentity.RestrictToSharesEnabled` | `ArchitectureShareAuditSupport` / `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}/restrict-to-shares`) — **Required** (`LogOrThrowAsync`) |
+| `ArchitectureRestrictToSharesDisabled` | `ArchitectureIdentity.RestrictToSharesDisabled` | `ArchitectureShareAuditSupport` / `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}/restrict-to-shares`) — **Required** (`LogOrThrowAsync`) |
 | `DraftIntakeQuestionAnswered` | `DraftIntake.QuestionAnswered` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/answer`) |
 | `DraftIntakeQuestionSkipped` | `DraftIntake.QuestionSkipped` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/skip`) |
 | `DraftIntakeReasoned` | `DraftIntake.Reasoned` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/reason`) |
