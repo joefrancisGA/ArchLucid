@@ -80,6 +80,10 @@ public sealed partial class TechnologyLedgerController(
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return MapTechnologyLedgerSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Updates approval fields on a single Technology Ledger entry.</summary>

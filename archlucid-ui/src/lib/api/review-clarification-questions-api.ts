@@ -1,4 +1,7 @@
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { reviewClarificationQuestionsBlockedReason } from "@/lib/runs/review-clarification-questions-blocked-reason";
 import type { ReviewClarificationQuestionsResponse } from "@/lib/review-clarification-questions-types";
 
 export async function getReviewClarificationQuestions(
@@ -18,5 +21,12 @@ export async function getReviewClarificationQuestions(
       ? `/v1/architecture/review/${encodeURIComponent(trimmedRunId)}/clarification-questions?${query}`
       : `/v1/architecture/review/${encodeURIComponent(trimmedRunId)}/clarification-questions`;
 
-  return apiGetSealedManifestAware<ReviewClarificationQuestionsResponse>(path);
+  try {
+    return await apiGetSealedManifestAware<ReviewClarificationQuestionsResponse>(path);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewClarificationQuestionsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
