@@ -43,6 +43,7 @@ public sealed class OperationalSecurityPathsControllerTests
         OperationalSecurityPathsController controller = new(
             queryService.Object,
             rankQueryService.Object,
+            Mock.Of<ISecurityEvidencePathExplanationService>(),
             scopeProvider.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
@@ -87,6 +88,7 @@ public sealed class OperationalSecurityPathsControllerTests
         OperationalSecurityPathsController controller = new(
             queryService.Object,
             rankQueryService.Object,
+            Mock.Of<ISecurityEvidencePathExplanationService>(),
             scopeProvider.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },

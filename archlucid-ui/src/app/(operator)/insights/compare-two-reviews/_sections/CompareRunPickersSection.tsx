@@ -135,12 +135,24 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
     collapseBelowResults = false,
   } = props;
 
-  const compareActionsDisabled = loading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked;
+  const compareActionsDisabled =
+    loading ||
+    !leftTrim ||
+    !rightTrim ||
+    sameCanonicalRunIdsBlocked ||
+    leftSummaryBlockedReason !== null ||
+    rightSummaryBlockedReason !== null;
   const compareDisabledReason = firstWhyDisabledCtaReason([
     loading ? whyDisabledBusy("Comparison") : null,
     !leftTrim || !rightTrim ? whyDisabledIncompleteInput("Choose a baseline and updated review to continue.") : null,
     sameCanonicalRunIdsBlocked
       ? { kind: "prerequisite", message: "These two selections resolve to the same review." }
+      : null,
+    leftSummaryBlockedReason !== null
+      ? { kind: "prerequisite", message: leftSummaryBlockedReason }
+      : null,
+    rightSummaryBlockedReason !== null
+      ? { kind: "prerequisite", message: rightSummaryBlockedReason }
       : null,
   ]);
   const showSummarizeForSponsor = (pairAligned && !loading) || aiLoading;

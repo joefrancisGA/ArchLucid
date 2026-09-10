@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow four-reality drift engine over privilege/reachability paths. Internal engineering only.
+
 # SecureNow four-reality path drift (SA-12)
 
 Rule version: post-materialize engine on snapshot B after privilege/reachability paths and IE-06 diff.

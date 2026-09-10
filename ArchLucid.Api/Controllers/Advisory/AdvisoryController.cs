@@ -71,31 +71,38 @@ public sealed partial class AdvisoryController(
         [FromQuery] Guid? compareToRunId = null,
         CancellationToken ct = default)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, ct);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        if (compareToRunId is Guid compareRunId)
+        try
         {
-            IActionResult? compareGuardResult = await EnsureSealedManifestReadAllowedAsync(compareRunId, ct);
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, ct);
 
-            if (compareGuardResult is not null)
-                return compareGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            if (compareToRunId is Guid compareRunId)
+            {
+                IActionResult? compareGuardResult = await EnsureSealedManifestReadAllowedAsync(compareRunId, ct);
+
+                if (compareGuardResult is not null)
+                    return compareGuardResult;
+            }
+
+            ImprovementsPlanLoadResult result =
+                await _advisoryWorkflowFacade.GetImprovementsAsync(runId, compareToRunId, ct);
+
+            return result.Outcome switch
+            {
+                ImprovementsPlanLoadOutcome.Success when result.Plan is not null => await CompleteImprovementsAsync(result, ct),
+                ImprovementsPlanLoadOutcome.RunNotFound => this.NotFoundProblem($"Run '{result.RunId}' was not found.", ProblemTypes.RunNotFound),
+                ImprovementsPlanLoadOutcome.ManifestNotFound => this.NotFoundProblem($"Run '{result.RunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound),
+                ImprovementsPlanLoadOutcome.ComparisonRunNotFound => this.NotFoundProblem($"Comparison run '{result.RunId}' was not found.", ProblemTypes.RunNotFound),
+                ImprovementsPlanLoadOutcome.ComparisonManifestNotFound => this.NotFoundProblem($"Comparison run '{result.RunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound),
+                _ => throw new InvalidOperationException($"Unexpected improvements load outcome: {result.Outcome}."),
+            };
         }
-
-        ImprovementsPlanLoadResult result =
-            await _advisoryWorkflowFacade.GetImprovementsAsync(runId, compareToRunId, ct);
-
-        return result.Outcome switch
+        catch (ConflictException ex)
         {
-            ImprovementsPlanLoadOutcome.Success when result.Plan is not null => await CompleteImprovementsAsync(result, ct),
-            ImprovementsPlanLoadOutcome.RunNotFound => this.NotFoundProblem($"Run '{result.RunId}' was not found.", ProblemTypes.RunNotFound),
-            ImprovementsPlanLoadOutcome.ManifestNotFound => this.NotFoundProblem($"Run '{result.RunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound),
-            ImprovementsPlanLoadOutcome.ComparisonRunNotFound => this.NotFoundProblem($"Comparison run '{result.RunId}' was not found.", ProblemTypes.RunNotFound),
-            ImprovementsPlanLoadOutcome.ComparisonManifestNotFound => this.NotFoundProblem($"Comparison run '{result.RunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound),
-            _ => throw new InvalidOperationException($"Unexpected improvements load outcome: {result.Outcome}."),
-        };
+            return MapAdvisorySealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("runs/{runId:guid}/recommendations")]
@@ -103,17 +110,25 @@ public sealed partial class AdvisoryController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ListRecommendations(Guid runId, CancellationToken ct = default)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, ct);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        AdvisoryRecommendationsListResult result = await _advisoryWorkflowFacade.ListRecommendationsAsync(runId, ct);
-        return Ok(new AdvisoryRunRecommendationsListResponse
+        try
         {
-            Recommendations = result.Recommendations.Select(ToRecordResponse).ToList(),
-            ImproveLoopEvidence = RecommendationImproveLoopResponseMapper.TryParsePersistedEvidence(result.ImproveLoopEvidenceJson),
-        });
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, ct);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            AdvisoryRecommendationsListResult result = await _advisoryWorkflowFacade.ListRecommendationsAsync(runId, ct);
+
+            return Ok(new AdvisoryRunRecommendationsListResponse
+            {
+                Recommendations = result.Recommendations.Select(ToRecordResponse).ToList(),
+                ImproveLoopEvidence = RecommendationImproveLoopResponseMapper.TryParsePersistedEvidence(result.ImproveLoopEvidenceJson),
+            });
+        }
+        catch (ConflictException ex)
+        {
+            return MapAdvisorySealedManifestConflict(ex);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry

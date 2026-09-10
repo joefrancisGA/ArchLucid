@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 export type ArchitectureIntelligenceProductContextLoadFailureProps = {
   readonly message: string;
+  readonly blockedReason?: string | null;
   readonly retryLabel: string;
   readonly retryDisabled?: boolean;
   readonly onRetry: () => void;
@@ -15,6 +16,14 @@ export function ArchitectureIntelligenceProductContextLoadFailure(
 ): React.JSX.Element {
   return (
     <div className="space-y-3" role="alert" data-testid="architecture-intelligence-product-context-load-failure">
+      {props.blockedReason ? (
+        <p
+          className={cn("m-0 text-rose-700 dark:text-rose-300", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-intelligence-source-context-blocked-reason"
+        >
+          {props.blockedReason}
+        </p>
+      ) : null}
       <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{props.message}</p>
       <Button
         type="button"
