@@ -118,24 +118,6 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
     }
   }, [props.assessmentId, props.snapshotId]);
 
-  const onDownloadEvidencePackage = useCallback(async () => {
-    setPackageDownloadBusy(true);
-
-    try {
-      await downloadAuditEvidencePackageZip(props.assessmentId, props.snapshotId);
-    } catch (error: unknown) {
-      const failure = toApiLoadFailure(error);
-      const blocked = auditEvidencePackageBlockedReason(failure);
-
-      showError(
-        "Audit evidence package download failed",
-        blocked ?? (error instanceof Error ? error.message : String(error)),
-      );
-    } finally {
-      setPackageDownloadBusy(false);
-    }
-  }, [props.assessmentId, props.snapshotId]);
-
   return (
     <div className="space-y-4 p-4" data-testid="audit-evidence-control-lineage-page">
       {buyerPolishedShell ? (
