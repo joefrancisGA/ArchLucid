@@ -1844,3 +1844,4 @@
 {"at":"2026-09-10T20:28:11.1302453Z","zoneId":"core-safety-network","outcome":"seed-only"}
 {"at":"2026-09-10T20:32:26.0071018Z","zoneId":"review-recurrence","outcome":"seed-only"}
 {"at":"2026-09-10T20:37:06.5086184Z","zoneId":"agent-runtime-evaluation","outcome":"seed-only"}
+{"at":"2026-09-10T20:45:45.0711666Z","zoneId":"email-otp-auth","outcome":"seed-only"}
