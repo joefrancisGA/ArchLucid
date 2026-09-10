@@ -1,6 +1,8 @@
 # OP-08 — Hold: catalog / DDL split (last, not gradual-on-day-one)
 
-**This prompt is a hold.** Implement **nothing** unless the owner’s message in **this same session** explicitly reopens a **named** second database or a second `ArchLucid.sql` / DbUp journal. “We might split the database later” in a prior chat is **not** a reopen.
+**Tech backlog:** **TB-2401** — [`docs/library/TECH_BACKLOG_TB2400_INDEX.md`](../../docs/library/TECH_BACKLOG_TB2400_INDEX.md). Pick up **TB-2401** when the owner directs that row; do not implement from this prompt unless the session explicitly names **TB-2401**.
+
+**This prompt is a hold.** Implement **nothing** unless the owner’s message in **this same session** explicitly picks up **TB-2401** (or reopens a **named** second database or a second `ArchLucid.sql` / DbUp journal). “We might split the database later” in a prior chat is **not** a reopen.
 
 ## Goal
 

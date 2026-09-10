@@ -137,10 +137,14 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-fallback-cards")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-fallback-executive")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-fallback-network")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagrams-export-png")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-export-png")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
+    );
+    expect(await screen.findByTestId("infra-diagrams-render-status-strip")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-snapshot-id-readout")).toHaveTextContent(
+      "11111111-1111-1111-1111-111111111111",
     );
   });
 
@@ -225,5 +229,13 @@ describe("DiagramsWorkbenchClient", () => {
       "href",
       `/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&seedNodeId=${encodeURIComponent(armId)}&tab=diagram`,
     );
+  });
+
+  it("shows deep-linked missing snapshot status and suppresses render strip", async () => {
+    searchParams = new URLSearchParams("snapshotId=99999999-9999-9999-9999-999999999999");
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-snapshot-deep-link-missing")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-fallback-cards")).not.toBeInTheDocument();
   });
 });

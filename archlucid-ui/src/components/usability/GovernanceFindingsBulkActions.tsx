@@ -1,5 +1,4 @@
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+"use client";
 
 import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -11,24 +10,11 @@ import { DispositionExportImpactNotice } from "@/components/operator/Disposition
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
-import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
-import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
-import { recordBulkFindingDisposition } from "@/lib/api/governance-stickiness-api";
-import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
-import { collectExpectedCurrentDispositionRowVersionByFindingId } from "@/lib/findings/finding-collect-expected-disposition-row-versions";
 import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
+import { recordBulkFindingDisposition } from "@/lib/api/governance-stickiness-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-
-"use client";
-
-
-
-
-
-
-
-
-
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
 
 import {
   buildDispositionRestoreRevisitDueUtc,
@@ -51,16 +37,15 @@ import {
   parseGovernanceFindingsBulkDispositionConfirmFromSearch,
   type GovernanceFindingsBulkDisposition,
 } from "@/lib/governance/governance-findings-bulk-disposition-confirm-url";
-
-
-
-
+import { collectExpectedCurrentDispositionRowVersionByFindingId } from "@/lib/findings/finding-collect-expected-disposition-row-versions";
 import {
   formatFindingDispositionBulkConflictMessage,
   readFindingDispositionConflictFromError,
   type FindingDispositionConflictDetail,
 } from "@/lib/findings/finding-disposition-conflict";
-
+import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type BulkDispositionSucceededPayload = {
   readonly message: string;

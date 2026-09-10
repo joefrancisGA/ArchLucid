@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.ProductCapability;
+
 namespace ArchLucid.Architecture.Tests.ProductCapability;
 
 /// <summary>Manual refresh for OP-02 allowlist: ARCHLUCID_REFRESH_CAPABILITY_ALLOWLIST=1 dotnet test --filter Refresh_namespace_allowlist_snapshot</summary>

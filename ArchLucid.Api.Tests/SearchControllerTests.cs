@@ -1,5 +1,8 @@
 using ArchLucid.Api.Controllers;
+using ArchLucid.Api.Support;
+using ArchLucid.Api.Tests.Support;
 using ArchLucid.Application.Search;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Search;
 
 using FluentAssertions;
@@ -59,7 +62,7 @@ public sealed class SearchControllerTests
             .Setup(s => s.SearchAsync("network", 8, It.IsAny<CancellationToken>()))
             .ReturnsAsync(searchResult);
 
-        SearchController controller = new(searchService.Object);
+        SearchController controller = BuildSut(searchService.Object);
 
         IActionResult action = await controller.SearchAsync("network", take: 8, CancellationToken.None);
 
@@ -83,7 +86,7 @@ public sealed class SearchControllerTests
             .Setup(s => s.SearchAsync(string.Empty, 5, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new GlobalSearchResult());
 
-        SearchController controller = new(searchService.Object);
+        SearchController controller = BuildSut(searchService.Object);
 
         IActionResult action = await controller.SearchAsync(q: null, take: 5, CancellationToken.None);
 
@@ -91,5 +94,20 @@ public sealed class SearchControllerTests
         searchService.Verify(
             s => s.SearchAsync(string.Empty, 5, It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    private static SearchController BuildSut(IGlobalSearchService searchService)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        });
+
+        GlobalSearchShareAccessFilter shareAccessFilter = new(ArchitectureShareAccessGateTestDefaults.CreatePermissiveGate().Object);
+
+        return new SearchController(searchService, shareAccessFilter, scopeProvider.Object);
     }
 }

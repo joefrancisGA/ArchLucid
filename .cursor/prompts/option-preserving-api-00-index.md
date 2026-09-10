@@ -20,12 +20,12 @@ Copy-paste docs index: [`docs/architecture/OPTION_PRESERVING_API_SPLIT_COMPOSER_
 | 4 | Security clients can still hit Architecture routes | **OP-04** | 403 gate from the OP-01 map |
 | 5 | Composition is one blob | **OP-05** | Omit-able registrars; host still calls all of them |
 | 6 | Worker ownership is unnamed | **OP-06** | Hosted-service capability inventory (still one Worker) |
-| 7 | Temptation to add `SecureNow.Api` now | **OP-07** | Hold: second host only as a compile check after 01–06 |
-| 8 | Temptation to split SQL now | **OP-08** | Hold: catalog last; do not reopen ADR 0037 |
+| 7 | Temptation to add `SecureNow.Api` now | **TB-2400** (OP-07) | Tech backlog: second host compile check after 01–06 |
+| 8 | Temptation to split SQL now | **TB-2401** (OP-08) | Tech backlog: catalog last; do not reopen ADR 0037 |
 
 ## Run order
 
-**OP-01** first. **OP-02** immediately after (same branch). **OP-03** then **OP-04** (gate needs the signal and the map). **OP-05** and **OP-06** in parallel after 02. **OP-07** / **OP-08** are holds — paste only if a session starts a second `Program.cs` or a second DDL file.
+**OP-01** first. **OP-02** immediately after (same branch). **OP-03** then **OP-04** (gate needs the signal and the map). **OP-05** and **OP-06** in parallel after 02. **OP-01**–**OP-06** are **Done** (2026-09-10). **TB-2400** / **TB-2401** (former **OP-07** / **OP-08**) are tech backlog — pick up only when the owner directs the matching TB row ([`TECH_BACKLOG_TB2400_INDEX.md`](../../docs/library/TECH_BACKLOG_TB2400_INDEX.md)).
 
 | Prompt | Parallel? | Depends on | Do not fork |
 |--------|-----------|------------|-------------|
@@ -35,14 +35,14 @@ Copy-paste docs index: [`docs/architecture/OPTION_PRESERVING_API_SPLIT_COMPOSER_
 | **OP-04** | After 02+03 | Map + signal | 403 on `both` / `disputed` / health / OpenAPI |
 | **OP-05** | After 02 | Existing `Startup/Modules` | Second composition root; skipping registrars in `Program` |
 | **OP-06** | After 01; parallel with 05 | Hosted-service types | Second Worker project |
-| **OP-07** | Hold | OP-01–06 complete | `ArchLucid.Host.Security` / `SecureNow.Api` |
-| **OP-08** | Hold | Named integration contract | Second `ArchLucid.sql`; RLS revival |
+| **TB-2400** (OP-07) | Backlog V1.1 | OP-01–06 complete | `ArchLucid.Host.Security` / `SecureNow.Api` |
+| **TB-2401** (OP-08) | Backlog V2 | Named integration contract | Second `ArchLucid.sql`; RLS revival |
 
 ## Global constraints (every prompt)
 
 - Working-tree safety: `.\scripts\agent\check-working-tree-path.ps1 -Path <file>` before editing tracked files.
 - Commit only on a named feature branch (`cursor/<short-name>-3024` in Cloud Agent runs, or the branch the owner names). Do **not** use two long-lived git branches as the two products.
-- **Do not** add a second Next.js app, a second .NET HTTP host, a second Worker, or a second migration set unless the owner **explicitly** reopens **OP-07** or **OP-08** in that session (quote the reopen).
+- **Do not** add a second Next.js app, a second .NET HTTP host, a second Worker, or a second migration set unless the owner **explicitly** picks up **TB-2400** or **TB-2401** in that session.
 - **Do not** change INV-006 allow-list to move DI into `ArchLucid.Api` or domain projects.
 - **Do not** reopen ADR 0037 (RLS) or split tenant catalogs by product line.
 - **Do not** fork finding engines, collectors, or coverage-shaped engines.

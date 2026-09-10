@@ -52,15 +52,6 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 
-
-
-
-
-
-
-
-
-
 const CLOUD_CONNECTIONS_HELP_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: CLOUD_CONNECTIONS_HELP_ORIENTATION_ID, title: CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE, level: 2 },
   { id: "choose-your-cloud-platform", title: CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE, level: 2 },
