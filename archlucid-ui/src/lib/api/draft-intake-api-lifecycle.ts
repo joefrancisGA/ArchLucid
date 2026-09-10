@@ -83,10 +83,17 @@ export async function reasonDraftRequest(
   draftId: string,
   message: string,
 ): Promise<DraftIntakeReasonResponse> {
-  return apiPostJson<DraftIntakeReasonResponse>(
-    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/reason`,
-    { message: message.trim() },
-  );
+  try {
+    return await apiPostJson<DraftIntakeReasonResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/reason`,
+      { message: message.trim() },
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Branch quota and estimated run cost for an admitted parent draft (R12). */

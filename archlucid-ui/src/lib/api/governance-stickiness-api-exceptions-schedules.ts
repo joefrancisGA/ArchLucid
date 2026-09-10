@@ -99,10 +99,17 @@ export async function previewRecurrenceScheduleRuns(body: {
   count?: number;
   fromUtc?: string;
 }): Promise<PreviewRecurrenceScheduleRunsResponse> {
-  return apiPostJson<PreviewRecurrenceScheduleRunsResponse>(
-    `${governanceStickinessBase()}/recurrence-schedules/preview-next-runs`,
-    body,
-  );
+  try {
+    return await apiPostJson<PreviewRecurrenceScheduleRunsResponse>(
+      `${governanceStickinessBase()}/recurrence-schedules/preview-next-runs`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = recurrenceScheduleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function listArchitectureReviewRecurrenceSchedules(): Promise<ArchitectureReviewRecurrenceSchedule[]> {
@@ -125,10 +132,17 @@ export async function updateArchitectureReviewRecurrenceSchedule(
     cronExpression?: string;
   },
 ): Promise<ArchitectureReviewRecurrenceSchedule> {
-  return apiPutJson<ArchitectureReviewRecurrenceSchedule>(
-    `${governanceStickinessBase()}/recurrence-schedules/${encodeURIComponent(scheduleId)}`,
-    body,
-  );
+  try {
+    return await apiPutJson<ArchitectureReviewRecurrenceSchedule>(
+      `${governanceStickinessBase()}/recurrence-schedules/${encodeURIComponent(scheduleId)}`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = recurrenceScheduleMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function upsertRealizedValueAttestation(body: UpsertRealizedValueAttestationRequest): Promise<void> {

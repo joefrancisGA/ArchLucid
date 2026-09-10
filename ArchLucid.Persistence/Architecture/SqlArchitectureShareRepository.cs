@@ -105,22 +105,39 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
             USING (
                 SELECT
                     @ArchitectureId AS ArchitectureId,
-                    @ActorOid AS ActorOid
-                FROM dbo.Architectures a
-                WHERE a.ArchitectureId = @ArchitectureId
-                  AND a.TenantId = @TenantId
-                  AND a.WorkspaceId = @WorkspaceId
-                  AND a.ScopeProjectId = @ScopeProjectId) AS source
+                    @ActorOid AS ActorOid,
+                    @TenantId AS TenantId,
+                    @WorkspaceId AS WorkspaceId,
+                    @ScopeProjectId AS ScopeProjectId) AS source
             ON target.ArchitectureId = source.ArchitectureId
                AND target.ActorOid = source.ActorOid
+               AND target.TenantId = source.TenantId
+               AND target.WorkspaceId = source.WorkspaceId
+               AND target.ScopeProjectId = source.ScopeProjectId
             WHEN MATCHED THEN
                 UPDATE SET
                     Role = @Role,
                     GrantedBy = @GrantedBy,
                     GrantedUtc = @GrantedUtc
             WHEN NOT MATCHED THEN
-                INSERT (ArchitectureId, ActorOid, Role, GrantedBy, GrantedUtc)
-                VALUES (@ArchitectureId, @ActorOid, @Role, @GrantedBy, @GrantedUtc);
+                INSERT (
+                    ArchitectureId,
+                    ActorOid,
+                    TenantId,
+                    WorkspaceId,
+                    ScopeProjectId,
+                    Role,
+                    GrantedBy,
+                    GrantedUtc)
+                VALUES (
+                    @ArchitectureId,
+                    @ActorOid,
+                    @TenantId,
+                    @WorkspaceId,
+                    @ScopeProjectId,
+                    @Role,
+                    @GrantedBy,
+                    @GrantedUtc);
             """;
 
         using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -130,11 +147,11 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
                 sql,
                 new
                 {
+                    record.ArchitectureId,
+                    ActorOid = record.ActorOid.Trim(),
                     scope.TenantId,
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,
-                    record.ArchitectureId,
-                    ActorOid = record.ActorOid.Trim(),
                     record.Role,
                     record.GrantedBy,
                     record.GrantedUtc,

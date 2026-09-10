@@ -187,6 +187,7 @@ public sealed partial class AuthorityCompareController(
             ScopedRunPairLoadOutcome.RightLifecycleIncomplete => MapCompareSealedManifestConflict(
                 new ConflictException(
                     $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
+
             _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
         };
 
