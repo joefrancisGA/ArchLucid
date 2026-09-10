@@ -177,6 +177,25 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void BuildMetadataTypedPayload_returns_null_when_only_whitespace_fields_are_present()
+    {
+        FindingInspectReadRepositoryCore.BuildMetadataTypedPayload("   ", "   ").Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_deserialized_number_when_payload_is_json_number()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "42",
+            "Encrypt at rest",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.ValueKind.Should().Be(JsonValueKind.Number);
+        typed!.Value.GetInt32().Should().Be(42);
+    }
+
+    [Fact]
     public void BuildMetadataTypedPayload_returns_null_when_empty()
     {
         FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(null, null).Should().BeNull();

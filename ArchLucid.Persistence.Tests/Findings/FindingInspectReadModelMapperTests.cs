@@ -25,6 +25,7 @@ public sealed class FindingInspectReadModelMapperTests
 
     [Theory]
     [InlineData(null, FindingHumanReviewStatus.NotRequired)]
+    [InlineData("   ", FindingHumanReviewStatus.NotRequired)]
     [InlineData("  Pending  ", FindingHumanReviewStatus.Pending)]
     [InlineData("Pending", FindingHumanReviewStatus.Pending)]
     [InlineData("bad", FindingHumanReviewStatus.NotRequired)]
@@ -51,6 +52,7 @@ public sealed class FindingInspectReadModelMapperTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
+    [InlineData("   ")]
     [InlineData("not-a-level")]
     public void TryParseEvaluationConfidenceLevel_returns_null_for_missing_or_invalid(string? raw)
     {

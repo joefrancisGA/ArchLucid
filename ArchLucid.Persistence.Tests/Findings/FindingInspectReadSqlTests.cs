@@ -277,6 +277,35 @@ public sealed class FindingInspectReadSqlTests
         auditSql.Should().Contain("ae.EventId DESC");
     }
 
+    [Fact]
+    public void MainInspect_scopes_agent_execution_trace_to_finding_trace_id()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("aet.TraceId = fr.AgentExecutionTraceId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("aet.TraceId = fr.AgentExecutionTraceId");
+    }
+
+    [Fact]
+    public void MainInspect_joins_decisioning_trace_on_decision_trace_id()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("dt.DecisionTraceId = r.DecisionTraceId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("dt.DecisionTraceId = r.DecisionTraceId");
+    }
+
+    [Fact]
+    public void MainInspect_scopes_run_to_scope_project_id()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.ScopeProjectId = @ScopeProjectId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.ScopeProjectId = @ScopeProjectId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_disposition_subquery_projects_occurred_at_utc()
+    {
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+
+        dispositionSql.Should().Contain("e.OccurredAtUtc");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

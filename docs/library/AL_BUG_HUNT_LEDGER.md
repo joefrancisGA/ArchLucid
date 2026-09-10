@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1372,6 +1372,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ParseDisposition` treats whitespace-only strings as valid dispositions — **cheap-disproof 2026-09-10 seed hunt #1636:** blank guard uses `IsNullOrWhiteSpace`; regression `ParseDisposition_returns_null_for_blank` for `"   "`.
 
 2026-09-10 seed hunt #1636 (seed-only): reseeded finding-inspect-sql after #1635; cheap-disproof closed model-alias JSON projection, finding-id filter, disposition pointer metadata, COUNT_BIG waiver guard, audit event-id tiebreak, trace-text trim, JSON-array payload handling, and whitespace-only disposition; 85 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `AgentExecutionTraces` join omits `TraceId` match and can reuse another finding's trace row — **cheap-disproof 2026-09-10 seed hunt #1637:** main inspect binds `aet.TraceId = fr.AgentExecutionTraceId` and `aet.RunId = r.RunId`; regression `MainInspect_scopes_agent_execution_trace_to_finding_trace_id`.
+- [x] (valid-no-repro) `DecisioningTraces` join omits `DecisionTraceId` and can pair the wrong applied-rule JSON — **cheap-disproof 2026-09-10 seed hunt #1637:** main inspect binds `dt.DecisionTraceId = r.DecisionTraceId`; regression `MainInspect_joins_decisioning_trace_on_decision_trace_id`.
+- [x] (valid-no-repro) `Runs` scope predicate uses `ProjectId` instead of `ScopeProjectId` — **cheap-disproof 2026-09-10 seed hunt #1637:** main inspect filters `r.ScopeProjectId = @ScopeProjectId`; regression `MainInspect_scopes_run_to_scope_project_id`.
+- [x] (valid-no-repro) Disposition pointer join omits `OccurredAtUtc` — **cheap-disproof 2026-09-10 seed hunt #1637:** disposition subquery projects `e.OccurredAtUtc`; regression `FollowUpBatch_disposition_subquery_projects_occurred_at_utc`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` treats whitespace-only title/rationale as populated — **cheap-disproof 2026-09-10 seed hunt #1637:** both fields blank after trim returns null; regression `BuildMetadataTypedPayload_returns_null_when_only_whitespace_fields_are_present`.
+- [x] (valid-no-repro) Numeric JSON `PayloadJson` falls back to metadata — **cheap-disproof 2026-09-10 seed hunt #1637:** `ResolveTypedPayloadForInspect` returns deserialized number elements; regression `ResolveTypedPayloadForInspect_returns_deserialized_number_when_payload_is_json_number`.
+- [x] (valid-no-repro) `ParseHumanReview` / `TryParseEvaluationConfidenceLevel` treat whitespace-only strings as valid values — **cheap-disproof 2026-09-10 seed hunt #1637:** mappers use `IsNullOrWhiteSpace` guards; regressions `ParseHumanReview_maps_or_defaults` for `"   "` and `TryParseEvaluationConfidenceLevel_returns_null_for_missing_or_invalid` for `"   "`.
+
+2026-09-10 seed hunt #1637 (seed-only): reseeded finding-inspect-sql after #1636; cheap-disproof closed agent-trace id join, decision-trace id join, run scope-project filter, disposition occurred-at projection, whitespace-only metadata payload, numeric JSON payload handling, and whitespace-only enum parsing; 93 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
