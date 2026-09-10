@@ -71,7 +71,7 @@ export async function getRunDetail(
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */
 export async function getRunProvenance(runId: string): Promise<DecisionProvenanceGraph> {
   try {
-    return await apiGetSealedManifestAware<DecisionProvenanceGraph>(
+    return await apiGet<DecisionProvenanceGraph>(
       `/v1/runs/${encodeURIComponent(runId)}/review-trail/provenance`,
     );
   } catch (error: unknown) {
