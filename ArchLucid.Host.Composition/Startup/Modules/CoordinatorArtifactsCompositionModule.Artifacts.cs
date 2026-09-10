@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.ArtifactSynthesis.FindingVerification;
 using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Mermaid;
@@ -50,6 +51,7 @@ partial class CoordinatorArtifactsCompositionModule
         services.AddScoped<IArtifactSynthesisService, ArtifactSynthesisService>();
         services.AddScoped<IDocxExportService, DocxExportService>();
         services.AddSingleton<IValueReportRenderer, DocxValueReportRenderer>();
+        services.AddSingleton<IFindingVerificationReportExportService, FindingVerificationReportExportService>();
     }
 
     /// <summary>Registers outbound Retail probing plus artifact augmentation injected into cost summaries.</summary>

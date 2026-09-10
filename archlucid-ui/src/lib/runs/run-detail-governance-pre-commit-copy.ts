@@ -2,7 +2,7 @@
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE = "Approvals after finalize";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_BODY =
-  "Sponsor approvals and governance approval are recorded after you finalize this architecture review. While assessment is still in progress, review readiness below and open assessment activity when you are ready to finalize.";
+  "Sponsor approvals and approval are recorded after you finalize this architecture review. While assessment is still in progress, review readiness below and open assessment activity when you are ready to finalize.";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA = "Review finalize readiness";
 
@@ -17,12 +17,12 @@ export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_HEADING = "What 
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_STEPS: readonly string[] = [
   "Finalize the architecture review to create the finalized review record.",
-  "Route governance approval on the finalized review record.",
+  "Route approval on the finalized review record.",
   "Record the approval decision and add it to the audit log before sharing with leadership.",
 ] as const;
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES_INTRO =
-  "Learn how governance approval and the audit trail work after finalize.";
+  "Learn how approval and the audit trail work after finalize.";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_TITLE = "Review warnings";
 

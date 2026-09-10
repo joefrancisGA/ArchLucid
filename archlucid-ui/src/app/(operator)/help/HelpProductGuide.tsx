@@ -15,8 +15,8 @@ import {
   filterHelpCenterTopicsByQuery,
   getHelpCenterDisplay,
   getHelpCenterTier,
-  HELP_CENTER_FEATURED_SLUGS,
   listHelpCenterAdvancedGuideTopics,
+  listHelpCenterFeaturedSlugs,
   listHelpCenterGuideTopics,
 } from "@/lib/help/help-center-catalog";
 import { HELP_PAGE_LAYOUT, HELP_PAGE_TOC } from "@/lib/help/help-page-layout";
@@ -30,6 +30,8 @@ import {
   parseHelpAdvancedTopicsOpenFromSearch,
 } from "@/lib/help/help-advanced-topics-url";
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+import { howProductWorksTitle, usingProductTitle } from "@/lib/product-line/product-line-display-name";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
@@ -37,6 +39,7 @@ import { inAppHelpHref, type ProductDocumentationEntry } from "@/lib/product-doc
  * Static, immediately-rendered product help (no fetch). Developer doc index is secondary in HelpDocsClient.
  */
 export function HelpProductGuide() {
+  const { localize, productLine } = useLocalizedProductCopy();
   const router = useRouter();
   const pathname = usePathname() ?? "/help";
   const searchParams = useSearchParams();
@@ -103,18 +106,20 @@ export function HelpProductGuide() {
       showAdvanced,
       isAdmin,
       isInternalOperator: isArchLucidInternalOperatorShellEnv(),
+      productLineId: productLine,
     }),
-    [isAdmin, showAdvanced],
+    [isAdmin, productLine, showAdvanced],
   );
 
   const visibleTopics = useMemo(() => listHelpCenterGuideTopics(topicFilters), [topicFilters]);
   const filteredTopics = useMemo(
-    () => filterHelpCenterTopicsByQuery(visibleTopics, topicQuery),
-    [topicQuery, visibleTopics],
+    () => filterHelpCenterTopicsByQuery(visibleTopics, topicQuery, productLine),
+    [productLine, topicQuery, visibleTopics],
   );
   const advancedTopics = useMemo(() => listHelpCenterAdvancedGuideTopics(topicFilters), [topicFilters]);
 
-  const featuredTopics = filteredTopics.filter((entry) => HELP_CENTER_FEATURED_SLUGS.includes(entry.slug));
+  const featuredSlugs = useMemo(() => listHelpCenterFeaturedSlugs(productLine), [productLine]);
+  const featuredTopics = filteredTopics.filter((entry) => featuredSlugs.includes(entry.slug));
   const expandedAdvancedTopics = filteredTopics.filter((entry) => advancedTopics.some((advanced) => advanced.slug === entry.slug));
 
   return (
@@ -123,7 +128,7 @@ export function HelpProductGuide() {
         id="help-product-guide-heading"
         className={`m-0 ${OPERATOR_TYPOGRAPHY.sectionTitle}`}
       >
-        Using ArchLucid
+        {usingProductTitle(productLine)}
       </h2>
 
       <section aria-labelledby="help-product-guide-getting-started" className={HELP_PAGE_LAYOUT.contentPanel}>
@@ -133,9 +138,9 @@ export function HelpProductGuide() {
         <div className={cn(OPERATOR_LAYOUT.controlClusterGap, OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0">
             <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("getting-started", "how-archlucid-works")}>
-              How ArchLucid works
+              {howProductWorksTitle(productLine)}
             </Link>{" "}
-            — workflow from evidence through findings, governance approval, and exports.
+            — workflow from evidence through findings, approval, and exports.
           </p>
           <p className="m-0">
             <Link className={OPERATOR_LINK.inline} href="/faq">
@@ -195,7 +200,7 @@ export function HelpProductGuide() {
           <li>
             Review{" "}
             <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("governance-approval")}>
-              governance approval
+              approval
             </Link>{" "}
             and the{" "}
             <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("audit-trail")}>
@@ -214,8 +219,9 @@ export function HelpProductGuide() {
       </section>
 
       <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
-        ArchLucid turns an architecture review into an export-ready package: decisions, findings, artifacts, and an evidence
-        trail you can export for diligence.
+        {localize(
+          "ArchLucid turns an architecture review into an export-ready package: decisions, findings, artifacts, and an evidence trail you can export for diligence.",
+        )}
       </p>
 
       <section aria-labelledby="help-product-guide-troubleshooting" className={HELP_PAGE_LAYOUT.contentPanel}>
@@ -234,7 +240,7 @@ export function HelpProductGuide() {
             </li>
             <li>Confirm the selected workspace.</li>
             <li>Download a support bundle (below).</li>
-            <li>Contact your tenant admin or ArchLucid support.</li>
+            <li>{localize("Contact your tenant admin or ArchLucid support.")}</li>
           </ol>
           <SupportBundleDownloadButton showDiagnosticsLink={isAdmin} />
           <p className="m-0 mt-3">
@@ -289,21 +295,24 @@ export function HelpProductGuide() {
           autoComplete="off"
         />
 
-        <HelpTopicGrid topics={featuredTopics} heading="Start here" />
+        <HelpTopicGrid topics={featuredTopics} heading="Start here" productLine={productLine} />
 
         {showAdvanced && expandedAdvancedTopics.length > 0 ? (
           <>
             <HelpTopicGrid
               topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "admin")}
               heading="Admin and integration"
+              productLine={productLine}
             />
             <HelpTopicGrid
               topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "internal")}
               heading="System administration and engineering"
+              productLine={productLine}
             />
             <HelpTopicGrid
               topics={expandedAdvancedTopics.filter((entry) => getHelpCenterTier(entry) === "product")}
               heading="More product guides"
+              productLine={productLine}
             />
           </>
         ) : null}
@@ -319,9 +328,10 @@ export function HelpProductGuide() {
 type HelpTopicGridProps = {
   topics: readonly ProductDocumentationEntry[];
   heading: string;
+  productLine: ReturnType<typeof useLocalizedProductCopy>["productLine"];
 };
 
-function HelpTopicGrid({ topics, heading }: HelpTopicGridProps) {
+function HelpTopicGrid({ topics, heading, productLine }: HelpTopicGridProps) {
   if (topics.length === 0) {
     return null;
   }
@@ -333,7 +343,7 @@ function HelpTopicGrid({ topics, heading }: HelpTopicGridProps) {
       </h4>
       <ul className="m-0 grid gap-2 sm:grid-cols-2">
         {topics.map((topic) => {
-          const display = getHelpCenterDisplay(topic);
+          const display = getHelpCenterDisplay(topic, productLine);
 
           return (
             <li key={topic.slug}>

@@ -28,8 +28,10 @@ export type QuickDecisionSummaryProps = {
   readonly buyerPolishedShell?: boolean;
   readonly headlineFindingCount?: number | null;
   readonly headlineWarningCount?: number | null;
-  /** When true, rows were derived from explanation traces because agent results were empty on the authority payload. */
+  /** LP-05: retained for wire compat; trace synthesis is disabled — always false. */
   readonly usingExplanationFallback?: boolean;
+  /** Buyer summary surfaces sealed rows only; set when agent execution produced findings omitted from summary. */
+  readonly buyerSummaryOmitsAgentFindings?: boolean;
   readonly manifestRuleSetId?: string | null;
   readonly manifestRuleSetVersion?: string | null;
   /** Workspace layout: collapsible finding cards with critical/high expanded by default. */
@@ -57,6 +59,7 @@ export type QuickDecisionSummaryProps = {
    * unfiltered source length so create-home empty states do not fire on filtered-empty lists.
    */
   readonly sourceFindingsCount?: number;
+  readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
 };
 
 export type QuickDecisionSummaryDerivedData = {

@@ -17,6 +17,7 @@ import {
 } from "@/lib/model-governance-settings-evidence-copy";
 
 import { ModelGovernanceSettingsCard } from "./ModelGovernanceSettingsCard";
+import { ModelGovernanceSettingsBuyerChrome } from "./ModelGovernanceSettingsBuyerChrome";
 import { ModelGovernanceSettingsHeaderActions } from "./ModelGovernanceSettingsHeaderActions";
 import {
   MODEL_GOVERNANCE_SETTINGS_FIRST_VIEWPORT_ID,
@@ -67,6 +68,7 @@ export function ModelGovernanceSettingsPageView(): React.JSX.Element {
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
+          {buyerPolishedShell ? <ModelGovernanceSettingsBuyerChrome /> : null}
           <ModelGovernanceSettingsCard />
         </div>
 
@@ -74,9 +76,11 @@ export function ModelGovernanceSettingsPageView(): React.JSX.Element {
           <ModelGovernanceAiUsageVocabularyRail currentSurfaceId="model-governance" />
         )}
 
-        <div data-testid="model-governance-settings-orientation-bottom">
-          <ModelGovernanceSettingsEvidenceOrientationStrip />
-        </div>
+        {buyerPolishedShell ? null : (
+          <div data-testid="model-governance-settings-orientation-bottom">
+            <ModelGovernanceSettingsEvidenceOrientationStrip />
+          </div>
+        )}
       </div>
     </OperatorPageContainer>
   );

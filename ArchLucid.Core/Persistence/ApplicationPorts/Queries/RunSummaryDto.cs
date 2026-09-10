@@ -174,4 +174,11 @@ public class RunSummaryDto
         get;
         set;
     } = AuthorityRunLifecyclePhase.NotStarted;
+
+    /// <summary>Coordinator legacy status for list badges when execute ownership reconciliation marks terminal failure (DR-06).</summary>
+    public string? LegacyRunStatus
+    {
+        get;
+        set;
+    }
 }

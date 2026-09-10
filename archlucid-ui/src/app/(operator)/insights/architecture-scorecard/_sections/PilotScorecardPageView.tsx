@@ -9,6 +9,8 @@ import { IntegrationConnectChecklist } from "@/components/integrations/Integrati
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { ArchitectureScorecardBreadcrumb } from "@/components/insights/ArchitectureScorecardBreadcrumb";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ReportSurfaceCanonicalPointerStrip } from "@/components/reports/ReportSurfaceCanonicalPointerStrip";
@@ -84,6 +86,7 @@ function resolveSampleSavingsLabels(data: NonNullable<ReturnType<typeof resolveR
 export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isWorkingMode } = useWorkspaceMode();
   const sampleMode = isReviewScorecardSampleMode(searchParams);
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
   const scopedRunFilterActive = scopedRunId.length > 0;
@@ -139,7 +142,12 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
     sampleLabels?.statusQuo ?? (previewActive ? livePreview!.statusQuoCostLabel : resolvedStatusQuoCostLabel);
   const summaryRow =
     displayData !== null ? buildReviewScorecardSummaryRow(displayData, annualSavingsLabel) : null;
-  const operationalMetrics = displayData !== null ? buildReviewScorecardOperationalMetrics(displayData) : [];
+  const operationalMetrics = displayData !== null
+    ? buildReviewScorecardOperationalMetrics(displayData, {
+        workingMode: isWorkingMode,
+        lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
+      })
+    : [];
   const methodologyLines =
     displayData !== null ? buildReviewScorecardMethodologyLines(displayData.metricSources) : [];
   const scopeCue = displayData !== null ? buildReviewScorecardScopeCue(displayData) : null;

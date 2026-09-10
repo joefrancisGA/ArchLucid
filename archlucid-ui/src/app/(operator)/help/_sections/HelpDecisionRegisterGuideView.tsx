@@ -222,11 +222,7 @@ export function HelpDecisionRegisterGuideView(props: HelpDecisionRegisterGuideVi
           <HelpTopicTableOfContents headings={tocHeadings} />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-decision-register-orientation-bottom">
-            <HelpDecisionRegisterSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpDecisionRegisterSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

@@ -1,6 +1,6 @@
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
-import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH, ARCHITECTURES_LIST_PATH, architectureIdentityPath } from "@/lib/architecture/architecture-routes";
 import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
@@ -23,6 +23,33 @@ export const REVIEW_SCORECARD_MEASURED_ZERO_DETAIL = "Measured — none yet in s
 export const REVIEW_SCORECARD_MEASURED_DETAIL = "Measured in the current workspace scope.";
 
 export const REVIEW_SCORECARD_FINALIZED_HREF = REVIEWS_LIST_PATH;
+
+export type ResolveReviewScorecardFinalizedHrefInput = {
+  readonly workingMode: boolean;
+  readonly lastOpenArchitectureId?: string | null;
+};
+
+/** SY-70 — Working scorecard drill-down opens the architecture desk when one is known. */
+export function resolveReviewScorecardFinalizedHref(
+  input: ResolveReviewScorecardFinalizedHrefInput,
+): string {
+  if (!input.workingMode) {
+    return REVIEW_SCORECARD_FINALIZED_HREF;
+  }
+
+  const architectureId = input.lastOpenArchitectureId?.trim() ?? "";
+
+  if (architectureId.length > 0) {
+    return architectureIdentityPath(architectureId);
+  }
+
+  return ARCHITECTURES_LIST_PATH;
+}
+
+export type BuildReviewScorecardOperationalMetricsOptions = {
+  readonly workingMode?: boolean;
+  readonly lastOpenArchitectureId?: string | null;
+};
 export const REVIEW_SCORECARD_GOVERNANCE_HREF = GOVERNANCE_APPROVAL_QUEUE_PATH;
 export const REVIEW_SCORECARD_FINDINGS_HREF = GOVERNANCE_FINDINGS_PATH;
 export const REVIEW_SCORECARD_AUDIT_HREF = GOVERNANCE_AUDIT_PATH;
@@ -193,7 +220,14 @@ function resolveMetricSourceDisclosure(
   return source;
 }
 
-export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson): ReviewScorecardOperationalMetric[] {
+export function buildReviewScorecardOperationalMetrics(
+  data: PilotScorecardJson,
+  options?: BuildReviewScorecardOperationalMetricsOptions,
+): ReviewScorecardOperationalMetric[] {
+  const finalizedHref = resolveReviewScorecardFinalizedHref({
+    workingMode: options?.workingMode === true,
+    lastOpenArchitectureId: options?.lastOpenArchitectureId,
+  });
   const reviewActivity = hasReviewActivity(data);
   const committed = resolveCountMetricDisplay(
     data.totalRunsCommitted,
@@ -221,7 +255,7 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       empty: committed.empty,
       metricState: committed.state,
       useKpiEmphasis: committed.useKpiEmphasis,
-      href: committed.empty ? REVIEW_SCORECARD_START_REVIEW_HREF : REVIEW_SCORECARD_FINALIZED_HREF,
+      href: committed.empty ? REVIEW_SCORECARD_START_REVIEW_HREF : finalizedHref,
       drillDownLabel: committed.empty ? "Start architecture review" : "View architecture reviews",
       methodologyKey: "totalRunsCommitted",
       sourceDisclosure: resolveMetricSourceDisclosure(data.metricSources, "totalRunsCommitted"),
@@ -247,7 +281,7 @@ export function buildReviewScorecardOperationalMetrics(data: PilotScorecardJson)
       empty: cycleTime.empty,
       metricState: cycleTime.state,
       useKpiEmphasis: cycleTime.useKpiEmphasis,
-      href: cycleTime.empty ? REVIEW_SCORECARD_START_REVIEW_HREF : REVIEW_SCORECARD_FINALIZED_HREF,
+      href: cycleTime.empty ? REVIEW_SCORECARD_START_REVIEW_HREF : finalizedHref,
       drillDownLabel: cycleTime.empty ? "Start architecture review" : "View architecture reviews",
       methodologyKey: "averageTimeToManifestMinutes",
       sourceDisclosure: resolveMetricSourceDisclosure(data.metricSources, "averageTimeToManifestMinutes"),

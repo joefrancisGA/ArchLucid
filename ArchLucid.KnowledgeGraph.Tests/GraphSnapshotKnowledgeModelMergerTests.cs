@@ -70,6 +70,34 @@ public sealed class GraphSnapshotKnowledgeModelMergerTests
     }
 
     [Fact]
+    public void Merge_deduplicates_context_nodes_when_node_id_differs_only_by_case_from_model_graph()
+    {
+        GraphSnapshot contextGraph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "SHARED", NodeType = "context", Label = "context-shared" },
+                new GraphNode { NodeId = "ctx-only", NodeType = "context", Label = "context-only" },
+            ],
+        };
+
+        GraphSnapshot modelGraph = new()
+        {
+            GraphSnapshotId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            Nodes =
+            [
+                new GraphNode { NodeId = "shared", NodeType = "model", Label = "model-shared" },
+            ],
+        };
+
+        GraphSnapshot merged = GraphSnapshotKnowledgeModelMerger.Merge(contextGraph, modelGraph);
+
+        merged.Nodes.Should().ContainSingle(node => node.NodeId == "shared" && node.Label == "model-shared");
+        merged.Nodes.Should().Contain(node => node.NodeId == "ctx-only");
+        merged.Nodes.Should().HaveCount(2);
+    }
+
+    [Fact]
     public void HasAny_is_true_only_for_projectable_element_kinds()
     {
         ArchitectureKnowledgeModel empty = new() { ModelId = "m", Elements = [] };

@@ -34,21 +34,42 @@ type RunProgressTrackerStagesViewProps = Pick<
 > & {
   readonly pipelineTerminalFailure?: boolean;
   readonly suppressIntakeDescription?: boolean;
+  readonly suppressStageCountLine?: boolean;
+};
+
+type StageRow = {
+  readonly key: string;
+  readonly label: string;
+  readonly complete: boolean;
 };
 
 function stageStatusTag(
   complete: boolean,
   pipelineTerminalFailure: boolean,
+  isFailureBoundary: boolean,
 ): { readonly kind: "ready" | "draft" | "blocked"; readonly label: string } {
   if (complete) {
     return { kind: "ready", label: "Complete" };
   }
 
   if (pipelineTerminalFailure) {
-    return { kind: "blocked", label: "Not started" };
+    return {
+      kind: "blocked",
+      label: isFailureBoundary ? "Stopped here" : "Did not run",
+    };
   }
 
   return { kind: "draft", label: "Pending" };
+}
+
+function resolveFailureBoundaryStageKey(stages: readonly StageRow[]): string | null {
+  for (const stage of stages) {
+    if (!stage.complete) {
+      return stage.key;
+    }
+  }
+
+  return null;
 }
 
 export function RunProgressTrackerStagesView({
@@ -64,51 +85,55 @@ export function RunProgressTrackerStagesView({
   activeSummary,
   pipelineTerminalFailure = false,
   suppressIntakeDescription = false,
+  suppressStageCountLine = false,
 }: RunProgressTrackerStagesViewProps) {
-  const ctxStatus = stageStatusTag(Boolean(ctx), pipelineTerminalFailure);
-  const graphStatus = stageStatusTag(Boolean(graph), pipelineTerminalFailure);
-  const findingsStatus = stageStatusTag(Boolean(findings), pipelineTerminalFailure);
-  const manifestStatus = stageStatusTag(Boolean(manifest), pipelineTerminalFailure);
+  const stageRows: StageRow[] = [
+    { key: "ctx", label: "Source context captured", complete: Boolean(ctx) },
+    { key: "graph", label: "Evidence graph ready", complete: Boolean(graph) },
+    { key: "findings", label: "Findings complete", complete: Boolean(findings) },
+    {
+      key: "manifest",
+      label: buyerAssessmentCopy ? "Finalized review record" : "Finalized review record ready",
+      complete: Boolean(manifest),
+    },
+  ];
+  const failureBoundaryStageKey = pipelineTerminalFailure
+    ? resolveFailureBoundaryStageKey(stageRows)
+    : null;
 
   return (
     <>
-      <div className="mt-4">
-        <InlineMetadataLine
-          label="Progress"
-          value={`${completedStages} / ${totalProgressStages} stages`}
-          testId="run-progress-stage-count"
-        />
-      </div>
+      {!suppressStageCountLine ? (
+        <div className="mt-4">
+          <InlineMetadataLine
+            label="Progress"
+            value={`${completedStages} / ${totalProgressStages} stages`}
+            testId="run-progress-stage-count"
+          />
+        </div>
+      ) : null}
 
       <Separator className="my-6" />
 
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
-        <li className="flex flex-wrap items-center gap-2">
-          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Source context captured</span>
-          <StatusTag kind={ctxStatus.kind} label={ctxStatus.label} />
-        </li>
-        <li className="flex flex-wrap items-center gap-2">
-          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Evidence graph ready</span>
-          <StatusTag kind={graphStatus.kind} label={graphStatus.label} />
-        </li>
-        <li className="flex flex-wrap items-center gap-2">
-          <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Findings complete</span>
-          <StatusTag kind={findingsStatus.kind} label={findingsStatus.label} />
-        </li>
-        {buyerAssessmentCopy ? (
-          <li className="flex flex-wrap items-center gap-2" data-testid="run-progress-signed-record-row">
-            <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record</span>
-            <StatusTag
-              kind={manifest ? "ready" : pipelineTerminalFailure ? "blocked" : "draft"}
-              label={manifest ? "Complete" : "Not created yet"}
-            />
-          </li>
-        ) : (
-          <li className="flex flex-wrap items-center gap-2">
-            <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record ready</span>
-            <StatusTag kind={manifestStatus.kind} label={manifestStatus.label} />
-          </li>
-        )}
+        {stageRows.map((stage) => {
+          const status = stageStatusTag(
+            stage.complete,
+            pipelineTerminalFailure,
+            failureBoundaryStageKey === stage.key,
+          );
+
+          return (
+            <li
+              key={stage.key}
+              className="grid grid-cols-[minmax(12rem,auto)_max-content] items-center gap-2"
+              data-testid={stage.key === "manifest" ? "run-progress-signed-record-row" : undefined}
+            >
+              <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.body)}>{stage.label}</span>
+              <StatusTag kind={status.kind} label={status.label} />
+            </li>
+          );
+        })}
       </ul>
 
       {buyerAssessmentCopy && stageTimeline.length > 0 ? (

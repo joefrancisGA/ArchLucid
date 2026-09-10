@@ -11,7 +11,7 @@ import { reviewsHubInventoryFilterHref } from "@/app/(operator)/architecture/rev
 
 export const OPERATOR_HOME_OPEN_FINDINGS_HREF = buildGovernanceFindingsQueueHref({ filter: "open" });
 
-/** Home query param that pre-filters Recent reviews to packages with governance warnings. */
+/** Home query param that pre-filters Recent reviews to packages with approval warnings. */
 export const OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM = "warnings";
 
 export const OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF = `/?${OPERATOR_HOME_GOVERNANCE_WARNINGS_PARAM}=1`;

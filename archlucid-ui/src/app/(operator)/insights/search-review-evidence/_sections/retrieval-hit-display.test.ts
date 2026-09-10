@@ -31,6 +31,10 @@ describe("retrievalHitSourceTypeLabel", () => {
   it("maps manifest finding to Finding", () => {
     expect(retrievalHitSourceTypeLabel("ManifestFinding")).toBe("Finding");
   });
+
+  it("maps provenance graph hits to Evidence graph (PC-12)", () => {
+    expect(retrievalHitSourceTypeLabel("ProvenanceGraph")).toBe("Evidence graph");
+  });
 });
 
 describe("retrievalHitRelevanceTier", () => {
@@ -114,7 +118,7 @@ describe("buildRetrievalHitActionLink", () => {
 
     expect(link).toEqual({
       href: `/insights/evidence-graph?runId=${SAMPLE_RUN_ID}`,
-      label: "Open evidence trail",
+      label: "Open evidence graph",
     });
   });
 });

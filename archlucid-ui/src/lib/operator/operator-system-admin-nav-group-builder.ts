@@ -10,6 +10,8 @@ import {
 
   ClipboardList,
 
+  Landmark,
+
   FilePlus,
 
   Gauge,
@@ -31,6 +33,8 @@ import {
   Settings2,
 
   Sparkles,
+
+  Shuffle,
 
   Wallet,
 
@@ -55,6 +59,8 @@ import {
   INTERNAL_EVIDENCE_PROPOSALS_PATH,
 
   INTERNAL_PLATFORM_BUNDLED_POLICY_PACKS_PATH,
+
+  INTERNAL_PRODUCT_LINE_PATH,
 
   INTERNAL_FLEET_LLM_COGS_PATH,
 
@@ -83,6 +89,11 @@ import {
 } from "@/lib/internal-ops-route-paths";
 
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
+
+import {
+  PRODUCT_LINE_NAV_TITLE,
+  PRODUCT_LINE_PLAYGROUND_TITLE,
+} from "@/lib/product-line/product-line-copy";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 import { navTitleWithShortcut } from "@/lib/nav-config.shortcuts";
@@ -195,7 +206,7 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
 
           title: "Tenants — provision net-new tenants and shut off or resume tenant surfaces",
 
-          icon: Building2,
+          icon: Landmark,
 
           tier: "advanced",
 
@@ -396,6 +407,22 @@ export function buildOperatorSystemAdminNavLinks(): NavGroupConfig["links"] {
           title: "Demo readiness — showcase seed, authentication, and execution-budget diagnostics",
 
           icon: Layers,
+
+          tier: "advanced",
+
+          requiredAuthority: "PlatformInternalOperationsAuthority",
+
+        },
+
+        {
+
+          href: INTERNAL_PRODUCT_LINE_PATH as typeof INTERNAL_PRODUCT_LINE_PATH & "/internal/product-line",
+
+          label: PRODUCT_LINE_PLAYGROUND_TITLE,
+
+          title: PRODUCT_LINE_NAV_TITLE,
+
+          icon: Shuffle,
 
           tier: "advanced",
 

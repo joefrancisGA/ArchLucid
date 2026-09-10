@@ -14,10 +14,10 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
         const string sql = """
                            INSERT INTO dbo.FindingReviewEvents
                            (EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes,
-                            OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText)
+                            OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText, ArchitectRestatement)
                            VALUES
                            (@EventId, @TenantId, @WorkspaceId, @ProjectId, @FindingId, @ReviewerUserId, @Action, @Notes,
-                            @OccurredAtUtc, @RunId, @Disposition, @RevisitDueUtc, @EvidenceRequestText);
+                            @OccurredAtUtc, @RunId, @Disposition, @RevisitDueUtc, @EvidenceRequestText, @ArchitectRestatement);
                            """;
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -40,6 +40,7 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
                     Disposition = reviewEvent.Disposition?.ToString(),
                     RevisitDueUtc = reviewEvent.RevisitDueUtc?.UtcDateTime,
                     reviewEvent.EvidenceRequestText,
+                    reviewEvent.ArchitectRestatement,
                 },
                 cancellationToken: cancellationToken));
     }
@@ -54,7 +55,7 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
 
         const string sql = """
                            SELECT EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes,
-                                  OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText
+                                  OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText, ArchitectRestatement
                            FROM dbo.FindingReviewEvents
                            WHERE TenantId = @TenantId AND FindingId = @FindingId
                            ORDER BY OccurredAtUtc DESC;
@@ -75,7 +76,7 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
     {
         const string sql = """
                            SELECT EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes,
-                                  OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText
+                                  OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText, ArchitectRestatement
                            FROM dbo.FindingReviewEvents
                            WHERE TenantId = @TenantId AND OccurredAtUtc >= @SinceUtc
                            ORDER BY OccurredAtUtc DESC;
@@ -108,7 +109,7 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
 
         const string sql = """
                            SELECT EventId, TenantId, WorkspaceId, ProjectId, FindingId, ReviewerUserId, Action, Notes,
-                                  OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText
+                                  OccurredAtUtc, RunId, Disposition, RevisitDueUtc, EvidenceRequestText, ArchitectRestatement
                            FROM dbo.FindingReviewEvents
                            WHERE TenantId = @TenantId AND FindingId IN @FindingIds AND OccurredAtUtc >= @SinceUtc;
                            """;
@@ -160,6 +161,7 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
             Disposition = disposition,
             RevisitDueUtc = row.RevisitDueUtc is null ? null : new DateTimeOffset(row.RevisitDueUtc.Value, TimeSpan.Zero),
             EvidenceRequestText = row.EvidenceRequestText,
+            ArchitectRestatement = row.ArchitectRestatement,
         };
     }
 
@@ -238,6 +240,12 @@ public sealed class SqlFindingReviewTrailRepository(ISqlConnectionFactory connec
         }
 
         public string? EvidenceRequestText
+        {
+            get;
+            init;
+        }
+
+        public string? ArchitectRestatement
         {
             get;
             init;

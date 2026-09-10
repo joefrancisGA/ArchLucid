@@ -16,6 +16,14 @@ import {
   policyPacksRefreshAssistReaderLine,
   policyPacksRefreshAssistReaderLineBuyerPolished,
 } from "@/lib/enterprise-controls-context-copy";
+import {
+  GOVERNANCE_POLICY_PACKS_BUYER_START_HERE_HELPER,
+  GOVERNANCE_POLICY_PACKS_LOAD_ERROR,
+  GOVERNANCE_POLICY_PACKS_PAGE_LEAD,
+  GOVERNANCE_POLICY_PACKS_PRIMARY_CONTENT_ID,
+  GOVERNANCE_POLICY_PACKS_SKIP_LINK_LABEL,
+} from "@/lib/governance-policy-packs-page-copy";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { PolicyPacksActivePackSummaryCard } from "./PolicyPacksActivePackSummaryCard";
 import { PolicyPacksBuyerChrome } from "./PolicyPacksBuyerChrome";
 import { PolicyPacksBreadcrumb } from "./PolicyPacksBreadcrumb";
@@ -92,9 +100,288 @@ export function PolicyPacksPageView(props: Props) {
   const enforcedRuleCount = enforcedRuleRows.length;
   const continueLastPack = useMemo(() => resolveContinueLastPolicyPack(m.packs), [m.packs]);
 
+  const workspaceTabs = (
+    <Tabs
+      value={surfaceTab}
+      onValueChange={(next) => {
+        m.setPageTab(resolveSurfaceTabFromValue(next));
+      }}
+      className="mb-6"
+    >
+      <TabsList aria-label="Policy packs sections" data-testid="policy-packs-surface-tabs">
+        <TabsTrigger value="my-packs" data-testid="policy-packs-tab-my-packs" className="shrink-0">
+          My packs
+        </TabsTrigger>
+        <TabsTrigger value="catalog" data-testid="policy-packs-tab-catalog" className="shrink-0">
+          Catalog
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="catalog" className="pt-4" data-testid="policy-packs-panel-catalog">
+        <PolicyPacksCatalogSection
+          canMutatePacks={m.canMutatePacks}
+          loading={m.catalogLoading || m.loading}
+          failure={m.catalogFailure}
+          items={m.catalogItems}
+          selectedCatalogEntryId={m.selectedCatalogEntryId}
+          onSelectedCatalogEntryIdChange={m.setSelectedCatalogEntryId}
+          onRefresh={m.refreshCatalog}
+          onClone={m.onCloneCatalogEntry}
+        />
+      </TabsContent>
+
+      <TabsContent value="my-packs" className="pt-4" data-testid="policy-packs-panel-my-packs">
+        {m.failure !== null && !m.buyerPolishedShell ? (
+          <div role="alert">
+            <OperatorApiProblem
+              problem={m.failure.problem}
+              fallbackMessage={m.failure.message}
+              correlationId={m.failure.correlationId}
+            />
+          </div>
+        ) : null}
+
+        {!m.buyerPolishedShell ? (
+          <PolicyPackImpactPreviewPanel
+            effectiveContent={m.effectiveContent}
+            selectedPackId={m.selectedPackId}
+            packVersions={m.packVersions}
+            scopedReviewId={m.pickedReviewId}
+            onPickReview={m.setPickedReviewId}
+          />
+        ) : null}
+
+        <div className={cn("flex flex-col gap-8", !m.canMutatePacks && "flex-col-reverse")}>
+          <PolicyPacksWorkspaceSelectionWithPreview
+            canMutatePacks={m.canMutatePacks}
+            items={m.workspaceSelectionItems}
+            loading={m.workspaceSelectionLoading || m.loading}
+            togglingAssignmentId={m.togglingAssignmentId}
+            togglingOrganizationRequiredAssignmentId={m.togglingOrganizationRequiredAssignmentId}
+            onToggle={(assignmentId, nextEnabled) => {
+              void m.onToggleWorkspaceSelection(assignmentId, nextEnabled);
+            }}
+            onToggleOrganizationRequired={(assignmentId, nextOrganizationRequired) => {
+              void m.onToggleOrganizationRequired(assignmentId, nextOrganizationRequired);
+            }}
+          />
+
+          {continueLastPack !== null ? (
+            <PolicyPacksContinueLastViewedRow pack={continueLastPack} scopedReviewId={m.pickedReviewId} />
+          ) : null}
+
+          <PolicyPacksRegisteredListSection
+            buyerPolishedShell={m.buyerPolishedShell}
+            canMutatePacks={m.canMutatePacks}
+            packs={m.packs}
+            effectivePackIds={new Set((m.effective?.packs ?? []).map((p) => p.policyPackId).filter((id): id is string => typeof id === "string" && id.length > 0))}
+            selectedPackId={m.selectedPackId}
+            onSelectedPackIdChange={m.setSelectedPackId}
+          />
+
+          {!m.buyerPolishedShell ? (
+            <div data-testid="policy-packs-advanced-options">
+              <AdvancedOptionsAccordion
+                className="mb-8"
+                open={m.authoringAdvancedOpen}
+                onOpenChange={m.setAuthoringAdvancedOpen}
+                triggerLabel="Inspect tools and JSON lifecycle"
+              >
+                <PolicyPackImpactSimulationCard
+                  selectedPackId={m.selectedPackId}
+                  selectedPackLabel={m.selectedPackSummary?.name ?? null}
+                />
+
+                <PolicyPacksInspectSection
+                  canMutatePacks={m.canMutatePacks}
+                  selectedPackId={m.selectedPackId}
+                  effective={m.effective}
+                  effectiveContent={m.effectiveContent}
+                  packVersions={m.packVersions}
+                  compareLeftId={m.compareLeftId}
+                  compareRightId={m.compareRightId}
+                  onCompareLeftIdChange={m.setCompareLeftId}
+                  onCompareRightIdChange={m.setCompareRightId}
+                  showVersionDiff={m.showVersionDiff}
+                  setShowVersionDiff={m.setShowVersionDiff}
+                  compareLeftVersion={m.compareLeftVersion}
+                  compareRightVersion={m.compareRightVersion}
+                />
+
+                {isStaticDemoPayloadFallbackEnabled() || m.buyerPolishedShell ? null : (
+                  <PolicyPacksLifecycleSection
+                    canMutatePacks={m.canMutatePacks}
+                    loading={m.loading}
+                    selectedPackId={m.selectedPackId}
+                    verticalImportSlug={m.verticalImportSlug}
+                    bundledPublishBlocked={m.bundledPublishBlocked}
+                    onImportVertical={m.importVerticalPolicyPack}
+                    name={m.name}
+                    onNameChange={m.setName}
+                    description={m.description}
+                    onDescriptionChange={m.setDescription}
+                    packType={m.packType}
+                    onPackTypeChange={m.setPackType}
+                    createJson={m.createJson}
+                    onCreateJsonChange={m.setCreateJson}
+                    onCreate={m.onCreate}
+                    createLastSavedUtc={m.createLastSavedUtc}
+                    createInlineSaveError={m.createInlineSaveError}
+                    publishVersion={m.publishVersion}
+                    onPublishVersionChange={m.setPublishVersion}
+                    publishJson={m.publishJson}
+                    onPublishJsonChange={m.setPublishJson}
+                    onPublish={m.onPublish}
+                    publishLastSavedUtc={m.publishLastSavedUtc}
+                    publishInlineSaveError={m.publishInlineSaveError}
+                    assignVersion={m.assignVersion}
+                    onAssignVersionChange={m.setAssignVersion}
+                    assignScopeLevel={m.assignScopeLevel}
+                    onAssignScopeLevelChange={m.setAssignScopeLevel}
+                    assignPinned={m.assignPinned}
+                    onAssignPinnedChange={m.setAssignPinned}
+                    onAssign={m.onAssign}
+                    pickedReviewId={m.pickedReviewId}
+                    onPickReviewForAssign={m.setPickedReviewId}
+                  />
+                )}
+              </AdvancedOptionsAccordion>
+            </div>
+          ) : null}
+
+          {!m.buyerPolishedShell ? (
+            <PolicyPacksAdvancedAuthoringPanel
+              model={m}
+              authoringTab={authoringInnerTab}
+              onAuthoringTabChange={m.setPageTab}
+            />
+          ) : null}
+        </div>
+      </TabsContent>
+    </Tabs>
+  );
+
+  const activePackBlock =
+    m.buyerPolishedShell && !m.loading && m.failure === null ? (
+      <div className={cn("mb-4 grid gap-4", OPERATOR_LAYOUT.sectionStack)}>
+        <PolicyPacksActivePackSummaryCard
+          effective={m.effective}
+          effectiveContent={m.effectiveContent}
+          selectedPack={m.selectedPackSummary}
+          enforcedRuleCount={enforcedRuleCount}
+          canMutatePacks={m.canMutatePacks}
+          onOpenCatalog={() => {
+            m.setPageTab("my-packs");
+          }}
+        />
+        <PolicyPacksEnforcedRulesTable rows={enforcedRuleRows} />
+      </div>
+    ) : (
+      <PolicyPacksMetricStrip
+        buyerPolishedShell={m.buyerPolishedShell}
+        packCount={m.packs.length}
+        effective={m.effective}
+        selectedPackSummary={m.selectedPackSummary}
+      />
+    );
+
+  const readerAssistLine = !m.canMutatePacks ? (
+    <p
+      className={cn("mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="policy-packs-reader-assist"
+    >
+      {m.buyerPolishedShell
+        ? policyPacksRefreshAssistReaderLineBuyerPolished
+        : policyPacksRefreshAssistReaderLine}
+    </p>
+  ) : null;
+
+  const publishSuccessCallout =
+    m.publishSuccessMessage !== null ? (
+      <OperatorSuccessCallout
+        message={m.publishSuccessMessage}
+        testId="policy-pack-publish-success-callout"
+        className="mb-4"
+        onDismiss={() => m.setPublishSuccessMessage(null)}
+      />
+    ) : null;
+
+  const nextReviewFooter =
+    m.pickedReviewId.trim().length > 0 ? (
+      <PolicyPacksNextReviewFooterClient runId={m.pickedReviewId.trim()} />
+    ) : null;
+
+  const buyerPrimaryBody = (
+    <>
+      <div
+        className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+        data-testid="governance-policy-packs-first-viewport"
+      >
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="governance-policy-packs-intro"
+        >
+          {GOVERNANCE_POLICY_PACKS_PAGE_LEAD}
+        </p>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="governance-policy-packs-buyer-start-here-helper"
+        >
+          {GOVERNANCE_POLICY_PACKS_BUYER_START_HERE_HELPER}
+        </p>
+      </div>
+
+      {m.loading ? <PolicyPacksLoadingSkeleton /> : null}
+
+      {m.failure !== null ? (
+        <PolicyPacksLoadFailure
+          message={GOVERNANCE_POLICY_PACKS_LOAD_ERROR}
+          retrying={m.loading}
+          onRetry={() => {
+            void m.load();
+          }}
+        />
+      ) : null}
+
+      {publishSuccessCallout}
+      {readerAssistLine}
+      {activePackBlock}
+      {workspaceTabs}
+      {nextReviewFooter}
+      <PolicyPacksBuyerChrome />
+    </>
+  );
+
+  const operatorBody = (
+    <>
+      {publishSuccessCallout}
+      <PolicyPacksMarketingIntro buyerPolishedShell={false} canMutatePacks={m.canMutatePacks} />
+      {readerAssistLine}
+      {activePackBlock}
+      {workspaceTabs}
+      {nextReviewFooter}
+    </>
+  );
+
   return (
-    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack}>
+    <OperatorPageContainer
+      variant={m.buyerPolishedShell ? "workflow" : "dashboard"}
+      className={OPERATOR_LAYOUT.sectionStack}
+    >
+      {m.buyerPolishedShell ? (
+        <a
+          href={`#${GOVERNANCE_POLICY_PACKS_PRIMARY_CONTENT_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {GOVERNANCE_POLICY_PACKS_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
       {m.buyerPolishedShell ? <PolicyPackBasisStatusBanner className="mb-3" /> : null}
+
+      {m.buyerPolishedShell ? (
+        <LayerHeader pageKey="policy-packs" density="compact" className="mb-3" />
+      ) : null}
 
       <PolicyPacksPageHeader
         subtitle={policyPacksPageSubtitle(m.buyerPolishedShell)}
@@ -103,13 +390,10 @@ export function PolicyPacksPageView(props: Props) {
         onRefresh={m.load}
         breadcrumb={m.buyerPolishedShell ? <PolicyPacksBreadcrumb /> : undefined}
       />
-      {m.buyerPolishedShell ? null : (
+
+      {!m.buyerPolishedShell ? (
         <>
-          <LayerHeader
-            pageKey="policy-packs"
-            density="compact"
-            className="mb-3"
-          />
+          <LayerHeader pageKey="policy-packs" density="compact" className="mb-3" />
           <OperatorRelatedSurfacesDisclosure testId="policy-packs-related-surfaces-disclosure">
             <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
             <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="policy-packs" />
@@ -117,231 +401,19 @@ export function PolicyPacksPageView(props: Props) {
             <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="policy-packs" />
           </OperatorRelatedSurfacesDisclosure>
         </>
-      )}
-
-      {m.loading && m.buyerPolishedShell ? <PolicyPacksLoadingSkeleton /> : null}
-
-      {m.failure !== null && m.buyerPolishedShell ? (
-        <PolicyPacksLoadFailure
-          message={m.failure.message}
-          retrying={m.loading}
-          onRetry={() => {
-            void m.load();
-          }}
-        />
       ) : null}
 
-      {m.publishSuccessMessage !== null ? (
-        <OperatorSuccessCallout
-          message={m.publishSuccessMessage}
-          testId="policy-pack-publish-success-callout"
-          className="mb-4"
-          onDismiss={() => m.setPublishSuccessMessage(null)}
-        />
-      ) : null}
-
-      {!m.buyerPolishedShell ? (
-        <PolicyPacksMarketingIntro buyerPolishedShell={m.buyerPolishedShell} canMutatePacks={m.canMutatePacks} />
-      ) : null}
-
-      {!m.canMutatePacks ? (
-        <p
-          className={cn("mb-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="policy-packs-reader-assist"
+      {m.buyerPolishedShell ? (
+        <div
+          id={GOVERNANCE_POLICY_PACKS_PRIMARY_CONTENT_ID}
+          className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
+          data-testid="governance-policy-packs-primary-content"
         >
-          {m.buyerPolishedShell
-            ? policyPacksRefreshAssistReaderLineBuyerPolished
-            : policyPacksRefreshAssistReaderLine}
-        </p>
-      ) : null}
-
-      {m.buyerPolishedShell && !m.loading && m.failure === null ? (
-        <div className={cn("mb-4 grid gap-4", OPERATOR_LAYOUT.sectionStack)}>
-          <PolicyPacksActivePackSummaryCard
-            effective={m.effective}
-            effectiveContent={m.effectiveContent}
-            selectedPack={m.selectedPackSummary}
-            enforcedRuleCount={enforcedRuleCount}
-            canMutatePacks={m.canMutatePacks}
-            onOpenCatalog={() => {
-              m.setPageTab("my-packs");
-            }}
-          />
-          <PolicyPacksEnforcedRulesTable rows={enforcedRuleRows} />
+          {buyerPrimaryBody}
         </div>
       ) : (
-        <PolicyPacksMetricStrip
-          buyerPolishedShell={m.buyerPolishedShell}
-          packCount={m.packs.length}
-          effective={m.effective}
-          selectedPackSummary={m.selectedPackSummary}
-        />
+        operatorBody
       )}
-
-      <Tabs
-        value={surfaceTab}
-        onValueChange={(next) => {
-          m.setPageTab(resolveSurfaceTabFromValue(next));
-        }}
-        className="mb-6"
-      >
-        <TabsList aria-label="Policy packs sections" data-testid="policy-packs-surface-tabs">
-          <TabsTrigger value="my-packs" data-testid="policy-packs-tab-my-packs" className="shrink-0">
-            My packs
-          </TabsTrigger>
-          <TabsTrigger value="catalog" data-testid="policy-packs-tab-catalog" className="shrink-0">
-            Catalog
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="catalog" className="pt-4" data-testid="policy-packs-panel-catalog">
-          <PolicyPacksCatalogSection
-            canMutatePacks={m.canMutatePacks}
-            loading={m.catalogLoading || m.loading}
-            failure={m.catalogFailure}
-            items={m.catalogItems}
-            selectedCatalogEntryId={m.selectedCatalogEntryId}
-            onSelectedCatalogEntryIdChange={m.setSelectedCatalogEntryId}
-            onRefresh={m.refreshCatalog}
-            onClone={m.onCloneCatalogEntry}
-          />
-        </TabsContent>
-
-        <TabsContent value="my-packs" className="pt-4" data-testid="policy-packs-panel-my-packs">
-          {m.failure !== null && !m.buyerPolishedShell ? (
-            <div role="alert">
-              <OperatorApiProblem
-                problem={m.failure.problem}
-                fallbackMessage={m.failure.message}
-                correlationId={m.failure.correlationId}
-              />
-            </div>
-          ) : null}
-
-          {!m.buyerPolishedShell ? (
-            <PolicyPackImpactPreviewPanel
-              effectiveContent={m.effectiveContent}
-              selectedPackId={m.selectedPackId}
-              packVersions={m.packVersions}
-              scopedReviewId={m.pickedReviewId}
-              onPickReview={m.setPickedReviewId}
-            />
-          ) : null}
-
-          <div className={cn("flex flex-col gap-8", !m.canMutatePacks && "flex-col-reverse")}>
-            <PolicyPacksWorkspaceSelectionWithPreview
-              canMutatePacks={m.canMutatePacks}
-              items={m.workspaceSelectionItems}
-              loading={m.workspaceSelectionLoading || m.loading}
-              togglingAssignmentId={m.togglingAssignmentId}
-              togglingOrganizationRequiredAssignmentId={m.togglingOrganizationRequiredAssignmentId}
-              onToggle={(assignmentId, nextEnabled) => {
-                void m.onToggleWorkspaceSelection(assignmentId, nextEnabled);
-              }}
-              onToggleOrganizationRequired={(assignmentId, nextOrganizationRequired) => {
-                void m.onToggleOrganizationRequired(assignmentId, nextOrganizationRequired);
-              }}
-            />
-
-            {continueLastPack !== null ? (
-              <PolicyPacksContinueLastViewedRow pack={continueLastPack} scopedReviewId={m.pickedReviewId} />
-            ) : null}
-
-            <PolicyPacksRegisteredListSection
-              buyerPolishedShell={m.buyerPolishedShell}
-              canMutatePacks={m.canMutatePacks}
-              packs={m.packs}
-              effectivePackIds={new Set((m.effective?.packs ?? []).map((p) => p.policyPackId).filter((id): id is string => typeof id === "string" && id.length > 0))}
-              selectedPackId={m.selectedPackId}
-              onSelectedPackIdChange={m.setSelectedPackId}
-            />
-
-            {!m.buyerPolishedShell ? (
-              <div data-testid="policy-packs-advanced-options">
-                <AdvancedOptionsAccordion
-                  className="mb-8"
-                  open={m.authoringAdvancedOpen}
-                  onOpenChange={m.setAuthoringAdvancedOpen}
-                  triggerLabel="Inspect tools and JSON lifecycle"
-                >
-                  <PolicyPackImpactSimulationCard
-                    selectedPackId={m.selectedPackId}
-                    selectedPackLabel={m.selectedPackSummary?.name ?? null}
-                  />
-
-                  <PolicyPacksInspectSection
-                    canMutatePacks={m.canMutatePacks}
-                    selectedPackId={m.selectedPackId}
-                    effective={m.effective}
-                    effectiveContent={m.effectiveContent}
-                    packVersions={m.packVersions}
-                    compareLeftId={m.compareLeftId}
-                    compareRightId={m.compareRightId}
-                    onCompareLeftIdChange={m.setCompareLeftId}
-                    onCompareRightIdChange={m.setCompareRightId}
-                    showVersionDiff={m.showVersionDiff}
-                    setShowVersionDiff={m.setShowVersionDiff}
-                    compareLeftVersion={m.compareLeftVersion}
-                    compareRightVersion={m.compareRightVersion}
-                  />
-
-                  {isStaticDemoPayloadFallbackEnabled() || m.buyerPolishedShell ? null : (
-                    <PolicyPacksLifecycleSection
-                      canMutatePacks={m.canMutatePacks}
-                      loading={m.loading}
-                      selectedPackId={m.selectedPackId}
-                      verticalImportSlug={m.verticalImportSlug}
-                      bundledPublishBlocked={m.bundledPublishBlocked}
-                      onImportVertical={m.importVerticalPolicyPack}
-                      name={m.name}
-                      onNameChange={m.setName}
-                      description={m.description}
-                      onDescriptionChange={m.setDescription}
-                      packType={m.packType}
-                      onPackTypeChange={m.setPackType}
-                      createJson={m.createJson}
-                      onCreateJsonChange={m.setCreateJson}
-                      onCreate={m.onCreate}
-                      createLastSavedUtc={m.createLastSavedUtc}
-                      createInlineSaveError={m.createInlineSaveError}
-                      publishVersion={m.publishVersion}
-                      onPublishVersionChange={m.setPublishVersion}
-                      publishJson={m.publishJson}
-                      onPublishJsonChange={m.setPublishJson}
-                      onPublish={m.onPublish}
-                      publishLastSavedUtc={m.publishLastSavedUtc}
-                      publishInlineSaveError={m.publishInlineSaveError}
-                      assignVersion={m.assignVersion}
-                      onAssignVersionChange={m.setAssignVersion}
-                      assignScopeLevel={m.assignScopeLevel}
-                      onAssignScopeLevelChange={m.setAssignScopeLevel}
-                      assignPinned={m.assignPinned}
-                      onAssignPinnedChange={m.setAssignPinned}
-                      onAssign={m.onAssign}
-                      pickedReviewId={m.pickedReviewId}
-                      onPickReviewForAssign={m.setPickedReviewId}
-                    />
-                  )}
-                </AdvancedOptionsAccordion>
-              </div>
-            ) : null}
-
-            {!m.buyerPolishedShell ? (
-              <PolicyPacksAdvancedAuthoringPanel
-                model={m}
-                authoringTab={authoringInnerTab}
-                onAuthoringTabChange={m.setPageTab}
-              />
-            ) : null}
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {m.pickedReviewId.trim().length > 0 ? (
-        <PolicyPacksNextReviewFooterClient runId={m.pickedReviewId.trim()} />
-      ) : null}
-
-      {m.buyerPolishedShell ? <PolicyPacksBuyerChrome /> : null}
     </OperatorPageContainer>
   );
 }

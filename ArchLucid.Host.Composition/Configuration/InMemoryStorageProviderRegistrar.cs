@@ -22,5 +22,6 @@ internal sealed partial class InMemoryStorageProviderRegistrar : IStorageProvide
         RegisterIdentityAuth(services);
         RegisterGovernanceFindings(services);
         RegisterIntegrationsBilling(services, configuration);
+        RegisterAdvisoryDraftOperations(services);
     }
 }

@@ -3,6 +3,7 @@ using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -71,50 +72,59 @@ public sealed class AdvisorCostRecommendationFindingEngine(
             ExtractorAdvisorCostClassifier.ClassifyFromAdvisorCostJson(advisorCostJson);
 
         return recommendations
-            .Select(static recommendation => new Finding
-            {
-                FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
-                FindingType = "AdvisorCostRecommendation",
-                Category = "CostOptimization",
-                EngineType = "advisor-cost-recommendation",
-                Severity = FindingSeverity.Warning,
-                Title = $"Advisor cost recommendation: {recommendation.Title}",
-                Rationale =
-                    "Azure Advisor cost recommendation grounded in extractor advisor-cost.json inventory evidence.",
-                RelatedNodeIds = [],
-                PayloadType = nameof(AdvisorCostRecommendationFindingPayload),
-                Payload = new AdvisorCostRecommendationFindingPayload
-                {
-                    ExtractorArtifactFileName = "advisor-cost.json",
-                    EntryIndex = recommendation.EntryIndex,
-                    RecommendationId = recommendation.RecommendationId,
-                    Title = recommendation.Title,
-                    Category = recommendation.Category,
-                    EstimatedAnnualSavingsUsd = recommendation.EstimatedAnnualSavingsUsd,
-                },
-                Trace = new ExplainabilityTrace
-                {
-                    RulesApplied = ["extractor-advisor-cost-json"],
-                    DecisionsTaken =
-                    [
-                        "Emitted a typed finding for each Advisor cost recommendation row in advisor-cost.json."
-                    ],
-                    AlternativePathsConsidered =
-                    [
-                        "Accept the recommendation and track realized savings after implementation.",
-                        "Dismiss the recommendation when the workload intentionally retains the current configuration."
-                    ],
-                    Notes =
-                    [
-                        "Evidence artifact: advisor-cost.json",
-                        $"Recommendation id: {recommendation.RecommendationId}",
-                        $"Entry index: {recommendation.EntryIndex}",
-                        recommendation.EstimatedAnnualSavingsUsd is null
-                            ? "Estimated annual savings: not reported in extractor row."
-                            : $"Estimated annual savings (USD): {recommendation.EstimatedAnnualSavingsUsd:0.##}",
-                    ],
-                },
-            })
+            .Select(MapFinding)
             .ToList();
+    }
+
+    private static Finding MapFinding(AdvisorCostRecommendationFinding recommendation)
+    {
+        List<string> evidenceRefs = [];
+        FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, recommendation.InventoryResourceId);
+
+        return new Finding
+        {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+            FindingType = "AdvisorCostRecommendation",
+            Category = "CostOptimization",
+            EngineType = "advisor-cost-recommendation",
+            Severity = FindingSeverity.Warning,
+            Title = $"Advisor cost recommendation: {recommendation.Title}",
+            Rationale =
+                "Azure Advisor cost recommendation grounded in extractor advisor-cost.json inventory evidence.",
+            RelatedNodeIds = [],
+            EvidenceRefs = evidenceRefs,
+            PayloadType = nameof(AdvisorCostRecommendationFindingPayload),
+            Payload = new AdvisorCostRecommendationFindingPayload
+            {
+                ExtractorArtifactFileName = "advisor-cost.json",
+                EntryIndex = recommendation.EntryIndex,
+                RecommendationId = recommendation.RecommendationId,
+                Title = recommendation.Title,
+                Category = recommendation.Category,
+                EstimatedAnnualSavingsUsd = recommendation.EstimatedAnnualSavingsUsd,
+            },
+            Trace = new ExplainabilityTrace
+            {
+                RulesApplied = ["extractor-advisor-cost-json"],
+                DecisionsTaken =
+                [
+                    "Emitted a typed finding for each Advisor cost recommendation row in advisor-cost.json."
+                ],
+                AlternativePathsConsidered =
+                [
+                    "Accept the recommendation and track realized savings after implementation.",
+                    "Dismiss the recommendation when the workload intentionally retains the current configuration."
+                ],
+                Notes =
+                [
+                    "Evidence artifact: advisor-cost.json",
+                    $"Recommendation id: {recommendation.RecommendationId}",
+                    $"Entry index: {recommendation.EntryIndex}",
+                    recommendation.EstimatedAnnualSavingsUsd is null
+                        ? "Estimated annual savings: not reported in extractor row."
+                        : $"Estimated annual savings (USD): {recommendation.EstimatedAnnualSavingsUsd:0.##}",
+                ],
+            },
+        };
     }
 }

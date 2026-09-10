@@ -19,17 +19,26 @@
 
   Do NOT add Operator UI: private-beta access-path (JwtBearer) until private-beta-access-on-push
   has at least one green master run (see .github/BRANCH_PROTECTION.md).
+
+  After the first green private-beta smoke on master, apply the sixth check using
+  .github/rulesets/golden-cohort-gate-private-beta-addon.json (or merge its required_status_checks
+  into golden-cohort-gate-required-check.json) via this script with -PayloadPath.
 #>
 [CmdletBinding()]
 param(
-    [string]$Repo = 'joefrancisGA/ArchLucid'
+    [string]$Repo = 'joefrancisGA/ArchLucid',
+    [string]$PayloadPath
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$payloadPath = Join-Path $root '.github/rulesets/golden-cohort-gate-required-check.json'
+$payloadPath = if ([string]::IsNullOrWhiteSpace($PayloadPath)) {
+    Join-Path $root '.github/rulesets/golden-cohort-gate-required-check.json'
+} else {
+    $PayloadPath
+}
 
 if (-not (Test-Path -LiteralPath $payloadPath)) {
     throw "Missing ruleset payload: $payloadPath"

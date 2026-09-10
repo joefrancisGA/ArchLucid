@@ -1,9 +1,14 @@
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
+import { ADMINISTRATION_CONNECTION_STATUS_PATH } from "@/lib/integrations-nav-paths";
+import { API_KEYS_PAGE_SUBTITLE, API_KEYS_PAGE_TITLE } from "@/lib/api-keys-settings-copy";
+import { SYSTEM_HEALTH_PAGE_SUBTITLE_OPERATOR, SYSTEM_HEALTH_PAGE_TITLE } from "@/lib/system-health-page-copy";
+import { ADMINISTRATION_CONNECTION_STATUS_PAGE_SUBTITLE_OPERATOR } from "@/lib/administration-connection-status-page-copy";
 
 import type { SettingsMasterSection } from "./settings-master-types";
 
-/** Workspace defaults, notifications, directory, billing, and support hub sections. */
+/** Workspace defaults, notifications, directory, billing, support, and health hub sections. */
 export const SETTINGS_MASTER_SECTIONS_WORKSPACE: readonly SettingsMasterSection[] = [
   {
     id: "workspace",
@@ -43,7 +48,6 @@ export const SETTINGS_MASTER_SECTIONS_WORKSPACE: readonly SettingsMasterSection[
         source: "overridden",
         editability: "admin-only",
         saveBehavior: "Save draft and activate on destination page",
-        highImpact: true,
       },
     ],
   },
@@ -117,7 +121,57 @@ export const SETTINGS_MASTER_SECTIONS_WORKSPACE: readonly SettingsMasterSection[
         source: "inherited",
         editability: "read-only",
         saveBehavior: "Credit changes require admin confirmation on destination page",
+      },
+    ],
+  },
+  {
+    id: "health-and-access",
+    navLabel: "Health and access",
+    title: "Health and access",
+    description: "Platform readiness, integration connectivity, and automation credentials.",
+    keywords: ["health", "system", "api", "key", "connection", "status", "readiness"],
+    tier: "common",
+    destinations: [
+      {
+        id: "system-health",
+        title: SYSTEM_HEALTH_PAGE_TITLE,
+        description: SYSTEM_HEALTH_PAGE_SUBTITLE_OPERATOR,
+        href: ADMINISTRATION_SYSTEM_HEALTH_PATH,
+        cta: "Open system health",
+        keywords: ["system", "health", "dependencies", "deployment", "readiness"],
+        requiredAuthority: "ReadAuthority",
+        tier: "common",
+        scope: "workspace",
+        source: "default",
+        editability: "read-only",
+      },
+      {
+        id: "api-keys",
+        title: API_KEYS_PAGE_TITLE,
+        description: API_KEYS_PAGE_SUBTITLE,
+        href: "/administration/api-keys",
+        cta: "Open API keys",
+        keywords: ["api", "key", "automation", "integration", "token"],
+        requiredAuthority: "AdminAuthority",
+        tier: "common",
+        scope: "tenant",
+        source: "overridden",
+        editability: "admin-only",
+        saveBehavior: "Save on destination page",
         highImpact: true,
+      },
+      {
+        id: "connection-status",
+        title: "Connection status",
+        description: ADMINISTRATION_CONNECTION_STATUS_PAGE_SUBTITLE_OPERATOR,
+        href: ADMINISTRATION_CONNECTION_STATUS_PATH,
+        cta: "Open connection status",
+        keywords: ["connection", "status", "integration", "readiness", "connector"],
+        requiredAuthority: "ReadAuthority",
+        tier: "common",
+        scope: "workspace",
+        source: "default",
+        editability: "read-only",
       },
     ],
   },

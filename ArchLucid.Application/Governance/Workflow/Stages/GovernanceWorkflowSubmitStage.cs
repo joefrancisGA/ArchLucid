@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 
@@ -28,6 +29,7 @@ public sealed class GovernanceWorkflowSubmitStage(
     GovernanceWorkflowAuditSupport auditSupport,
     GovernanceWorkflowIntegrationEventSupport integrationEvents,
     IGovernanceEnvironmentCatalogService environmentCatalogService,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IOptions<GovernanceGateOptions> governanceGateOptions,
     ILogger<GovernanceWorkflowSubmitStage> logger) : IGovernanceWorkflowSubmitStage
 {
@@ -51,6 +53,9 @@ public sealed class GovernanceWorkflowSubmitStage(
 
     private readonly IGovernanceEnvironmentCatalogService _environmentCatalogService =
         environmentCatalogService ?? throw new ArgumentNullException(nameof(environmentCatalogService));
+
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory =
+        unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
     private readonly IOptions<GovernanceGateOptions> _governanceGateOptions =
         governanceGateOptions ?? throw new ArgumentNullException(nameof(governanceGateOptions));
@@ -138,21 +143,46 @@ public sealed class GovernanceWorkflowSubmitStage(
             return request;
         }
 
-        await _approvalRepo.CreateAsync(request, cancellationToken);
+        Guid? auditRunId = Guid.TryParse(request.RunId, out Guid submittedRunGuid) ? submittedRunGuid : null;
+        AuditEvent governanceSubmitted = _auditSupport.CreateGovernanceApprovalSubmittedAuditEvent(request, requestedBy);
+        governanceSubmitted.RunId = auditRunId;
+        string durableAuditOperationLabel =
+            $"GovernanceApprovalSubmitted:{LogSanitizer.Sanitize(request.ApprovalRequestId)}";
+
+        await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
+
+        if (uow.SupportsExternalTransaction)
+        {
+            try
+            {
+                await _approvalRepo.CreateAsync(request, cancellationToken, uow.Connection, uow.Transaction);
+                await _auditSupport.LogGovernanceDurableWithRetryInUnitOfWorkAsync(
+                    governanceSubmitted,
+                    durableAuditOperationLabel,
+                    uow,
+                    cancellationToken);
+                await uow.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await uow.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
+        else
+        {
+            await _approvalRepo.CreateAsync(request, cancellationToken);
+            await _auditSupport.LogGovernanceDurableWithRetryAsync(
+                governanceSubmitted,
+                durableAuditOperationLabel,
+                cancellationToken);
+        }
+
         await _baselineMutationAudit.RecordAsync(
             AuditEventTypes.Baseline.Governance.ApprovalRequestSubmitted,
             requestedBy,
             request.ApprovalRequestId,
             $"RunId={runId}; ManifestVersion={manifestVersion}; Source={sourceEnvironment}; Target={targetEnvironment}",
-            cancellationToken);
-
-        Guid? auditRunId = Guid.TryParse(request.RunId, out Guid submittedRunGuid) ? submittedRunGuid : null;
-        AuditEvent governanceSubmitted = _auditSupport.CreateGovernanceApprovalSubmittedAuditEvent(request, requestedBy);
-        governanceSubmitted.RunId = auditRunId;
-
-        await _auditSupport.LogGovernanceDurableWithRetryAsync(
-            governanceSubmitted,
-            $"GovernanceApprovalSubmitted:{LogSanitizer.Sanitize(request.ApprovalRequestId)}",
             cancellationToken);
 
         if (_logger.IsEnabled(LogLevel.Information))

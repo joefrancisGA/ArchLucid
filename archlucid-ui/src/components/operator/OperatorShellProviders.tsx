@@ -6,6 +6,7 @@ import { OperatorNavAuthorityProvider } from "@/components/operator/OperatorNavA
 import { TenantBrandCssVarsProvider } from "@/components/operator/TenantBrandCssVarsProvider";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SessionAiReadinessProvider } from "@/hooks/session-ai-readiness-context";
+import { ProductLineProvider } from "@/components/product-line/ProductLineProvider";
 
 /** Memoized operator shell context stack to narrow re-render blast radius (TB-568). */
 export const OperatorShellProviders = memo(function OperatorShellProviders(props: {
@@ -17,7 +18,9 @@ export const OperatorShellProviders = memo(function OperatorShellProviders(props
     <OperatorNavAuthorityProvider>
       <TenantBrandCssVarsProvider>
         <SessionAiReadinessProvider>
-          <WorkspaceActiveRunProvider>{children}</WorkspaceActiveRunProvider>
+          <ProductLineProvider>
+            <WorkspaceActiveRunProvider>{children}</WorkspaceActiveRunProvider>
+          </ProductLineProvider>
         </SessionAiReadinessProvider>
       </TenantBrandCssVarsProvider>
     </OperatorNavAuthorityProvider>

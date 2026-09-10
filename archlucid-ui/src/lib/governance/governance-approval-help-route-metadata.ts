@@ -10,7 +10,7 @@ import {
 
 /**
 
- * Specialty governance approval guide — operator help, not a marketing landing page.
+ * Specialty approval guide — operator help, not a marketing landing page.
 
  */
 

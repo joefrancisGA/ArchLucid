@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArchitectureIntelligenceProductRoundTrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductRoundTrip";
 import { ArchitectureIntelligenceResultSection } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceResultSection";
 import { ArchitectureIntelligenceRunSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRunSummary";
+import { ArchitectureRecommendationProvenanceChip } from "@/components/architecture-intelligence/ArchitectureRecommendationProvenanceChip";
 import { SimulatorModeAiOperationNotice } from "@/components/usability/SimulatorModeAiOperationNotice";
 import type {
   ClosedLoopReasoningResult,
@@ -227,10 +228,23 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
               <li key={recommendation.recommendationId}>
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{recommendation.problem}</CardTitle>
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{recommendation.problem}</CardTitle>
+                      <ArchitectureRecommendationProvenanceChip provenance={recommendation.provenance} />
+                    </div>
                   </CardHeader>
-                  <CardContent className={cn("pt-0", OPERATOR_TYPOGRAPHY.body)}>
+                  <CardContent className={cn("space-y-2 pt-0", OPERATOR_TYPOGRAPHY.body)}>
                     <p className="m-0">{recommendation.proposedChange}</p>
+                    {recommendation.evidence?.trim().length ? (
+                      <p className="m-0 text-al-text-secondary">Evidence: {recommendation.evidence}</p>
+                    ) : (
+                      <p
+                        className="m-0 text-al-text-secondary"
+                        data-testid="architecture-recommendation-missing-evidence"
+                      >
+                        Evidence: not cited — treat as advisory until reviewed.
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </li>

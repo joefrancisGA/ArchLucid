@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
-  TROUBLESHOOTING_COMMON_ISSUES,
   TROUBLESHOOTING_ISSUE_KIND_LABELS,
+  troubleshootingCommonIssues,
   type TroubleshootingIssue,
 } from "@/lib/troubleshooting-help-guide-content";
 import {
@@ -23,12 +24,20 @@ import {
   parseHelpTroubleshootingSearchQuery,
 } from "@/lib/help/help-troubleshooting-search-url";
 import {
+  helpTroubleshootingIssueDisclosureHrefFromSearch,
+  parseHelpTroubleshootingIssueFromSearch,
+} from "@/lib/help/help-troubleshooting-issue-disclosure-url";
+import {
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-function TroubleshootingIssueCard(props: { readonly issue: TroubleshootingIssue }): React.ReactElement {
+function TroubleshootingIssueCard(props: {
+  readonly issue: TroubleshootingIssue;
+  readonly open: boolean;
+  readonly onOpenChange: (issueId: string | null) => void;
+}): React.ReactElement {
   const { issue } = props;
   const kindStatus = resolveTroubleshootingIssueKindStatus(issue.kind);
 
@@ -40,6 +49,11 @@ function TroubleshootingIssueCard(props: { readonly issue: TroubleshootingIssue 
         OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
       )}
       data-testid={`troubleshooting-issue-${issue.id}`}
+      open={props.open}
+      onToggle={(event) => {
+        const nextOpen = event.currentTarget.open;
+        props.onOpenChange(nextOpen ? issue.id : null);
+      }}
     >
       <summary
         className={cn(
@@ -85,11 +99,39 @@ function TroubleshootingIssueCard(props: { readonly issue: TroubleshootingIssue 
 
 /** Filterable, owner-grouped Common issues list for `/help/troubleshooting`. */
 export function TroubleshootingCommonIssuesList(): React.ReactElement {
+  const { productLine } = useProductLine();
+  const commonIssues = useMemo(() => troubleshootingCommonIssues(productLine), [productLine]);
   const router = useRouter();
+  const pathname = usePathname() ?? "/help/troubleshooting";
   const searchParams = useSearchParams();
   const currentSearch = searchParams.toString();
   const urlQuery = parseHelpTroubleshootingSearchQuery(searchParams.get("q"));
+  const helpTroubleshootingIssueParam = searchParams.get("helpTroubleshootingIssue");
   const [query, setQuery] = useState(urlQuery);
+  const [openIssueId, setOpenIssueIdState] = useState(() =>
+    parseHelpTroubleshootingIssueFromSearch(helpTroubleshootingIssueParam),
+  );
+
+  const syncOpenIssueToUrl = useCallback(
+    (issueId: string | null) => {
+      router.replace(helpTroubleshootingIssueDisclosureHrefFromSearch(searchParams.toString(), issueId, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpenIssueId = useCallback(
+    (issueId: string | null) => {
+      setOpenIssueIdState(issueId ?? "");
+      syncOpenIssueToUrl(issueId);
+    },
+    [syncOpenIssueToUrl],
+  );
+
+  useEffect(() => {
+    setOpenIssueIdState(parseHelpTroubleshootingIssueFromSearch(helpTroubleshootingIssueParam));
+  }, [helpTroubleshootingIssueParam]);
 
   useEffect(() => {
     setQuery(urlQuery);
@@ -110,8 +152,8 @@ export function TroubleshootingCommonIssuesList(): React.ReactElement {
   }, [query, router, searchParams]);
 
   const filtered = useMemo(
-    () => filterTroubleshootingIssues(TROUBLESHOOTING_COMMON_ISSUES, query),
-    [query],
+    () => filterTroubleshootingIssues(commonIssues, query),
+    [commonIssues, query],
   );
   const groups = useMemo(() => groupTroubleshootingIssuesByKind(filtered), [filtered]);
 
@@ -147,7 +189,12 @@ export function TroubleshootingCommonIssuesList(): React.ReactElement {
             </h3>
             <div className="space-y-3">
               {group.issues.map((issue) => (
-                <TroubleshootingIssueCard key={issue.id} issue={issue} />
+                <TroubleshootingIssueCard
+                  key={issue.id}
+                  issue={issue}
+                  open={openIssueId === issue.id}
+                  onOpenChange={setOpenIssueId}
+                />
               ))}
             </div>
           </div>

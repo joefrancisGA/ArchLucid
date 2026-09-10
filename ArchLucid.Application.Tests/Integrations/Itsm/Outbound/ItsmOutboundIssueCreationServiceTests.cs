@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -33,14 +34,23 @@ public sealed class ItsmOutboundIssueCreationServiceTests
             ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
         };
 
-    private static FindingInspectResponse Inspect(FindingSeverity severity, string findingId = "fid1") =>
+    private static FindingInspectResponse Inspect(
+        FindingSeverity severity,
+        string findingId = "fid1",
+        FindingClassification? classification = null) =>
         new()
         {
             FindingId = findingId,
             RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
             Severity = severity,
             TypedPayload = JsonSerializer.SerializeToElement(
-                new ArchitectureFinding { FindingId = findingId, Severity = severity, Message = "Hello" },
+                new ArchitectureFinding
+                {
+                    FindingId = findingId,
+                    Severity = severity,
+                    Message = "Hello",
+                    Classification = classification,
+                },
                 options: new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
             HumanReviewStatus = FindingHumanReviewStatus.Pending,
             Evidence = [],
@@ -624,6 +634,36 @@ public sealed class ItsmOutboundIssueCreationServiceTests
                 It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task TryCreateForFindingAsync_rejects_checklist_coverage_classification()
+    {
+        Mock<IFindingInspectReadRepository> findings = new();
+        findings
+            .Setup(f => f.GetInspectAsync(It.IsAny<ScopeContext>(), "checklist", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Inspect(FindingSeverity.Info, "checklist", FindingClassification.ChecklistCoverage));
+
+        ItsmOutboundIssueCreationService sut = IssueCreationService(
+            findings.Object,
+            Mock.Of<IItsmFindingCorrelationRepository>(),
+            Mock.Of<ITenantItsmOutboundSettingsRepository>(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IArchitectureRequestRepository>(),
+            CredentialResolver(OutboundJiraConfigured()),
+            Monitor(OutboundJiraConfigured()).Object,
+            PublicSiteMonitor().Object,
+            new JiraOutboundIssueClient(new HttpClient(new BoomHttpMessageHandler()), NullLogger<JiraOutboundIssueClient>.Instance),
+            new ServiceNowOutboundIncidentClient(new HttpClient(new BoomHttpMessageHandler()), NullLogger<ServiceNowOutboundIncidentClient>.Instance));
+
+        ItsmOutboundIssueCreationResult result = await sut.TryCreateForFindingAsync(
+            ItsmOutboundIssueProvider.Jira,
+            Scope(),
+            "checklist",
+            CancellationToken.None);
+
+        result.Kind.Should().Be(ItsmOutboundCreateTerminalKind.NotDecisionGrade);
+        result.UserMessage.Should().Be(DecisionGradeFindingExportFilter.ChecklistCoverageItsmExportBlockedMessage);
     }
 
     private sealed class BoomHttpMessageHandler : HttpMessageHandler

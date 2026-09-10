@@ -85,7 +85,7 @@ public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFact
         const string sql = """
                            SELECT ArchitectureId, TenantId, WorkspaceId, ScopeProjectId,
                                   DisplayName, Description, CurrentModelId, LatestSealedManifestId,
-                                  CreatedUtc, UpdatedUtc, ArchivedUtc
+                                  CreatedUtc, UpdatedUtc, ArchivedUtc, RestrictToShares
                            FROM dbo.Architectures
                            WHERE ArchitectureId = @ArchitectureId
                              AND TenantId = @TenantId

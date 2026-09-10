@@ -23,6 +23,7 @@ import {
 } from "@/hooks/use-livelihood-document-guards";
 
 import { SsoWizardFooter } from "./SsoWizardFooter";
+import { AuthBetaReadinessInviteCallout } from "@/app/(operator)/administration/users/_sections/AuthBetaReadinessInviteCallout";
 import { SsoWizardPageChrome } from "./SsoWizardPageChrome";
 import { SsoWizardStepContent } from "./SsoWizardStepContent";
 import { ssoWizardHasUnsavedChanges } from "./sso-wizard-state";
@@ -68,6 +69,8 @@ export function SsoWizardPageClient() {
         setPendingCancelConfirm={wizard.setPendingCancelConfirm}
         leaveWizard={wizard.leaveWizard}
       />
+
+      <AuthBetaReadinessInviteCallout diagnosticsHref="/administration/identity-providers/diagnostics" />
 
       <Card>
         <CardHeader>

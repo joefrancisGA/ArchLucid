@@ -175,13 +175,13 @@ describe("HelpEvidenceTrailGuideView (TB-1360–TB-1364)", () => {
 
     expect(screen.getByRole("heading", { name: "What the evidence trail shows" })).toBeInTheDocument();
 
-    const diagram = screen.getByTestId("help-evidence-trail-provenance-diagram");
-    expect(diagram).toHaveTextContent("subgraph intake");
-    expect(diagram).toHaveTextContent("Evidence and artifacts");
+    const diagram = screen.getAllByTestId("help-evidence-trail-provenance-diagram")[0];
+    expect(diagram).toHaveTextContent("subgraph sources");
+    expect(diagram).toHaveTextContent("Evidence sources");
     expect(diagram).toHaveTextContent("Findings");
-    expect(diagram).toHaveTextContent("Governance decisions");
-    expect(diagram).toHaveTextContent("Finalized review record");
-    expect(diagram).toHaveTextContent("Exports and downloads");
+    expect(diagram).toHaveTextContent("Decisions");
+    expect(diagram).toHaveTextContent("Review record");
+    expect(diagram).toHaveTextContent("Exports and verification");
 
     const diagramText = diagram.textContent ?? "";
 

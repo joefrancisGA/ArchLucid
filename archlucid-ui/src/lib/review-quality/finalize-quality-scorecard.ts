@@ -1,4 +1,5 @@
 import { formatAuthorityCommitSkippedMustBlockedReason } from "./authority-commit-skipped-must-blocked-reason";
+import { formatDegradedFindingCoverageBlockedReason } from "./degraded-finding-coverage-blocked-reason";
 import { TRANSPARENCY_TRAIL_INCOMPLETE_FINALIZE_REASON } from "@/lib/feasibility/transparency-trail-completeness";
 
 export type FinalizeQualityScorecardInput = {
@@ -12,6 +13,10 @@ export type FinalizeQualityScorecardInput = {
   readonly skippedMustCount: number;
   /** When true, ADR 0073 blocks finalize until intake trail exists. */
   readonly transparencyTrailIncomplete?: boolean;
+  /** WS-14: Working seats block finalize when finding-engine coverage is degraded. */
+  readonly degradedFindingCoverage?: boolean;
+  readonly degradedFindingCoverageFailedEngineLabels?: readonly string[];
+  readonly blockDegradedFindingCoverageOnWorking?: boolean;
 };
 
 export type FinalizeQualityScorecardResult = {
@@ -79,6 +84,15 @@ export function evaluateFinalizeQualityScorecard(input: FinalizeQualityScorecard
 
   if (input.transparencyTrailIncomplete === true) {
     blockingReasons.push(TRANSPARENCY_TRAIL_INCOMPLETE_FINALIZE_REASON);
+  }
+
+  if (
+    input.blockDegradedFindingCoverageOnWorking === true
+    && input.degradedFindingCoverage === true
+  ) {
+    blockingReasons.push(
+      formatDegradedFindingCoverageBlockedReason(input.degradedFindingCoverageFailedEngineLabels ?? []),
+    );
   }
 
   return {

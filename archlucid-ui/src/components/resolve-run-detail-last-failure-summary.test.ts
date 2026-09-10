@@ -36,6 +36,19 @@ describe("resolve-run-detail-last-failure-summary helpers", () => {
     ).toBe("2026-09-02T08:30:00.000Z");
   });
 
+  it("does not treat intake creation or last-modified times as failure time", () => {
+    expect(
+      resolveReviewFailureRecordedAtUtc({
+        pipelineSummary: {
+          completedUtc: null,
+          lastModifiedUtc: "2026-09-03T10:00:00.000Z",
+          createdUtc: "2026-09-01T08:00:00.000Z",
+        } as never,
+        runCompletedUtc: null,
+      }),
+    ).toBeNull();
+  });
+
   it("formats failure recorded time for display with UTC suffix", () => {
     expect(formatReviewFailureRecordedAtLabel("2026-09-01T12:00:00.000Z")).toContain("UTC");
   });

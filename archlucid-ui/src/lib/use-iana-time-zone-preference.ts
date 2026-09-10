@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import {
   persistIanaTimeZonePreference,
   readStoredIanaTimeZonePreference,
@@ -16,7 +17,7 @@ export function useIanaTimeZonePreference(): {
   readonly accountSyncState: IanaTimeZonePreferenceAccountSyncState;
   readonly setAndPersist: (nextIanaTimeZoneId: string) => void;
 } {
-  const [ianaTimeZoneId, setIanaTimeZoneId] = useState<string>("UTC");
+  const [ianaTimeZoneId, setIanaTimeZoneId] = useState<string>(DEFAULT_IANA_TIME_ZONE_ID);
   const [mounted, setMounted] = useState(false);
   const [accountSyncState, setAccountSyncState] = useState<IanaTimeZonePreferenceAccountSyncState>("idle");
   const userTouchedRef = useRef(false);

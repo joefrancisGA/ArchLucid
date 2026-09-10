@@ -12,6 +12,7 @@ import { reviewFinalizeMutationBlockedReason } from "@/lib/runs/review-finalize-
 import { reviewPinMutationBlockedReason } from "@/lib/runs/review-pin-mutation-blocked-reason";
 import { reviewSelectiveExecuteMutationBlockedReason } from "@/lib/runs/review-selective-execute-mutation-blocked-reason";
 import { reviewArchiveMutationBlockedReason } from "@/lib/runs/review-archive-mutation-blocked-reason";
+
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   apiPatchJson,
@@ -156,6 +157,44 @@ export async function replayArchitectureRunAsync(
   }
 }
 
+export type ReplayArchitectureRunAsyncResult = {
+  readonly operationId: string;
+  readonly location: string | null;
+};
+
+/** Tier C async replay (TB-2075): 202 + Location for long-running replay work. */
+export async function replayArchitectureRunAsync(
+  runId: string,
+  body: {
+    readonly executionMode?: string;
+    readonly commitReplay?: boolean;
+    readonly manifestVersionOverride?: string | null;
+  } = {},
+): Promise<ReplayArchitectureRunAsyncResult> {
+  const accepted = await apiPostAcceptedWithLocation(
+    `/v1/architecture/review/${encodeURIComponent(runId)}/replay/async`,
+    {
+      executionMode: body.executionMode,
+      commitReplay: body.commitReplay,
+      manifestVersionOverride: body.manifestVersionOverride ?? undefined,
+    },
+    { suppressErrorToast: true },
+  );
+  const operationId =
+    parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
+
+  trackInFlightOperation({
+    operationId,
+    title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+    href: reviewPipelineDetailHref(runId),
+    runId,
+    stepLabel: "Replay queued",
+    state: "Pending",
+  });
+
+  return { operationId, location: accepted.location };
+}
+
 /** TB-938: re-execute selected agents only (POST /v1/architecture/review/{runId}/execute/selective). */
 export async function executeArchitectureRunSelective(
   runId: string,
@@ -233,6 +272,7 @@ export async function archiveArchitectureRequest(requestId: string): Promise<voi
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
+
 }
 
 /** Soft-deletes an architecture request (DELETE /v1/architecture/request/{requestId}). */

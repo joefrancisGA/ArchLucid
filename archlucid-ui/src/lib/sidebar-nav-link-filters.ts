@@ -2,6 +2,7 @@ import type { NavLinkItem, NavShellSurface } from "@/lib/nav-config.types";
 import { resolveNavLinkTooltipTitle } from "@/lib/nav-link-tooltip";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { resolveNavLinkPresentation } from "@/lib/operator/operator-nav-labels";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
 
 /** Applies buyer-polished and governance-mode label overrides for a single nav link row. */
 export function presentSidebarNavLink(
@@ -9,8 +10,15 @@ export function presentSidebarNavLink(
   buyerPolishedShell: boolean,
   isGovernanceModeEnabled = false,
   workingMode = false,
+  productLine: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
 ): NavLinkItem {
-  const resolved = resolveNavLinkPresentation(link, buyerPolishedShell, isGovernanceModeEnabled, workingMode);
+  const resolved = resolveNavLinkPresentation(
+    link,
+    buyerPolishedShell,
+    isGovernanceModeEnabled,
+    workingMode,
+    productLine,
+  );
 
   return {
     ...link,
@@ -25,8 +33,9 @@ export function presentSidebarNavLinkForCluster(
   _groupSurface: NavShellSurface,
   isGovernanceModeEnabled = false,
   workingMode = false,
+  productLine: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
 ): NavLinkItem {
-  return presentSidebarNavLink(link, buyerPolishedShell, isGovernanceModeEnabled, workingMode);
+  return presentSidebarNavLink(link, buyerPolishedShell, isGovernanceModeEnabled, workingMode, productLine);
 }
 
 export type SidebarNavClusterLinksInput = {

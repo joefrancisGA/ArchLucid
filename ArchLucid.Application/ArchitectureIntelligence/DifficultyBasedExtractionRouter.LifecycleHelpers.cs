@@ -49,8 +49,10 @@ public sealed partial class DifficultyBasedExtractionRouter
         List<(int Index, ArchitectureLifecycleScope Scope)> boundaries = [];
 
         AddLifecycleBoundaries(sourceText, "target state", ArchitectureLifecycleScope.TargetState, boundaries);
+        AddLifecycleBoundaries(sourceText, "future state", ArchitectureLifecycleScope.TargetState, boundaries);
         AddLifecycleBoundaries(sourceText, "to-be", ArchitectureLifecycleScope.TargetState, boundaries);
         AddLifecycleBoundaries(sourceText, "current state", ArchitectureLifecycleScope.CurrentState, boundaries);
+        AddLifecycleBoundaries(sourceText, "present state", ArchitectureLifecycleScope.CurrentState, boundaries);
         AddLifecycleBoundaries(sourceText, "as-is", ArchitectureLifecycleScope.CurrentState, boundaries);
 
         if (boundaries.Count == 0)

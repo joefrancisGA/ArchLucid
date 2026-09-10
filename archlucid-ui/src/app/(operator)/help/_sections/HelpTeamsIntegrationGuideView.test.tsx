@@ -1,8 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { describe, expect, it, vi } from "vitest";
-
-
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
@@ -18,6 +16,21 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => false,
   };
 });
+
+const productLineState = vi.hoisted(() => ({
+  current: "architecture" as "architecture" | "security",
+}));
+
+vi.mock("@/components/product-line/ProductLineProvider", () => ({
+  useProductLine: () => ({
+    productLine: productLineState.current,
+    assignmentOverrides: {},
+    setProductLine: () => {},
+    setHrefAssignment: () => {},
+    resetHrefAssignment: () => {},
+    resetAllAssignments: () => {},
+  }),
+}));
 
 
 
@@ -73,6 +86,10 @@ import { TEAMS_INTEGRATION_PAGE_SUBTITLE } from "@/lib/teams-integration-page-co
 
 
 describe("HelpTeamsIntegrationGuideView", () => {
+
+  afterEach(() => {
+    productLineState.current = "architecture";
+  });
 
   const entry = getProductDocumentationEntry("teams-integration");
 
@@ -216,6 +233,20 @@ describe("HelpTeamsIntegrationGuideView", () => {
 
     }
 
+  });
+
+  it("shortens Microsoft Teams to Teams in the SecureNow help title", () => {
+    if (entry === undefined) {
+      throw new Error("Expected teams-integration documentation entry.");
+    }
+
+    productLineState.current = "security";
+
+    render(<HelpTeamsIntegrationGuideView entry={entry} />);
+
+    expect(screen.getByTestId("help-teams-integration-page-title")).toHaveTextContent("Teams notifications");
+    expect(screen.getByTestId("help-teams-integration-page-title")).not.toHaveTextContent("Microsoft Teams");
+    expect(screen.getByTestId("help-teams-integration-overview")).not.toHaveTextContent("Microsoft Teams");
   });
 
 });

@@ -5,6 +5,7 @@ import type { TrackedInFlightOperation } from "@/lib/operations/in-flight-operat
 import {
   buildInFlightDeskHref,
   collectInFlightReviewRunIds,
+  filterInFlightOperationsForArchitecture,
   IN_FLIGHT_DESK_ANALYSIS_RUNNING_DETAIL,
   isVisibleInFlightDeskOperation,
   mapInFlightOperationToDeskRow,
@@ -44,6 +45,39 @@ describe("map-in-flight-desk-rows (LI-08)", () => {
     expect(href).toContain("/architecture/reviews/abc");
     expect(href).toContain("reviewTab=activity");
     expect(href).not.toContain("%");
+  });
+
+  it("AO-08: nested activity href when architecture id is on the in-flight row", () => {
+    const href = buildInFlightDeskHref(
+      operation({
+        runId: "run-001",
+        architectureId: "architecture-identity-001",
+      }),
+    );
+
+    expect(href).toBe(
+      "/architecture/architectures/architecture-identity-001/reviews/run-001?reviewTab=activity",
+    );
+  });
+
+  it("AO-21: filters in-flight rows to one architecture identity", () => {
+    const operations = [
+      operation({
+        operationId: "run:one",
+        runId: "one",
+        architectureId: "architecture-identity-001",
+      }),
+      operation({
+        operationId: "run:two",
+        runId: "two",
+        architectureId: "architecture-identity-002",
+      }),
+    ];
+
+    expect(filterInFlightOperationsForArchitecture(operations, "architecture-identity-001")).toHaveLength(1);
+    expect(
+      filterInFlightOperationsForArchitecture(operations, "architecture-identity-001")[0]?.runId,
+    ).toBe("one");
   });
 
   it("preserves non-review hrefs when runId is absent", () => {

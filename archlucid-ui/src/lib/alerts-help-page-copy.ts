@@ -8,5 +8,7 @@ export const ALERTS_HELP_SKIP_LINK_LABEL = "Skip to alerts workspace" as const;
 
 export const ALERTS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID = "help-alerts-header-claim-discipline" as const;
 
+export const ALERTS_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-alerts-orientation-bottom" as const;
+
 export const ALERTS_HELP_PAGE_SUBTITLE_BUYER =
   "Learn how alerts are raised and routed, then open the inbox or configure rules for this workspace." as const;

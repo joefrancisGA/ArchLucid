@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   resolveFindingWorkItemCoverageHonesty,
   resolveFindingWorkItemCoverageHonestyFromInput,
+  resolveTraceRowWorkItemCoverageHonesty,
 } from "./copy-finding-as-work-item-coverage-honesty";
 import type { FindingWorkItemBuildInput } from "./copy-finding-as-work-item-types";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -57,6 +58,20 @@ describe("resolveFindingWorkItemCoverageHonesty (FD-07)", () => {
     expect(honesty?.provenanceKind).toBe("inferred");
   });
 
+  it("adds skipped MUST questions to clipboard honesty", () => {
+    const honesty = resolveFindingWorkItemCoverageHonesty(
+      baseInput,
+      inspectPayload({}),
+      {
+        asserted: [],
+        inferred: [],
+        skipped: [{ questionKey: "data-residency", tier: "Must" }],
+      },
+    );
+
+    expect(honesty?.line).toContain("Skipped required questions: data-residency");
+  });
+
   it("returns null when no honesty signals are present", () => {
     const honesty = resolveFindingWorkItemCoverageHonesty(
       {
@@ -80,5 +95,17 @@ describe("resolveFindingWorkItemCoverageHonestyFromInput", () => {
     });
 
     expect(honesty?.line).toContain("Checklist coverage");
+  });
+});
+
+describe("resolveTraceRowWorkItemCoverageHonesty (FC-41)", () => {
+  it("returns skipped MUST honesty from transparency trail", () => {
+    const honesty = resolveTraceRowWorkItemCoverageHonesty({
+      asserted: [],
+      inferred: [],
+      skipped: [{ questionKey: "drRpo", tier: "Must" }],
+    });
+
+    expect(honesty?.line).toContain("Skipped required questions: drRpo");
   });
 });

@@ -44,7 +44,7 @@ public sealed class CriticFindingObviousnessPrunerTests
     }
 
     [Fact]
-    public void Apply_preserves_obvious_advice_when_named_service_anchors_the_message()
+    public void Apply_downgrades_named_service_generic_advice_without_resolvable_evidence()
     {
         ArchitectureFinding finding = new()
         {
@@ -60,9 +60,9 @@ public sealed class CriticFindingObviousnessPrunerTests
         CriticFindingObviousnessPruner.Apply(result, Gate);
 
         result.Findings.Should().HaveCount(1);
-        result.Findings[0].Severity.Should().Be(FindingSeverity.Error);
-        result.Findings[0].ConfidenceLevel.Should().Be(FindingConfidenceLevel.Medium);
-        result.Findings[0].EnforcementTier.Should().Be(FindingEnforcementTier.PolicyViolation);
+        result.Findings[0].Severity.Should().Be(FindingSeverity.Info);
+        result.Findings[0].ConfidenceLevel.Should().Be(FindingConfidenceLevel.Low);
+        result.Findings[0].EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
     }
 
     [Fact]

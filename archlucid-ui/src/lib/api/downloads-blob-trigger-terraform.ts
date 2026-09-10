@@ -5,7 +5,6 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
   ensureOidcBearerReady,
-  getBearerToken,
   isBrowser,
 } from "./http";
 import { getTerraformAdvisoryExportDownloadUrl } from "./downloads-blob-urls";
@@ -28,11 +27,6 @@ export async function downloadTerraformAdvisoryExportZip(runId: string): Promise
   const url = getTerraformAdvisoryExportDownloadUrl(runId);
   const headers = new Headers();
   headers.set("Accept", "application/zip, application/json");
-  const bearer = getBearerToken();
-
-  if (bearer) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
 
   const init = mergeRegistrationScopeForProxy({
     method: "GET",

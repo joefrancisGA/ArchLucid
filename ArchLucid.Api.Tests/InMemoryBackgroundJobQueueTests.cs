@@ -296,6 +296,82 @@ public sealed class InMemoryBackgroundJobQueueTests
         await queue.StopAsync(CancellationToken.None);
     }
 
+    [SkippableFact]
+    public async Task MarkCanceled_during_terminal_failure_does_not_overwrite_with_failed_after_second_state_read()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue? queueRef = null;
+        string? jobIdRef = null;
+
+        logger
+            .Setup(x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, _) => value.ToString()!.Contains("moving to DLQ", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(() =>
+            {
+                if (queueRef is not null && jobIdRef is not null)
+                    _ = queueRef.MarkCanceledAsync(jobIdRef);
+            });
+
+        queueRef = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("terminal failure")));
+
+        await queueRef.StartAsync(CancellationToken.None);
+
+        jobIdRef = await queueRef.EnqueueAsync(Work("terminal-cancel-reread"), maxRetries: 0);
+
+        await WaitForAnyTerminalStateAsync(queueRef, jobIdRef, TimeSpan.FromSeconds(5));
+
+        BackgroundJobInfo? info = await queueRef.GetInfoAsync(jobIdRef);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled, "cancel must win over terminal failure assignment");
+
+        await queueRef.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
+    public async Task MarkCanceled_during_retry_scheduling_does_not_overwrite_with_pending()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue? queueRef = null;
+        string? jobIdRef = null;
+
+        logger
+            .Setup(x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((value, _) => value.ToString()!.Contains("scheduling retry", StringComparison.Ordinal)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(() =>
+            {
+                if (queueRef is not null && jobIdRef is not null)
+                    _ = queueRef.MarkCanceledAsync(jobIdRef);
+            });
+
+        queueRef = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("retry failure")));
+
+        await queueRef.StartAsync(CancellationToken.None);
+
+        jobIdRef = await queueRef.EnqueueAsync(Work("retry-cancel-reread"), maxRetries: 2);
+
+        await WaitForAnyTerminalStateAsync(queueRef, jobIdRef, TimeSpan.FromSeconds(5));
+
+        BackgroundJobInfo? info = await queueRef.GetInfoAsync(jobIdRef);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled, "cancel must win over pending retry assignment");
+
+        await queueRef.StopAsync(CancellationToken.None);
+    }
+
     private static async Task WaitForTerminalStateAsync(InMemoryBackgroundJobQueue queue, string jobId,
         TimeSpan timeout)
     {
@@ -304,6 +380,27 @@ public sealed class InMemoryBackgroundJobQueueTests
         {
             BackgroundJobInfo? info = await queue.GetInfoAsync(jobId);
             if (info is { State: BackgroundJobState.Succeeded or BackgroundJobState.Failed })
+                return;
+
+            await Task.Delay(20);
+        }
+
+        throw new TimeoutException($"Job {jobId} did not reach a terminal state within {timeout}.");
+    }
+
+    private static async Task WaitForAnyTerminalStateAsync(InMemoryBackgroundJobQueue queue, string jobId,
+        TimeSpan timeout)
+    {
+        DateTime deadline = TimeProvider.System.UtcNowDateTime() + timeout;
+        while (TimeProvider.System.UtcNowDateTime() < deadline)
+        {
+            BackgroundJobInfo? info = await queue.GetInfoAsync(jobId);
+            if (info is
+                {
+                    State: BackgroundJobState.Succeeded
+                    or BackgroundJobState.Failed
+                    or BackgroundJobState.Canceled
+                })
                 return;
 
             await Task.Delay(20);

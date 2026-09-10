@@ -9,6 +9,8 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Data.Repositories;
@@ -102,6 +104,7 @@ public sealed class AwsInventorySecurityBaselineFindingEngineTests
         AwsInventorySecurityBaselineFindingEngine engine = new(
             scopeProvider.Object,
             packageRepository.Object,
+            new StubComplianceRulePackProvider(CreateFailOpenPack()),
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 30 }));
 
@@ -125,6 +128,7 @@ public sealed class AwsInventorySecurityBaselineFindingEngineTests
         AwsInventorySecurityBaselineFindingEngine engine = new(
             scopeProvider.Object,
             packageRepository.Object,
+            new StubComplianceRulePackProvider(CreateFailOpenPack()),
             TimeProvider.System,
             Options.Create(new RoiCostEvidenceFreshnessOptions { StaleAfterDays = 30 }));
 
@@ -157,5 +161,33 @@ public sealed class AwsInventorySecurityBaselineFindingEngineTests
         }
 
         return zipStream.ToArray();
+    }
+
+    private static ComplianceRulePack CreateFailOpenPack() =>
+        new()
+        {
+            RulePackId = "inventory-security-fail-open",
+            Name = "Inventory security fail-open",
+            Version = "1",
+            Rules =
+            [
+                new ComplianceRule
+                {
+                    RuleId = "cost-opt-001",
+                    ControlId = "c",
+                    ControlName = "n",
+                    AppliesToCategory = "cat",
+                    RequiredNodeType = "t",
+                    RequiredEdgeType = "e",
+                    Description = "d",
+                },
+            ],
+        };
+
+    private sealed class StubComplianceRulePackProvider(ComplianceRulePack pack) : IComplianceRulePackProvider
+    {
+        private readonly ComplianceRulePack _pack = pack ?? throw new ArgumentNullException(nameof(pack));
+
+        public Task<ComplianceRulePack> GetRulePackAsync(CancellationToken ct) => Task.FromResult(_pack);
     }
 }

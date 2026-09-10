@@ -1,25 +1,26 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Core.Configuration;
 
-public sealed class EmailOtpAuthOptionsValidator(IHostEnvironment hostEnvironment) : IValidateOptions<EmailOtpAuthOptions>
+public sealed class EmailOtpAuthOptionsValidator(
+    IHostEnvironment hostEnvironment,
+    IConfiguration configuration) : IValidateOptions<EmailOtpAuthOptions>
 {
     private const int MinimumHashPepperLength = 32;
 
     private readonly IHostEnvironment _hostEnvironment =
         hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
 
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
+
     public ValidateOptionsResult Validate(string? name, EmailOtpAuthOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (!options.Enabled || _hostEnvironment.IsDevelopment())
-        {
-            return ValidateOptionsResult.Success;
-        }
-
-        if (!IsProductionLike(_hostEnvironment))
+        if (!options.Enabled || !RequiresProductionLikeGuardrails())
         {
             return ValidateOptionsResult.Success;
         }
@@ -45,7 +46,8 @@ public sealed class EmailOtpAuthOptionsValidator(IHostEnvironment hostEnvironmen
             : ValidateOptionsResult.Fail(failures);
     }
 
-    private static bool IsProductionLike(IHostEnvironment hostEnvironment) =>
-        hostEnvironment.IsProduction()
-        || string.Equals(hostEnvironment.EnvironmentName, "Staging", StringComparison.OrdinalIgnoreCase);
+    private bool RequiresProductionLikeGuardrails() =>
+        QuickScanSafetyProductionLikeHostClassification.RequiresProductionLikeAnonymousGuardrails(
+            _hostEnvironment,
+            _configuration);
 }

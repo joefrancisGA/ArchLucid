@@ -16,6 +16,8 @@ import {
   type FindingsNaturalLanguageFacets,
 } from "@/lib/findings/findings-natural-language-filter";
 import type { RiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
+import { governanceFindingsWorkspaceSavedViewHref, governanceFindingsRunScopedSavedViewHref } from "@/lib/governance/governance-findings-saved-view-helpers";
+import { governanceFindingsClearAllFiltersHref } from "@/lib/governance/governance-findings-clear-all-filters-url";
 import { governanceFindingsSearchHrefFromSearch } from "@/lib/governance/governance-findings-queue-search";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 import { patchGovernanceFindingsQueueFacets } from "@/lib/governance/governance-findings-queue-facets-storage";
@@ -48,7 +50,7 @@ export function useGovernanceFindingsQueueSavedViews({
   const clearAllFilters = useCallback((): void => {
     setRegisterFilter("all");
     clearFacetFilters();
-    router.replace(governanceFindingsSearchHrefFromSearch(searchParams.toString(), "", navHref), { scroll: false });
+    router.replace(governanceFindingsClearAllFiltersHref(searchParams.toString(), navHref), { scroll: false });
   }, [clearFacetFilters, navHref, router, searchParams, setRegisterFilter]);
 
   const dismissActiveFilterChip = useCallback(
@@ -87,10 +89,16 @@ export function useGovernanceFindingsQueueSavedViews({
       applyGroupByResource(applied.groupByResource);
 
       if (applied.scopedRunId !== null && applied.scopedRunId.trim().length > 0) {
-        onPickReviewForTriage(applied.scopedRunId);
+        router.replace(
+          governanceFindingsRunScopedSavedViewHref(applied, navHref, applied.scopedRunId),
+          { scroll: false },
+        );
+        return;
       }
+
+      router.replace(governanceFindingsWorkspaceSavedViewHref(applied, navHref), { scroll: false });
     },
-    [applyGroupByResource, onPickReviewForTriage, setJobView, setNlFacets, setRegisterFilter],
+    [applyGroupByResource, navHref, router, setJobView, setNlFacets, setRegisterFilter],
   );
 
   return {

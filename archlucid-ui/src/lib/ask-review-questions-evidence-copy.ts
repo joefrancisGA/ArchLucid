@@ -1,7 +1,7 @@
-import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveWorkingArchitecturePortfolioParentLink } from "@/lib/resolve-working-evidence-parent-link";
 
 export const ASK_REVIEW_QUESTIONS_CANONICAL_PATH = "/insights/ask-review-questions" as const;
 
@@ -15,10 +15,20 @@ export const ASK_REVIEW_QUESTIONS_SOURCES_INTRO =
 
 
 /** Operator Sources — no self-href to Ask. */
-export const ASK_REVIEW_QUESTIONS_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Architecture reviews", href: REVIEWS_LIST_PATH },
-  { label: "Evidence graph", href: "/insights/evidence-graph" },
-  { label: "Search review evidence", href: "/insights/search-review-evidence" },
-  { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
-  { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
-] as const;
+export function buildAskReviewQuestionsSources(
+  workingMode: boolean,
+): readonly EvidenceSourceLink[] {
+  const reviewsParent = resolveWorkingArchitecturePortfolioParentLink(workingMode);
+
+  return [
+    { label: reviewsParent.label, href: reviewsParent.href },
+    { label: "Evidence graph", href: "/insights/evidence-graph" },
+    { label: "Search review evidence", href: "/insights/search-review-evidence" },
+    { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
+    { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
+  ] as const;
+}
+
+/** Guided default — prefer {@link buildAskReviewQuestionsSources}. */
+export const ASK_REVIEW_QUESTIONS_SOURCES: readonly EvidenceSourceLink[] =
+  buildAskReviewQuestionsSources(false);
