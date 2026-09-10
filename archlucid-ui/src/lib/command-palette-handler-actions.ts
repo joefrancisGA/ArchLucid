@@ -1,9 +1,12 @@
 import {
+  isCommandPaletteExtractUploadCopyQuickStartAvailable,
+  isCommandPaletteExtractUploadFocusAvailable,
   isCommandPaletteFinalizeReviewAvailable,
   isCommandPaletteReviewSaveAvailable,
   isCommandPaletteRoomElicitationAvailable,
   isCommandPaletteTenantCostSettingsSaveAvailable,
 } from "@/lib/command-palette-work-action-dom";
+import { isExtractUploadSettingsRoutePath } from "@/lib/extract-upload-settings-route";
 
 export const COMMAND_PALETTE_SAVE_DRAFT_EVENT = "archlucid-command-palette-save-draft";
 export const COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT = "archlucid-command-palette-save-tenant-cost-settings";
@@ -23,12 +26,17 @@ export const COMMAND_PALETTE_ALERT_ACKNOWLEDGE_EVENT = "archlucid-command-palett
 export const COMMAND_PALETTE_ALERT_RESOLVE_EVENT = "archlucid-command-palette-alert-resolve";
 export const COMMAND_PALETTE_ALERT_SUPPRESS_EVENT = "archlucid-command-palette-alert-suppress";
 export const COMMAND_PALETTE_ROOM_ELICITATION_EVENT = "archlucid-command-palette-room-elicitation";
+export const COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT = "archlucid-command-palette-extract-upload-focus";
+export const COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT =
+  "archlucid-command-palette-extract-upload-copy-quick-start";
 
 export type CommandPaletteHandlerActionId =
   | "action-save-draft"
   | "action-save-tenant-cost-settings"
   | "action-finalize-review"
   | "action-room-elicitation"
+  | "action-extract-upload-focus"
+  | "action-extract-upload-copy-quick-start"
   | "action-undo-mutation"
   | "action-finding-next"
   | "action-finding-prev"
@@ -119,6 +127,20 @@ export const COMMAND_PALETTE_HANDLER_ACTIONS: readonly CommandPaletteHandlerActi
       isReviewDetailWorkPath(pathname) && isCommandPaletteRoomElicitationAvailable(),
   },
   {
+    id: "action-extract-upload-focus",
+    label: "Focus inventory upload",
+    searchValue: "action extract upload focus inventory replace zip",
+    isAvailable: (pathname) =>
+      isExtractUploadSettingsRoutePath(pathname) && isCommandPaletteExtractUploadFocusAvailable(),
+  },
+  {
+    id: "action-extract-upload-copy-quick-start",
+    label: "Copy quick-start command",
+    searchValue: "action extract upload copy quick start packager command",
+    isAvailable: (pathname) =>
+      isExtractUploadSettingsRoutePath(pathname) && isCommandPaletteExtractUploadCopyQuickStartAvailable(),
+  },
+  {
     id: "action-undo-mutation",
     label: "Undo last reversible change",
     searchValue: "action undo disposition mutation reversible",
@@ -198,6 +220,8 @@ const HANDLER_ACTION_EVENTS: Record<CommandPaletteHandlerActionId, string> = {
   "action-save-tenant-cost-settings": COMMAND_PALETTE_SAVE_TENANT_COST_SETTINGS_EVENT,
   "action-finalize-review": COMMAND_PALETTE_FINALIZE_REVIEW_EVENT,
   "action-room-elicitation": COMMAND_PALETTE_ROOM_ELICITATION_EVENT,
+  "action-extract-upload-focus": COMMAND_PALETTE_EXTRACT_UPLOAD_FOCUS_EVENT,
+  "action-extract-upload-copy-quick-start": COMMAND_PALETTE_EXTRACT_UPLOAD_COPY_QUICK_START_EVENT,
   "action-undo-mutation": COMMAND_PALETTE_UNDO_MUTATION_EVENT,
   "action-finding-next": COMMAND_PALETTE_FINDING_NEXT_EVENT,
   "action-finding-prev": COMMAND_PALETTE_FINDING_PREV_EVENT,

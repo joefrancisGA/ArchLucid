@@ -283,6 +283,20 @@ export const WORKSPACE_SETTINGS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   },
 ];
 
+export const EXTRACT_UPLOAD_PAGE_SHORTCUTS: PageShortcutEntry[] = [
+  {
+    key: "ctrl+u",
+    label: "Focus upload",
+    description:
+      "Focus the inventory upload surface or activate Replace inventory on Extract & upload",
+  },
+  {
+    key: "ctrl+shift+c",
+    label: "Copy quick-start command",
+    description: "Copy the quick-start packager command for the selected cloud provider",
+  },
+];
+
 /** Working architecture identity desk — documented before nested job shortcuts (AO-43 / AD-10). */
 export { DRIFT_WORKBENCH_PAGE_SHORTCUTS };
 
