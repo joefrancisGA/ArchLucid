@@ -9,6 +9,9 @@ import type {
   GovernancePromotionRecord,
 } from "@/types/governance-workflow";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/governance-workflow-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPostJson, type ApiGetOptions } from "./http";
 
@@ -63,10 +66,17 @@ export async function approveRequest(
   approvalRequestId: string,
   body: { reviewedBy?: string; reviewComment?: string },
 ): Promise<GovernanceApprovalRequest> {
-  return apiPostJson<GovernanceApprovalRequest>(
-    `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/approve`,
-    body,
-  );
+  try {
+    return await apiPostJson<GovernanceApprovalRequest>(
+      `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/approve`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Rejects a pending governance approval request. */
@@ -74,10 +84,17 @@ export async function rejectRequest(
   approvalRequestId: string,
   body: { reviewedBy?: string; reviewComment?: string },
 ): Promise<GovernanceApprovalRequest> {
-  return apiPostJson<GovernanceApprovalRequest>(
-    `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/reject`,
-    body,
-  );
+  try {
+    return await apiPostJson<GovernanceApprovalRequest>(
+      `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/reject`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Batch approve/reject many governance approval requests (ExecuteAuthority — partial success per id). */

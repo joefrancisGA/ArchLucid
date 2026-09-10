@@ -9,6 +9,9 @@ import type {
 } from "@/types/draft-intake";
 import type { CloneSnapshotDraftResponse } from "@/types/draft-intake-clone-snapshot";
 
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { architectureDraftIntakeMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
@@ -30,10 +33,17 @@ export async function submitDraftRequest(
       ? {}
       : { expectedUpdatedUtc };
 
-  return apiPostJson<SubmitDraftResponse>(
-    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`,
-    body,
-  );
+  try {
+    return await apiPostJson<SubmitDraftResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Return an admitted draft to drafting so the architecture brief can be edited again. */
