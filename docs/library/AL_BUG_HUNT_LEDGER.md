@@ -8281,10 +8281,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 26
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-05
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-05 — architecture finding numeric sourceAgent ordinal ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8330,7 +8330,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-09-04 thorough hunt #761: cheap-disproved service/runtime/datastore unknown→`Unknown` parity candidate; proved RelationshipType whitespace silent `Calls` downgrade.
 
 - [x] (proven) `ArchitectureFindingJsonConverter.Read` — numeric `sourceAgent` ordinal ignored while `enforcementTier`/`severity`/`treatment` accept defined ordinals — **hit 2026-09-05 (#796):** `"sourceAgent": 2` left `SourceAgent` at invalid default `0` instead of `AgentType.Cost`; fixed with `TryReadSourceAgent` + `Enum.IsDefined`; regressions in `Deserialize_numeric_source_agent_maps_cost_ordinal` and `Deserialize_integer_source_agent_out_of_range_throws`; updated wave-21 test fixtures to include required `enforcementTier`.
-- [ ] (candidate) `ArchitectureFindingJsonConverter.ReadSeverity` — whitespace-only severity string silently maps to `Info` instead of throwing like unknown labels — may be intentional empty-severity default for partial LLM payloads; needs cheap-disproof against eval-corpus strictness.
+- [x] (valid-no-repro) `ArchitectureFindingJsonConverter.ReadSeverity` — whitespace-only severity string silently maps to `Info` instead of throwing like unknown labels — **cheap-disproof 2026-09-10 thorough hunt #1581:** intentional empty-severity default for partial LLM payloads; parity with `EvalCorpusFindingSeverityJsonConverter`; unknown non-whitespace labels still throw; regressions `Deserialize_whitespace_only_severity_defaults_to_info` and `Read_whitespace_only_severity_defaults_to_info`.
+
+2026-09-10 thorough hunt #1581 (dry): cheap-disproved whitespace-severity default candidate; documented intentional Info default for blank severity in architecture-finding and eval-corpus converters.
 
 2026-09-05 seed hunt #796 (hit): reseeded archlucid-contracts after wave-21 churn; proved architecture-finding numeric sourceAgent ordinal gap; seeded whitespace-severity default candidate.
 
