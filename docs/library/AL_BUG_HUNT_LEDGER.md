@@ -1248,7 +1248,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1291,6 +1291,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — zero-width/format-only `PreviewOverrideReason` satisfied `Trim().Length >= MinimumRationaleLength` without `HasSubstantiveText` — **hit 2026-09-10 seed hunt #1529:** same invisible-text class as #1470 trade-off acknowledgment; regression `Validate_working_remediated_rejects_zero_width_space_only_preview_override_reason`
 
 2026-09-10 seed hunt #1529 (hit): reseeded finding-disposition; proved invisible preview override reason bypass on Working desk Remediated; 25 scoped `FindingDispositionValidationTests` passed.
+
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` for `NeedsEvidence` — zero-width/format-only `EvidenceRequestText` satisfies length without `HasSubstantiveText` — **cheap-disproof 2026-09-10 seed hunt #1566:** `HasSubstantiveText` guard on trimmed evidence request text (`FindingDispositionValidation.cs` lines 121–122); regression `Validate_needs_evidence_rejects_zero_width_space_only_evidence_request_text`.
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` for `Accepted` — zero-width/format-only rationale passes `Trim().Length >= MinimumRationaleLength` — **cheap-disproof 2026-09-10 seed hunt #1566:** same invisible-text class as #1470 trade-off acknowledgment; regression `Validate_accepted_rejects_zero_width_space_only_rationale`.
+- [x] (valid-no-repro) `FindingDispositionValidation.Validate` for `RejectedAsNotApplicable` — zero-width/format-only rationale bypasses audit bar — **cheap-disproof 2026-09-10 seed hunt #1566:** `HasSubstantiveText` on trimmed rationale (`FindingDispositionValidation.cs` lines 54–57); regression `Validate_rejected_as_not_applicable_rejects_zero_width_space_only_rationale`.
+- [x] (valid-no-repro) `ValidateWorkingRemediatedImpactPreviewAttestation` — overlong `PreviewOverrideReason` not capped at `MaximumRationaleLength` — **cheap-disproof 2026-09-10 seed hunt #1566:** max-length check at lines 171–176; regression `Validate_working_remediated_rejects_overlong_preview_override_reason`.
+
+2026-09-10 seed hunt #1566 (seed-only): reseeded finding-disposition after #1529 hit; cheap-disproved invisible NeedsEvidence/Accepted/Rejected rationale and overlong preview override candidates; 29 scoped `FindingDispositionValidationTests` passed.
 
 ---
 

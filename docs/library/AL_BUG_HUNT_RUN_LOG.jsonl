@@ -1779,4 +1779,5 @@
 {"at":"2026-09-10T06:37:49.9824194Z","zoneId":"alert-simulation","outcome":"dry"}
 {"at":"2026-09-10T06:42:16.8577634Z","zoneId":"core-authority-runs","outcome":"seed-only"}
 {"at":"2026-09-10T06:46:13.957484Z","zoneId":"host-composition","outcome":"seed-only"}
-{"at":"2026-09-10T06:49:01.9678510Z","zoneId":"host-composition","outcome":"seed-only"}
+{"at":"2026-09-10T06:49:01.967851Z","zoneId":"host-composition","outcome":"seed-only"}
+{"at":"2026-09-10T06:52:04.1030250Z","zoneId":"finding-disposition","outcome":"seed-only"}
