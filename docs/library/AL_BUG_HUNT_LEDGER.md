@@ -7984,10 +7984,10 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8012,6 +8012,12 @@ Split from retired `archlucid-core` (ABQ-08).
 
 - [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — `failureClass` with internal whitespace (`Pipeline  DeadLetter`) fails exact match against `AgentExecutionFailureClasses.PipelineDeadLetter` — **cheap-disproof 2026-09-09 seed hunt #1473:** writers emit canonical class strings only; conservative reader fails closed; regression `IsDeadLettered_returns_false_for_internal_whitespace_in_failure_class_token`.
 - [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — committed run with golden manifest and pipeline dead-letter JSON surfaces `Complete` because `IsCommittedWithGoldenManifest` runs before dead-letter check — **cheap-disproof 2026-09-09 seed hunt #1473:** dead-letter branch precedes Complete; regression `ResolveFromRunHeader_dead_lettered_committed_run_returns_failed_not_complete`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `TasksGenerated` / `ReadyForCommit` legacy statuses without progress markers return `NotStarted` because #1271 only regression-tested `WaitingForResults` — **cheap-disproof 2026-09-10 seed hunt #1563:** `TryResolveInProgressLegacyStatus` (`AuthorityRunLifecyclePhaseListResolver.cs` lines 66–74) covers both statuses; regressions `ResolveFromRunHeader_tasks_generated_without_progress_markers_returns_in_progress_not_not_started`, `ResolveFromRunHeader_ready_for_commit_without_progress_markers_returns_in_progress_not_not_started`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `ExecutionCompletedQualityRejected` without progress markers returns `NotStarted` instead of `Failed` — **cheap-disproof 2026-09-10 seed hunt #1563:** `TryResolveTerminalFailurePhase` (`AuthorityRunLifecyclePhaseListResolver.cs` lines 44–64) includes quality-rejected; regression `ResolveFromRunHeader_quality_rejected_without_progress_markers_returns_failed_not_not_started`.
+- [x] (invalid) `AuthorityRunLifecyclePhaseListResolver.IsCommittedWithGoldenManifest` — numeric-ordinal `LegacyRunStatus` (`"5"`) with `GoldenManifestId` surfaces `InProgress` instead of `Complete` because Complete gate uses `string.Equals(..., nameof(Committed))` not `TryParseStatus` — **cheap-disproof 2026-09-10 seed hunt #1563:** SQL `CK_Runs_LegacyRunStatus` enum-name allowlist blocks numeric ordinals on persisted rows; in-memory/test fixtures only; regression `ResolveFromRunHeader_numeric_ordinal_committed_with_golden_manifest_returns_in_progress_not_complete_for_in_memory_rows`.
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — leading/trailing whitespace in `failureClass` (`" pipelineDeadLetter "`) returns not dead-lettered because comparison is exact — **cheap-disproof 2026-09-10 seed hunt #1563:** `TryDeserialize` trims `failureClass` before compare (`RunAuthorityPipelineDeadLetterDetection.cs` line 70); writers emit canonical strings; regression `IsDeadLettered_returns_true_for_leading_and_trailing_whitespace_in_failure_class_token`.
+
+2026-09-10 seed hunt #1563 (seed-only): reseeded core-authority-runs; cheap-disproof closed TasksGenerated/ReadyForCommit/QualityRejected lifecycle gaps and numeric-ordinal Committed Complete miss plus padded failureClass dead-letter candidates; 37 scoped Core unit tests passed (`RunAuthority` + `AuthorityRunLifecycle`).
 
 2026-09-09 seed hunt #1473 (seed-only): reseeded core-authority-runs; cheap-disproof closed internal-whitespace failureClass and dead-letter vs Complete ordering candidates; 27 scoped Core unit tests passed.
 
