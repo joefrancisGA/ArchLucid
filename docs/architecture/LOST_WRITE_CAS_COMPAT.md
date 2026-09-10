@@ -11,7 +11,7 @@
 | Stale `expectedUpdatedUtc` | **409** | `draft_cas_stale` | Draft CAS stale | Keep mine / Keep server — another writer changed the document |
 | Omit token and not forceOverwrite | **409** | `draft_cas_token_missing` | Draft CAS token missing | Client bug or v1 queue leftover — **not** “another session” copy |
 
-OpenAPI today (LW-010 snapshot): `expectedUpdatedUtc` and `forceOverwrite` remain **JSON-optional**. Do not regenerate the snapshot in the same change as the guard flip unless LW-024 is in scope. Fail-closed is the guard, not `required: []` in JSON Schema.
+OpenAPI today (LW-024): `expectedUpdatedUtc` and `forceOverwrite` remain **JSON-optional**. Descriptions state that the token is required unless `forceOverwrite`, omit is 409 `draft_cas_token_missing`, and `forceOverwrite` never defaults true. Fail-closed is the guard plus those descriptions, not `required: []` in JSON Schema.
 
 ## In-repo clients (fixer prompts)
 

@@ -22779,6 +22779,7 @@
             ]
           },
           "expectedUpdatedUtc": {
+            "description": "Required unless forceOverwrite is true. Must match the current draft updatedUtc. Omit returns HTTP 409 with code draft_cas_token_missing, not last-write-wins (ADR 0088).",
             "format": "date-time",
             "type": [
               "null",
@@ -22792,6 +22793,7 @@
             ]
           },
           "forceOverwrite": {
+            "description": "When true, skips CAS and overwrites the server draft (Keep mine). Never defaults to true. Writes a Required audit event. JSON Schema cannot express required-unless-forceOverwrite.",
             "type": [
               "null",
               "boolean"
