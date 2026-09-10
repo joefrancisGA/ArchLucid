@@ -7,6 +7,7 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { mapFindingInspectApiPayload } from "@/lib/findings/finding-inspect-payload-map";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { findingFeedbackMutationBlockedReason } from "@/lib/findings/finding-feedback-mutation-blocked-reason";
+import { findingMuteMutationBlockedReason } from "@/lib/findings/finding-mute-mutation-blocked-reason";
 import { runFindingsCsvExportBlockedReason } from "@/lib/findings/run-findings-csv-export-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
@@ -157,10 +158,17 @@ export async function postFindingMute(
 ): Promise<void> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  await apiPostJson(`/v1/findings/${encodedFinding}/mute`, {
-    runId,
-    reason,
-  });
+  try {
+    await apiPostJson(`/v1/findings/${encodedFinding}/mute`, {
+      runId,
+      reason,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingMuteMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export { deleteFindingMute } from "@/lib/findings/finding-unmute-client";
