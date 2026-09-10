@@ -101,6 +101,20 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_rejects_unsafe_zip_entry_path()
+    {
+        byte[] zipBytes = BuildZipWithUnsafeEntry();
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsInvalidArchive.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("Unsafe ZIP entry path");
+    }
+
+    [Fact]
     public void Validate_corrupted_bytes_is_invalid_archive()
     {
         using MemoryStream stream = new([0x01, 0x02, 0x03, 0x04]);
@@ -538,6 +552,33 @@ public sealed class AzureExtractorPackageZipValidatorTests
 
                 writer.Write(optionalEntryJson);
             }
+        }
+
+        return ms.ToArray();
+    }
+
+    private static byte[] BuildZipWithUnsafeEntry()
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
+
+            using (StreamWriter writer = new(manifest.Open()))
+            {
+                writer.Write(
+                    """{"schemaVersion":2,"subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}""");
+            }
+
+            ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+            using (StreamWriter writer = new(resources.Open()))
+            {
+                writer.Write("[]");
+            }
+
+            zip.CreateEntry("../evil.txt");
         }
 
         return ms.ToArray();

@@ -4752,6 +4752,19 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     }
 
     [Fact]
+    public void RedactStructuredJson_preserves_non_sensitive_nested_object_values()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"siteConfig":{"alwaysOn":true,"http20Enabled":false}}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("alwaysOn");
+        redacted.Should().Contain("true");
+        redacted.Should().NotContain("[REDACTED]");
+    }
+
+    [Fact]
     public void RedactValue_returns_marker()
     {
         AzureExtractorSensitivePropertyRedactor.RedactValue("super-secret").Should().Be("[REDACTED]");

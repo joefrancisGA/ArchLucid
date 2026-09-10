@@ -184,6 +184,29 @@ public sealed class AzureExtractorManifestSchemaUpgraderTests
     }
 
     [Fact]
+    public void TryUpgradeManifestJson_accepts_already_current_schema_two_without_mutation()
+    {
+        string manifestJson = """{"schemaVersion":2,"tenantId":"contoso","completenessScore":0.9}""";
+
+        bool ok = AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out string? error);
+
+        ok.Should().BeTrue();
+        error.Should().BeNull();
+        manifestJson.Should().Contain("\"schemaVersion\":2");
+        manifestJson.Should().Contain("\"completenessScore\":0.9");
+    }
+
+    [Fact]
+    public void TryUpgradeManifestJson_rejects_whitespace_manifest_json()
+    {
+        string manifestJson = "   ";
+
+        Action act = () => AzureExtractorManifestSchemaUpgrader.TryUpgradeManifestJson(ref manifestJson, out _);
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void TryUpgradeManifestJson_rejects_unsupported_legacy_schema_version()
     {
         string manifestJson = """{"schemaVersion":-1,"tenantId":"contoso"}""";
