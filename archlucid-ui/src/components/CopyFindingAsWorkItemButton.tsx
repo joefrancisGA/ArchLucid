@@ -25,7 +25,9 @@ import {
   writeWorkItemBodyToClipboard,
   type FindingWorkItemBuildInput,
 } from "@/lib/copy-finding-as-work-item";
+import { findingSemanticSupportBandFromTypedPayload } from "@/components/findings/FindingSemanticSupportBandInspectSection";
 import { resolveFindingWorkItemCoverageHonesty, resolveTraceRowWorkItemCoverageHonesty } from "@/lib/copy-finding-as-work-item-coverage-honesty";
+import { resolveFindingInspectExportClassification } from "@/lib/findings/finding-inspect-export-classification";
 import { resolveFindingInspectCitationExportBlockedReason } from "@/lib/findings/finding-inspect-citation-export-gate";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
 import { showError, showSuccess } from "@/lib/toast";
@@ -80,6 +82,13 @@ function buildFindingWorkItemInput(
   const labels = findingInspectPrimaryLabels(payload);
   const narrative = findingInspectNarrativeFields(payload);
   const evidenceExcerpts = evidenceLinesFromInspectPayload(payload);
+  const classification = resolveFindingInspectExportClassification(payload);
+  const typedPayload =
+    payload.typedPayload !== null
+    && payload.typedPayload !== undefined
+    && typeof payload.typedPayload === "object"
+      ? (payload.typedPayload as Record<string, unknown>)
+      : null;
   const baseInput: FindingWorkItemBuildInput = {
     runId,
     findingId,
@@ -95,6 +104,8 @@ function buildFindingWorkItemInput(
     evidenceExcerpts,
     trustLabel: payload.trustLabel ?? null,
     trustLabelReason: payload.trustLabelReason ?? null,
+    classification,
+    semanticSupportBand: findingSemanticSupportBandFromTypedPayload(typedPayload, classification),
     manifestVersion: payload.manifestVersion ?? null,
     includeCoverageHonesty,
     productLineId,

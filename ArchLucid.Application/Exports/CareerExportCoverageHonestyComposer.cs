@@ -88,6 +88,15 @@ public static class CareerExportCoverageHonestyComposer
             sections.Add(classificationMarkdown);
         }
 
+        string semanticSupportMarkdown = CareerExportSemanticSupportBandMarkdownFormatter
+            .FormatMarkdown(input.FindingsSnapshot?.Findings)
+            .Trim();
+
+        if (semanticSupportMarkdown.Length > 0)
+        {
+            sections.Add(semanticSupportMarkdown);
+        }
+
         string estateGapMarkdown = ArchitectureInventoryEstateGapCopy
             .FormatCareerExportMarkdown(input.ArchitectureInventoryBound)
             .Trim();
