@@ -131,6 +131,8 @@ public sealed class SponsorReviewPacketBuilder(
             _configuration,
             cancellationToken);
 
+        CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial(careerExportHonesty);
+
         IReadOnlyList<FindingArchitectRestatementExportRow> architectRestatements =
             await FindingArchitectRestatementExportMaterialLoader.LoadForRunAsync(
                 detail,
