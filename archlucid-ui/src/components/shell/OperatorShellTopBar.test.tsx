@@ -117,6 +117,22 @@ vi.mock("@/components/product-line/ProductLineProvider", () => ({
 vi.mock("@/lib/dev-testing-overrides", () => ({
   isDevTestingOverridesEnabled: () => devTestingOverridesMock.enabled,
   readDevAgentExecutionModeOverrideFromDocument: () => null,
+  resolveEffectiveDevAgentExecutionMode: () => "Simulator",
+}));
+
+vi.mock("@/hooks/use-working-career-door-gate", () => ({
+  useWorkingCareerDoorGate: () => ({
+    isCareerExecuteBlocked: false,
+    blockReason: null,
+    blockedDetail: null,
+    platformSettingsHref: "/administration/connection-status",
+  }),
+  useEvaluateWorkingCareerDoorGate: () => () => ({
+    isCareerExecuteBlocked: false,
+    blockReason: null,
+    blockedDetail: null,
+    platformSettingsHref: "/administration/connection-status",
+  }),
 }));
 
 vi.mock("@/lib/auth-config", () => ({
