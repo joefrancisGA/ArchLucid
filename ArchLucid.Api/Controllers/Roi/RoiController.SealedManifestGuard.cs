@@ -36,11 +36,17 @@ public sealed partial class RoiController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps ROI read/export <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapRoiReadSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 
     private async Task<IActionResult?> EnsureCrossTenantPortfolioSealedManifestReadAllowedAsync(
         string userDirectoryKey,
@@ -62,7 +68,7 @@ public sealed partial class RoiController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
 
         return null;

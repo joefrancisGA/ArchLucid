@@ -33,6 +33,7 @@ import {
   TRADE_OFF_ACKNOWLEDGMENT_REQUIRED_MESSAGE,
 } from "@/lib/review-quality/finding-governance-gates";
 import { formatLivelihoodLastSavedLabel } from "@/lib/livelihood-last-saved-label";
+import { ARCHITECT_RESTATEMENT_SEMANTIC_SUPPORT_BAND_DISPOSITION_COPY } from "@/lib/findings/finding-architect-restatement-semantic-support-band-honesty";
 
 import type { FindingInspectDispositionControlsViewModel } from "./use-finding-inspect-disposition-controls";
 
@@ -309,7 +310,7 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
           <span className="font-medium">Architect restatement (for ARB)</span>
           <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Your wording for what you will tell the ARB. This is append-only on the disposition trail and does not
-            rewrite sealed engine finding text.
+            rewrite sealed engine finding text. {ARCHITECT_RESTATEMENT_SEMANTIC_SUPPORT_BAND_DISPOSITION_COPY}
           </span>
           <textarea
             className="min-h-16 rounded-md border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"

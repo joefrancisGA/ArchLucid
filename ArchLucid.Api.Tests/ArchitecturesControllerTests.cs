@@ -5,6 +5,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.TestSupport.SealedManifest;
@@ -38,6 +39,7 @@ public sealed class ArchitecturesControllerTests
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IGoldenManifestRepository> _goldenManifestRepository = new();
+
     public ArchitecturesControllerTests()
     {
         _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);

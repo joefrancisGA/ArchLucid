@@ -200,6 +200,9 @@ public sealed partial class PolicyPackHttpFacade
 
         await EnsureMutationSealedManifestOrThrowAsync(ct).ConfigureAwait(false);
 
+        bool ok = await _workflow.TrySetAssignmentOrganizationRequiredAsync(assignmentId, isOrganizationRequired, ct)
+            .ConfigureAwait(false);
+
         PolicyPackSetAssignmentOrganizationRequiredOutcome outcome =
             await _workflow.TrySetAssignmentOrganizationRequiredWithOutcomeAsync(assignmentId, isOrganizationRequired, ct)
                 .ConfigureAwait(false);

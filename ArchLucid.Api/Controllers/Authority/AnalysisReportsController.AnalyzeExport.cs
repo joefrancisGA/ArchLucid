@@ -83,7 +83,7 @@ public sealed partial class AnalysisReportsController
         catch (ConflictException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "Analysis blocked for run '{RunId}'.", runId);
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAnalysisReportExportSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -135,7 +135,7 @@ public sealed partial class AnalysisReportsController
         catch (ConflictException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "Analysis export blocked for run '{RunId}'.", runId);
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAnalysisReportExportSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -181,7 +181,7 @@ public sealed partial class AnalysisReportsController
         catch (ConflictException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "Analysis export file blocked for run '{RunId}'.", runId);
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAnalysisReportExportSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -231,7 +231,7 @@ public sealed partial class AnalysisReportsController
         catch (ConflictException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "DOCX export blocked for run '{RunId}'.", runId);
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAnalysisReportExportSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -290,7 +290,7 @@ public sealed partial class AnalysisReportsController
         catch (ConflictException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "Async DOCX export blocked for run '{RunId}'.", runId);
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAnalysisReportExportSealedManifestConflict(ex);
         }
     }
 }

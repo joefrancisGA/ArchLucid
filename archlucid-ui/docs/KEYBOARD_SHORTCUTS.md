@@ -97,6 +97,15 @@ Implemented in [`use-tenant-settings-shortcuts.ts`](../src/app/(operator)/admini
 |-------|--------|
 | **Ctrl+S** | Save tenant cost settings |
 
+## Page-specific: Extract & upload (`/administration/extract-upload`)
+
+Implemented in [`use-extract-upload-shortcuts.ts`](../src/app/(operator)/administration/extract-upload/_sections/use-extract-upload-shortcuts.ts) on [`ExtractUploadSettingsPageClient.tsx`](../src/app/(operator)/administration/extract-upload/_sections/ExtractUploadSettingsPageClient.tsx). The command palette lists **Focus inventory upload** and **Copy quick-start command** on the same route when those controls are visible.
+
+| Combo | Action |
+|-------|--------|
+| **Ctrl+U** | Focus the inventory upload surface, or activate **Replace inventory** when a package is already accepted |
+| **Ctrl+Shift+C** | Copy the quick-start packager command for the selected cloud provider |
+
 ## Discoverability
 
 1. **Shift+?** — Full table in the Radix/shadcn dialog ([`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx)).

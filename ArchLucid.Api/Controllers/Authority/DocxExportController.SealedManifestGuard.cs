@@ -22,8 +22,8 @@ public sealed partial class DocxExportController
             await ConsultingDocxExportSealedReceiptGuard.EnsureVerifiedOrThrowAsync(
                 runId,
                 runId.ToString("N"),
-                authorityQueryService,
-                manifestHashService,
+                _authorityQueryService,
+                _manifestHashService,
                 scope,
                 cancellationToken);
         }
@@ -45,8 +45,8 @@ public sealed partial class DocxExportController
             await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
                 compareRunId.ToString("N"),
                 scope,
-                authorityQueryService,
-                manifestHashService,
+                _authorityQueryService,
+                _manifestHashService,
                 cancellationToken);
         }
         catch (ConflictException ex)
