@@ -429,6 +429,31 @@ public sealed class AzureExtractorPackageInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_uses_id_property_when_resource_id_missing()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].AzureResourceId.Should().Be(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
+    }
+
+    [Fact]
     public void TryReadFromZip_extracts_resource_group_from_arm_id_when_not_on_row()
     {
         byte[] zipBytes = BuildZip(

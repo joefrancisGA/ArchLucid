@@ -192,6 +192,109 @@ public sealed class AzureExtractorResourceInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_returns_empty_when_resources_json_missing()
+    {
+        using MemoryStream stream = new(BuildEmptyZip());
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        error.Should().BeNull();
+        lines.Should().NotBeNull();
+        lines!.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryReadFromZip_fails_on_non_array_resources_json()
+    {
+        byte[] zipBytes = BuildZip("{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        lines.Should().BeNull();
+        error.Should().Contain("resources.json root must be a JSON array");
+    }
+
+    [Fact]
+    public void TryReadFromZip_resolves_resources_entry_case_insensitively()
+    {
+        byte[] zipBytes = BuildZipWithEntryName(
+            "RESOURCES.JSON",
+            """
+            [
+              {
+                "name": "storage1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "location": "eastus"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        error.Should().BeNull();
+        lines.Should().ContainSingle();
+        lines![0].Name.Should().Be("storage1");
+    }
+
+    [Fact]
+    public void TryReadFromZip_skips_non_object_resource_rows()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              "not-a-resource-row",
+              {
+                "name": "storage1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "location": "eastus"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        error.Should().BeNull();
+        lines.Should().ContainSingle();
+        lines![0].Name.Should().Be("storage1");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_pascal_case_name_and_resource_type()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "Name": "storage1",
+                "ResourceType": "Microsoft.Storage/storageAccounts",
+                "Location": "eastus"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        error.Should().BeNull();
+        lines.Should().ContainSingle();
+        lines![0].Name.Should().Be("storage1");
+        lines[0].ResourceType.Should().Be("Microsoft.Storage/storageAccounts");
+        lines[0].Location.Should().Be("eastus");
+    }
+
+    [Fact]
     public void TryReadFromZip_boolean_sku_coerces_to_string()
     {
         byte[] zipBytes = BuildZip(
@@ -228,6 +331,33 @@ public sealed class AzureExtractorResourceInventoryReaderTests
             using StreamWriter writer = new(resources.Open(), Encoding.UTF8);
 
             writer.Write(resourcesJson);
+        }
+
+        return ms.ToArray();
+    }
+
+    private static byte[] BuildZipWithEntryName(string entryName, string resourcesJson)
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry resources = zip.CreateEntry(entryName);
+
+            using StreamWriter writer = new(resources.Open(), Encoding.UTF8);
+
+            writer.Write(resourcesJson);
+        }
+
+        return ms.ToArray();
+    }
+
+    private static byte[] BuildEmptyZip()
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
         }
 
         return ms.ToArray();

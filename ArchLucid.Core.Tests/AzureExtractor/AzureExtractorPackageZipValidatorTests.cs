@@ -292,6 +292,40 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_rejects_zip_missing_resources_json()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 2, includeResources: false);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.ErrorDetail.Should().Contain("resources.json");
+    }
+
+    [Fact]
+    public void ValidateFile_returns_error_when_zip_path_does_not_exist()
+    {
+        AzureExtractorZipValidationResult result =
+            AzureExtractorPackageZipValidator.ValidateFile("/tmp/archlucid-missing-extractor-package.zip");
+
+        result.IsValid.Should().BeFalse();
+        result.IsInvalidArchive.Should().BeFalse();
+        result.ErrorDetail.Should().Contain("ZIP file not found");
+    }
+
+    [Fact]
+    public void CountFileEntries_ignores_directory_entries()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 2, includeResources: true);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageZipValidator.CountFileEntries(stream).Should().Be(2);
+    }
+
+    [Fact]
     public void Validate_rejects_non_array_defender_summary_json()
     {
         byte[] zipBytes = BuildZip(
