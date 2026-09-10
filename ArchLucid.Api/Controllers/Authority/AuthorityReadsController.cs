@@ -307,20 +307,20 @@ public sealed partial class AuthorityReadsController(
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrailExport(Guid runId, CancellationToken ct = default)
     {
-        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
-
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        string runIdText = runId.ToString("D");
-
         try
         {
+            RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            string runIdText = runId.ToString("D");
+
             TraceabilityBundleExportResult result = await traceabilityBundleExport.TryBuildZipAsync(
                 runIdText,
                 HttpContext.TraceIdentifier,

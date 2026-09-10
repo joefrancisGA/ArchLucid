@@ -1,6 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD,
+} from "@/lib/governance/governance-infrastructure-copy";
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
 
 const { fetchInfraEvidenceSnapshotsMock } = vi.hoisted(() => ({
@@ -133,6 +136,8 @@ describe("DiagramsWorkbenchClient", () => {
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
 
+    expect(screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD)).toBeInTheDocument();
+    expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-snapshot-picker")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-fallback-cards")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-fallback-executive")).toBeInTheDocument();
