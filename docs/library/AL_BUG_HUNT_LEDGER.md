@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8055,6 +8055,19 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ValidateFile` only checks path existence and does not validate archive contents — **cheap-disproof 2026-09-10 seed hunt #1598:** on-disk ZIP validated via `Validate`; regression `ValidateFile_validates_existing_zip_on_disk`.
 
 2026-09-10 seed hunt #1598 (seed-only): reseeded core-azure-extractor after #1597; cheap-disproof closed name fallback, tag/property scalar handling, object SKU, explicit resourceGroup precedence, diagnostic-settings companion success path, schema-0 upgrader defaults, and ZipValidator case-insensitive manifest / ValidateFile success; 907 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) `MapResourceRow` ingests rows missing `resourceType`/`type` using `name` alone — **cheap-disproof 2026-09-10 seed hunt #1599:** rows without type are skipped; regression `TryReadFromZip_skips_rows_missing_resource_type`.
+- [x] (valid-no-repro) `isUnknownType` defaults to true when flag absent — **cheap-disproof 2026-09-10 seed hunt #1599:** defaults false; regression `TryReadFromZip_defaults_is_unknown_type_to_false`.
+- [x] (valid-no-repro) Padded `resourceId`/`resourceType` values persist with surrounding whitespace — **cheap-disproof 2026-09-10 seed hunt #1599:** values trimmed on map; regression `TryReadFromZip_trims_whitespace_from_arm_ids_and_resource_types`.
+- [x] (valid-no-repro) Valid `network-associations.json` / `policy-assignments.json` / `defender-summary.json` companion arrays are dropped — **cheap-disproof 2026-09-10 seed hunt #1599:** companion arrays surface on read result; regressions `TryReadFromZip_reads_valid_network_associations_companion_array`, `TryReadFromZip_reads_valid_policy_assignments_companion_array`, `TryReadFromZip_reads_valid_defender_summary_companion_array`.
+- [x] (valid-no-repro) `TryUpgradeManifestJson` rejects future/unsupported schema versions above current — **cheap-disproof 2026-09-10 seed hunt #1599:** versions ≥ current are no-op success; regression `TryUpgradeManifestJson_accepts_schema_versions_at_or_above_current_without_mutation`.
+- [x] (valid-no-repro) Negative `schemaVersion` values upgrade instead of failing — **cheap-disproof 2026-09-10 seed hunt #1599:** unsupported legacy branch; regression `TryUpgradeManifestJson_rejects_unsupported_legacy_schema_version`.
+- [x] (valid-no-repro) Malformed manifest JSON throws instead of returning upgrade error — **cheap-disproof 2026-09-10 seed hunt #1599:** `JsonException` mapped to explicit detail; regression `TryUpgradeManifestJson_rejects_malformed_json`.
+- [x] (valid-no-repro) `AzureExtractorPackageZipValidator` misses `resources.json` when ZIP entry casing differs — **cheap-disproof 2026-09-10 seed hunt #1599:** ordinal-ignore-case fallback; regression `Validate_resolves_resources_entry_case_insensitively`.
+- [x] (valid-no-repro) Valid optional companion arrays fail schema validation — **cheap-disproof 2026-09-10 seed hunt #1599:** optional arrays accepted when well-formed; regression `Validate_accepts_valid_optional_companion_arrays`.
+- [x] (valid-no-repro) Corrupt ZIP bytes in ResourceInventoryReader return empty resources — **cheap-disproof 2026-09-10 seed hunt #1599:** `InvalidDataException` mapped to explicit error; regression `TryReadFromZip_returns_error_when_zip_payload_is_invalid`.
+
+2026-09-10 seed hunt #1599 (seed-only): reseeded core-azure-extractor after #1598; cheap-disproof closed row-skip/trim/unknown-type defaults, remaining companion-array success paths, manifest upgrader unsupported/future/malformed handling, ZipValidator resources case-insensitivity and optional companions, and ResourceInventoryReader invalid-ZIP error; 919 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
