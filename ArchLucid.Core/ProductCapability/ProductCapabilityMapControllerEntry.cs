@@ -1,7 +1,7 @@
-namespace ArchLucid.Architecture.Tests.ProductCapability;
+namespace ArchLucid.Core.ProductCapability;
 
-/// <summary>One API controller row in <c>product-capability-map.json</c>.</summary>
-internal sealed class ProductCapabilityMapControllerEntry
+/// <summary>One API controller row in <c>product-capability-map.json</c> (OP-01).</summary>
+public sealed class ProductCapabilityMapControllerEntry
 {
     public string TypeName { get; set; } = string.Empty;
 

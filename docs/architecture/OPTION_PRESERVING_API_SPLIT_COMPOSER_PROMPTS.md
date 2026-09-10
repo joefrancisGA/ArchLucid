@@ -17,6 +17,8 @@ Paste **one** `.cursor/prompts/option-preserving-api-NN-*.md` file per Composer 
 
 **Product-line signal (OP-03):** `ProductLine:Deployment` (default `both`) plus optional `X-ArchLucid-Product-Line`; resolved by `IProductLineRequestAccessor`. SecureNow UI forwards the header on BFF proxy; OpenAPI documents it as optional on `/openapi/v1.json`.
 
+**Route gate (OP-04):** `ProductLineRouteGateMiddleware` blocks exclusive map rows when effective line is the other shell (403 problem+json). Unmapped controllers fail closed (500). Map loaded from `product-capability-map.json` at runtime.
+
 Related (do not mix into an OP session): Security **display name** SecureNow is **SN-01–SN-08**. UI shells are **PL-01–PL-04**. Help job-match is **SH-01–SH-26**.
 
 ## Diagnosis → prompt

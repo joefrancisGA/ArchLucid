@@ -1,7 +1,7 @@
-namespace ArchLucid.Architecture.Tests.ProductCapability;
+namespace ArchLucid.Core.ProductCapability;
 
-/// <summary>One Application namespace cluster row in <c>product-capability-map.json</c>.</summary>
-internal sealed class ProductCapabilityMapApplicationNamespaceEntry
+/// <summary>One Application namespace cluster row in <c>product-capability-map.json</c> (OP-01).</summary>
+public sealed class ProductCapabilityMapApplicationNamespaceEntry
 {
     public string NamespacePrefix { get; set; } = string.Empty;
 

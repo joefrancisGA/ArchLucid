@@ -1,7 +1,7 @@
-namespace ArchLucid.Architecture.Tests.ProductCapability;
+namespace ArchLucid.Core.ProductCapability;
 
 /// <summary>Deserialized OP-01 capability map contract.</summary>
-internal sealed class ProductCapabilityMapDocument
+public sealed class ProductCapabilityMapDocument
 {
     public int Version { get; set; }
 
