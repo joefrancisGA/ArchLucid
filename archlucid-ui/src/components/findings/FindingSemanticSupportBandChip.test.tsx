@@ -38,7 +38,28 @@ describe("FindingSemanticSupportBandChip (AS-061)", () => {
       />,
     );
 
+    expect(screen.getByTestId("working-finding-semantic-support-band")).toBeInTheDocument();
     expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent("Supported");
+  });
+
+  it("renders Not yet scored when wire band is Unchecked", () => {
+    render(
+      <FindingSemanticSupportBandChip
+        finding={sampleFinding({ semanticSupportBand: "Unchecked" })}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent("Not yet scored");
+  });
+
+  it("renders Unsupported when wire band is Unsupported", () => {
+    render(
+      <FindingSemanticSupportBandChip
+        finding={sampleFinding({ semanticSupportBand: "Unsupported" })}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent("Unsupported");
   });
 
   it("does not render Supported chip for checklist coverage rows", () => {
@@ -51,6 +72,6 @@ describe("FindingSemanticSupportBandChip (AS-061)", () => {
       />,
     );
 
-    expect(screen.queryByTestId("finding-semantic-support-band-finding-1")).toBeNull();
+    expect(screen.queryByTestId("working-finding-semantic-support-band")).toBeNull();
   });
 });
