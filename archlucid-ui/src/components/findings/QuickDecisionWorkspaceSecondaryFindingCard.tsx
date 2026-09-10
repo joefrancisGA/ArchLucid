@@ -136,7 +136,10 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
             {isDecisionGradeFinding(finding) ? (
               <>
                 <FindingTrustChip finding={finding} />
-                <FindingSemanticSupportBandChip finding={finding} />
+                <FindingSemanticSupportBandChip
+                  finding={finding}
+                  structuralExecutionMode={props.context.structuralExecutionMode}
+                />
               </>
             ) : null}
             <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{finding.title}</span>
