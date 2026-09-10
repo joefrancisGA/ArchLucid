@@ -1011,4 +1011,128 @@ public sealed class FindingInspectReadRepositoryCoreTests
         response.DecisionRuleId.Should().BeNull();
         response.DecisionRuleName.Should().BeNull();
     }
+
+    [Fact]
+    public void ResolveDecisionRuleName_prefers_rule_name_when_both_fields_are_present()
+    {
+        FindingInspectReadRepositoryCore.ResolveDecisionRuleName("Encrypt data at rest", "cost-guardrail")
+            .Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void ResolveTraceRuleFields_trims_trace_text_and_aligns_rule_id_and_name()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveTraceRuleFields("  Encrypt data at rest  ");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void ResolveTraceRuleFields_returns_nulls_for_whitespace_only_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveTraceRuleFields("   ");
+
+        ruleId.Should().BeNull();
+        ruleName.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_boolean_for_valid_json_true()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("true");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.ValueKind.Should().Be(JsonValueKind.True);
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_string_for_valid_json_string()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("\"finding-payload\"");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.GetString().Should().Be("finding-payload");
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_number_for_valid_json_number()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("42");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.GetInt32().Should().Be(42);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_preserves_null_reviewer_user_id_when_pointer_row_exists()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Accepted",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: null,
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDispositionReviewerUserId.Should().BeNull();
+        projection.LatestDisposition.Should().Be(FindingDisposition.Accepted);
+    }
+
+    [Fact]
+    public void BuildInspectResponse_preserves_finding_id_severity_and_typed_payload()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"resourceId":"vm-1"}""");
+        JsonElement typedPayload = document.RootElement.Clone();
+
+        FindingInspectResponse response = FindingInspectReadRepositoryCore.BuildInspectResponse(
+            findingId: "finding-42",
+            severity: FindingSeverity.Critical,
+            typedPayload: typedPayload,
+            ruleId: null,
+            ruleName: null,
+            evidence: [],
+            recommendedActions: [],
+            auditRowId: null,
+            runId: Guid.NewGuid(),
+            manifestVersion: null,
+            modelDeploymentName: null,
+            modelAlias: null,
+            promptTemplateVersion: null,
+            confidenceScore: null,
+            evaluationConfidenceScore: null,
+            confidenceLevel: null,
+            humanReviewStatus: FindingHumanReviewStatus.NotRequired,
+            isMuted: false,
+            muteReason: null,
+            reasoningTrace: null,
+            reasoningTraceDigestSha256: null,
+            latestDisposition: null,
+            latestDispositionOccurredAtUtc: null,
+            hasActiveWaiver: false,
+            assignedToUserId: null,
+            remediationDueUtc: null,
+            runStructuralExecutionMode: StructuralExecutionMode.Simulator,
+            runRealModeFellBackToSimulator: false);
+
+        response.FindingId.Should().Be("finding-42");
+        response.Severity.Should().Be(FindingSeverity.Critical);
+        response.TypedPayload.Should().NotBeNull();
+        response.TypedPayload!.Value.GetProperty("resourceId").GetString().Should().Be("vm-1");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_builds_full_metadata_when_corrupt_payload_and_both_fields_present()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "Encrypt at rest",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
 }

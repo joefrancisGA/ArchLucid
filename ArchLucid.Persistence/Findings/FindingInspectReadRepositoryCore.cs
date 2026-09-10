@@ -68,10 +68,13 @@ internal static class FindingInspectReadRepositoryCore
 
     public static string? ResolveDecisionRuleName(string? ruleName, string? ruleId) => ruleName ?? ruleId;
 
+    public static (string? RuleId, string? RuleName) ResolveTraceRuleFields(string? firstRuleText) =>
+        !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+
     public static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson, string? firstRuleText)
     {
         if (string.IsNullOrWhiteSpace(appliedRuleIdsJson))
-            return !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+            return ResolveTraceRuleFields(firstRuleText);
 
         try
         {
@@ -93,7 +96,7 @@ internal static class FindingInspectReadRepositoryCore
             // Fall through to trace text only.
         }
 
-        return !string.IsNullOrWhiteSpace(firstRuleText) ? (firstRuleText.Trim(), firstRuleText.Trim()) : (null, null);
+        return ResolveTraceRuleFields(firstRuleText);
     }
 
     public static JsonElement? BuildMetadataTypedPayload(string? title, string? rationale)

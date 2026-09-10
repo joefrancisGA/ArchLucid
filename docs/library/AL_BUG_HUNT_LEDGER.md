@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 31
+- **hunts:** 32
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1515,6 +1515,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Disposition pointer subquery omits `e.Disposition` / `e.OccurredAtUtc` / `e.RevisitDueUtc` projections — **cheap-disproof 2026-09-10 seed hunt #1649:** disposition batch selects pointer columns; regression `FollowUpBatch_disposition_subquery_selects_disposition_column`.
 
 2026-09-10 seed hunt #1649 (seed-only): reseeded finding-inspect-sql after #1648; extracted decision-rule name fallback helper; cheap-disproof closed rule-name fallback, absent rule fields, JSON array parse guard, null row-version mapping, blank recommended actions, local timestamp labeling, and disposition column projections; 213 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ResolveDecisionRuleName` overwrites explicit `ruleName` with `ruleId` when both are present — **cheap-disproof 2026-09-10 seed hunt #1650:** helper prefers `ruleName`; regression `ResolveDecisionRuleName_prefers_rule_name_when_both_fields_are_present`.
+- [x] (valid-no-repro) `LoadDispositionJoinAsync` passes whitespace-only `FirstRuleText` through without trimming — **cheap-disproof 2026-09-10 seed hunt #1650:** trace fallback trims and aligns id/name via `ResolveTraceRuleFields`; regressions `ResolveTraceRuleFields_trims_trace_text_and_aligns_rule_id_and_name` and `ResolveTraceRuleFields_returns_nulls_for_whitespace_only_trace_text`.
+- [x] (valid-no-repro) `TryParsePayloadJson` rejects boolean/string/number JSON primitives — **cheap-disproof 2026-09-10 seed hunt #1650:** primitives deserialize to `JsonElement`; regressions `TryParsePayloadJson_returns_deserialized_boolean_for_valid_json_true`, `TryParsePayloadJson_returns_deserialized_string_for_valid_json_string`, and `TryParsePayloadJson_returns_deserialized_number_for_valid_json_number`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` substitutes a placeholder reviewer id when SQL returns null — **cheap-disproof 2026-09-10 seed hunt #1650:** null reviewer user id passes through unchanged; regression `MapDispositionPointerProjection_preserves_null_reviewer_user_id_when_pointer_row_exists`.
+- [x] (valid-no-repro) `BuildInspectResponse` drops `FindingId` / `Severity` / `TypedPayload` passthrough — **cheap-disproof 2026-09-10 seed hunt #1650:** response builder copies core identity fields through unchanged; regression `BuildInspectResponse_preserves_finding_id_severity_and_typed_payload`.
+- [x] (valid-no-repro) Corrupt `PayloadJson` with both title and rationale present still returns null typed payload — **cheap-disproof 2026-09-10 seed hunt #1650:** corrupt non-empty payload builds full slim metadata object; regression `ResolveTypedPayloadForInspect_builds_full_metadata_when_corrupt_payload_and_both_fields_present`.
+
+2026-09-10 seed hunt #1650 (seed-only): reseeded finding-inspect-sql after #1649; extracted trace-rule fallback helper; cheap-disproof closed decision-rule name preference, trace-text trim fallback, JSON primitive parse guards, null reviewer passthrough, core identity passthrough, and dual-field corrupt-payload metadata; 222 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
