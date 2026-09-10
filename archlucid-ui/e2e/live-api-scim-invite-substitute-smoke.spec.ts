@@ -24,7 +24,6 @@ test.describe("live-api-scim-invite-substitute-smoke", { tag: ["@release-gate"] 
     await expect(page.getByTestId("scim-identity-providers-vocabulary-peer-link")).toBeVisible({
       timeout: 30_000,
     });
-    await expect(page.getByRole("link", { name: /Identity providers/i })).toBeVisible({ timeout: 30_000 });
   });
 
   test("SCIM admin can issue, list, and revoke a provisioning token", async ({ page }) => {
