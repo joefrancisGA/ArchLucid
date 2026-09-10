@@ -3074,10 +3074,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-04 — confidence enrichment ignored recorded composite quality-gate rejection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3100,6 +3100,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ComputeQualityGateAcceptedForConfidenceAsync` ignored `RecordedQualityGateOutcome` / `QualityRejected` on traces — **hit 2026-09-04 (#668):** heuristic-only re-evaluation could set `schemaPassed=true` after composite recorder rejected the same trace (e.g. PilotStrict semantic floor); fixed with fail-closed recorded-outcome short-circuit aligned to `RealCommitAgentOutputQualityGateEvaluator`; regression in `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_recorded_quality_gate_rejected`.
 
 2026-09-04 thorough hunt #668: proved confidence enrichment recorded-gate parity gap; cheap-disproved heuristic-only vs composite candidate.
+
+- [x] (valid-no-repro) `ComputeQualityGateAcceptedForConfidenceAsync` — `QualityRejected=true` without `RecordedQualityGateOutcome` may re-accept via heuristic re-evaluation — **cheap-disproof 2026-09-10 seed hunt #1629:** fail-closed short-circuit before `TryEvaluateTraceAsync`; regression `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_quality_rejected_flag_set`.
+- [x] (valid-no-repro) `ComputeQualityGateAcceptedForConfidenceAsync` — `Warned` gate outcome treated as confidence rejection — **cheap-disproof 2026-09-10 seed hunt #1629:** only `Rejected` blocks `schemaPassed`; regression `ComputeQualityGateAcceptedForConfidenceAsync_returns_true_when_gate_outcome_is_warned`.
+- [x] (valid-no-repro) `AgentEvaluationConfidencePipeline.TraceIdsLikelyMatch` — 32-character prefix match may bind unrelated finding trace keys — **cheap-disproof 2026-09-10 seed hunt #1629:** prefix compare is intentional for truncated persisted ids; regressions `TraceIdsLikelyMatch_returns_true_for_matching_32_character_prefix`, `ResolveTraceForSnapshotFinding_uses_prefix_trace_id_match_before_engine_type_fallback`.
+- [x] (valid-no-repro) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — disabled gate or empty traces still evaluate traces — **cheap-disproof 2026-09-10 seed hunt #1629:** early return when gate disabled or `traces.Count == 0`; regressions `WouldPilotStrictBlockSponsorEvidenceAsync_returns_false_when_gate_disabled`, `WouldPilotStrictBlockSponsorEvidenceAsync_returns_false_for_empty_traces`.
+- [x] (valid-no-repro) `RunAgentOutputPilotEvidenceAggregator` — run-level `PilotStrictMinFaithfulnessSupportRatio` ignored after per-trace pass — **cheap-disproof 2026-09-10 seed hunt #1629:** post-loop summary floor blocks sponsor evidence; regression `WouldPilotStrictBlockSponsorEvidenceAsync_blocks_on_explanation_summary_faithfulness_floor`.
+
+- [ ] (candidate) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — `Warned` latest-per-task traces may block sponsor evidence like `Rejected` (reachability: code checks only `GateOutcome.Rejected` at line 116)
+- [ ] (candidate) `AgentEvaluationConfidencePipeline.TraceIdsLikelyMatch` — unrelated trace ids sharing the first 32 characters may bind the wrong finding to a superseded trace (reachability: needs colliding persisted/finding trace id prefixes in production data)
+
+2026-09-10 seed hunt #1629 (seed-only): reseeded agent-runtime-evaluation after #668; cheap-disproof closed QualityRejected short-circuit, Warned confidence policy, trace-id prefix resolution, sponsor gate early exits, and explanation-summary faithfulness floor; 181 scoped `Evaluation` tests passed.
 
 ---
 
