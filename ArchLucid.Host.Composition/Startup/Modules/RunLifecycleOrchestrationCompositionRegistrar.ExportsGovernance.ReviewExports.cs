@@ -88,6 +88,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<ArchitectureInventoryBindingAuditSupport>();
         services.AddScoped<ArchitectureShareAuditSupport>();
         services.AddScoped<IArchitectureRestrictToSharesService, ArchitectureRestrictToSharesService>();
+        services.AddScoped<IArchitectureShareGrantTargetValidator, ArchitectureShareGrantTargetValidator>();
         services.AddScoped<IArchitectureShareManagementService, ArchitectureShareManagementService>();
         services.AddScoped<IArchitectureShareAccessService, ArchitectureShareAccessService>();
         services.AddScoped<IArchitectureSealDeltaService, ArchitectureSealDeltaService>();

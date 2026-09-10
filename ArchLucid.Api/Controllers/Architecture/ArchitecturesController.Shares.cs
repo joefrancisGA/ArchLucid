@@ -94,6 +94,20 @@ public sealed partial class ArchitecturesController
                 ProblemTypes.ValidationFailed);
         }
 
+        if (result.Status == ArchitectureShareUpsertStatus.ScimGroupNotSupported)
+        {
+            return this.BadRequestProblem(
+                "Architecture shares must target workspace users, not SCIM groups.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (result.Status == ArchitectureShareUpsertStatus.UserNotFound)
+        {
+            return this.BadRequestProblem(
+                "Share target must be an existing workspace user.",
+                ProblemTypes.ValidationFailed);
+        }
+
         await _architectureShareAuditSupport.LogShareGrantedAsync(
             scope,
             _actorContext.GetActor(),
