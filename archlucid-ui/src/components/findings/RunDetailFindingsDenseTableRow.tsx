@@ -5,6 +5,8 @@ import type { CSSProperties, ReactElement } from "react";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { FindingClassificationChip } from "@/components/findings/FindingClassificationChip";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingCounterfactualLine } from "@/components/findings/FindingCounterfactualLine";
 import { FindingEvidenceLinkChip } from "@/components/usability/FindingEvidenceLinkChip";
@@ -78,8 +80,14 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         </Link>
         <FindingCounterfactualLine finding={finding} className="mt-0.5" />
         {finding.classification !== null && finding.classification !== undefined ? (
-          <div className="mt-1">
+          <div className="mt-1 space-y-1">
             <FindingClassificationChip classification={finding.classification} findingId={finding.findingId} />
+            {showDecisionGradeHonesty ? (
+              <div className="flex flex-wrap items-center gap-1">
+                <FindingTrustChip finding={finding} />
+                <FindingSemanticSupportBandChip finding={finding} showReason />
+              </div>
+            ) : null}
             {showDecisionGradeHonesty ? (
               <p
                 className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}

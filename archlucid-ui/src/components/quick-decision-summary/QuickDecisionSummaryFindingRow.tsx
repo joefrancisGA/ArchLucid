@@ -8,6 +8,7 @@ import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePan
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingFeedbackThumbs } from "@/components/findings/FindingFeedbackThumbs";
 import { FindingDidNotThinkOfThatButton } from "@/components/findings/FindingDidNotThinkOfThatButton";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
 import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
@@ -98,6 +99,7 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
+        <FindingSemanticSupportBandChip finding={finding} />
         {findingHasNoSourceEvidence(finding) ? (
           <StatusTag
             kind="needs-attention"
