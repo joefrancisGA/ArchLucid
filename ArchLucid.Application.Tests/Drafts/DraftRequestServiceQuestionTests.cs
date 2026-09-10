@@ -303,6 +303,7 @@ public sealed class DraftRequestServiceQuestionTests
             new PatchDraftRequest
             {
                 BusinessOutcome = "Faster audit prep",
+                ExpectedUpdatedUtc = second.UpdatedUtc,
                 ActorSet = new ActorSet
                 {
                     Actors =
@@ -348,6 +349,7 @@ public sealed class DraftRequestServiceQuestionTests
             new PatchDraftRequest
             {
                 BusinessOutcome = "Faster audit prep",
+                ExpectedUpdatedUtc = created.UpdatedUtc,
                 ActorSet = new ActorSet
                 {
                     Actors =

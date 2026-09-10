@@ -23,4 +23,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave114Ar
 
 **Hasher baseline note:** wave 114 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** wave 50 sponsor summary export anchor consolidation — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE115.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE115.md) (1365–1376) when opened.
+**Deferred:** wave 50 sponsor summary export anchor consolidation completed in wave 115 — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE115.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE115.md) (1365–1376).

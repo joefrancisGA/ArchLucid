@@ -198,6 +198,8 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             new InMemoryAdvisoryTerraformService(),
             Mock.Of<IAuditService>(),
             Mock.Of<IOperationalSecurityFindingRepository>(),
+            Mock.Of<IRemediationPathNarrativeBuilder>(),
+            Mock.Of<ISecurityEvidencePathRepository>(),
             Mock.Of<IAuditManualEvidenceRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>());

@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import { CopyScopedOperatorLinkButton } from "@/components/CopyScopedOperatorLinkButton";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InfraEvidenceRecentScopeStrip } from "@/components/infra-evidence/InfraEvidenceRecentScopeStrip";
 import { WorkbenchAuditLineageStatus } from "@/components/infra-evidence/WorkbenchAuditLineageStatus";
@@ -15,7 +14,6 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,14 +39,6 @@ import {
   type InfraEvidenceAskTurn,
 } from "@/lib/infra-evidence/infra-evidence-ask-transcript";
 import { formatInfraEvidenceAskTopicKindLabel } from "@/lib/infra-evidence/infra-evidence-ask-topic-kind-label";
-import {
-  INFRA_ASK_SIMULATOR_DISCLOSURE_OPEN_PARAM,
-  INFRA_ASK_SIMULATOR_PARAM,
-  infraAskSimulatorDisclosureHrefFromSearch,
-  infraAskSimulatorModeHrefFromSearch,
-  parseInfraAskSimulatorDisclosureOpenFromSearch,
-  parseInfraAskSimulatorFromSearch,
-} from "@/lib/infra-evidence/infra-ask-simulator-disclosure-url";
 
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildAuditEvidenceLineageUiPath, buildResourceHubDiagramsWorkbenchHref, resolveInfraEvidenceAskCitationLink } from "@/lib/infra-evidence/infra-evidence-ask-citations";
@@ -111,8 +101,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_ASK_QUESTION_LABEL,
   GOVERNANCE_INFRASTRUCTURE_ASK_SCOPE_BACK_LINKS_LABEL,
-  GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_DISCLOSURE_TITLE,
-  GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_LABEL,
   GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_STATUS_LABEL,
   GOVERNANCE_INFRASTRUCTURE_ASK_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_BLOCKED_LABEL,
@@ -220,57 +208,6 @@ export function InfrastructureAskClient() {
   );
 
   const [question, setQuestion] = useState("");
-  const infraAskSimulatorParam = searchParams.get(INFRA_ASK_SIMULATOR_PARAM);
-  const [useSimulator, setUseSimulatorState] = useState(() => parseInfraAskSimulatorFromSearch(infraAskSimulatorParam) ?? true);
-  const infraAskSimulatorDisclosureOpenParam = searchParams.get(INFRA_ASK_SIMULATOR_DISCLOSURE_OPEN_PARAM);
-  const [simulatorDisclosureOpen, setSimulatorDisclosureOpenState] = useState(() =>
-    parseInfraAskSimulatorDisclosureOpenFromSearch(infraAskSimulatorDisclosureOpenParam),
-  );
-  const syncSimulatorModeToUrl = useCallback(
-    (nextUseSimulator: boolean) => {
-      router.replace(
-        infraAskSimulatorModeHrefFromSearch(searchParams.toString(), nextUseSimulator, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-  const setUseSimulator = useCallback(
-    (nextUseSimulator: boolean) => {
-      setUseSimulatorState(nextUseSimulator);
-      syncSimulatorModeToUrl(nextUseSimulator);
-    },
-    [syncSimulatorModeToUrl],
-  );
-  const syncSimulatorDisclosureOpenToUrl = useCallback(
-    (open: boolean) => {
-      router.replace(
-        infraAskSimulatorDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
-        { scroll: false },
-      );
-    },
-    [pathname, router, searchParams],
-  );
-  const setSimulatorDisclosureOpen = useCallback(
-    (open: boolean) => {
-      setSimulatorDisclosureOpenState(open);
-      syncSimulatorDisclosureOpenToUrl(open);
-    },
-    [syncSimulatorDisclosureOpenToUrl],
-  );
-
-  useEffect(() => {
-    const parsed = parseInfraAskSimulatorFromSearch(infraAskSimulatorParam);
-
-    if (parsed !== null) {
-      setUseSimulatorState(parsed);
-    }
-  }, [infraAskSimulatorParam]);
-
-  useEffect(() => {
-    setSimulatorDisclosureOpenState(parseInfraAskSimulatorDisclosureOpenFromSearch(infraAskSimulatorDisclosureOpenParam));
-  }, [infraAskSimulatorDisclosureOpenParam]);
-
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitErrorIsBlocked, setSubmitErrorIsBlocked] = useState(false);
@@ -754,7 +691,6 @@ export function InfrastructureAskClient() {
         assessmentId: assessmentId.length > 0 ? assessmentId : null,
         auditEvidenceSnapshotId: auditEvidenceSnapshotId.length > 0 ? auditEvidenceSnapshotId : null,
         controlId: controlId.length > 0 ? controlId : null,
-        useSimulator,
       });
       setHistory((current) => [...current, { question: trimmed, response: result }]);
       setQuestion("");
@@ -776,7 +712,6 @@ export function InfrastructureAskClient() {
     runId,
     snapshotId,
     submitting,
-    useSimulator,
   ]);
 
   const onAuditControlChange = useCallback((match: CloudResourceAuditLineageMatch) => {
@@ -876,9 +811,13 @@ export function InfrastructureAskClient() {
     [ask, askDisabled, question],
   );
 
+  const latestSimulatorLabel = history.length > 0
+    ? history[history.length - 1]?.response.simulatorLabel
+    : null;
+
   const headerActions = (
     <div className="flex flex-wrap items-center gap-2">
-      {useSimulator ? (
+      {latestSimulatorLabel != null ? (
         <StatusTag
           kind="needs-attention"
           label={GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_STATUS_LABEL}
@@ -1149,34 +1088,6 @@ export function InfrastructureAskClient() {
           ))}
         </div>
 
-        {buyerPolishedShell ? (
-          <CollapsibleSection
-            title={GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_DISCLOSURE_TITLE}
-            sectionTestId="infra-ask-simulator-disclosure"
-            summaryLine="Deterministic demo answers grounded on cited structured rows"
-            open={simulatorDisclosureOpen}
-            onToggle={setSimulatorDisclosureOpen}
-          >
-            <label className="inline-flex items-center gap-2 text-sm">
-              <Checkbox
-                data-testid="infra-ask-use-simulator"
-                checked={useSimulator}
-                onCheckedChange={(checked) => setUseSimulator(checked === true)}
-              />
-              <span>{GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_LABEL}</span>
-            </label>
-          </CollapsibleSection>
-        ) : (
-          <label className="inline-flex items-center gap-2 text-sm">
-            <Checkbox
-              data-testid="infra-ask-use-simulator"
-              checked={useSimulator}
-              onCheckedChange={(checked) => setUseSimulator(checked === true)}
-            />
-            <span>Use simulator (deterministic, citation-grounded template)</span>
-          </label>
-        )}
-
         <div className="grid justify-items-start gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -1197,13 +1108,6 @@ export function InfrastructureAskClient() {
               )}
             </Button>
             <ShortcutHint shortcut={GOVERNANCE_INFRASTRUCTURE_ASK_SUBMIT_SHORTCUT_LABEL} />
-            {useSimulator ? (
-              <StatusTag
-                kind="needs-attention"
-                label={GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_STATUS_LABEL}
-                data-testid="infra-ask-simulator-status-submit"
-              />
-            ) : null}
           </div>
           {submitReadinessLine != null ? (
             <p

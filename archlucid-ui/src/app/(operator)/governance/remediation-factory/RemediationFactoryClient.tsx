@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTable,
@@ -88,8 +89,15 @@ export function RemediationFactoryClient() {
   const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null);
   const [simulatorSummary, setSimulatorSummary] = useState<string | null>(null);
   const [simulatorError, setSimulatorError] = useState<string | null>(null);
+  const pathInspectPanelRef = useRef<HTMLElement | null>(null);
 
   const ranked = rankedQuery.data ?? [];
+
+  useEffect(() => {
+    if (selectedFindingId != null) {
+      pathInspectPanelRef.current?.focus();
+    }
+  }, [selectedFindingId]);
 
   async function runSimulator(findingId: string) {
     setSimulatorError(null);
@@ -130,6 +138,8 @@ export function RemediationFactoryClient() {
           <PriorityTable rows={ranked} selectedFindingId={selectedFindingId} onSelect={setSelectedFindingId} />
         )}
       </section>
+
+      <SecurityEvidencePathInspectPanel findingId={selectedFindingId} panelRef={pathInspectPanelRef} />
 
       <section
         className="space-y-3 rounded border border-dashed border-border p-4"

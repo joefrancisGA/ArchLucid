@@ -441,18 +441,24 @@ describe("InfrastructureAskClient", () => {
     expect(await screen.findByTestId("infra-ask-response")).toBeInTheDocument();
   });
 
-  it("shows simulator provenance tags and snapshot freshness in scoped context", async () => {
+  it("shows simulator provenance after response and snapshot freshness in scoped context", async () => {
     searchParams = new URLSearchParams(
       "cloudResourceId=11111111-1111-1111-1111-111111111111&snapshotId=22222222-2222-2222-2222-222222222222",
     );
     render(<InfrastructureAskClient />);
 
-    expect(await screen.findByTestId("infra-ask-simulator-status-header")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-ask-simulator-status-submit")).toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-snapshot-freshness")).toHaveTextContent(
       "Snapshot 22222222-2222-2222-2222-222222222222",
     );
     expect(screen.getByTestId("infra-ask-context-banner")).toHaveTextContent("captured");
+
+    fireEvent.change(screen.getByTestId("infra-ask-question"), {
+      target: { value: "Why is this PIP public?" },
+    });
+    fireEvent.click(screen.getByTestId("infra-ask-submit"));
+
+    expect(await screen.findByTestId("infra-ask-simulator-status-header")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-ask-simulator-banner")).toBeInTheDocument();
   });
 
   it("renders blocked ask errors as a semantic callout", async () => {

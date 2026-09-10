@@ -6,6 +6,7 @@ import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live
 
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { architectureRequestBlockedReason } from "@/lib/runs/architecture-request-blocked-reason";
 import { buyerRunDetailSummaryBlockedReason } from "@/lib/runs/buyer-run-detail-summary-blocked-reason";
 import { runOperatorGovernanceDispositionMutationBlockedReason } from "@/lib/runs/run-operator-governance-disposition-mutation-blocked-reason";
 import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeline-blocked-reason";
@@ -27,10 +28,17 @@ export async function getArchitectureRequest(
   requestId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<components["schemas"]["ArchitectureRequest"]> {
-  return apiGetSealedManifestAware<components["schemas"]["ArchitectureRequest"]>(
-    `/v1/architecture/request/${encodeURIComponent(requestId)}`,
-    options,
-  );
+  try {
+    return await apiGetSealedManifestAware<components["schemas"]["ArchitectureRequest"]>(
+      `/v1/architecture/request/${encodeURIComponent(requestId)}`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureRequestBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Fetches the lightweight summary for a single run. */

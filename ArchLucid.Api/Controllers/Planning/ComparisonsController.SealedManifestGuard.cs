@@ -21,7 +21,16 @@ public sealed partial class ComparisonsController
             return null;
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapComparisonReplaySealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;

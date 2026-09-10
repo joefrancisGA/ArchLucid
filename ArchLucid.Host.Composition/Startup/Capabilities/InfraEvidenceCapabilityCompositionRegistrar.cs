@@ -1,5 +1,6 @@
 using ArchLucid.Application.Evidence;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Host.Composition.Startup.Modules;
 using ArchLucid.Host.Core.Hosting;
 
@@ -21,6 +22,8 @@ public static partial class ServiceCollectionExtensions
 
         services.Configure<AzureExtractorAutoPullOptions>(
             configuration.GetSection(AzureExtractorAutoPullOptions.SectionName));
+        services.Configure<SecureNowArchitectNeighborhoodOptions>(
+            configuration.GetSection(SecureNowArchitectNeighborhoodOptions.SectionName));
         InfraEvidenceCompositionModule.Register(services);
         RegisterAzureExtractorAutoPullHostedService(services, hostingRole);
         RegisterAwsExtractorAutoPullHostedService(services, hostingRole);

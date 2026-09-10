@@ -49,7 +49,16 @@ public sealed partial class RunsController
         if (runGuid is null)
             return null;
 
-        RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, runGuid.Value, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await authorityQuery.GetRunDetailAsync(scope, runGuid.Value, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;
@@ -74,7 +83,16 @@ public sealed partial class RunsController
         CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunDetailDto? detail = await authorityQuery.GetRunDetailAsync(scope, runId, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await authorityQuery.GetRunDetailAsync(scope, runId, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunsSealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;

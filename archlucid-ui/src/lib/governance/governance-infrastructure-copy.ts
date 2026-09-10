@@ -64,11 +64,6 @@ export const GOVERNANCE_INFRASTRUCTURE_ASK_CONTEXT_LABEL = "Grounded to" as cons
 
 export const GOVERNANCE_INFRASTRUCTURE_ASK_QUESTION_LABEL = "Question" as const;
 
-export const GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_DISCLOSURE_TITLE = "Simulator mode" as const;
-
-export const GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_LABEL =
-  "Use deterministic simulator (citation-grounded template for demos)" as const;
-
 export const GOVERNANCE_INFRASTRUCTURE_ASK_SIMULATOR_STATUS_LABEL = "Simulated" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_ASK_CANNED_PROMPTS_LABEL = "Canned prompts" as const;
