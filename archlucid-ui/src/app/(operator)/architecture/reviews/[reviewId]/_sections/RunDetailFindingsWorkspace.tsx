@@ -338,12 +338,14 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       onShowAdvisoryChange: setShowAdvisory,
       managedExternally: true as const,
     },
+    structuralExecutionMode: props.structuralExecutionMode,
   };
   const findingsListEl = useDenseTable ? (
     <RunDetailFindingsDenseTable
       runId={props.runId}
       findings={listFindings}
       showDensityScore={architectWorkspaceChrome}
+      structuralExecutionMode={props.structuralExecutionMode}
     />
   ) : (
     <RunDetailFindingsCardViewLazy {...findingsListProps} />

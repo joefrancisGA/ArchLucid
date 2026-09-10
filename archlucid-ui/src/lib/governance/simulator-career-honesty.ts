@@ -1,3 +1,11 @@
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import {
+  FINDING_SEMANTIC_SUPPORT_BAND_LABELS,
+  resolveDecisionGradeSemanticSupportBand,
+  semanticSupportBandShortReason,
+  semanticSupportBandStatusTagKind,
+  type FindingSemanticSupportBandValue,
+} from "@/lib/findings/semantic-support-band-presentation";
 import {
   StructuralExecutionModeWire,
   type StructuralExecutionModeInput,
@@ -75,4 +83,60 @@ export function shouldSuppressReadyToFinalizeForSimulatorRehearsal(input: {
   readonly simulatorRehearsalBannerOnArtifact?: boolean;
 }): boolean {
   return shouldBlockWorkingCareerForSimulatorRehearsal(input);
+}
+
+export const SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_LABEL =
+  "Rehearsal — not career support";
+
+export const SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_REASON =
+  "Simulator rehearsal does not judge Real citation overlap for career surfaces.";
+
+export type PresentedSemanticSupportBand = {
+  readonly displayBand: FindingSemanticSupportBandValue;
+  readonly label: string;
+  readonly reason: string;
+  readonly statusTagKind: EnterpriseStatusKind;
+  readonly isRehearsalPresentation: boolean;
+};
+
+export function shouldPresentSemanticSupportBandAsRehearsal(
+  structuralExecutionMode?: StructuralExecutionModeInput,
+): boolean {
+  return isRehearsalStructuralExecutionMode(structuralExecutionMode ?? null);
+}
+
+/** AS-068: Simulator must not show career-looking Supported chips from wire bands. */
+export function presentDecisionGradeSemanticSupportBand(input: {
+  readonly wireBand: unknown;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
+}): PresentedSemanticSupportBand {
+  const resolvedBand = resolveDecisionGradeSemanticSupportBand(input.wireBand);
+
+  if (!shouldPresentSemanticSupportBandAsRehearsal(input.structuralExecutionMode)) {
+    return {
+      displayBand: resolvedBand,
+      label: FINDING_SEMANTIC_SUPPORT_BAND_LABELS[resolvedBand],
+      reason: semanticSupportBandShortReason(resolvedBand),
+      statusTagKind: semanticSupportBandStatusTagKind(resolvedBand),
+      isRehearsalPresentation: false,
+    };
+  }
+
+  if (resolvedBand === "NotScored") {
+    return {
+      displayBand: "NotScored",
+      label: FINDING_SEMANTIC_SUPPORT_BAND_LABELS.NotScored,
+      reason: SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_REASON,
+      statusTagKind: semanticSupportBandStatusTagKind("NotScored"),
+      isRehearsalPresentation: true,
+    };
+  }
+
+  return {
+    displayBand: "NotScored",
+    label: SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_LABEL,
+    reason: SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_REASON,
+    statusTagKind: "needs-attention",
+    isRehearsalPresentation: true,
+  };
 }

@@ -111,7 +111,10 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           {isDecisionGradeFinding(finding) ? (
             <>
               <FindingTrustChip finding={finding} />
-              <FindingSemanticSupportBandChip finding={finding} />
+              <FindingSemanticSupportBandChip
+                finding={finding}
+                structuralExecutionMode={props.context.structuralExecutionMode}
+              />
             </>
           ) : null}
         </div>
