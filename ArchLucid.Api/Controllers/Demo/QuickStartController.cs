@@ -19,7 +19,7 @@ using ArchLucid.Api.Security;
 [EnableRateLimiting("expensive")]
 [AllowAnonymous]
 [AllowUnscopedRoute]
-public sealed class QuickStartController(QuickStartService quickStartService) : ControllerBase
+public sealed partial class QuickStartController(QuickStartService quickStartService) : ControllerBase
 {
     private readonly QuickStartService _quickStartService =
         quickStartService ?? throw new ArgumentNullException(nameof(quickStartService));
@@ -45,7 +45,7 @@ public sealed class QuickStartController(QuickStartService quickStartService) : 
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapQuickStartSealedManifestConflict(ex);
         }
         catch (RunNotFoundException ex)
         {

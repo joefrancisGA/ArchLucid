@@ -247,10 +247,12 @@ export function cloudConnectionsHelpPrimaryActions(productLineId: ProductLineId 
     : CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS;
 }
 
-export function cloudConnectionsHelpStartHerePrimaryCta(productLineId: ProductLineId = "architecture") {
-  return isSecureNowProductLine(productLineId)
-    ? SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openExtractUpload
-    : CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview;
+export function cloudConnectionsHelpPrimaryCta(productLineId: ProductLineId = "architecture") {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openExtractUpload;
+  }
+
+  return CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview;
 }
 
 /** Operator Sources — no self-href to `/help/cloud-connections`. */

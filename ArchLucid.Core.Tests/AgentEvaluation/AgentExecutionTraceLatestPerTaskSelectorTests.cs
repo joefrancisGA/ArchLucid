@@ -212,6 +212,37 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_different_agent_types_share_task_id_keeps_single_highest_attempt_trace()
+    {
+        DateTime sharedUtc = new(2026, 11, 1, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace rejectedTopology = new()
+        {
+            TraceId = "trace-topology-rejected",
+            TaskId = "shared-task",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace acceptedCost = new()
+        {
+            TraceId = "trace-cost-accepted",
+            TaskId = "shared-task",
+            AgentType = AgentType.Cost,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([rejectedTopology, acceptedCost]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-cost-accepted");
+    }
+
+    [Fact]
     public void Select_when_same_attempt_and_created_utc_ties_prefers_non_rejected_trace()
     {
         DateTime sharedUtc = new(2026, 10, 2, 10, 0, 0, DateTimeKind.Utc);
