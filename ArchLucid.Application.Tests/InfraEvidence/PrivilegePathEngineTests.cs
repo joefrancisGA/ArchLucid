@@ -459,6 +459,16 @@ public sealed class PrivilegePathEngineTests
                 Created = true,
             });
         }
+
+        public Task<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)> ListPagedAsync(
+            Guid tenantId,
+            Guid workspaceId,
+            Guid projectId,
+            SecurityEvidencePathListFilter filter,
+            int page,
+            int pageSize,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)>((StoredPaths, StoredPaths.Count));
     }
 
     private sealed class InMemoryOperationalSecurityFindingRepository : IOperationalSecurityFindingRepository
@@ -509,6 +519,12 @@ public sealed class PrivilegePathEngineTests
             int pageSize,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<(IReadOnlyList<OperationalSecurityFindingRecord> Items, int TotalCount)>(([], 0));
+
+        public Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
+            Guid tenantId,
+            Guid pathId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<Guid>>([]);
 
         public Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
             Guid tenantId,
