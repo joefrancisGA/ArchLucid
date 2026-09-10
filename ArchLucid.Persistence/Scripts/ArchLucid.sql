@@ -12203,7 +12203,6 @@ BEGIN
         ON dbo.ArchitectureShares (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId);
 END;
 GO
-
 /*
   381: SecureNow architect — security evidence paths and hops (SA-01).
 */
