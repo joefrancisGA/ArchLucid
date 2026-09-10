@@ -44,7 +44,13 @@ internal static class GoldenCorpusDx49GraphFactory
                     NodeType = GraphNodeTypes.TopologyResource,
                     Label = "billing-api",
                     Category = GraphTopologyCategories.Compute,
-                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["armResourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000062/resourceGroups/rg-golden/providers/Microsoft.Web/sites/billing-api-golden-62",
+                        ["resourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000062/resourceGroups/rg-golden/providers/Microsoft.Web/sites/billing-api-golden-62",
+                    },
                 },
             ],
             edges: []);

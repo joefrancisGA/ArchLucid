@@ -7,9 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Architecture;
 
-/// <summary>
-///     Required durable audit for architecture share grant/revoke and restrict-to-shares toggles (AS-093 / ADR 0083).
-/// </summary>
+/// <summary>AS-093: Required durable audit for architecture share grant/revoke/restrict changes.</summary>
 public sealed class ArchitectureShareAuditSupport(
     IAuditService auditService,
     ILogger<ArchitectureShareAuditSupport> logger)
@@ -24,72 +22,60 @@ public sealed class ArchitectureShareAuditSupport(
         ScopeContext scope,
         string actor,
         Guid architectureId,
-        Guid userId,
+        string targetActorOid,
         string role,
         CancellationToken cancellationToken) =>
         LogRequiredAsync(
             scope,
             actor,
             AuditEventTypes.ArchitectureShareGranted,
-            JsonSerializer.Serialize(new { architectureId, userId, role }),
-            $"ArchitectureShareGranted:{architectureId:N}:{userId:N}",
+            new { architectureId, targetActorOid, role },
+            $"ArchitectureShareGranted:{architectureId:N}:{targetActorOid}",
             cancellationToken);
 
     public Task LogShareRevokedAsync(
         ScopeContext scope,
         string actor,
         Guid architectureId,
-        Guid userId,
+        string targetActorOid,
         CancellationToken cancellationToken) =>
         LogRequiredAsync(
             scope,
             actor,
             AuditEventTypes.ArchitectureShareRevoked,
-            JsonSerializer.Serialize(new { architectureId, userId }),
-            $"ArchitectureShareRevoked:{architectureId:N}:{userId:N}",
+            new { architectureId, targetActorOid },
+            $"ArchitectureShareRevoked:{architectureId:N}:{targetActorOid}",
             cancellationToken);
 
-    public Task LogRestrictToSharesEnabledAsync(
+    public Task LogRestrictToSharesChangedAsync(
         ScopeContext scope,
         string actor,
         Guid architectureId,
+        bool restrictToShares,
         CancellationToken cancellationToken) =>
         LogRequiredAsync(
             scope,
             actor,
-            AuditEventTypes.ArchitectureRestrictToSharesEnabled,
-            JsonSerializer.Serialize(new { architectureId }),
-            $"ArchitectureRestrictToSharesEnabled:{architectureId:N}",
-            cancellationToken);
-
-    public Task LogRestrictToSharesDisabledAsync(
-        ScopeContext scope,
-        string actor,
-        Guid architectureId,
-        CancellationToken cancellationToken) =>
-        LogRequiredAsync(
-            scope,
-            actor,
-            AuditEventTypes.ArchitectureRestrictToSharesDisabled,
-            JsonSerializer.Serialize(new { architectureId }),
-            $"ArchitectureRestrictToSharesDisabled:{architectureId:N}",
+            restrictToShares
+                ? AuditEventTypes.ArchitectureRestrictToSharesEnabled
+                : AuditEventTypes.ArchitectureRestrictToSharesDisabled,
+            new { architectureId, restrictToShares },
+            $"ArchitectureRestrictToShares:{architectureId:N}:{restrictToShares}",
             cancellationToken);
 
     private Task LogRequiredAsync(
         ScopeContext scope,
         string actor,
         string eventType,
-        string dataJson,
+        object payload,
         string operationLabel,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(actor);
         ArgumentException.ThrowIfNullOrWhiteSpace(eventType);
-        ArgumentException.ThrowIfNullOrWhiteSpace(dataJson);
-        ArgumentException.ThrowIfNullOrWhiteSpace(operationLabel);
 
-        AuditEvent auditEvent = scope.CreateAuditEvent(eventType, actor, actor, dataJson);
+        AuditEvent auditEvent = scope.CreateAuditEvent(eventType, actor, actor, JsonSerializer.Serialize(payload));
 
         return DurableAuditLogRetry.LogOrThrowAsync(
             ct => _auditService.LogAsync(auditEvent, ct),

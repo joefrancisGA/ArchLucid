@@ -5594,8 +5594,33 @@
         },
         "type": "object"
       },
-      "ArchitectureShareGrantResponse": {
+      "ArchitectureShareListResponse": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "restrictToShares": {
+            "type": "boolean"
+          },
+          "shares": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureShareResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureShareResponse": {
+        "properties": {
+          "actorOid": {
+            "type": "string"
+          },
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
           "grantedBy": {
             "type": "string"
           },
@@ -5606,30 +5631,11 @@
           "role": {
             "type": "string"
           },
-          "userId": {
-            "format": "uuid",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "ArchitectureShareListResponse": {
-        "properties": {
-          "architectureId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "confirmationCopy": {
-            "type": "string"
-          },
-          "restrictToShares": {
-            "type": "boolean"
-          },
-          "shares": {
-            "items": {
-              "$ref": "#/components/schemas/ArchitectureShareGrantResponse"
-            },
-            "type": "array"
+          "rowVersionBase64": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -13028,6 +13034,13 @@
       },
       "DraftRequestSummaryResponse": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdByUserId": {
             "type": "string"
           },
@@ -21959,6 +21972,13 @@
             "format": "date-time",
             "type": "string"
           },
+          "pathId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "payloadHashSha256": {
             "format": "byte",
             "type": "string"
@@ -22716,6 +22736,17 @@
             "type": "boolean"
           },
           "hasDisplayName": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "PatchArchitectureRestrictToSharesRequest": {
+        "properties": {
+          "confirmRestrict": {
+            "type": "boolean"
+          },
+          "restrictToShares": {
             "type": "boolean"
           }
         },
@@ -26260,6 +26291,17 @@
         "required": [
           "contentJson"
         ],
+        "type": "object"
+      },
+      "PutArchitectureShareRequest": {
+        "properties": {
+          "actorOid": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "PutRunCoverageAcknowledgementRequest": {
@@ -38287,14 +38329,6 @@
         },
         "type": "object"
       },
-      "UpsertArchitectureShareRequest": {
-        "properties": {
-          "role": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "UpsertRealizedValueAttestationRequest": {
         "properties": {
           "attestedIncidentsAvoided": {
@@ -38930,6 +38964,20 @@
   "paths": {
     "/v1/agent-execution/cost-preview": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -39070,6 +39118,20 @@
     },
     "/v1/auth/trial/local/register": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -39250,6 +39312,20 @@
     },
     "/v1/auth/trial/local/token": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -39430,6 +39506,20 @@
     },
     "/v1/auth/trial/local/verify-email": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -39600,6 +39690,18 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -39819,6 +39921,20 @@
     },
     "/v1/demo/explain": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -39954,6 +40070,20 @@
     },
     "/v1/demo/preview": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -40095,6 +40225,20 @@
     },
     "/v1/demo/quickstart": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -40306,6 +40450,18 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -40493,6 +40649,20 @@
     },
     "/v1/demo/viewer/runs": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -40663,6 +40833,18 @@
             "name": "runId",
             "required": true,
             "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -40845,6 +41027,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -41025,6 +41219,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -41176,6 +41382,18 @@
             "name": "targetRunId",
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -41359,6 +41577,18 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -41538,6 +41768,18 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -41729,6 +41971,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -41916,6 +42170,18 @@
             "name": "findingId",
             "required": true,
             "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -42145,6 +42411,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -42324,6 +42602,18 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -42538,6 +42828,20 @@
     },
     "/v1/marketing/early-access": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -42716,6 +43020,20 @@
     },
     "/v1/marketing/enterprise-comparison.pdf": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -42847,6 +43165,20 @@
     },
     "/v1/marketing/pricing/quote-request": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -43025,6 +43357,20 @@
     },
     "/v1/marketing/quick-scan": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -43257,6 +43603,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -43399,6 +43757,20 @@
     },
     "/v1/marketing/quick-scan/status": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -43547,6 +43919,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -43684,6 +44068,20 @@
     },
     "/v1/marketing/sponsor-brief.pdf": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -43815,6 +44213,20 @@
     },
     "/v1/marketing/trust-center/evidence-pack.zip": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -43947,6 +44359,20 @@
     },
     "/v1/marketing/why-archlucid-pack.pdf": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -44085,6 +44511,18 @@
             "schema": {
               "format": "int32",
               "type": "integer"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
             }
           }
         ],
@@ -44241,6 +44679,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -44393,6 +44843,20 @@
     },
     "/v1/roi/sponsor-dashboard-bundle": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -44538,6 +45002,20 @@
     },
     "/v1/roi/sponsor-report": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -44703,6 +45181,18 @@
             "schema": {
               "default": false,
               "type": "boolean"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
             }
           }
         ],
@@ -44873,6 +45363,20 @@
     },
     "/v1/roi/sponsor-report/export": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -45024,6 +45528,20 @@
     },
     "/v1/roi/sponsor-report/history": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {

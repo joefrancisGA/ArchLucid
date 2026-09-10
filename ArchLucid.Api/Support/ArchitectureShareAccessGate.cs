@@ -1,9 +1,8 @@
 using System.Security.Claims;
 
-using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Architecture;
-using ArchLucid.Core.Identity;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -14,14 +13,14 @@ namespace ArchLucid.Api.Support;
 
 public sealed class ArchitectureShareAccessGate(
     IArchitectureShareAccessService shareAccessService,
-    IAuthenticatedPlatformUserResolver platformUserResolver,
+    IActorContext actorContext,
     IRunRepository runRepository) : IArchitectureShareAccessGate
 {
     private readonly IArchitectureShareAccessService _shareAccessService =
         shareAccessService ?? throw new ArgumentNullException(nameof(shareAccessService));
 
-    private readonly IAuthenticatedPlatformUserResolver _platformUserResolver =
-        platformUserResolver ?? throw new ArgumentNullException(nameof(platformUserResolver));
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -35,12 +34,10 @@ public sealed class ArchitectureShareAccessGate(
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(scope);
 
-        Guid? actorUserId = await ResolveActorUserIdAsync(user, cancellationToken);
-
         return await _shareAccessService.EvaluateAsync(
             scope,
             architectureId,
-            actorUserId,
+            _actorContext.GetActorId(),
             ArchitectureShareAuthorityProbe.HasReadAuthority(user),
             ArchitectureShareAuthorityProbe.HasExecuteAuthority(user),
             ArchitectureShareAuthorityProbe.HasWorkspaceAdminAuthority(user),
@@ -141,12 +138,5 @@ public sealed class ArchitectureShareAccessGate(
         }
 
         return null;
-    }
-
-    private async Task<Guid?> ResolveActorUserIdAsync(ClaimsPrincipal user, CancellationToken cancellationToken)
-    {
-        PlatformUserRecord? platformUser = await _platformUserResolver.ResolveAsync(user, cancellationToken);
-
-        return platformUser?.Id;
     }
 }

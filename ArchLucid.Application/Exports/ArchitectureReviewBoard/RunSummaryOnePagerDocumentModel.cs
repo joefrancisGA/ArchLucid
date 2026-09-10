@@ -110,4 +110,5 @@ public sealed class RunSummaryOnePagerDocumentModel
         get;
         init;
     }
+
 }

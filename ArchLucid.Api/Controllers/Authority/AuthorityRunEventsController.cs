@@ -51,62 +51,70 @@ public sealed partial class AuthorityRunEventsController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task GetRunEvents(Guid runId, CancellationToken cancellationToken)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, cancellationToken);
-
-        if (detail is not null)
+        try
         {
-            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, cancellationToken);
 
-            if (sealedGuardResult is not null)
+            if (detail is not null)
             {
-                await sealedGuardResult.ExecuteResultAsync(new ActionContext { HttpContext = HttpContext });
-                return;
+                IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+                if (sealedGuardResult is not null)
+                {
+                    await sealedGuardResult.ExecuteResultAsync(new ActionContext { HttpContext = HttpContext });
+                    return;
+                }
             }
+
+            Response.Headers.ContentType = "text/event-stream";
+            Response.Headers.CacheControl = "no-cache";
+            Response.Headers.Connection = "keep-alive";
+
+            DateTime startedUtc = TimeProvider.System.UtcNowDateTime();
+            TimeSpan maxDuration = TimeSpan.FromMinutes(5);
+            TimeSpan pollInterval = TimeSpan.FromSeconds(2);
+            string? lastPayloadFingerprint = null;
+
+            while (!cancellationToken.IsCancellationRequested
+                   && TimeProvider.System.UtcNowDateTime() - startedUtc <= maxDuration)
+            {
+                RunSummaryDto? summaryDto = await queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
+
+                if (summaryDto is null)
+                {
+                    await WriteSseEventAsync("error", """{"detail":"Run summary not found"}""", cancellationToken);
+                    await WriteSseEventAsync("complete", """{"reason":"not-found"}""", cancellationToken);
+
+                    return;
+                }
+
+                RunSummaryResponse body = ToRunSummaryResponse(summaryDto);
+                string json = JsonSerializer.Serialize(body, SerializerOptions);
+
+                if (!string.Equals(json, lastPayloadFingerprint, StringComparison.Ordinal))
+                {
+                    lastPayloadFingerprint = json;
+                    await WriteSseEventAsync("status", json, cancellationToken);
+                }
+
+                if (summaryDto.HasGoldenManifest)
+                {
+                    await WriteSseEventAsync("complete", """{"reason":"golden-manifest-ready"}""", cancellationToken);
+
+                    return;
+                }
+
+                await Task.Delay(pollInterval, cancellationToken);
+            }
+
+            await WriteSseEventAsync("complete", """{"reason":"timeout"}""", cancellationToken);
         }
-
-        Response.Headers.ContentType = "text/event-stream";
-        Response.Headers.CacheControl = "no-cache";
-        Response.Headers.Connection = "keep-alive";
-
-        DateTime startedUtc = TimeProvider.System.UtcNowDateTime();
-        TimeSpan maxDuration = TimeSpan.FromMinutes(5);
-        TimeSpan pollInterval = TimeSpan.FromSeconds(2);
-        string? lastPayloadFingerprint = null;
-
-        while (!cancellationToken.IsCancellationRequested
-               && TimeProvider.System.UtcNowDateTime() - startedUtc <= maxDuration)
+        catch (ConflictException ex)
         {
-            RunSummaryDto? summaryDto = await queryService.GetRunSummaryAsync(scope, runId, cancellationToken);
-
-            if (summaryDto is null)
-            {
-                await WriteSseEventAsync("error", """{"detail":"Run summary not found"}""", cancellationToken);
-                await WriteSseEventAsync("complete", """{"reason":"not-found"}""", cancellationToken);
-
-                return;
-            }
-
-            RunSummaryResponse body = ToRunSummaryResponse(summaryDto);
-            string json = JsonSerializer.Serialize(body, SerializerOptions);
-
-            if (!string.Equals(json, lastPayloadFingerprint, StringComparison.Ordinal))
-            {
-                lastPayloadFingerprint = json;
-                await WriteSseEventAsync("status", json, cancellationToken);
-            }
-
-            if (summaryDto.HasGoldenManifest)
-            {
-                await WriteSseEventAsync("complete", """{"reason":"golden-manifest-ready"}""", cancellationToken);
-
-                return;
-            }
-
-            await Task.Delay(pollInterval, cancellationToken);
+            await MapRunEventsSealedManifestConflict(ex)
+                .ExecuteResultAsync(new ActionContext { HttpContext = HttpContext });
         }
-
-        await WriteSseEventAsync("complete", """{"reason":"timeout"}""", cancellationToken);
     }
 
     private async Task WriteSseEventAsync(string eventName, string data, CancellationToken cancellationToken)

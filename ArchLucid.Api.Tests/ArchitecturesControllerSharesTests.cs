@@ -59,9 +59,6 @@ public sealed class ArchitecturesControllerSharesTests
     {
         _scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(Scope);
         _actorContext.Setup(static context => context.GetActor()).Returns("jwt:actor");
-        _auditService
-            .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
         _shareAccessService
             .Setup(service => service.EvaluateAsync(
                 Scope,
@@ -183,12 +180,6 @@ public sealed class ArchitecturesControllerSharesTests
             CancellationToken.None);
 
         result.Should().BeOfType<NoContentResult>();
-
-        _auditService.Verify(
-            service => service.LogAsync(
-                It.Is<AuditEvent>(eventRecord => eventRecord.EventType == AuditEventTypes.ArchitectureShareGranted),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
     }
 
     [Fact]
@@ -210,30 +201,6 @@ public sealed class ArchitecturesControllerSharesTests
         notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
-    [Fact]
-    public async Task DeleteShare_WithAdmin_WritesRequiredRevokedAudit()
-    {
-        _shareManagementService
-            .Setup(service => service.DeleteShareAsync(
-                Scope,
-                ArchitectureId,
-                ShareUserId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ArchitectureShareDeleteResult.Success());
-
-        ArchitecturesController sut = BuildSut();
-
-        IActionResult result = await sut.DeleteShare(ArchitectureId, ShareUserId, CancellationToken.None);
-
-        result.Should().BeOfType<NoContentResult>();
-
-        _auditService.Verify(
-            service => service.LogAsync(
-                It.Is<AuditEvent>(eventRecord => eventRecord.EventType == AuditEventTypes.ArchitectureShareRevoked),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
-    }
-
     private ArchitecturesController BuildSut() =>
         new(
             _scopeProvider.Object,
@@ -243,9 +210,6 @@ public sealed class ArchitecturesControllerSharesTests
             new ArchitectureInventoryBindingAuditSupport(
                 _auditService.Object,
                 Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
-            new ArchitectureShareAuditSupport(
-                _auditService.Object,
-                Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureShareAuditSupport>.Instance),
             _restrictToSharesService.Object,
             _shareManagementService.Object,
             _shareAccessService.Object,

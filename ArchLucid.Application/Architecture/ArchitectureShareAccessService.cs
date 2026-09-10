@@ -1,18 +1,23 @@
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Architecture;
 
-public sealed class ArchitectureShareAccessService(IArchitectureShareRepository shareRepository)
-    : IArchitectureShareAccessService
+public sealed class ArchitectureShareAccessService(
+    IArchitectureIdentityRepository architectureIdentityRepository,
+    IArchitectureShareRepository shareRepository) : IArchitectureShareAccessService
 {
+    private readonly IArchitectureIdentityRepository _architectureIdentityRepository =
+        architectureIdentityRepository ?? throw new ArgumentNullException(nameof(architectureIdentityRepository));
+
     private readonly IArchitectureShareRepository _shareRepository =
         shareRepository ?? throw new ArgumentNullException(nameof(shareRepository));
 
     public async Task<ArchitectureShareAccessEvaluation> EvaluateAsync(
         ScopeContext scope,
         Guid architectureId,
-        Guid? actorUserId,
+        string? actorOid,
         bool hasReadAuthority,
         bool hasExecuteAuthority,
         bool hasWorkspaceAdminAuthority,
@@ -20,44 +25,33 @@ public sealed class ArchitectureShareAccessService(IArchitectureShareRepository 
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        bool? restrictToShares = await _shareRepository.TryGetRestrictToSharesAsync(
+        ArchitectureIdentityRecord? architecture = await _architectureIdentityRepository.GetByIdAsync(
             scope,
             architectureId,
             cancellationToken);
 
-        if (restrictToShares is null)
+        if (architecture is null)
             return ArchitectureShareAccessEvaluation.ArchitectureNotFound();
 
-        string? shareRole = null;
+        ArchitectureShareRecord? share = null;
 
-        if (actorUserId is Guid userId && userId != Guid.Empty)
+        if (!string.IsNullOrWhiteSpace(actorOid))
         {
-            shareRole = await _shareRepository.TryGetShareRoleAsync(
+            share = await _shareRepository.TryGetAsync(
                 scope,
                 architectureId,
-                userId,
+                actorOid,
                 cancellationToken);
         }
 
-        return ArchitectureShareAccessEvaluator.Evaluate(
-            restrictToShares.Value,
-            shareRole,
-            hasReadAuthority,
-            hasExecuteAuthority,
-            hasWorkspaceAdminAuthority);
-    }
-
-    public Task<int> CountRestrictedWithoutActorShareAsync(
-        ScopeContext scope,
-        Guid? actorUserId,
-        bool hasWorkspaceAdminAuthority,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        if (hasWorkspaceAdminAuthority)
-            return Task.FromResult(0);
-
-        return _shareRepository.CountRestrictedWithoutActorShareAsync(scope, actorUserId, cancellationToken);
+        return new ArchitectureShareAccessEvaluation
+        {
+            ArchitectureFound = true,
+            RestrictToShares = architecture.RestrictToShares,
+            ShareRole = share?.Role,
+            CanRead = hasReadAuthority && ArchitectureShareAccessEvaluator.CanView(architecture, share),
+            CanDecide = ArchitectureShareAccessEvaluator.CanDecide(architecture, share, hasExecuteAuthority),
+            CanAdmin = ArchitectureShareAccessEvaluator.CanAdmin(architecture, share),
+        };
     }
 }

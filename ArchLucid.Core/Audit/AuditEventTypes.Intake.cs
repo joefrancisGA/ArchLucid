@@ -27,16 +27,16 @@ public static partial class AuditEventTypes
     /// <summary>Architecture identity inventory snapshot binding removed (AS-048).</summary>
     public const string ArchitectureInventorySnapshotDetached = "ArchitectureIdentity.InventorySnapshotDetached";
 
-    /// <summary>Architecture share granted or role updated (AS-093).</summary>
+    /// <summary>Architecture share granted to a user oid inside the tenant (AS-093).</summary>
     public const string ArchitectureShareGranted = "ArchitectureIdentity.ShareGranted";
 
     /// <summary>Architecture share revoked (AS-093).</summary>
     public const string ArchitectureShareRevoked = "ArchitectureIdentity.ShareRevoked";
 
-    /// <summary>Architecture identity opted into restrict-to-shares (AS-093).</summary>
+    /// <summary>Restrict-to-shares enabled on an architecture identity (AS-089).</summary>
     public const string ArchitectureRestrictToSharesEnabled = "ArchitectureIdentity.RestrictToSharesEnabled";
 
-    /// <summary>Architecture identity opted out of restrict-to-shares (AS-093).</summary>
+    /// <summary>Restrict-to-shares disabled on an architecture identity (AS-089).</summary>
     public const string ArchitectureRestrictToSharesDisabled = "ArchitectureIdentity.RestrictToSharesDisabled";
 
     /// <summary>Pre-run manifest-free reasoning turn on an intake draft (SAQ-013).</summary>

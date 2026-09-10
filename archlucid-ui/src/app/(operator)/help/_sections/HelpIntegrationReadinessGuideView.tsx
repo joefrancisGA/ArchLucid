@@ -13,12 +13,13 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTitleRow } from "@/components/help/HelpTopicPageHeader";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { Button } from "@/components/ui/button";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   INTEGRATION_READINESS_HELP_CONFIGURE_SECTION_ANCHORS,
   INTEGRATION_READINESS_HELP_DEFERRED_STATUS_LABELS_ANCHOR,
   INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_SECTION_ANCHORS,
   INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_TEST_ID,
-  INTEGRATION_READINESS_HELP_OVERVIEW,
+  integrationReadinessHelpOverview,
   INTEGRATION_READINESS_HELP_STATUS_GLOSSARY_TITLE,
 } from "@/lib/integration-readiness-help-guide-content";
 import {
@@ -58,6 +59,8 @@ export function HelpIntegrationReadinessGuideView(
   props: HelpIntegrationReadinessGuideViewProps,
 ): React.JSX.Element {
   const { entry, markdown } = props;
+  const { productLine } = useProductLine();
+  const overview = integrationReadinessHelpOverview(productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -156,7 +159,7 @@ export function HelpIntegrationReadinessGuideView(
         </section>
 
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-integration-readiness-overview">
-          {INTEGRATION_READINESS_HELP_OVERVIEW}
+          {overview}
         </p>
 
         {firstViewportMarkdown.trim().length > 0 ? (

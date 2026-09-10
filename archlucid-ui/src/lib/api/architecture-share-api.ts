@@ -1,65 +1,71 @@
+import type { components } from "@/lib/api-types/schemas.generated";
+import { captureTraceContextFromResponse } from "@/lib/correlation";
+
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiDelete, apiPutJson, apiPutNoContent } from "./http";
+import { throwApiRequestError } from "./http-verbs-get";
+import { ensureOidcBearerReady } from "./http-auth";
+import { applyCorrelationHeaders, resolveRequest, serverFetchInit } from "./http-proxy";
+import { apiPatchJson, apiPutJson } from "./http";
+import { notifyIfIdempotencyReplayed } from "./http-verbs-mutate-shared";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
-export type ArchitectureShareGrant = {
-  userId: string;
-  role: string;
-  grantedBy: string;
-  grantedUtc: string;
-};
+export type ArchitectureShareListResponse =
+  components["schemas"]["ArchitectureShareListResponse"];
 
-export type ArchitectureShareListResponse = {
-  architectureId: string;
-  restrictToShares: boolean;
-  shares: ArchitectureShareGrant[];
-  confirmationCopy?: string;
-};
+export type ArchitectureShareResponse =
+  components["schemas"]["ArchitectureShareResponse"];
 
-export type UpsertArchitectureShareRequest = {
-  role: string;
-};
+export type PutArchitectureShareRequest =
+  components["schemas"]["PutArchitectureShareRequest"];
 
-export type SetArchitectureRestrictToSharesRequest = {
-  restrictToShares: boolean;
-  confirmOptIn: boolean;
-};
+export type PatchArchitectureRestrictToSharesRequest =
+  components["schemas"]["PatchArchitectureRestrictToSharesRequest"];
 
-export type ArchitectureRestrictToSharesResponse = {
-  architectureId: string;
-  restrictToShares: boolean;
-  actorAdminShareInserted?: boolean;
-};
-
-export async function getArchitectureShares(architectureId: string): Promise<ArchitectureShareListResponse> {
+export async function getArchitectureShares(
+  architectureId: string,
+): Promise<ArchitectureShareListResponse> {
   return apiGetSealedManifestAware<ArchitectureShareListResponse>(
     `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/shares`,
   );
 }
 
-export async function upsertArchitectureShare(
+export async function putArchitectureShare(
   architectureId: string,
-  userId: string,
-  body: UpsertArchitectureShareRequest,
-): Promise<void> {
-  await apiPutNoContent(
-    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/shares/${encodeURIComponent(userId.trim())}`,
+  body: PutArchitectureShareRequest,
+): Promise<ArchitectureShareListResponse> {
+  return apiPutJson<ArchitectureShareListResponse>(
+    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/shares`,
     body,
   );
 }
 
-export async function deleteArchitectureShare(architectureId: string, userId: string): Promise<void> {
-  await apiDelete(
-    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/shares/${encodeURIComponent(userId.trim())}`,
-  );
+export async function revokeArchitectureShare(
+  architectureId: string,
+  targetActorOid: string,
+): Promise<ArchitectureShareListResponse> {
+  await ensureOidcBearerReady();
+  const path = `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/shares/${encodeURIComponent(targetActorOid.trim())}`;
+  const { url, headers } = await resolveRequest(path);
+  const { headers: h, correlationId } = applyCorrelationHeaders(headers);
+  const response = await fetch(url, serverFetchInit(h, { method: "DELETE" }));
+  captureTraceContextFromResponse(response);
+  const text = await response.text();
+
+  if (!response.ok) {
+    throwApiRequestError(response, text, correlationId);
+  }
+
+  notifyIfIdempotencyReplayed(response);
+
+  return JSON.parse(text) as ArchitectureShareListResponse;
 }
 
-export async function setArchitectureRestrictToShares(
+export async function patchArchitectureRestrictToShares(
   architectureId: string,
-  body: SetArchitectureRestrictToSharesRequest,
-): Promise<ArchitectureRestrictToSharesResponse> {
-  return apiPutJson<ArchitectureRestrictToSharesResponse>(
+  body: PatchArchitectureRestrictToSharesRequest,
+): Promise<ArchitectureShareListResponse> {
+  return apiPatchJson<ArchitectureShareListResponse>(
     `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}/restrict-to-shares`,
     body,
   );
