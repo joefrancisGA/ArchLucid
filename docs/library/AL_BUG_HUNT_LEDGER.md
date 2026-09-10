@@ -1341,7 +1341,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1369,6 +1369,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BuildContextAsync` with null `FindingsSnapshot` simulates unscoped findings — **cheap-disproof 2026-09-10 seed hunt #1551:** `CreateEmptyFindings` copies manifest anchor ids; regression `GetContextsAsync_when_findings_snapshot_null_synthesizes_manifest_bound_empty_findings`
 - [x] (valid-no-repro) `comparedToRunId` pointing at a foreign-tenant run still builds comparison context — **cheap-disproof 2026-09-10 seed hunt #1551:** `RunMatchesCallerScope` drops compare-to branch; primary plan only; regression `GetContextsAsync_when_compared_to_run_is_foreign_tenant_builds_primary_without_comparison`
 - [x] (valid-no-repro) explicit `runId` path with sealed-hash failure returns empty like recent-run batch — **cheap-disproof 2026-09-10 seed hunt #1551:** intentional wave-27 fail-closed: `skipOnSealedHashFailure: false` throws `InvalidOperationException` for controller `409 Conflict` mapping; regression `GetContextsAsync_when_explicit_run_has_sealed_hash_failure_throws`
+- [x] (valid-no-repro) `comparedToRunId` pointing at a foreign-workspace run still builds comparison context — **cheap-disproof 2026-09-10 seed hunt #1558:** `RunMatchesCallerScope` drops compare-to branch; regression `GetContextsAsync_when_compared_to_run_is_foreign_workspace_builds_primary_without_comparison`
+- [x] (valid-no-repro) explicit `comparedToRunId` with sealed-hash failure silently drops comparison and still simulates primary — **cheap-disproof 2026-09-10 seed hunt #1558:** explicit mode fail-closed applies to compare-to manifest verification too; throws before plan generation; regression `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`
+- [ ] (candidate) recent-run batch (`runId` null) forwards `comparedToRunId` into every `BuildContextAsync` call — historical-window simulation may attach the same baseline comparison to each swept run when API sets `ComparedToRunId` without `RunId` (`GetContextsAsync` lines 69–76)
+
+2026-09-10 seed hunt #1558 (seed-only): reseeded alert-simulation after #1551; cheap-disproof closed foreign-workspace compare-to drop and explicit compare-to sealed-hash throw semantics; seeded recent-run batch compare-to forwarding candidate; 16 scoped `AlertSimulationContextProviderTests` passed.
 
 2026-09-10 seed hunt #1551 (seed-only): reseeded alert-simulation after #1471; cheap-disproof closed foreign-project scope, context/graph snapshot anchor binding, null-findings synthesis, foreign compare-to tenant, and explicit-run sealed-hash throw semantics; 14 scoped `AlertSimulationContextProviderTests` passed.
 
