@@ -7,6 +7,9 @@ import {
   type PolicyPackDryRunResponse,
 } from "@/types/policy-pack-dry-run";
 import type { PolicyPack, PolicyPackVersion } from "@/types/policy-packs";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { policyPackSimulateBlockedReason } from "@/lib/policy/policy-pack-simulate-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "./http";
 
 /** Creates a new policy pack with an initial content document. */
@@ -76,8 +79,15 @@ function clampDryRunPage(input: number | undefined): number {
 export async function simulatePolicyPackAgainstRun(
   body: components["schemas"]["PolicyPackSimulateRequest"],
 ): Promise<components["schemas"]["PolicyPackGovernanceDryRunResult"]> {
-  return apiPostJson<components["schemas"]["PolicyPackGovernanceDryRunResult"]>(
-    `/${ApiV1Routes.policyPacks}/simulate`,
-    body,
-  );
+  try {
+    return await apiPostJson<components["schemas"]["PolicyPackGovernanceDryRunResult"]>(
+      `/${ApiV1Routes.policyPacks}/simulate`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = policyPackSimulateBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
