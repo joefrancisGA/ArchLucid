@@ -53,17 +53,24 @@ public sealed partial class ProvenanceController(
     [ProducesResponseType(typeof(MvcProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetFullGraph(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(scope, runId, ct);
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(scope, runId, ct);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        GraphViewModel? vm = await service.GetFullGraphAsync(scope, runId, ct);
-        return vm is null
-            ? this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound)
-            : Ok(vm);
+            GraphViewModel? vm = await service.GetFullGraphAsync(scope, runId, ct);
+            return vm is null
+                ? this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound)
+                : Ok(vm);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProvenanceSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Returns the provenance sub-graph rooted at a specific decision node.</summary>
@@ -80,18 +87,25 @@ public sealed partial class ProvenanceController(
         string decisionKey,
         CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(scope, runId, ct);
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(scope, runId, ct);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        GraphViewModel? vm = await service.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
-        return vm is null
-            ? this.NotFoundProblem($"Decision graph node '{decisionKey}' for run '{runId}' was not found.",
-                ProblemTypes.ResourceNotFound)
-            : Ok(vm);
+            GraphViewModel? vm = await service.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
+            return vm is null
+                ? this.NotFoundProblem($"Decision graph node '{decisionKey}' for run '{runId}' was not found.",
+                    ProblemTypes.ResourceNotFound)
+                : Ok(vm);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProvenanceSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Returns the neighbourhood sub-graph around a specific node in the provenance graph.</summary>
@@ -113,18 +127,25 @@ public sealed partial class ProvenanceController(
         [FromQuery] int depth = 1,
         CancellationToken ct = default)
     {
-        depth = Math.Clamp(depth, 1, ProvenanceQueryLimits.MaxNeighborhoodDepthProvenanceRoute);
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        try
+        {
+            depth = Math.Clamp(depth, 1, ProvenanceQueryLimits.MaxNeighborhoodDepthProvenanceRoute);
+            ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(scope, runId, ct);
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(scope, runId, ct);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        GraphViewModel? vm = await service.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
-        return vm is null
-            ? this.NotFoundProblem($"Provenance node '{nodeId}' for run '{runId}' was not found.",
-                ProblemTypes.ResourceNotFound)
-            : Ok(vm);
+            GraphViewModel? vm = await service.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
+            return vm is null
+                ? this.NotFoundProblem($"Provenance node '{nodeId}' for run '{runId}' was not found.",
+                    ProblemTypes.ResourceNotFound)
+                : Ok(vm);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProvenanceSealedManifestConflict(ex);
+        }
     }
 }

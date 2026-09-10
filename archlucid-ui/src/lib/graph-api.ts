@@ -190,9 +190,17 @@ export async function getDecisionSubgraph(
   decisionId: string,
 ): Promise<GraphViewModel> {
   const key = encodeURIComponent(decisionId);
-  return apiGetSealedManifestAware<GraphViewModel>(
-    `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/decision/${key}`,
-  );
+
+  try {
+    return await apiGetSealedManifestAware<GraphViewModel>(
+      `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/decision/${key}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = provenanceGraphAliasBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Fetches a neighborhood subgraph around a specific node, up to the given depth. */
@@ -201,9 +209,16 @@ export async function getNodeNeighborhood(
   nodeId: string,
   depth = 1,
 ): Promise<GraphViewModel> {
-  return apiGetSealedManifestAware<GraphViewModel>(
-    `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/node/${encodeURIComponent(nodeId)}?depth=${depth}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<GraphViewModel>(
+      `/v1/provenance/runs/${encodeURIComponent(runId)}/graph/node/${encodeURIComponent(nodeId)}?depth=${depth}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = provenanceGraphAliasBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export { architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
