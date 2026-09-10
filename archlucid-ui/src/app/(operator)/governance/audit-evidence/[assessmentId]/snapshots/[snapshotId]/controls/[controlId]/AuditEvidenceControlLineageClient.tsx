@@ -10,6 +10,7 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { Button } from "@/components/ui/button";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -99,6 +100,24 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
   const chainToggleLabel = chainExpanded
     ? AUDIT_EVIDENCE_CONTROL_LINEAGE_COLLAPSE_ACTION
     : AUDIT_EVIDENCE_CONTROL_LINEAGE_EXPAND_ACTION;
+
+  const onDownloadEvidencePackage = useCallback(async () => {
+    setPackageDownloadBusy(true);
+
+    try {
+      await downloadAuditEvidencePackageZip(props.assessmentId, props.snapshotId);
+    } catch (error: unknown) {
+      const failure = toApiLoadFailure(error);
+      const blocked = auditEvidencePackageBlockedReason(failure);
+
+      showError(
+        "Audit evidence package download failed",
+        blocked ?? (error instanceof Error ? error.message : String(error)),
+      );
+    } finally {
+      setPackageDownloadBusy(false);
+    }
+  }, [props.assessmentId, props.snapshotId]);
 
   const onDownloadEvidencePackage = useCallback(async () => {
     setPackageDownloadBusy(true);
