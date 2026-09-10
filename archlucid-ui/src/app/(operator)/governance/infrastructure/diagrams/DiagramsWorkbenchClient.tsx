@@ -72,7 +72,7 @@ import { WorkbenchHubScopeLinks } from "@/components/infra-evidence/WorkbenchHub
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_LOAD_ERROR_TITLE,
@@ -648,14 +648,17 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      <section className={cn("grid gap-4 md:grid-cols-2", cnCard)} aria-label="Snapshot and mode selection">
+      <section
+        className={cn("grid gap-4 md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]", cnCard)}
+        aria-label="Snapshot and mode selection"
+      >
         {buyerPolishedShell ? (
           <>
-            <div className="grid gap-2">
+            <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-snapshot-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL}</Label>
               <select
                 id="infra-diagrams-snapshot-picker"
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
                 disabled={loadingSnapshots || snapshots.length === 0}
                 value={selectedSnapshotId}
@@ -672,11 +675,11 @@ export function DiagramsWorkbenchClient() {
                 )}
               </select>
             </div>
-            <div className="grid gap-2">
+            <div className="grid min-w-0 gap-2">
               <Label htmlFor="infra-diagrams-mode-picker">{GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL}</Label>
               <select
                 id="infra-diagrams-mode-picker"
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-mode-picker"
                 disabled={loadingPreview || selectedSnapshotId.length === 0}
                 value={selectedMode}
@@ -692,10 +695,10 @@ export function DiagramsWorkbenchClient() {
           </>
         ) : (
           <>
-            <label className="flex flex-col gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>Snapshot</span>
+            <label className="flex min-w-0 flex-col gap-1">
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>Snapshot</span>
               <select
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-snapshot-picker"
                 disabled={loadingSnapshots || snapshots.length === 0}
                 value={selectedSnapshotId}
@@ -712,10 +715,10 @@ export function DiagramsWorkbenchClient() {
                 )}
               </select>
             </label>
-            <label className="flex flex-col gap-1">
-              <span className={OPERATOR_TYPOGRAPHY.helper}>Diagram mode</span>
+            <label className="flex min-w-0 flex-col gap-1">
+              <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>Diagram mode</span>
               <select
-                className={cnField}
+                className={cn("w-full", cnField)}
                 data-testid="infra-diagrams-mode-picker"
                 disabled={loadingPreview || selectedSnapshotId.length === 0}
                 value={selectedMode}
