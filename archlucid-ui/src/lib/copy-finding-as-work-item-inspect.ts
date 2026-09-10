@@ -12,6 +12,8 @@ import {
   findingWorkItemReviewLinkLabel,
 } from "@/lib/finding-work-item-product-copy";
 
+import { resolveFindingSemanticSupportBandExportFields } from "@/lib/findings/finding-semantic-support-band-export";
+
 import { resolveFindingWorkItemCoverageHonestyFromInput } from "./copy-finding-as-work-item-coverage-honesty";
 
 import {
@@ -100,6 +102,10 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const ruleLine = ruleSummary(input.decisionRuleName, input.decisionRuleId);
   const trustLine = formatFindingTrustExportLine(input);
   const trustJson = findingTrustExportJsonFields(input);
+  const semanticSupportFields = resolveFindingSemanticSupportBandExportFields({
+    classification: input.classification ?? "DecisionGradeFinding",
+    semanticSupportBand: input.semanticSupportBand ?? null,
+  });
   const coverageHonestyLine = coverageHonestyLineForExport(input);
   const coverageHonestyJson = coverageHonestyJsonFields(input);
 
@@ -118,6 +124,12 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         status: "Not available",
         ruleId: ruleLine,
         ...trustJson,
+        ...(semanticSupportFields === null
+          ? {}
+          : {
+              semanticSupportBand: semanticSupportFields.semanticSupportBand,
+              semanticSupportBandScorerVersion: semanticSupportFields.semanticSupportBandScorerVersion,
+            }),
         ...coverageHonestyJson,
         whatWasFlagged: whatFlagged,
         whyItMatters,

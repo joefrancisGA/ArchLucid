@@ -1,4 +1,5 @@
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { resolveFindingSemanticSupportBandExportFields } from "@/lib/findings/finding-semantic-support-band-export";
 import {
   findingTrustExportJsonFields,
   formatFindingTrustExportLine,
@@ -69,6 +70,10 @@ function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): Findin
   const links = traceRowWorkItemLinks(input);
   const trustFields = findingTrustExportJsonFields(input);
   const coverageHonestyLine = traceRowCoverageHonestyLineForExport(input);
+  const semanticSupportFields = resolveFindingSemanticSupportBandExportFields({
+    classification: input.classification ?? "DecisionGradeFinding",
+    semanticSupportBand: input.semanticSupportBand ?? null,
+  });
 
   return {
     schema: "archlucid.work-item.v1",
@@ -80,6 +85,12 @@ function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): Findin
     status: na(input.statusLabel),
     ruleId: na(input.ruleId),
     ...trustFields,
+    ...(semanticSupportFields === null
+      ? {}
+      : {
+          semanticSupportBand: semanticSupportFields.semanticSupportBand,
+          semanticSupportBandScorerVersion: semanticSupportFields.semanticSupportBandScorerVersion,
+        }),
     ...(coverageHonestyLine !== null ? { coverageHonesty: coverageHonestyLine } : {}),
     links: {
       review: links.runUrl,
