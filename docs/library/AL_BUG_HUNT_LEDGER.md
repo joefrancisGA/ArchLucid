@@ -1291,7 +1291,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1711,6 +1711,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MapDispositionPointerProjection` drops pointer metadata when disposition raw is negative numeric — **cheap-disproof 2026-09-10 seed hunt #1668:** invalid disposition parses to null while occurred-at, event id, reviewer, and revisit-due survive; regression `MapDispositionPointerProjection_preserves_pointer_metadata_when_disposition_is_negative_numeric`.
 
 2026-09-10 seed hunt #1668 (seed-only): reseeded finding-inspect-sql after #1667; cheap-disproof closed typed-payload deserialize-over-metadata precedence, whitespace-only payload guard, scientific-notation JSON parse, whitespace-padded deferred/remediated projection, and negative-numeric pointer metadata preservation; 351 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ParseFindingSeverity` accepts fractional numeric severity strings — **cheap-disproof 2026-09-10 seed hunt #1671:** `Enum.TryParse` rejects fractional numerics and defaults to `Info`; regression `ParseFindingSeverity_maps_fractional_numeric_string_to_info_default`.
+- [x] (valid-no-repro) `ParseHumanReview` accepts fractional numeric review-status strings — **cheap-disproof 2026-09-10 seed hunt #1671:** fractional numerics default to `NotRequired`; regression `ParseHumanReview_maps_fractional_numeric_string_to_not_required_default`.
+- [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` accepts fractional numeric confidence strings — **cheap-disproof 2026-09-10 seed hunt #1671:** fractional numerics return null; regression `TryParseEvaluationConfidenceLevel_returns_null_for_fractional_numeric_string`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` treats whitespace-padded `NeedsEvidence` raw as invalid — **cheap-disproof 2026-09-10 seed hunt #1671:** mapper trims before `Enum.TryParse`; regression `MapDispositionPointerProjection_maps_whitespace_padded_needs_evidence_string`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` treats whitespace-padded `RejectedAsNotApplicable` raw as invalid — **cheap-disproof 2026-09-10 seed hunt #1671:** mapper trims before `Enum.TryParse`; regression `MapDispositionPointerProjection_maps_whitespace_padded_rejected_as_not_applicable_string`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` drops pointer metadata when disposition raw is whitespace-only — **cheap-disproof 2026-09-10 seed hunt #1671:** whitespace disposition parses to null while occurred-at, event id, reviewer, and revisit-due survive; regression `MapDispositionPointerProjection_preserves_pointer_metadata_when_disposition_raw_is_whitespace_only`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains only empty-string entries uses the first empty id — **cheap-disproof 2026-09-10 seed hunt #1671:** whitespace-only elements are skipped and trace text is used; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_only_empty_string_entries_falls_back_to_trace_text`.
+
+2026-09-10 seed hunt #1671 (seed-only): reseeded finding-inspect-sql after #1668; cheap-disproof closed fractional numeric enum parsing guards, whitespace-padded needs-evidence/rejected-as-not-applicable projection, whitespace-only disposition pointer metadata preservation, and empty-string-only applied-rule-id arrays; 358 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
