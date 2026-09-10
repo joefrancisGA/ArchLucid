@@ -1,5 +1,9 @@
 import type { ApiResponseWithTrace } from "@/lib/api";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
+import { apiGet } from "@/lib/api/http";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { runDetailPageBundleBlockedReason } from "@/lib/runs/run-detail-page-bundle-blocked-reason";
 import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
 import {
   tryStaticRunDetailCriticalPageBundle,
@@ -35,12 +39,26 @@ export async function fetchRunDetailCriticalPageBundle(
     }
   }
 
-  const data = await apiGetSealedManifestAware<RunDetailCriticalPageBundle>(
+  const data = await fetchRunDetailCriticalPageBundleSealedManifestAware<RunDetailCriticalPageBundle>(
     `/v1/authority/reviews/${encodeURIComponent(runId)}/critical-page-bundle`,
     options,
   );
 
   return { data, traceId: null };
+}
+
+async function fetchRunDetailCriticalPageBundleSealedManifestAware<T>(
+  path: string,
+  options?: { readonly scopeHeaders?: Record<string, string> },
+): Promise<T> {
+  try {
+    return await apiGet<T>(path, options);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runDetailPageBundleBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export type RunDetailTimelinesBundle = {

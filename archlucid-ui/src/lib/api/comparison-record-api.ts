@@ -1,5 +1,9 @@
 import type { components } from "@/lib/openapi-schemas";
 
+import { formatExportSealedManifestAwareApiError } from "./export-sealed-manifest-conflict";
+import { comparisonRecordBlockedReason } from "@/lib/compare/comparison-record-blocked-reason";
+import { comparisonSearchBlockedReason } from "@/lib/compare/comparison-search-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 
 export type ComparisonRecordResponse = components["schemas"]["ComparisonRecordResponse"];
@@ -34,14 +38,28 @@ export async function searchComparisonRecords(
 
   const suffix = params.size > 0 ? `?${params.toString()}` : "";
 
-  return apiGetSealedManifestAware<ComparisonHistoryResponse>(`/v1/architecture/comparisons${suffix}`);
+  try {
+    return await apiGetSealedManifestAware<ComparisonHistoryResponse>(`/v1/architecture/comparisons${suffix}`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = comparisonSearchBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Loads one persisted comparison audit row. */
 export async function getComparisonRecord(comparisonRecordId: string): Promise<ComparisonRecordResponse> {
-  return apiGetSealedManifestAware<ComparisonRecordResponse>(
-    `/v1/architecture/comparisons/${encodeURIComponent(comparisonRecordId)}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<ComparisonRecordResponse>(
+      `/v1/architecture/comparisons/${encodeURIComponent(comparisonRecordId)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = comparisonRecordBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Loads the markdown summary for a persisted comparison record. */

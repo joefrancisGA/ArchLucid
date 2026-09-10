@@ -118,7 +118,42 @@ internal static class GoldenCorpusMermaidTopologyGraphFactory
             dbNode.Properties["category"] = GraphTopologyCategories.Data;
         }
 
+        StampCase70ProductShapedInventory(graph);
         EnsureUserToApiEdge(graph);
+    }
+
+    private static void StampCase70ProductShapedInventory(GraphSnapshot graph)
+    {
+        const string subscriptionId = "00000000-0000-4000-8000-000000000070";
+
+        StampArmResourceId(
+            graph,
+            "diagram-node:api",
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg-golden-70/providers/Microsoft.Web/sites/orders-api-golden-70");
+
+        StampArmResourceId(
+            graph,
+            "diagram-node:db",
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg-golden-70/providers/Microsoft.Sql/servers/orders-sql-golden-70");
+
+        StampArmResourceId(
+            graph,
+            "diagram-node:user",
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg-golden-70/providers/Microsoft.Network/publicIPAddresses/internet-user-golden-70");
+    }
+
+    private static void StampArmResourceId(GraphSnapshot graph, string nodeId, string armResourceId)
+    {
+        GraphNode? node = graph.Nodes.FirstOrDefault(candidate =>
+            string.Equals(candidate.NodeId, nodeId, StringComparison.OrdinalIgnoreCase));
+
+        if (node is null)
+        {
+            return;
+        }
+
+        node.Properties["armResourceId"] = armResourceId;
+        node.Properties["resourceId"] = armResourceId;
     }
 
     private static bool IsDiagramBackedNode(GraphNode node)

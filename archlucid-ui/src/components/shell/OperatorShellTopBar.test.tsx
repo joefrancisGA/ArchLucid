@@ -10,6 +10,10 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { PRODUCT_LINE_WORDMARK_ARIA_LABEL } from "@/lib/product-line/product-line-copy";
+import {
+  WORKING_CAREER_DOOR_LABEL,
+  WORKING_REHEARSAL_DOOR_LABEL,
+} from "@/lib/governance/working-career-rehearsal-door-copy";
 import { WORKSPACE_MODE_GUIDED_TOP_BAR_CHIP_LABEL } from "@/lib/workspace-mode/workspace-mode-copy";
 
 const fullShellMock = vi.hoisted(() => ({ value: true }));
@@ -250,6 +254,36 @@ describe("OperatorShellTopBar", () => {
     expect(screen.queryByTestId("simulator-mode-top-bar-chip-toggle")).not.toBeInTheDocument();
   });
 
+  it("hides the workspace scope switcher in the Security product shell", async () => {
+    productLineMock.value = "security";
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.queryByTestId("app-shell-topbar-context")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("operator-scope-switcher-trigger")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("operator-shell-demo-workspace-tag")).not.toBeInTheDocument();
+  });
+
+  it("hides the Career / Rehearsal chooser in the Security product shell", async () => {
+    productLineMock.value = "security";
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.queryByTestId("working-career-rehearsal-chooser")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("working-career-rehearsal-door-career")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("working-career-rehearsal-door-rehearsal")).not.toBeInTheDocument();
+  });
+
   it("hides the AI budget pill when remaining budget is healthy", async () => {
     fetchBudgetStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,
@@ -371,6 +405,52 @@ describe("OperatorShellTopBar", () => {
     );
 
     expect(screen.queryByTestId("guided-mode-top-bar-chip")).not.toBeInTheDocument();
+  });
+
+  it("shows the Career / Rehearsal chooser in Working mode", async () => {
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toBeInTheDocument();
+    expect(screen.getByTestId("working-career-rehearsal-door-career")).toHaveTextContent(
+      WORKING_CAREER_DOOR_LABEL,
+    );
+    expect(screen.getByTestId("working-career-rehearsal-door-rehearsal")).toHaveTextContent(
+      WORKING_REHEARSAL_DOOR_LABEL,
+    );
+  });
+
+  it("hides the Career / Rehearsal chooser in Guided mode", async () => {
+    workspaceModeMock.mode = "guided";
+    workspaceModeMock.isWorkingMode = false;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.queryByTestId("working-career-rehearsal-chooser")).not.toBeInTheDocument();
+  });
+
+  it("shows the Career / Rehearsal chooser when full shell env is false (WA-03)", async () => {
+    fullShellMock.value = false;
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByTestId("working-career-rehearsal-chooser")).toBeInTheDocument();
   });
 
   it("omits AI budget pill in Working mode without internal operator shell env (WA-03)", async () => {

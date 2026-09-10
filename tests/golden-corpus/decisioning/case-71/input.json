@@ -19,7 +19,10 @@
           "structuredDiagram.extractionMethod": "StructuredParse",
           "structuredDiagram.provenanceKind": "DeterministicInference",
           "structuredDiagram.inferenceConfidence": "0.7",
-          "structuredDiagram.nodeKind": "system"
+          "structuredDiagram.nodeKind": "system",
+          "structuredDiagram.sourceEvidenceItemId": "doc-golden-71-vsdx",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000071/resourceGroups/rg-golden-71/providers/Microsoft.ApiManagement/service/api-gateway-golden-71",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000071/resourceGroups/rg-golden-71/providers/Microsoft.ApiManagement/service/api-gateway-golden-71"
         },
         "reasoningTrace": "Structured diagram node \u00271\u0027 compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
       },
@@ -34,14 +37,17 @@
           "structuredDiagram.extractionMethod": "StructuredParse",
           "structuredDiagram.provenanceKind": "DeterministicInference",
           "structuredDiagram.inferenceConfidence": "0.7",
-          "structuredDiagram.nodeKind": "system"
+          "structuredDiagram.nodeKind": "system",
+          "structuredDiagram.sourceEvidenceItemId": "doc-golden-71-vsdx",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000071/resourceGroups/rg-golden-71/providers/Microsoft.Sql/servers/sql-database-golden-71",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000071/resourceGroups/rg-golden-71/providers/Microsoft.Sql/servers/sql-database-golden-71"
         },
         "reasoningTrace": "Structured diagram node \u00272\u0027 compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
       }
     ],
     "edges": [
       {
-        "edgeId": "bcf053fbff3246de971bc7035162af9e",
+        "edgeId": "0f80e5c1bc064d35ac46fa5220f69acd",
         "fromNodeId": "context-10000000000040008000000000000071",
         "toNodeId": "diagram-node:1",
         "edgeType": "CONTAINS",
@@ -52,7 +58,7 @@
         "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
-        "edgeId": "84def96e59b04177921498e5135a56e5",
+        "edgeId": "fd164234062649c380d0e5475cf014c5",
         "fromNodeId": "context-10000000000040008000000000000071",
         "toNodeId": "diagram-node:2",
         "edgeType": "CONTAINS",
@@ -76,7 +82,8 @@
           "structuredDiagram.inferenceConfidence": "0.7",
           "structuredDiagram.diagramEdgeId": "edge-0",
           "structuredDiagram.diagramOrigin": "true",
-          "structuredDiagram.diagramCitationRef": "diagram::edge-0"
+          "structuredDiagram.diagramCitationRef": "diagram:doc-golden-71-vsdx:edge-0",
+          "structuredDiagram.sourceEvidenceItemId": "doc-golden-71-vsdx"
         },
         "reasoningTrace": "Structured diagram edge \u0027edge-0\u0027 compiled from parsed topology (deterministic inference; not inventory ObservedFact)."
       }

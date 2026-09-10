@@ -125,7 +125,7 @@ describe("iana-time-zone-preference", () => {
       whereToGoNextIsExplicit: false,
       sampleReviewsOnOverviewEnabled: true,
       sampleReviewsOnOverviewIsExplicit: false,
-      ianaTimeZoneId: "UTC",
+      ianaTimeZoneId: "America/New_York",
       ianaTimeZoneIsExplicit: false,
     });
 
@@ -133,13 +133,13 @@ describe("iana-time-zone-preference", () => {
 
     const synced = await syncIanaTimeZonePreferenceFromServer();
 
-    expect(synced).toBe("UTC");
+    expect(synced).toBe("America/New_York");
     expect(apiPutJsonMock).not.toHaveBeenCalled();
 
     endIanaTimeZoneUserPersistIntent();
   });
 
-  it("pushes local browser time zone on sync when the account has no explicit value", async () => {
+  it("pushes local stored time zone on sync when the account has no explicit value", async () => {
     writeStoredIanaTimeZonePreference("America/Chicago");
     apiGetMock.mockResolvedValue({
       appearancePreference: "system",
@@ -155,7 +155,7 @@ describe("iana-time-zone-preference", () => {
       whereToGoNextIsExplicit: false,
       sampleReviewsOnOverviewEnabled: true,
       sampleReviewsOnOverviewIsExplicit: false,
-      ianaTimeZoneId: "UTC",
+      ianaTimeZoneId: "America/New_York",
       ianaTimeZoneIsExplicit: false,
     });
     apiPutJsonMock.mockResolvedValue(undefined);

@@ -14,11 +14,13 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import {
-  ENTERPRISE_ONBOARDING_HELP_HERO_OVERVIEW,
-  ENTERPRISE_ONBOARDING_HELP_PAGE_SUBTITLE,
   ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE,
-  ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS,
+  enterpriseOnboardingHelpHeroOverview,
+  enterpriseOnboardingHelpPageSubtitle,
+  enterpriseOnboardingHelpPrimaryActions,
 } from "@/lib/enterprise-onboarding-help-copy";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH,
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
@@ -53,6 +55,11 @@ export function HelpEnterpriseOnboardingGuideView(
   props: HelpEnterpriseOnboardingGuideViewProps,
 ): React.ReactElement {
   const { entry, markdown } = props;
+  const productLineId = resolveProductLineIdFromEnv();
+  const pageSubtitle = enterpriseOnboardingHelpPageSubtitle(productLineId);
+  const heroOverview = enterpriseOnboardingHelpHeroOverview(productLineId);
+  const primaryActions = enterpriseOnboardingHelpPrimaryActions(productLineId);
+  const secureNowShell = isSecureNowProductLine(productLineId);
   const sourceDocPath = entry.sourcePaths[0] ?? "";
   const preparedMarkdown = prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
     helpTopicSlug: entry.slug,
@@ -89,7 +96,7 @@ export function HelpEnterpriseOnboardingGuideView(
         <HelpTopicGuidePageHeader
           title={ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE}
           titleTestId="help-topic-page-title"
-          subtitle={ENTERPRISE_ONBOARDING_HELP_PAGE_SUBTITLE}
+          subtitle={pageSubtitle}
           navHref={ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH}
           headingLevel="h1"
           claimDiscipline={ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE}
@@ -117,23 +124,45 @@ export function HelpEnterpriseOnboardingGuideView(
               Start tenant onboarding
             </h2>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="help-enterprise-onboarding-overview">
-              {ENTERPRISE_ONBOARDING_HELP_HERO_OVERVIEW}
+              {heroOverview}
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              <Button asChild size="sm" variant="outline">
-                <Link
-                  href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCorePilot.href}
-                  data-testid={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCorePilot.testId}
-                >
-                  {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openCorePilot.label}
-                </Link>
-              </Button>
+              {secureNowShell && "openExtractUpload" in primaryActions ? (
+                <Button asChild size="sm" variant="outline">
+                  <Link
+                    href={primaryActions.openExtractUpload.href}
+                    data-testid={primaryActions.openExtractUpload.testId}
+                  >
+                    {primaryActions.openExtractUpload.label}
+                  </Link>
+                </Button>
+              ) : null}
+              {!secureNowShell && "openCorePilot" in primaryActions ? (
+                <Button asChild size="sm" variant="outline">
+                  <Link
+                    href={primaryActions.openCorePilot.href}
+                    data-testid={primaryActions.openCorePilot.testId}
+                  >
+                    {primaryActions.openCorePilot.label}
+                  </Link>
+                </Button>
+              ) : null}
+              {secureNowShell && "openPolicyPacks" in primaryActions ? (
+                <Button asChild size="sm" variant="outline">
+                  <Link
+                    href={primaryActions.openPolicyPacks.href}
+                    data-testid={primaryActions.openPolicyPacks.testId}
+                  >
+                    {primaryActions.openPolicyPacks.label}
+                  </Link>
+                </Button>
+              ) : null}
               <Link
-                href={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openOnboardingHub.href}
+                href={primaryActions.openOnboardingHub.href}
                 className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                data-testid={ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openOnboardingHub.testId}
+                data-testid={primaryActions.openOnboardingHub.testId}
               >
-                {ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openOnboardingHub.label}
+                {primaryActions.openOnboardingHub.label}
               </Link>
             </div>
           </section>

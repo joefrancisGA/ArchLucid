@@ -22,7 +22,7 @@ TB-1228 rejected fusing semantic/RAG faithfulness into a **sync LLM judge on com
 
 **Livelihood risk:** A finding with real citations can still be **Unsupported** semantically — e.g. quote mismatch, invented regulation, or paraphrase the architect cannot defend in ARB. That risk is **career-surface honesty**, not a reason to block seal on every Working finalize with an LLM faithfulness score.
 
-**Related (not rewritten):** ADR 0070 (insight-density demotion — separate predicate), ADR 0078 (career artifact honesty), ADR 0082 (structural provenance fail-closed), ADR 0084 (diagram/inventory decide inputs), TB-1228 / TB-1229, `AgentOutputQualityGate`, `AgentResultEvidenceFaithfulnessChecker`, `RetrievalFaithfulnessEvaluator`, `GoldenCohortFineTuningPromotionGate`.
+**Related (not rewritten):** ADR 0070 (insight-density demotion — separate predicate), ADR 0078 (career artifact honesty), ADR 0082 (structural provenance fail-closed), ADR 0084 (diagram/inventory decide inputs), TB-1228 / TB-1229, `AgentOutputQualityGate`, `AgentResultEvidenceFaithfulnessChecker`, `RetrievalFaithfulnessEvaluator`, `GoldenCohortFineTuningPromotionGate`, [`FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md`](../../library/FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md) (AS-075 PA-facing enum/scorer contract).
 
 ## Decision
 
@@ -71,10 +71,14 @@ TB-1228 rejected fusing semantic/RAG faithfulness into a **sync LLM judge on com
 
 - **Positive:** 0085 becomes the merge-blocking question for “block seal on LLM faithfulness?”; wave 22 semantic cluster can parallel inventory bind after 0084; TB-1228 gains an ADR anchor for desk visibility.
 - **Negative:** 0085 alone is contract-only — no band on wire until AS-059; heuristic misses paraphrase by design; warn-only finalize may feel weak until PilotStrict opt-in ships.
-- **Follow-ups:** AS-057 heuristic quote-overlap scorer; AS-058 async support-ratio job; AS-059 support band enum; AS-065 PilotStrict optional hold on Unsupported; AS-066 do-not-fuse insight-density (**ratchet:** `ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTests`); AS-067 honesty CI not legal truth; AS-074 LLM judge default off; AS-075 semantic contract doc (**ratchet:** `ArchitectureSpineAs075SemanticContractDocArchitectureTests`, [`FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md`](../../library/FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md)).
+- **Follow-ups:** AS-057 heuristic quote-overlap scorer; AS-058 async support-ratio job; AS-059 support band enum; AS-065 PilotStrict optional hold on Unsupported; AS-066 do-not-fuse insight-density (**ratchet:** `ArchitectureSpineAs066DoNotFuseInsightDensityArchitectureTests`); AS-067 honesty CI not legal truth; AS-074 LLM judge default off (**ratchet:** `ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests`, `EnableSemanticSupportBandLlmJudge` defaults false); AS-075 semantic contract doc completeness (**ratchet:** [`FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md`](../../library/FINDING_SEMANTIC_SUPPORT_BAND_CONTRACT.md), `ArchitectureSpineAs075SemanticContractDocArchitectureTests`).
 
 ## Follow-up (AS-066)
 
 **Ratchet shipped:** `DeterministicInsightDensityGate.Score` and `InsightDensityGateCandidate` do **not** read `Finding.SemanticSupportBand`. Unit test `Score_ignores_semantic_support_band_on_source_finding` proves band changes do not alter score/treatment/classification; architecture tests guard the gate source from reintroducing band coupling.
 
 **Why sibling signals:** Cited-but-paraphrased rows can stay decision-grade under ADR 0070 while showing **Unchecked** or **Unsupported** on Working — fusing band into density demotion would hide semantic risk inside checklist coverage.
+
+## Related (AS-074)
+
+**Premium LLM judge default off:** `ArchLucid:Findings:SemanticSupportBand:EnableLlmJudge` defaults to **false** (same posture as `InsightDensityGate:EnableProseAssumptionExtraction`). The sync emit path uses the deterministic quote-overlap heuristic (AS-057) unless an operator explicitly opts in. Host composition registers `NoOpFindingSemanticSupportBandLlmJudge` by default — **zero LLM calls** on the default support-band scoring path. Ratchet: `ArchitectureSpineAs074LlmJudgeDefaultOffArchitectureTests`.

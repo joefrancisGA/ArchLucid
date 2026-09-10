@@ -32,6 +32,8 @@ public sealed class ArchitectureSpineAs075SemanticContractDocArchitectureTests
         contract.Should().Contain("NotScored");
         contract.Should().Contain("as057-v1");
         contract.Should().Contain("TB-1228");
+        contract.Should().Contain("AS-066");
+        contract.Should().Contain("AS-074");
         contract.Should().Contain("warn");
         contract.Should().Contain("PilotStrict");
         contract.Should().Contain("Simulator");

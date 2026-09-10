@@ -1,7 +1,8 @@
 import type { ExecDigestPreferencesResponse, ExecDigestPreferencesUpsertRequest } from "@/types/exec-digest-preferences";
 
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
+
 import { parseExecDigestRecipientEmails } from "./exec-digest-schedule-validation";
-import { resolveBrowserTimeZoneIdForExecDigest } from "./exec-digest-schedule-options";
 
 export type ExecDigestScheduleFormState = {
   readonly emailEnabled: boolean;
@@ -25,7 +26,7 @@ export function execDigestUpsertFromForm(form: ExecDigestScheduleFormState): Exe
   return {
     emailEnabled: form.emailEnabled,
     recipientEmails: parseExecDigestRecipientEmails(form.recipients),
-    ianaTimeZoneId: form.ianaTimeZoneId.trim() || "UTC",
+    ianaTimeZoneId: form.ianaTimeZoneId.trim() || DEFAULT_IANA_TIME_ZONE_ID,
     dayOfWeek: form.dayOfWeek,
     hourOfDay: form.hourOfDay,
   };
@@ -42,9 +43,7 @@ function normalizedRecipientKey(input: string): string {
  * True when the operator has edited the form away from what it was loaded with.
  *
  * Compares against the same baseline the form is seeded from — including the
- * browser-zone substitution for never-configured preferences. Comparing against raw
- * saved preferences instead reported an "Unsaved changes" badge on first paint for
- * every tenant outside UTC, because the seeded default itself looked like an edit.
+ * product-default zone substitution for never-configured preferences.
  */
 export function hasUnsavedExecDigestChanges(
   saved: ExecDigestPreferencesResponse | null,
@@ -65,16 +64,16 @@ export function hasUnsavedExecDigestChanges(
   );
 }
 
-/** Prefer the browser zone when preferences were never configured (API defaults to UTC). */
+/** Prefer the product default zone when preferences were never configured. */
 export function execDigestFormFromPreferencesWithBrowserDefault(
   prefs: ExecDigestPreferencesResponse,
 ): ExecDigestScheduleFormState {
   const base = execDigestFormFromPreferences(prefs);
 
-  if (!prefs.isConfigured && (prefs.ianaTimeZoneId === "UTC" || prefs.ianaTimeZoneId.trim().length === 0)) {
+  if (!prefs.isConfigured && (prefs.ianaTimeZoneId === DEFAULT_IANA_TIME_ZONE_ID || prefs.ianaTimeZoneId.trim().length === 0)) {
     return {
       ...base,
-      ianaTimeZoneId: resolveBrowserTimeZoneIdForExecDigest(),
+      ianaTimeZoneId: DEFAULT_IANA_TIME_ZONE_ID,
     };
   }
 
