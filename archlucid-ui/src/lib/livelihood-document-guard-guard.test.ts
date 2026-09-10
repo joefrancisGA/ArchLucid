@@ -31,6 +31,7 @@ describe("livelihood-document-guard inventory (RS-07)", () => {
     expect(surfaceIds).toContain("integrations/teams-connection");
     expect(surfaceIds).toContain("governance/risk-exception-renew");
     expect(surfaceIds).toContain("tenant-cost-settings");
+    expect(surfaceIds).toContain("governance-approval-rationale");
   });
 
   it("documents deferred livelihood guard surfaces with explicit reasons", () => {
@@ -62,19 +63,12 @@ describe("livelihood-document-guard shrink ratchet (LP-11)", () => {
     expect(findLivelihoodDocumentGuardDeferredShrinkViolations()).toEqual([]);
   });
 
-  it("inventories governance approval rationale as missing until LW-071 (LW-004)", () => {
+  it("shrinks missing inventory after governance approval rationale is guarded (LW-071)", () => {
     const missingIds = LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES.map((surface) => surface.id);
 
-    expect(missingIds).toContain("governance-approval-rationale");
+    expect(missingIds).not.toContain("governance-approval-rationale");
     expect(LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES.length).toBeLessThanOrEqual(
       LIVELIHOOD_DOCUMENT_GUARD_MISSING_COUNT_BASELINE,
     );
-
-    const approval = LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES.find(
-      (surface) => surface.id === "governance-approval-rationale",
-    );
-
-    expect(approval?.sourceRoots.join(" ")).toMatch(/use-governance-workflow-mutations/);
-    expect(approval?.reason.trim().length).toBeGreaterThan(0);
   });
 });

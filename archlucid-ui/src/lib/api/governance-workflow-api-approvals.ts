@@ -12,6 +12,7 @@ import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { governanceApprovalLineageBlockedReason } from "@/lib/governance/governance-approval-lineage-blocked-reason";
 import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/governance-workflow-mutation-blocked-reason";
+import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { governanceWorkflowRunReadBlockedReason } from "@/lib/governance/governance-workflow-run-read-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
@@ -85,6 +86,8 @@ export async function submitApprovalRequest(body: {
   try {
     return await apiPostJson<GovernanceApprovalRequest>(`${governanceBase()}/approval-requests`, body);
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceWorkflowMutationBlockedReason(failure);
 
@@ -103,6 +106,8 @@ export async function approveRequest(
       body,
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceWorkflowMutationBlockedReason(failure);
 
@@ -121,6 +126,8 @@ export async function rejectRequest(
       body,
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceWorkflowMutationBlockedReason(failure);
 
@@ -143,6 +150,8 @@ export async function batchReviewGovernanceApprovalRequests(body: {
       reviewedBy: body.reviewedBy,
     });
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceWorkflowMutationBlockedReason(failure);
 
@@ -163,6 +172,8 @@ export async function promoteManifest(body: {
   try {
     return await apiPostJson<GovernancePromotionRecord>(`${governanceBase()}/promotions`, body);
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceWorkflowMutationBlockedReason(failure);
 

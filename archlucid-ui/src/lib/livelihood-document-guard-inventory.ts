@@ -101,6 +101,11 @@ export const LIVELIHOOD_DOCUMENT_GUARD_SURFACES: readonly ErrorRecoveryContractG
     sourceRoots: ["components/architecture/ArchitectureIdentityDeskSharePanel.tsx"],
     requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
   },
+  {
+    id: "governance-approval-rationale",
+    sourceRoots: ["app/(operator)/governance/_sections/GovernanceApprovalRationaleGuards.tsx"],
+    requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
+  },
 ] as const;
 
 /**
@@ -126,6 +131,7 @@ export const LIVELIHOOD_DOCUMENT_GUARD_MONITORED_ARCHITECTURE_REVIEW_DIRTY_FORM_
   "app/(operator)/integrations/jira/_sections/JiraIntegrationPageClient.tsx",
   "app/(operator)/integrations/servicenow/_sections/ServiceNowIntegrationPageClient.tsx",
   "app/(operator)/integrations/teams/_sections/TeamsNotificationsIntegrationPageClient.tsx",
+  "app/(operator)/governance/_sections/GovernanceApprovalRationaleGuards.tsx",
 ] as const;
 
 /**
@@ -174,15 +180,8 @@ export type LivelihoodDocumentGuardMissingSurface = {
 
 /**
  * Dirty livelihood text that is neither guarded nor deferred (LW-004). Shrink-only: wire a guard
- * (LW-071) or move to deferred with a reason. Must not be empty of approval rationale until then.
+ * or move to deferred with a reason.
  */
-export const LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES: readonly LivelihoodDocumentGuardMissingSurface[] = [
-  {
-    id: "governance-approval-rationale",
-    sourceRoots: ["hooks/use-governance-workflow-mutations.ts"],
-    reason:
-      "reviewComment is typed livelihood text with no useLivelihoodDocumentGuards — wire in LW-071/072.",
-  },
-] as const;
+export const LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES: readonly LivelihoodDocumentGuardMissingSurface[] = [] as const;
 
-export const LIVELIHOOD_DOCUMENT_GUARD_MISSING_COUNT_BASELINE = 1;
+export const LIVELIHOOD_DOCUMENT_GUARD_MISSING_COUNT_BASELINE = 0;

@@ -6,6 +6,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "./http";
 
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
+import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { withLivelihood401Resume } from "@/lib/auth/livelihood-mutation-401-resume";
 import {
   type FindingDispositionEvent,
@@ -41,6 +42,8 @@ export async function recordFindingDisposition(
       { extraHeaders: { "Idempotency-Key": idempotencyKey } },
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = findingDispositionMutationBlockedReason(failure);
 
@@ -91,6 +94,8 @@ export async function recordBulkFindingDisposition(
       { extraHeaders: { "Idempotency-Key": idempotencyKey } },
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = findingBulkDispositionBlockedReason(failure);
 

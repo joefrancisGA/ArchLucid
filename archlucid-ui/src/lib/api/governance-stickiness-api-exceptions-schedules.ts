@@ -4,6 +4,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { recurrenceScheduleMutationBlockedReason } from "@/lib/governance/recurrence-schedule-mutation-blocked-reason";
 import { realizedValueAttestationMutationBlockedReason } from "@/lib/governance/realized-value-attestation-mutation-blocked-reason";
 import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
+import { rethrowLivelihoodMutate401 } from "@/lib/auth/livelihood-mutation-api-error";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import type { components } from "@/lib/openapi-schemas";
@@ -30,6 +31,8 @@ export async function createRiskException(body: {
   try {
     return await apiPostJson<RiskExceptionRecord>(`${governanceStickinessBase()}/risk-exceptions`, body);
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = riskExceptionMutationBlockedReason(failure);
 
@@ -53,6 +56,8 @@ export async function revokeRiskException(riskExceptionId: string): Promise<void
       {},
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = riskExceptionMutationBlockedReason(failure);
 
@@ -70,6 +75,8 @@ export async function renewRiskException(
       body,
     );
   } catch (error: unknown) {
+    rethrowLivelihoodMutate401(error);
+
     const failure = toApiLoadFailure(error);
     const blockedReason = riskExceptionMutationBlockedReason(failure);
 

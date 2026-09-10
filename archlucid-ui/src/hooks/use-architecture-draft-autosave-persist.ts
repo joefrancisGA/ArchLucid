@@ -36,6 +36,9 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { architectureDraftAutosavePatchBlockedReason, architectureDraftCreateMutationBlockedReason } from "@/lib/architecture/architecture-draft-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
+import { patchDraftRequestWith401Resume } from "@/lib/auth/livelihood-mutation-401-resume-wrappers";
+import { isLivelihoodMutation401RedirectError } from "@/lib/auth/livelihood-mutation-401-resume";
+import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import type { ActorSet } from "@/types/draft-intake";
@@ -75,6 +78,7 @@ type UseArchitectureDraftAutosavePersistArgs = Pick<
   readonly resolvedDraftIdRef: React.MutableRefObject<string | null>;
   readonly autosaveBlockedRef: React.MutableRefObject<boolean>;
   readonly markDirty: () => void;
+  readonly livelihoodReturnPath?: string;
 };
 
 export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAutosavePersistArgs) {
@@ -216,10 +220,16 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined,
         );
 
-        const patched = await patchDraftRequest(
-          draftId,
-          applyOnlineDraftPatchCas(patchPayload, casDecision),
-        );
+        const patchBody = applyOnlineDraftPatchCas(patchPayload, casDecision);
+        const livelihoodReturnPath = args.livelihoodReturnPath?.trim() ?? "";
+
+        const patched =
+          livelihoodReturnPath.length > 0
+            ? await patchDraftRequestWith401Resume(draftId, patchBody, {
+                returnPath: livelihoodReturnPath,
+                idempotencyKey: createGovernanceMutationIdempotencyKey(),
+              })
+            : await patchDraftRequest(draftId, patchBody);
 
         if (sequence !== saveSequenceRef.current) return false;
 
@@ -231,6 +241,12 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
         args.setSaveState("saved");
         return true;
       } catch (error) {
+        if (isLivelihoodMutation401RedirectError(error)) {
+          patchFailedNonRetryable = true;
+
+          return false;
+        }
+
         if (sequence === saveSequenceRef.current) {
           args.setSaveState("error");
 

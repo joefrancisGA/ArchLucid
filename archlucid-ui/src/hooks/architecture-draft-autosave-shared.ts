@@ -34,6 +34,8 @@ export type UseArchitectureDraftAutosaveArgs = {
     readonly fields: ArchitectureDraftFieldState;
     readonly actorSet: ActorSet;
   }) => void;
+  /** Safe return path for livelihood 401 resume (LW-055). */
+  readonly livelihoodReturnPath?: string;
 };
 
 export type UseArchitectureDraftAutosaveResult = {
