@@ -6,13 +6,18 @@ import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/govern
 
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { GovernanceEnvironmentActivation } from "@/types/governance-workflow";
+import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPostJson, apiPutJson } from "./http";
+
+import { governanceEnvironmentCatalogBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
+
 import type {
   GovernanceEnvironmentCatalog,
   ReplaceGovernanceEnvironmentCatalogRequest,
 } from "@/types/governance-environment-catalog";
-import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiPostJson, apiPutJson } from "./http";
+
+
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
