@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1450,6 +1450,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `FollowUpBatch` trace-rule subquery omits `FindingsSnapshots` join and can pair another run's rule text — **cheap-disproof 2026-09-10 seed hunt #1642:** trace-rule batch joins snapshot before run scoping; regression `FollowUpBatch_trace_rules_joins_findings_snapshot`.
 
 2026-09-10 seed hunt #1642 (seed-only): reseeded finding-inspect-sql after #1641; cheap-disproof closed typed-payload include routing, null payload parse guard, invalid disposition mapping, remaining case-insensitive enum parsing, follow-up FindingRecordId joins, disposition TOP 1, FindingRecords source table, related-node finding-id filter, and trace-rule snapshot join; 162 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` reorders related-node excerpts alphabetically — **cheap-disproof 2026-09-10 seed hunt #1643:** filter preserves source order; regression `FilterNonBlankTrimmedStrings_preserves_input_order`.
+- [x] (valid-no-repro) `BuildInspectResponse` drops evidence and recommended actions lists — **cheap-disproof 2026-09-10 seed hunt #1643:** response builder passes collections through unchanged; regression `BuildInspectResponse_preserves_evidence_and_recommended_actions`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspectRead` builds metadata when typed payload is included but `PayloadJson` is null — **cheap-disproof 2026-09-10 seed hunt #1643:** include-typed path with absent payload/metadata returns null; regression `ResolveTypedPayloadForInspectRead_returns_null_when_payload_and_metadata_are_absent`.
+- [x] (valid-no-repro) `TryParsePayloadJson` treats empty string as valid empty JSON object — **cheap-disproof 2026-09-10 seed hunt #1643:** empty string is treated as missing payload; regression `TryParsePayloadJson_returns_null_for_empty_string`.
+- [x] (valid-no-repro) `ParseHumanReview` / `TryParseEvaluationConfidenceLevel` are case-sensitive for `Rejected` / `Overridden` / `High` — **cheap-disproof 2026-09-10 seed hunt #1643:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseHumanReview_parses_case_insensitive_rejected_value`, `ParseHumanReview_parses_case_insensitive_overridden_value`, and `TryParseEvaluationConfidenceLevel_parses_case_insensitive_high_value`.
+- [x] (valid-no-repro) `FollowUpBatch` recommended-action and related-node subqueries omit `FindingsSnapshots` join — **cheap-disproof 2026-09-10 seed hunt #1643:** both batches join snapshot before run scoping; regressions `FollowUpBatch_recommended_actions_joins_findings_snapshot` and `FollowUpBatch_related_nodes_joins_findings_snapshot`.
+- [x] (valid-no-repro) `FollowUpBatch` related-node subquery omits `Runs` join and can surface another snapshot's nodes — **cheap-disproof 2026-09-10 seed hunt #1643:** related-node batch joins `dbo.Runs r`; regression `FollowUpBatch_related_nodes_joins_runs_table`.
+- [x] (valid-no-repro) `MainInspect*` omits `Runs` inner join and can return orphan finding rows — **cheap-disproof 2026-09-10 seed hunt #1643:** both main inspect queries inner join runs through snapshots; regression `MainInspect_inner_joins_runs_table`.
+
+2026-09-10 seed hunt #1643 (seed-only): reseeded finding-inspect-sql after #1642; cheap-disproof closed evidence ordering, response collection passthrough, absent typed-payload routing, empty-string payload guard, remaining case-insensitive enum parsing, follow-up snapshot joins, related-node run join, and main inspect run join; 173 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

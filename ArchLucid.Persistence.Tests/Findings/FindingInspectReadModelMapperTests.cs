@@ -218,4 +218,28 @@ public sealed class FindingInspectReadModelMapperTests
 
         actual.Should().Be(FindingHumanReviewStatus.Approved);
     }
+
+    [Fact]
+    public void ParseHumanReview_parses_case_insensitive_rejected_value()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("rejected");
+
+        actual.Should().Be(FindingHumanReviewStatus.Rejected);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_case_insensitive_overridden_value()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("overridden");
+
+        actual.Should().Be(FindingHumanReviewStatus.Overridden);
+    }
+
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_parses_case_insensitive_high_value()
+    {
+        FindingConfidenceLevel? actual = FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("high");
+
+        actual.Should().Be(FindingConfidenceLevel.High);
+    }
 }

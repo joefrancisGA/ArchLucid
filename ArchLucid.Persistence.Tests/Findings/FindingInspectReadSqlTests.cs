@@ -555,6 +555,37 @@ public sealed class FindingInspectReadSqlTests
         traceRulesSql.Should().Contain("INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId");
     }
 
+    [Fact]
+    public void FollowUpBatch_recommended_actions_joins_findings_snapshot()
+    {
+        string actionsSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRecommendedActions");
+
+        actionsSql.Should().Contain("INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_related_nodes_joins_findings_snapshot()
+    {
+        string relatedNodesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRelatedNodes");
+
+        relatedNodesSql.Should().Contain("INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_related_nodes_joins_runs_table()
+    {
+        string relatedNodesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRelatedNodes");
+
+        relatedNodesSql.Should().Contain("INNER JOIN dbo.Runs r ON r.RunId = fs.RunId");
+    }
+
+    [Fact]
+    public void MainInspect_inner_joins_runs_table()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("INNER JOIN dbo.Runs r ON r.RunId = fs.RunId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("INNER JOIN dbo.Runs r ON r.RunId = fs.RunId");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

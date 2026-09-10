@@ -546,4 +546,71 @@ public sealed class FindingInspectReadRepositoryCoreTests
     {
         FindingInspectReadRepositoryCore.MapLatestDisposition("bogus", hasDispositionRow: true).Should().BeNull();
     }
+
+    [Fact]
+    public void FilterNonBlankTrimmedStrings_preserves_input_order()
+    {
+        IReadOnlyList<string> filtered = FindingInspectReadRepositoryCore.FilterNonBlankTrimmedStrings(
+            ["node-b", "node-a"]);
+
+        filtered.Should().Equal("node-b", "node-a");
+    }
+
+    [Fact]
+    public void BuildInspectResponse_preserves_evidence_and_recommended_actions()
+    {
+        List<FindingInspectEvidenceItem> evidence =
+        [
+            new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = "node-a" },
+        ];
+
+        FindingInspectResponse response = FindingInspectReadRepositoryCore.BuildInspectResponse(
+            findingId: "finding-1",
+            severity: FindingSeverity.Warning,
+            typedPayload: null,
+            ruleId: "rule-1",
+            ruleName: "rule-1",
+            evidence: evidence,
+            recommendedActions: ["Rotate keys"],
+            auditRowId: null,
+            runId: Guid.NewGuid(),
+            manifestVersion: "1.0",
+            modelDeploymentName: null,
+            modelAlias: null,
+            promptTemplateVersion: null,
+            confidenceScore: null,
+            evaluationConfidenceScore: null,
+            confidenceLevel: null,
+            humanReviewStatus: FindingHumanReviewStatus.NotRequired,
+            isMuted: false,
+            muteReason: null,
+            reasoningTrace: null,
+            reasoningTraceDigestSha256: null,
+            latestDisposition: null,
+            latestDispositionOccurredAtUtc: null,
+            hasActiveWaiver: false,
+            assignedToUserId: null,
+            remediationDueUtc: null,
+            runStructuralExecutionMode: StructuralExecutionMode.Simulator,
+            runRealModeFellBackToSimulator: false);
+
+        response.Evidence.Should().Equal(evidence);
+        response.RecommendedActions.Should().Equal("Rotate keys");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_returns_null_when_payload_and_metadata_are_absent()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: true,
+            payloadJson: null,
+            title: null,
+            rationale: null).Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_null_for_empty_string()
+    {
+        FindingInspectReadRepositoryCore.TryParsePayloadJson(string.Empty).Should().BeNull();
+    }
 }
