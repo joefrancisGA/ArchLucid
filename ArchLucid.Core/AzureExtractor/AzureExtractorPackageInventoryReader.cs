@@ -87,17 +87,26 @@ public static class AzureExtractorPackageInventoryReader
 
     private static AzureExtractorExtendedResourceRow? MapResourceRow(JsonElement row)
     {
-        string? azureResourceId = TryReadString(row, "resourceId") ?? TryReadString(row, "id");
+        string? azureResourceId = TryReadString(row, "resourceId")
+            ?? TryReadString(row, "ResourceId")
+            ?? TryReadString(row, "id")
+            ?? TryReadString(row, "Id");
 
         if (string.IsNullOrWhiteSpace(azureResourceId))
-            azureResourceId = TryReadString(row, "name");
+            azureResourceId = TryReadString(row, "name") ?? TryReadString(row, "Name");
 
-        string? resourceType = TryReadString(row, "resourceType") ?? TryReadString(row, "type");
+        string? resourceType = TryReadString(row, "resourceType")
+            ?? TryReadString(row, "ResourceType")
+            ?? TryReadString(row, "type")
+            ?? TryReadString(row, "Type");
 
         if (string.IsNullOrWhiteSpace(azureResourceId) || string.IsNullOrWhiteSpace(resourceType))
             return null;
 
-        string name = TryReadString(row, "name") ?? azureResourceId.Split('/').LastOrDefault() ?? azureResourceId;
+        string name = TryReadString(row, "name")
+            ?? TryReadString(row, "Name")
+            ?? azureResourceId.Split('/').LastOrDefault()
+            ?? azureResourceId;
         string? location = TryReadString(row, "location") ?? TryReadString(row, "Location");
         string? resourceGroup = TryReadString(row, "resourceGroup")
             ?? TryReadString(row, "ResourceGroup")
@@ -172,14 +181,25 @@ public static class AzureExtractorPackageInventoryReader
 
     private static string? ExtractSku(JsonElement row)
     {
-        if (!row.TryGetProperty("sku", out JsonElement sku))
+        if (!row.TryGetProperty("sku", out JsonElement sku) && !row.TryGetProperty("Sku", out sku))
             return null;
 
         if (sku.ValueKind is JsonValueKind.String)
-            return sku.GetString();
+        {
+            string? skuText = sku.GetString();
 
-        if (sku.ValueKind is JsonValueKind.Object && sku.TryGetProperty("name", out JsonElement skuName))
-            return skuName.GetString();
+            return string.IsNullOrWhiteSpace(skuText) ? null : skuText.Trim();
+        }
+
+        if (sku.ValueKind is JsonValueKind.Object)
+        {
+            if (sku.TryGetProperty("name", out JsonElement skuName) || sku.TryGetProperty("Name", out skuName))
+            {
+                string? skuText = skuName.GetString();
+
+                return string.IsNullOrWhiteSpace(skuText) ? null : skuText.Trim();
+            }
+        }
 
         return null;
     }

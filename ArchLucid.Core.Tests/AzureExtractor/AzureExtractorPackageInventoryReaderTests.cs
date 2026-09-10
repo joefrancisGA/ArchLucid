@@ -1422,6 +1422,130 @@ public sealed class AzureExtractorPackageInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_reads_pascal_case_name_on_resource_row()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "Name": "sa1"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].Name.Should().Be("sa1");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_pascal_case_resource_id_on_resource_row()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "ResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].AzureResourceId.Should().Be(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
+    }
+
+    [Fact]
+    public void TryReadFromZip_reads_pascal_case_sku_object_name_property()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "Sku": { "Name": "Standard_GRS" }
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].SkuName.Should().Be("Standard_GRS");
+    }
+
+    [Fact]
+    public void TryReadFromZip_trims_whitespace_from_object_sku_name_property()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1",
+                "sku": { "name": "  Standard_GRS  " }
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].SkuName.Should().Be("Standard_GRS");
+    }
+
+    [Fact]
+    public void TryReadFromZip_fails_on_malformed_network_associations_companion_json()
+    {
+        byte[] zipBytes = BuildZipWithCompanion(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """,
+            AzureExtractorPackageZipEntryNames.NetworkAssociations,
+            "{ not-valid-json");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeFalse();
+        result.Error.Should().Be("network-associations.json is not valid JSON.");
+    }
+
+    [Fact]
     public void TryReadFromZip_prefers_explicit_resource_group_on_row()
     {
         byte[] zipBytes = BuildZip(

@@ -98,6 +98,19 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_missing_manifest_reports_file_entry_count()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: false, schemaVersion: 1, includeResources: true);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.FileEntryCount.Should().Be(1);
+    }
+
+    [Fact]
     public void Validate_rejects_manifest_missing_schemaVersion()
     {
         byte[] zipBytes = BuildZip(
