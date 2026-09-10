@@ -20,9 +20,7 @@ public sealed partial class DapperFindingInspectReadRepository
             FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel(row.EvaluationConfidenceLevel);
 
         List<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore
-            .FilterNonBlankTrimmedStrings(joinResult.RelatedNodes)
-            .Select(static n =>
-                new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = n })
+            .BuildEvidenceFromRelatedNodes(joinResult.RelatedNodes)
             .ToList();
 
         JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(

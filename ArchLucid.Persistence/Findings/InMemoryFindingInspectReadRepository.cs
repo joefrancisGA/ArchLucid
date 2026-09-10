@@ -62,10 +62,8 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
         if (match is null)
             return null;
 
-        List<FindingInspectEvidenceItem> evidence = match.RelatedNodeIds
-            .Where(static n => !string.IsNullOrWhiteSpace(n))
-            .Select(static n =>
-                new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = n.Trim() })
+        List<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore
+            .BuildEvidenceFromRelatedNodes(match.RelatedNodeIds)
             .ToList();
 
         string? ruleId = null;

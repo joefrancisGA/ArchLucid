@@ -13,6 +13,12 @@ internal static class FindingInspectReadRepositoryCore
             .Select(static value => value.Trim())
             .ToList();
 
+    public static IReadOnlyList<FindingInspectEvidenceItem> BuildEvidenceFromRelatedNodes(IEnumerable<string> relatedNodes) =>
+        FilterNonBlankTrimmedStrings(relatedNodes)
+            .Select(static node =>
+                new FindingInspectEvidenceItem { ArtifactId = null, LineRange = null, Excerpt = node })
+            .ToList();
+
     public static bool HasActiveWaiver(long activeWaiverCount) => activeWaiverCount > 0;
 
     public static string? EncodeRowVersionStampBase64(byte[]? rowVersionStamp) =>

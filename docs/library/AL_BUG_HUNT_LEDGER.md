@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1472,6 +1472,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Audit-event lookup joins `FindingRecords` and can return another finding's commit row — **cheap-disproof 2026-09-10 seed hunt #1644:** audit subquery is run-scoped only; regression `FollowUpBatch_audit_event_scoped_by_run_without_finding_records_join`.
 
 2026-09-10 seed hunt #1644 (seed-only): reseeded finding-inspect-sql after #1643; cheap-disproof closed structural execution mode passthrough, blank metadata-only payload, whitespace disposition mapping, non-positive waiver counts, critical severity parsing, follow-up run joins/scoping, and run-only audit lookup; 183 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `BuildEvidenceFromRelatedNodes` populates `ArtifactId` / `LineRange` from related-node ids — **cheap-disproof 2026-09-10 seed hunt #1645:** inspect evidence excerpts are node labels only; helper always sets both fields null; regression `BuildEvidenceFromRelatedNodes_sets_null_artifact_and_line_range_with_trimmed_excerpt`.
+- [x] (valid-no-repro) `LoadDispositionJoinAsync` filters whitespace related nodes before `MapInspectResponse` — **cheap-disproof 2026-09-10 seed hunt #1645:** SQL batch returns raw `NodeId` rows; whitespace filtering happens in `BuildEvidenceFromRelatedNodes` during map; regression `BuildEvidenceFromRelatedNodes_drops_whitespace_related_nodes`.
+- [x] (valid-no-repro) `BuildEvidenceFromRelatedNodes` reorders related-node excerpts alphabetically — **cheap-disproof 2026-09-10 seed hunt #1645:** helper preserves source order after trim filter; regression `BuildEvidenceFromRelatedNodes_preserves_related_node_order`.
+- [x] (valid-no-repro) `BuildInspectResponse` drops governance/disposition passthrough fields (`HasActiveWaiver`, `LatestDispositionOccurredAtUtc`, assignment/remediation/mute) — **cheap-disproof 2026-09-10 seed hunt #1645:** response builder copies governance fields through unchanged; regression `BuildInspectResponse_preserves_governance_and_disposition_fields`.
+- [x] (valid-no-repro) `GetInspectAsync` accepts null scope or whitespace-only `findingId` — **cheap-disproof 2026-09-10 seed hunt #1645:** repository validates inputs before query; regressions `GetInspectAsync_throws_when_scope_is_null` and `GetInspectAsync_throws_when_finding_id_is_whitespace`.
+
+2026-09-10 seed hunt #1645 (seed-only): reseeded finding-inspect-sql after #1644; extracted shared related-node evidence builder; cheap-disproof closed evidence artifact/line-range contract, load-vs-map whitespace filtering, evidence ordering, governance field passthrough, and inspect input validation; 189 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

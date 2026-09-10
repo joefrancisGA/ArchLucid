@@ -673,4 +673,83 @@ public sealed class FindingInspectReadRepositoryCoreTests
         FindingInspectReadRepositoryCore.HasActiveWaiver(0).Should().BeFalse();
         FindingInspectReadRepositoryCore.HasActiveWaiver(-1).Should().BeFalse();
     }
+
+    [Fact]
+    public void BuildEvidenceFromRelatedNodes_sets_null_artifact_and_line_range_with_trimmed_excerpt()
+    {
+        IReadOnlyList<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes(
+            ["  node-a  "]);
+
+        evidence.Should().ContainSingle();
+        evidence[0].ArtifactId.Should().BeNull();
+        evidence[0].LineRange.Should().BeNull();
+        evidence[0].Excerpt.Should().Be("node-a");
+    }
+
+    [Fact]
+    public void BuildEvidenceFromRelatedNodes_drops_whitespace_related_nodes()
+    {
+        IReadOnlyList<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes(
+            ["node-a", "   ", "", "node-b"]);
+
+        evidence.Should().HaveCount(2);
+        evidence.Select(static item => item.Excerpt).Should().Equal("node-a", "node-b");
+    }
+
+    [Fact]
+    public void BuildEvidenceFromRelatedNodes_preserves_related_node_order()
+    {
+        IReadOnlyList<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes(
+            ["node-b", "node-a"]);
+
+        evidence.Select(static item => item.Excerpt).Should().Equal("node-b", "node-a");
+    }
+
+    [Fact]
+    public void BuildInspectResponse_preserves_governance_and_disposition_fields()
+    {
+        DateTimeOffset dispositionOccurredAt = new(2026, 10, 1, 12, 0, 0, TimeSpan.Zero);
+        DateTimeOffset remediationDueUtc = new(2026, 10, 15, 0, 0, 0, TimeSpan.Zero);
+        Guid runId = Guid.NewGuid();
+
+        FindingInspectResponse response = FindingInspectReadRepositoryCore.BuildInspectResponse(
+            findingId: "finding-1",
+            severity: FindingSeverity.Warning,
+            typedPayload: null,
+            ruleId: "rule-1",
+            ruleName: "rule-1",
+            evidence: [],
+            recommendedActions: [],
+            auditRowId: Guid.NewGuid(),
+            runId: runId,
+            manifestVersion: "1.0",
+            modelDeploymentName: "gpt-4",
+            modelAlias: "primary",
+            promptTemplateVersion: "v2",
+            confidenceScore: 0.91,
+            evaluationConfidenceScore: 4,
+            confidenceLevel: FindingConfidenceLevel.High,
+            humanReviewStatus: FindingHumanReviewStatus.Pending,
+            isMuted: true,
+            muteReason: "noise",
+            reasoningTrace: "trace",
+            reasoningTraceDigestSha256: "digest",
+            latestDisposition: FindingDisposition.Accepted,
+            latestDispositionOccurredAtUtc: dispositionOccurredAt,
+            hasActiveWaiver: true,
+            assignedToUserId: "user-1",
+            remediationDueUtc: remediationDueUtc,
+            runStructuralExecutionMode: StructuralExecutionMode.Simulator,
+            runRealModeFellBackToSimulator: false);
+
+        response.AuditRowId.Should().NotBeNull();
+        response.HasActiveWaiver.Should().BeTrue();
+        response.LatestDisposition.Should().Be(FindingDisposition.Accepted);
+        response.LatestDispositionOccurredAtUtc.Should().Be(dispositionOccurredAt);
+        response.AssignedToUserId.Should().Be("user-1");
+        response.RemediationDueUtc.Should().Be(remediationDueUtc);
+        response.IsMuted.Should().BeTrue();
+        response.MuteReason.Should().Be("noise");
+        response.RunId.Should().Be(runId);
+    }
 }
