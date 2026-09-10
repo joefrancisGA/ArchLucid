@@ -8,7 +8,7 @@ export const FINDING_SEMANTIC_SUPPORT_BAND_LABELS: Readonly<
   Record<FindingSemanticSupportBandValue, string>
 > = {
   Supported: "Supported",
-  Unchecked: "Unchecked",
+  Unchecked: "Not yet scored",
   Unsupported: "Unsupported",
   NotScored: "Not scored",
 };

@@ -45,7 +45,8 @@ export function FindingSemanticSupportBandChip(
   return (
     <div
       className={cn("flex flex-col gap-1", props.className)}
-      data-testid={`finding-semantic-support-band-${props.finding.findingId}`}
+      data-testid="working-finding-semantic-support-band"
+      data-finding-semantic-support-band-finding-id={props.finding.findingId}
     >
       <StatusTag
         kind={semanticSupportBandStatusTagKind(band)}
