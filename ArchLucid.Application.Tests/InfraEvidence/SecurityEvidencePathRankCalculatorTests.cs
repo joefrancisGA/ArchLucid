@@ -145,6 +145,33 @@ public sealed class SecurityEvidencePathRankCalculatorTests
     }
 
     [Fact]
+    public void Evaluate_expired_crown_jewel_assertion_falls_back_to_unknown_consequence()
+    {
+        IReadOnlyList<SecurityEvidencePathHopRecord> publicOwnerHops = BuildPublicOwnerHops(PathIdA);
+
+        SecurityEvidencePathRecord withExpiredAssertion = BuildPath(
+            PathIdA,
+            PathKind.ToxicCombination,
+            PathConfidenceBand.Confirmed,
+            CrownJewelAssertionId,
+            publicOwnerHops);
+
+        HashSet<Guid> activeAssertionIds = [];
+
+        SecurityEvidencePathRankEvaluation activeRank =
+            SecurityEvidencePathRankCalculator.Evaluate(withExpiredAssertion, publicOwnerHops);
+
+        SecurityEvidencePathRankEvaluation expiredRank =
+            SecurityEvidencePathRankCalculator.Evaluate(
+                withExpiredAssertion,
+                publicOwnerHops,
+                activeCrownJewelAssertionIds: activeAssertionIds);
+
+        activeRank.BusinessConsequenceScore.Should().NotBeNull();
+        expiredRank.BusinessConsequenceScore.Should().BeNull();
+    }
+
+    [Fact]
     public void Evaluate_unknown_consequence_uses_neutral_score_in_composite_not_zero()
     {
         SecurityEvidencePathRecord path = BuildPath(

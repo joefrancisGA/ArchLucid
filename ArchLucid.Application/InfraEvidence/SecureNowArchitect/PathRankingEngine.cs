@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence.SecurityAssetAssertions;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
@@ -9,6 +10,7 @@ namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 public sealed class PathRankingEngine(
     ISecurityEvidencePathRepository pathRepository,
     ISecurityEvidencePathRankRepository rankRepository,
+    ISecurityAssetAssertionResolver assertionResolver,
     ILogger<PathRankingEngine> logger) : IPathRankingEngine
 {
     public async Task<PathRankingEngineResult> RunAsync(
@@ -54,6 +56,9 @@ public sealed class PathRankingEngine(
             SecurityEvidencePathRankCalculator.ParseWeightsJson(storedWeights?.WeightsJson);
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
+        IReadOnlySet<Guid> activeCrownJewelAssertionIds =
+            await assertionResolver.GetActiveCrownJewelAssertionIdsAsync(scope.TenantId, utcNow, cancellationToken);
+
         List<(SecurityEvidencePathRecord Path, SecurityEvidencePathRankEvaluation Evaluation)> evaluated = [];
 
         foreach (SecurityEvidencePathRecord path in paths)
@@ -62,7 +67,7 @@ public sealed class PathRankingEngine(
                 await pathRepository.ListHopsByPathAsync(scope.TenantId, path.PathId, cancellationToken);
 
             SecurityEvidencePathRankEvaluation evaluation =
-                SecurityEvidencePathRankCalculator.Evaluate(path, hops, weights);
+                SecurityEvidencePathRankCalculator.Evaluate(path, hops, weights, activeCrownJewelAssertionIds);
 
             evaluated.Add((path, evaluation));
         }

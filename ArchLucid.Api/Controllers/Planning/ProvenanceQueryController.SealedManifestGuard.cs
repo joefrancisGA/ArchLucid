@@ -15,8 +15,16 @@ public sealed partial class ProvenanceQueryController
         Guid runId,
         CancellationToken cancellationToken)
     {
-        RunDetailDto? detail =
-            await _authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+        RunDetailDto? detail;
+
+        try
+        {
+            detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProvenanceQuerySealedManifestConflict(ex);
+        }
 
         if (detail?.GoldenManifest is null)
             return null;

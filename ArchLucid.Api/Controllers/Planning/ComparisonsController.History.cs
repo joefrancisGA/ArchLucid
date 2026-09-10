@@ -52,20 +52,27 @@ public sealed partial class ComparisonsController
         [FromServices] IRunExportRecordRepository exportRecordRepository,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
-            exportRecordId,
-            exportRecordRepository,
-            cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedForExportRecordAsync(
+                exportRecordId,
+                exportRecordRepository,
+                cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        IReadOnlyList<ArchLucid.Contracts.Metadata.ComparisonRecord>? records =
-            await _comparisons.TryListByExportRecordIdAsync(exportRecordId, cancellationToken);
+            IReadOnlyList<ArchLucid.Contracts.Metadata.ComparisonRecord>? records =
+                await _comparisons.TryListByExportRecordIdAsync(exportRecordId, cancellationToken);
 
-        return records is null
-            ? this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound)
-            : Ok(new ComparisonHistoryResponse { Records = records.ToList() });
+            return records is null
+                ? this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound)
+                : Ok(new ComparisonHistoryResponse { Records = records.ToList() });
+        }
+        catch (ConflictException ex)
+        {
+            return MapComparisonReplaySealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("comparisons/{comparisonRecordId}")]
@@ -76,19 +83,26 @@ public sealed partial class ComparisonsController
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        ArchLucid.Contracts.Metadata.ComparisonRecord? record =
-            await _comparisons.TryGetScopedRecordAsync(comparisonRecordId, cancellationToken);
+        try
+        {
+            ArchLucid.Contracts.Metadata.ComparisonRecord? record =
+                await _comparisons.TryGetScopedRecordAsync(comparisonRecordId, cancellationToken);
 
-        if (record is null)
-            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+            if (record is null)
+                return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        IActionResult? sealedGuardResult =
-            await EnsureSealedManifestReadAllowedForComparisonRecordAsync(record, cancellationToken);
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedForComparisonRecordAsync(record, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        return Ok(new ComparisonRecordResponse { Record = record });
+            return Ok(new ComparisonRecordResponse { Record = record });
+        }
+        catch (ConflictException ex)
+        {
+            return MapComparisonReplaySealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("comparisons/{comparisonRecordId}/summary")]
@@ -99,30 +113,37 @@ public sealed partial class ComparisonsController
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        ArchLucid.Contracts.Metadata.ComparisonRecord? scopedRecord =
-            await _comparisons.TryGetScopedRecordAsync(comparisonRecordId, cancellationToken);
+        try
+        {
+            ArchLucid.Contracts.Metadata.ComparisonRecord? scopedRecord =
+                await _comparisons.TryGetScopedRecordAsync(comparisonRecordId, cancellationToken);
 
-        if (scopedRecord is null)
-            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+            if (scopedRecord is null)
+                return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        IActionResult? sealedGuardResult =
-            await EnsureSealedManifestReadAllowedForComparisonRecordAsync(scopedRecord, cancellationToken);
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedForComparisonRecordAsync(scopedRecord, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        ReplayComparisonResult? replay =
-            await _comparisons.TryReplaySummaryMarkdownAsync(comparisonRecordId, cancellationToken);
+            ReplayComparisonResult? replay =
+                await _comparisons.TryReplaySummaryMarkdownAsync(comparisonRecordId, cancellationToken);
 
-        return replay is null
-            ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound)
-            : Ok(new ComparisonSummaryResponse
-            {
-                ComparisonRecordId = replay.ComparisonRecordId,
-                ComparisonType = replay.ComparisonType,
-                Format = "markdown",
-                Summary = replay.Content ?? string.Empty,
-            });
+            return replay is null
+                ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound)
+                : Ok(new ComparisonSummaryResponse
+                {
+                    ComparisonRecordId = replay.ComparisonRecordId,
+                    ComparisonType = replay.ComparisonType,
+                    Format = "markdown",
+                    Summary = replay.Content ?? string.Empty,
+                });
+        }
+        catch (ConflictException ex)
+        {
+            return MapComparisonReplaySealedManifestConflict(ex);
+        }
     }
 
     [HttpGet("comparisons")]

@@ -2,6 +2,7 @@ using ArchLucid.Application.InfraEvidence.OperationalSecurityFindings;
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -34,6 +35,9 @@ public sealed class PrivilegePathEngineTests
     private const string ManagedIdentityPrincipalId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
     private const string BlobReaderRoleDefinitionId =
         "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/2a2b9908-6ea1-4ae2-8e65-a410df84e7dd";
+    private const string ContributorRoleDefinitionId =
+        "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c";
+    private const string FederatedServicePrincipalId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
 
     [Fact]
     public async Task RunAsync_managed_identity_blob_reader_path_persists_path_and_finding_with_path_id()
@@ -89,6 +93,55 @@ public sealed class PrivilegePathEngineTests
         hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.CanAssume);
         hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.HasRole);
         hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.CanRead);
+    }
+
+    [Fact]
+    public async Task RunAsync_federated_contributor_path_persists_federates_as_hop_and_title()
+    {
+        Guid storageRowId = Guid.NewGuid();
+        ScopeContext scope = CreateScope();
+        AzureInventoryFederatedCredentialRow credential = new()
+        {
+            Issuer = "https://token.actions.githubusercontent.com",
+            Subject = "repo:example-org/example-repo:environment:production",
+            PrincipalId = FederatedServicePrincipalId,
+            AppId = "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            ProvenanceKind = ProvenanceKind.ObservedFact,
+        };
+
+        AzureInventorySnapshotDetailReadModel snapshot = BuildFederatedContributorSnapshot(
+            storageRowId,
+            credential);
+
+        InMemorySecurityEvidencePathRepository pathRepository = new();
+        InMemoryOperationalSecurityFindingRepository findingRepository = new();
+        OperationalSecurityFindingIngestService ingestService = CreateIngestService(findingRepository);
+
+        PrivilegePathEngine sut = CreateEngine(
+            snapshot,
+            scope,
+            pathRepository,
+            ingestService);
+
+        PrivilegePathEngineResult result = await sut.RunAsync(
+            scope,
+            SnapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.PathsPersisted.Should().BeGreaterThan(0);
+
+        OperationalSecurityFindingRecord finding = findingRepository.StoredFindings
+            .Single(f => f.Title.StartsWith("Federated deployment identity", StringComparison.Ordinal));
+        finding.Description.Should().Contain("FEDERATES_AS");
+        finding.Description!.Contains("this developer", StringComparison.OrdinalIgnoreCase).Should().BeFalse();
+
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+            await pathRepository.ListHopsByPathAsync(TenantId, finding.PathId!.Value, CancellationToken.None);
+
+        hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.FederatesAs);
+        hops.Should().Contain(hop => hop.EdgeType == GraphEdgeTypes.CanWrite);
     }
 
     [Fact]
@@ -290,6 +343,63 @@ public sealed class PrivilegePathEngineTests
             repository,
             auditService.Object,
             NullLogger<OperationalSecurityFindingIngestService>.Instance);
+    }
+
+    private static AzureInventorySnapshotDetailReadModel BuildFederatedContributorSnapshot(
+        Guid storageRowId,
+        AzureInventoryFederatedCredentialRow credential)
+    {
+        string principalNode = credential.PrincipalNodeId;
+
+        return new AzureInventorySnapshotDetailReadModel
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = storageRowId,
+                    SnapshotId = SnapshotId,
+                    TenantId = TenantId,
+                    AzureResourceId = StorageAccountArm,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                    CloudResourceId = Guid.NewGuid(),
+                },
+            ],
+            RoleAssignments =
+            [
+                new AzureInventoryRoleAssignmentReadModel
+                {
+                    PrincipalId = credential.PrincipalId,
+                    Scope = StorageAccountArm,
+                    RoleDefinitionId = ContributorRoleDefinitionId,
+                },
+            ],
+            Relationships =
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = credential.NodeId,
+                    ToAzureResourceId = principalNode,
+                    RelationshipType = GraphEdgeTypes.FederatesAs,
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                },
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = principalNode,
+                    ToAzureResourceId = StorageAccountArm,
+                    RelationshipType = GraphEdgeTypes.HasRole,
+                    ProvenanceKind = ProvenanceKind.ObservedFact,
+                },
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = principalNode,
+                    ToAzureResourceId = StorageAccountArm,
+                    RelationshipType = GraphEdgeTypes.CanWrite,
+                    ProvenanceKind = ProvenanceKind.DerivedFact,
+                },
+            ],
+        };
     }
 
     private static AzureInventorySnapshotDetailReadModel BuildManagedIdentityBlobReaderSnapshot(

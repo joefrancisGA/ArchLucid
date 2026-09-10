@@ -13,6 +13,7 @@ Operators stay in the remediation factory priority queue. Selecting a row opens 
 |--------|--------|
 | Path kind + confidence **band** | `GET /v1/operational-security/paths/{pathId}` |
 | Weakest hop callout | `weakestHop`, `weakestHopReason` |
+| Architect path summary | `explanationTemplate.architectSentence` (ordinal bands; no `%`) |
 | Hops table (from, to, edge, provenance, band) | `hops[]` |
 | Cut points | `relatedCutPoints[]` |
 | Organizational routing | `routing[]` (parsed when present; OpenAPI regen may lag SA-15) |
