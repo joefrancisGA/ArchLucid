@@ -1952,4 +1952,113 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         response.HasActiveWaiver.Should().BeFalse();
     }
+
+    [Fact]
+    public void BuildInspectResponse_passes_through_has_active_waiver_true()
+    {
+        FindingInspectResponse response = FindingInspectReadRepositoryCore.BuildInspectResponse(
+            findingId: "finding-1",
+            severity: FindingSeverity.Info,
+            typedPayload: null,
+            ruleId: null,
+            ruleName: null,
+            evidence: [],
+            recommendedActions: [],
+            auditRowId: null,
+            runId: Guid.NewGuid(),
+            manifestVersion: null,
+            modelDeploymentName: null,
+            modelAlias: null,
+            promptTemplateVersion: null,
+            confidenceScore: null,
+            evaluationConfidenceScore: null,
+            confidenceLevel: null,
+            humanReviewStatus: FindingHumanReviewStatus.NotRequired,
+            isMuted: false,
+            muteReason: null,
+            reasoningTrace: null,
+            reasoningTraceDigestSha256: null,
+            latestDisposition: null,
+            latestDispositionOccurredAtUtc: null,
+            hasActiveWaiver: true,
+            assignedToUserId: null,
+            remediationDueUtc: null,
+            runStructuralExecutionMode: StructuralExecutionMode.Simulator,
+            runRealModeFellBackToSimulator: false);
+
+        response.HasActiveWaiver.Should().BeTrue();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_defined_numeric_disposition_string_one_to_deferred()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "1",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Deferred);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_whitespace_padded_disposition_raw_to_accepted()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "  Accepted  ",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Accepted);
+    }
+
+    [Fact]
+    public void ResolveRuleFields_preserves_internal_whitespace_in_applied_rule_ids_json_elements()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["  cost  guardrail  "]""",
+            firstRuleText: null);
+
+        ruleId.Should().Be("cost  guardrail");
+        ruleName.Should().Be("cost  guardrail");
+    }
+
+    [Fact]
+    public void FilterRecommendedActions_preserves_internal_whitespace_when_trimming_survivors()
+    {
+        IReadOnlyList<string> filtered = FindingInspectReadRepositoryCore.FilterRecommendedActions(
+            ["  Rotate  keys  "]);
+
+        filtered.Should().Equal("Rotate  keys");
+    }
+
+    [Fact]
+    public void BuildMetadataTypedPayload_preserves_internal_whitespace_in_title_and_rationale()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(
+            "  Encrypt  at  rest  ",
+            "  Missing  TLS  ");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt  at  rest");
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing  TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing  TLS");
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_empty_object_for_json_empty_object()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("{}");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.ValueKind.Should().Be(JsonValueKind.Object);
+        parsed!.Value.EnumerateObject().Should().BeEmpty();
+    }
 }
