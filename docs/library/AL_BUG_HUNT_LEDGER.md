@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1607,6 +1607,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DapperFindingInspectReadRepository.GetInspectAsync` skips null `scope` / `findingId` validation — **cheap-disproof 2026-09-10 seed hunt #1658:** repository throws before opening SQL; regressions `DapperFindingInspectReadRepository_GetInspectAsync_throws_when_scope_is_null` and `DapperFindingInspectReadRepository_GetInspectAsync_throws_when_finding_id_is_null`.
 
 2026-09-10 seed hunt #1658 (seed-only): reseeded finding-inspect-sql after #1657; cheap-disproof closed remaining defined numeric enum ordinals and Dapper inspect input validation; 287 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ParseHumanReview` / `ParseDisposition` accept negative numeric strings — **cheap-disproof 2026-09-10 seed hunt #1659:** undefined negative ordinals default to `NotRequired` / null; regressions `ParseHumanReview_maps_negative_numeric_string_to_not_required_default` and `ParseDisposition_returns_null_for_negative_numeric_string`.
+- [x] (valid-no-repro) `DapperFindingInspectReadRepository.GetInspectAsync` accepts whitespace-only / empty `findingId` — **cheap-disproof 2026-09-10 seed hunt #1659:** repository validates before SQL open; regressions `DapperFindingInspectReadRepository_GetInspectAsync_throws_when_finding_id_is_whitespace` and `DapperFindingInspectReadRepository_GetInspectAsync_throws_when_finding_id_is_empty`.
+- [x] (valid-no-repro) `ToUtcDateTimeOffset` preserves local offset for remediation timestamps — **cheap-disproof 2026-09-10 seed hunt #1659:** helper labels `DateTimeKind.Local` values as UTC without shifting clock time; regression `ToUtcDateTimeOffset_converts_local_remediation_timestamp_to_utc_offset`.
+- [x] (valid-no-repro) `MapLatestDisposition` rejects numeric disposition strings when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1659:** defined numeric ordinals parse via mapper; regression `MapLatestDisposition_maps_defined_numeric_disposition_when_row_is_present`.
+- [x] (valid-no-repro) `ResolveDecisionRuleName` trims whitespace-only `ruleId` when `ruleName` is null — **cheap-disproof 2026-09-10 seed hunt #1659:** null-coalescing preserves whitespace `ruleId` as-is; regression `ResolveDecisionRuleName_returns_whitespace_rule_id_when_rule_name_is_null`.
+- [x] (valid-no-repro) `MainInspectWithoutTypedPayload` omits confidence/review/mute columns — **cheap-disproof 2026-09-10 seed hunt #1659:** metadata-only query projects the same governance columns as typed-payload SQL; regression `MainInspectWithoutTypedPayload_projects_confidence_review_and_mute_fields`.
+
+2026-09-10 seed hunt #1659 (seed-only): reseeded finding-inspect-sql after #1658; cheap-disproof closed negative numeric enum parsing, Dapper whitespace/empty finding-id validation, local remediation UTC labeling, numeric disposition mapping, whitespace rule-id fallback, and metadata-only SQL column parity; 295 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

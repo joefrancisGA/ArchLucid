@@ -1613,4 +1613,54 @@ public sealed class FindingInspectReadRepositoryCoreTests
         exception.ParamName.Should().Be("findingId");
         exception.Message.Should().Contain("Finding id is required.");
     }
+
+    [Fact]
+    public async Task DapperFindingInspectReadRepository_GetInspectAsync_throws_when_finding_id_is_whitespace()
+    {
+        DapperFindingInspectReadRepository repository = new(new Mock<ISqlConnectionFactory>().Object);
+        ScopeContext scope = new();
+
+        Func<Task> act = async () => await repository.GetInspectAsync(scope, "   ", CancellationToken.None);
+
+        ArgumentException exception = (await act.Should().ThrowAsync<ArgumentException>()).Which;
+        exception.ParamName.Should().Be("findingId");
+        exception.Message.Should().Contain("Finding id is required.");
+    }
+
+    [Fact]
+    public async Task DapperFindingInspectReadRepository_GetInspectAsync_throws_when_finding_id_is_empty()
+    {
+        DapperFindingInspectReadRepository repository = new(new Mock<ISqlConnectionFactory>().Object);
+        ScopeContext scope = new();
+
+        Func<Task> act = async () => await repository.GetInspectAsync(scope, string.Empty, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public void ToUtcDateTimeOffset_converts_local_remediation_timestamp_to_utc_offset()
+    {
+        DateTime local = new(2026, 10, 15, 9, 30, 0, DateTimeKind.Local);
+
+        DateTimeOffset? actual = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(local);
+
+        actual.Should().NotBeNull();
+        actual!.Value.Offset.Should().Be(TimeSpan.Zero);
+        actual!.Value.UtcDateTime.Should().Be(local);
+    }
+
+    [Fact]
+    public void MapLatestDisposition_maps_defined_numeric_disposition_when_row_is_present()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition("2", hasDispositionRow: true)
+            .Should().Be(FindingDisposition.NeedsEvidence);
+    }
+
+    [Fact]
+    public void ResolveDecisionRuleName_returns_whitespace_rule_id_when_rule_name_is_null()
+    {
+        FindingInspectReadRepositoryCore.ResolveDecisionRuleName(null, "   ")
+            .Should().Be("   ");
+    }
 }

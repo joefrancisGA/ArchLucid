@@ -389,6 +389,17 @@ public sealed class FindingInspectReadSqlTests
     }
 
     [Fact]
+    public void MainInspectWithoutTypedPayload_projects_confidence_review_and_mute_fields()
+    {
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.ConfidenceScore");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.EvaluationConfidenceScore");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.EvaluationConfidenceLevel");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.HumanReviewStatus");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.IsMuted");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.MuteReason");
+    }
+
+    [Fact]
     public void MainInspect_projects_assignment_and_remediation_fields()
     {
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.AssignedToUserId");

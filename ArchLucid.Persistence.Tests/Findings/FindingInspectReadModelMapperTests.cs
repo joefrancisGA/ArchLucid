@@ -382,4 +382,16 @@ public sealed class FindingInspectReadModelMapperTests
     {
         FindingInspectReadModelMapper.ParseFindingSeverity("3").Should().Be(FindingSeverity.Critical);
     }
+
+    [Fact]
+    public void ParseHumanReview_maps_negative_numeric_string_to_not_required_default()
+    {
+        FindingInspectReadModelMapper.ParseHumanReview("-1").Should().Be(FindingHumanReviewStatus.NotRequired);
+    }
+
+    [Fact]
+    public void ParseDisposition_returns_null_for_negative_numeric_string()
+    {
+        FindingInspectReadModelMapper.ParseDisposition("-1").Should().BeNull();
+    }
 }
