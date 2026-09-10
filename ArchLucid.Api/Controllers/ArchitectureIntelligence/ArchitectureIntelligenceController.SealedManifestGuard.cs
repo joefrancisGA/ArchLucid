@@ -29,7 +29,7 @@ public sealed partial class ArchitectureIntelligenceController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapArchitectureIntelligenceSealedManifestConflict(ex);
         }
 
         return null;
@@ -57,9 +57,15 @@ public sealed partial class ArchitectureIntelligenceController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapArchitectureIntelligenceSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps architecture-intelligence read/mutation <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapArchitectureIntelligenceSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

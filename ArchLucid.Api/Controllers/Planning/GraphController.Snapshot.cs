@@ -72,32 +72,20 @@ public sealed partial class GraphController
 
         if (anchorCompareDetail?.GoldenManifest is not null)
         {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    anchorCompareDetail.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
+            IActionResult? anchorSealedGuardResult =
+                EnsureGoldenManifestSealedReadAllowed(anchorCompareDetail.GoldenManifest, runId);
+
+            if (anchorSealedGuardResult is not null)
+                return anchorSealedGuardResult;
         }
 
         if (detail.GoldenManifest is not null)
         {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    resolved.RunId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
+            IActionResult? resolvedSealedGuardResult =
+                EnsureGoldenManifestSealedReadAllowed(detail.GoldenManifest, resolved.RunId);
+
+            if (resolvedSealedGuardResult is not null)
+                return resolvedSealedGuardResult;
         }
 
         if (detail.GraphSnapshot is null)

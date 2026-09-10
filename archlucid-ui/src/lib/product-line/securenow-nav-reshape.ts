@@ -162,18 +162,6 @@ export function reshapeNavGroupsForSecureNow(
     );
   }
 
-  if (integrationLinks.length > 0) {
-    reshaped.push(
-      buildSecureNowNavGroup(
-        SECURENOW_INTEGRATION_NAV_GROUP_ID,
-        SECURENOW_INTEGRATION_NAV_GROUP_LABEL,
-        "Connect Azure inventory and outbound ticketing integrations.",
-        integrationLinks,
-        sourceGroup,
-      ),
-    );
-  }
-
   if (complianceLinks.length > 0) {
     reshaped.push(
       buildSecureNowNavGroup(
@@ -187,6 +175,18 @@ export function reshapeNavGroupsForSecureNow(
   }
 
   reshaped.push(infrastructureRow);
+
+  if (integrationLinks.length > 0) {
+    reshaped.push(
+      buildSecureNowNavGroup(
+        SECURENOW_INTEGRATION_NAV_GROUP_ID,
+        SECURENOW_INTEGRATION_NAV_GROUP_LABEL,
+        "Connect Azure inventory and outbound ticketing integrations.",
+        integrationLinks,
+        sourceGroup,
+      ),
+    );
+  }
 
   const tailRows = rows.filter((row) => !SECURENOW_SOURCE_GROUP_IDS.has(row.group.id));
 

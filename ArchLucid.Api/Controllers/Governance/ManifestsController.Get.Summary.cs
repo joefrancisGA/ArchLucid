@@ -59,7 +59,7 @@ public sealed partial class ManifestsController
         }
         catch (ConflictException ex)
         {
-            return GoldenManifestReadConflictProblem(ex);
+            return MapGoldenManifestReadSealedManifestConflict(ex);
         }
 
         if (manifest is null)
@@ -164,7 +164,7 @@ public sealed partial class ManifestsController
         }
         catch (ConflictException ex)
         {
-            return GoldenManifestReadConflictProblem(ex);
+            return MapGoldenManifestReadSealedManifestConflict(ex);
         }
 
         if (manifest is null)

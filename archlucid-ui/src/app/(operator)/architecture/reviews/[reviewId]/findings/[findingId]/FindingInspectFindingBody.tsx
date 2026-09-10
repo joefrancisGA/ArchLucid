@@ -13,7 +13,12 @@ import { findingWhyThisMattersText, typedPayloadLookupString } from "@/lib/findi
 import { buildFindingModelProvenanceRow } from "@/lib/findings/finding-model-provenance-display";
 import { resolveFindingInspectCitationExportBlockedReason } from "@/lib/findings/finding-inspect-citation-export-gate";
 import { buildFindingPolicyEvidenceCitationsFromInspect } from "@/lib/findings/finding-policy-evidence-citations";
+import {
+  FindingSemanticSupportBandInspectSection,
+  findingSemanticSupportBandFromTypedPayload,
+} from "@/components/findings/FindingSemanticSupportBandInspectSection";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
+import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
@@ -79,6 +84,35 @@ export function FindingInspectFindingBody({
 
   const whyThisIsNotGeneric = typedPayloadLookupString(payload, "whyThisIsNotGeneric");
 
+  const classificationRaw = payload.typedPayload !== null && typeof payload.typedPayload === "object"
+    ? (payload.typedPayload as Record<string, unknown>).classification
+    : null;
+
+  const classification =
+    classificationRaw === FINDING_CLASSIFICATION_DECISION_GRADE
+    || classificationRaw === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE
+      ? classificationRaw
+      : null;
+
+  const inspectFindingForSemanticBand = {
+    findingId: decodedFindingId,
+    title: decodedFindingId,
+    recommendation: payload.reasoningSummary ?? "",
+    severityValue: 0,
+    findingOrder: 0,
+    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+    isMuted: false,
+    muteReason: null,
+    enforcementTier: "PolicyViolation" as const,
+    classification,
+    semanticSupportBand: findingSemanticSupportBandFromTypedPayload(
+      payload.typedPayload !== null && typeof payload.typedPayload === "object"
+        ? (payload.typedPayload as Record<string, unknown>)
+        : null,
+      classification,
+    ),
+  };
+
   const evidenceRefCount = payload.evidence?.length ?? 0;
   const modelProvenance = buildFindingModelProvenanceRow({
     trustLabel: payload.trustLabel ?? typedPayloadLookupString(payload, "trustLabel"),
@@ -140,6 +174,10 @@ export function FindingInspectFindingBody({
         />
   );
 
+  const semanticSupportBandBlock = (
+    <FindingSemanticSupportBandInspectSection finding={inspectFindingForSemanticBand} />
+  );
+
   const insightDensityBlock = (
     <FindingInsightDensityDisclosure
       insightDensityScore={
@@ -185,6 +223,7 @@ export function FindingInspectFindingBody({
       <>
         {whyBlock}
         {modelProvenanceBlock}
+        {semanticSupportBandBlock}
         <FindingInspectViewEvidenceCollapsible>{evidenceBlock}</FindingInspectViewEvidenceCollapsible>
         {insightDensityBlock}
         {recommendedBlock("detail")}
@@ -198,6 +237,7 @@ export function FindingInspectFindingBody({
     <>
       {whyBlock}
       {modelProvenanceBlock}
+      {semanticSupportBandBlock}
       {reasoningSummaryBlock}
       {evidenceBlock}
       {insightDensityBlock}

@@ -10,13 +10,13 @@ import { secureNowCloudConnectionsSummary } from "@/lib/product-line/securenow-c
  */
 export const HELP_CENTER_SECURITY_FEATURED_SLUGS: readonly string[] = [
   "getting-started",
+  "findings",
   "cloud-connections",
   "security-trust",
   "data-handling",
   "authentication-sign-in",
   "integration-readiness",
   "users-and-roles",
-  "billing-and-plans",
   "troubleshooting",
   "subprocessors",
   "procurement",
@@ -30,6 +30,11 @@ const HELP_CENTER_SECURITY_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, He
     title: "Getting started",
     summary:
       "Learn how SecureNow connects cloud evidence, routes alerts, and supports security operations workflows.",
+  },
+  findings: {
+    title: "Findings",
+    summary:
+      "Triage cloud-evidence findings, assign remediation owners, and track disposition in SecureNow.",
   },
   "cloud-connections": {
     title: "Cloud connections",
@@ -58,10 +63,6 @@ const HELP_CENTER_SECURITY_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, He
   "users-and-roles": {
     title: "Users and roles",
     summary: "Assign Admin, Architect, Reader, and Auditor roles; map IdP groups to SecureNow authority.",
-  },
-  "billing-and-plans": {
-    title: "Billing and plans",
-    summary: "Manage your SecureNow subscription, payment method, invoices, seats, and usage.",
   },
   troubleshooting: {
     title: "Troubleshooting",

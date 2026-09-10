@@ -5956,6 +5956,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "snapshotId"
+        ],
         "type": "object"
       },
       "AuditEvaluationOutcome": {
@@ -15026,6 +15029,16 @@
               "string"
             ]
           },
+          "semanticSupportBand": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingSemanticSupportBand"
+              }
+            ]
+          },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
           },
@@ -15923,6 +15936,15 @@
         },
         "type": "object"
       },
+      "FindingSemanticSupportBand": {
+        "enum": [
+          "Supported",
+          "Unchecked",
+          "Unsupported",
+          "NotScored",
+          null
+        ]
+      },
       "FindingSeverity": {
         "enum": [
           "Info",
@@ -16043,6 +16065,15 @@
         "type": "object"
       },
       "FindingTreatment": {},
+      "FindingUnmuteRequest": {
+        "properties": {
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "FindingVerificationReportResponse": {
         "properties": {
           "createdUtc": {
@@ -44053,13 +44084,18 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {
@@ -44208,13 +44244,18 @@
           },
           "409": {
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
               "application/problem\u002Bjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Conflict."
+            "description": "Conflict"
           },
           "415": {
             "content": {

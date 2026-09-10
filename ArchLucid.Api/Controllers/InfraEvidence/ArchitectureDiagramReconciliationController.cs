@@ -77,7 +77,7 @@ public sealed partial class ArchitectureDiagramReconciliationController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDiagramReconcileSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -126,7 +126,7 @@ public sealed partial class ArchitectureDiagramReconciliationController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDiagramReconcileSealedManifestConflict(ex);
         }
     }
 }

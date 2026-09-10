@@ -7,11 +7,13 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Exports;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Configuration;
@@ -34,7 +36,9 @@ public sealed partial class ArchitectureReviewExportService(
     ITenantReviewBoardCoverLogoStore? tenantReviewBoardCoverLogoStore,
     IConfiguration configuration,
     ArchitectureReviewDocxBuilder docxBuilder,
-    ArchitectureReviewPdfBuilder pdfBuilder) : IArchitectureReviewExportService
+    ArchitectureReviewPdfBuilder pdfBuilder,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : IArchitectureReviewExportService
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
@@ -49,6 +53,12 @@ public sealed partial class ArchitectureReviewExportService(
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
 
     /// <inheritdoc/>
     public async Task<ExportResult> GenerateReportAsync(string runId, ExportFormat format, WhitelabelConfiguration? whitelabel,
@@ -93,7 +103,9 @@ public sealed partial class ArchitectureReviewExportService(
             scope,
             workingDesk: true,
             _configuration,
-            cancellationToken);
+            cancellationToken,
+            _runRepository,
+            _architectureInventoryBindingRepository);
 
         CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial(careerExportHonesty);
 

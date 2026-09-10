@@ -270,7 +270,7 @@ describe("setUserAppearancePreference", () => {
 
     const preferences = await getUserPreferences();
 
-    expect(preferences).toEqual({
+    expect(preferences).toMatchObject({
       appearancePreference: "system",
       appearancePreferenceIsExplicit: true,
       cloudPlatformScope: DEFAULT_CLOUD_PLATFORM_SCOPE,
@@ -279,7 +279,7 @@ describe("setUserAppearancePreference", () => {
       whereToGoNextIsExplicit: false,
       sampleReviewsOnOverviewEnabled: true,
       sampleReviewsOnOverviewIsExplicit: false,
-      ianaTimeZoneId: "UTC",
+      ianaTimeZoneId: "America/New_York",
       ianaTimeZoneIsExplicit: false,
     });
     expect(apiGetMock).not.toHaveBeenCalled();

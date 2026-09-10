@@ -164,6 +164,16 @@ public sealed class InsightDensityGateOptions
     } = false;
 
     /// <summary>
+    ///     When true with a Premium deployment, an optional LLM may judge semantic support band overlap.
+    ///     Default false — AS-057 heuristic scorer is the sync default; Lane B async ratio remains separate (AS-058 / AS-074).
+    /// </summary>
+    public bool EnableSemanticSupportBandLlmJudge
+    {
+        get;
+        set;
+    } = false;
+
+    /// <summary>
     ///     Package-scoped diagram shape index for resolving <c>diagram:</c> citations during scoring (AS-022).
     ///     Set per findings snapshot in merge stage; not bound from host configuration JSON.
     /// </summary>

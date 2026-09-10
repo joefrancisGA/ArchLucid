@@ -37,9 +37,15 @@ public sealed partial class ArchitectureDiagramIngestController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDiagramIngestSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps diagram ingest read/mutate <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapDiagramIngestSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

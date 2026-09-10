@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
+import { useUnsupportedSemanticSupportFinalizeBlockedReason } from "@/hooks/use-unsupported-semantic-support-finalize-blocked-reason";
+import { mergeFinalizeCommitBlockedReasons } from "@/lib/findings/semantic-support-band-finalize-honesty";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
 import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
 import { deriveReviewFailureRequiresWorkspaceAiProbe } from "@/lib/derive-review-failure-requires-workspace-ai-probe";
@@ -62,6 +65,7 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly pixelDiagramNotVerifiableSources?: readonly PixelDiagramNotVerifiableSource[];
   readonly architectureRequestId?: string | null;
   readonly azureInventoryEvidencePresent?: boolean;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -114,6 +118,16 @@ export function RunDetailReviewPackageDoThisNextResolved(
     requestAssumptionTexts: props.requestAssumptionTexts,
     transparencyTrail: props.transparencyTrail,
   });
+  const unsupportedSemanticSupportCommitBlockedReason =
+    useUnsupportedSemanticSupportFinalizeBlockedReason({
+      findings: props.quickDecisionFindings,
+      manifestFinalized: props.hasGoldenManifest,
+      structuralExecutionMode: props.structuralExecutionMode,
+    });
+  const effectiveCommitBlockedReason = mergeFinalizeCommitBlockedReasons(
+    assumptionAwareCommitBlockedReason,
+    unsupportedSemanticSupportCommitBlockedReason,
+  );
 
   useEffect(() => {
     let canceled = false;
@@ -251,12 +265,13 @@ export function RunDetailReviewPackageDoThisNextResolved(
         proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
         pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
         azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
+        structuralExecutionMode={props.structuralExecutionMode}
       />
       <FinalizeReadinessStrip
         commitBlockedReason={
           next.failureRecovery !== null && next.failureRecovery !== undefined
             ? null
-            : assumptionAwareCommitBlockedReason
+            : effectiveCommitBlockedReason
         }
       />
       <ReviewPackageDoThisNextStrip
@@ -264,7 +279,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         runId={props.runId}
         retryCount={props.pipelineDiagnosticContext?.retryCount ?? props.pipelineSummary?.retryCount ?? null}
         hasGoldenManifest={props.hasGoldenManifest}
-        commitBlockedReason={assumptionAwareCommitBlockedReason}
+        commitBlockedReason={effectiveCommitBlockedReason}
         sessionAiReadiness={sessionAiReadiness}
         canConfigureWorkspaceAi={canConfigureWorkspaceAi}
         usesCustomerAiConnection={usesCustomerAiConnection}

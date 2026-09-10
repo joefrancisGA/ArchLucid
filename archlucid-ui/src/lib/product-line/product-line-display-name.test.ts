@@ -19,6 +19,8 @@ import {
   productLineManagedIdentityObjectIdLabel,
   productLinePasswordlessExplanation,
   productLinePoweredByLine,
+  productLineRootManifestPath,
+  productLineRootMetadataIcons,
   productLineShowsArchLucidMark,
   productLineTenantIdLabel,
   productLineTitleTemplate,
@@ -36,6 +38,13 @@ describe("productLineDisplayName", () => {
     expect(productLineDisplayName("security")).toBe("SecureNow");
     expect(productLineShowsArchLucidMark("architecture")).toBe(true);
     expect(productLineShowsArchLucidMark("security")).toBe(false);
+    expect(productLineRootMetadataIcons("architecture")).toEqual({
+      icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
+      apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],
+    });
+    expect(productLineRootMetadataIcons("security")).toBeUndefined();
+    expect(productLineRootManifestPath("architecture")).toBe("/manifest.webmanifest");
+    expect(productLineRootManifestPath("security")).toBeUndefined();
   });
 });
 

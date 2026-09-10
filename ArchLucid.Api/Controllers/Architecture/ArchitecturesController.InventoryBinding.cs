@@ -1,3 +1,4 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
@@ -44,6 +45,7 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [MutatingAuditExcluded("Audit: ArchitectureInventoryBindingAuditSupport logs ArchitectureInventorySnapshotBound via LogOrThrowAsync.")]
     public async Task<IActionResult> AttachInventoryBinding(
         Guid architectureId,
         [FromBody] AttachArchitectureInventoryBindingRequest? body,
@@ -84,15 +86,11 @@ public sealed partial class ArchitecturesController
                 ProblemTypes.ResourceNotFound);
         }
 
-        await _auditService.LogAsync(
-            BuildArchitectureAuditEvent(
-                scope,
-                AuditEventTypes.ArchitectureInventorySnapshotBound,
-                new
-                {
-                    architectureId,
-                    snapshotId = body.SnapshotId,
-                }),
+        await _architectureInventoryBindingAuditSupport.LogSnapshotBoundAsync(
+            scope,
+            _actorContext.GetActor(),
+            architectureId,
+            body.SnapshotId,
             cancellationToken);
 
         return Ok(attachResult.Response);
@@ -104,6 +102,7 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [MutatingAuditExcluded("Audit: ArchitectureInventoryBindingAuditSupport logs ArchitectureInventorySnapshotDetached via LogOrThrowAsync.")]
     public async Task<IActionResult> DetachInventoryBinding(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -134,11 +133,10 @@ public sealed partial class ArchitecturesController
         if (!detached)
             return NoContent();
 
-        await _auditService.LogAsync(
-            BuildArchitectureAuditEvent(
-                scope,
-                AuditEventTypes.ArchitectureInventorySnapshotDetached,
-                new { architectureId }),
+        await _architectureInventoryBindingAuditSupport.LogSnapshotDetachedAsync(
+            scope,
+            _actorContext.GetActor(),
+            architectureId,
             cancellationToken);
 
         return NoContent();

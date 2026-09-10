@@ -20,7 +20,8 @@
           "tf.name": "edge-alb",
           "tf.backend": "pay_api",
           "declarationBackendNodeId": "pay_api",
-          "connectedToNodeIds": "pay_api"
+          "connectedToNodeIds": "pay_api",
+          "arn": "arn:aws:ec2:us-east-1:123456789012:instance/edge-alb"
         },
         "reasoningTrace": null
       },
@@ -35,7 +36,8 @@
           "terraformType": "aws_lambda_function",
           "tf.function_name": "pay-api",
           "tf.connected_to": "pay_sql",
-          "connectedToNodeIds": "pay_sql"
+          "connectedToNodeIds": "pay_sql",
+          "arn": "arn:aws:ec2:us-east-1:123456789012:instance/pay-api"
         },
         "reasoningTrace": null
       },
@@ -50,7 +52,8 @@
           "terraformType": "aws_db_instance",
           "tf.identifier": "pay-sql",
           "category": "data",
-          "topologySensitivity": "data-bearing"
+          "topologySensitivity": "data-bearing",
+          "arn": "arn:aws:ec2:us-east-1:123456789012:instance/pay-sql"
         },
         "reasoningTrace": null
       },
@@ -67,7 +70,8 @@
           "contract": "Sync",
           "origin": "Inferred",
           "confidence": "70",
-          "declarationSourceNodeId": "obj-eb3e6969f87c3d32e91c8b63baf75a89"
+          "declarationSourceNodeId": "obj-eb3e6969f87c3d32e91c8b63baf75a89",
+          "arn": "arn:aws:ec2:us-east-1:123456789012:instance/edge-alb"
         },
         "reasoningTrace": null
       },
@@ -96,7 +100,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "adef0e8bdb8343768b904243afaca064",
@@ -107,7 +111,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "fc7cce9e84894b3a85a74fdeb759fcf5",
@@ -118,7 +122,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "1ca6f5f083c84f5ca3bd356f40380e9a",
@@ -129,7 +133,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "08678148ceca4af2940f33c252ffa9d8",
@@ -140,7 +144,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "922a957f317943c8b8a83622785cceeb",

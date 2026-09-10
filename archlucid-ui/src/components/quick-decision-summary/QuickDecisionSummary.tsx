@@ -370,6 +370,7 @@ export function QuickDecisionSummary(props: QuickDecisionSummaryProps): ReactEle
     packageCommitted: props.packageCommitted,
     providerNeutralWorkItems: props.providerNeutralWorkItems,
     architectureWorkItemContext: props.architectureWorkItemContext,
+    structuralExecutionMode: props.structuralExecutionMode,
   };
 
   if (props.workspaceCardMode === true) {
