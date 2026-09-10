@@ -1,5 +1,7 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Ask;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Findings;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Conversation;
@@ -41,7 +43,9 @@ internal static class AskServiceTestFactory
         IOptionsMonitor<ConversationContextOptions>? conversationContextOptions = null,
         IOptionsMonitor<AskRetrievalOptions>? askRetrievalOptions = null,
         IRunRepository? runRepository = null,
-        IManifestHashService? manifestHashService = null)
+        IManifestHashService? manifestHashService = null,
+        FindingInstrumentationAuditSupport? findingInstrumentationAudit = null,
+        IActorContext? actorContext = null)
     {
         IAgentCompletionClient resolvedLlm = llm ?? Mock.Of<IAgentCompletionClient>();
         IConversationService resolvedConversation = conversationService ?? Mock.Of<IConversationService>();
@@ -99,7 +103,16 @@ internal static class AskServiceTestFactory
             narrativeBuilder,
             responseComposer,
             historyBuilder,
+            findingInstrumentationAudit ?? Mock.Of<FindingInstrumentationAuditSupport>(),
+            actorContext ?? CreateDefaultActorContext(),
             NullLogger<AskService>.Instance);
+    }
+
+    private static IActorContext CreateDefaultActorContext()
+    {
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("operator@test");
+        return actor.Object;
     }
 
     private static IOptionsMonitor<T> MonitorOf<T>(T value)

@@ -29,6 +29,16 @@ const HelpAuditTrailGuideView = dynamic(() =>
 const HelpBaselineSettingsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView").then((module) => module.HelpBaselineSettingsGuideView),
 );
+const HelpArchitectureSharingGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpArchitectureSharingGuideView").then(
+    (module) => module.HelpArchitectureSharingGuideView,
+  ),
+);
+const HelpCareerRehearsalGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpCareerRehearsalGuideView").then(
+    (module) => module.HelpCareerRehearsalGuideView,
+  ),
+);
 const HelpCaiqSigResponseGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpCaiqSigResponseGuideView").then((module) => module.HelpCaiqSigResponseGuideView),
 );
@@ -97,6 +107,11 @@ const HelpGettingStartedGuideView = dynamic(() =>
 );
 const HelpGlossaryPageView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpGlossaryPageView").then((module) => module.HelpGlossaryPageView),
+);
+const HelpGovernanceInfrastructureDriftGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpGovernanceInfrastructureDriftGuideView").then(
+    (module) => module.HelpGovernanceInfrastructureDriftGuideView,
+  ),
 );
 const HelpGovernanceApprovalGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView").then((module) => module.HelpGovernanceApprovalGuideView),
@@ -260,6 +275,9 @@ export function tryResolveOperateHelpTopicView(
   if (loaded.entry.slug === "findings") {
     return <HelpFindingsGuideView entry={loaded.entry} />;
   }
+  if (loaded.entry.slug === "governance-infrastructure-drift") {
+    return <HelpGovernanceInfrastructureDriftGuideView entry={loaded.entry} />;
+  }
   if (loaded.entry.slug === "governance-approval") {
     return <HelpGovernanceApprovalGuideView entry={loaded.entry} />;
   }
@@ -331,6 +349,12 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "caiq-sig-response") {
     return <HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+  if (loaded.entry.slug === "career-vs-rehearsal") {
+    return <HelpCareerRehearsalGuideView entry={loaded.entry} markdown={loaded.markdown} />;
+  }
+  if (loaded.entry.slug === "architecture-sharing") {
+    return <HelpArchitectureSharingGuideView entry={loaded.entry} markdown={loaded.markdown} />;
   }
   if (loaded.entry.slug === "choose-your-next-step") {
     return <HelpPathChooserGuideView entry={loaded.entry} markdown={loaded.markdown} />;

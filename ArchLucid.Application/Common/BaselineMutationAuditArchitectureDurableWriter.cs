@@ -214,67 +214,30 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
 
         if (string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunCompleted, StringComparison.Ordinal))
         {
-            await DurableAuditLogRetry.TryLogAsync(
-                async ct =>
-                {
-                    ScopeContext scope = scopeContextProvider.GetCurrentScope();
-                    Guid? runGuid = Guid.TryParse(entityId, out Guid rid) ? rid : null;
-                    Dictionary<string, string> kv = ParseSemicolonKeyValues(details);
-                    string manifestVersion = GetDetail(kv, "ManifestVersion");
-                    string systemName = GetDetail(kv, "SystemName");
-                    int warningCount = int.TryParse(GetDetail(kv, "WarningCount"), out int wc) ? wc : 0;
-                    string? commitPath = GetDetailOrNull(kv, "CommitPath");
-
-                    string commitJson = string.IsNullOrWhiteSpace(commitPath)
-                        ? JsonSerializer.Serialize(new { runId = entityId, manifestVersion, systemName })
-                        : JsonSerializer.Serialize(
-                            new
-                            {
-                                runId = entityId,
-                                manifestVersion,
-                                systemName,
-                                warningCount,
-                                commitPath
-                            });
-
-                    AuditEvent commitCompleted = scope.CreateAuditEvent(
-                        AuditEventTypes.Run.CommitCompleted,
-                        actor,
-                        actor,
-                        commitJson);
-                    commitCompleted.RunId = runGuid;
-
-                    await auditService.LogAsync(commitCompleted, ct);
-
-                    if (runGuid is Guid committedRunGuid)
-                    {
-                        AuditEvent lifecycleTransition = AuthorityRunLifecycleTransitionAuditor.BuildTransitionEvent(
-                            scope,
-                            committedRunGuid,
-                            AuthorityRunLifecyclePhase.InProgress,
-                            AuthorityRunLifecyclePhase.Complete,
-                            "commit-completed",
-                            actor);
-                        await auditService.LogAsync(lifecycleTransition, ct);
-                    }
-                },
+            await BaselineMutationAuditGovernedRunCompletedEchoWriter.WriteAsync(
+                actor,
+                entityId,
+                details,
+                auditService,
+                scopeContextProvider,
                 logger,
-                $"Run.CommitCompleted:{LogSanitizer.Sanitize(entityId)}",
                 cancellationToken);
+
+            return;
         }
     }
 
-    private static string GetDetail(Dictionary<string, string> map, string key)
+    internal static string GetDetail(Dictionary<string, string> map, string key)
     {
         return map.TryGetValue(key, out string? v) ? v : string.Empty;
     }
 
-    private static string? GetDetailOrNull(Dictionary<string, string> map, string key)
+    internal static string? GetDetailOrNull(Dictionary<string, string> map, string key)
     {
         return map.TryGetValue(key, out string? v) ? v : null;
     }
 
-    private static Dictionary<string, string> ParseSemicolonKeyValues(string details)
+    internal static Dictionary<string, string> ParseSemicolonKeyValues(string details)
     {
         Dictionary<string, string> map = new(StringComparer.OrdinalIgnoreCase);
 

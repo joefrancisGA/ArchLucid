@@ -1,9 +1,11 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Integrations.Itsm.Outbound;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Serialization;
@@ -21,6 +23,7 @@ public sealed class BackgroundJobWorkUnitExecutor(
     IAuditService auditService,
     ITenantDeletionService tenantDeletionService,
     IItsmOutboundIssueCreationService itsmOutboundIssueCreationService,
+    IFindingVerificationService findingVerificationService,
     IBackgroundJobWorkUnitScopeResolver workUnitScopeResolver) : IBackgroundJobWorkUnitExecutor
 {
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
@@ -42,6 +45,9 @@ public sealed class BackgroundJobWorkUnitExecutor(
     private readonly IItsmOutboundIssueCreationService _itsmOutboundIssueCreationService =
         itsmOutboundIssueCreationService ?? throw new ArgumentNullException(nameof(itsmOutboundIssueCreationService));
 
+    private readonly IFindingVerificationService _findingVerificationService =
+        findingVerificationService ?? throw new ArgumentNullException(nameof(findingVerificationService));
+
     private readonly IBackgroundJobWorkUnitScopeResolver _workUnitScopeResolver =
         workUnitScopeResolver ?? throw new ArgumentNullException(nameof(workUnitScopeResolver));
 
@@ -58,6 +64,7 @@ public sealed class BackgroundJobWorkUnitExecutor(
                 ConsultingDocxWorkUnit w => await ExecuteConsultingDocxAsync(w, cancellationToken),
                 TenantDeletionWorkUnit w => await ExecuteTenantDeletionAsync(w, cancellationToken),
                 ItsmOutboundCreateWorkUnit w => await ExecuteItsmOutboundCreateAsync(w, cancellationToken),
+                FindingVerificationWorkUnit w => await ExecuteFindingVerificationAsync(w, cancellationToken),
                 _ => throw new InvalidOperationException($"Unsupported background job work unit: {workUnit.GetType().Name}.")
             };
         }
@@ -104,6 +111,38 @@ public sealed class BackgroundJobWorkUnitExecutor(
             throw ItsmOutboundCreateJobProcessor.BuildRetryException(jobResult);
 
         return ItsmOutboundCreateJobProcessor.ToResultFile(jobResult);
+    }
+
+    private async Task<BackgroundJobFile> ExecuteFindingVerificationAsync(
+        FindingVerificationWorkUnit unit,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(unit.Payload);
+
+        FindingVerificationJobPayload payload = unit.Payload;
+        ScopeContext scope = new()
+        {
+            TenantId = payload.TenantId,
+            WorkspaceId = payload.WorkspaceId,
+            ProjectId = payload.ProjectId,
+        };
+
+        CreateFindingVerificationReportRequest request = new()
+        {
+            VerificationFindingsSnapshotId = payload.VerificationFindingsSnapshotId,
+        };
+
+        FindingVerificationCreateReportResult result = await _findingVerificationService.CreateReportAsync(
+                scope,
+                payload.RunId,
+                request,
+                payload.TriggeredByUserId,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(result.Response);
+
+        return new BackgroundJobFile("finding-verification-report.json", "application/json", bytes);
     }
 
     private async Task<BackgroundJobFile> ExecuteAnalysisReportDocxAsync(AnalysisReportDocxWorkUnit unit, CancellationToken cancellationToken)

@@ -1,6 +1,6 @@
 > **Scope:** ArchLucid ROI model — full detail, tables, and links below — plus the operational cost guide for Azure/LLM footprint (formerly `COST_GUIDE.md`), the synthetic Contoso Retail case study (formerly `SYNTHETIC_CASE_STUDY_CONTOSO_RETAIL.md`), the Contoso worked-example ROI value-report mirror (formerly `WORKED_EXAMPLE_ROI.md`), and the quarterly aggregate ROI bulletin template (formerly the body of `AGGREGATE_ROI_BULLETIN_TEMPLATE.md`; that filename remains a path-stable alias for CLI/CI pins).
 
-> **Reviewed:** 2026-07-28
+> **Reviewed:** 2026-09-07
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 
@@ -9,7 +9,7 @@
 
 **Audience:** Pilot champions, enterprise architects, and engineering leaders who need to justify an ArchLucid purchase to their CFO or procurement team.
 
-**Last reviewed:** 2026-07-28
+**Last reviewed:** 2026-09-07 (**M-305** — §8–9 Professional 6-architect baseline uses the public 10-seat bundle)
 
 **Pricing reference:** [`PRICING_PHILOSOPHY.md` §5](PRICING_PHILOSOPHY.md) — verify §8–9 inline numbers match before any sponsor conversation.
 
@@ -194,23 +194,22 @@ The ROI model is most sensitive to these inputs. Adjust these first when customi
 | **Reviews per quarter** | ROI scales linearly | Below 4 reviews/quarter, ROI may be marginal for small teams |
 | **LLM cost per run** | ROI decreases slightly — monitor with `archlucid_llm_*` OTel metrics | ROI increases — simulator mode eliminates this cost entirely for testing |
 
-**Break-even point:** ArchLucid pays for itself if it saves **more than ~180 architect-hours per year** (at $150/hr vs. $27K annual cost). That is approximately **4.5 hours saved per review across 40 reviews** — a conservative threshold.
+**Break-even point:** ArchLucid pays for itself if it saves **more than ~184 architect-hours per year** (at $150/hr vs. ~$28K annual Professional bundle). That is approximately **4.6 hours saved per review across 40 reviews** — a conservative threshold.
 
 ---
 
 ## 8. ArchLucid subscription cost and payback (locked 2026 prices)
 
-> All prices in this section are drawn from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — the single source of truth. If a re-rate gate has been cleared since 2026-04-17, verify the current list before presenting this section.
+> All prices in this section are drawn from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — the single source of truth. If a re-rate gate has been cleared since **2026-09-07 (M-305)**, verify the current list before presenting this section.
 
 ### 8.1 Annual subscription cost — Professional tier, 6-architect baseline
 
-The 6-architect baseline used throughout this document maps to Professional tier (up to 20 architects, governance, policy packs, audit export).
+The 6-architect baseline used throughout this document maps to the Professional public bundle (10 seats + 1 workspace included; add-on seats 11–20). Six-seat teams pay the 10-seat bundle, not a per-seat build-up.
 
 | Component | Calculation | Monthly | Annual (monthly billing) | Annual (prepay, 2 months free) |
 |-----------|------------|---------|--------------------------|-------------------------------|
-| Platform fee | 1 workspace × list (see [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | $899 | $10,788 | $8,990 |
-| Seat fee | 6 seats × list (see [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | $1,074 | $12,888 | $10,740 |
-| **Total subscription** | | **$1,973 / month** | **$23,676 / year** | **$19,730 / year** |
+| Public bundle | 10 seats + 1 workspace (see [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | $2,299 | $27,588 | $22,990 |
+| **Total subscription** | | **$2,299 / month** | **$27,588 / year** | **$22,990 / year** |
 
 *Infrastructure (Azure SQL, Container Apps, OpenAI) is additional — see §4 for estimates.*
 
@@ -218,45 +217,45 @@ The 6-architect baseline used throughout this document maps to Professional tier
 
 | Cost item | Amount | Notes |
 |-----------|--------|-------|
-| Subscription (annual prepay) | $19,730 | From §8.1; draws from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) |
+| Subscription (annual prepay) | $22,990 | From §8.1; draws from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) |
 | Infrastructure | $12,000 | $1,000/mo Azure estimate from §4 |
 | LLM consumption | $960 | $5/run × 48 runs/quarter × 4 quarters |
 | Setup + onboarding | $9,000 | 60 hrs × $150/hr one-time |
 | Operations | $5,400 | 3 hrs/mo × 12 × $150 |
-| **Total year 1** | **$47,090** | |
+| **Total year 1** | **$50,350** | |
 
 ### 8.3 Payback period — full list price
 
-Using the §5 example: $294,000 annual savings, $47,090 all-in year-1 cost.
+Using the §5 example: $294,000 annual savings, $50,350 all-in year-1 cost.
 
 ```
 Monthly savings          = $294,000 / 12 = $24,500
-Monthly cost (year 1)    = $47,090 / 12  = $3,924
-Payback period           = $47,090 / $24,500/mo ≈ 1.9 months
+Monthly cost (year 1)    = $50,350 / 12  = $4,196
+Payback period           = $50,350 / $24,500/mo ≈ 2.1 months
 ```
 
 **Payback at full Professional list price: approximately 2 months.**
 
-Year 2+ all-in cost drops to ~$38,090 (subscription + infra + LLM + ops; no setup cost), so steady-state ROI improves further.
+Year 2+ all-in cost drops to ~$41,350 (subscription + infra + LLM + ops; no setup cost), so steady-state ROI improves further.
 
 ### 8.4 Payback period — Design partner discount (50% off Professional list, 12 months)
 
-Design partner terms: 50% off platform fee and seat fee for the first 12 months (see [PRICING_PHILOSOPHY.md §4](PRICING_PHILOSOPHY.md) and [ORDER_FORM_TEMPLATE.md Addendum B](ORDER_FORM_TEMPLATE.md)).
+Design partner terms: 50% off platform fee and seat fee for the first 12 months (see [PRICING_PHILOSOPHY.md §4](PRICING_PHILOSOPHY.md) and [ORDER_FORM_TEMPLATE.md Addendum B](ORDER_FORM_TEMPLATE.md)). Design partner is mutually exclusive with the published-reference 15% discount.
 
 | Cost item | Amount |
 |-----------|--------|
-| Subscription at 50% off (annual prepay) | $9,865 |
+| Subscription at 50% off (annual prepay) | $11,495 |
 | Infrastructure | $12,000 |
 | LLM consumption | $960 |
 | Setup + onboarding | $9,000 |
 | Operations | $5,400 |
-| **Total year 1 (design partner)** | **$37,225** |
+| **Total year 1 (design partner)** | **$38,855** |
 
 ```
-Payback period (design partner) = $37,225 / $24,500/mo ≈ 1.5 months
+Payback period (design partner) = $38,855 / $24,500/mo ≈ 1.6 months
 ```
 
-**Payback at design partner discount: approximately 6 weeks.**
+**Payback at design partner discount: approximately 7 weeks.**
 
 ---
 
@@ -268,8 +267,8 @@ Payback period (design partner) = $37,225 / $24,500/mo ≈ 1.5 months
 
 | Assumption | Value | Source |
 |------------|-------|--------|
-| ArchLucid subscription (year 1 prepay) | $19,730 | [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) via §8.1 above |
-| ArchLucid subscription (year 2–3, no setup) | $19,730/yr | Same |
+| ArchLucid subscription (year 1 prepay) | $22,990 | [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) via §8.1 above |
+| ArchLucid subscription (year 2–3, no setup) | $22,990/yr | Same |
 | ArchLucid infrastructure + LLM + ops | ~$18,360/yr | §8.2 without setup |
 | LeanIX per-seat range | $100–$300 / seat / month | Publicly observed enterprise range; SAP-backed; negotiated |
 | Ardoq per-seat range | $80–$200 / seat / month | Publicly observed range; varies by module selection |
@@ -283,9 +282,9 @@ All figures are for a 6-architect team. ArchLucid includes infrastructure; compe
 
 | | Year 1 | Year 2 | Year 3 | **3-year total** |
 |--|--------|--------|--------|-----------------|
-| **ArchLucid — full list, monthly billing** | $47,090 | $38,090 | $38,090 | **$123,270** |
-| **ArchLucid — full list, annual prepay** | $47,090 | $38,090 | $38,090 | **$123,270** |
-| **ArchLucid — design partner (year 1 only)** | $37,225 | $38,090 | $38,090 | **$113,405** |
+| **ArchLucid — full list, monthly billing** | $54,948 | $45,948 | $45,948 | **$146,844** |
+| **ArchLucid — full list, annual prepay** | $50,350 | $41,350 | $41,350 | **$133,050** |
+| **ArchLucid — design partner (year 1 only)** | $38,855 | $41,350 | $41,350 | **$121,555** |
 | **LeanIX (low end: $100/seat/mo, 6 seats)** | $7,200 | $7,200 | $7,200 | **$21,600** |
 | **LeanIX (high end: $300/seat/mo, 6 seats)** | $21,600 | $21,600 | $21,600 | **$64,800** |
 | **Ardoq (low end: $80/seat/mo, 6 seats)** | $5,760 | $5,760 | $5,760 | **$17,280** |
@@ -299,9 +298,9 @@ All figures are for a 6-architect team. ArchLucid includes infrastructure; compe
 
 | | ArchLucid (full list, 3-year) | LeanIX (high end, 3-year) |
 |--|-------------------------------|--------------------------|
-| 3-year cost | ~$123,270 | ~$64,800 |
+| 3-year cost | ~$133,050 | ~$64,800 |
 | 3-year savings (from §5 model) | ~$882,000 ($294K × 3) | Savings not quantified (no AI analysis, no shift-left compliance) |
-| **3-year net value** | **~$758,730** | **Not comparable** |
+| **3-year net value** | **~$748,950** | **Not comparable** |
 
 **Buy vs augment decision:** ArchLucid is **not** a replacement for LeanIX or Ardoq for CMDB, application portfolio inventory, or roadmap management. See [COMPETITIVE_LANDSCAPE.md §4.1](COMPETITIVE_LANDSCAPE.md). The correct question is: "What is the cost of continuing manual architecture review vs shifting to AI-governed review?" — not "Is ArchLucid cheaper than LeanIX?"
 
@@ -312,12 +311,12 @@ Even if the savings model is optimistic by 50% (conservative scenario):
 ```
 Conservative annual savings = $294,000 × 0.50 = $147,000
 3-year conservative savings = $441,000
-3-year ArchLucid cost       = $123,270
-3-year net value            = $317,730
-Payback period              = $47,090 / ($147,000/12) ≈ 3.8 months
+3-year ArchLucid cost       = $133,050
+3-year net value            = $307,950
+Payback period              = $50,350 / ($147,000/12) ≈ 4.1 months
 ```
 
-ArchLucid pays for itself in under 4 months even in the conservative scenario.
+ArchLucid pays for itself in under 5 months even in the conservative scenario.
 
 ---
 

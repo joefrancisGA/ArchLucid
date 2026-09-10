@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
@@ -9,6 +11,7 @@ import {
   type EvidenceOrientationSourcesStyle,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { useWhereToGoNextVisible } from "@/components/WhereToGoNextPreferenceProvider";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { resolveClaimDisciplineForStrip } from "@/lib/claim-discipline-policy";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { HUB_SECONDARY_SOURCES_LAYOUT, WHERE_TO_GO_NEXT_SOURCES_LAYOUT, isRelatedGuidesFollowUpsTitle } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
@@ -83,6 +86,11 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   promotedSourceHref,
   hubSecondary = false,
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element | null {
+  const { localize } = useLocalizedProductCopy();
+  const localizedSources = useMemo(
+    () => sources.map((link) => ({ ...link, label: localize(link.label) })),
+    [localize, sources],
+  );
   const whereToGoNextVisible = useWhereToGoNextVisible();
   const resolvedClaim: string | undefined = resolveClaimDisciplineForStrip(slug, claim);
   const resolvedSourcesLayout: EvidenceOrientationSourcesLayout =
@@ -121,7 +129,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         headingId={sourcesHeadingId ?? `${slug}-sources-heading`}
         title={sourcesTitle}
         intro={sourcesIntro}
-        links={sources}
+        links={localizedSources}
         style={sourcesStyle}
         layout={resolvedSourcesLayout}
         listClassName={readingBodyClassName}

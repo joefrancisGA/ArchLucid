@@ -132,7 +132,7 @@ describe("resolveOperatorHomeLifecycleEmphasizedPath", () => {
 });
 
 describe("resolveOperatorHomeRequiresAttention", () => {
-  it("flags open findings and governance warnings", () => {
+  it("flags open findings and approval warnings", () => {
     expect(resolveOperatorHomeRequiresAttention(baseSignals)).toBe(false);
     expect(
       resolveOperatorHomeRequiresAttention({

@@ -201,5 +201,6 @@ public sealed partial class AuthorityRunReadHandlers(
             PackageOrigin = x.PackageOrigin,
             StructuralExecutionMode = x.StructuralExecutionMode,
             AuthorityLifecyclePhase = x.AuthorityLifecyclePhase,
+            LegacyRunStatus = x.LegacyRunStatus,
         };
 }

@@ -3,11 +3,19 @@
  * Dedicated print route keeps shell chrome out of the PDF without export-format roulette.
  */
 
+import {
+  resolveWorkingReviewPackageBackHref,
+  type ResolveWorkingBackLocatorInput,
+} from "@/lib/architecture/working-back-href";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { ReviewMeetingCaptureEntry } from "@/lib/reviews/review-meeting-capture-export";
 import type { RunSummary } from "@/types/authority";
+import { buildSemanticSupportBandExportStamp } from "@/lib/findings/finding-semantic-support-band-export";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 /** Document title / H1 for the print stylesheet view. */
 export const PACKAGE_PRINT_PAGE_TITLE = "Architecture review";
@@ -31,6 +39,7 @@ export const PACKAGE_PRINT_BACK_LABEL = "Back to review";
 
 export const PACKAGE_PRINT_STATUS_HEADING = "Status";
 export const PACKAGE_PRINT_FINDINGS_HEADING = "Key findings summary";
+export const PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING = "Semantic support";
 export const PACKAGE_PRINT_SYNOPSIS_HEADING = "Sponsor synopsis";
 export const PACKAGE_PRINT_META_CREATED_LABEL = "Created";
 export const PACKAGE_PRINT_LOADING_LABEL = "Loading review for print…";
@@ -54,15 +63,18 @@ export function buildPackagePrintPath(runId: string): string {
   return `/architecture/reviews/${encodeURIComponent(trimmed)}/print`;
 }
 
-/** Builds the review workspace href with the package tab focused. */
-export function buildPackagePrintBackHref(runId: string): string {
+/** Builds the review workspace href with the package tab focused (AO-44 nested when architecture is known). */
+export function buildPackagePrintBackHref(
+  runId: string,
+  options?: Omit<ResolveWorkingBackLocatorInput, "reviewId" | "reviewTab">,
+): string {
   const trimmed = runId.trim();
 
   if (trimmed.length === 0) {
     return "/architecture/reviews";
   }
 
-  return `/architecture/reviews/${encodeURIComponent(trimmed)}?tab=review-package`;
+  return resolveWorkingReviewPackageBackHref({ reviewId: trimmed, ...options });
 }
 
 /** Invokes the browser print dialog (screen stylesheet already hides shell chrome). */
@@ -85,8 +97,11 @@ export type PackagePrintPresentation = {
   readonly createdUtc: string;
   readonly runId: string;
   readonly coverageHonestyLine?: string | null;
+  readonly semanticSupportBandStampLine?: string | null;
   readonly manifestVersionForGuard?: string | null;
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
+  readonly transparencyTrail?: TransparencyTrail | null;
+  readonly showQuietEnginesHint?: boolean;
 };
 
 function finiteCount(value: number | null | undefined): number | null {
@@ -201,13 +216,24 @@ export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | 
   return `Sponsor synopsis for "${title}": finalized architecture review with ${findingsPhrase}.${warningsPhrase}`;
 }
 
+/** Stamp line aligned with review-package semantic support counts (AS-071). */
+export function resolvePackagePrintSemanticSupportBandStampLine(
+  findings: readonly QuickDecisionFinding[],
+  structuralExecutionMode?: StructuralExecutionModeInput,
+): string | null {
+  return buildSemanticSupportBandExportStamp(findings, structuralExecutionMode).stampLine;
+}
+
 /** Maps a run summary into the print view presentation model. */
 export function buildPackagePrintPresentation(
   summary: RunSummary,
   options?: {
     readonly findingsListedCount?: number | null;
     readonly coverageHonestyLine?: string | null;
+    readonly semanticSupportBandStampLine?: string | null;
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
+    readonly transparencyTrail?: TransparencyTrail | null;
+    readonly showQuietEnginesHint?: boolean;
   },
 ): PackagePrintPresentation {
   const statusLabel = resolvePackagePrintStatusLabel(summary);
@@ -235,7 +261,10 @@ export function buildPackagePrintPresentation(
     createdUtc: summary.createdUtc,
     runId: summary.runId,
     coverageHonestyLine: options?.coverageHonestyLine ?? null,
+    semanticSupportBandStampLine: options?.semanticSupportBandStampLine ?? null,
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
+    transparencyTrail: options?.transparencyTrail ?? null,
+    showQuietEnginesHint: options?.showQuietEnginesHint ?? false,
     manifestVersionForGuard:
       summary.currentManifestVersion?.trim()
       ?? summary.goldenManifestId?.trim()

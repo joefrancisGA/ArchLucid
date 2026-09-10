@@ -1,5 +1,9 @@
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING,
   TROUBLESHOOTING_HELP_CLAIM_HEADING_ID,
@@ -196,9 +200,9 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     whatYouSee: "Export is disabled or the download fails.",
     likelyCause: "Review not finalized, missing finalized review record, or your role cannot export.",
     tryFirst: "Confirm the review is finalized and you have export permission.",
-    ifStillBlocked: "Review governance approval requirements and retry after refresh.",
+    ifStillBlocked: "Review approval requirements and retry after refresh.",
     nextSteps: [
-      { label: "Open governance approval", href: inAppHelpHref("governance-approval") },
+      { label: "Open approval", href: inAppHelpHref("governance-approval") },
       { label: "Open reviews", href: "/architecture/reviews" },
       { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
     ],
@@ -212,7 +216,7 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
     tryFirst: "Review blocking findings, remediate or accept risk per policy, then retry finalize.",
     ifStillBlocked: "Ask a workspace admin to adjust policy thresholds if the block is not appropriate.",
     nextSteps: [
-      { label: "Open governance approval", href: inAppHelpHref("governance-approval") },
+      { label: "Open approval", href: inAppHelpHref("governance-approval") },
       { label: "Open policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
       ...supportEscalationLinks(),
     ],
@@ -372,6 +376,99 @@ export const TROUBLESHOOTING_ADVANCED_DIAGNOSTICS_ITEMS: readonly Troubleshootin
   },
 ] as const;
 
+
+export const SECURENOW_TROUBLESHOOTING_HELP_SUBTITLE =
+  "Fix sign-in, Azure connector, inventory load, extract-upload, and findings export problems in SecureNow.";
+
+const SECURENOW_TROUBLESHOOTING_EXCLUDED_ISSUE_IDS = new Set([
+  "sample-review-missing",
+  "review-package-does-not-open",
+  "governance-pre-commit-blocked",
+  "ask-compare-unavailable",
+]);
+
+export const SECURENOW_TROUBLESHOOTING_START_HERE_ITEMS = [
+  "Refresh the page",
+  "Confirm you are in the correct workspace",
+  "Check Azure connector or inventory ZIP status",
+  "Open System health if loading or readiness looks wrong",
+  "Download a support bundle before contacting support",
+] as const;
+
+export function troubleshootingHelpSubtitle(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_TROUBLESHOOTING_HELP_SUBTITLE : TROUBLESHOOTING_HELP_SUBTITLE;
+}
+
+export function troubleshootingHelpOverview(productLineId: ProductLineId = "architecture"): string {
+  return troubleshootingHelpSubtitle(productLineId);
+}
+
+export function troubleshootingStartHereItems(productLineId: ProductLineId = "architecture"): readonly string[] {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_TROUBLESHOOTING_START_HERE_ITEMS : TROUBLESHOOTING_START_HERE_ITEMS;
+}
+
+export function troubleshootingCommonIssues(productLineId: ProductLineId = "architecture"): readonly TroubleshootingIssue[] {
+  if (!isSecureNowProductLine(productLineId)) {
+    return TROUBLESHOOTING_COMMON_ISSUES;
+  }
+
+  return TROUBLESHOOTING_COMMON_ISSUES
+    .filter((issue) => !SECURENOW_TROUBLESHOOTING_EXCLUDED_ISSUE_IDS.has(issue.id))
+    .map((issue) => {
+      if (issue.id === "overview-workspace-empty") {
+        return {
+          ...issue,
+          nextSteps: [
+            { label: "Open System health", href: ADMINISTRATION_SYSTEM_HEALTH_PATH },
+            { label: "Open findings queue", href: GOVERNANCE_FINDINGS_PATH },
+            ...supportEscalationLinks(),
+          ],
+        };
+      }
+
+      if (issue.id === "findings-count-wrong") {
+        return {
+          ...issue,
+          tryFirst: "Open the findings queue and confirm pack scans completed against connected inventory.",
+          ifStillBlocked: "Compare findings with resource explorer and audit lineage exports.",
+          nextSteps: [
+            { label: "Open findings queue", href: GOVERNANCE_FINDINGS_PATH },
+            { label: "Open extract and upload", href: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH },
+            { label: "Open policy packs", href: "/governance/policy-packs" },
+          ],
+        };
+      }
+
+      if (issue.id === "export-download-unavailable") {
+        return {
+          ...issue,
+          whatYouSee: "Export is disabled or the download fails.",
+          likelyCause: "Missing export permission or the underlying evidence snapshot is not ready.",
+          tryFirst: "Confirm your role can export audit or lineage artifacts, then refresh the page.",
+          ifStillBlocked: "Open audit evidence lineage or contact support with a support bundle.",
+          nextSteps: [
+            { label: "Open audit evidence lineage", href: "/governance/audit-evidence-lineage" },
+            { label: "Open users and roles", href: inAppHelpHref("users-and-roles") },
+          ],
+        };
+      }
+
+      if (issue.id === "evidence-upload-failed") {
+        return {
+          ...issue,
+          whatYouSee: "Inventory ZIP upload fails from Extract and upload.",
+          tryFirst: "Read the inline error, confirm file type and size, then retry the upload.",
+          nextSteps: [
+            { label: "Open extract and upload", href: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH },
+            { label: "Azure connections help", href: inAppHelpHref("cloud-connections") },
+            ...supportEscalationLinks(),
+          ],
+        };
+      }
+
+      return issue;
+    });
+}
 
 export const TROUBLESHOOTING_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "start-here", title: "Start here" },

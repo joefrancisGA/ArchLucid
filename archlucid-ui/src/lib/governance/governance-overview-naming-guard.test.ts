@@ -31,7 +31,7 @@ describe("governance overview findings naming guard (GOP P0-3)", () => {
     expect(panelSource).toContain("GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_LABEL");
     expect(panelSource).toContain("GOVERNANCE_FINDINGS_PATH");
     expect(panelSource).not.toMatch(/risk register/i);
-    expect(panelSource).not.toMatch(/Blocking governance alerts/i);
+    expect(panelSource).not.toMatch(/Blocking approval alerts/i);
     expect(copySource).not.toMatch(/GOVERNANCE_OVERVIEW_RISK_REGISTER_ACTION/);
     expect(copySource).not.toMatch(/GOVERNANCE_OVERVIEW_BLOCKING_ALERTS_LABEL/);
   });

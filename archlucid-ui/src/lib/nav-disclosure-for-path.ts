@@ -1,4 +1,5 @@
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { isExtractUploadSettingsRoutePath } from "@/lib/extract-upload-settings-route";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 
@@ -15,6 +16,10 @@ const CORE_PILOT_ESSENTIAL_ONLY_PATHS = new Set<string>([
 
 function isCorePilotEssentialOnlyPathname(pathname: string): boolean {
   if (CORE_PILOT_ESSENTIAL_ONLY_PATHS.has(pathname)) {
+    return true;
+  }
+
+  if (isExtractUploadSettingsRoutePath(pathname)) {
     return true;
   }
 

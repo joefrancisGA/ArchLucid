@@ -1,7 +1,7 @@
 export const ARCHITECTURE_SPONSOR_READINESS_TITLE = "Sponsor readiness";
 
 export const ARCHITECTURE_SPONSOR_READINESS_HELPER =
-  "Separate from architecture completeness, governance approval, and assessment completion.";
+  "Separate from architecture completeness, approval, and assessment completion.";
 
 export const ARCHITECTURE_SPONSOR_READINESS_STATUS_LABELS = {
   ready: "Ready",
@@ -37,7 +37,7 @@ export const ARCHITECTURE_SPONSOR_DISTINCTION_READINESS =
   "Sponsor readiness — whether the draft is fit to circulate externally without misleading gaps.";
 
 export const ARCHITECTURE_SPONSOR_DISTINCTION_GOVERNANCE =
-  "Governance approval — formal sign-off on findings and commitment decisions (not required for a preliminary draft).";
+  "Approval — formal sign-off on findings and commitment decisions (not required for a preliminary draft).";
 
 export const ARCHITECTURE_SPONSOR_DISTINCTION_ASSESSMENT =
   "Assessment completion — automated findings and evidence review may still be running.";

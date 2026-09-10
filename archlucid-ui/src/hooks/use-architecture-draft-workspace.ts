@@ -48,6 +48,7 @@ export function useArchitectureDraftWorkspace(options: UseArchitectureDraftWorks
     businessOutcome: "",
     systemName: "",
     structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    openQuestions: "",
   });
   const [actorSet, setActorSet] = useState<ActorSet>(() => architectureCreationDefaultActorSet());
   const [resolvedDraftId, setResolvedDraftId] = useState<string | null>(null);

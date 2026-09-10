@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
@@ -31,6 +31,24 @@ describe("TransparencyTrailPanel", () => {
     render(<TransparencyTrailPanel trail={null} missingTrailDefect />);
 
     expect(screen.getByTestId("transparency-trail-missing-defect")).toBeInTheDocument();
+  });
+
+  it("shows an empty skipped MUST section when none are recorded", () => {
+    render(
+      <TransparencyTrailPanel
+        trail={{
+          asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+          inferred: [],
+          skipped: [],
+        }}
+      />,
+    );
+
+    const skippedMust = screen.getByTestId("transparency-trail-skipped-must");
+
+    expect(skippedMust).toBeInTheDocument();
+    expect(screen.getByText(/skipped must questions \(0\)/i)).toBeInTheDocument();
+    expect(within(skippedMust).getByText(/none recorded\./i)).toBeInTheDocument();
   });
 
   it("collapses behind a disclosure when defaultExpanded is false", () => {

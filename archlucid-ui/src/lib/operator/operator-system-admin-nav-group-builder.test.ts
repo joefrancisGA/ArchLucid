@@ -78,4 +78,15 @@ describe("OperatorSystemAdminNavGroupBuilder", () => {
     expect(reviewFeedback?.requiredAuthority).toBe("ReadAuthority");
     expect(reviewFeedback?.tier).toBe("advanced");
   });
+
+  it("includes product line under Internal Operations", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_INTERNAL_OPERATOR", "true");
+
+    const group = new OperatorSystemAdminNavGroupBuilder().build();
+    const productLine = group.links.find((link) => link.href === "/internal/product-line");
+
+    expect(productLine?.label).toBe("Product line");
+    expect(productLine?.requiredAuthority).toBe("PlatformInternalOperationsAuthority");
+    expect(productLine?.tier).toBe("advanced");
+  });
 });

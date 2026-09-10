@@ -61,13 +61,15 @@ import {
   ALERTS_INBOX_FOLLOW_UPS_TITLE,
 } from "@/lib/alerts-inbox-evidence-copy";
 import {
+  ALERTS_INBOX_BUYER_START_HERE_HELPER,
+  ALERTS_INBOX_PAGE_LEAD,
   ALERTS_INBOX_PRIMARY_CONTENT_ID,
   ALERTS_INBOX_SKIP_LINK_LABEL,
 } from "@/lib/alerts-inbox-page-copy";
 import { AlertsHubChrome } from "./AlertsHubChrome";
 import { AlertsHubClient } from "./AlertsHubClient";
 
-describe("AlertsHubClient buyer-polished chrome", () => {
+describe("AlertsHubClient buyer-polished chrome (AL)", () => {
   it("renders skip link, breadcrumb, and orientation after the inbox body", () => {
     render(<AlertsHubClient />);
 
@@ -78,7 +80,7 @@ describe("AlertsHubClient buyer-polished chrome", () => {
     expect(screen.getByTestId("alerts-inbox-claim-discipline")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: ALERTS_INBOX_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    const orientation = screen.getByTestId("alerts-inbox-orientation-top");
+    const orientation = screen.getByTestId("alerts-inbox-orientation-bottom");
     const inbox = screen.getByTestId("stub-inbox");
     const primary = screen.getByTestId("alerts-inbox-primary-content");
 
@@ -88,7 +90,7 @@ describe("AlertsHubClient buyer-polished chrome", () => {
     const orderedTestIds = Array.from(primary.querySelectorAll("[data-testid]")).map((element) =>
       element.getAttribute("data-testid"),
     );
-    const orientationIndex = orderedTestIds.indexOf("alerts-inbox-orientation-top");
+    const orientationIndex = orderedTestIds.indexOf("alerts-inbox-orientation-bottom");
     const inboxIndex = orderedTestIds.indexOf("stub-inbox");
 
     expect(inboxIndex).toBeGreaterThan(-1);

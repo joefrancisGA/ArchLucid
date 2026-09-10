@@ -12,14 +12,19 @@ import { PACKAGES_NAV_HREF } from "@/lib/usability/usability-consolidation";
 import { governanceModeVocabulary } from "@/lib/vocabulary/governance-mode-vocabulary";
 
 const mockPathname = vi.hoisted(() => vi.fn(() => "/"));
+const mockSearchParams = vi.hoisted(() => new URLSearchParams());
+const mockRouter = vi.hoisted(() => ({
+  push: vi.fn(),
+  replace: vi.fn(),
+}));
 const buyerPolishedMock = vi.hoisted(() => ({ value: false }));
 const committedReviewMock = vi.hoisted(() => ({ value: false }));
 const governanceModeMock = vi.hoisted(() => ({ enabled: true }));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname(),
-  useSearchParams: () => new URLSearchParams(),
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: () => mockSearchParams,
+  useRouter: () => mockRouter,
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {

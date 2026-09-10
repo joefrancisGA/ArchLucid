@@ -179,17 +179,11 @@ describe("SignInClient — idle-timeout session-expired view", () => {
   });
 
   it("starts OIDC when Sign in button is clicked", async () => {
-    setSearchParams({ reason: "idle-timeout" });
+    setSearchParams({ reason: "idle-timeout", returnUrl: "/architecture/reviews" });
 
     render(<SignInClient />);
 
     fireEvent.click(screen.getByTestId("session-expired-sign-in"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("sign-in-method-picker")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId("sign-in-work-school"));
 
     await waitFor(() => {
       expect(window.location.assign).toHaveBeenCalledWith(

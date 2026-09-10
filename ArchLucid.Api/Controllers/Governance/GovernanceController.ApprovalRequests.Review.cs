@@ -109,6 +109,10 @@ public sealed partial class GovernanceController
         {
             return MapGovernanceSealedManifestConflict(ex);
         }
+        catch (ConflictException ex)
+        {
+return MapGovernanceSealedManifestConflict(ex);
+        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(
@@ -213,6 +217,10 @@ public sealed partial class GovernanceController
         catch (ConflictException ex)
         {
             return MapGovernanceSealedManifestConflict(ex);
+        }
+        catch (ConflictException ex)
+        {
+return MapGovernanceSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

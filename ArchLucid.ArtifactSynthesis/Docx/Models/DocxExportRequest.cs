@@ -105,6 +105,13 @@ public class DocxExportRequest
         set;
     }
 
+    /// <summary>Career export honesty preamble rendered near the document header (FC-58).</summary>
+    public string? CareerExportHonestyPlainText
+    {
+        get;
+        set;
+    }
+
     /// <summary>Builds the request used by <c>GET api/docx/runs/.../architecture-package</c>.</summary>
     /// <param name="runId">Exported run.</param>
     /// <param name="manifestId">Manifest tied to the run.</param>
@@ -114,6 +121,7 @@ public class DocxExportRequest
     /// <param name="comparisonExplanation">Optional LLM narrative for the comparison.</param>
     /// <param name="runExplanation">Optional LLM narrative for the primary run.</param>
     /// <param name="findingsSnapshot">Persisted findings when available.</param>
+    /// <param name="careerExportHonestyPlainText">Optional ADR 0078 honesty preamble (FC-58).</param>
     public static DocxExportRequest ForArchitecturePackage(
         Guid runId,
         Guid manifestId,
@@ -122,7 +130,8 @@ public class DocxExportRequest
         ComparisonResult? manifestComparison,
         ComparisonExplanationResult? comparisonExplanation,
         ExplanationResult? runExplanation,
-        FindingsSnapshot? findingsSnapshot)
+        FindingsSnapshot? findingsSnapshot,
+        string? careerExportHonestyPlainText = null)
     {
         return new DocxExportRequest
         {
@@ -133,7 +142,8 @@ public class DocxExportRequest
             ManifestComparison = manifestComparison,
             ComparisonExplanation = comparisonExplanation,
             RunExplanation = runExplanation,
-            FindingsSnapshot = findingsSnapshot
+            FindingsSnapshot = findingsSnapshot,
+            CareerExportHonestyPlainText = careerExportHonestyPlainText
         };
     }
 }

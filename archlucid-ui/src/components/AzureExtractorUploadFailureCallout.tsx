@@ -8,6 +8,7 @@ import { Copy } from "lucide-react";
 
 import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -22,10 +23,12 @@ type AzureExtractorUploadFailureCalloutProps = {
 
 /** Actionable extractor upload failure with validation guidance and support copy payload. */
 export function AzureExtractorUploadFailureCallout(props: AzureExtractorUploadFailureCalloutProps) {
+  const { productLine } = useLocalizedProductCopy();
   const presentation = parseAzureExtractorUploadFailure(
     props.problem,
     props.fallbackMessage,
     props.correlationId,
+    productLine,
   );
   const copyText = JSON.stringify(presentation.copyPayload, null, 2);
   const [copied, setCopied] = useState(false);

@@ -56,6 +56,7 @@ export type ReviewsHubInventoryTableProps = {
   readonly runs: readonly RunSummary[];
   readonly siblingRuns: readonly RunSummary[];
   readonly ownerContext: ReviewPackageOwnerResolutionContext;
+  readonly isWorkingMode?: boolean;
   readonly ariaLabel: string;
   readonly tableTestId: string;
   readonly virtualizedTestId?: string;
@@ -132,6 +133,7 @@ export function ReviewsHubInventoryTable(props: ReviewsHubInventoryTableProps): 
                   run={run}
                   ownerContext={props.ownerContext}
                   siblingRuns={props.siblingRuns}
+                  isWorkingMode={props.isWorkingMode === true}
                   style={rowStyle}
                 />
               );
@@ -153,6 +155,7 @@ export function ReviewsHubInventoryTable(props: ReviewsHubInventoryTableProps): 
               run={run}
               ownerContext={props.ownerContext}
               siblingRuns={props.siblingRuns}
+              isWorkingMode={props.isWorkingMode === true}
             />
           ))}
         </EnterpriseTableBody>

@@ -33,6 +33,12 @@ describe("OperatorHomeCompactStartingActionsSection (LD-06)", () => {
     expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
   });
 
+  it("hides accelerator starter packs in Working mode (AO-45)", () => {
+    render(<OperatorHomeCompactStartingActionsSection workingMode />);
+
+    expect(screen.queryByTestId("accelerator-chooser-card")).toBeNull();
+  });
+
   it("keeps dual-path cards for Guided mode when no manifest is committed", () => {
     render(<OperatorHomeCompactStartingActionsSection workingMode={false} />);
 

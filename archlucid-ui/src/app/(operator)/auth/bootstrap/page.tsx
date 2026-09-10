@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { PostAuthBootstrapBuyerChrome } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapBuyerChrome";
 import { PostAuthBootstrapClient } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapClient";
 import { PostAuthBootstrapLoadingView } from "@/app/(operator)/auth/bootstrap/PostAuthBootstrapLoadingView";
-import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import {
   AUTH_BOOTSTRAP_PAGE_DESCRIPTION,
   AUTH_BOOTSTRAP_PAGE_TITLE,
@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 
 function PostAuthBootstrapLoading() {
   return (
-    <AuthFlowShell showEvaluationSignupLink={false}>
+    <PostAuthBootstrapBuyerChrome>
       <PostAuthBootstrapLoadingView />
-    </AuthFlowShell>
+    </PostAuthBootstrapBuyerChrome>
   );
 }
 

@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Core.Findings;
+
 namespace ArchLucid.ArtifactSynthesis.Classifiers;
 
 /// <summary>Deterministic cost recommendations from extractor cost JSON (TB-2213 Azure; TB-2215 AWS/GCP).</summary>
@@ -128,12 +130,49 @@ public static class ExtractorAdvisorCostClassifier
                                     ?? TryReadRecommendationOptionsAnnualSavingsUsd(properties)
                                     ?? TryReadRecommendationOptionsAnnualSavingsUsd(row);
 
+        string? inventoryResourceId = TryReadInventoryResourceId(row, properties);
+
         return new AdvisorCostRecommendationFinding(
             recommendationId.Trim(),
             title.Trim(),
             string.IsNullOrWhiteSpace(category) ? "Cost" : category.Trim(),
             entryIndex,
-            annualSavingsUsd);
+            annualSavingsUsd,
+            inventoryResourceId);
+    }
+
+    private static string? TryReadInventoryResourceId(JsonElement row, JsonElement properties)
+    {
+        foreach (string? candidate in EnumerateInventoryResourceIdCandidates(row, properties))
+        {
+            List<string> probe = [];
+            FindingEvidenceRefs.TryAppendInventoryResourceId(probe, candidate);
+
+            if (probe.Count > 0)
+            {
+                return probe[0];
+            }
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<string?> EnumerateInventoryResourceIdCandidates(JsonElement row, JsonElement properties)
+    {
+        if (TryGetObjectProperty(row, "resourceMetadata", out JsonElement rowMetadata)
+            || TryGetObjectProperty(properties, "resourceMetadata", out rowMetadata))
+        {
+            yield return ReadString(rowMetadata, "resourceId");
+        }
+
+        yield return ReadString(properties, "resourceId");
+        yield return ReadString(row, "resourceId");
+        yield return ReadString(properties, "arn");
+        yield return ReadString(row, "arn");
+        yield return ReadString(properties, "id");
+        yield return ReadString(row, "id");
+        yield return ReadString(properties, "name");
+        yield return ReadString(row, "name");
     }
 
     private static string ReadRecommendationTitle(JsonElement properties)
@@ -354,4 +393,5 @@ public sealed record AdvisorCostRecommendationFinding(
     string Title,
     string Category,
     int EntryIndex,
-    decimal? EstimatedAnnualSavingsUsd);
+    decimal? EstimatedAnnualSavingsUsd,
+    string? InventoryResourceId = null);

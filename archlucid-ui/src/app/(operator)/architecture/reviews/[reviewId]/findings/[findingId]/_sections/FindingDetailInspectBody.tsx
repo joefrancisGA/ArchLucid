@@ -11,7 +11,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
 import { FindingPolicyCitationHero } from "@/components/findings/FindingPolicyCitationHero";
 import { phiMinimizationBuyerConsequenceNarrative } from "@/lib/findings/finding-display-from-inspect";
-import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   resolveFindingDetailWorkflowEmphasizedStepId,
   resolveFindingDetailWorkflowSteps,
@@ -26,7 +26,11 @@ import { FindingDetailBreadcrumb } from "./FindingDetailBreadcrumb";
 import { FindingDetailBuyerChrome } from "./FindingDetailBuyerChrome";
 import { FindingDetailDecisionSummary } from "./FindingDetailDecisionSummary";
 import { FindingDetailOperationalActions } from "./FindingDetailOperationalActions";
-import { FINDING_DETAIL_PRIMARY_CONTENT_ID, findingDetailPageSubtitle } from "./finding-detail-page-copy";
+import {
+  FINDING_DETAIL_FIRST_VIEWPORT_ID,
+  FINDING_DETAIL_PRIMARY_CONTENT_ID,
+  findingDetailPageSubtitle,
+} from "./finding-detail-page-copy";
 import { validationRequirement } from "./finding-detail-route-display";
 import type { FindingDetailPresentation } from "./finding-detail-presentation";
 
@@ -57,6 +61,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
     reviewPackageHref,
     reviewFindingsHref,
     severityHeadline,
+    transparencyTrail,
   } = presentation;
   const {
     runId,
@@ -100,47 +105,32 @@ export function FindingDetailInspectBody({ presentation }: Props) {
       {showBuyerPolishedBody ? (
         <div
           id={FINDING_DETAIL_PRIMARY_CONTENT_ID}
-          data-testid="finding-detail-primary-content"
-          className="space-y-4"
+          data-testid={FINDING_DETAIL_PRIMARY_CONTENT_ID}
+          className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
         >
-          <IntegrationConnectChecklist
-            title="Finding workflow checklist"
-            steps={findingDetailWorkflowSteps}
-            emphasizedStepId={findingDetailWorkflowEmphasizedStepId}
-            testIdPrefix="finding-detail-workflow"
-          />
-          <section className={cn("overflow-hidden rounded-lg border p-5", DESIGN_TOKENS.surface.card)}>
-            <div className="max-w-3xl space-y-3">
-              <OperatorPageHeader
-                navHref={findingsQueueNavHref}
-                title={pageTitle}
-                headingLevel="h1"
-                breadcrumb={
-                  <FindingDetailBreadcrumb
-                    reviewFindingsHref={reviewFindingsHref}
-                    findingTitle={pageTitle}
-                  />
-                }
-                subtitle={findingDetailPageSubtitle(buyerPolishedShell, buyerHeroSubtitle)}
-                claimDiscipline={FINDING_DETAIL_CLAIM_DISCIPLINE}
-                claimDisciplineTestId="finding-detail-claim-discipline"
-                subtitleClassName="max-w-2xl leading-relaxed"
-              >
-                {severityRationale.length > 0 ? (
-                  <p className={cn("m-0 max-w-2xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {severityRationale}
-                  </p>
-                ) : null}
-                {policyProvenanceModel !== null &&
-                (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
-                  <FindingPolicyCitationHero
-                    model={policyProvenanceModel}
-                    traceExcerpt={policyTraceExcerpt}
-                  />
-                ) : null}
-              </OperatorPageHeader>
-              <FindingDetailBuyerChrome runId={runId} findingId={decodedFindingId} />
-            </div>
+          <div data-testid="finding-detail-workspace-header">
+            <OperatorPageHeader
+              navHref={findingsQueueNavHref}
+              title={pageTitle}
+              headingLevel="h1"
+              breadcrumb={
+                <FindingDetailBreadcrumb reviewFindingsHref={reviewFindingsHref} findingTitle={pageTitle} />
+              }
+              subtitle={findingDetailPageSubtitle(buyerPolishedShell, buyerHeroSubtitle)}
+              claimDiscipline={FINDING_DETAIL_CLAIM_DISCIPLINE}
+              claimDisciplineTestId="finding-detail-claim-discipline"
+              subtitleClassName="max-w-2xl leading-relaxed"
+            >
+              {severityRationale.length > 0 ? (
+                <p className={cn("m-0 max-w-2xl leading-snug text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {severityRationale}
+                </p>
+              ) : null}
+              {policyProvenanceModel !== null &&
+              (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+                <FindingPolicyCitationHero model={policyProvenanceModel} traceExcerpt={policyTraceExcerpt} />
+              ) : null}
+            </OperatorPageHeader>
 
             {findingIsPhi ? (
               <div className="mt-4 border-t border-neutral-200 pt-4 dark:border-neutral-800">
@@ -150,30 +140,49 @@ export function FindingDetailInspectBody({ presentation }: Props) {
                 </p>
               </div>
             ) : null}
-          </section>
+          </div>
 
-          {decisionSummary !== null ? (
-            <FindingDetailDecisionSummary
-              summary={decisionSummary}
-              runId={runId}
-              findingId={decodedFindingId}
-              severityConstraintNote={severityConstraintNote}
-            />
-          ) : null}
+          <div
+            id={FINDING_DETAIL_FIRST_VIEWPORT_ID}
+            data-testid={FINDING_DETAIL_FIRST_VIEWPORT_ID}
+            className={cn(
+              "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+              OPERATOR_LAYOUT.sectionStack,
+            )}
+          >
+            <FindingDetailBuyerChrome runId={runId} findingId={decodedFindingId} />
+
+            {decisionSummary !== null ? (
+              <FindingDetailDecisionSummary
+                summary={decisionSummary}
+                runId={runId}
+                findingId={decodedFindingId}
+                severityConstraintNote={severityConstraintNote}
+              />
+            ) : null}
+
+            {inspectPayload !== null ? (
+              <FindingDetailOperationalActions
+                runId={runId}
+                findingId={decodedFindingId}
+                payload={inspectPayload}
+                transparencyTrail={transparencyTrail}
+                graphEvidenceHref={graphEvidenceHref}
+                linkedManifestHref={linkedManifestHref}
+                inspectHref={inspectHref}
+              />
+            ) : null}
+          </div>
+
+          <IntegrationConnectChecklist
+            title="Finding workflow checklist"
+            steps={findingDetailWorkflowSteps}
+            emphasizedStepId={findingDetailWorkflowEmphasizedStepId}
+            testIdPrefix="finding-detail-workflow"
+          />
 
           {findingJobView !== null ? (
             <FindingJobViewLaneCallout jobView={findingJobView} runId={runId} />
-          ) : null}
-
-          {inspectPayload !== null ? (
-            <FindingDetailOperationalActions
-              runId={runId}
-              findingId={decodedFindingId}
-              payload={inspectPayload}
-              graphEvidenceHref={graphEvidenceHref}
-              linkedManifestHref={linkedManifestHref}
-              inspectHref={inspectHref}
-            />
           ) : null}
 
           {inspectPayload !== null ? (
@@ -194,10 +203,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
             />
           ) : null}
 
-          <SponsorPlainEnglishFindingPanel
-            input={sponsorPlainEnglishInput}
-            collapsedByDefault={false}
-          />
+          <SponsorPlainEnglishFindingPanel input={sponsorPlainEnglishInput} collapsedByDefault={false} />
 
           {inspectPayload !== null ? (
             <FindingDetailInspectDisclosures
@@ -205,6 +211,7 @@ export function FindingDetailInspectBody({ presentation }: Props) {
               findingIdRouteParam={findingIdRouteParam}
               decodedFindingId={decodedFindingId}
               inspectPayload={inspectPayload}
+              transparencyTrail={transparencyTrail}
               demoFillGaps={demoFillGaps}
               evidenceBasisSummary={evidenceBasisSummary}
               validationRequirementText={validationRequirement(inspectPayload, decodedFindingId)}

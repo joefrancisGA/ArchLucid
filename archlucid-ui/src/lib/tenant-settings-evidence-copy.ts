@@ -1,4 +1,5 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const TENANT_SETTINGS_CANONICAL_PATH = "/administration/workspace-settings" as const;
@@ -16,6 +17,10 @@ export const TENANT_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const TENANT_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when tenant defaults turn into recycle-bin restore, digest schedules, or official assurance materials.";
+
+export const TENANT_SETTINGS_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "tenant defaults turn into recycle-bin restore, digest schedules, or official assurance materials",
+);
 
 /** Operator Sources - no self-href to tenant settings. */
 export const TENANT_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [

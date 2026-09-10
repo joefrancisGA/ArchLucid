@@ -90,4 +90,30 @@ describe("deployment-fingerprint", () => {
       }),
     ).toBe("UI build abcdef123456 · 2026-07-03T12:00:00Z · env staging · API api.example.com");
   });
+
+  it("collapses unknown fingerprint values into one honest unavailability line", () => {
+    expect(
+      formatDeploymentBuildFingerprintLine({
+        frontendCommitSha: "unknown",
+        buildTimestamp: "unknown",
+        deployStamp: "unknown",
+        ciBuildNumber: "unknown",
+        environment: "unknown",
+        apiUpstreamHost: "unknown",
+      }),
+    ).toBe("Build identity unavailable in this environment");
+  });
+
+  it("does not treat a local NODE_ENV as a resolvable build identity", () => {
+    expect(
+      formatDeploymentBuildFingerprintLine({
+        frontendCommitSha: "unknown",
+        buildTimestamp: "unknown",
+        deployStamp: "unknown",
+        ciBuildNumber: "unknown",
+        environment: "development",
+        apiUpstreamHost: "unknown",
+      }),
+    ).toBe("Build identity unavailable in this environment");
+  });
 });

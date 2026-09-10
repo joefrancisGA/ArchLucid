@@ -21,9 +21,13 @@ import { API_CONTRACTS_HELP_CLAIM_DISCIPLINE } from "@/lib/api-contracts-help-ev
 import {
   API_CONTRACTS_HELP_FIRST_VIEWPORT_TEST_ID,
   API_CONTRACTS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  API_CONTRACTS_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  API_CONTRACTS_HELP_PAGE_LEAD,
+  API_CONTRACTS_HELP_PAGE_SUBTITLE_BUYER,
   API_CONTRACTS_HELP_PRIMARY_CONTENT_ID,
   API_CONTRACTS_HELP_SKIP_LINK_LABEL,
   API_CONTRACTS_HELP_SKIP_TARGET_ID,
+  API_CONTRACTS_HELP_START_HERE_HELPER,
 } from "@/lib/api-contracts-help-page-copy";
 import {
   API_CONTRACTS_HELP_JOB_MATRIX,
@@ -57,6 +61,10 @@ type HelpApiContractsGuideViewProps = {
   readonly markdown: string;
 };
 
+function apiContractsHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? API_CONTRACTS_HELP_PAGE_SUBTITLE_BUYER : API_CONTRACTS_HELP_PAGE_SUBTITLE;
+}
+
 /** Admin API contracts technical reference for `/help/api-contracts` (HG). */
 export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps): React.ReactElement {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
@@ -89,7 +97,7 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
         <HelpTopicGuidePageHeader
           title={API_CONTRACTS_HELP_PAGE_TITLE}
           titleTestId="help-api-contracts-page-title"
-          subtitle={API_CONTRACTS_HELP_PAGE_SUBTITLE}
+          subtitle={apiContractsHelpPageSubtitle(buyerPolishedShell)}
           navHref={API_CONTRACTS_HELP_PATH}
           headingLevel="h1"
           claimDiscipline={API_CONTRACTS_HELP_CLAIM_DISCIPLINE}
@@ -116,6 +124,23 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
+          {buyerPolishedShell ? (
+            <div className="space-y-4" data-testid="help-api-contracts-buyer-intro">
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="help-api-contracts-intro"
+              >
+                {API_CONTRACTS_HELP_PAGE_LEAD}
+              </p>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-api-contracts-start-here-helper"
+              >
+                {API_CONTRACTS_HELP_START_HERE_HELPER}
+              </p>
+            </div>
+          ) : null}
+
           <section
             aria-labelledby="help-api-contracts-job-matrix-heading"
             className="space-y-4"
@@ -166,7 +191,7 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
                   href={governanceApprovalHref}
                   className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
                 >
-                  Governance approval
+                  Approval
                 </Link>{" "}
                 instead of this HTTP contract reference.
               </p>
@@ -320,7 +345,7 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
           </ul>
         </section>
 
-        <div data-testid="help-api-contracts-orientation-bottom">
+        <div data-testid={API_CONTRACTS_HELP_ORIENTATION_BOTTOM_TEST_ID}>
           <HelpApiContractsClaimOrientationStrip />
         </div>
       </div>

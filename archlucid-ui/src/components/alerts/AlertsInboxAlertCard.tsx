@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 import { alertsInboxSeverityBadgeClass } from "@/components/alerts/alerts-inbox-severity";
@@ -11,6 +15,11 @@ import {
   alertsTriageSuppressButtonLabelReaderInbox,
 } from "@/lib/enterprise-controls-context-copy";
 import { alertPrimaryFindingDetailHref } from "@/lib/alert-finding-navigation";
+import {
+  ALERTS_INBOX_TRIAGE_OVERFLOW_ALERT_ID_PARAM,
+  alertsInboxTriageOverflowDisclosureHrefFromSearch,
+  parseAlertsInboxTriageOverflowAlertIdFromSearch,
+} from "@/lib/alerts/alerts-inbox-triage-overflow-disclosure-url";
 import { getCanonicalReviewWorkspaceHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { ALERTS_INBOX_LABELS } from "@/lib/i18n";
 import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
@@ -33,6 +42,34 @@ export type AlertsInboxAlertCardProps = {
 };
 
 export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const alertsInboxTriageOverflowAlertIdParam = searchParams.get(ALERTS_INBOX_TRIAGE_OVERFLOW_ALERT_ID_PARAM);
+  const [openOverflowAlertId, setOpenOverflowAlertIdState] = useState(() =>
+    parseAlertsInboxTriageOverflowAlertIdFromSearch(alertsInboxTriageOverflowAlertIdParam),
+  );
+  const syncOpenOverflowAlertIdToUrl = useCallback(
+    (alertId: string | null) => {
+      router.replace(
+        alertsInboxTriageOverflowDisclosureHrefFromSearch(searchParams.toString(), alertId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenOverflowAlertId = useCallback(
+    (alertId: string | null) => {
+      setOpenOverflowAlertIdState(alertId ?? "");
+      syncOpenOverflowAlertIdToUrl(alertId);
+    },
+    [syncOpenOverflowAlertIdToUrl],
+  );
+  useEffect(() => {
+    setOpenOverflowAlertIdState(
+      parseAlertsInboxTriageOverflowAlertIdFromSearch(alertsInboxTriageOverflowAlertIdParam),
+    );
+  }, [alertsInboxTriageOverflowAlertIdParam]);
   const findingDetailHref = alertPrimaryFindingDetailHref(props.alert);
   const reviewPackageHref =
     props.alert.runId !== null && props.alert.runId !== undefined && props.alert.runId.trim().length > 0
@@ -45,6 +82,7 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
       ? formatRelativeTime(props.alert.lastUpdatedUtc)
       : formatRelativeTime(props.alert.createdUtc);
   const hideDemoTriageActions = props.buyerPolishedShell && props.alert.alertId === "demo-alert-phi-intake";
+  const triageOverflowOpen = openOverflowAlertId === props.alert.alertId;
 
   return (
     <article
@@ -197,7 +235,14 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
               </Button>
             ) : null}
             {props.buyerPolishedShell ? null : (
-              <details className="group relative">
+              <details
+                className="group relative"
+                open={triageOverflowOpen}
+                onToggle={(event) => {
+                  const nextOpen = event.currentTarget.open;
+                  setOpenOverflowAlertId(nextOpen ? props.alert.alertId : null);
+                }}
+              >
                 <summary
                   className={cn(
                     "cursor-pointer list-none rounded-md border border-neutral-300 bg-neutral-50 px-3 py-1.5 font-medium text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800 [&::-webkit-details-marker]:hidden",

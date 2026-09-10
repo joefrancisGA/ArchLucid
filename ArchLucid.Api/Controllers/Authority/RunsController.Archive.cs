@@ -46,6 +46,7 @@ public sealed partial class RunsController
             ArchitectureRunArchiveOutcome.SealedReviewBlocked => MapRunsSealedManifestConflict(
                 new ConflictException(
                     "Sealed reviews cannot be archived. Committed architecture packages and audit history remain until tenant offboarding.")),
+
             ArchitectureRunArchiveOutcome.OwnershipDeleteForbidden => this.ForbiddenProblemWithErrorCode(
                 "Archive not permitted",
                 "Only the review creator or a workspace administrator may archive this in-flight review.",

@@ -9,6 +9,8 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SLACK_PATH } from "@/lib/integrations-nav-paths";
 import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { SLACK_INTEGRATION_CLAIM_DISCIPLINE } from "@/lib/slack-integration-evidence-copy";
 import {
   SLACK_ACTION_REFRESHING,
   SLACK_INTEGRATION_PAGE_SUBTITLE,
@@ -18,6 +20,10 @@ import {
   slackIntegrationConfigurationStatusLabel,
   slackIntegrationConfigurationStatusTagKind,
 } from "@/lib/slack-integration-page-copy";
+import {
+  SLACK_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  slackIntegrationPageSubtitle,
+} from "@/lib/slack-integration-shell-page-copy";
 import { cn } from "@/lib/utils";
 
 export type SlackIntegrationPageHeaderProps = {
@@ -29,6 +35,7 @@ export type SlackIntegrationPageHeaderProps = {
 };
 
 export function SlackIntegrationPageHeader(props: SlackIntegrationPageHeaderProps): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const statusLabel = props.refreshing
     ? "Loading"
     : slackIntegrationConfigurationStatusLabel(props.activeDestinationCount);
@@ -40,7 +47,11 @@ export function SlackIntegrationPageHeader(props: SlackIntegrationPageHeaderProp
       titleTestId="slack-page-title"
       navHref={INTEGRATIONS_SLACK_PATH}
       headingLevel="h1"
-      subtitle={SLACK_INTEGRATION_PAGE_SUBTITLE}
+      subtitle={slackIntegrationPageSubtitle(buyerPolishedShell, SLACK_INTEGRATION_PAGE_SUBTITLE)}
+      claimDiscipline={buyerPolishedShell ? SLACK_INTEGRATION_CLAIM_DISCIPLINE : undefined}
+      claimDisciplineTestId={
+        buyerPolishedShell ? SLACK_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
+      }
       statusBadge={
         <StatusTag
           kind={statusKind}
@@ -50,20 +61,22 @@ export function SlackIntegrationPageHeader(props: SlackIntegrationPageHeaderProp
       }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="slack-header-actions">
-          <PageContextualHelpButton />
+          {buyerPolishedShell ? null : <PageContextualHelpButton />}
           <RefreshButton
             data-testid="slack-refresh-button"
             busy={props.refreshing}
             disabled={props.refreshDisabled}
             onClick={() => void props.onRefresh()}
           />
-          <Link
-            href={INTEGRATIONS_READINESS_PATH}
-            className={OPERATOR_LINK.optional}
-            data-testid="slack-readiness-link"
-          >
-            {SLACK_READINESS_LINK_LABEL}
-          </Link>
+          {buyerPolishedShell ? null : (
+            <Link
+              href={INTEGRATIONS_READINESS_PATH}
+              className={OPERATOR_LINK.optional}
+              data-testid="slack-readiness-link"
+            >
+              {SLACK_READINESS_LINK_LABEL}
+            </Link>
+          )}
         </div>
       }
       metadata={

@@ -32,18 +32,9 @@ function resolvePreferenceStepStatus(input: PreferenceSaveStepInput): Preference
 export function resolvePreferencesSaveSteps(input: {
   readonly appearance: PreferenceSaveStepInput;
   readonly timeZone: PreferenceSaveStepInput;
-  readonly cloudPlatforms: PreferenceSaveStepInput;
-  readonly sampleReviewsOnOverview: PreferenceSaveStepInput;
   readonly followUpLinkStrips: PreferenceSaveStepInput;
-  readonly workspaceMode: PreferenceSaveStepInput;
 }): readonly PreferencesSaveChecklistStep[] {
   return [
-    {
-      id: "workspace-mode",
-      label: "Workspace mode",
-      anchorId: "workspace-mode",
-      status: resolvePreferenceStepStatus(input.workspaceMode),
-    },
     {
       id: "appearance",
       label: "Choose appearance theme",
@@ -53,16 +44,6 @@ export function resolvePreferencesSaveSteps(input: {
       id: "time-zone",
       label: "Choose time zone",
       status: resolvePreferenceStepStatus(input.timeZone),
-    },
-    {
-      id: "cloud-platforms",
-      label: "Choose cloud platform scope",
-      status: resolvePreferenceStepStatus(input.cloudPlatforms),
-    },
-    {
-      id: "sample-reviews-on-overview",
-      label: "Choose sample reviews on Home",
-      status: resolvePreferenceStepStatus(input.sampleReviewsOnOverview),
     },
     {
       id: "follow-up-link-strips",

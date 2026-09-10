@@ -3,13 +3,19 @@ import {
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   governanceInfrastructureResourceHubPath,
 } from "@/lib/governance/governance-infrastructure-route-paths";
-import { resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
+import {
+  RESOURCE_HUB_ASSESSMENT_ID_PARAM,
+  RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
+  RESOURCE_HUB_CONTROL_ID_PARAM,
+  resourceHubFilterHrefFromSearch,
+} from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import type { ResourceHubTab } from "@/lib/infra-evidence/infra-evidence-hub-types";
 
 export const DRIFT_WORKBENCH_SNAPSHOT_ID_PARAM = "snapshotId";
 export const DRIFT_WORKBENCH_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
 export const DRIFT_WORKBENCH_CHANGE_ID_PARAM = "changeId";
 export const DRIFT_WORKBENCH_DIFF_ID_PARAM = "diffId";
+export const DRIFT_WORKBENCH_RUN_ID_PARAM = "runId";
 export const REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM = "cloudResourceId";
 export const REMEDIATION_WORKBENCH_FINDING_ID_PARAM = "findingId";
 export const REMEDIATION_WORKBENCH_INSTANCE_ID_PARAM = "instanceId";
@@ -26,6 +32,9 @@ export type InfraEvidenceWorkbenchContext = {
   readonly runId?: string | null;
   readonly changeId?: string | null;
   readonly diffId?: string | null;
+  readonly assessmentId?: string | null;
+  readonly auditEvidenceSnapshotId?: string | null;
+  readonly controlId?: string | null;
 };
 
 export function parseInfraEvidenceWorkbenchQueryValue(raw: string | null | undefined): string {
@@ -53,6 +62,22 @@ export function buildDriftWorkbenchHref(context: InfraEvidenceWorkbenchContext =
 
   if (context.diffId != null && context.diffId.trim().length > 0) {
     params.set(DRIFT_WORKBENCH_DIFF_ID_PARAM, context.diffId.trim());
+  }
+
+  if (context.runId != null && context.runId.trim().length > 0) {
+    params.set(DRIFT_WORKBENCH_RUN_ID_PARAM, context.runId.trim());
+  }
+
+  if (context.assessmentId != null && context.assessmentId.trim().length > 0) {
+    params.set(RESOURCE_HUB_ASSESSMENT_ID_PARAM, context.assessmentId.trim());
+  }
+
+  if (context.auditEvidenceSnapshotId != null && context.auditEvidenceSnapshotId.trim().length > 0) {
+    params.set(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM, context.auditEvidenceSnapshotId.trim());
+  }
+
+  if (context.controlId != null && context.controlId.trim().length > 0) {
+    params.set(RESOURCE_HUB_CONTROL_ID_PARAM, context.controlId.trim());
   }
 
   const query = params.toString();
@@ -87,6 +112,18 @@ export function buildRemediationWorkbenchHref(context: InfraEvidenceWorkbenchCon
     params.set(REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM, context.snapshotId.trim());
   }
 
+  if (context.assessmentId != null && context.assessmentId.trim().length > 0) {
+    params.set(RESOURCE_HUB_ASSESSMENT_ID_PARAM, context.assessmentId.trim());
+  }
+
+  if (context.auditEvidenceSnapshotId != null && context.auditEvidenceSnapshotId.trim().length > 0) {
+    params.set(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM, context.auditEvidenceSnapshotId.trim());
+  }
+
+  if (context.controlId != null && context.controlId.trim().length > 0) {
+    params.set(RESOURCE_HUB_CONTROL_ID_PARAM, context.controlId.trim());
+  }
+
   const query = params.toString();
 
   return query.length === 0
@@ -98,10 +135,18 @@ export function buildResourceHubWorkbenchHref(context: {
   readonly cloudResourceId: string;
   readonly tab?: ResourceHubTab;
   readonly snapshotId?: string | null;
+  readonly runId?: string | null;
+  readonly assessmentId?: string | null;
+  readonly auditEvidenceSnapshotId?: string | null;
+  readonly controlId?: string | null;
 }): string {
   return resourceHubFilterHrefFromSearch(context.cloudResourceId, "", {
     tab: context.tab,
     snapshotId: context.snapshotId ?? undefined,
+    runId: context.runId ?? undefined,
+    assessmentId: context.assessmentId ?? undefined,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
+    controlId: context.controlId ?? undefined,
   });
 }
 
@@ -109,14 +154,29 @@ export function buildResourceScopedWorkbenchHref(
   cloudResourceId: string,
   kind: "findings" | "remediation" | "drift",
   snapshotId?: string | null,
+  auditContext?: Pick<
+    InfraEvidenceWorkbenchContext,
+    "assessmentId" | "auditEvidenceSnapshotId" | "controlId"
+  >,
+  runId?: string | null,
 ): string {
   switch (kind) {
     case "findings":
-      return buildResourceHubWorkbenchHref({ cloudResourceId, tab: "findings", snapshotId });
+      return buildResourceHubWorkbenchHref({
+        cloudResourceId,
+        tab: "findings",
+        snapshotId,
+        runId: runId ?? undefined,
+      });
     case "remediation":
-      return buildRemediationWorkbenchHref({ cloudResourceId });
+      return buildRemediationWorkbenchHref({
+        cloudResourceId,
+        snapshotId,
+        runId: runId ?? undefined,
+        ...auditContext,
+      });
     case "drift":
-      return buildDriftWorkbenchHref({ cloudResourceId, snapshotId });
+      return buildDriftWorkbenchHref({ cloudResourceId, snapshotId, ...auditContext });
     default:
       return governanceInfrastructureResourceHubPath(cloudResourceId);
   }

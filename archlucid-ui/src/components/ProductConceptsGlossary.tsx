@@ -1,8 +1,17 @@
+"use client";
+
+import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
-import type { ReactElement } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import {
+  PRODUCT_CONCEPTS_GLOSSARY_SECTION_OPEN_PARAM,
+  parseProductConceptsGlossarySectionOpenFromSearch,
+  productConceptsGlossarySectionDisclosureHrefFromSearch,
+} from "@/lib/operator/product-concepts-glossary-section-disclosure-url";
 
 type GlossaryEntry = {
   readonly term: string;
@@ -36,14 +45,14 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
       "A versioned rule set applied during analysis. Controls which checks run and how findings are classified (e.g. Azure CIS, custom policy packs).",
   },
   {
-    term: "Governance approval",
+    term: "Approval",
     definition:
       "An architect or authority decision recorded against a finalized review — Approved, Approved with monitoring, or Rejected. Drives downstream workflow.",
   },
   {
     term: "Audit trail",
     definition:
-      "The append-only log of every action taken in this workspace — reviews created, reviews finalized, and governance approval recorded.",
+      "The append-only log of every action taken in this workspace — reviews created, reviews finalized, and approval recorded.",
   },
   {
     term: "Risk exception",
@@ -63,7 +72,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Compare",
     definition:
-      "Side-by-side diff of two reviews — findings, review record changes, and governance approval deltas.",
+      "Side-by-side diff of two reviews — findings, review record changes, and approval deltas.",
   },
   {
     term: "Proof packet",
@@ -87,9 +96,58 @@ export function ProductConceptsGlossary({
   className,
   defaultOpen = false,
 }: ProductConceptsGlossaryProps): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const glossarySectionOpenParam = searchParams.get(PRODUCT_CONCEPTS_GLOSSARY_SECTION_OPEN_PARAM);
+  const [sectionOpen, setSectionOpenState] = useState(
+    () => parseProductConceptsGlossarySectionOpenFromSearch(glossarySectionOpenParam) || defaultOpen === true,
+  );
+
+  const syncSectionOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        productConceptsGlossarySectionDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSectionOpen = useCallback(
+    (open: boolean) => {
+      setSectionOpenState(open);
+      syncSectionOpenToUrl(open);
+    },
+    [syncSectionOpenToUrl],
+  );
+
+  useEffect(() => {
+    if (parseProductConceptsGlossarySectionOpenFromSearch(glossarySectionOpenParam)) {
+      setSectionOpenState(true);
+
+      return;
+    }
+
+    if (glossarySectionOpenParam !== null) {
+      setSectionOpenState(false);
+
+      return;
+    }
+
+    if (defaultOpen === true) {
+      setSectionOpenState(true);
+    }
+  }, [defaultOpen, glossarySectionOpenParam]);
+
   return (
     <div className={className}>
-      <CollapsibleSection title="Terminology reference" defaultOpen={defaultOpen}>
+      <CollapsibleSection
+        title="Terminology reference"
+        open={sectionOpen}
+        onToggle={setSectionOpen}
+        sectionTestId="product-concepts-glossary-terms"
+      >
         <dl className={cn("m-0 space-y-3", OPERATOR_TYPOGRAPHY.body)}>
           {entries.map((entry) => (
             <div key={entry.term}>

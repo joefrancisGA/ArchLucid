@@ -3,6 +3,8 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { ScopeSwitcherProjectOptionButton } from "@/components/ScopeSwitcherProjectOptionButton";
 import { ScopeSwitcherTenantContextFooter } from "@/components/ScopeSwitcherTenantContextFooter";
@@ -33,6 +35,11 @@ import {
   type ScopeSwitcherWorkspaceOption,
 } from "@/lib/scope-switcher-display";
 import { DEV_SCOPE_TENANT_ID } from "@/lib/scope";
+import {
+  SCOPE_SWITCHER_TECHNICAL_DETAILS_OPEN_PARAM,
+  parseScopeSwitcherTechnicalDetailsOpenFromSearch,
+  scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch,
+} from "@/lib/operator/scope-switcher-technical-details-disclosure-url";
 
 import type { ScopePanelMode } from "./scope-switcher-panel-style";
 
@@ -76,6 +83,34 @@ export function ScopeSwitcherPanelBody(props: ScopeSwitcherPanelBodyProps) {
     workspaceId,
     workspaces,
   } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const scopeSwitcherTechnicalDetailsParam = searchParams.get(SCOPE_SWITCHER_TECHNICAL_DETAILS_OPEN_PARAM);
+  const [scopeSwitcherTechnicalDetailsOpen, setScopeSwitcherTechnicalDetailsOpenState] = useState(() =>
+    parseScopeSwitcherTechnicalDetailsOpenFromSearch(scopeSwitcherTechnicalDetailsParam),
+  );
+  const syncScopeSwitcherTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        scopeSwitcherTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setScopeSwitcherTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setScopeSwitcherTechnicalDetailsOpenState(open);
+      syncScopeSwitcherTechnicalDetailsOpenToUrl(open);
+    },
+    [syncScopeSwitcherTechnicalDetailsOpenToUrl],
+  );
+  useEffect(() => {
+    setScopeSwitcherTechnicalDetailsOpenState(
+      parseScopeSwitcherTechnicalDetailsOpenFromSearch(scopeSwitcherTechnicalDetailsParam),
+    );
+  }, [scopeSwitcherTechnicalDetailsParam]);
 
   return (
     <>
@@ -144,7 +179,11 @@ export function ScopeSwitcherPanelBody(props: ScopeSwitcherPanelBodyProps) {
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} data-testid="operator-scope-list-note">
             {listError ?? BUYER_SCOPE_SWITCHER_LOAD_ERROR}
           </p>
-          <details className={cn("rounded-md border border-neutral-200 p-2 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}>
+          <details
+            className={cn("rounded-md border border-neutral-200 p-2 dark:border-neutral-700", OPERATOR_TYPOGRAPHY.helper)}
+            open={scopeSwitcherTechnicalDetailsOpen}
+            onToggle={(event) => setScopeSwitcherTechnicalDetailsOpen(event.currentTarget.open)}
+          >
             <summary className="cursor-pointer select-none font-medium text-neutral-700 dark:text-neutral-200">
               Technical details
             </summary>
