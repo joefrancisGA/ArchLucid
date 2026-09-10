@@ -68,6 +68,22 @@
 
 ---
 
+## AS-065 opt-in: PilotStrict Unsupported hold (Working Real only)
+
+| Control | Default | When on |
+| --- | --- | --- |
+| `AgentOutput:QualityGate:PilotStrictHoldOnUnsupportedSemanticSupport` | **false** | Working **Real** + host **PilotStrict** holds finalize when any **decision-grade** finding has semantic support band **Unsupported** |
+| Simulator / Rehearsal | n/a | **Ignores** the flag — no Unsupported hold |
+| UI honesty (flag off) | always | Warn-only strip: Unsupported rows stay visible; finalize stays enabled (TB-1228 default) |
+
+**Code anchors:** `UnsupportedSemanticSupportFinalizeHoldEvaluator`, `CommitOutputIntegrityService`, pre-finalize checklist item `unsupported-semantic-support-hold`, readiness summary `pilotStrictHoldOnUnsupportedSemanticSupport`.
+
+**Trade-offs:** Opt-in fail-closed for tenants that want it; global default-on would false-reject V1 packages. Unsupported band is heuristic — hold is discipline, not semantic legal truth.
+
+**Related:** ADR 0085 (semantic support band on Working desk); AS-064 unchecked warn-only strip.
+
+---
+
 ## Forbidden claims
 
 | Too strong | Safe |

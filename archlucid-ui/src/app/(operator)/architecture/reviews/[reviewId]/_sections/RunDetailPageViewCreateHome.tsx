@@ -126,6 +126,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
         pixelDiagramNotVerifiableSources={readPixelDiagramNotVerifiableSourcesFromContextSnapshot(m.resolvedDetail.contextSnapshot)}
         architectureRequestId={m.resolvedDetail.run.architectureRequestId}
         azureInventoryEvidencePresent={hasAzureInventoryZipEvidence(evidenceInventoryItems)}
+        structuralExecutionMode={m.resolvedDetail.run.structuralExecutionMode}
         {...reviewPackageDoThisNextEvidenceProps}
       />
       {!m.manifestId ? (

@@ -27,7 +27,7 @@ function sampleFinding(
   };
 }
 
-describe("RunDetailPreFinalizeGateHonestyStrip (DR-04 / AS-064)", () => {
+describe("RunDetailPreFinalizeGateHonestyStrip (DR-04 / AS-064 / AS-065)", () => {
   it("shows the persistent banner when the host gate is disabled", () => {
     healthReadyMock.mockReturnValue({
       data: { preCommitGateEnabled: false, status: "Healthy", entries: [] },
@@ -91,5 +91,53 @@ describe("RunDetailPreFinalizeGateHonestyStrip (DR-04 / AS-064)", () => {
     );
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("shows hold-off honesty when unsupported rows exist and the host hold flag is off", () => {
+    healthReadyMock.mockReturnValue({
+      data: {
+        preCommitGateEnabled: true,
+        status: "Healthy",
+        entries: [],
+        pilotStrictHoldOnUnsupportedSemanticSupport: false,
+      },
+    });
+
+    render(
+      <RunDetailPreFinalizeGateHonestyStrip
+        findings={[sampleFinding({ semanticSupportBand: "Unsupported" })]}
+        manifestFinalized={false}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-pre-finalize-unsupported-hold-off-honesty-strip")).toBeInTheDocument();
+    expect(screen.getByText(/TB-1228 keeps semantic support on a warn-only lane/i)).toBeInTheDocument();
+    expect(screen.getByText(/finalize stays enabled/i)).toBeInTheDocument();
+  });
+
+  it("shows blocking strip when hold flag is on for Working Real PilotStrict", () => {
+    healthReadyMock.mockReturnValue({
+      data: {
+        preCommitGateEnabled: true,
+        status: "Healthy",
+        entries: [],
+        agentOutputQualityGateMode: "PilotStrict",
+        pilotStrictHoldOnUnsupportedSemanticSupport: true,
+      },
+    });
+
+    render(
+      <RunDetailPreFinalizeGateHonestyStrip
+        findings={[sampleFinding({ semanticSupportBand: "Unsupported" })]}
+        manifestFinalized={false}
+        structuralExecutionMode="Real"
+      />,
+    );
+
+    expect(
+      screen.getByTestId("run-detail-pre-finalize-unsupported-semantic-support-hold-strip"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Finalize is held on Unsupported semantic support")).toBeInTheDocument();
+    expect(screen.getByText(/PilotStrict hold on Unsupported is enabled/i)).toBeInTheDocument();
   });
 });

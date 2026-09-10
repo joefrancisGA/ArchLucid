@@ -78,6 +78,7 @@ export function RunDetailReviewPackageStampViewport(
             <RunDetailPreFinalizeGateHonestyStrip
               findings={props.quickDecisionFindings}
               manifestFinalized={props.hasGoldenManifest}
+              structuralExecutionMode={props.structuralExecutionMode}
             />
             <RunDetailQualityGateModeStrip
               runId={props.runId}
@@ -144,6 +145,7 @@ export function RunDetailReviewPackageStampViewport(
           <RunDetailPreFinalizeGateHonestyStrip
             findings={props.quickDecisionFindings}
             manifestFinalized={props.hasGoldenManifest}
+            structuralExecutionMode={props.structuralExecutionMode}
           />
           <RunDetailQualityGateModeStrip
             runId={props.runId}
