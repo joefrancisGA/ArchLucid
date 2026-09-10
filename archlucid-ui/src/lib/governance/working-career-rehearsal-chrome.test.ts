@@ -53,6 +53,14 @@ describe("working-career-rehearsal chrome matrix (AS-084)", () => {
     ).toBe(false);
   });
 
+  it("AS-081 Guided mode must not require Working Career/Rehearsal chooser", () => {
+    const guidedChrome = resolveProductionDeskChrome({ workspaceMode: "guided" });
+    const workingChrome = resolveProductionDeskChrome({ workspaceMode: "working" });
+
+    expect(guidedChrome).toBe(false);
+    expect(workingChrome).toBe(true);
+  });
+
   it("AS-080 new Working tenants default to Career intent", () => {
     expect(
       resolveInitialWorkingCareerRehearsalIntent({
