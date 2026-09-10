@@ -74,3 +74,4 @@ Server helper: `ArchitectureShareAccessEvaluator` (AS-090). Enforcement on HTTP 
 | AS-096 | Users-only share targets; SCIM groups rejected with 400 |
 | AS-097 | No SQL RLS ratchet (`ArchitectureSpineAs097NoSqlRlsRatchetArchitectureTests`) |
 | AS-098 | Help boundary — one tenant, not chat or presence (`ArchitectureSpineAs098HelpShareNotSecondTenantArchitectureTests`; `/help/architecture-sharing`) |
+| AS-099 | OpenAPI share CRUD + restrict flag; generated TS client; full API test ratchet (`ArchitectureSpineAs099ShareTestsAndOpenApiArchitectureTests`) |

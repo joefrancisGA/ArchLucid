@@ -1,36 +1,21 @@
+import type { components } from "@/lib/api-types/schemas.generated";
+
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiDelete, apiPutJson, apiPutNoContent } from "./http";
 
 const ARCHITECTURES_BASE = "/v1/architectures";
 
-export type ArchitectureShareGrant = {
-  userId: string;
-  role: string;
-  grantedBy: string;
-  grantedUtc: string;
-};
+export type ArchitectureShareGrant = components["schemas"]["ArchitectureShareGrantResponse"];
 
-export type ArchitectureShareListResponse = {
-  architectureId: string;
-  restrictToShares: boolean;
-  shares: ArchitectureShareGrant[];
-  confirmationCopy?: string;
-};
+export type ArchitectureShareListResponse = components["schemas"]["ArchitectureShareListResponse"];
 
-export type UpsertArchitectureShareRequest = {
-  role: string;
-};
+export type UpsertArchitectureShareRequest = components["schemas"]["UpsertArchitectureShareRequest"];
 
-export type SetArchitectureRestrictToSharesRequest = {
-  restrictToShares: boolean;
-  confirmOptIn: boolean;
-};
+export type SetArchitectureRestrictToSharesRequest =
+  components["schemas"]["SetArchitectureRestrictToSharesRequest"];
 
-export type ArchitectureRestrictToSharesResponse = {
-  architectureId: string;
-  restrictToShares: boolean;
-  actorAdminShareInserted?: boolean;
-};
+export type ArchitectureRestrictToSharesResponse =
+  components["schemas"]["ArchitectureRestrictToSharesResponse"];
 
 export async function getArchitectureShares(architectureId: string): Promise<ArchitectureShareListResponse> {
   return apiGetSealedManifestAware<ArchitectureShareListResponse>(

@@ -1,5 +1,6 @@
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Controllers.Architecture;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Api.Tests.Support;
 using ArchLucid.Application.Architecture;
@@ -24,7 +25,7 @@ using Moq;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>AS-092: architecture share list/grant/revoke endpoints.</summary>
+/// <summary>AS-092 / AS-099: architecture share list/grant/revoke endpoints.</summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class ArchitecturesControllerSharesTests
@@ -228,6 +229,163 @@ public sealed class ArchitecturesControllerSharesTests
                 ShareUserId,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(ArchitectureShareDeleteResult.ShareNotFound());
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.DeleteShare(ArchitectureId, ShareUserId, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ListShares_WhenReadDenied_Returns404()
+    {
+        _shareAccessGate
+            .Setup(gate => gate.EnsureArchitectureReadAllowedAsync(
+                It.IsAny<ControllerBase>(),
+                It.IsAny<System.Security.Claims.ClaimsPrincipal>(),
+                Scope,
+                ArchitectureId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ControllerBase controller, System.Security.Claims.ClaimsPrincipal _, ScopeContext _, Guid _, CancellationToken _) =>
+                controller.NotFoundProblem(
+                    $"Architecture '{ArchitectureId:D}' was not found.",
+                    ProblemTypes.ResourceNotFound));
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.ListShares(ArchitectureId, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ListShares_WhenArchitectureMissing_Returns404()
+    {
+        _shareManagementService
+            .Setup(service => service.GetSharesAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureShareListResult.ArchitectureNotFound());
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.ListShares(ArchitectureId, CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task ListShares_ReturnsEmptyShareList_WhenRestrictedWithNoGrants()
+    {
+        _shareManagementService
+            .Setup(service => service.GetSharesAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureShareListResult.Success(
+                new ArchitectureShareListResponse
+                {
+                    ArchitectureId = ArchitectureId,
+                    RestrictToShares = true,
+                    Shares = [],
+                    ConfirmationCopy = "Only people on the share list can see this architecture.",
+                }));
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.ListShares(ArchitectureId, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ArchitectureShareListResponse response =
+            ok.Value.Should().BeOfType<ArchitectureShareListResponse>().Subject;
+        response.RestrictToShares.Should().BeTrue();
+        response.Shares.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task UpsertShare_WithInvalidRole_Returns400()
+    {
+        _shareManagementService
+            .Setup(service => service.UpsertShareAsync(
+                Scope,
+                ArchitectureId,
+                ShareUserId,
+                It.IsAny<string>(),
+                "jwt:actor",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureShareUpsertResult.InvalidRole());
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.UpsertShare(
+            ArchitectureId,
+            ShareUserId,
+            new UpsertArchitectureShareRequest { Role = ArchitectureShareRoles.View },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task UpsertShare_WhenUserMissing_Returns400()
+    {
+        _shareManagementService
+            .Setup(service => service.UpsertShareAsync(
+                Scope,
+                ArchitectureId,
+                ShareUserId,
+                ArchitectureShareRoles.View,
+                "jwt:actor",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureShareUpsertResult.UserNotFound());
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.UpsertShare(
+            ArchitectureId,
+            ShareUserId,
+            new UpsertArchitectureShareRequest { Role = ArchitectureShareRoles.View },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task UpsertShare_WhenArchitectureMissing_Returns404()
+    {
+        _shareManagementService
+            .Setup(service => service.UpsertShareAsync(
+                Scope,
+                ArchitectureId,
+                ShareUserId,
+                ArchitectureShareRoles.View,
+                "jwt:actor",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureShareUpsertResult.ArchitectureNotFound());
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.UpsertShare(
+            ArchitectureId,
+            ShareUserId,
+            new UpsertArchitectureShareRequest { Role = ArchitectureShareRoles.View },
+            CancellationToken.None);
+
+        ObjectResult notFound = result.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task DeleteShare_WhenArchitectureMissing_Returns404()
+    {
+        _shareManagementService
+            .Setup(service => service.DeleteShareAsync(
+                Scope,
+                ArchitectureId,
+                ShareUserId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureShareDeleteResult.ArchitectureNotFound());
 
         ArchitecturesController sut = BuildSut();
 
