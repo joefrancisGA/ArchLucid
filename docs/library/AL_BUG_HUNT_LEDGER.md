@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1534,6 +1534,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `FollowUpBatch` disposition pointer subquery omits tenant/workspace/project predicates in the WHERE clause — **cheap-disproof 2026-09-10 seed hunt #1651:** pointer lookup binds `c.TenantId` / `c.WorkspaceId` / `c.ProjectId`; regression `FollowUpBatch_disposition_pointer_where_clause_filters_by_scoped_tenant_workspace_and_project`.
 
 2026-09-10 seed hunt #1651 (seed-only): reseeded finding-inspect-sql after #1650; cheap-disproof closed null connection-factory guard, nested/numeric applied-rule JSON fallback, null disposition raw mapping, recommended-action ordering, title-only whyThisMatters contract, and disposition pointer scope predicates; 230 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `InMemoryFindingInspectReadRepository` accepts null `authorityQuery` — **cheap-disproof 2026-09-10 seed hunt #1652:** primary constructor throws `ArgumentNullException`; regression `InMemoryFindingInspectReadRepository_throws_when_authority_query_is_null`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` substitutes `DateTimeOffset.UtcNow` when pointer row exists but `OccurredAtUtc` is null — **cheap-disproof 2026-09-10 seed hunt #1652:** null occurred-at passes through unchanged; regression `MapDispositionPointerProjection_preserves_null_occurred_at_when_pointer_row_exists`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` returns `DateTimeOffset.MinValue` when `RevisitDueUtc` is absent — **cheap-disproof 2026-09-10 seed hunt #1652:** missing revisit due maps to null via `ToUtcDateTimeOffset`; regression `MapDispositionPointerProjection_returns_null_revisit_due_when_revisit_due_utc_missing`.
+- [x] (valid-no-repro) `TryParsePayloadJson` treats JSON empty-string literal as corrupt and returns null — **cheap-disproof 2026-09-10 seed hunt #1652:** valid `""` root deserializes to empty `JsonValueKind.String`; regression `TryParsePayloadJson_returns_deserialized_empty_string_for_json_empty_string_literal`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains boolean JSON elements coerces them to rule ids — **cheap-disproof 2026-09-10 seed hunt #1652:** non-string array elements are skipped; boolean-only arrays fall back to trace text or `(null, null)`; regressions `ResolveRuleFields_when_applied_rule_ids_json_contains_boolean_element_falls_back_to_trace_text` and `ResolveRuleFields_when_applied_rule_ids_json_contains_only_boolean_elements_returns_nulls`.
+- [x] (valid-no-repro) `ResolveRuleFields` concatenates multiple applied rule ids instead of selecting the first — **cheap-disproof 2026-09-10 seed hunt #1652:** helper returns the first non-blank id for both fields; regression `ResolveRuleFields_uses_first_valid_id_when_multiple_rule_ids_are_present`.
+- [x] (valid-no-repro) `HasActiveWaiver` overflows or throws for very large waiver counts — **cheap-disproof 2026-09-10 seed hunt #1652:** any positive `long` count returns true; regression `HasActiveWaiver_returns_true_for_large_positive_counts`.
+- [x] (valid-no-repro) `MainInspect*` inner-joins `FindingsSnapshots` on tenant predicates and can pair another tenant's snapshot row — **cheap-disproof 2026-09-10 seed hunt #1652:** snapshot join keys `FindingsSnapshotId` while tenant scope is enforced on `FindingRecords` and `Runs`; regression `MainInspect_joins_findings_snapshot_by_id_and_scopes_tenant_on_finding_and_run_rows`.
+
+2026-09-10 seed hunt #1652 (seed-only): reseeded finding-inspect-sql after #1651; cheap-disproof closed in-memory null dependency guard, null disposition timestamp passthrough, JSON empty-string payload parse, boolean applied-rule JSON fallback, first-id rule selection, large waiver counts, and findings-snapshot tenant scoping; 239 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

@@ -1202,4 +1202,85 @@ public sealed class FindingInspectReadRepositoryCoreTests
         typed.Should().NotBeNull();
         typed!.Value.GetProperty("whyThisMatters").ValueKind.Should().Be(JsonValueKind.Null);
     }
+
+    [Fact]
+    public void MapDispositionPointerProjection_preserves_null_occurred_at_when_pointer_row_exists()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Accepted",
+            hasDispositionRow: true,
+            occurredAtUtc: null,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Accepted);
+        projection.LatestDispositionOccurredAtUtc.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_returns_null_revisit_due_when_revisit_due_utc_missing()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Deferred",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Deferred);
+        projection.RevisitDueUtc.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_empty_string_for_json_empty_string_literal()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("\"\"");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.ValueKind.Should().Be(JsonValueKind.String);
+        parsed!.Value.GetString().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_boolean_element_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            "[true]",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_only_boolean_elements_returns_nulls()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            "[true]",
+            firstRuleText: null);
+
+        ruleId.Should().BeNull();
+        ruleName.Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveRuleFields_uses_first_valid_id_when_multiple_rule_ids_are_present()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """["cost-guardrail", "encrypt-at-rest"]""",
+            firstRuleText: "trace fallback");
+
+        ruleId.Should().Be("cost-guardrail");
+        ruleName.Should().Be("cost-guardrail");
+    }
+
+    [Fact]
+    public void HasActiveWaiver_returns_true_for_large_positive_counts()
+    {
+        FindingInspectReadRepositoryCore.HasActiveWaiver(long.MaxValue).Should().BeTrue();
+    }
 }

@@ -57,4 +57,12 @@ public sealed class InMemoryFindingInspectReadRepositoryValidationTests
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("connectionFactory");
     }
+
+    [Fact]
+    public void InMemoryFindingInspectReadRepository_throws_when_authority_query_is_null()
+    {
+        Action act = () => new InMemoryFindingInspectReadRepository(null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("authorityQuery");
+    }
 }

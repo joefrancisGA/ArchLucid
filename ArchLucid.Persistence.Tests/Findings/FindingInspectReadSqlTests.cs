@@ -646,6 +646,16 @@ public sealed class FindingInspectReadSqlTests
     }
 
     [Fact]
+    public void MainInspect_joins_findings_snapshot_by_id_and_scopes_tenant_on_finding_and_run_rows()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should()
+            .Contain("INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().NotContain("fs.TenantId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.TenantId = @TenantId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.TenantId = @TenantId");
+    }
+
+    [Fact]
     public void MainInspect_scopes_runs_table_to_tenant_and_workspace()
     {
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.TenantId = @TenantId");
