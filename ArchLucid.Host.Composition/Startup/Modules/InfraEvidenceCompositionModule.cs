@@ -15,6 +15,7 @@ using ArchLucid.Application.InfraEvidence.RemediationPatterns;
 using ArchLucid.Application.InfraEvidence.RemediationPrioritization;
 using ArchLucid.Application.InfraEvidence.RemediationWaves;
 using ArchLucid.Application.InfraEvidence.SecurityCrosswalk;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -58,6 +59,8 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<ICapabilityToFlowEngine, CapabilityToFlowEngine>();
         services.AddScoped<ISharedControlBlastRadiusEngine, SharedControlBlastRadiusEngine>();
         services.AddScoped<IFourRealityDriftEngine, FourRealityDriftEngine>();
+        services.AddScoped<SecureNowArchitectPathCarryForwardService>();
+        services.AddScoped<ISecureNowArchitectNeighborhoodRunner, SecureNowArchitectNeighborhoodRunner>();
         services.AddScoped<IPathRankingEngine, PathRankingEngine>();
         services.AddScoped<ICutPointAnalysisEngine, CutPointAnalysisEngine>();
         services.AddScoped<ISecurityEvidencePathInspectorQueryService, SecurityEvidencePathInspectorQueryService>();
@@ -67,6 +70,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
         services.AddScoped<IRemediationPatternMatcherService, RemediationPatternMatcherService>();
         services.AddScoped<IRemediationInstanceService, RemediationInstanceService>();
+        services.AddScoped<IRemediationPathNarrativeBuilder, RemediationPathNarrativeBuilder>();
         services.AddScoped<IRemediationInstanceQueryService, RemediationInstanceQueryService>();
         services.AddScoped<IRemediationPrioritizationService, RemediationPrioritizationService>();
         services.AddScoped<IRemediationWaveService, RemediationWaveService>();
@@ -86,6 +90,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<PostureAuditEvidenceSelector>();
         services.AddScoped<ResilienceAuditEvidenceSelector>();
         services.AddScoped<IAzureInventoryDiffConsumer, AuditContinuousReadinessDiffConsumer>();
+        services.AddScoped<IAzureInventoryDiffConsumer, SecureNowArchitectDiffConsumer>();
         services.AddScoped<IStructuredDiagramIngestService, StructuredDiagramIngestService>();
         services.AddScoped<IDiagramInfrastructureReconciliationService, DiagramInfrastructureReconciliationService>();
         services.AddScoped<IVisionDiagramIngestService, VisionDiagramIngestService>();

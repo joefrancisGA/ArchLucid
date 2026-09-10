@@ -76,6 +76,20 @@ public sealed class RemediationInstanceRecord
         init;
     }
 
+    /// <summary>Frozen SecureNow path citation at instance creation (SA-14).</summary>
+    public Guid? PathId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Structured architect narrative JSON (SA-14).</summary>
+    public string? PathNarrativeJson
+    {
+        get;
+        init;
+    }
+
     public Guid? AssessmentId
     {
         get;
