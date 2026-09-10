@@ -2311,7 +2311,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -2348,6 +2348,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `DocumentationRelativePath` uses Windows-style separators or drifts from `docs/library/REFERENCE_SAAS_STACK_ORDER.md` — **cheap-disproof 2026-09-10 seed hunt #1594:** constant stays forward-slash repo-relative; regression `DocumentationRelativePath_uses_docs_library_relative_forward_slashes`.
 
 2026-09-10 seed hunt #1594 (seed-only): reseeded cli-terraform-evidence; cheap-disproof closed duplicate paths, path prefix, on-disk root existence, pilot composition sync, list immutability, and documentation path shape; 15 scoped DeploymentEvidenceTerraformReference tests passed.
+
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` omits entries so hosted apply order is incomplete — **cheap-disproof 2026-09-10 seed hunt #1675:** evidence lists exactly twenty roots; regression `DefaultApplyOrderRoots_lists_exactly_twenty_entries`.
+- [x] (valid-no-repro) `terraform-pilot` default profile is not the final evidence line — **cheap-disproof 2026-09-10 seed hunt #1675:** pilot is the last entry after orchestrator; regression `DefaultApplyOrderRoots_places_pilot_as_final_entry`.
+- [x] (valid-no-repro) Composition wave order drifts from foundation/platform/app — **cheap-disproof 2026-09-10 seed hunt #1675:** three composition roots stay in wave order; regression `DefaultApplyOrderRoots_lists_three_composition_waves_in_foundation_platform_app_order`.
+- [x] (valid-no-repro) `DocumentationRelativePath` uses repo-absolute leading slash — **cheap-disproof 2026-09-10 seed hunt #1675:** path stays repo-relative without leading `/`; regression `DocumentationRelativePath_does_not_use_leading_slash`.
+
+2026-09-10 seed hunt #1675 (seed-only): reseeded cli-terraform-evidence after master merge; cheap-disproof closed entry count, pilot placement, composition wave order, and documentation leading-slash shape; 19 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 

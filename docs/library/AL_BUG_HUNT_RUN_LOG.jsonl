@@ -1890,3 +1890,4 @@
 {"at":"2026-09-10T23:03:40.6376258Z","zoneId":"scope-binding-middleware","outcome":"dry"}
 {"at":"2026-09-10T23:07:15.2536571Z","zoneId":"finding-inspect-sql","outcome":"seed-only"}
 {"at":"2026-09-10T23:11:06.5594894Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
+{"at":"2026-09-10T23:27:01.2648127Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
