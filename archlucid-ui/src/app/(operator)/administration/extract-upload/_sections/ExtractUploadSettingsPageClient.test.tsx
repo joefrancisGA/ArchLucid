@@ -24,9 +24,6 @@ import {
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
-  EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
-  EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
-  EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND,
 } from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageClient } from "./ExtractUploadSettingsPageClient";
 import { showError } from "@/lib/toast";
@@ -159,10 +156,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.queryByTestId("extract-upload-go-reviews")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /go to reviews/i })).not.toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-demo-aside")).toBeInTheDocument();
-    expect(screen.getByTestId("extract-upload-validate-disclosure")).toBeInTheDocument();
-    expect(screen.getByText(EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND)).toBeInTheDocument();
-    expect(screen.getByText(EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND)).toBeInTheDocument();
-    expect(screen.getByText(EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND)).toBeInTheDocument();
+    expect(screen.queryByTestId("extract-upload-validate-disclosure")).not.toBeInTheDocument();
   });
 
   it("renders structured upload failure with semantic error code and doc link", async () => {
