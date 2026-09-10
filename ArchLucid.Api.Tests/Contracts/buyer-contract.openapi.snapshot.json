@@ -7545,6 +7545,17 @@
         },
         "type": "object"
       },
+      "BuildSecurityEvidencePathExplanationRequest": {
+        "properties": {
+          "allowInsufficientEvidence": {
+            "type": "boolean"
+          },
+          "useSimulator": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "BuyerFindingSummaryDto": {
         "properties": {
           "category": {
@@ -33188,6 +33199,12 @@
             },
             "type": "array"
           },
+          "routing": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathRoutingResponse"
+            },
+            "type": "array"
+          },
           "snapshotId": {
             "format": "uuid",
             "type": "string"
@@ -33208,6 +33225,74 @@
           },
           "weakestHopReason": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathExplanationResponse": {
+        "properties": {
+          "businessImpactHypotheses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "citedEvidenceRefs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "executiveSummary": {
+            "type": "string"
+          },
+          "explanationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "proposedRemediation": {
+            "$ref": "#/components/schemas/SecurityEvidencePathProposedRemediationResponse"
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "simulatorLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathExplanationResultResponse": {
+        "properties": {
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecurityEvidencePathExplanationResponse"
+              }
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -33289,6 +33374,35 @@
           },
           "toNodeLabel": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathProposedRemediationResponse": {
+        "properties": {
+          "preconditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "recommendedChange": {
+            "type": "string"
+          },
+          "recommendedChangeSource": {
+            "type": "string"
+          },
+          "suggestedPatternKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "verificationQueries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -33517,6 +33631,32 @@
           "totalCount": {
             "format": "int32",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathRoutingResponse": {
+        "properties": {
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "principalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "sourceReference": {
+            "type": "string"
           }
         },
         "type": "object"
