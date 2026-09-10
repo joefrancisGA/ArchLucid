@@ -361,6 +361,8 @@ public sealed class FindingInspectReadSqlTests
     {
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.ReasoningTrace");
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.ReasoningTraceDigestSha256");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.ReasoningTrace");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.ReasoningTraceDigestSha256");
     }
 
     [Fact]
@@ -404,6 +406,15 @@ public sealed class FindingInspectReadSqlTests
     {
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.AssignedToUserId");
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.RemediationDueUtc");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.AssignedToUserId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.RemediationDueUtc");
+    }
+
+    [Fact]
+    public void MainInspectWithoutTypedPayload_projects_run_id_and_manifest_version()
+    {
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.RunId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.CurrentManifestVersion");
     }
 
     [Fact]

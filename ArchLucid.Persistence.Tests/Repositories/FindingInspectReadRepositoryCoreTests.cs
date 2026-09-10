@@ -1732,4 +1732,61 @@ public sealed class FindingInspectReadRepositoryCoreTests
         ruleId.Should().Be("Encrypt data at rest");
         ruleName.Should().Be("Encrypt data at rest");
     }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_falls_back_to_title_only_metadata_when_payload_is_corrupt_and_rationale_is_whitespace()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "Encrypt at rest",
+            "   ");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("whyThisMatters").ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_null_when_payload_is_empty_string_even_with_valid_title()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            string.Empty,
+            "Encrypt at rest",
+            "Missing TLS").Should().BeNull();
+    }
+
+    [Fact]
+    public void FilterRecommendedActions_returns_empty_for_empty_input_sequence()
+    {
+        FindingInspectReadRepositoryCore.FilterRecommendedActions(Array.Empty<string>()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BuildEvidenceFromRelatedNodes_returns_empty_for_empty_input_sequence()
+    {
+        FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes(Array.Empty<string>()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_preserves_pointer_metadata_when_disposition_raw_is_invalid()
+    {
+        DateTimeOffset occurredAt = new(2026, 10, 5, 14, 30, 0, TimeSpan.Zero);
+        Guid eventId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "bogus",
+            hasDispositionRow: true,
+            occurredAtUtc: occurredAt,
+            revisitDueUtc: new DateTime(2026, 11, 1, 0, 0, 0, DateTimeKind.Unspecified),
+            eventId: eventId,
+            reviewerUserId: "reviewer-1",
+            rowVersionStamp: [0x02]);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionOccurredAtUtc.Should().Be(occurredAt);
+        projection.LatestDispositionEventId.Should().Be(eventId);
+        projection.LatestDispositionReviewerUserId.Should().Be("reviewer-1");
+        projection.RevisitDueUtc.Should().NotBeNull();
+    }
 }
