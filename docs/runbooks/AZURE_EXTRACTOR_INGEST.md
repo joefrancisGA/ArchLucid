@@ -6,6 +6,8 @@
 
 Customers run **`scripts/azure/Get-ArchLucidAzurePackage.ps1`** in their tenant (no ArchLucid credentials in their environment) and upload the resulting **`.zip`** to ArchLucid.
 
+First-review workspaces surface a **skippable** “Upload Azure inventory ZIP” prompt on the review checklist and review detail — it links here and to `POST /v1/azure-extractor/upload`. Skipping is allowed and does **not** block finalize; engines still fail closed when inventory is absent (R5). This is **not** a hard gate, **not** SOC 2 attestation, and **not** default-on AWS/GCP inventory collection.
+
 ## API
 
 - **`POST /v1/azure-extractor/upload`**
@@ -13,13 +15,13 @@ Customers run **`scripts/azure/Get-ArchLucidAzurePackage.ps1`** in their tenant 
   - **Body:** `multipart/form-data` with field **`file`** (ZIP).
   - **Query:** optional **`runId`** to associate the upload with an architecture review run in the current workspace scope (run must exist).
   - **Success:** **202 Accepted** with **`packageId`** (GUID).
-  - **Failure:** **422** when the archive is invalid, **`manifest.json`** is missing or unreadable, or **`schemaVersion`** is not supported (**only `1`** today).
+  - **Failure:** **422** when the archive is invalid, **`manifest.json`** is missing or unreadable, or **`schemaVersion`** is not supported (**`1` or `2`**).
 
 ## Schema (`manifest.json`)
 
 Minimum required fields align with the PowerShell script and API reader:
 
-- **`schemaVersion`** (int): must be **`1`**.
+- **`schemaVersion`** (int): **`1`** (legacy) or **`2`** (current packager / hosted collector).
 - **`scriptVersion`**, **`collectionTimestamp`** (ISO-8601), **`subscriptionId`**, **`scope`**, **`switchesUsed`**, **`azModuleVersion`**.
 
 Unsupported schema versions are rejected with no silent parsing.

@@ -1,16 +1,25 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import type { ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { BUYER_SHOWCASE_POLICY_PACK_LABEL } from "@/lib/buyer/buyer-polish-copy";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { findingDetailHeadingTitle } from "@/lib/findings/finding-display-from-inspect";
 import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolvePolicyRuleIdFromInspect, resolvePolicyRuleLabelFromInspect } from "@/lib/findings/finding-policy-evidence-citations";
+import {
+  FINDING_INSPECT_TECHNICAL_RULE_OPEN_PARAM,
+  findingInspectTechnicalRuleDisclosureHrefFromSearch,
+  parseFindingInspectTechnicalRuleOpenFromSearch,
+} from "@/lib/findings/finding-inspect-technical-rule-disclosure-url";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export type FindingInspectWhyMattersSectionProps = {
@@ -32,6 +41,40 @@ export function FindingInspectWhyMattersSection({
   const findingTitle = findingDetailHeadingTitle(payload);
   const policyRuleId = resolvePolicyRuleIdFromInspect(payload);
   const policyRuleLabel = resolvePolicyRuleLabelFromInspect(payload, policyRuleId);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingInspectTechnicalRuleOpenParam = searchParams.get(FINDING_INSPECT_TECHNICAL_RULE_OPEN_PARAM);
+  const defaultTechnicalRuleOpen = variant === "inspect";
+  const [technicalRuleOpen, setTechnicalRuleOpenState] = useState(() =>
+    findingInspectTechnicalRuleOpenParam === null
+      ? defaultTechnicalRuleOpen
+      : parseFindingInspectTechnicalRuleOpenFromSearch(findingInspectTechnicalRuleOpenParam),
+  );
+  const syncTechnicalRuleOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        findingInspectTechnicalRuleDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setTechnicalRuleOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalRuleOpenState(open);
+      syncTechnicalRuleOpenToUrl(open);
+    },
+    [syncTechnicalRuleOpenToUrl],
+  );
+
+  useEffect(() => {
+    if (findingInspectTechnicalRuleOpenParam === null) {
+      return;
+    }
+
+    setTechnicalRuleOpenState(parseFindingInspectTechnicalRuleOpenFromSearch(findingInspectTechnicalRuleOpenParam));
+  }, [findingInspectTechnicalRuleOpenParam]);
   const whyHeading =
     findingTitle.trim().length > 0 && findingTitle !== "Finding detail"
       ? `Why ${findingTitle} matters`
@@ -71,7 +114,7 @@ export function FindingInspectWhyMattersSection({
               )}
             </dd>
           </div>
-        ) : isBuyerPolishedOperatorShellEnv() ? (
+        ) : resolveProductionEvalChromeFromStorage() ? (
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
             <dd className="m-0 mt-1">{BUYER_SHOWCASE_POLICY_PACK_LABEL} — PHI minimization at intake</dd>
@@ -80,7 +123,11 @@ export function FindingInspectWhyMattersSection({
       </dl>
       {payload.decisionRuleId ? (
         <div className="mt-3">
-          <CollapsibleSection title="Technical rule identifier" defaultOpen={variant === "inspect"}>
+          <CollapsibleSection
+            title="Technical rule identifier"
+            open={technicalRuleOpen}
+            onToggle={setTechnicalRuleOpen}
+          >
             <div className="flex flex-wrap items-center gap-2">
               <code className={cn("rounded bg-neutral-100 px-1.5 py-0.5 font-mono dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.micro)}>
                 {payload.decisionRuleId}

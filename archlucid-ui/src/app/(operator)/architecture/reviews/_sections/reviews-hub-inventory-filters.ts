@@ -8,6 +8,9 @@ import {
   REVIEWS_HUB_RECENT_EMPTY_BODY,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
   REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
+  WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY,
+  WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
+  WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import type { ReviewsHubOverallStatus } from "./reviews-hub-review-status";
@@ -304,7 +307,19 @@ export function reviewsHubInventoryFilterEmptyReason(filter: ReviewFilterId): st
   return `No reviews match ${option?.label ?? filter}.`;
 }
 
-export function emptyInventoryDescription(draftCount: number): string {
+export function emptyInventoryDescription(draftCount: number, isWorkingMode = false): string {
+  if (isWorkingMode) {
+    if (draftCount === 1) {
+      return WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY;
+    }
+
+    if (draftCount > 1) {
+      return WORKING_REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY;
+    }
+
+    return WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY;
+  }
+
   if (draftCount === 1) {
     return REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY;
   }

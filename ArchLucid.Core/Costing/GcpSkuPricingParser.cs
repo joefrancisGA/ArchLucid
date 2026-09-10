@@ -4,7 +4,7 @@ namespace ArchLucid.Core.Costing;
 
 internal static partial class GcpSkuPricingParser
 {
-    public static bool TryReadHourlyUsdFromSku(JsonElement sku, string machineType, out decimal hourlyUsd)
+    public static bool TryReadHourlyUsdFromSku(JsonElement sku, string machineType, string? regionCode, out decimal hourlyUsd)
     {
         hourlyUsd = 0m;
 
@@ -14,7 +14,9 @@ internal static partial class GcpSkuPricingParser
         string? description = descriptionElement.GetString();
 
         if (string.IsNullOrWhiteSpace(description)
-            || !DescriptionMatchesMachineType(description, machineType))
+            || IsPreemptibleDescription(description)
+            || !DescriptionMatchesMachineType(description, machineType)
+            || !DescriptionMatchesRegion(description, regionCode))
         {
             return false;
         }

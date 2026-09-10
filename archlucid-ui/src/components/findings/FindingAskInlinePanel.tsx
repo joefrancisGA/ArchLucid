@@ -12,7 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
+import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
+import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
 import { BUYER_ASK_GROUNDING_ONCE } from "@/lib/buyer/buyer-polish-copy";
 import { askAboutFinding } from "@/lib/api/finding-ask-api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -21,7 +23,8 @@ import { findingAskBlockedReason } from "@/lib/findings/finding-ask-blocked-reas
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
-  findingAskInlineDisclosureHrefFromSearch,
+  findingAskInlineFindingIdDisclosureHrefFromSearch,
+  parseFindingAskInlineFindingIdFromSearch,
   parseFindingAskInlineOpenFromSearch,
 } from "@/lib/findings/finding-ask-inline-disclosure-url";
 
@@ -32,6 +35,7 @@ type FindingAskInlinePanelProps = {
   readonly findingId: string;
   readonly runId?: string;
   readonly defaultOpen?: boolean;
+  readonly semanticSupportBand?: FindingSemanticSupportBandValue | null;
 };
 
 type AskTurn = {
@@ -47,9 +51,16 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const findingAskInlineOpenParam = searchParams.get("findingAskInlineOpen");
-  const [panelOpen, setPanelOpenState] = useState(
-    () => parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam) || props.defaultOpen === true,
-  );
+  const findingAskInlineFindingIdParam = searchParams.get("findingAskInlineFindingId");
+  const [panelOpen, setPanelOpenState] = useState(() => {
+    const findingIdFromUrl = parseFindingAskInlineFindingIdFromSearch(findingAskInlineFindingIdParam);
+
+    if (findingIdFromUrl === props.findingId) {
+      return true;
+    }
+
+    return parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam) || props.defaultOpen === true;
+  });
   const [question, setQuestion] = useState(DEFAULT_FINDING_QUESTION);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [turns, setTurns] = useState<AskTurn[]>([]);
@@ -62,11 +73,14 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
 
   const syncPanelOpenToUrl = useCallback(
     (open: boolean) => {
-      router.replace(findingAskInlineDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
-        scroll: false,
-      });
+      router.replace(
+        open
+          ? findingAskInlineFindingIdDisclosureHrefFromSearch(searchParams.toString(), props.findingId, pathname)
+          : findingAskInlineFindingIdDisclosureHrefFromSearch(searchParams.toString(), null, pathname),
+        { scroll: false },
+      );
     },
-    [pathname, router, searchParams],
+    [pathname, props.findingId, router, searchParams],
   );
 
   const setPanelOpen = useCallback(
@@ -78,6 +92,20 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
   );
 
   useEffect(() => {
+    const findingIdFromUrl = parseFindingAskInlineFindingIdFromSearch(findingAskInlineFindingIdParam);
+
+    if (findingIdFromUrl === props.findingId) {
+      setPanelOpenState(true);
+
+      return;
+    }
+
+    if (findingAskInlineFindingIdParam !== null) {
+      setPanelOpenState(false);
+
+      return;
+    }
+
     if (parseFindingAskInlineOpenFromSearch(findingAskInlineOpenParam)) {
       setPanelOpenState(true);
 
@@ -93,7 +121,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
     if (props.defaultOpen === true) {
       setPanelOpenState(true);
     }
-  }, [findingAskInlineOpenParam, props.defaultOpen]);
+  }, [findingAskInlineFindingIdParam, findingAskInlineOpenParam, props.defaultOpen, props.findingId]);
 
   async function submitQuestion(): Promise<void> {
     const trimmed = question.trim();
@@ -163,6 +191,14 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                     Answer
                   </p>
                   <AskAssistantMessageBody content={turn.answer} />
+                  <AskCitedFindingsSemanticSupportBandFootnote
+                    referencedFindingIds={[props.findingId]}
+                    findingBandIndex={
+                      props.semanticSupportBand !== undefined && props.semanticSupportBand !== null
+                        ? [{ findingId: props.findingId, band: props.semanticSupportBand }]
+                        : []
+                    }
+                  />
                 </li>
               ))}
             </ol>

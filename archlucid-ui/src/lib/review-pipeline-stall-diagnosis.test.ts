@@ -31,7 +31,7 @@ describe("deriveReviewPipelineStallDiagnosis", () => {
       elapsedMinutes: 56,
     });
 
-    expect(diagnosis?.headline).toMatch(/no pipeline stage has started/i);
+    expect(diagnosis?.headline).toMatch(/no assessment stage has started/i);
     expect(diagnosis?.detail).toMatch(/AuthorityPipelineWorkHostedService/i);
   });
 
@@ -72,7 +72,7 @@ describe("deriveReviewPipelineTerminalFailureDiagnosis", () => {
       },
     });
 
-    expect(diagnosis?.headline).toMatch(/before the first pipeline stage/i);
+    expect(diagnosis?.headline).toMatch(/before the first assessment stage/i);
     expect(diagnosis?.detail).toContain("Missing Azure OpenAI deployment configuration");
   });
 
@@ -96,5 +96,24 @@ describe("deriveReviewPipelineTerminalFailureDiagnosis", () => {
     });
 
     expect(diagnosis).toBeNull();
+  });
+
+  it("surfaces worker-lost copy when lease reconciliation persisted reason code", () => {
+    const diagnosis = deriveReviewPipelineTerminalFailureDiagnosis({
+      summary: {
+        ...baseSummary,
+        hasFindingsSnapshot: true,
+        hasGraphSnapshot: true,
+        hasContextSnapshot: true,
+      },
+      diagnosticContext: {
+        legacyRunStatus: "FailedPartial",
+        lastFailureReason: '{"schemaVersion":1,"reasonCode":"ExecuteOwnershipLeaseExpired"}',
+      },
+    });
+
+    expect(diagnosis?.headline).toMatch(/worker lost/i);
+    expect(diagnosis?.detail).toMatch(/retry execute/i);
+    expect(diagnosis?.detail).toMatch(/rebill/i);
   });
 });

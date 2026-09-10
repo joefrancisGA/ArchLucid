@@ -17,7 +17,9 @@
         "sourceId": null,
         "properties": {
           "controlId": "SC-8",
-          "status": "missing"
+          "status": "missing",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000029/resourceGroups/rg-golden/providers/Microsoft.Authorization/policyAssignments/TLS-4",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000029/resourceGroups/rg-golden/providers/Microsoft.Authorization/policyAssignments/TLS-4"
         },
         "reasoningTrace": null
       }

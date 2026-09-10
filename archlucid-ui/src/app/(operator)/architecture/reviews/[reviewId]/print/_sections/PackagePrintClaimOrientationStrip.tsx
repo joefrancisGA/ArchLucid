@@ -22,6 +22,7 @@ export function PackagePrintClaimOrientationStrip(
       claimHeading={PACKAGE_PRINT_CLAIM_HEADING}
       sourcesIntro={PACKAGE_PRINT_SOURCES_INTRO}
       sources={buildPackagePrintSources(props.runId)}
+      sourcesTestId="package-print-sources"
     />
   );
 }

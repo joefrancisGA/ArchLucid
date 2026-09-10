@@ -139,6 +139,55 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     }
 
     [Fact]
+    public async Task ParseAsync_for_each_instances_use_expanded_address()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "d-for-each",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "address": "azurerm_storage_account.docs[\"k1\"]",
+                                "mode": "managed",
+                                "type": "azurerm_storage_account",
+                                "name": "docs",
+                                "index_key": "k1",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "location": "eastus", "name": "stk1" }
+                              },
+                              {
+                                "address": "azurerm_storage_account.docs[\"k2\"]",
+                                "mode": "managed",
+                                "type": "azurerm_storage_account",
+                                "name": "docs",
+                                "index_key": "k2",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "location": "westus", "name": "stk2" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().HaveCount(2);
+        objects.Select(o => o.Name).Should().BeEquivalentTo(
+        [
+            "azurerm_storage_account.docs[\"k1\"]",
+            "azurerm_storage_account.docs[\"k2\"]",
+        ]);
+        objects.Select(o => o.ObjectId).Distinct().Should().HaveCount(2);
+    }
+
+    [Fact]
     public async Task ParseAsync_resolves_type_after_provider_slash()
     {
         InfrastructureDeclarationReference decl = new()
@@ -1276,5 +1325,49 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
         storageAccount.Properties["providerName"].Should().Be("registry.terraform.io/hashicorp/azurerm");
         storageAccount.Properties["mode"].Should().Be("managed");
         storageAccount.Properties["tf.name"].Should().Be("stacct");
+    }
+
+    [Fact]
+    public async Task ParseAsync_ModuleTraversal_ExpandsNestedLocalChildModules()
+    {
+        InfrastructureDeclarationReference decl = new()
+        {
+            Name = "state",
+            Format = "terraform-show-json",
+            DeclarationId = "decl-tfshow-module-traversal",
+            Content = """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [],
+                            "child_modules": [
+                              {
+                                "address": "module.network",
+                                "child_modules": [
+                                  {
+                                    "address": "module.network.module.kv",
+                                    "resources": [
+                                      {
+                                        "address": "module.network.module.kv.azurerm_key_vault.shared",
+                                        "type": "azurerm_key_vault",
+                                        "name": "shared",
+                                        "values": { "name": "kv-prod" }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
+
+        objects.Should().ContainSingle(o =>
+            o.Name == "module.network.module.kv.azurerm_key_vault.shared"
+            && o.ObjectType == "SecurityBaseline");
     }
 }

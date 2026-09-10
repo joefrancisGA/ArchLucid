@@ -1,3 +1,6 @@
+import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+
 export type WorkItemClipboardFormat =
   | "markdown"
   | "jiraWiki"
@@ -20,6 +23,8 @@ export type FindingWorkItemJsonDocument = {
   ruleId: string;
   trustLabel?: string;
   trustLabelReason?: string;
+  semanticSupportBand?: string;
+  semanticSupportBandScorerVersion?: string;
   /** Working-mode clipboard honesty when inspect supplies coverage/provenance signals (FD-07). */
   coverageHonesty?: string;
   coverageHonestyProvenanceKind?: FindingWorkItemProvenanceKind;
@@ -47,6 +52,8 @@ export type FindingWorkItemBuildInput = {
   evidenceExcerpts: string[];
   trustLabel?: string | null;
   trustLabelReason?: string | null;
+  classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
+  semanticSupportBand?: FindingSemanticSupportBandValue | null;
   /** Committed manifest version from inspect payload when available. */
   manifestVersion?: string | null;
   /** Pre-rendered honesty line for Working clipboard exports (FD-07). */
@@ -54,6 +61,8 @@ export type FindingWorkItemBuildInput = {
   coverageHonestyProvenanceKind?: FindingWorkItemProvenanceKind | null;
   /** When false, omit coverage honesty even if populated (Guided paste). */
   includeCoverageHonesty?: boolean;
+  /** Active product shell for consumer-facing product labels (defaults to architecture). */
+  productLineId?: ProductLineId;
 };
 
 /** Minimal block for per-finding table rows (aggregate explanation list / governance queue). */
@@ -68,6 +77,14 @@ export type TraceRowWorkItemInput = {
   siteOrigin: string;
   trustLabel?: string | null;
   trustLabelReason?: string | null;
+  classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
+  semanticSupportBand?: FindingSemanticSupportBandValue | null;
+  /** Pre-rendered honesty line for Working clipboard exports (FC-41). */
+  coverageHonestyLine?: string | null;
+  /** When false, omit coverage honesty even if populated (Guided paste). */
+  includeCoverageHonesty?: boolean;
+  /** Active product shell for consumer-facing product labels (defaults to architecture). */
+  productLineId?: ProductLineId;
 };
 
 export function na(value: string | null | undefined): string {

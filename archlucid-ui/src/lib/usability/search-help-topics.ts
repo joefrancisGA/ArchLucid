@@ -1,6 +1,9 @@
 import { isArchLucidInternalOperatorShellEnv } from "@/lib/internal-operator-env";
 import { isHostConfigurationHelpSlug } from "@/lib/product-documentation-access";
 import { PRODUCT_DOCUMENTATION_REGISTRY } from "@/lib/product-documentation-registry";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 
 export type HelpTopicSearchHit = {
   readonly slug: string;
@@ -8,7 +11,11 @@ export type HelpTopicSearchHit = {
   readonly summary: string;
 };
 
-export function searchHelpTopics(query: string, take = 4): HelpTopicSearchHit[] {
+export function searchHelpTopics(
+  query: string,
+  take = 4,
+  productLineId: ProductLineId = resolveProductLineIdFromEnv(),
+): HelpTopicSearchHit[] {
   const normalized = query.trim().toLowerCase();
 
   if (normalized.length < 2) {
@@ -24,7 +31,9 @@ export function searchHelpTopics(query: string, take = 4): HelpTopicSearchHit[] 
       continue;
     }
 
-    const haystack = `${entry.title} ${entry.summary} ${entry.slug}`.toLowerCase();
+    const localizedTitle = localizeProductCopy(productLineId, entry.title);
+    const localizedSummary = localizeProductCopy(productLineId, entry.summary);
+    const haystack = `${entry.title} ${entry.summary} ${localizedTitle} ${localizedSummary} ${entry.slug}`.toLowerCase();
 
     if (!haystack.includes(normalized)) {
       continue;
@@ -32,8 +41,8 @@ export function searchHelpTopics(query: string, take = 4): HelpTopicSearchHit[] 
 
     hits.push({
       slug: entry.slug,
-      title: entry.title,
-      summary: entry.summary,
+      title: localizedTitle,
+      summary: localizedSummary,
     });
   }
 

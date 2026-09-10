@@ -6,7 +6,7 @@ import type {
 } from "@/types/advisory";
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 
-/** Lists persisted recommendation records for a run (governance workflow state). */
+/** Lists persisted recommendation records for a run (approval workflow state). */
 export async function listRecommendations(runId: string): Promise<AdvisoryRunRecommendationsList> {
   return apiGetSealedManifestAware<AdvisoryRunRecommendationsList>(
     `/v1/advisory/runs/${encodeURIComponent(runId)}/recommendations`,

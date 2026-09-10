@@ -63,6 +63,15 @@ public sealed class PostCommitProjectionOutboxProcessor(
         PostCommitProjectionOutboxProcessorOptions opts,
         CancellationToken cancellationToken)
     {
+        ScopeContext jobScope = new()
+        {
+            TenantId = entry.TenantId,
+            WorkspaceId = entry.WorkspaceId,
+            ProjectId = entry.ProjectId
+        };
+
+        using IDisposable ambient = AmbientScopeContext.Push(jobScope);
+
         IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
         ArchLucidInstrumentation.RecordPostCommitProjectionOutboxDeadLettered();
         await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken).ConfigureAwait(false);

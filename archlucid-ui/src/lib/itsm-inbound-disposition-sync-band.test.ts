@@ -9,6 +9,8 @@ const UI_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ITSM_INBOUND_DISPOSITION_SYNC_BAND_TEST_FILES = [
   "src/app/(operator)/architecture/reviews/[reviewId]/findings/[findingId]/FindingInspectItsmWorkflowPanel.test.tsx",
   "src/lib/findings/finding-human-review-display.ts",
+  "src/lib/findings/finding-human-review-disposition-divergence.ts",
+  "src/lib/findings/finding-human-review-disposition-divergence.test.ts",
 ] as const;
 
 describe("itsm inbound disposition sync band regression (TB-396)", () => {

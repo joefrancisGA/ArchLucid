@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { OperatorHomeWorkingPrimaryCta } from "@/components/operator-home/OperatorHomeWorkingPrimaryCta";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import {
   PAGE_HELP_SHORT_TRIGGER_TEXT,
   PageContextualHelpButton,
@@ -11,6 +12,10 @@ import {
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { OPERATOR_HOME_DATA_CURRENCY_PREFIX } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
+import { OPERATOR_HOME_CLAIM_DISCIPLINE } from "@/lib/operator/operator-home-evidence-copy";
+import {
+  OPERATOR_HOME_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+} from "@/app/(operator)/_sections/operator-home-page-surface-copy";
 import { useOperatorHomeRefresh } from "@/lib/operator/operator-home-refresh-context";
 import {
   OPERATOR_NOT_REFRESHED_LABEL,
@@ -19,8 +24,24 @@ import {
 } from "@/lib/operator/operator-last-refreshed-label";
 
 export type OperatorHomePageHeaderProps = {
-  readonly subtitle: string;
+  readonly buyerPolishedShell?: boolean;
+  readonly subtitle?: string;
+  readonly workspaceLabel?: string | null;
 };
+
+function operatorHomeWorkspaceSubtitle(workspaceLabel: string | null | undefined): ReactNode {
+  const trimmed = workspaceLabel?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  return (
+    <span className="block text-al-text-secondary">
+      Summarizing <span className="font-medium text-al-text-primary">{trimmed}</span>.
+    </span>
+  );
+}
 
 function operatorHomeFreshnessContent(input: {
   readonly lastRefreshedAt: Date | null | undefined;
@@ -53,19 +74,35 @@ function operatorHomeFreshnessContent(input: {
 /** Shared `/` Overview hero — title, lead, refresh, data-currency timestamp, and resume/start primary. */
 export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): React.JSX.Element {
   const { refreshing, lastRefreshedAt, requestRefresh } = useOperatorHomeRefresh();
+  const freshnessTimestamp = refreshing ? null : lastRefreshedAt;
   const freshnessContent = operatorHomeFreshnessContent({
-    lastRefreshedAt: refreshing ? null : lastRefreshedAt,
+    lastRefreshedAt: freshnessTimestamp,
     refreshing,
   });
+
+  const workspaceSubtitle = operatorHomeWorkspaceSubtitle(props.workspaceLabel);
+  const pageSubtitle =
+    props.subtitle !== undefined && props.subtitle.length > 0
+      ? (
+          <>
+            {props.subtitle}
+            {workspaceSubtitle}
+          </>
+        )
+      : workspaceSubtitle;
 
   return (
     <OperatorPageHeader
       navHref="/"
       title={OPERATOR_HOME_PAGE_TITLE}
       titleTestId="operator-home-page-title"
-      subtitle={props.subtitle}
+      subtitle={pageSubtitle}
       subtitleClassName="[&_strong]:font-bold"
       subtitleTestId="operator-home-page-subtitle"
+      claimDiscipline={props.buyerPolishedShell === true ? OPERATOR_HOME_CLAIM_DISCIPLINE : undefined}
+      claimDisciplineTestId={
+        props.buyerPolishedShell === true ? OPERATOR_HOME_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
+      }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
@@ -73,7 +110,12 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
             className="flex flex-wrap items-center gap-2"
             data-testid="operator-home-data-currency"
           >
-            <span className="text-al-text-secondary">{freshnessContent}</span>
+            <OperatorPageFreshnessMetadata
+              testId="operator-home-data-currency-label"
+              lastRefreshedAt={freshnessTimestamp}
+            >
+              {freshnessContent}
+            </OperatorPageFreshnessMetadata>
             <RefreshButton
               data-testid="operator-home-refresh-button"
               busy={refreshing}

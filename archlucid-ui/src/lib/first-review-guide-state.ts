@@ -13,6 +13,7 @@ export {
   resolveFirstReviewGuideHeaderActions,
   resolveFirstReviewGuideOutcomeLinks,
   resolveFirstReviewGuideProgress,
+  resolveFirstReviewGuideRunHref,
   resolveFirstReviewGuideSteps,
   resolveOptionalWorkspaceSetupComplete,
 } from "./first-review-guide-status";

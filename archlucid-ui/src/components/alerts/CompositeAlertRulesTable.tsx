@@ -73,6 +73,7 @@ function CompositeAlertRuleStateChip(props: {
 }
 
 export type CompositeAlertRulesTableProps = {
+  readonly buyerPolishedShell: boolean;
   readonly canMutateComposite: boolean;
   readonly scopedRunFilterActive: boolean;
   readonly loading: boolean;
@@ -88,6 +89,7 @@ export type CompositeAlertRulesTableProps = {
 
 export function CompositeAlertRulesTable(props: CompositeAlertRulesTableProps): React.JSX.Element {
   const {
+    buyerPolishedShell,
     canMutateComposite,
     scopedRunFilterActive,
     loading,
@@ -117,7 +119,7 @@ export function CompositeAlertRulesTable(props: CompositeAlertRulesTableProps): 
         {COMPOSITE_RULES_CREATE_ONLY_DISCLOSURE}
       </p>
 
-      {canMutateComposite && scopedRunFilterActive ? (
+      {canMutateComposite && scopedRunFilterActive && !buyerPolishedShell ? (
         <div className="mb-4 flex flex-wrap items-center gap-2" data-testid="composite-rules-action-row">
           <Button
             type="button"
@@ -155,15 +157,17 @@ export function CompositeAlertRulesTable(props: CompositeAlertRulesTableProps): 
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="primary"
-                    data-testid="composite-rules-empty-create-action"
-                    onClick={onRevealCreatePanel}
-                  >
-                    {compositeRulesCreateButtonLabelOperator}
-                  </Button>
+                  {buyerPolishedShell ? null : (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="primary"
+                      data-testid="composite-rules-empty-create-action"
+                      onClick={onRevealCreatePanel}
+                    >
+                      {compositeRulesCreateButtonLabelOperator}
+                    </Button>
+                  )}
                   <Button
                     asChild
                     size="sm"

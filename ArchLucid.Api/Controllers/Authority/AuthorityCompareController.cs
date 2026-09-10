@@ -100,7 +100,7 @@ public sealed partial class AuthorityCompareController(
         }
         catch (InvalidOperationException ex)
         {
-            return MapCompareSealedManifestConflict(new ConflictException(ex.Message, ex));
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
 
         if (result is null)
@@ -178,9 +178,9 @@ public sealed partial class AuthorityCompareController(
             ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
                 "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
                 ProblemTypes.CommittedArtifactInventoryMismatch),
-            ScopedRunPairLoadOutcome.SealedManifestHashMismatch => MapCompareSealedManifestConflict(
-                new ConflictException(
-                    "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
+            ScopedRunPairLoadOutcome.SealedManifestHashMismatch => this.ConflictProblem(
+                "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
+                ProblemTypes.Conflict),
             ScopedRunPairLoadOutcome.LeftLifecycleIncomplete => this.ConflictProblem(
                 $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
                 ProblemTypes.Conflict),

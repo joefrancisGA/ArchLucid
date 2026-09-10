@@ -46,6 +46,15 @@ describe("teams-slack-notification-vocabulary (TB-2247)", () => {
     );
   });
 
+  it("uses Teams instead of Microsoft Teams in SecureNow vocabulary", () => {
+    const model = buildTeamsSlackNotificationVocabulary("security");
+
+    expect(model.teamsLink.label).toBe("Teams");
+    expect(model.whyTwo).toContain("Teams and Slack");
+    expect(model.whyTwo).not.toContain("Microsoft Teams");
+    expect(resolveTeamsSlackNotificationPeerLink("slack", "security").label).toBe("Teams");
+  });
+
   it("keeps customer-facing rail copy free of banned job and product wording", () => {
     const surfaces = [
       TEAMS_SLACK_NOTIFICATION_WHY_TWO,

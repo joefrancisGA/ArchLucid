@@ -1,4 +1,5 @@
 import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import {
   JIRA_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/jira-integration-evidence-copy";
@@ -16,6 +17,10 @@ export const JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE =
 export const JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const JIRA_INTEGRATION_HELP_SOURCES_INTRO = JIRA_INTEGRATION_SOURCES_INTRO;
+
+export const JIRA_INTEGRATION_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "connection health, readiness checks, or related work-item integrations need attention",
+);
 
 /** Help follow-ups — no self-href, one readiness destination, one ServiceNow destination. */
 export const JIRA_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [

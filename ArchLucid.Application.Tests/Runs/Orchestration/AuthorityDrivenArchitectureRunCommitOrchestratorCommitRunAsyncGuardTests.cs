@@ -13,6 +13,7 @@ using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.UserPreferences;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -156,6 +157,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<IArtifactBundleRepository>(),
             Mock.Of<IAuthorityCommitProjectionBuilder>(),
             Mock.Of<IManifestHashService>(),
+            Mock.Of<IUserWorkspaceModeReader>(),
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }

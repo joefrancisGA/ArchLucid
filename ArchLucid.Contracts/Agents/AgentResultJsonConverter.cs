@@ -118,6 +118,8 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
 
         public List<ArchitectureFinding> ChecklistCoverage { get; set; } = [];
 
+        public List<WithheldFindingSummary> WithheldFindings { get; set; } = [];
+
         public InsightDensityCurationSummary? InsightDensityCuration { get; set; }
 
         [JsonConverter(typeof(AgentTopologyProposalJsonConverter))]
@@ -152,6 +154,7 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
                 CalibratedConfidence = CalibratedConfidence,
                 Findings = Findings,
                 ChecklistCoverage = ChecklistCoverage,
+                WithheldFindings = WithheldFindings,
                 InsightDensityCuration = InsightDensityCuration,
                 ProposedChanges = ProposedChanges,
                 ReasoningTrace = ReasoningTrace,
@@ -177,6 +180,7 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
                 CalibratedConfidence = value.CalibratedConfidence,
                 Findings = value.Findings,
                 ChecklistCoverage = value.ChecklistCoverage,
+                WithheldFindings = value.WithheldFindings,
                 InsightDensityCuration = value.InsightDensityCuration,
                 ProposedChanges = value.ProposedChanges,
                 ReasoningTrace = value.ReasoningTrace,

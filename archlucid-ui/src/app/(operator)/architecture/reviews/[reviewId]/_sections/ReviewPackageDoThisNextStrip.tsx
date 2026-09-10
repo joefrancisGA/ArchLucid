@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { CommitRunButton } from "@/components/CommitRunButton";
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { ReRunReviewButton } from "@/components/runs/ReRunReviewButton";
 import {
   OperatorErrorCallout,
   OperatorWarningCallout,
 } from "@/components/operator/OperatorShellMessage";
 import { WorkspaceAiAvailabilityPanel } from "@/components/reviews/WorkspaceAiAvailabilityPanel";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import type { SessionAiReadinessState } from "@/hooks/use-session-ai-readiness";
 import type { ReviewSubmittedIntakeRecap } from "@/lib/derive-review-submitted-intake-recap";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -24,10 +25,12 @@ import {
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import {
   formatReviewFailureRecordedAtLabel,
+  REVIEW_FAILURE_RECORDED_AT_UNAVAILABLE_LABEL,
 } from "@/components/resolve-run-detail-last-failure-summary";
 import { useReviewPipelineReRunInFlight } from "@/hooks/use-review-pipeline-rerun-in-flight";
 import { REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE } from "@/lib/operations/review-pipeline-rerun-in-flight";
 import { ReviewFailureTechnicalMetadataDisclosure } from "@/components/reviews/ReviewFailureTechnicalMetadataDisclosure";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import type { ReviewFailureAdminHandoff } from "@/lib/review-failure-recovery-role-copy";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
@@ -215,7 +218,7 @@ function ReviewSubmittedIntakeRecapPanel(props: {
       data-testid="review-package-submitted-intake-recap"
     >
       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-        Submitted intake package
+        Review scope
       </p>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Read-only — this is what was recorded when the review started. Re-run review reuses this package unchanged.
@@ -239,9 +242,15 @@ function ReviewSubmittedIntakeRecapPanel(props: {
           <p className={cn("m-0 font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Attached files
           </p>
-          <ul className={cn("m-0 mt-1 list-disc space-y-1 pl-5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+          <ul className={cn("m-0 mt-1 list-none space-y-1 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             {recap.attachedFiles.map((fileName) => (
-              <li key={fileName}>{fileName}</li>
+              <li key={fileName} className="flex min-h-6 items-center gap-2">
+                <span className="text-al-text-secondary" aria-hidden>•</span>
+                <span data-testid="review-package-attached-file-name">{fileName}</span>
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Recorded with intake (not downloadable here)
+                </span>
+              </li>
             ))}
           </ul>
         </div>
@@ -262,7 +271,7 @@ function ReviewFailureRecoveryDetails(props: {
   readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly pipelineSummary?: RunSummary | null;
   readonly retryCount?: number | null;
-  readonly actionRow: React.ReactNode;
+  readonly footActionRow: React.ReactNode;
   readonly showRecoverySteps: boolean;
 }): React.JSX.Element {
   const {
@@ -277,15 +286,13 @@ function ReviewFailureRecoveryDetails(props: {
     pipelineDiagnosticContext,
     pipelineSummary,
     retryCount,
-    actionRow,
+    footActionRow,
     showRecoverySteps,
   } = props;
   const Callout =
     failureRecovery.severity === "warning" ? OperatorWarningCallout : OperatorErrorCallout;
   const intactSummary = failureRecovery.intactSummary?.trim() ?? "";
   const showDetail = shouldShowReviewFailureRecoveryDetail(failureRecovery);
-  const workspaceAiSignal = failureRecovery.workspaceAiConfigurationSignal;
-  const whatFailedLine = resolveReviewFailureWhatFailedLine(lastFailureSummary, failureRecovery);
   const recoverySteps = resolveFailureRecoverySteps(
     failureRecovery,
     sessionAiReadiness,
@@ -294,14 +301,16 @@ function ReviewFailureRecoveryDetails(props: {
   );
 
   return (
-    <div className="mt-3 space-y-3" data-testid="review-package-failure-recovery">
-      {whatFailedLine !== null ? (
-        <div data-testid="review-package-failure-cause">
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-            <span className="font-semibold text-al-text-primary">What failed:</span> {whatFailedLine}
-          </p>
-        </div>
-      ) : null}
+    <div className="space-y-3" data-testid="review-package-failure-recovery">
+      <div data-testid="review-package-failure-review-id">
+        <CopyIdButton value={runId} aria-label="Copy review ID" />
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <Link href={failureRecovery.supportHref} className={cn(OPERATOR_LINK.inline)}>
+            Report a problem
+          </Link>{" "}
+          and include this review ID if you need support.
+        </p>
+      </div>
 
       <ReviewFailureTechnicalMetadataDisclosure
         runId={runId}
@@ -320,18 +329,6 @@ function ReviewFailureRecoveryDetails(props: {
         </Callout>
       ) : null}
 
-      {workspaceAiSignal !== null && workspaceAiSignal !== undefined ? (
-        <WorkspaceAiAvailabilityPanel
-          workspaceAiSignal={workspaceAiSignal}
-          availabilityCheck={{
-            state: sessionAiReadiness.probeState,
-            checkAvailability: sessionAiReadiness.checkAvailability,
-          }}
-          reviewTerminalFailure
-          scopingLabel="Workspace AI check (this review)"
-        />
-      ) : null}
-
       {intactSummary.length > 0 && showDetail ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="review-package-failure-intact">
           <span className="font-semibold text-al-text-primary">What&apos;s intact:</span> {intactSummary}
@@ -348,15 +345,6 @@ function ReviewFailureRecoveryDetails(props: {
               <li key={step}>{step}</li>
             ))}
           </ol>
-        </div>
-      ) : null}
-
-      {showRecoverySteps ? (
-        <div
-          className="flex min-w-0 w-full max-w-full flex-col items-start gap-2"
-          data-testid="review-package-do-this-next-action"
-        >
-          {actionRow}
         </div>
       ) : null}
 
@@ -379,11 +367,6 @@ function ReviewFailureRecoveryDetails(props: {
         </div>
       ) : null}
 
-      {failureRecovery.submittedIntakeRecap !== null &&
-      failureRecovery.submittedIntakeRecap !== undefined ? (
-        <ReviewSubmittedIntakeRecapPanel recap={failureRecovery.submittedIntakeRecap} />
-      ) : null}
-
       {failureRecovery.suggestSupportTicket ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-package-failure-support-hint">
           If these steps do not resolve the failure,{" "}
@@ -392,6 +375,15 @@ function ReviewFailureRecoveryDetails(props: {
           </Link>{" "}
           and include this review id.
         </p>
+      ) : null}
+
+      {footActionRow !== null ? (
+        <div
+          className="flex min-w-0 w-full max-w-full flex-col items-start gap-2"
+          data-testid="review-package-failure-foot-action"
+        >
+          {footActionRow}
+        </div>
       ) : null}
     </div>
   );
@@ -421,36 +413,62 @@ export function ReviewPackageDoThisNextStrip(
   const suppressStaleFailureRecovery =
     reRunInFlight && next.failureRecovery !== null && next.failureRecovery !== undefined;
   const failureRecordedAtLabel = formatReviewFailureRecordedAtLabel(failureRecordedAtUtc);
+  const failureRecordedAtDisplay =
+    failureRecordedAtLabel ?? REVIEW_FAILURE_RECORDED_AT_UNAVAILABLE_LABEL;
+  const disabledRerunHintId = "review-package-rerun-disabled-hint";
+
+  const primaryActionButton =
+    next.kind === "finalize-package" ? (
+      <CommitRunButton
+        runId={runId}
+        disabled={hasGoldenManifest}
+        commitBlockedReason={commitBlockedReason}
+        buttonVariant="primary"
+      />
+    ) : next.kind === "rerun-review" && !blockRerun ? (
+      <ReRunReviewButton
+        runId={runId}
+        retryCount={retryCount}
+        variant={buttonVariant}
+        size="sm"
+        data-testid="review-package-re-run-review"
+      />
+    ) : next.href !== null && !blockRerun ? (
+      <Button type="button" variant={buttonVariant} size="sm" asChild>
+        <Link href={next.href}>{next.actionLabel}</Link>
+      </Button>
+    ) : (
+      <Button
+        type="button"
+        variant={buttonVariant}
+        size="sm"
+        disabled
+        aria-describedby={blockRerun ? disabledRerunHintId : undefined}
+        data-testid="review-package-do-this-next-disabled-action"
+      >
+        {next.actionLabel}
+      </Button>
+    );
+
+  const primaryAction = (
+    <>
+      {primaryActionButton}
+      {blockRerun ? (
+        <WhyDisabledCtaHint
+          id={disabledRerunHintId}
+          reason={{
+            kind: "prerequisite",
+            message: sessionAiReadiness.detail ?? "Live AI is not ready for Real mode.",
+          }}
+          testId="review-package-rerun-disabled-hint"
+        />
+      ) : null}
+    </>
+  );
 
   const actionRow = (
     <>
-      {next.kind === "finalize-package" ? (
-        <CommitRunButton
-          runId={runId}
-          disabled={hasGoldenManifest}
-          commitBlockedReason={commitBlockedReason}
-          buttonVariant="primary"
-        />
-      ) : next.kind === "rerun-review" && !blockRerun ? (
-        <ReRunReviewButton
-          runId={runId}
-          retryCount={retryCount}
-          variant={buttonVariant}
-          size="sm"
-          data-testid="review-package-re-run-review"
-        />
-      ) : next.href !== null && !blockRerun ? (
-        <Button type="button" variant={buttonVariant} size="sm" asChild>
-          <Link href={next.href}>{next.actionLabel}</Link>
-        </Button>
-      ) : (
-        <span
-          className={cn(buttonVariants({ variant: buttonVariant, size: "sm" }), "pointer-events-none opacity-60")}
-          title={blockRerun ? sessionAiReadiness.detail ?? "Live AI is not ready for Real mode." : undefined}
-        >
-          {next.actionLabel}
-        </span>
-      )}
+      {primaryAction}
       {next.secondaryAction !== null && next.secondaryAction !== undefined ? (
         <Button type="button" variant="outline" size="sm" asChild>
           <Link href={next.secondaryAction.href} data-testid="review-package-do-this-next-secondary-action">
@@ -470,6 +488,17 @@ export function ReviewPackageDoThisNextStrip(
     </>
   );
 
+  const footActionRow =
+    next.kind === "rerun-review" && !blockRerun ? (
+      <ReRunReviewButton
+        runId={runId}
+        retryCount={retryCount}
+        variant="outline"
+        size="sm"
+        data-testid="review-package-re-run-review-foot"
+      />
+    ) : null;
+
   const hasFailureRecovery = next.failureRecovery !== null && next.failureRecovery !== undefined;
   const failureRecoverySteps =
     hasFailureRecovery
@@ -481,74 +510,88 @@ export function ReviewPackageDoThisNextStrip(
         )
       : [];
   const showFailureRecoverySteps = failureRecoverySteps.length > 0;
-  const showHeaderPrimaryAction =
-    hasFailureRecovery && !showFailureRecoverySteps && !suppressStaleFailureRecovery;
   const displayedSentence = suppressStaleFailureRecovery
     ? REVIEW_PIPELINE_RE_RUN_IN_PROGRESS_DO_THIS_NEXT_SENTENCE
     : resolveDisplayedDoThisNextSentence(next, sessionAiReadiness, showFailureRecoverySteps);
+  const whatFailedLine =
+    hasFailureRecovery && !suppressStaleFailureRecovery
+      ? resolveReviewFailureWhatFailedLine(
+          lastFailureSummary,
+          next.failureRecovery,
+          pipelineSummary,
+        )
+      : null;
+  const workspaceAiSignal = next.failureRecovery?.workspaceAiConfigurationSignal ?? null;
+  const submittedIntakeRecap = next.failureRecovery?.submittedIntakeRecap ?? null;
 
   const stripCalloutClass =
     hasFailureRecovery && !suppressStaleFailureRecovery
       ? DESIGN_TOKENS.callout.blockedShell
       : DESIGN_TOKENS.callout.info;
 
-  return (
-    <section
-      className={cn(stripCalloutClass, "flex min-w-0 max-w-full flex-col gap-3 p-4")}
-      data-testid="review-package-do-this-next-strip"
-      aria-labelledby="review-package-do-this-next-heading"
-    >
-      <div className="min-w-0 max-w-full space-y-1">
-        <div
-          className={cn(
-            "flex gap-2",
-            showHeaderPrimaryAction
-              ? "flex-col items-stretch"
-              : "flex-col sm:flex-row sm:items-start sm:justify-between",
-          )}
+  if (hasFailureRecovery && !suppressStaleFailureRecovery) {
+    return (
+      <div className="space-y-3" data-testid="review-package-do-this-next-strip">
+        <section
+          className={cn(stripCalloutClass, "flex min-w-0 max-w-full flex-col gap-3 p-4")}
+          aria-labelledby="review-package-do-this-next-heading"
         >
-          <h2
-            id="review-package-do-this-next-heading"
-            className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            Do this next
-          </h2>
-          <div
-            className={cn(
-              "flex min-w-0 max-w-full flex-col items-start gap-2",
-              showHeaderPrimaryAction ? "w-full" : "shrink-0 sm:flex-row sm:flex-wrap sm:items-center",
-            )}
-          >
-            {showHeaderPrimaryAction ? actionRow : null}
-            {hasFailureRecovery && !suppressStaleFailureRecovery && failureRecordedAtLabel !== null ? (
+          <div className="min-w-0 max-w-full space-y-1">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <h2
+                id="review-package-do-this-next-heading"
+                className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+              >
+                Do this next
+              </h2>
               <p
                 className={cn("m-0 shrink-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="review-package-failure-recorded-at"
               >
-                Failed {failureRecordedAtLabel}
+                Failed {failureRecordedAtDisplay}
               </p>
-            ) : null}
+            </div>
+            <p
+              className={cn("m-0 break-words text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="review-package-do-this-next-sentence"
+            >
+              {displayedSentence}
+            </p>
           </div>
-        </div>
-        <p
-          className={cn("m-0 break-words text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-          data-testid="review-package-do-this-next-sentence"
-        >
-          {displayedSentence}
-        </p>
-      </div>
 
-      {!hasFailureRecovery || suppressStaleFailureRecovery ? (
-        <div
-          className="flex min-w-0 w-full max-w-full shrink-0 flex-col items-stretch gap-2 sm:items-end"
-          data-testid="review-package-do-this-next-action"
-          data-review-package-do-this-next-kind={next.kind}
-        >
-          {actionRow}
-        </div>
-      ) : null}
+          {whatFailedLine !== null ? (
+            <div data-testid="review-package-failure-cause">
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                <span className="font-semibold text-al-text-primary">What failed:</span> {whatFailedLine}
+              </p>
+            </div>
+          ) : null}
 
-      {hasFailureRecovery && !suppressStaleFailureRecovery ? (
+          <div
+            className="flex min-w-0 w-full max-w-full flex-col items-start gap-2"
+            data-testid="review-package-do-this-next-action"
+            data-review-package-do-this-next-kind={next.kind}
+          >
+            {actionRow}
+          </div>
+        </section>
+
+        {workspaceAiSignal !== null && workspaceAiSignal !== undefined ? (
+          <WorkspaceAiAvailabilityPanel
+            workspaceAiSignal={workspaceAiSignal}
+            availabilityCheck={{
+              state: sessionAiReadiness.probeState,
+              checkAvailability: sessionAiReadiness.checkAvailability,
+            }}
+            reviewTerminalFailure
+            scopingLabel="Workspace AI check (this review)"
+          />
+        ) : null}
+
+        {submittedIntakeRecap !== null && submittedIntakeRecap !== undefined ? (
+          <ReviewSubmittedIntakeRecapPanel recap={submittedIntakeRecap} />
+        ) : null}
+
         <ReviewFailureRecoveryDetails
           runId={runId}
           manifestVersion={hasGoldenManifest ? "committed" : null}
@@ -561,10 +604,41 @@ export function ReviewPackageDoThisNextStrip(
           pipelineDiagnosticContext={pipelineDiagnosticContext}
           pipelineSummary={pipelineSummary}
           retryCount={retryCount}
-          actionRow={actionRow}
+          footActionRow={footActionRow}
           showRecoverySteps={showFailureRecoverySteps}
         />
-      ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <section
+      className={cn(stripCalloutClass, "flex min-w-0 max-w-full flex-col gap-3 p-4")}
+      data-testid="review-package-do-this-next-strip"
+      aria-labelledby="review-package-do-this-next-heading"
+    >
+      <div className="min-w-0 max-w-full space-y-1">
+        <h2
+          id="review-package-do-this-next-heading"
+          className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+        >
+          Do this next
+        </h2>
+        <p
+          className={cn("m-0 break-words text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="review-package-do-this-next-sentence"
+        >
+          {displayedSentence}
+        </p>
+      </div>
+
+      <div
+        className="flex min-w-0 w-full max-w-full shrink-0 flex-col items-stretch gap-2 sm:items-end"
+        data-testid="review-package-do-this-next-action"
+        data-review-package-do-this-next-kind={next.kind}
+      >
+        {actionRow}
+      </div>
     </section>
   );
 }

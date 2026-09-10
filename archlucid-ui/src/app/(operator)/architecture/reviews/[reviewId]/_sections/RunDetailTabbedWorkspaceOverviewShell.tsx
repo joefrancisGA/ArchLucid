@@ -16,6 +16,7 @@ import type { RunDetailPageModel } from "./run-detail-page-model";
 import type { RunDetailPresentation } from "./run-detail-page-presentation";
 import { RunDetailDetailedOutcomeCardsDisclosure } from "./RunDetailDetailedOutcomeCardsDisclosure";
 import { deriveDecisionSnapshotSuppressedReason, isReviewPipelineIncomplete } from "@/lib/run-detail-workspace-derive";
+import { isAssertedTransparencyTrailEmpty } from "@/lib/feasibility/transparency-trail-completeness";
 
 export type RunDetailTabbedWorkspaceOverviewShellInput = {
   readonly model: RunDetailPageModel;
@@ -73,6 +74,9 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
       <RunDetailSponsorBottomLineDeferred content={executiveBottomLineContent} />
     ) : null;
   const runCompleted = m.resolvedDetail.run.legacyRunStatus === "Completed" || Boolean(m.manifestId);
+  const feasibilityVerdict =
+    m.manifestSummary?.feasibilityVerdict ?? m.manifestSummaryForUi?.feasibilityVerdict ?? null;
+  const assertedTrailEmpty = isAssertedTransparencyTrailEmpty(feasibilityVerdict?.transparencyTrail ?? null);
   const decisionSnapshotSuppressedReason = deriveDecisionSnapshotSuppressedReason(workspaceStatus);
   const showDetailedOutcomeCards = !isReviewPipelineIncomplete(workspaceStatus);
 
@@ -115,6 +119,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
             runId={m.resolvedDetail.run.runId}
             legacyRunStatus={m.resolvedDetail.run.legacyRunStatus ?? null}
             isDeadLettered={m.resolvedDetail.run.isDeadLettered === true}
+            assertedTrailEmpty={assertedTrailEmpty}
           />
         }
       />

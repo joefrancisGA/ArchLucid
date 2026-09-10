@@ -11,6 +11,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/soc2-self-assessment",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpSoc2SelfAssessmentGuideView } from "@/app/(operator)/help/_sections/HelpSoc2SelfAssessmentGuideView";

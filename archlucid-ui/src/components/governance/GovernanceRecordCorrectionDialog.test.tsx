@@ -3,14 +3,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { GovernanceRecordCorrectionDialog } from "@/components/governance/GovernanceRecordCorrectionDialog";
 
-const recordGovernanceMutationCorrection = vi.fn();
+const recordGovernanceMutationCorrectionWith401Resume = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/governance/findings",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/hooks/use-resume-pending-livelihood-mutation", () => ({
+  useResumePendingLivelihoodMutation: () => undefined,
+}));
 
 vi.mock("@/lib/governance/governance-mutation-correction-api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/governance/governance-mutation-correction-api")>();
 
   return {
     ...actual,
-    recordGovernanceMutationCorrection: (...args: unknown[]) => recordGovernanceMutationCorrection(...args),
+    recordGovernanceMutationCorrectionWith401Resume: (...args: unknown[]) =>
+      recordGovernanceMutationCorrectionWith401Resume(...args),
   };
 });
 
@@ -20,7 +30,7 @@ describe("GovernanceRecordCorrectionDialog", () => {
   });
 
   it("records a second audit event without implying the original was deleted", async () => {
-    recordGovernanceMutationCorrection.mockResolvedValue({
+    recordGovernanceMutationCorrectionWith401Resume.mockResolvedValue({
       correctionId: "corr-1",
       mutationKind: "governance_quick_approve",
       subjectId: "apr-1",
@@ -51,12 +61,18 @@ describe("GovernanceRecordCorrectionDialog", () => {
     fireEvent.click(screen.getByTestId("governance-record-correction-confirm"));
 
     await waitFor(() => {
-      expect(recordGovernanceMutationCorrection).toHaveBeenCalledWith({
-        mutationKind: "governance_quick_approve",
-        subjectId: "apr-1",
-        runId: "run-1",
-        rationale: "Wrong package approved.",
-      });
+      expect(recordGovernanceMutationCorrectionWith401Resume).toHaveBeenCalledWith(
+        {
+          mutationKind: "governance_quick_approve",
+          subjectId: "apr-1",
+          runId: "run-1",
+          rationale: "Wrong package approved.",
+        },
+        expect.objectContaining({
+          returnPath: "/governance/findings",
+          idempotencyKey: expect.any(String),
+        }),
+      );
     });
 
     expect(onRecorded).toHaveBeenCalledTimes(1);

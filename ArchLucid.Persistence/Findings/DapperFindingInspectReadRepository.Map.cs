@@ -26,7 +26,7 @@ public sealed partial class DapperFindingInspectReadRepository
             .ToList();
 
         JsonElement? typed = includeTypedPayload
-            ? FindingInspectReadRepositoryCore.TryParsePayloadJson(row.PayloadJson)
+            ? FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(row.PayloadJson, row.Title, row.Rationale)
             : FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(row.Title, row.Rationale);
         FindingSeverity recordSeverity = FindingInspectReadModelMapper.ParseFindingSeverity(row.Severity);
 
@@ -57,6 +57,15 @@ public sealed partial class DapperFindingInspectReadRepository
                 ? null
                 : FindingInspectReadModelMapper.ParseDisposition(joinResult.DispositionRow.Disposition),
             LatestDispositionOccurredAtUtc = joinResult.DispositionRow?.OccurredAtUtc,
+            LatestDispositionEventId = joinResult.DispositionRow?.EventId,
+            LatestDispositionRowVersionBase64 = joinResult.DispositionRow?.RowVersionStamp is null
+                ? null
+                : Convert.ToBase64String(joinResult.DispositionRow.RowVersionStamp),
+            LatestDispositionReviewerUserId = joinResult.DispositionRow?.ReviewerUserId,
+            RevisitDueUtc = joinResult.DispositionRow?.RevisitDueUtc is null
+                ? null
+                : new DateTimeOffset(
+                    DateTime.SpecifyKind(joinResult.DispositionRow.RevisitDueUtc.Value, DateTimeKind.Utc)),
             HasActiveWaiver = joinResult.ActiveWaiverCount > 0,
             AssignedToUserId = row.AssignedToUserId,
             RemediationDueUtc = row.RemediationDueUtc is null
@@ -227,5 +236,29 @@ public sealed partial class DapperFindingInspectReadRepository
             get;
             init;
         }
+
+        public DateTime? RevisitDueUtc
+        {
+            get;
+            init;
+        }
+
+        public Guid EventId
+        {
+            get;
+            init;
+        }
+
+        public string? ReviewerUserId
+        {
+            get;
+            init;
+        }
+
+        public byte[] RowVersionStamp
+        {
+            get;
+            init;
+        } = [];
     }
 }

@@ -93,6 +93,7 @@ internal sealed class ConcurrentFindingReviewTrailRepository : IFindingReviewTra
             Disposition = source.Disposition,
             RevisitDueUtc = source.RevisitDueUtc,
             EvidenceRequestText = source.EvidenceRequestText,
+            ArchitectRestatement = source.ArchitectRestatement,
         };
     }
 }

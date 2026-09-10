@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -132,7 +133,16 @@ public sealed partial class PilotsController
         }
         catch (SponsorFirstValuePdfBlockedException ex)
         {
-            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
+            if (!string.IsNullOrWhiteSpace(ex.BlockReasonCode))
+            {
+                return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+            }
+
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
         }
         catch (ConflictException ex)
         {
@@ -240,10 +250,6 @@ public sealed partial class PilotsController
             return pdf is null
                 ? this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound)
                 : File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
-        }
-        catch (SponsorFirstValuePdfBlockedException ex)
-        {
-            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
         catch (ConflictException ex)
         {

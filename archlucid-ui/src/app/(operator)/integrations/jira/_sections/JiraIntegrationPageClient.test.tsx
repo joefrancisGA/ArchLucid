@@ -9,8 +9,19 @@ const mockUpsertSettings = vi.fn();
 const mockLaunchOAuth = vi.fn();
 
 let canMutate = true;
-let showOperatorNav = false;
+const featureMocks = vi.hoisted(() => ({
+  showOperatorNav: false,
+}));
 let callerAuthorityRank = 0;
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
 
 vi.mock("@/hooks/use-operate-capability", () => ({
   useOperateCapability: () => canMutate,
@@ -21,7 +32,7 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
 }));
 
 vi.mock("@/lib/features", () => ({
-  isShowSystemAdministrationNavEnabled: () => showOperatorNav,
+  isShowSystemAdministrationNavEnabled: () => featureMocks.showOperatorNav,
 }));
 
 vi.mock("@/lib/api/itsm-outbound-api", () => ({
@@ -152,7 +163,7 @@ describe("JiraIntegrationPageClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     canMutate = true;
-    showOperatorNav = false;
+    featureMocks.showOperatorNav = false;
     callerAuthorityRank = 0;
     applyPageBundleMocks();
     mockProbeHealth.mockResolvedValue(baseHealth());
@@ -376,7 +387,7 @@ describe("JiraIntegrationPageClient", () => {
   });
 
   it("shows operator notes only when system administration nav is enabled", async () => {
-    showOperatorNav = true;
+    featureMocks.showOperatorNav = true;
     render(<JiraIntegrationPageClient />);
 
     expect(await screen.findByTestId("jira-operator-notes")).toBeInTheDocument();

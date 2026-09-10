@@ -7,7 +7,6 @@ import {
 } from "@/lib/operations/review-pipeline-in-flight";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { reviewExecuteMutationBlockedReason } from "@/lib/runs/review-execute-mutation-blocked-reason";
-import { reviewAsyncReplayMutationBlockedReason } from "@/lib/runs/review-async-replay-mutation-blocked-reason";
 import { reviewFinalizeMutationBlockedReason } from "@/lib/runs/review-finalize-mutation-blocked-reason";
 import { reviewSelectiveExecuteMutationBlockedReason } from "@/lib/runs/review-selective-execute-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -109,35 +108,28 @@ export async function replayArchitectureRunAsync(
     readonly manifestVersionOverride?: string | null;
   } = {},
 ): Promise<ReplayArchitectureRunAsyncResult> {
-  try {
-    const accepted = await apiPostAcceptedWithLocation(
-      `/v1/architecture/review/${encodeURIComponent(runId)}/replay/async`,
-      {
-        executionMode: body.executionMode,
-        commitReplay: body.commitReplay,
-        manifestVersionOverride: body.manifestVersionOverride ?? undefined,
-      },
-      { suppressErrorToast: true },
-    );
-    const operationId =
-      parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
+  const accepted = await apiPostAcceptedWithLocation(
+    `/v1/architecture/review/${encodeURIComponent(runId)}/replay/async`,
+    {
+      executionMode: body.executionMode,
+      commitReplay: body.commitReplay,
+      manifestVersionOverride: body.manifestVersionOverride ?? undefined,
+    },
+    { suppressErrorToast: true },
+  );
+  const operationId =
+    parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
 
-    trackInFlightOperation({
-      operationId,
-      title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
-      href: reviewPipelineDetailHref(runId),
-      runId,
-      stepLabel: "Replay queued",
-      state: "Pending",
-    });
+  trackInFlightOperation({
+    operationId,
+    title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
+    href: reviewPipelineDetailHref(runId),
+    runId,
+    stepLabel: "Replay queued",
+    state: "Pending",
+  });
 
-    return { operationId, location: accepted.location };
-  } catch (error: unknown) {
-    const failure = toApiLoadFailure(error);
-    const blockedReason = reviewAsyncReplayMutationBlockedReason(failure);
-
-    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-  }
+  return { operationId, location: accepted.location };
 }
 
 /** TB-938: re-execute selected agents only (POST /v1/architecture/review/{runId}/execute/selective). */

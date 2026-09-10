@@ -37,6 +37,7 @@ describe("governance-findings-queue-facets-storage", () => {
         status: "open",
         titleKeywords: ["encryption"],
       },
+      searchQuery: "",
     });
   });
 
@@ -78,6 +79,7 @@ describe("governance-findings-queue-facets-storage", () => {
       registerFilter: "open",
       jobView: "deferred",
       nlFacets: { severity: "critical", status: null, titleKeywords: [] },
+      searchQuery: "payments",
     });
 
     patchGovernanceFindingsQueueFacets({ registerFilter: "stale" });
@@ -86,6 +88,7 @@ describe("governance-findings-queue-facets-storage", () => {
       registerFilter: "stale",
       jobView: "deferred",
       nlFacets: { severity: "critical", status: null, titleKeywords: [] },
+      searchQuery: "payments",
     });
   });
 

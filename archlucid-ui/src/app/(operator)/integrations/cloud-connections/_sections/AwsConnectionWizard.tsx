@@ -32,9 +32,10 @@ import {
   validateAwsConnectionFields,
   type AwsConnectionFieldKey,
 } from "./aws-connection-field-validation";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import {
   AWS_CONNECTION_DETAIL_WIZARD_STEPS,
-  AWS_CONNECTION_WIZARD_IDS_STEP_LEAD,
+  awsConnectionWizardIdsStepLead,
   AWS_CONNECTION_WIZARD_SAVE_STEP_LEAD,
 } from "./aws-connection-wizard-content";
 import { useAwsConnectionData } from "./AwsConnectionDataContext";
@@ -44,6 +45,7 @@ type Props = {
 };
 
 export function AwsConnectionWizard(props: Props): React.ReactElement {
+  const { productLine } = useLocalizedProductCopy();
   const { canMutate, refreshConnections, setFormError, setActionMessage } = useAwsConnectionData();
   const router = useRouter();
   const pathname = usePathname() ?? "/integrations/cloud-connections/aws";
@@ -179,7 +181,7 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
             <h3 id="aws-wizard-ids-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
               Enter connection identifiers
             </h3>
-            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{AWS_CONNECTION_WIZARD_IDS_STEP_LEAD}</p>
+            <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>{awsConnectionWizardIdsStepLead(productLine)}</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 max-w-xl">
