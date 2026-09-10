@@ -1777,11 +1777,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 6
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-05 — Wave 30 URL-sync effect closed enable/disable dialogs before router.replace updated search params
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — save-success callout shown after create when post-save list refresh failed
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1801,6 +1801,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `use-webhooks-settings` create form lacks scope-generation guard on save — **invalid 2026-09-09 seed hunt #1486:** `isSaving` and scope `useEffect` already reset busy state on scope switch per #807/#808 fixes; `page.test.tsx` scope-switch regressions cover save/test in-flight cancellation
 
 2026-09-09 seed hunt #1486 (seed-only): reseeded ui-webhooks-settings; cheap-disproved create-save scope-generation candidate; 12 scoped WebhooksSettings tests passed.
+
+- [x] (proven) `useWebhooksSettingsMutations.submit` shows save-success callout when post-create `load()` fails — **hit 2026-09-10 seed hunt #1533 (seed→hit):** `load()` swallowed list errors so create success rendered alongside refresh failure; fixed by returning refresh success from `useWebhooksSettingsLoad.load` and gating `setSaveSuccessMessage`; regression `does not show save success when list refresh fails after create`
+
+- [x] (valid-no-repro) `useWebhooksSettingsMutations` URL-sync effect leaves stale enable/disable dialog errors when search params clear — **valid-no-repro 2026-09-10 seed hunt #1533:** row-toggle `onToggle` clears dialog errors before reopening; cancel `onOpenChange` clears errors on close
+
+2026-09-10 seed hunt #1533 (hit): reseeded ui-webhooks-settings; proved post-create refresh failure still surfaced save success; cheap-disproved URL-sync stale dialog-error candidate; 35 scoped WebhooksSettings tests passed (1 pre-existing sources-strip failure unrelated).
 
 ---
 
