@@ -48,7 +48,7 @@ public sealed partial class ArchitecturesController
         ArchitectureShareAccessEvaluation access = await _architectureShareAccessService.EvaluateAsync(
             scope,
             architectureId,
-            actorUserId,
+            _actorContext.GetActorId(),
             ArchitectureShareAuthorityProbe.HasReadAuthority(User),
             ArchitectureShareAuthorityProbe.HasExecuteAuthority(User),
             ArchitectureShareAuthorityProbe.HasWorkspaceAdminAuthority(User),

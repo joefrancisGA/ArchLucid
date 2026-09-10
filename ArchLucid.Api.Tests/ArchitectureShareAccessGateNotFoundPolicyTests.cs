@@ -1,10 +1,10 @@
 using System.Net;
 using System.Security.Claims;
 
-using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
@@ -38,7 +38,7 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
         Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
     private readonly Mock<IArchitectureShareAccessService> _shareAccessService = new();
-    private readonly Mock<IAuthenticatedPlatformUserResolver> _platformUserResolver = new();
+    private readonly Mock<IActorContext> _actorContext = new();
     private readonly Mock<IRunRepository> _runRepository = new();
 
     [Fact]
@@ -48,7 +48,7 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
             .Setup(service => service.EvaluateAsync(
                 Scope,
                 ArchitectureId,
-                It.IsAny<Guid?>(),
+                It.IsAny<string?>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>(),
@@ -90,7 +90,7 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
             .Setup(service => service.EvaluateAsync(
                 Scope,
                 ArchitectureId,
-                It.IsAny<Guid?>(),
+                It.IsAny<string?>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>(),
                 It.IsAny<bool>(),
@@ -140,7 +140,7 @@ public sealed class ArchitectureShareAccessGateNotFoundPolicyTests
     }
 
     private ArchitectureShareAccessGate BuildSut() =>
-        new(_shareAccessService.Object, _platformUserResolver.Object, _runRepository.Object);
+        new(_shareAccessService.Object, _actorContext.Object, _runRepository.Object);
 
     private static ControllerBase CreateController() =>
         new TestController
