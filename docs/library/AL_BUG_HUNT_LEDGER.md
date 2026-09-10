@@ -1274,9 +1274,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 11
+- **hunts:** 12
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-10 — invisible-only architect restatement and optional rationale bypassed HasSubstantiveText
 - **related-pd-tb:** none
@@ -1327,7 +1327,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only `ArchitectRestatement` passed max-length check without `HasSubstantiveText` — **hit 2026-09-10 seed hunt #1578 (seed→hit):** invisible restatement persisted via `BuildReviewEventRecord`; added substantive-text guard; regression `Validate_rejects_zero_width_space_only_architect_restatement`.
 - [x] (proven) `FindingDispositionValidation.Validate` — zero-width/format-only optional `Rationale` on `Deferred` bypassed audit bar — **hit 2026-09-10 seed hunt #1578 (seed→hit):** same invisible-text class as #1470; added substantive-text guard on optional rationale branch; regression `Validate_deferred_rejects_zero_width_space_only_optional_rationale`.
-- [ ] (candidate) `FindingDispositionService.TryDecodeRowVersion` — whitespace-only `ExpectedCurrentDispositionRowVersionBase64` returns null like an omitted token — needs cheap-disproof on whether first-disposition vs lost concurrency is reachable.
+- [x] (valid-no-repro) `FindingDispositionService.TryDecodeRowVersion` — whitespace-only `ExpectedCurrentDispositionRowVersionBase64` returns null like an omitted token — **cheap-disproof 2026-09-10 thorough hunt #1579:** null/whitespace decodes to no token; `SqlFindingDispositionConcurrencyRepository` and in-memory CAS return conflict when a current pointer exists (parity with `RecordAsync_null_expected_after_pointer_exists_throws_conflict`); UI `resolveExpectedCurrentDispositionRowVersion` trims whitespace to `undefined`; regression `RecordAsync_whitespace_only_expected_row_version_after_pointer_exists_throws_conflict`.
+- [ ] (candidate) `FindingDispositionService.TryDecodeRowVersion` — malformed base64 throws `ArgumentException` before repository — needs regression coverage on bulk path parity.
+
+2026-09-10 thorough hunt #1579 (dry): cheap-disproved whitespace row-version concurrency bypass; added invalid-base64 guard regression; seeded bulk row-version decode candidate; 36 scoped finding-disposition tests passed.
 
 2026-09-10 seed hunt #1578 (seed→hit): reseeded finding-disposition; proved invisible architect restatement and optional rationale gaps; seeded whitespace row-version concurrency candidate; 33 scoped finding-disposition tests passed.
 
