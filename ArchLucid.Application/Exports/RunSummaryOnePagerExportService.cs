@@ -167,15 +167,6 @@ public sealed class RunSummaryOnePagerExportService(
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
-            detail,
-            _authorityQueryService,
-            _graphSnapshotRepository,
-            scope,
-            workingDesk: true,
-            cancellationToken);
-
         RunSummaryOnePagerDocumentModel model =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
                 detail,
