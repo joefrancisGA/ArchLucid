@@ -1821,7 +1821,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1849,6 +1849,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Text filter should prune `compareRuns` when one compared row is hidden — **cheap-disproof 2026-09-10 seed hunt #1585:** compare selection is page-level; hidden rows remain valid compare targets; regression `keeps compareRuns selection when text filter hides one selected row`.
 
 2026-09-10 seed hunt #1585 (seed-only): reseeded ui-runs-list after #1580; cheap-disproof closed inspectorRunId URL sync, scope-filter inspector stale state, card-layout deep link, and compareRuns filter-prune candidates; 25 scoped `RunsListClient` tests passed.
+
+- [x] (valid-no-repro) `filter=orphan-candidates` deep link omits the context banner — **cheap-disproof 2026-09-10 seed hunt #1590:** `listContextFilter === "orphan-candidates"` renders `runs-list-orphan-candidates-filter-banner`; regression `shows orphan-candidates context banner when filter=orphan-candidates is in the URL`.
+- [x] (valid-no-repro) Text filter with zero matches still renders work-queue rows instead of an empty-table message — **cheap-disproof 2026-09-10 seed hunt #1590:** operator table path shows `No reviews match this filter.`; regression `shows an empty-table message when the text filter matches no reviews`.
+- [x] (valid-no-repro) Oldest-first sort chip is a non-navigating control without `sort=created-asc` in the href — **cheap-disproof 2026-09-10 seed hunt #1590:** `FilterChip` href from `runsListSortHrefFromSearch`; regression `exposes oldest-first sort as a link with created-asc in the href`.
+- [x] (valid-no-repro) Multi-page lists omit the Next pagination link when `totalCount > pageSize` — **cheap-disproof 2026-09-10 seed hunt #1590:** `page < pages` renders Next with cursor-aware href; regression `renders a Next pagination link when more pages exist`.
+- [x] (valid-no-repro) Active text filter leaves the filter status line at the unfiltered page count — **cheap-disproof 2026-09-10 seed hunt #1590:** `runsListPageFilterStatusLine` shows narrowed counts; regression `updates the filter status line when the text filter narrows the page`.
+
+2026-09-10 seed hunt #1590 (seed-only): reseeded ui-runs-list after #1585; cheap-disproof closed orphan-candidates banner, empty-filter table message, sort href, pagination Next link, and filter status line; 30 scoped `RunsListClient` tests passed.
 
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 
