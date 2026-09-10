@@ -8032,9 +8032,9 @@ Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history liv
 - **aliases:** authority runs; run lifecycle; split from archlucid-core
 - **paths:** ArchLucid.Core/Runs/; ArchLucid.Core/Authority/
 - **test-filter:** FullyQualifiedName~RunAuthority
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-07 — active/partial legacy statuses without progress markers surfaced as NotStarted on list/export
 - **related-pd-tb:** none
@@ -8066,6 +8066,14 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — leading/trailing whitespace in `failureClass` (`" pipelineDeadLetter "`) returns not dead-lettered because comparison is exact — **cheap-disproof 2026-09-10 seed hunt #1563:** `TryDeserialize` trims `failureClass` before compare (`RunAuthorityPipelineDeadLetterDetection.cs` line 70); writers emit canonical strings; regression `IsDeadLettered_returns_true_for_leading_and_trailing_whitespace_in_failure_class_token`.
 
 2026-09-10 seed hunt #1563 (seed-only): reseeded core-authority-runs; cheap-disproof closed TasksGenerated/ReadyForCommit/QualityRejected lifecycle gaps and numeric-ordinal Committed Complete miss plus padded failureClass dead-letter candidates; 37 scoped Core unit tests passed (`RunAuthority` + `AuthorityRunLifecycle`).
+
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Created` legacy status with `ContextSnapshotId` returns `NotStarted` because `TryResolveInProgressLegacyStatus` omits `Created` — **cheap-disproof 2026-09-10 seed hunt #1574:** progress-marker branch (`AuthorityRunLifecyclePhaseListResolver.cs` lines 27–28) runs after legacy-status checks; regression `ResolveFromRunHeader_created_with_context_snapshot_returns_in_progress_not_not_started`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `FailedPartial` without progress markers returns `NotStarted` — **cheap-disproof 2026-09-10 seed hunt #1574:** `TryResolveTerminalFailurePhase` includes `FailedPartial`; regression `ResolveFromRunHeader_failed_partial_without_progress_markers_returns_failed_not_not_started`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — `Retrying` without progress markers returns `NotStarted` because only `WaitingForResults` was regression-tested in #1271 — **cheap-disproof 2026-09-10 seed hunt #1574:** `TryResolveInProgressLegacyStatus` includes `Retrying`; regression `ResolveFromRunHeader_retrying_without_progress_markers_returns_in_progress_not_not_started`.
+- [x] (valid-no-repro) `AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader` — pipeline dead-letter JSON on `Created` status surfaces `NotStarted` because dead-letter runs only on terminal rows — **cheap-disproof 2026-09-10 seed hunt #1574:** `IsDeadLettered` precedes all legacy-status branches; regression `ResolveFromRunHeader_pipeline_dead_letter_on_created_status_returns_failed_not_not_started`.
+- [x] (valid-no-repro) `RunAuthorityPipelineDeadLetterDetection.IsDeadLettered` — empty JSON object `{}` treated as pipeline dead-letter — **cheap-disproof 2026-09-10 seed hunt #1574:** missing `failureClass` fails `TryReadNonEmptyTextToken`; regression `IsDeadLettered_returns_false_for_empty_json_object_without_failure_class`.
+
+2026-09-10 seed hunt #1574 (seed-only): reseeded core-authority-runs; cheap-disproof closed Created/FailedPartial/Retrying lifecycle and empty-object dead-letter candidates; 42 scoped Core `RunAuthority` tests passed.
 
 2026-09-09 seed hunt #1473 (seed-only): reseeded core-authority-runs; cheap-disproof closed internal-whitespace failureClass and dead-letter vs Complete ordering candidates; 27 scoped Core unit tests passed.
 

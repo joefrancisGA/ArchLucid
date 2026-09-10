@@ -202,4 +202,13 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
         // TryDeserialize trims failureClass before comparison; writers emit canonical class strings without padding.
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
     }
+
+    [Fact]
+    public void IsDeadLettered_returns_false_for_empty_json_object_without_failure_class()
+    {
+        const string json = "{}";
+
+        // Conservative reader requires a non-empty failureClass token; empty objects are not pipeline dead letters.
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
+    }
 }
