@@ -122,7 +122,16 @@ public sealed partial class GovernanceCoverageController(
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        CoverageSummary summary = await coverageQueryService.GetByScopeAsync(scope, cancellationToken);
+        CoverageSummary summary;
+
+        try
+        {
+            summary = await coverageQueryService.GetByScopeAsync(scope, cancellationToken);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceCoverageSealedManifestConflict(ex);
+        }
 
         Dictionary<Guid, PolicyPack> packById = summary.Assignments.Count == 0
             ? new Dictionary<Guid, PolicyPack>()
