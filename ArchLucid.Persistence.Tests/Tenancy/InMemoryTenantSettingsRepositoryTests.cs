@@ -58,6 +58,26 @@ public sealed class InMemoryTenantSettingsRepositoryTests
     }
 
     [Fact]
+    public async Task TryGetAsync_rejects_whitespace_only_setting_key()
+    {
+        InMemoryTenantSettingsRepository repository = new();
+
+        Func<Task> act = () => repository.TryGetAsync(Guid.NewGuid(), "   ", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task UpsertAsync_rejects_whitespace_only_setting_key()
+    {
+        InMemoryTenantSettingsRepository repository = new();
+
+        Func<Task> act = () => repository.UpsertAsync(Guid.NewGuid(), "   ", "value", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
     public async Task UpsertAsync_rejects_values_longer_than_migration_nvarchar_512_limit()
     {
         InMemoryTenantSettingsRepository repository = new();

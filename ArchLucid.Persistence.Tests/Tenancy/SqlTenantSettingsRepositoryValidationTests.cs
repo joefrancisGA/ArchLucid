@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 
 using ArchLucid.Application.Roi;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
@@ -65,6 +66,26 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
             {
                 allowedAliasIds = aliasIds,
                 defaultAliasId = aliasIds[0],
+            });
+
+        json.Length.Should().BeLessThanOrEqualTo(TenantSettingsSchemaLimits.SettingValueMaxLength);
+    }
+
+    [Fact]
+    public void Serialized_default_catalog_allowed_engine_set_fits_migration_setting_value_limit()
+    {
+        IReadOnlyList<string> aliasIds =
+        [
+            AgentModelAliasIds.EconomyGeneral,
+            AgentModelAliasIds.StandardGeneral,
+            AgentModelAliasIds.PremiumAssurance,
+        ];
+
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                allowedAliasIds = aliasIds,
+                defaultAliasId = AgentModelAliasIds.StandardGeneral,
             });
 
         json.Length.Should().BeLessThanOrEqualTo(TenantSettingsSchemaLimits.SettingValueMaxLength);

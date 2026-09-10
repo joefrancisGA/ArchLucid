@@ -566,6 +566,28 @@ public sealed class CachingReferenceDataRepositoryTests
     }
 
     [Fact]
+    public async Task TenantSettings_RemoveTenantSettingAsync_does_not_evict_generation_stamped_cache_until_wrapper_write()
+    {
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
+        HybridHotPathReadCache hotPath = HybridHotPathCacheTestFactory.Create(options);
+        InMemoryTenantSettingsRepository inner = new();
+        CachingTenantSettingsRepository repo = new(inner, hotPath);
+
+        Guid tenantId = Guid.NewGuid();
+
+        await repo.UpsertAsync(tenantId, "feature.x", "cached", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("cached");
+
+        await HotPathCacheEviction.RemoveTenantSettingAsync(hotPath, tenantId, "feature.x", CancellationToken.None);
+
+        await inner.UpsertAsync(tenantId, "feature.x", "mutated", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("cached");
+
+        await repo.UpsertAsync(tenantId, "feature.x", "mutated", CancellationToken.None);
+        (await repo.TryGetAsync(tenantId, "feature.x", CancellationToken.None)).Should().Be("mutated");
+    }
+
+    [Fact]
     public async Task TenantSettings_TryGetAsync_serves_cached_value_after_inner_mutation_until_wrapper_write()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
