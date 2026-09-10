@@ -78,6 +78,7 @@ public sealed class FindingInspectReadModelMapperTests
     [Theory]
     [InlineData(null)]
     [InlineData("")]
+    [InlineData("   ")]
     public void ParseDisposition_returns_null_for_blank(string? raw)
     {
         FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition(raw);

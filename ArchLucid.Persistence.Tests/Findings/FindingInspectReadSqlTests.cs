@@ -237,6 +237,46 @@ public sealed class FindingInspectReadSqlTests
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("INNER JOIN dbo.Runs r ON r.RunId = fs.RunId");
     }
 
+    [Fact]
+    public void MainInspect_resolves_model_alias_from_agent_execution_trace_json()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("JSON_VALUE(aet.TraceJson, '$.modelAlias') AS ModelAlias");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("JSON_VALUE(aet.TraceJson, '$.modelAlias') AS ModelAlias");
+    }
+
+    [Fact]
+    public void MainInspect_filters_by_scoped_finding_id()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.FindingId = @FindingId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.FindingId = @FindingId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_disposition_subquery_projects_pointer_metadata_fields()
+    {
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+
+        dispositionSql.Should().Contain("e.EventId");
+        dispositionSql.Should().Contain("e.ReviewerUserId");
+        dispositionSql.Should().Contain("c.RowVersionStamp");
+    }
+
+    [Fact]
+    public void FollowUpBatch_active_waiver_count_uses_count_big()
+    {
+        string waiverSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.RiskExceptions");
+
+        waiverSql.Should().Contain("SELECT COUNT_BIG(1)");
+    }
+
+    [Fact]
+    public void FollowUpBatch_audit_event_tiebreaks_on_event_id()
+    {
+        string auditSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.AuditEvents");
+
+        auditSql.Should().Contain("ae.EventId DESC");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

@@ -153,6 +153,30 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveRuleFields_trims_trace_text_when_applied_rule_ids_json_missing()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            appliedRuleIdsJson: null,
+            firstRuleText: "  Encrypt data at rest  ");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_deserialized_array_when_payload_is_json_array()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            """["artifact-1"]""",
+            "Encrypt at rest",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.ValueKind.Should().Be(JsonValueKind.Array);
+        typed!.Value[0].GetString().Should().Be("artifact-1");
+    }
+
+    [Fact]
     public void BuildMetadataTypedPayload_returns_null_when_empty()
     {
         FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(null, null).Should().BeNull();

@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 17
+- **hunts:** 18
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1361,6 +1361,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ParseHumanReview` / `ParseDisposition` / `TryParseEvaluationConfidenceLevel` are whitespace-sensitive — **cheap-disproof 2026-09-10 seed hunt #1635:** mappers trim before `Enum.TryParse`; regressions `ParseHumanReview_maps_or_defaults` for `"  Pending  "`, `ParseDisposition_trims_surrounding_whitespace`, and `TryParseEvaluationConfidenceLevel_trims_surrounding_whitespace`.
 
 2026-09-10 seed hunt #1635 (seed-only): reseeded finding-inspect-sql after #1634; cheap-disproof closed TOP 1 run selection, trace-rule TOP 1, audit event type/order filters, snapshot join path, applied-rule-id trim, and enum trim parity; 77 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MainInspect*` omits `JSON_VALUE` model alias resolution from `AgentExecutionTraces` — **cheap-disproof 2026-09-10 seed hunt #1636:** both main inspect queries project `JSON_VALUE(aet.TraceJson, '$.modelAlias')`; regression `MainInspect_resolves_model_alias_from_agent_execution_trace_json`.
+- [x] (valid-no-repro) `MainInspect*` can return another finding's row when only tenant/workspace/project match — **cheap-disproof 2026-09-10 seed hunt #1636:** main inspect filters `fr.FindingId = @FindingId`; regression `MainInspect_filters_by_scoped_finding_id`.
+- [x] (valid-no-repro) Disposition pointer join omits `EventId` / `ReviewerUserId` / `RowVersionStamp` — **cheap-disproof 2026-09-10 seed hunt #1636:** disposition subquery projects pointer metadata columns; regression `FollowUpBatch_disposition_subquery_projects_pointer_metadata_fields`.
+- [x] (valid-no-repro) Active waiver count uses `COUNT(1)` and overflows large tenants — **cheap-disproof 2026-09-10 seed hunt #1636:** waiver subquery uses `COUNT_BIG(1)`; regression `FollowUpBatch_active_waiver_count_uses_count_big`.
+- [x] (valid-no-repro) Audit-event lookup tie-breaks only on `OccurredUtc` — **cheap-disproof 2026-09-10 seed hunt #1636:** audit subquery orders `ae.EventId DESC` after occurred time; regression `FollowUpBatch_audit_event_tiebreaks_on_event_id`.
+- [x] (valid-no-repro) `ResolveRuleFields` preserves surrounding whitespace in trace fallback text — **cheap-disproof 2026-09-10 seed hunt #1636:** missing JSON path trims `firstRuleText`; regression `ResolveRuleFields_trims_trace_text_when_applied_rule_ids_json_missing`.
+- [x] (valid-no-repro) Valid JSON array `PayloadJson` falls back to metadata — **cheap-disproof 2026-09-10 seed hunt #1636:** `ResolveTypedPayloadForInspect` returns deserialized array elements; regression `ResolveTypedPayloadForInspect_returns_deserialized_array_when_payload_is_json_array`.
+- [x] (valid-no-repro) `ParseDisposition` treats whitespace-only strings as valid dispositions — **cheap-disproof 2026-09-10 seed hunt #1636:** blank guard uses `IsNullOrWhiteSpace`; regression `ParseDisposition_returns_null_for_blank` for `"   "`.
+
+2026-09-10 seed hunt #1636 (seed-only): reseeded finding-inspect-sql after #1635; cheap-disproof closed model-alias JSON projection, finding-id filter, disposition pointer metadata, COUNT_BIG waiver guard, audit event-id tiebreak, trace-text trim, JSON-array payload handling, and whitespace-only disposition; 85 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
