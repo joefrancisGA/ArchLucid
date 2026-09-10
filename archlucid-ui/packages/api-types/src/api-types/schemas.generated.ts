@@ -1740,7 +1740,7 @@ export interface components {
         };
         AttachArchitectureInventoryBindingRequest: {
             /** Format: uuid */
-            snapshotId?: string;
+            snapshotId: string;
         };
         /** @enum {string} */
         AuditEvaluationOutcome: "InsufficientEvidence" | "TechnicallySupported" | "TechnicallyNotSupported";
@@ -4338,6 +4338,7 @@ export interface components {
             reviewedAtUtc?: null | string;
             reviewedByUserId?: null | string;
             runIdRef?: null | string;
+            semanticSupportBand?: null | components["schemas"]["FindingSemanticSupportBand"];
             severity?: components["schemas"]["FindingSeverity"];
             title?: string;
             trace?: components["schemas"]["ExplainabilityTrace"];
@@ -4557,6 +4558,8 @@ export interface components {
             /** Format: uuid */
             runId?: string;
         };
+        /** @enum {unknown} */
+        FindingSemanticSupportBand: "Supported" | "Unchecked" | "Unsupported" | "NotScored" | null;
         /** @enum {string} */
         FindingSeverity: "Info" | "Warning" | "Error" | "Critical";
         FindingTraceCompletenessScore: {
@@ -4589,6 +4592,10 @@ export interface components {
             traceConfidenceLabel: string;
         };
         FindingTreatment: number;
+        FindingUnmuteRequest: {
+            /** Format: uuid */
+            runId?: string;
+        };
         FindingVerificationReportResponse: {
             /** Format: date-time */
             createdUtc: string;

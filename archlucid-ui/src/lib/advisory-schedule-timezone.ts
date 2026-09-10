@@ -1,3 +1,4 @@
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { toStoredIanaTimeZoneId } from "@/lib/iana-time-zone-select";
 
 import type { AdvisoryScheduleFormState } from "./advisory-schedule-form-state";
@@ -13,7 +14,7 @@ export function resolveBrowserTimeZoneId(): string {
     /* Intl unavailable */
   }
 
-  return "UTC";
+  return DEFAULT_IANA_TIME_ZONE_ID;
 }
 
 type ZonedDateParts = {

@@ -113,13 +113,4 @@ public sealed partial class ManifestsController(
 
         return null;
     }
-
-    private IActionResult GoldenManifestReadConflictProblem(ConflictException ex)
-    {
-        string problemType = ex.Message.Contains("hash", StringComparison.OrdinalIgnoreCase)
-            ? ProblemTypes.DecisionReceiptSealedHashMismatch
-            : ProblemTypes.Conflict;
-
-        return this.ConflictProblem(ex.Message, problemType);
-    }
 }

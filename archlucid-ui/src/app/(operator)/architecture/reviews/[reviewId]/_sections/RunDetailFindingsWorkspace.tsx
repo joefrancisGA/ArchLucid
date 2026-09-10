@@ -34,6 +34,7 @@ import {
 import { ReviewPackageGovernanceFindingsVocabularyRail } from "@/components/ReviewPackageGovernanceFindingsVocabularyRail";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SimulatorRunRehearsalCaption } from "@/components/usability/SimulatorRunRehearsalCaption";
+import { WorkingCareerRehearsalChooser } from "@/components/governance/WorkingCareerRehearsalChooser";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
@@ -338,12 +339,14 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       onShowAdvisoryChange: setShowAdvisory,
       managedExternally: true as const,
     },
+    structuralExecutionMode: props.structuralExecutionMode,
   };
   const findingsListEl = useDenseTable ? (
     <RunDetailFindingsDenseTable
       runId={props.runId}
       findings={listFindings}
       showDensityScore={architectWorkspaceChrome}
+      structuralExecutionMode={props.structuralExecutionMode}
     />
   ) : (
     <RunDetailFindingsCardViewLazy {...findingsListProps} />
@@ -355,6 +358,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       ) : null}
       {architectWorkspaceChrome ? (
         <RunDetailFindingsListViewToggle workingMode={architectWorkspaceChrome} />
+      ) : null}
+      {architectWorkspaceChrome ? (
+        <WorkingCareerRehearsalChooser structuralExecutionMode={props.structuralExecutionMode} />
       ) : null}
       <RunDetailFindingsToolbar
       findings={confidenceGatedForCounts}

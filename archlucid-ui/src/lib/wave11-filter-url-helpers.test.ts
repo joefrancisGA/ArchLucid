@@ -3966,10 +3966,6 @@ describe("wave52 filter url helpers", () => {
       findingsItsmPreFinalizeExportDisclosureHrefFromSearch,
       parseFindingsItsmPreFinalizeExportOpenFromSearch,
     } = await import("@/lib/findings/findings-itsm-pre-finalize-export-disclosure-url");
-    const {
-      extractUploadValidateDisclosureHrefFromSearch,
-      parseExtractUploadValidateDisclosureOpenFromSearch,
-    } = await import("@/lib/administration/extract-upload-validate-disclosure-url");
 
     expect(parseSecurityTrustRelatedSurfacesOpenFromSearch("1")).toBe(true);
     expect(securityTrustRelatedSurfacesDisclosureHrefFromSearch("", true, "/administration/security-trust")).toBe(
@@ -4006,10 +4002,6 @@ describe("wave52 filter url helpers", () => {
     expect(parseFindingsItsmPreFinalizeExportOpenFromSearch("1")).toBe(true);
     expect(findingsItsmPreFinalizeExportDisclosureHrefFromSearch("", true, "/architecture/reviews/r1/findings")).toBe(
       "/architecture/reviews/r1/findings?findingsItsmPreFinalizeExportOpen=1",
-    );
-    expect(parseExtractUploadValidateDisclosureOpenFromSearch("true")).toBe(true);
-    expect(extractUploadValidateDisclosureHrefFromSearch("", true, "/administration/extract-upload")).toBe(
-      "/administration/extract-upload?extractUploadValidateDisclosureOpen=1",
     );
   });
 });

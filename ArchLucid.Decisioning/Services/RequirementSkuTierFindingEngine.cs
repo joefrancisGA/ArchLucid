@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -30,14 +31,18 @@ public sealed class RequirementSkuTierFindingEngine : IFindingEngine
             return Task.FromResult<IReadOnlyList<Finding>>([]);
         }
 
-        List<Finding> findings = gaps.Select(BuildFinding).ToList();
+        List<Finding> findings = gaps.Select(gap => BuildFinding(graphSnapshot, gap)).ToList();
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 
-    private static Finding BuildFinding(RequirementSkuTierGap gap)
+    private static Finding BuildFinding(GraphSnapshot graphSnapshot, RequirementSkuTierGap gap)
     {
         string requiredText = FormatRequiredRedundancy(gap.RequiredRedundancy);
+        List<string> relatedNodeIds = [gap.RequirementNodeId, gap.DatastoreNodeId];
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+            graphSnapshot,
+            relatedNodeIds);
 
         return new Finding
         {
@@ -52,7 +57,8 @@ public sealed class RequirementSkuTierFindingEngine : IFindingEngine
                 $"Linked datastore '{gap.DatastoreLabel}' declares single-region SKU/replication ({gap.ObservedSku}) while the requirement asks for {requiredText}.",
             DecisionConsequence =
                 "Upgrade the datastore SKU/replication tier or revise the redundancy requirement before approval.",
-            RelatedNodeIds = [gap.RequirementNodeId, gap.DatastoreNodeId],
+            RelatedNodeIds = relatedNodeIds,
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(RequirementSkuTierFindingPayload),
             Payload = new RequirementSkuTierFindingPayload
             {

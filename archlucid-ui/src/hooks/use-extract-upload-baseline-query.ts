@@ -6,6 +6,11 @@ import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { extractorScriptCdnUrl } from "@/lib/extractor-script-url";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  readExtractUploadAcceptedPackageRecord,
+  type ExtractUploadAcceptedPackageRecord,
+} from "@/lib/extract-upload-accepted-package-record";
+import { formatExtractorScriptSha256Digest } from "@/lib/extract-upload-script-hash";
 import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
 
 export { extractorScriptCdnUrl };
@@ -16,6 +21,8 @@ export type ExtractUploadBaselineSnapshot = {
   readonly hasBaselineArtifacts: boolean | null;
   readonly extractorScriptVersion: string | null;
   readonly extractorUpdateBanner: string | null;
+  readonly extractorScriptSha256: string | null;
+  readonly lastAcceptedPackage: ExtractUploadAcceptedPackageRecord | null;
 };
 
 type WorkspaceBaselineArtifactsPayload = {
@@ -42,15 +49,20 @@ async function fetchExtractUploadBaselineSnapshot(scriptUrl: string): Promise<Ex
     baseline === null ? null : baseline.hasBaselineArtifacts === true;
   const extractorScriptVersion = baseline?.extractorScriptVersion?.trim() || null;
 
+  const lastAcceptedPackage = readExtractUploadAcceptedPackageRecord();
+
   if (!scriptResponse.ok || baseline === null) {
     return {
       hasBaselineArtifacts,
       extractorScriptVersion,
       extractorUpdateBanner: null,
+      extractorScriptSha256: null,
+      lastAcceptedPackage,
     };
   }
 
   const scriptText = await scriptResponse.text();
+  const extractorScriptSha256 = await formatExtractorScriptSha256Digest(scriptText);
   const match = EXTRACTOR_SCRIPT_VERSION_PATTERN.exec(scriptText);
   const latestVersion = match?.[1]?.trim();
 
@@ -59,6 +71,8 @@ async function fetchExtractUploadBaselineSnapshot(scriptUrl: string): Promise<Ex
       hasBaselineArtifacts,
       extractorScriptVersion,
       extractorUpdateBanner: null,
+      extractorScriptSha256,
+      lastAcceptedPackage,
     };
   }
 
@@ -67,6 +81,8 @@ async function fetchExtractUploadBaselineSnapshot(scriptUrl: string): Promise<Ex
       hasBaselineArtifacts,
       extractorScriptVersion,
       extractorUpdateBanner: `Your last uploaded ZIP used extractor script v${baseline.extractorScriptVersion}. v${latestVersion} is available — download the updated script for improved coverage.`,
+      extractorScriptSha256,
+      lastAcceptedPackage,
     };
   }
 
@@ -74,6 +90,8 @@ async function fetchExtractUploadBaselineSnapshot(scriptUrl: string): Promise<Ex
     hasBaselineArtifacts,
     extractorScriptVersion,
     extractorUpdateBanner: null,
+    extractorScriptSha256,
+    lastAcceptedPackage,
   };
 }
 

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Runs.Orchestration;
@@ -42,6 +43,8 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IFindingsSnapshotRepository>(static sp =>
             new InMemoryFindingsSnapshotRepository(sp.GetRequiredService<IScopeContextProvider>()));
         services.AddSingleton<IFindingRecordMuteRepository, InMemoryFindingRecordMuteRepository>();
+        services.AddSingleton<IFindingSemanticSupportBandOverlayRepository, InMemoryFindingSemanticSupportBandOverlayRepository>();
+        services.AddSingleton<FindingSemanticSupportBandOverlayWriter>();
         services.AddSingleton<IFindingRecordRemediationAssignmentRepository, InMemoryFindingRecordRemediationAssignmentRepository>();
         services.AddSingleton<IFindingInspectReadRepository>(sp =>
             new InMemoryFindingInspectReadRepository(sp.GetRequiredService<IAuthorityQueryService>()));

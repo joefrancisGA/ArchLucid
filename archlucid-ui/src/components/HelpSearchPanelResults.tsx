@@ -9,7 +9,7 @@ import type { HelpTabId } from "@/components/HelpPanel";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import {
-  HELP_SEARCH_PANEL_EMPTY_HINT,
+  helpSearchPanelEmptyHint,
   HELP_SEARCH_PANEL_EMPTY_TITLE,
   HELP_SEARCH_PANEL_KEYBOARD_HINT,
   type HelpSearchPanelTopic,
@@ -100,6 +100,7 @@ export function HelpSearchPanelResults({
   }, [helpSearchStartHereParam]);
   const { productLine } = useLocalizedProductCopy();
   const startHereCollapsedSummary = newToProductHelpCollapsedSummary(productLine);
+  const emptyHint = helpSearchPanelEmptyHint(productLine);
 
   return (
     <>
@@ -123,7 +124,7 @@ export function HelpSearchPanelResults({
                 <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
                   {HELP_SEARCH_PANEL_EMPTY_TITLE}
                 </p>
-                <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{HELP_SEARCH_PANEL_EMPTY_HINT}</p>
+                <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{emptyHint}</p>
               </div>
             ) : null}
             {filteredTopics.length > 0 ? (

@@ -23,7 +23,7 @@ namespace ArchLucid.Api.Controllers.InfraEvidence;
 [Route("v{version:apiVersion}/infra-evidence/remediation-instances")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class RemediationInstancesController(
+public sealed partial class RemediationInstancesController(
     IRemediationInstanceService instanceService,
     IRemediationInstanceQueryService queryService,
     IScopeContextProvider scopeProvider,
@@ -48,7 +48,7 @@ public sealed class RemediationInstancesController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRemediationInstanceSealedManifestConflict(ex);
         }
     }
 
@@ -72,7 +72,7 @@ public sealed class RemediationInstancesController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRemediationInstanceSealedManifestConflict(ex);
         }
     }
 
@@ -101,7 +101,6 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result);
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/preflight")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation preflight delegates to RemediationInstanceService.")]
@@ -129,7 +128,6 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/approve")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation approval delegates to RemediationInstanceService.")]
@@ -150,7 +148,6 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/assign-wave")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation wave assignment delegates to RemediationInstanceService.")]
@@ -178,7 +175,6 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/execute")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation execute emits advisory artifacts only; no terraform apply.")]
@@ -211,7 +207,6 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/verify")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation verification delegates to RemediationInstanceService.")]
@@ -239,7 +234,6 @@ public sealed class RemediationInstancesController(
         return MapOperationResult(result, instanceId);
     }
 
-    // idempotency-posture: operator-documented-safe-retry
     [HttpPost("{instanceId:guid}/close")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Remediation close delegates to RemediationInstanceService.")]
@@ -277,9 +271,7 @@ public sealed class RemediationInstancesController(
 
         if (!result.Succeeded && IsSealedManifestConflict(result.ErrorMessage))
         {
-            return this.ConflictProblem(
-                result.ErrorMessage ?? "Remediation blocked: sealed manifest verification failed.",
-                ProblemTypes.Conflict);
+            return MapRemediationSealedManifestConflict(result.ErrorMessage);
         }
 
         if (!result.Succeeded)
@@ -289,9 +281,4 @@ public sealed class RemediationInstancesController(
 
         return Ok(result);
     }
-
-    private static bool IsSealedManifestConflict(string? message) =>
-        message?.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase) == true
-        || message?.Contains("sealed manifest", StringComparison.OrdinalIgnoreCase) == true
-        || message?.Contains("lifecycle must be Complete", StringComparison.OrdinalIgnoreCase) == true;
 }

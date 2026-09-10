@@ -1,3 +1,7 @@
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
+import { diagramReconcileLoadModelBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-load-model-blocked-reason";
+import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 import type {
@@ -53,5 +57,15 @@ export async function ingestOperationalSecurityFindings(
 }
 
 export function formatInfraEvidenceDiagramReconcileApiError(error: unknown): string {
+  const failure = toApiLoadFailure(error);
+  const blockedReason =
+    diagramReconcileLoadModelBlockedReason(failure)
+    ?? diagramIngestMutationBlockedReason(failure)
+    ?? diagramReconcileMutationBlockedReason(failure);
+
+  if (blockedReason !== null) {
+    return blockedReason;
+  }
+
   return formatInfraEvidenceSealedManifestAwareApiError(error);
 }

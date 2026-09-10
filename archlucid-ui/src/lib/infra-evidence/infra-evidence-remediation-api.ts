@@ -1,4 +1,6 @@
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { remediationInstanceMutationBlockedReason } from "@/lib/infra-evidence/remediation-instance-mutation-blocked-reason";
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import type {
   RemediationFactoryWorkbenchSummary,
@@ -224,5 +226,12 @@ export async function closeRemediationInstance(instanceId: string): Promise<Reme
 }
 
 export function formatInfraEvidenceRemediationApiError(error: unknown): string {
+  const failure = toApiLoadFailure(error);
+  const blockedReason = remediationInstanceMutationBlockedReason(failure);
+
+  if (blockedReason !== null) {
+    return blockedReason;
+  }
+
   return formatInfraEvidenceSealedManifestAwareApiError(error);
 }

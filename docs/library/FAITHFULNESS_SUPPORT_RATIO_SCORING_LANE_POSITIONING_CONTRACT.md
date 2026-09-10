@@ -43,6 +43,8 @@
 
 **Residual:** `FindingCitationCoverageRatio` is live on Working Real PilotStrict (LP-04); Simulator skips ratio evaluation.
 
+**AS-058 Working consumption:** When a Lane B row exists on an agent trace (`AgentOutputSemanticScore.FindingCitationCoverageRatio` or `AgentResultFaithfulnessSupportRatio`), `RunDetailQueryService` composes it into the finding semantic support band at read time via `IFindingSemanticSupportBandLaneBComposeService`. Missing row → **Unchecked**, not Supported. Execute/findings merge does not enqueue or await Lane B jobs.
+
 ---
 
 ## Lane C — Model / config promotion
@@ -68,6 +70,22 @@
 
 ---
 
+## AS-065 opt-in: PilotStrict Unsupported hold (Working Real only)
+
+| Control | Default | When on |
+| --- | --- | --- |
+| `AgentOutput:QualityGate:PilotStrictHoldOnUnsupportedSemanticSupport` | **false** | Working **Real** + host **PilotStrict** holds finalize when any **decision-grade** finding has semantic support band **Unsupported** |
+| Simulator / Rehearsal | n/a | **Ignores** the flag — no Unsupported hold |
+| UI honesty (flag off) | always | Warn-only strip: Unsupported rows stay visible; finalize stays enabled (TB-1228 default) |
+
+**Code anchors:** `UnsupportedSemanticSupportFinalizeHoldEvaluator`, `CommitOutputIntegrityService`, pre-finalize checklist item `unsupported-semantic-support-hold`, readiness summary `pilotStrictHoldOnUnsupportedSemanticSupport`.
+
+**Trade-offs:** Opt-in fail-closed for tenants that want it; global default-on would false-reject V1 packages. Unsupported band is heuristic — hold is discipline, not semantic legal truth.
+
+**Related:** ADR 0085 (semantic support band on Working desk); AS-064 unchecked warn-only strip.
+
+---
+
 ## Forbidden claims
 
 | Too strong | Safe |
@@ -77,6 +95,10 @@
 | Model-promotion cohort ratios = per-run package safety | Lane C only |
 | One fused “faithfulness score” seals the package | Three-lane split |
 | PilotStrict green = Real live-model faithfulness proof | **M-166** mode honesty |
+| Support band / semantic chip = semantically verified seal | Heuristic/async Working signal; opt-in PilotStrict Unsupported hold only (**AS-065**, default off) |
+| Faithfulness-gated seal (default) | Structural provenance (0082) + optional AS-065 hold — not semantic legal truth |
+
+**Related (AS-067):** `scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py` blocks seal-truth overclaims on buyer/GTM stubs.
 
 ---
 
@@ -85,7 +107,7 @@
 | Anchor | Purpose |
 | --- | --- |
 | This contract + buyer packet **M-209**/**M-210** | Required cite near faithfulness / support-ratio lane language |
-| `scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py` | Fail buyer stubs: semantic faithfulness = commit gate / cohort ratio = package safety / PilotStrict = Real proof |
+| `scripts/ci/check_faithfulness_support_ratio_scoring_lane_honesty.py` | Fail buyer stubs: semantic faithfulness = commit gate / cohort ratio = package safety / PilotStrict = Real proof / support band = semantically verified seal (AS-067) |
 | Code presence | `AgentOutputQualityGate`, `GoldenCohortFineTuningPromotionGate` |
 
 ---

@@ -18,7 +18,9 @@
         "properties": {
           "terraformType": "azurerm_user_assigned_identity",
           "tf.principal_id": "11111111-2222-3333-4444-555555555555",
-          "principalId": "11111111-2222-3333-4444-555555555555"
+          "principalId": "11111111-2222-3333-4444-555555555555",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000065/resourceGroups/rg-golden/providers/Microsoft.ManagedIdentity/userAssignedIdentities/checkout_mi",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000065/resourceGroups/rg-golden/providers/Microsoft.ManagedIdentity/userAssignedIdentities/checkout_mi"
         },
         "reasoningTrace": null
       },
@@ -33,7 +35,9 @@
           "terraformType": "azurerm_mssql_server",
           "tf.name": "pay-sql-prod",
           "category": "data",
-          "topologySensitivity": "data-bearing"
+          "topologySensitivity": "data-bearing",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000065/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/pay_sql",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000065/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/pay_sql"
         },
         "reasoningTrace": null
       },
@@ -51,7 +55,9 @@
           "tf.scope": "pay-sql-prod",
           "principalId": "11111111-2222-3333-4444-555555555555",
           "roleName": "contributor",
-          "declarationTargetResourceId": "pay-sql-prod"
+          "declarationTargetResourceId": "pay-sql-prod",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000065/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/mi_sql_contributor",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000065/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/mi_sql_contributor"
         },
         "reasoningTrace": null
       },
@@ -68,7 +74,9 @@
           "contract": "Sync",
           "origin": "Inferred",
           "confidence": "70",
-          "declarationSourceNodeId": "obj-4c4c4236ed17a9102ac6f7f5685b558e"
+          "declarationSourceNodeId": "obj-4c4c4236ed17a9102ac6f7f5685b558e",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000065/resourceGroups/rg-golden/providers/Microsoft.ManagedIdentity/userAssignedIdentities/checkout_mi",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000065/resourceGroups/rg-golden/providers/Microsoft.ManagedIdentity/userAssignedIdentities/checkout_mi"
         },
         "reasoningTrace": null
       },
@@ -85,7 +93,9 @@
           "contract": "Sync",
           "origin": "Inferred",
           "confidence": "70",
-          "declarationSourceNodeId": "obj-57da2b6f068301e5884890d3b30ceedc"
+          "declarationSourceNodeId": "obj-57da2b6f068301e5884890d3b30ceedc",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000065/resourceGroups/rg-golden/providers/Microsoft.Authorization/roleAssignments/mi_sql_contributor",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000065/resourceGroups/rg-golden/providers/Microsoft.Authorization/roleAssignments/mi_sql_contributor"
         },
         "reasoningTrace": null
       }
@@ -100,7 +110,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "aede81104b574444b7b1c61bf9c79386",
@@ -111,7 +121,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "623c69518b134b9a85ec558ccf4a7692",
@@ -122,7 +132,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "45076d7867964ce1bc9f2fdd0edfb132",
@@ -133,7 +143,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "b20b24a57972413cb78abb8416fb010f",
@@ -144,7 +154,7 @@
         "weight": 0.55,
         "inferenceSource": "context-membership",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run's context snapshot node with a Contains relationship so traversal always has a stable root."
       },
       {
         "edgeId": "c120129990464e0b8fbb78f136b2d703",
@@ -177,7 +187,7 @@
         "weight": 1,
         "inferenceSource": "declaration-identity-iam-path",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment\u0027s declared scope when principalId and target resource both already exist on the snapshot."
+        "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment's declared scope when principalId and target resource both already exist on the snapshot."
       },
       {
         "edgeId": "6f84cce94d8d4f98a2b0a072a554472a",
@@ -188,7 +198,7 @@
         "weight": 1,
         "inferenceSource": "declaration-identity-iam-path",
         "properties": {},
-        "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment\u0027s declared scope when principalId and target resource both already exist on the snapshot."
+        "reasoningTrace": "ArchLucid linked a machine Actor to a declared role assignment and the assignment's declared scope when principalId and target resource both already exist on the snapshot."
       }
     ],
     "warnings": []

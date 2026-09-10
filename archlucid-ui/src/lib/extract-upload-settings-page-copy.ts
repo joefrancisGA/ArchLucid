@@ -42,6 +42,9 @@ export const EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL = "No inventory on file" a
 
 export const EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL = "Checking inventory…" as const;
 
+export const EXTRACT_UPLOAD_BASELINE_STATUS_PENDING_MESSAGE =
+  "Wait until inventory baseline status finishes loading before uploading a replacement package." as const;
+
 export const EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX = "Extractor script" as const;
 
 export const EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL = "Evidence graph" as const;
@@ -86,3 +89,30 @@ export const EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE = "Inventory upload" as con
 
 export const EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE =
   "Inventory package uploaded — open Reviews to attach it to a review." as const;
+
+export const EXTRACT_UPLOAD_REVIEW_BINDING_PREFIX = "Upload binds to review" as const;
+
+export const EXTRACT_UPLOAD_REVIEW_BINDING_NONE =
+  "No review selected — upload updates workspace inventory for the next architecture review." as const;
+
+export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_TITLE = "Replace workspace inventory?" as const;
+
+export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_DESCRIPTION =
+  "This workspace already has inventory on file. Uploading replaces the workspace baseline used for findings and the evidence trail in sealed review records." as const;
+
+export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_CONFIRM = "Replace inventory" as const;
+
+export const EXTRACT_UPLOAD_BASELINE_OVERWRITE_CANCEL = "Cancel" as const;
+
+export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_PANEL_TITLE = "Last accepted architecture package" as const;
+
+export const EXTRACT_UPLOAD_ACCEPTED_REPLACE_LABEL = "Replace inventory" as const;
+
+export const EXTRACT_UPLOAD_ACCEPTED_SUMMARY_LABEL = "Package accepted" as const;
+
+export const EXTRACT_UPLOAD_EXECUTION_POLICY_SCOPE_PROCESS_COMMAND =
+  "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass" as const;
+
+export const EXTRACT_UPLOAD_SCRIPT_HASH_PREFIX = "Script SHA-256" as const;
+
+export const EXTRACT_UPLOAD_PROVIDER_SELECTOR_LABEL = "Cloud provider" as const;

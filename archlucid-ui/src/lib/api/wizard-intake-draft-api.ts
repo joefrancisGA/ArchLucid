@@ -1,3 +1,6 @@
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { wizardIntakeDraftMutationBlockedReason } from "@/lib/architecture/wizard-intake-draft-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiGet, apiPutJson } from "@/lib/api/http";
 
 export type WizardIntakeDraftResponse = {
@@ -29,8 +32,15 @@ export async function upsertWizardIntakeDraft(
   wizardId: string,
   body: UpsertWizardIntakeDraftRequest,
 ): Promise<WizardIntakeDraftResponse> {
-  return apiPutJson<WizardIntakeDraftResponse>(
-    `/v1/architecture/intake/wizard-draft/${encodeURIComponent(wizardId)}`,
-    body,
-  );
+  try {
+    return await apiPutJson<WizardIntakeDraftResponse>(
+      `/v1/architecture/intake/wizard-draft/${encodeURIComponent(wizardId)}`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = wizardIntakeDraftMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

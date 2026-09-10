@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -30,13 +31,18 @@ public sealed class DanglingDeclarationReferenceFindingEngine : IFindingEngine
             return Task.FromResult<IReadOnlyList<Finding>>([]);
         }
 
-        List<Finding> findings = references.Select(BuildFinding).ToList();
+        List<Finding> findings = references.Select(reference => BuildFinding(graphSnapshot, reference)).ToList();
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 
-    private static Finding BuildFinding(DanglingDeclarationReference reference)
+    private static Finding BuildFinding(GraphSnapshot graphSnapshot, DanglingDeclarationReference reference)
     {
+        List<string> relatedNodeIds = [reference.SourceNodeId];
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+            graphSnapshot,
+            relatedNodeIds);
+
         return new Finding
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -49,7 +55,8 @@ public sealed class DanglingDeclarationReferenceFindingEngine : IFindingEngine
                 $"Property '{reference.PropertyName}' on '{reference.SourceNodeLabel}' references '{reference.ReferencedToken}', which is not present in this review package graph.",
             DecisionConsequence =
                 "Add the missing resource declaration to the package or correct the reference before approval.",
-            RelatedNodeIds = [reference.SourceNodeId],
+            RelatedNodeIds = relatedNodeIds,
+            EvidenceRefs = evidenceRefs,
             PayloadType = nameof(DanglingDeclarationReferenceFindingPayload),
             Payload = new DanglingDeclarationReferenceFindingPayload
             {

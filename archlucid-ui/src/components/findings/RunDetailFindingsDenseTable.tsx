@@ -22,6 +22,7 @@ import {
   shouldVirtualizeOperatorList,
 } from "@/lib/operator/operator-list-virtualization";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { cn } from "@/lib/utils";
 
 const RUN_DETAIL_FINDINGS_ROW_ESTIMATE_PX = 72;
@@ -30,6 +31,7 @@ export type RunDetailFindingsDenseTableProps = {
   readonly runId: string;
   readonly findings: readonly QuickDecisionFinding[];
   readonly showDensityScore?: boolean;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
 };
 
 export function RunDetailFindingsDenseTable(props: RunDetailFindingsDenseTableProps): ReactElement {
@@ -141,6 +143,7 @@ export function RunDetailFindingsDenseTable(props: RunDetailFindingsDenseTablePr
                     runId={runId}
                     finding={finding}
                     showDensityScore={showDensityScore}
+                    structuralExecutionMode={props.structuralExecutionMode}
                     isFocused={keyboardNav.isRowFocused(virtualRow.index)}
                     style={rowStyle}
                   />
@@ -159,6 +162,7 @@ export function RunDetailFindingsDenseTable(props: RunDetailFindingsDenseTablePr
                 runId={runId}
                 finding={finding}
                 showDensityScore={showDensityScore}
+                structuralExecutionMode={props.structuralExecutionMode}
                 isFocused={keyboardNav.isRowFocused(index)}
               />
             ))}

@@ -93,6 +93,21 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(parsed.trustLabelReason).toBe("Policy rule matched.");
   });
 
+  it("includes semantic support band fields in JSON export (AS-071)", () => {
+    const text = buildInspectFindingWorkItemBody("json", {
+      ...inspectInput,
+      classification: "DecisionGradeFinding",
+      semanticSupportBand: "Unsupported",
+    });
+    const parsed = JSON.parse(text) as {
+      semanticSupportBand: string;
+      semanticSupportBandScorerVersion: string;
+    };
+
+    expect(parsed.semanticSupportBand).toBe("Unsupported");
+    expect(parsed.semanticSupportBandScorerVersion).toBe("as057-v1");
+  });
+
   it("includes Working coverage honesty after severity in markdown exports (FD-07)", () => {
     const withHonesty = {
       ...inspectInput,

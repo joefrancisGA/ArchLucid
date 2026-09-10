@@ -1,5 +1,7 @@
 import { getAuthorityRunManifest } from "@/lib/api";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { compareManifestDiffBlockedReason } from "@/lib/compare/compare-manifest-diff-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { tryStaticDemoGoldenManifestJsonForExport } from "@/lib/operator/operator-static-demo";
 
 export function formatArchitectureManifestJsonForDiff(value: unknown): string {
@@ -17,6 +19,9 @@ export async function resolveArchitectureManifestJsonForDiff(runId: string): Pro
       return demo;
     }
 
-    throw new Error(formatExportSealedManifestAwareApiError(error));
+    throw new Error(
+      compareManifestDiffBlockedReason(toApiLoadFailure(error)) ??
+        formatExportSealedManifestAwareApiError(error),
+    );
   }
 }

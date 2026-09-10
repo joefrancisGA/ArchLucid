@@ -190,7 +190,7 @@ public sealed partial class DraftRequestsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDraftRequestSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

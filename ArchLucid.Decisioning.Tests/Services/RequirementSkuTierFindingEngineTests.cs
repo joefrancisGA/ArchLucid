@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Findings;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
 using ArchLucid.KnowledgeGraph;
@@ -36,6 +37,26 @@ public sealed class RequirementSkuTierFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_from_datastore_arm_property()
+    {
+        const string armResourceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-pay/providers/Microsoft.Sql/servers/sql-pay-prod/databases/payments";
+
+        GraphSnapshot graph = BuildFixture(
+            sku: "Standard_LRS",
+            includeZoneRedundantText: true,
+            sqlArmResourceId: armResourceId);
+
+        RequirementSkuTierFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().ContainSingle().Which.Should().Be(armResourceId);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_none_when_premium_zrs_sku()
     {
         GraphSnapshot graph = BuildFixture(sku: "Premium_ZRS", includeZoneRedundantText: true);
@@ -59,7 +80,10 @@ public sealed class RequirementSkuTierFindingEngineTests
         findings.Should().BeEmpty();
     }
 
-    private static GraphSnapshot BuildFixture(string? sku, bool includeZoneRedundantText)
+    private static GraphSnapshot BuildFixture(
+        string? sku,
+        bool includeZoneRedundantText,
+        string? sqlArmResourceId = null)
     {
         GraphNode requirement = new()
         {
@@ -94,6 +118,11 @@ public sealed class RequirementSkuTierFindingEngineTests
         if (sku is not null)
         {
             sqlProperties["sku"] = sku;
+        }
+
+        if (!string.IsNullOrWhiteSpace(sqlArmResourceId))
+        {
+            sqlProperties["resourceId"] = sqlArmResourceId;
         }
 
         GraphNode sql = new()
