@@ -173,4 +173,28 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
 
         return Task.FromResult(_shares.TryRemove((architectureId, userId), out _));
     }
+
+    public Task<int> CountRestrictedWithoutActorShareAsync(
+        ScopeContext scope,
+        Guid? actorUserId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        int count = _restrictToSharesByArchitectureId.Count(pair =>
+        {
+            if (!pair.Value)
+                return false;
+
+            if (actorUserId is not Guid userId || userId == Guid.Empty)
+                return true;
+
+            return !_shares.TryGetValue((pair.Key, userId), out ArchitectureShareRecord? share)
+                   || share.TenantId != scope.TenantId
+                   || share.WorkspaceId != scope.WorkspaceId
+                   || share.ScopeProjectId != scope.ProjectId;
+        });
+
+        return Task.FromResult(count);
+    }
 }

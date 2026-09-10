@@ -50,4 +50,12 @@ public interface IArchitectureShareRepository
         Guid architectureId,
         Guid userId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Counts restricted architectures in scope that have no share row for the actor (AS-094 list count parity).
+    /// </summary>
+    Task<int> CountRestrictedWithoutActorShareAsync(
+        ScopeContext scope,
+        Guid? actorUserId,
+        CancellationToken cancellationToken = default);
 }

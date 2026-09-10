@@ -200,14 +200,17 @@ export function useGlobalSearchResults(
       return [];
     }
 
-    const draftIdToArchitectureId = buildDraftIdToArchitectureIdLookup(
-      architectureIdentitiesQuery.data?.items ?? [],
+    const visibleIdentities = architectureIdentitiesQuery.data?.items ?? [];
+    const visibleArchitectureIds = new Set(
+      visibleIdentities.map((identity) => identity.architectureId),
     );
+    const draftIdToArchitectureId = buildDraftIdToArchitectureIdLookup(visibleIdentities);
 
     return filterGlobalSearchArchitectureDraftHits(
       architectureDraftEntries,
       trimmedQuery,
       draftIdToArchitectureId,
+      visibleArchitectureIds,
     );
   }, [
     architectureDraftEntries,

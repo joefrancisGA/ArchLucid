@@ -46,4 +46,18 @@ public sealed class ArchitectureShareAccessService(IArchitectureShareRepository 
             hasExecuteAuthority,
             hasWorkspaceAdminAuthority);
     }
+
+    public Task<int> CountRestrictedWithoutActorShareAsync(
+        ScopeContext scope,
+        Guid? actorUserId,
+        bool hasWorkspaceAdminAuthority,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (hasWorkspaceAdminAuthority)
+            return Task.FromResult(0);
+
+        return _shareRepository.CountRestrictedWithoutActorShareAsync(scope, actorUserId, cancellationToken);
+    }
 }
