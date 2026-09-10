@@ -768,6 +768,59 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task RequestCodeAsync_retries_after_email_delivery_failure_despite_hourly_email_rate_limit()
+    {
+        EmailOtpAuthOptions options = new()
+        {
+            Enabled = true,
+            MaxCodeRequestsPerEmailPerHour = 1,
+            ResendCooldownSeconds = 0
+        };
+
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out _,
+            out _,
+            out _,
+            out Mock<IEmailOtpEmailNotifier> notifier,
+            out _,
+            options);
+
+        int sendAttempts = 0;
+
+        notifier
+            .Setup(n => n.TrySendSignInCodeAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                sendAttempts += 1;
+
+                return sendAttempts > 1;
+            });
+
+        EmailOtpChallengeRequestResult first = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "rate-limit-fail@example.com" },
+            CancellationToken.None);
+
+        Assert.Null(first.ChallengeId);
+
+        EmailOtpChallengeRequestResult second = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = "rate-limit-fail@example.com" },
+            CancellationToken.None);
+
+        Assert.NotNull(second.ChallengeId);
+        Assert.True(second.EmailDeliverySucceeded);
+        Assert.Equal(2, sendAttempts);
+
+        EmailOtpChallengeRecord? activeChallenge =
+            await challenges.GetByIdAsync(second.ChallengeId!.Value, CancellationToken.None);
+
+        Assert.NotNull(activeChallenge);
+        Assert.Null(activeChallenge!.InvalidatedUtc);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_returns_neutral_message_when_email_delivery_fails()
     {
         EmailOtpAuthService sut = CreateSut(

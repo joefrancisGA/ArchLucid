@@ -119,6 +119,25 @@ public sealed class InMemoryEmailOtpChallengeRepository : IEmailOtpChallengeRepo
         return Task.CompletedTask;
     }
 
+    public Task DeleteActiveChallengesForEmailAsync(
+        string normalizedEmail,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        foreach (KeyValuePair<Guid, EmailOtpChallengeRecord> entry in _byId)
+        {
+            EmailOtpChallengeRecord row = entry.Value;
+
+            if (row.NormalizedEmail != normalizedEmail || !EmailOtpChallengeRepositoryCore.IsActive(row))
+                continue;
+
+            _byId.TryRemove(entry.Key, out _);
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task<EmailOtpChallengeRecord> ReplaceActiveChallengeForEmailAsync(
         EmailOtpChallengeInsert insert,
         DateTimeOffset invalidatedUtc,
