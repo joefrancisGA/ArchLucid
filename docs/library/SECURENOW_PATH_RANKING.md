@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow path ranking dimensions, weights, and API surfaces. Internal engineering only.
+
 # SecureNow path ranking (SA-09)
 
 Rule version: **`SA09-rank-v1`**

@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow architect outcome metrics API and headline field definitions. Internal engineering only.
+
 # SecureNow architect outcome metrics (SA-11)
 
 Rule version: **`SA11-metrics-v1`**

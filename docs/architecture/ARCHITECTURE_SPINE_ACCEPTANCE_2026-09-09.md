@@ -4,7 +4,7 @@
 
 > **Date:** 2026-09-09 (wave 22 — AS-001–AS-100)  
 > **Owner decision:** Diagrams and bound inventory are **review decide inputs** (ADR **0084**); semantic support is a Working **career band** not a sync commit gate (ADR **0085**); Working **Career vs Rehearsal** doors without flipping host `AgentExecution:Mode` (ADR **0086**); optional **RestrictToShares** inside the tenant (ADR **0087**).  
-> **Spine:** [ADR 0084](adrs/0084-architecture-review-inputs-include-diagrams-and-bound-inventory.md) · [ADR 0085](adrs/0085-semantic-support-band-working-career-not-commit-gate.md) · [ADR 0086](adrs/0086-career-vs-rehearsal-doors.md) · [ADR 0087](adrs/0087-architecture-scoped-sharing-restrict-to-shares.md) · [`.cursor/prompts/architecture-spine-00-index.md`](../../.cursor/prompts/architecture-spine-00-index.md) · [ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md](ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md)
+> **Spine:** [ADR 0084](adrs/0084-architecture-review-inputs-include-diagrams-and-bound-inventory.md) · [ADR 0085](adrs/0085-semantic-support-band-working-career-not-commit-gate.md) · [ADR 0086](adrs/0086-career-vs-rehearsal-doors-no-host-mode-flip.md) · [ADR 0087](adrs/0087-architecture-scoped-sharing-restrict-to-shares.md) · [`.cursor/prompts/architecture-spine-00-index.md`](../../.cursor/prompts/architecture-spine-00-index.md) · [ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md](ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md)
 
 ## Verdict
 
