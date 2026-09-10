@@ -4,30 +4,9 @@ import type {
   PolicyPackAssignment,
   PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
-import { apiGet, apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
-
-/** Assigns a specific policy pack version to the current scope (project/workspace/tenant). */
-export async function assignPolicyPack(
-  policyPackId: string,
-  body: { version: string; scopeLevel?: string; isPinned?: boolean; isOrganizationRequired?: boolean },
-): Promise<PolicyPackAssignment> {
-  return apiPostJson<PolicyPackAssignment>(
-    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/assign`,
-    body,
-  );
-}
-
-/** Lists workspace policy packs with assignment ids for tenant opt-in/opt-out. */
-export async function listPolicyPackWorkspaceSelection(): Promise<PolicyPackWorkspaceSelectionItem[]> {
-  return apiGet(`/${ApiV1Routes.policyPacks}/workspace-selection`);
-}
-
-/** Marks one policy pack assignment archived for the current tenant (row retained for audit). */
-export async function archivePolicyPackAssignment(assignmentId: string): Promise<void> {
-  await apiPostNoContent(
-    `/${ApiV1Routes.policyPacks}/assignments/${encodeURIComponent(assignmentId)}/archive`,
-    {},
-  );
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { policyPackAssignMutationBlockedReason } from "@/lib/policy/policy-pack-assign-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 }
 
 /** Enables or disables one policy pack assignment for the current workspace. */
