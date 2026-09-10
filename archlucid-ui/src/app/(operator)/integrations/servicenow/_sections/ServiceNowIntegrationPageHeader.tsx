@@ -7,9 +7,11 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { INTEGRATIONS_READINESS_PATH, INTEGRATIONS_SERVICENOW_PATH } from "@/lib/integrations-nav-paths";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import { operatorLastRefreshedExactLabel } from "@/lib/operator/operator-last-refreshed-label";
+import { SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE } from "@/lib/servicenow-integration-evidence-copy";
 import {
   SERVICENOW_ACTION_REFRESHING,
   SERVICENOW_INTEGRATION_PAGE_TITLE,
@@ -17,6 +19,10 @@ import {
   SERVICENOW_PAGE_SUBTITLE,
   SERVICENOW_READINESS_LINK_LABEL,
 } from "@/lib/servicenow-integration-page-copy";
+import {
+  SERVICENOW_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  servicenowIntegrationPageSubtitle,
+} from "@/lib/servicenow-integration-shell-page-copy";
 import type { ServiceNowConnectionStatusPresentation } from "@/lib/servicenow-integration-present";
 import { cn } from "@/lib/utils";
 
@@ -31,13 +37,19 @@ export type ServiceNowIntegrationPageHeaderProps = {
 export function ServiceNowIntegrationPageHeader(
   props: ServiceNowIntegrationPageHeaderProps,
 ): React.JSX.Element {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <OperatorPageHeader
       title={SERVICENOW_INTEGRATION_PAGE_TITLE}
       titleTestId="servicenow-page-title"
       navHref={INTEGRATIONS_SERVICENOW_PATH}
       headingLevel="h1"
-      subtitle={SERVICENOW_PAGE_SUBTITLE}
+      subtitle={servicenowIntegrationPageSubtitle(buyerPolishedShell, SERVICENOW_PAGE_SUBTITLE)}
+      claimDiscipline={buyerPolishedShell ? SERVICENOW_INTEGRATION_CLAIM_DISCIPLINE : undefined}
+      claimDisciplineTestId={
+        buyerPolishedShell ? SERVICENOW_INTEGRATION_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
+      }
       statusBadge={
         <StatusTag
           kind={itsmConnectionStatusTagKind(props.connectionStatus.status)}
@@ -47,20 +59,22 @@ export function ServiceNowIntegrationPageHeader(
       }
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="servicenow-header-actions">
-          <PageContextualHelpButton />
+          {buyerPolishedShell ? null : <PageContextualHelpButton />}
           <RefreshButton
             data-testid="servicenow-refresh-button"
             busy={props.refreshing}
             disabled={props.refreshDisabled}
             onClick={() => void props.onRefresh()}
           />
-          <Link
-            href={INTEGRATIONS_READINESS_PATH}
-            className={OPERATOR_LINK.optional}
-            data-testid="servicenow-readiness-link"
-          >
-            {SERVICENOW_READINESS_LINK_LABEL}
-          </Link>
+          {buyerPolishedShell ? null : (
+            <Link
+              href={INTEGRATIONS_READINESS_PATH}
+              className={OPERATOR_LINK.optional}
+              data-testid="servicenow-readiness-link"
+            >
+              {SERVICENOW_READINESS_LINK_LABEL}
+            </Link>
+          )}
         </div>
       }
       metadata={

@@ -43,8 +43,15 @@ public static class DetailedHealthCheckResponseWriter
     private static Task WriteSummaryPayloadAsync(HttpContext context, HealthReport report)
     {
         string? agentExecutionMode = TryResolveAgentExecutionMode(report);
+        bool? preCommitGateEnabled = TryResolvePreCommitGateEnabled(report);
+        string? agentOutputQualityGateMode = TryResolveAgentOutputQualityGateMode(report);
+        bool? pilotStrictHoldOnUnsupportedSemanticSupport =
+            TryResolvePilotStrictHoldOnUnsupportedSemanticSupport(report);
 
-        if (agentExecutionMode is null)
+        if (agentExecutionMode is null
+            && preCommitGateEnabled is null
+            && agentOutputQualityGateMode is null
+            && pilotStrictHoldOnUnsupportedSemanticSupport is null)
         {
             var payload = new
             {
@@ -59,10 +66,13 @@ public static class DetailedHealthCheckResponseWriter
             return context.Response.WriteAsJsonAsync(payload, JsonOptions, context.RequestAborted);
         }
 
-        var payloadWithMode = new
+        var payloadWithHostSignals = new
         {
             status = report.Status.ToString(),
             agentExecutionMode,
+            preCommitGateEnabled,
+            agentOutputQualityGateMode,
+            pilotStrictHoldOnUnsupportedSemanticSupport,
             entries = report.Entries.Select(entry => new
             {
                 name = entry.Key,
@@ -70,7 +80,7 @@ public static class DetailedHealthCheckResponseWriter
             }),
         };
 
-        return context.Response.WriteAsJsonAsync(payloadWithMode, JsonOptions, context.RequestAborted);
+        return context.Response.WriteAsJsonAsync(payloadWithHostSignals, JsonOptions, context.RequestAborted);
     }
 
     private static string? TryResolveAgentExecutionMode(HealthReport report)
@@ -79,6 +89,55 @@ public static class DetailedHealthCheckResponseWriter
             return null;
 
         if (!entry.Data.TryGetValue(AgentExecutionModeHealthCheck.ModeDataKey, out object? modeValue))
+            return null;
+
+        return modeValue switch
+        {
+            string mode when !string.IsNullOrWhiteSpace(mode) => mode,
+            _ => null,
+        };
+    }
+
+    private static bool? TryResolvePreCommitGateEnabled(HealthReport report)
+    {
+        if (!report.Entries.TryGetValue(PreCommitGovernanceGateHealthCheck.RegistrationName, out HealthReportEntry entry))
+            return null;
+
+        if (!entry.Data.TryGetValue(PreCommitGovernanceGateHealthCheck.EnabledDataKey, out object? enabledValue))
+            return null;
+
+        return enabledValue switch
+        {
+            bool enabled => enabled,
+            _ => null,
+        };
+    }
+
+    private static bool? TryResolvePilotStrictHoldOnUnsupportedSemanticSupport(HealthReport report)
+    {
+        if (!report.Entries.TryGetValue(AgentOutputQualityGateModeHealthCheck.RegistrationName, out HealthReportEntry entry))
+            return null;
+
+        if (!entry.Data.TryGetValue(
+                AgentOutputQualityGateModeHealthCheck.HoldOnUnsupportedSemanticSupportDataKey,
+                out object? holdValue))
+        {
+            return null;
+        }
+
+        return holdValue switch
+        {
+            bool hold => hold,
+            _ => null,
+        };
+    }
+
+    private static string? TryResolveAgentOutputQualityGateMode(HealthReport report)
+    {
+        if (!report.Entries.TryGetValue(AgentOutputQualityGateModeHealthCheck.RegistrationName, out HealthReportEntry entry))
+            return null;
+
+        if (!entry.Data.TryGetValue(AgentOutputQualityGateModeHealthCheck.ModeDataKey, out object? modeValue))
             return null;
 
         return modeValue switch

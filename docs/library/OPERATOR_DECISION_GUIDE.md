@@ -67,7 +67,7 @@ Use this table when you need a working configuration without reading the full [`
 "Retrieval": { "Provider": "AzureSearch" }
 ```
 
-**CI / developer local** — fastest loop; use `scripts/start-local-api-and-ui.ps1` after SQL is up:
+**CI / developer local** — fastest loop; use `scripts/start-local-api-and-ui.ps1` after SQL is up (one API + Architecture UI :3000 + Security UI :3001):
 
 ```json
 "Authentication": { "Mode": "DevBypass" },
@@ -83,7 +83,7 @@ Architect workspace proxy (production-like): set `ARCHLUCID_PROXY_TRUST_SERVER_S
 | Step | Action | Doc |
 | --- | --- | --- |
 | 1 | Pick a preset row above | This section |
-| 2 | Start API + UI (`start-local-api-and-ui.ps1` or your host runbook) | [`OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md) |
+| 2 | Start API + Architecture UI + Security UI (`start-local-api-and-ui.ps1` or your host runbook) | [`OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md) |
 | 3 | Confirm `/health/live` and `/health/ready` | [`OPERATOR_QUICKSTART.md`](customer-facing/OPERATOR_QUICKSTART.md) |
 | 4 | Run one CLI pilot or UI **New review → execute → commit** | [`FIRST_PILOT_OPERATOR_PATH.md`](../runbooks/FIRST_PILOT_OPERATOR_PATH.md) |
 | 5 | Open finalized architecture package detail — verify cost, trust card, decision summary, governance alerts | [`OPERATOR_ATLAS.md`](OPERATOR_ATLAS.md) |

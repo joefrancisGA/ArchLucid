@@ -13,6 +13,7 @@ public static class IntegrationEventOutboxManifestHashGuard
         IntegrationEventTypes.AuthorityRunCompletedV1,
         IntegrationEventTypes.AdvisoryScanCompletedV1,
         IntegrationEventTypes.FindingsHighSeverityCapturedV1,
+        IntegrationEventTypes.FindingVerificationCompletedV1,
         IntegrationEventTypes.GovernanceApprovalSubmittedV1,
         IntegrationEventTypes.GovernanceApprovalApprovedV1,
         IntegrationEventTypes.GovernanceApprovalRejectedV1,

@@ -1,0 +1,35 @@
+{
+  "files": {
+    "ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs": {
+      "language": "cs",
+      "mutants": [
+        {
+          "id": "1",
+          "mutatorName": "NegateCondition",
+          "replacement": "!run.IsCommitted",
+          "status": "Survived",
+          "location": { "start": { "line": 42, "column": 13 }, "end": { "line": 42, "column": 40 } }
+        },
+        {
+          "id": "2",
+          "mutatorName": "BlockRemoval",
+          "replacement": "{}",
+          "status": "Killed",
+          "location": { "start": { "line": 80, "column": 1 }, "end": { "line": 90, "column": 1 } }
+        }
+      ]
+    },
+    "archlucid-ui/src/app/page.tsx": {
+      "language": "ts",
+      "mutants": [
+        {
+          "id": "9",
+          "mutatorName": "StringLiteral",
+          "replacement": "",
+          "status": "Survived",
+          "location": { "start": { "line": 3, "column": 1 }, "end": { "line": 3, "column": 8 } }
+        }
+      ]
+    }
+  }
+}

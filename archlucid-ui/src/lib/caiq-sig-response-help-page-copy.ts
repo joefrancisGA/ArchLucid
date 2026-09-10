@@ -8,3 +8,5 @@ export const CAIQ_SIG_RESPONSE_HELP_SKIP_LINK_LABEL = "Skip to questionnaire wor
 
 export const CAIQ_SIG_RESPONSE_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-caiq-sig-response-header-claim-discipline" as const;
+
+export const CAIQ_SIG_RESPONSE_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-caiq-sig-response-orientation-bottom" as const;

@@ -1,6 +1,8 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Ask;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
 using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Common;
@@ -30,6 +32,8 @@ public sealed class AskService(
     AskComparisonNarrativeBuilder comparisonNarrativeBuilder,
     AskResponseComposer responseComposer,
     AskConversationHistoryBuilder conversationHistoryBuilder,
+    FindingInstrumentationAuditSupport findingInstrumentationAudit,
+    IActorContext actorContext,
     ILogger<AskService> logger) : IAskService
 {
     private const int HistoryTake = 40;
@@ -40,6 +44,8 @@ public sealed class AskService(
         "Be precise and technical. Reference decisions by Title and SelectedOption (and DecisionId when helpful). " +
         "Do not invent services, findings, artifacts, or costs not present in the supplied materials. " +
         "If something is unknown from the supplied data, say so. " +
+        "When you quote or rely on findings, inherit the weakest semantic support band among cited findings and do not sound more certain than that band (AS-069 / ADR 0085). " +
+        "Ask is advisory working context — not the sealed review record (TB-1003). " +
         "Prefer retrieved evidence when answering specifics that are not in the structured context. " +
         "Use prior conversation only when it helps interpret follow-up questions (e.g. \"that decision\", \"the storage choice\"). " +
         "When the answer is more than a brief sentence, structure the answer field as plain text: use section headers " +
@@ -53,6 +59,8 @@ public sealed class AskService(
         "You are an enterprise architect. Explain this specific architecture finding clearly: " +
         "why it matters, what evidence supports it, and what the smallest concrete fix is. " +
         "Use only the supplied finding data and conversation history. " +
+        "Inherit the finding's semantic support band and do not sound more certain than that band (AS-069 / ADR 0085). " +
+        "Ask is advisory working context — not the sealed review record (TB-1003). " +
         "Respond with a single JSON object only (no markdown fences), keys: " +
         "answer (string), referencedDecisions (array of strings), referencedFindings (array of strings), referencedArtifacts (array of strings).";
 
@@ -79,6 +87,12 @@ public sealed class AskService(
 
     private readonly AskConversationHistoryBuilder _conversationHistoryBuilder =
         conversationHistoryBuilder ?? throw new ArgumentNullException(nameof(conversationHistoryBuilder));
+
+    private readonly FindingInstrumentationAuditSupport _findingInstrumentationAudit =
+        findingInstrumentationAudit ?? throw new ArgumentNullException(nameof(findingInstrumentationAudit));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly ILogger<AskService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -219,10 +233,14 @@ public sealed class AskService(
             _authorityQueryService,
             ct);
 
+        FindingSemanticSupportBand? semanticSupportBand =
+            AskCitedFindingsSemanticSupportBandHonesty.TryReadBandFromFindingInspect(finding);
+
         object findingContext = new
         {
             findingId = finding.FindingId,
             severity = finding.Severity.ToString(),
+            semanticSupportBand = semanticSupportBand?.ToString(),
             typedPayload = finding.TypedPayload,
             evidenceRefs = finding.Evidence.Select(e => e.Excerpt).Where(static e => !string.IsNullOrWhiteSpace(e)).ToArray(),
             recommendedActions = finding.RecommendedActions,
@@ -230,11 +248,19 @@ public sealed class AskService(
         };
 
         string contextJson = JsonSerializer.Serialize(findingContext, ContractJson.CamelCaseIgnoreNullCompact);
+        string semanticSupportConstraint = semanticSupportBand is null
+            ? string.Empty
+            : AskCitedFindingsSemanticSupportBandHonesty.BuildPromptConstraintSection(
+                [new AskCitedFindingsSemanticSupportBandHonesty.FindingBandIndexEntry(
+                    finding.FindingId,
+                    finding.FindingId,
+                    semanticSupportBand.Value)]);
         string userPrompt =
             "Conversation History:\n" +
             (string.IsNullOrWhiteSpace(historyText) ? "(none)\n" : historyText + "\n") +
             "\nFinding Context:\n" +
             contextJson +
+            (semanticSupportConstraint.Length > 0 ? "\n\n" + semanticSupportConstraint : string.Empty) +
             "\n\nUser Question:\n" +
             question;
 
@@ -258,15 +284,31 @@ public sealed class AskService(
 
             AskResponse fallback = _responseComposer.BuildFindingFallbackResponse(thread.ThreadId);
             await _responseComposer.PersistFindingTurnAsync(thread.ThreadId, question, fallback, ct);
+            await LogFindingAskConversationPersistedAsync(scope, findingId, finding.RunId, thread.ThreadId, ct);
 
             return fallback;
         }
 
         AskResponse response = _responseComposer.Parse(thread.ThreadId, raw);
         await _responseComposer.PersistFindingTurnAsync(thread.ThreadId, question, response, ct);
+        await LogFindingAskConversationPersistedAsync(scope, findingId, finding.RunId, thread.ThreadId, ct);
 
         return response;
     }
+
+    private Task LogFindingAskConversationPersistedAsync(
+        ScopeContext scope,
+        string findingId,
+        Guid runId,
+        Guid threadId,
+        CancellationToken cancellationToken) =>
+        _findingInstrumentationAudit.LogAskConversationPersistedAsync(
+            scope,
+            _actorContext.GetActor(),
+            findingId,
+            runId,
+            threadId,
+            cancellationToken);
 
     private static string BuildUserPrompt(AskPreparedContext prepared) =>
         AskUserPromptComposer.BuildUserPrompt(
@@ -274,5 +316,6 @@ public sealed class AskService(
             prepared.RetrievalContext,
             prepared.RetrievalDegraded,
             prepared.HistoryText,
-            prepared.Question);
+            prepared.Question,
+            prepared.FindingBandIndex);
 }

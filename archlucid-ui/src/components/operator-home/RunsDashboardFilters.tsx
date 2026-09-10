@@ -1,9 +1,11 @@
 import { cn } from "@/lib/utils";
 
-import { FilterChip } from "@/components/ui/filter-chip";
+import { InteractiveChip } from "@/components/ui/interactive-chip";
 import { FilterChipGroup } from "@/components/ui/filter-chip-group";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { formatOperatorHomeGovernanceApprovalWarningFilterLabel } from "@/lib/operator/operator-home-governance-approval-warning-copy";
+import {
+  formatOperatorHomeGovernanceApprovalWarningFilterLabel,
+} from "@/lib/operator/operator-home-governance-approval-warning-copy";
 import { RUNS_DASHBOARD_LABELS } from "@/lib/i18n";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -16,9 +18,10 @@ export type RunsDashboardFiltersProps = {
   readonly onShowArchivedChange: (value: boolean) => void;
 };
 
-const WARNINGS_FILTER_DISABLED_HINT_ID = "runs-dashboard-governance-warnings-filter-hint";
-
 const FILTER_CHIP_LAYOUT_CLASS = "w-fit shrink-0 whitespace-nowrap";
+
+const WARNINGS_FILTER_DISABLED_HINT =
+  "No reviews with approval warnings in this workspace yet.";
 
 export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   if (props.buyerPolishedShell) {
@@ -29,53 +32,47 @@ export function RunsDashboardFilters(props: RunsDashboardFiltersProps) {
   const warningsFilterDisabled = warningsCount === 0;
 
   return (
-    <div className="space-y-1.5" data-testid="runs-dashboard-filters">
-      <FilterChipGroup
-        aria-label="Filter reviews"
-        className="flex flex-wrap items-center gap-1.5"
-      >
-        <FilterChip
+    <FilterChipGroup
+      aria-label="Filter reviews"
+      className="flex flex-wrap items-center gap-1.5"
+      data-testid="runs-dashboard-filters"
+    >
+      {warningsFilterDisabled ? (
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+          data-testid="runs-dashboard-governance-warnings-filter-hint"
+        >
+          {WARNINGS_FILTER_DISABLED_HINT}
+        </p>
+      ) : (
+        <InteractiveChip
           data-testid="runs-dashboard-governance-warnings-only"
           className={cn(
             FILTER_CHIP_LAYOUT_CLASS,
             buyerFilterChipClass(
               props.governanceWarningsOnly,
-              warningsFilterDisabled,
+              false,
               warningsCount === 0,
             ),
           )}
           aria-pressed={props.governanceWarningsOnly}
-          aria-describedby={warningsFilterDisabled ? WARNINGS_FILTER_DISABLED_HINT_ID : undefined}
-          disabled={warningsFilterDisabled}
           onClick={() => {
-            if (warningsFilterDisabled) {
-              return;
-            }
-
             props.onGovernanceWarningsOnlyChange(!props.governanceWarningsOnly);
           }}
         >
           {formatOperatorHomeGovernanceApprovalWarningFilterLabel()}
-        </FilterChip>
-        <FilterChip
-          data-testid="runs-dashboard-show-archived"
-          className={cn(FILTER_CHIP_LAYOUT_CLASS, buyerFilterChipClass(props.showArchived, false, false))}
-          aria-pressed={props.showArchived}
-          onClick={() => {
-            props.onShowArchivedChange(!props.showArchived);
-          }}
-        >
-          {RUNS_DASHBOARD_LABELS.showArchived}
-        </FilterChip>
-      </FilterChipGroup>
-      {warningsFilterDisabled ? (
-        <p
-          id={WARNINGS_FILTER_DISABLED_HINT_ID}
-          className={cn("sr-only", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-        >
-          No reviews with governance approval warnings in this workspace yet.
-        </p>
-      ) : null}
-    </div>
+        </InteractiveChip>
+      )}
+      <InteractiveChip
+        data-testid="runs-dashboard-show-archived"
+        className={cn(FILTER_CHIP_LAYOUT_CLASS, buyerFilterChipClass(props.showArchived, false, false))}
+        aria-pressed={props.showArchived}
+        onClick={() => {
+          props.onShowArchivedChange(!props.showArchived);
+        }}
+      >
+        {RUNS_DASHBOARD_LABELS.showArchived}
+      </InteractiveChip>
+    </FilterChipGroup>
   );
 }

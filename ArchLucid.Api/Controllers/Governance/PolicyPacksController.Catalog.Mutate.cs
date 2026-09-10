@@ -52,6 +52,9 @@ public sealed partial class PolicyPacksController
         if (result.Outcome == PolicyPackHttpOutcome.CrossTenantDistributionBlocked)
             return this.BadRequestProblem(result.Message ?? "Cross-tenant distribution blocked.", ProblemTypes.ValidationFailed);
 
+        if (result.Outcome == PolicyPackHttpOutcome.ValidationFailed)
+            return this.BadRequestProblem(result.Message ?? "Catalog promotion validation failed.", ProblemTypes.ValidationFailed);
+
         if (result.Outcome == PolicyPackHttpOutcome.ResourceNotFound)
         {
             return this.MapResourceNotFound(

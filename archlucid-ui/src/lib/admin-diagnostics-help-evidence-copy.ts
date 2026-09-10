@@ -4,6 +4,7 @@ import {
   ADMIN_DIAGNOSTICS_HELP_BUYER_RELATED_TOPICS,
 } from "@/lib/admin-diagnostics-help-related-topics";
 import type { EvidenceAdminSourceLink } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -41,6 +42,10 @@ export const ADMIN_DIAGNOSTICS_HELP_FOLLOW_UPS_TITLE = "Where to go next" as con
 
 export const ADMIN_DIAGNOSTICS_HELP_SOURCES_INTRO =
   "Use these follow-ups when diagnostics vocabulary turns into live probes, system health checks, or support triage.";
+
+export const ADMIN_DIAGNOSTICS_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "diagnostics vocabulary turns into live probes, system health checks, or support triage",
+);
 
 export const ADMIN_DIAGNOSTICS_HELP_PRIMARY_ACTION = {
   label: "System health",

@@ -79,4 +79,14 @@ describe("operator home primary CTA composition (TB-1539)", () => {
     expect(source).not.toContain("operator-home-working-new-review-outline");
     expect(headerSource).not.toContain("showNewReviewWhenResuming");
   });
+
+  it("keeps awaiting approval in the workspace metrics strip instead of the attention lead card", () => {
+    const metricsStripSource = readFileSync(
+      join(UI_ROOT, "src/components/operator-home/OperatorHomeWorkspaceMetricsStrip.tsx"),
+      "utf8",
+    );
+
+    expect(metricsStripSource).toContain("operatorHomeAwaitingApprovalPresentation");
+    expect(metricsStripSource).not.toContain("OperatorHomePrimaryAttentionLead");
+  });
 });

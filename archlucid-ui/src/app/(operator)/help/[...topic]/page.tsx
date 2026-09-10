@@ -9,6 +9,7 @@ import { BILLING_AND_PLANS_HELP_ROUTE_METADATA } from "@/lib/billing-and-plans-h
 import { SPONSOR_SUMMARY_HELP_ROUTE_METADATA } from "@/lib/sponsor/sponsor-report-help-route-metadata";
 import { FINDINGS_HELP_ROUTE_METADATA } from "@/lib/findings/findings-help-route-metadata";
 import { FIRST_ARCHITECTURE_REVIEW_HELP_ROUTE_METADATA } from "@/lib/first-architecture-review-help-route-metadata";
+import { GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ROUTE_METADATA } from "@/lib/governance/governance-infrastructure-drift-help-route-metadata";
 import { GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA } from "@/lib/governance/governance-approval-help-route-metadata";
 import { CONFIGURATION_REFERENCE_HELP_ROUTE_METADATA } from "@/lib/configuration-reference-help-route-metadata";
 import { DATA_HANDLING_TENANT_ISOLATION_HELP_ROUTE_METADATA } from "@/lib/data-handling-tenant-isolation-help-route-metadata";
@@ -20,11 +21,14 @@ import { CLOUD_CONNECTIONS_HELP_SLASH_TOPIC_SEGMENTS } from "@/lib/cloud-connect
 import {
   getProductDocumentationEntry,
   listProductDocumentationEntries,
+  normalizeHelpTopicSlug,
 } from "@/lib/product-documentation-registry";
 import { getInboundAuthenticatedServerPrincipal } from "@/lib/server-current-principal";
 import { loadHelpTopicContent } from "@/lib/help/help-topic-content-loader";
 import { resolveHelpTopicView } from "@/lib/help/help-topic-view-resolver";
 import { resolveInternalRunbookHelpRouteMetadata } from "@/lib/resolve-internal-runbook-help-route-metadata";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { isHelpTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 /** ISR for buyer help topics — keep in sync with `HELP_TOPIC_ROUTE_REVALIDATE_SECONDS` (TB-1600). */
 export const revalidate = 3600;
@@ -35,7 +39,9 @@ type HelpTopicPageProps = {
 };
 
 function helpSlugFromTopicSegments(topic: string[]): string {
-  return topic.map((segment) => segment.trim()).filter((segment) => segment.length > 0).join("/");
+  return normalizeHelpTopicSlug(
+    topic.map((segment) => segment.trim()).filter((segment) => segment.length > 0).join("/"),
+  );
 }
 
 export async function generateStaticParams(): Promise<Array<{ topic: string[] }>> {
@@ -75,6 +81,10 @@ export async function generateMetadata(props: HelpTopicPageProps): Promise<Metad
 
   if (entry.slug === "findings") {
     return FINDINGS_HELP_ROUTE_METADATA;
+  }
+
+  if (entry.slug === "governance-infrastructure-drift") {
+    return GOVERNANCE_INFRASTRUCTURE_DRIFT_HELP_ROUTE_METADATA;
   }
 
   if (entry.slug === "governance-approval") {
@@ -118,6 +128,10 @@ export default async function HelpTopicPage(props: HelpTopicPageProps): Promise<
   const entry = getProductDocumentationEntry(slug);
 
   if (entry === null) {
+    return <HelpTopicNotFoundView />;
+  }
+
+  if (isHelpTopicExcludedForProductLine(entry.slug, resolveProductLineIdFromEnv())) {
     return <HelpTopicNotFoundView />;
   }
 

@@ -75,7 +75,7 @@ export const WORKSPACE_SETTINGS_HELP_WORKED_EXAMPLE = {
   before: "Warn-only — low faithfulness scores surface as advisories but the review can still finalize.",
   after: "Block finalize — the same scores stop review finalization until quality checks pass.",
   downstreamEffect:
-    "On the next architecture review, new findings may block governance approval until strict AI quality evidence is satisfied.",
+    "On the next architecture review, new findings may block approval until strict AI quality evidence is satisfied.",
 } as const;
 
 export const WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_SECTION_ID =
@@ -85,7 +85,7 @@ export const WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_TITLE =
   "Default changes, audit trail, and finalized review records";
 
 export const WORKSPACE_SETTINGS_HELP_AUDIT_TRAIL_EFFECT_BODY =
-  "Tenant default changes append to the audit trail with actor, timestamp, and scope. New decisions and governance approval inherit the updated defaults on the next review cycle. Finalized review records from finalized packages stay immutable — changing defaults does not rewrite finalized history.";
+  "Tenant default changes append to the audit trail with actor, timestamp, and scope. New decisions and approval inherit the updated defaults on the next review cycle. Finalized review records from finalized packages stay immutable — changing defaults does not rewrite finalized history.";
 
 export const WORKSPACE_SETTINGS_HELP_CLAIM_HEADING_ID = "help-workspace-settings-claim-discipline-heading" as const;
 

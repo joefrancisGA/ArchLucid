@@ -11,7 +11,7 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
 {
     private readonly ConcurrentDictionary<string, AdvisoryDraftOperationRecord> _records = new(StringComparer.Ordinal);
 
-    public AdvisoryDraftOperationRecord CreatePending(ScopeContext scope)
+    public AdvisoryDraftOperationCreateResult CreatePending(ScopeContext scope)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -31,9 +31,16 @@ public sealed class InMemoryAdvisoryDraftOperationStore : IAdvisoryDraftOperatio
         };
 
         if (!_records.TryAdd(key, record))
-            throw new InvalidOperationException("Failed to register advisory draft operation.");
+        {
+            if (!_records.TryGetValue(key, out AdvisoryDraftOperationRecord? existing) || existing is null)
+            {
+                throw new InvalidOperationException("Failed to register advisory draft operation.");
+            }
 
-        return record;
+            return new AdvisoryDraftOperationCreateResult(existing, Created: false);
+        }
+
+        return new AdvisoryDraftOperationCreateResult(record, Created: true);
     }
 
     public bool TryGet(string operationId, ScopeContext scope, out AdvisoryDraftOperationRecord? record)

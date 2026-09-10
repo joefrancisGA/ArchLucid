@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 
 import { BrandingSettingsPreviewPanels } from "./BrandingSettingsPreviewPanels";
 import type { TenantBrandingAdminSettingsState } from "./use-tenant-branding-admin-settings";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { productLineDisplayName } from "@/lib/product-line/product-line-display-name";
 
 type BrandingSettingsFormFieldsProps = TenantBrandingAdminSettingsState & {
   readonly canEdit: boolean;
@@ -44,6 +46,8 @@ function ValidationIssuesList(props: {
 }
 
 export function BrandingSettingsFormFields(props: BrandingSettingsFormFieldsProps) {
+  const { productLine } = useProductLine();
+  const productName = productLineDisplayName(productLine);
   const {
     canEdit,
     fields,
@@ -196,7 +200,7 @@ export function BrandingSettingsFormFields(props: BrandingSettingsFormFieldsProp
           Activate branding
         </Button>
         <Button type="button" variant="outline" disabled={readOnly} onClick={() => void onRevert()}>
-          Revert to ArchLucid defaults
+          Revert to {productName} defaults
         </Button>
         {activeSummary.isActive ? (
           <StatusTag kind="ready" label={`Active v${activeSummary.version ?? "?"}`} />

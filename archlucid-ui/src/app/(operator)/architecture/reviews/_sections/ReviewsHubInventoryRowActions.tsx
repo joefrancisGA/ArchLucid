@@ -2,14 +2,21 @@
 
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
+import { PinReviewToDeskButton } from "@/components/reviews/PinReviewToDeskButton";
 import { Button } from "@/components/ui/button";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { useWorkOwnershipDeletePolicyQuery } from "@/hooks/use-work-ownership-delete-policy-query";
 import { canArchiveReview } from "@/lib/review-archive-eligibility";
+import {
+  REVIEWS_HUB_ROW_OVERFLOW_RUN_ID_PARAM,
+  parseReviewsHubRowOverflowRunIdFromSearch,
+  reviewsHubRowOverflowDisclosureHrefFromSearch,
+} from "@/lib/reviews/reviews-hub-row-overflow-disclosure-url";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
@@ -25,6 +32,32 @@ type ReviewsHubInventoryRowActionsProps = {
 export function ReviewsHubInventoryRowActions(
   props: ReviewsHubInventoryRowActionsProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const reviewsHubRowOverflowRunIdParam = searchParams.get(REVIEWS_HUB_ROW_OVERFLOW_RUN_ID_PARAM);
+  const [openOverflowRunId, setOpenOverflowRunIdState] = useState(() =>
+    parseReviewsHubRowOverflowRunIdFromSearch(reviewsHubRowOverflowRunIdParam),
+  );
+  const syncOpenOverflowRunIdToUrl = useCallback(
+    (runId: string | null) => {
+      router.replace(
+        reviewsHubRowOverflowDisclosureHrefFromSearch(searchParams.toString(), runId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenOverflowRunId = useCallback(
+    (runId: string | null) => {
+      setOpenOverflowRunIdState(runId ?? "");
+      syncOpenOverflowRunIdToUrl(runId);
+    },
+    [syncOpenOverflowRunIdToUrl],
+  );
+  useEffect(() => {
+    setOpenOverflowRunIdState(parseReviewsHubRowOverflowRunIdFromSearch(reviewsHubRowOverflowRunIdParam));
+  }, [reviewsHubRowOverflowRunIdParam]);
   const { callerAuthorityRank, currentPrincipal, isAuthorityLoading } = useOperatorNavAuthority();
   const policyQuery = useWorkOwnershipDeletePolicyQuery();
   const canExecute = !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority;
@@ -38,9 +71,16 @@ export function ReviewsHubInventoryRowActions(
     () => `More actions for ${props.row.reviewTitlePrimary}`,
     [props.row.reviewTitlePrimary],
   );
+  const overflowOpen = openOverflowRunId === props.row.runId;
 
   return (
     <div className="flex items-center justify-end gap-2">
+      <PinReviewToDeskButton
+        pinRunId={props.run.runId}
+        architectureId={props.row.architectureId}
+        label="Pin this review"
+        testId={`reviews-hub-pin-${props.row.runId}`}
+      />
       <Button variant="outline" size="sm" asChild>
         <Link
           href={props.row.reviewHref}
@@ -51,7 +91,14 @@ export function ReviewsHubInventoryRowActions(
         </Link>
       </Button>
       {archiveEligible ? (
-        <details className="relative">
+        <details
+          className="relative"
+          open={overflowOpen}
+          onToggle={(event) => {
+            const nextOpen = event.currentTarget.open;
+            setOpenOverflowRunId(nextOpen ? props.row.runId : null);
+          }}
+        >
           <summary
             className={cn(
               "flex h-8 w-8 cursor-pointer list-none items-center justify-center rounded-md border border-neutral-200 text-al-text-secondary hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-900",

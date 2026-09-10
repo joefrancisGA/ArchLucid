@@ -47,7 +47,7 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
       ) : null}
       <Tabs
         value={model.tab}
-        variant="line"
+        variant="pill"
         onValueChange={(next) => {
           model.selectDashboardTab(next as RunsDashboardTabId);
         }}
@@ -94,6 +94,7 @@ export function RunsDashboardPanelChrome({ model }: RunsDashboardPanelChromeProp
               filteredItems={model.filteredItems}
               displayItems={model.displayItems}
               approvedTabItems={model.approvedTabItems}
+              awaitingApprovalTabItems={model.awaitingApprovalTabItems}
               attentionTabItems={model.attentionTabItems}
               monitoringTabItems={model.monitoringTabItems}
               homeAttentionPreviewItems={model.homeAttentionPreviewItems}

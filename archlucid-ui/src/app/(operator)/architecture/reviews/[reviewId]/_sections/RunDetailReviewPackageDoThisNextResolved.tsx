@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { useAssumptionAwareCommitBlockedReason } from "@/hooks/use-assumption-aware-commit-blocked-reason";
+import { useUnsupportedSemanticSupportFinalizeBlockedReason } from "@/hooks/use-unsupported-semantic-support-finalize-blocked-reason";
+import { mergeFinalizeCommitBlockedReasons } from "@/lib/findings/semantic-support-band-finalize-honesty";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { usePriorSameRequestCompareHref } from "@/hooks/use-prior-same-request-compare-href";
 import { useSessionAiReadiness } from "@/hooks/use-session-ai-readiness";
 import { deriveReviewFailureRequiresWorkspaceAiProbe } from "@/lib/derive-review-failure-requires-workspace-ai-probe";
@@ -15,7 +18,6 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
 import { RunDetailReviewPackageStampViewport } from "./RunDetailReviewPackageStampViewport";
-import { RunDetailMeasurementFloorFinalizeStrip } from "@/components/reviews/RunDetailMeasurementFloorFinalizeStrip";
 import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
 import { resolveReviewFailureRecordedAtUtc } from "@/components/resolve-run-detail-last-failure-summary";
 import type { RunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
@@ -24,9 +26,14 @@ import type {
   ReviewPackageDoThisNext,
 } from "./resolve-review-package-do-this-next";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail, ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import type { HeldCheckLedgerRollupEntry, HeldCheckSecondPassSummary } from "@/lib/findings/read-held-check-ledger-from-findings-snapshot";
+import type { ProseAssumptionHeldCheckAsk } from "@/lib/findings/read-prose-assumption-held-check-asks-from-findings-snapshot";
+import type { ProseAssumptionRegisterEntry } from "@/lib/findings/read-prose-assumption-register-from-findings-snapshot";
+import type { PixelDiagramNotVerifiableSource } from "@/lib/architecture-spine/read-pixel-diagram-not-verifiable-sources";
 
 export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackageDoThisNextInput & {
   readonly hasGoldenManifest: boolean;
@@ -46,6 +53,19 @@ export type RunDetailReviewPackageDoThisNextResolvedProps = ResolveReviewPackage
   readonly graphSnapshot?: unknown;
   readonly analysisStagesComplete?: boolean;
   readonly enginesSucceeded?: number | null;
+  readonly withheldFindingCount?: number;
+  readonly catalogAdvisoryEngineFailureCount?: number;
+  readonly judgeSkippedByCap?: number | null;
+  readonly judgeConfiguredCap?: number | null;
+  readonly judgeEffectiveCap?: number | null;
+  readonly heldCheckLedgerEntries?: readonly HeldCheckLedgerRollupEntry[];
+  readonly heldCheckSecondPass?: HeldCheckSecondPassSummary | null;
+  readonly proseAssumptionRegisterEntries?: readonly ProseAssumptionRegisterEntry[];
+  readonly proseAssumptionHeldCheckAsks?: readonly ProseAssumptionHeldCheckAsk[];
+  readonly pixelDiagramNotVerifiableSources?: readonly PixelDiagramNotVerifiableSource[];
+  readonly architectureRequestId?: string | null;
+  readonly azureInventoryEvidencePresent?: boolean;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
 };
 
 function doThisNextLoadingSkeleton(): React.JSX.Element {
@@ -98,6 +118,16 @@ export function RunDetailReviewPackageDoThisNextResolved(
     requestAssumptionTexts: props.requestAssumptionTexts,
     transparencyTrail: props.transparencyTrail,
   });
+  const unsupportedSemanticSupportCommitBlockedReason =
+    useUnsupportedSemanticSupportFinalizeBlockedReason({
+      findings: props.quickDecisionFindings,
+      manifestFinalized: props.hasGoldenManifest,
+      structuralExecutionMode: props.structuralExecutionMode,
+    });
+  const effectiveCommitBlockedReason = mergeFinalizeCommitBlockedReasons(
+    assumptionAwareCommitBlockedReason,
+    unsupportedSemanticSupportCommitBlockedReason,
+  );
 
   useEffect(() => {
     let canceled = false;
@@ -158,6 +188,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
           realModeFellBackToSimulator: props.realModeFellBackToSimulator === true,
           usesCustomerAiConnection,
           effectiveSessionMode: sessionAiReadiness.sessionMode,
+          feasibilityVerdictKind: props.feasibilityVerdict?.kind ?? null,
         }),
       );
     });
@@ -200,12 +231,23 @@ export function RunDetailReviewPackageDoThisNextResolved(
     return doThisNextLoadingSkeleton();
   }
 
+  const suppressMeasurementDenominator = isReviewPipelineTerminalFailure(
+    props.pipelineDiagnosticContext ?? {
+      legacyRunStatus: props.legacyRunStatus,
+      isDeadLettered: props.isDeadLettered,
+    },
+  );
+
   return (
     <>
       <RunDetailReviewPackageStampViewport
         hasGoldenManifest={props.hasGoldenManifest}
         runId={props.runId}
         manifestVersion={props.manifestId}
+        architectureRequestId={props.architectureRequestId}
+        manifestVersion={props.manifestId}
+        suppressMeasurementDenominator={suppressMeasurementDenominator}
+        pipelineTerminalFailure={suppressMeasurementDenominator}
         enginesSucceeded={props.enginesSucceeded}
         feasibilityVerdict={props.feasibilityVerdict ?? null}
         runCompleted={props.runCompleted ?? false}
@@ -213,13 +255,24 @@ export function RunDetailReviewPackageDoThisNextResolved(
         graphSnapshot={props.graphSnapshot}
         transparencyTrail={props.transparencyTrail ?? null}
         quickDecisionFindings={props.quickDecisionFindings}
+        withheldFindingCount={props.withheldFindingCount}
+        catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
+        judgeSkippedByCap={props.judgeSkippedByCap}
+        judgeConfiguredCap={props.judgeConfiguredCap}
+        judgeEffectiveCap={props.judgeEffectiveCap}
+        heldCheckLedgerEntries={props.heldCheckLedgerEntries}
+        heldCheckSecondPass={props.heldCheckSecondPass}
+        proseAssumptionRegisterEntries={props.proseAssumptionRegisterEntries}
+        proseAssumptionHeldCheckAsks={props.proseAssumptionHeldCheckAsks}
+        pixelDiagramNotVerifiableSources={props.pixelDiagramNotVerifiableSources}
+        azureInventoryEvidencePresent={props.azureInventoryEvidencePresent === true}
+        structuralExecutionMode={props.structuralExecutionMode}
       />
-      <RunDetailMeasurementFloorFinalizeStrip enginesSucceeded={props.enginesSucceeded} />
       <FinalizeReadinessStrip
         commitBlockedReason={
           next.failureRecovery !== null && next.failureRecovery !== undefined
             ? null
-            : assumptionAwareCommitBlockedReason
+            : effectiveCommitBlockedReason
         }
       />
       <ReviewPackageDoThisNextStrip
@@ -227,7 +280,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         runId={props.runId}
         retryCount={props.pipelineDiagnosticContext?.retryCount ?? props.pipelineSummary?.retryCount ?? null}
         hasGoldenManifest={props.hasGoldenManifest}
-        commitBlockedReason={assumptionAwareCommitBlockedReason}
+        commitBlockedReason={effectiveCommitBlockedReason}
         sessionAiReadiness={sessionAiReadiness}
         canConfigureWorkspaceAi={canConfigureWorkspaceAi}
         usesCustomerAiConnection={usesCustomerAiConnection}

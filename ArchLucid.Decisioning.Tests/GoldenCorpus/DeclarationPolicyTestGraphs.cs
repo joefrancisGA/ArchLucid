@@ -24,6 +24,24 @@ internal static class DeclarationPolicyTestGraphs
         ],
     };
 
+    internal static GraphSnapshot CreateWeakSqlPostureGraph() => new()
+    {
+        Nodes =
+        [
+            new GraphNode
+            {
+                NodeId = "sql-pay",
+                NodeType = "TopologyResource",
+                Label = "sql-pay-prod",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["terraformType"] = "azurerm_mssql_server",
+                    ["tf.public_network_access"] = "enabled",
+                },
+            },
+        ],
+    };
+
     internal static GraphSnapshot CreatePrivateBaselinePublicDeclarationGraph() => new()
     {
         Nodes =

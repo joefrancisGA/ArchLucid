@@ -5,6 +5,7 @@ using ArchLucid.Core.QuickScan;
 using FluentAssertions;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -62,22 +63,71 @@ public sealed class QuickScanSafetyOperationalStateProviderTests
         snapshot.StoreHealthy.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task GetSnapshotAsync_store_failure_in_saas_environment_fails_closed()
+    {
+        Mock<IQuickScanSafetyOperationalStateStore> store = new();
+        store
+            .Setup(s => s.GetOverrideAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("db down"));
+
+        QuickScanSafetyOperationalStateProvider sut = CreateProvider(
+            store.Object,
+            new QuickScanSafetyOptions { Enabled = true, AnonymousExecutionEnabled = true },
+            environmentName: "SaaS");
+
+        QuickScanSafetyOperationalSnapshot snapshot = await sut.GetSnapshotAsync();
+
+        snapshot.AnonymousExecutionAllowed.Should().BeFalse();
+        snapshot.StoreHealthy.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GetSnapshotAsync_store_failure_when_archlucid_environment_is_production_fails_closed()
+    {
+        Mock<IQuickScanSafetyOperationalStateStore> store = new();
+        store
+            .Setup(s => s.GetOverrideAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("db down"));
+
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["ARCHLUCID_ENVIRONMENT"] = "Production" })
+            .Build();
+
+        QuickScanSafetyOperationalStateProvider sut = CreateProvider(
+            store.Object,
+            new QuickScanSafetyOptions { Enabled = true, AnonymousExecutionEnabled = true },
+            environmentName: Environments.Development,
+            configuration: configuration);
+
+        QuickScanSafetyOperationalSnapshot snapshot = await sut.GetSnapshotAsync();
+
+        snapshot.AnonymousExecutionAllowed.Should().BeFalse();
+        snapshot.StoreHealthy.Should().BeFalse();
+    }
+
     private static QuickScanSafetyOperationalStateProvider CreateProvider(
         IQuickScanSafetyOperationalStateStore store,
         QuickScanSafetyOptions options,
-        bool isProduction = false)
+        bool isProduction = false,
+        string? environmentName = null,
+        IConfiguration? configuration = null)
     {
         Mock<IOptionsMonitor<QuickScanSafetyOptions>> optionsMonitor = new();
         optionsMonitor.Setup(o => o.CurrentValue).Returns(options);
 
         Mock<IHostEnvironment> hostEnvironment = new();
-        hostEnvironment.Setup(h => h.EnvironmentName).Returns(isProduction ? "Production" : "Development");
+        hostEnvironment.Setup(h => h.EnvironmentName).Returns(
+            environmentName ?? (isProduction ? Environments.Production : Environments.Development));
+
+        IConfiguration resolvedConfiguration = configuration ?? new ConfigurationBuilder().Build();
 
         return new QuickScanSafetyOperationalStateProvider(
             optionsMonitor.Object,
             store,
             new MemoryCache(new MemoryCacheOptions()),
             hostEnvironment.Object,
+            resolvedConfiguration,
             NullLogger<QuickScanSafetyOperationalStateProvider>.Instance);
     }
 }

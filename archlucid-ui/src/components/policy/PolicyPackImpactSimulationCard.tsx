@@ -8,7 +8,7 @@ export type PolicyPackImpactSimulationCardProps = {
 };
 
 /**
- * Prominent entry to the governance dry-run modal — simulates pack threshold changes against historic reviews.
+ * Prominent entry to the policy dry-run modal — simulates pack threshold changes against historic reviews.
  */
 export function PolicyPackImpactSimulationCard(props: PolicyPackImpactSimulationCardProps): React.JSX.Element | null {
   const selectedPackId = props.selectedPackId.trim();

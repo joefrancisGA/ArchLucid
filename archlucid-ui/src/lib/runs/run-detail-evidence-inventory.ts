@@ -2,10 +2,24 @@ import { normalizeEvidenceRefSnippet } from "@/lib/findings/finding-evidence-ref
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { TrustEvidenceReadiness, TrustEvidenceReadinessVerdict } from "@/lib/trust-evidence-readiness";
 
+export type RunDetailEvidenceInventoryKind = "stored-file" | "architecture-brief" | "citation";
+
+export type RunStoredEvidenceCatalogEntry = {
+  readonly evidenceItemId: string;
+  readonly originalFileName: string;
+  readonly contentType?: string;
+  readonly createdUtc?: string;
+};
+
 export type RunDetailEvidenceInventoryItem = {
   readonly key: string;
   readonly sourceName: string;
+  /** Buyer-facing category label (Document, Architecture brief, …). */
   readonly kind: string;
+  /** Whether the row can be opened from stored bytes (ESI-01 inspect ladder). */
+  readonly inventoryKind: RunDetailEvidenceInventoryKind;
+  /** Set when inventoryKind is stored-file. */
+  readonly evidenceItemId: string | null;
   readonly ingestedUtc: string;
   readonly citingFindingCount: number;
 };
@@ -46,11 +60,65 @@ function extractSourceName(snippet: string): string {
   return beforeColon.length > 0 ? beforeColon : snippet;
 }
 
+type InventoryRowAccumulator = {
+  readonly sourceName: string;
+  readonly kind: string;
+  readonly inventoryKind: RunDetailEvidenceInventoryKind;
+  readonly evidenceItemId: string | null;
+  readonly findingIds: Set<string>;
+};
+
+function resolveStoredEvidenceCatalogMatch(
+  sourceName: string,
+  catalog: readonly RunStoredEvidenceCatalogEntry[] | undefined,
+): { readonly evidenceItemId: string } | null {
+  if (catalog === undefined || catalog.length === 0) {
+    return null;
+  }
+
+  const normalizedSource = sourceName.trim().toLowerCase();
+  const fileNameMatches = catalog.filter(
+    (entry) => entry.originalFileName.trim().toLowerCase() === normalizedSource,
+  );
+
+  if (fileNameMatches.length === 1) {
+    return { evidenceItemId: fileNameMatches[0]!.evidenceItemId };
+  }
+
+  const idMatches = catalog.filter((entry) => entry.evidenceItemId === sourceName.trim());
+
+  if (idMatches.length === 1) {
+    return { evidenceItemId: idMatches[0]!.evidenceItemId };
+  }
+
+  return null;
+}
+
+function resolveInventoryKindForSourceName(
+  sourceName: string,
+  catalog: readonly RunStoredEvidenceCatalogEntry[] | undefined,
+  architectureBrief: boolean,
+): Pick<InventoryRowAccumulator, "inventoryKind" | "evidenceItemId"> {
+  if (architectureBrief) {
+    return { inventoryKind: "architecture-brief", evidenceItemId: null };
+  }
+
+  const catalogMatch = resolveStoredEvidenceCatalogMatch(sourceName, catalog);
+
+  if (catalogMatch !== null) {
+    return { inventoryKind: "stored-file", evidenceItemId: catalogMatch.evidenceItemId };
+  }
+
+  return { inventoryKind: "citation", evidenceItemId: null };
+}
+
 function addInventoryRow(
-  map: Map<string, { sourceName: string; kind: string; findingIds: Set<string> }>,
+  map: Map<string, InventoryRowAccumulator>,
   key: string,
   sourceName: string,
   kind: string,
+  inventoryKind: RunDetailEvidenceInventoryKind,
+  evidenceItemId: string | null,
   findingId: string,
 ): void {
   const existing = map.get(key);
@@ -64,6 +132,8 @@ function addInventoryRow(
   map.set(key, {
     sourceName,
     kind,
+    inventoryKind,
+    evidenceItemId,
     findingIds: new Set([findingId]),
   });
 }
@@ -73,13 +143,16 @@ export function deriveRunDetailEvidenceInventory(input: {
   readonly runCreatedUtc: string;
   readonly submittedArchitecturePresent: boolean;
   readonly attachedFileNames?: readonly string[];
+  readonly storedEvidenceCatalog?: readonly RunStoredEvidenceCatalogEntry[];
 }): RunDetailEvidenceInventoryItem[] {
-  const map = new Map<string, { sourceName: string; kind: string; findingIds: Set<string> }>();
+  const map = new Map<string, InventoryRowAccumulator>();
 
   if (input.submittedArchitecturePresent) {
     map.set(ARCHITECTURE_BRIEF_KEY, {
       sourceName: "Submitted architecture brief",
       kind: "Architecture brief",
+      inventoryKind: "architecture-brief",
+      evidenceItemId: null,
       findingIds: new Set(),
     });
   }
@@ -97,9 +170,17 @@ export function deriveRunDetailEvidenceInventory(input: {
       continue;
     }
 
+    const inspectKind = resolveInventoryKindForSourceName(
+      sourceName,
+      input.storedEvidenceCatalog,
+      false,
+    );
+
     map.set(key, {
       sourceName,
       kind: inferEvidenceKind(sourceName),
+      inventoryKind: inspectKind.inventoryKind,
+      evidenceItemId: inspectKind.evidenceItemId,
       findingIds: new Set(),
     });
   }
@@ -113,6 +194,8 @@ export function deriveRunDetailEvidenceInventory(input: {
         `__finding-record-${finding.findingId}`,
         "Evidence on finding record",
         "Persisted citation",
+        "citation",
+        null,
         finding.findingId,
       );
 
@@ -128,8 +211,21 @@ export function deriveRunDetailEvidenceInventory(input: {
 
       const sourceName = extractSourceName(snippet);
       const key = sourceName.toLowerCase();
+      const inspectKind = resolveInventoryKindForSourceName(
+        sourceName,
+        input.storedEvidenceCatalog,
+        false,
+      );
 
-      addInventoryRow(map, key, sourceName, inferEvidenceKind(sourceName), finding.findingId);
+      addInventoryRow(
+        map,
+        key,
+        sourceName,
+        inferEvidenceKind(sourceName),
+        inspectKind.inventoryKind,
+        inspectKind.evidenceItemId,
+        finding.findingId,
+      );
     }
   }
 
@@ -138,6 +234,8 @@ export function deriveRunDetailEvidenceInventory(input: {
       key,
       sourceName: value.sourceName,
       kind: value.kind,
+      inventoryKind: value.inventoryKind,
+      evidenceItemId: value.evidenceItemId,
       ingestedUtc: input.runCreatedUtc,
       citingFindingCount: value.findingIds.size,
     }))

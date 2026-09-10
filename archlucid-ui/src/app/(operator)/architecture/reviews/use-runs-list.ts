@@ -35,6 +35,8 @@ import {
   runsListCompareInspectorHrefFromSearch,
 } from "@/lib/runs/runs-list-compare-inspector-url";
 
+import { shouldIgnoreRunsListRowActivation } from "./runs-list-row-activation";
+
 function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
 }
@@ -285,6 +287,16 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     });
   }, [safeRuns, filterText, sortOrder, buyerPolished, buyerPackageScope]);
 
+  useEffect(() => {
+    if (selectedRun === null) {
+      return;
+    }
+
+    if (!filteredSorted.some((run) => run.runId === selectedRun.runId)) {
+      setSelectedRun(null);
+    }
+  }, [filteredSorted, selectedRun, setSelectedRun]);
+
   const workQueueSections = useMemo(
     () => partitionRunsIntoWorkQueueSections(filteredSorted),
     [filteredSorted],
@@ -305,11 +317,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       : `/architecture/reviews?${baseQuery}&page=${page + 1}`;
 
   const onRowActivate = useCallback((run: RunSummary, e: MouseEvent<HTMLTableRowElement>) => {
-    if ((e.target as HTMLElement).closest("a")) {
-      return;
-    }
-
-    if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
+    if (shouldIgnoreRunsListRowActivation(e.target)) {
       return;
     }
 

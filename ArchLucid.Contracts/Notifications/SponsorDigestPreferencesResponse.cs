@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.User;
+
 namespace ArchLucid.Contracts.Notifications;
 
 /// <summary>Operator-configured weekly sponsor digest email preferences for the current tenant.</summary>
@@ -38,7 +40,7 @@ public sealed class SponsorDigestPreferencesResponse
     {
         get;
         init;
-    } = "UTC";
+    } = IanaTimeZonePreferenceValues.Default;
 
     /// <summary><see cref="System.DayOfWeek" /> value (0 = Sunday … 6 = Saturday).</summary>
     public int DayOfWeek
@@ -67,7 +69,7 @@ public sealed class SponsorDigestPreferencesResponse
             IsConfigured = false,
             EmailEnabled = false,
             RecipientEmails = [],
-            IanaTimeZoneId = "UTC",
+            IanaTimeZoneId = IanaTimeZonePreferenceValues.Default,
             DayOfWeek = 1,
             HourOfDay = 8,
             UpdatedUtc = TimeProvider.System.GetUtcNow()

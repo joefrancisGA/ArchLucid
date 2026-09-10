@@ -46,7 +46,23 @@ public static class BackgroundJobStuckRunningWatchdogBackgroundWork
 
         foreach (string jobId in requeuedJobIds)
         {
-            await notifySender.SendJobIdAsync(jobId, cancellationToken);
+            try
+            {
+                await notifySender.SendJobIdAsync(jobId, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Failed to notify durable queue for reclaimed background job {JobId}.",
+                    jobId);
+
+                await repository.MarkFailedTerminalAsync(
+                    jobId,
+                    $"Queue notification failed: {ex.Message}",
+                    retryCount: 0,
+                    cancellationToken);
+            }
         }
     }
 }

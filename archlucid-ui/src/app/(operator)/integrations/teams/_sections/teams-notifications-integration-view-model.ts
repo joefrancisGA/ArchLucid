@@ -40,4 +40,5 @@ export type TeamsNotificationsIntegrationPageViewModel = {
   readonly requestRemove: () => void;
   readonly cancelRemove: () => void;
   readonly confirmRemove: () => Promise<void>;
+  readonly hasUnsavedEdits: boolean;
 };

@@ -20,6 +20,8 @@ import { EmailRunToSponsorExportActions } from "./EmailRunToSponsorExportActions
 import { EmailRunToSponsorReadinessCopy } from "./EmailRunToSponsorReadinessCopy";
 import { useEmailRunToSponsorBanner } from "./use-email-run-to-sponsor-banner";
 
+import type { CareerArtifactHonestyInput } from "@/lib/career-artifact/career-artifact-honesty";
+
 export type EmailRunToSponsorBannerProps = {
   runId: string;
   manifestId: string;
@@ -34,6 +36,8 @@ export type EmailRunToSponsorBannerProps = {
   curatedSampleRun?: boolean;
   /** When true, {@link ReviewPackageDoThisNextStrip} owns the filled primary — demote package download CTAs. */
   pagePrimaryOwnedElsewhere?: boolean;
+  /** ADR 0078 career artifact inputs for sponsor export honesty (FC-02). */
+  careerArtifactHonesty?: Omit<CareerArtifactHonestyInput, "artifactKind" | "runId">;
 };
 
 /**
@@ -49,9 +53,16 @@ export function EmailRunToSponsorBanner({
   sponsorDocxAvailable = false,
   curatedSampleRun = false,
   pagePrimaryOwnedElsewhere = false,
+  careerArtifactHonesty,
 }: EmailRunToSponsorBannerProps) {
   const proofPackZipVariant = pagePrimaryOwnedElsewhere ? "outline" : "primary";
-  const banner = useEmailRunToSponsorBanner({ runId, manifestId, sponsorDocxAvailable, curatedSampleRun });
+  const banner = useEmailRunToSponsorBanner({
+    runId,
+    manifestId,
+    sponsorDocxAvailable,
+    curatedSampleRun,
+    careerArtifactHonesty,
+  });
 
   return (
     <aside
@@ -147,6 +158,21 @@ export function EmailRunToSponsorBanner({
             <strong>{banner.executionModeLabel ?? "non-Real"}</strong>. Simulator, Fallback, and Mixed modes may be used for
             internal walkthroughs only — re-execute in Real mode or label exports explicitly before external sponsor send.
           </p>
+        </div>
+      ) : null}
+
+      {banner.careerArtifactVerdict !== null && banner.careerArtifactVerdict.blockedReasons.length > 0 ? (
+        <div
+          role="alert"
+          data-testid="email-run-to-sponsor-career-artifact-gap"
+          className={cn("mt-3 rounded-md border border-rose-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-rose-700/50", OPERATOR_TYPOGRAPHY.body)}
+        >
+          <p className="m-0 font-semibold">Career artifact honesty blocks sponsor PDF</p>
+          {banner.careerArtifactVerdict.blockedReasons.map((reason) => (
+            <p key={reason} className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
+              {reason}
+            </p>
+          ))}
         </div>
       ) : null}
 

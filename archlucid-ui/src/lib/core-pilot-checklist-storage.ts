@@ -4,6 +4,12 @@
  */
 
 import { CORE_PILOT_STEP_COUNT } from "@/lib/core-pilot-steps";
+import {
+  readFirstReviewAzureInventoryZipPromptSkipped,
+  resolveFirstReviewAzureInventoryZipPromptScopeKey,
+  writeFirstReviewAzureInventoryZipPromptSkipped,
+  type FirstReviewAzureInventoryZipPromptScope,
+} from "@/lib/first-review/azure-inventory-zip-first-review-prompt";
 
 export { CORE_PILOT_STEP_COUNT };
 
@@ -48,14 +54,25 @@ export function corePilotStepDoneStorageKey(index: number): string {
   return `archlucid_onboarding_step_${index}_done`;
 }
 
-/** Optional-step skip flag — only indices 3–6 honor skip persistence. */
+export const CORE_PILOT_AZURE_INVENTORY_OPTIONAL_STEP_INDEX = 3;
+
+/** Optional-step skip flag — indices 3–6 honor skip persistence; step 3 is architecture/review scoped (QR-10). */
 export function corePilotOptionalStepSkippedStorageKey(index: number): string {
   return `archlucid_core_pilot_step_${index}_skipped`;
 }
 
-export function readCorePilotOptionalStepSkipped(index: number): boolean {
+export function readCorePilotOptionalStepSkipped(
+  index: number,
+  scope?: FirstReviewAzureInventoryZipPromptScope,
+): boolean {
   if (!isCorePilotStepOptionalIndex(index) || typeof window === "undefined") {
     return false;
+  }
+
+  if (index === CORE_PILOT_AZURE_INVENTORY_OPTIONAL_STEP_INDEX) {
+    const scopeKey = resolveFirstReviewAzureInventoryZipPromptScopeKey(scope ?? {});
+
+    return readFirstReviewAzureInventoryZipPromptSkipped(scopeKey);
   }
 
   try {
@@ -65,8 +82,21 @@ export function readCorePilotOptionalStepSkipped(index: number): boolean {
   }
 }
 
-export function writeCorePilotOptionalStepSkipped(index: number, skipped: boolean): void {
+export function writeCorePilotOptionalStepSkipped(
+  index: number,
+  skipped: boolean,
+  scope?: FirstReviewAzureInventoryZipPromptScope,
+): void {
   if (!isCorePilotStepOptionalIndex(index) || typeof window === "undefined") {
+    return;
+  }
+
+  if (index === CORE_PILOT_AZURE_INVENTORY_OPTIONAL_STEP_INDEX) {
+    const scopeKey = resolveFirstReviewAzureInventoryZipPromptScopeKey(scope ?? {});
+
+    writeFirstReviewAzureInventoryZipPromptSkipped(scopeKey, skipped);
+    emitCorePilotChecklistChanged();
+
     return;
   }
 
@@ -77,6 +107,8 @@ export function writeCorePilotOptionalStepSkipped(index: number, skipped: boolea
     /* ignore */
   }
 }
+
+export type FirstReviewAzureInventoryPromptScope = FirstReviewAzureInventoryZipPromptScope;
 
 function isCorePilotStepOptionalIndex(index: number): boolean {
   return index >= 3 && index < CORE_PILOT_STEP_COUNT;

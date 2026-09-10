@@ -11,6 +11,9 @@ import {
   parseSuccessUploadedCount,
 } from "@/lib/bulk-evidence-upload-outcome";
 
+export const WIZARD_PENDING_EVIDENCE_UPLOAD_DEFERRED_MESSAGE =
+  "Review started, but one or more evidence files could not be stored. Re-upload from the Evidence tab on this review.";
+
 export type WizardPendingEvidenceUploadResult =
   | { ok: true }
   | {

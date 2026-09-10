@@ -4,7 +4,8 @@ import Link from "next/link";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { Button } from "@/components/ui/button";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { listArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,13 @@ export function SponsorReportFinalizedReviewPickerStrip(
   }
 
   const openReviewId = props.selectedReviewId.trim();
+  const openReviewHref =
+    openReviewId.length > 0
+      ? resolveWorkingRunReviewLocator({
+          runId: openReviewId,
+          draftRegistryEntries: listArchitectureDraftRegistryEntries(),
+        }).href
+      : "#";
 
   return (
     <section
@@ -63,7 +71,7 @@ export function SponsorReportFinalizedReviewPickerStrip(
           disabled={openReviewId.length === 0}
           data-testid="sponsor-report-finalized-review-open"
         >
-          <Link href={openReviewId.length > 0 ? reviewDetailPath(openReviewId) : "#"}>Open architecture package</Link>
+          <Link href={openReviewHref}>Open architecture package</Link>
         </Button>
       </div>
     </section>
