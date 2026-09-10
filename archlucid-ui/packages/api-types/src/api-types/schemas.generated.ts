@@ -1613,6 +1613,22 @@ export interface components {
             /** Format: uuid */
             latestSealedReviewRunId?: null | string;
         };
+        ArchitectureShareListResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            restrictToShares?: boolean;
+            shares?: components["schemas"]["ArchitectureShareResponse"][];
+        };
+        ArchitectureShareResponse: {
+            actorOid?: string;
+            /** Format: uuid */
+            architectureId?: string;
+            grantedBy?: string;
+            /** Format: date-time */
+            grantedUtc?: string;
+            role?: string;
+            rowVersionBase64?: null | string;
+        };
         ArchitectureTraceTimelineEntry: {
             kind: string;
             label: string;
@@ -3779,6 +3795,8 @@ export interface components {
         /** @enum {string} */
         DraftRequestStatus: "Drafting" | "Admitted" | "Submitted" | "RunSpawned" | "Redirected" | "Abandoned";
         DraftRequestSummaryResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             createdByUserId?: string;
             /** Format: date-time */
             createdUtc?: string;
@@ -6348,6 +6366,8 @@ export interface components {
             inventoryDiffId?: null | string;
             /** Format: date-time */
             lastObservedUtc?: string;
+            /** Format: uuid */
+            pathId?: null | string;
             /** Format: byte */
             payloadHashSha256?: string;
             /** Format: uuid */
@@ -6577,6 +6597,10 @@ export interface components {
             hasArchived?: boolean;
             hasDescription?: boolean;
             hasDisplayName?: boolean;
+        };
+        PatchArchitectureRestrictToSharesRequest: {
+            confirmRestrict?: boolean;
+            restrictToShares?: boolean;
         };
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
@@ -7682,6 +7706,10 @@ export interface components {
         PublishPolicyPackVersionRequest: {
             contentJson: string;
             version?: string;
+        };
+        PutArchitectureShareRequest: {
+            actorOid?: string;
+            role?: string;
         };
         PutRunCoverageAcknowledgementRequest: {
             entries?: null | components["schemas"]["RunCoverageAcknowledgementEntryRequest"][];

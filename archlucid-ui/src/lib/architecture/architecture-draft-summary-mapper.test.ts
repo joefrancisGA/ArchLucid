@@ -63,4 +63,23 @@ describe("mapDraftSummaryToRegistryEntry", () => {
       expect(entry.customerStatus).toBe("ready-for-review");
     },
   );
+
+  it("maps architectureId onto parentArchitectureId for share visibility filtering (AS-094)", () => {
+    const summary: DraftRequestSummary = {
+      draftId: "44444444-4444-4444-4444-444444444444",
+      architectureId: "architecture-identity-001",
+      status: "Drafting",
+      systemName: "Restricted package",
+      freeTextIntent: "Intent.",
+      spawnedRunId: null,
+      createdByUserId: "user-1",
+      createdUtc: "2026-08-27T12:00:00.000Z",
+      updatedUtc: "2026-08-27T12:30:00.000Z",
+      reviewReadinessValid: true,
+    };
+
+    const entry = mapDraftSummaryToRegistryEntry(summary);
+
+    expect(entry.parentArchitectureId).toBe("architecture-identity-001");
+  });
 });

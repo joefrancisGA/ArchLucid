@@ -1,11 +1,21 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import { RunDetailPreFinalizeGateHonestyStrip } from "./RunDetailPreFinalizeGateHonestyStrip";
 
+const effectiveDoorMock = vi.hoisted(() => ({ value: "career" as "career" | "rehearsal" }));
+
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => ({ isWorkingMode: true }),
+}));
+
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: effectiveDoorMock.value,
+    effectiveDoor: effectiveDoorMock.value,
+    mounted: true,
+  }),
 }));
 
 const healthReadyMock = vi.fn();
@@ -28,6 +38,22 @@ function sampleFinding(
 }
 
 describe("RunDetailPreFinalizeGateHonestyStrip (DR-04 / AS-064 / AS-065)", () => {
+  beforeEach(() => {
+    effectiveDoorMock.value = "career";
+  });
+
+  it("shows rehearsal door honesty when Ready labels are suppressed (AS-079)", () => {
+    effectiveDoorMock.value = "rehearsal";
+    healthReadyMock.mockReturnValue({
+      data: { preCommitGateEnabled: true, status: "Healthy", entries: [] },
+    });
+
+    render(<RunDetailPreFinalizeGateHonestyStrip manifestFinalized={false} />);
+
+    expect(screen.getByTestId("run-detail-pre-finalize-rehearsal-door-honesty-strip")).toBeInTheDocument();
+    expect(screen.getByText("Rehearsal door — not ready to finalize")).toBeInTheDocument();
+  });
+
   it("shows the persistent banner when the host gate is disabled", () => {
     healthReadyMock.mockReturnValue({
       data: { preCommitGateEnabled: false, status: "Healthy", entries: [] },

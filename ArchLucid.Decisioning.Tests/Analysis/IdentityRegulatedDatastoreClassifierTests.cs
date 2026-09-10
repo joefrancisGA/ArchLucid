@@ -29,6 +29,39 @@ public sealed class IdentityRegulatedDatastoreClassifierTests
             .BeTrue();
     }
 
+    [Fact]
+    public void IsRegulatedDatastore_does_not_treat_non_pci_label_as_pci_sensitive()
+    {
+        GraphNode node = CreateTopologyNode("non-pci-orders-sql", sourceId: "/providers/Microsoft.Sql/servers/non-pci-orders-sql");
+        GraphSnapshot graphSnapshot = new();
+
+        IdentityRegulatedDatastoreClassifier.IsRegulatedDatastore(graphSnapshot, node)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsRegulatedDatastore_does_not_treat_insensitive_label_as_sensitive()
+    {
+        GraphNode node = CreateTopologyNode("insensitive-telemetry-sql", sourceId: "/providers/Microsoft.Sql/servers/insensitive-telemetry-sql");
+        GraphSnapshot graphSnapshot = new();
+
+        IdentityRegulatedDatastoreClassifier.IsRegulatedDatastore(graphSnapshot, node)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void IsRegulatedDatastore_still_treats_pci_label_as_regulated()
+    {
+        GraphNode node = CreateTopologyNode("pci-orders-sql", sourceId: "/providers/Microsoft.Sql/servers/pci-orders-sql");
+        GraphSnapshot graphSnapshot = new();
+
+        IdentityRegulatedDatastoreClassifier.IsRegulatedDatastore(graphSnapshot, node)
+            .Should()
+            .BeTrue();
+    }
+
     private static GraphNode CreateTopologyNode(string label, string sourceId)
     {
         return new GraphNode
