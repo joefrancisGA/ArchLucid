@@ -1459,4 +1459,133 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
         RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [accepted])
             .Should().BeEmpty("Accepted outcomes are intentionally non-blocking");
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_single_unevaluated_trace_does_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace unevaluated = new()
+        {
+            TraceId = "trace-unevaluated",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [unevaluated])
+            .Should().BeEmpty("TB-2226 fail-closed scope is recorded rejections on persisted traces");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_multiple_warned_tasks_do_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace topologyWarned = new()
+        {
+            TraceId = "trace-topology",
+            TaskId = "task-topology",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+        };
+        AgentExecutionTrace costWarned = new()
+        {
+            TraceId = "trace-cost",
+            TaskId = "task-cost",
+            AgentType = AgentType.Cost,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [topologyWarned, costWarned])
+            .Should().BeEmpty("Warned outcomes are intentionally non-blocking across tasks");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_distinct_tasks_unevaluated_and_rejected_only_blocks_rejected()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace unevaluatedTask = new()
+        {
+            TraceId = "trace-unevaluated",
+            TaskId = "task-unevaluated",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace rejectedTask = new()
+        {
+            TraceId = "trace-rejected",
+            TaskId = "task-rejected",
+            AgentType = AgentType.Cost,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [unevaluatedTask, rejectedTask]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-rejected");
+        reasons[0].Should().NotContain("trace-unevaluated");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_same_attempt_accepted_newer_and_rejected_older_does_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 21, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 21, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace rejectedDuplicate = new()
+        {
+            TraceId = "trace-r-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace acceptedDuplicate = new()
+        {
+            TraceId = "trace-a-accepted",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [rejectedDuplicate, acceptedDuplicate])
+            .Should().BeEmpty(
+                "rank ladder prefers Accepted duplicate over Rejected when CreatedUtc differs");
+    }
 }
