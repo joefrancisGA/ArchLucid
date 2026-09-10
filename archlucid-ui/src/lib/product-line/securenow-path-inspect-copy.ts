@@ -12,6 +12,8 @@ export const SECURENOW_PATH_INSPECT_ERROR = "Path inspect unavailable" as const;
 
 export const SECURENOW_PATH_INSPECT_WEAKEST_HOP_TITLE = "Weakest hop" as const;
 
+export const SECURENOW_PATH_INSPECT_ARCHITECT_SENTENCE_TITLE = "Architect path summary" as const;
+
 export const SECURENOW_PATH_INSPECT_HOPS_TITLE = "Path hops" as const;
 
 export const SECURENOW_PATH_INSPECT_CUT_POINTS_TITLE = "Cut points" as const;

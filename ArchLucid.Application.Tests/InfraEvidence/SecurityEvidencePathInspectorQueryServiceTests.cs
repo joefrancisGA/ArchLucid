@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence;
+using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
@@ -50,7 +51,9 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         detail.WeakestHop!.HopOrdinal.Should().Be(2);
         detail.ExplanationTemplate.Actor.Should().NotBeNullOrWhiteSpace();
         detail.ExplanationTemplate.Asset.Should().Be("sa1");
-        detail.ExplanationTemplate.Verify.Should().BeNull();
+        detail.ExplanationTemplate.Verify.Should().NotBeNull();
+        detail.ExplanationTemplate.ArchitectSentence.Should().NotBeNullOrWhiteSpace();
+        SecureNowArchitectHonestyCopyGuard.IsHonestCopy(detail.ExplanationTemplate.ArchitectSentence).Should().BeTrue();
     }
 
     [Fact]

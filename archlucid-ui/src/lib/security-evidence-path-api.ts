@@ -3,6 +3,7 @@ import type {
   OperationalSecurityFindingDetail,
   SecurityEvidencePathCutPoint,
   SecurityEvidencePathDetail,
+  SecurityEvidencePathExplanationTemplate,
   SecurityEvidencePathHop,
   SecurityEvidencePathRoutingRow,
   SecurityEvidencePathWeakestHop,
@@ -32,6 +33,23 @@ function mapWeakestHop(raw: Record<string, unknown>): SecurityEvidencePathWeakes
     hopConfidenceBand: String(raw.hopConfidenceBand ?? ""),
     provenanceKind: String(raw.provenanceKind ?? ""),
     reason: String(raw.reason ?? ""),
+  };
+}
+
+function mapExplanationTemplate(raw: Record<string, unknown> | null | undefined): SecurityEvidencePathExplanationTemplate | null {
+  if (raw == null) {
+    return null;
+  }
+
+  return {
+    actor: raw.actor != null ? String(raw.actor) : null,
+    identity: raw.identity != null ? String(raw.identity) : null,
+    network: raw.network != null ? String(raw.network) : null,
+    asset: raw.asset != null ? String(raw.asset) : null,
+    weakControl: raw.weakControl != null ? String(raw.weakControl) : null,
+    proposedChange: raw.proposedChange != null ? String(raw.proposedChange) : null,
+    verify: raw.verify != null ? String(raw.verify) : null,
+    architectSentence: raw.architectSentence != null ? String(raw.architectSentence) : null,
   };
 }
 
@@ -93,6 +111,7 @@ export async function fetchSecurityEvidencePathDetail(pathId: string): Promise<S
   const cutPointsRaw = Array.isArray(raw.relatedCutPoints) ? raw.relatedCutPoints : [];
   const routingRaw = Array.isArray(raw.routing) ? raw.routing : [];
   const weakestHopRaw = raw.weakestHop as Record<string, unknown> | null | undefined;
+  const explanationTemplateRaw = raw.explanationTemplate as Record<string, unknown> | null | undefined;
 
   return {
     pathId: mappedPathId,
@@ -105,6 +124,7 @@ export async function fetchSecurityEvidencePathDetail(pathId: string): Promise<S
       .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
       .map(mapHop),
     weakestHop: weakestHopRaw == null ? null : mapWeakestHop(weakestHopRaw),
+    explanationTemplate: mapExplanationTemplate(explanationTemplateRaw),
     relatedCutPoints: cutPointsRaw
       .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
       .map(mapCutPoint),

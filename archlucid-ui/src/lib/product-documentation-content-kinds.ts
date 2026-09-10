@@ -100,6 +100,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   scope: "product-help",
   glossary: "product-help",
   "security-trust": "product-help",
+  "security-evidence-paths": "product-help",
   "specialty-walkthroughs": "product-help",
   troubleshooting: "product-help",
 };
