@@ -7981,11 +7981,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 15
-- **bugs-found:** 5
+- **hunts:** 16
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-08 — companion inventory JSON arrays silently dropped on non-array root while resources.json fails closed
+- **last-bug:** 2026-09-10 — array-root manifest.json threw during ZipValidator schema read instead of schema rejection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8135,6 +8135,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `RedactStructuredJson` skips sensitive keys inside nested array-of-object structures — **cheap-disproof 2026-09-10 seed hunt #1605:** recursive array walk redacts nested object keys; regression `RedactStructuredJson_redacts_sensitive_keys_inside_nested_array_objects`.
 
 2026-09-10 seed hunt #1605 (seed-only): reseeded core-azure-extractor after #1604; cheap-disproof closed no-/un- prefix negation, embedded-fragment false positives, string isUnknownType coercion, whitespace resourceType skip, future-schema validator error detail, and nested-array RedactStructuredJson walk; 983 scoped `AzureExtractor` tests passed.
+
+- [x] (proven) `AzureExtractorPackageZipValidator.TryReadManifestSchemaError` — array-root `manifest.json` throws `InvalidOperationException` instead of schema rejection — **hit 2026-09-10 seed hunt #1606:** `TryGetPropertyCaseInsensitive` called `EnumerateObject` on a JSON array root; fixed with object-root guard before property lookup; regression `Validate_rejects_manifest_with_non_object_root`.
+- [x] (valid-no-repro) Manifest missing `schemaVersion` passes ZipValidator — **cheap-disproof 2026-09-10 seed hunt #1606:** schema rejection with explicit detail; regression `Validate_rejects_manifest_missing_schemaVersion`.
+- [x] (valid-no-repro) Empty optional companion arrays fail schema validation — **cheap-disproof 2026-09-10 seed hunt #1606:** empty `[]` accepted; regression `Validate_accepts_empty_optional_companion_array`.
+- [x] (valid-no-repro) `id` wins over `resourceId` when both present on inventory rows — **cheap-disproof 2026-09-10 seed hunt #1606:** `resourceId` preferred; regression `TryReadFromZip_prefers_resource_id_over_id_when_both_present`.
+- [x] (valid-no-repro) `type` wins over `resourceType` when both present on inventory rows — **cheap-disproof 2026-09-10 seed hunt #1606:** `resourceType` preferred; regression `TryReadFromZip_prefers_resource_type_over_type_when_both_present`.
+- [x] (valid-no-repro) Mixed-case `RESOURCEGROUPS` ARM path segments break resource-group extraction — **cheap-disproof 2026-09-10 seed hunt #1606:** ordinal-ignore-case segment match; regression `TryReadFromZip_extracts_resource_group_from_mixed_case_arm_path`.
+- [x] (valid-no-repro) Padded `name` values persist with surrounding whitespace — **cheap-disproof 2026-09-10 seed hunt #1606:** trimmed on map in both inventory readers; regressions `TryReadFromZip_trims_whitespace_from_name_on_resource_row`, `TryReadFromZip_trims_whitespace_from_name_and_resource_type`.
+- [x] (valid-no-repro) `RedactStructuredJson` preserves sensitive boolean scalar values — **cheap-disproof 2026-09-10 seed hunt #1606:** sensitive boolean scalars redacted; regression `RedactStructuredJson_redacts_sensitive_boolean_scalar_values`.
+
+2026-09-10 seed hunt #1606 (hit): reseeded core-azure-extractor after #1605; proved array-root manifest validation throw; cheap-disproof closed missing schemaVersion rejection, empty companion arrays, resourceId/resourceType precedence, mixed-case ARM resource-group extraction, name trimming, and RedactStructuredJson boolean scalar redaction; 992 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
