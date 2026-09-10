@@ -6,6 +6,7 @@ import { RunDetailOverviewTransparencyTrail } from "@/components/reviews/RunDeta
 import { RunDetailSealDeskCoverageStrip } from "@/components/reviews/RunDetailSealDeskCoverageStrip";
 
 import { RunDetailReviewPackageClassificationSummary } from "./RunDetailReviewPackageClassificationSummary";
+import { RunDetailReviewPackageSemanticSupportBandSummary } from "./RunDetailReviewPackageSemanticSupportBandSummary";
 import { RunDetailReviewPackageDecisionReceiptStrip } from "./RunDetailReviewPackageDecisionReceiptStrip";
 import { RunDetailPreFinalizeGateHonestyStrip } from "@/components/reviews/RunDetailPreFinalizeGateHonestyStrip";
 import { RunDetailQualityGateModeStrip } from "@/components/reviews/RunDetailQualityGateModeStrip";
@@ -102,6 +103,7 @@ export function RunDetailReviewPackageStampViewport(
           withheldFindingCount={props.withheldFindingCount}
           catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
         />
+        <RunDetailReviewPackageSemanticSupportBandSummary findings={props.quickDecisionFindings ?? []} />
         <RunDetailInsightDensityMeasurementDenominatorStrip
           enginesSucceeded={props.enginesSucceeded}
           actorNodeCount={measurementFloorOptions.actorNodeCount}
@@ -172,6 +174,7 @@ export function RunDetailReviewPackageStampViewport(
         withheldFindingCount={props.withheldFindingCount}
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
       />
+      <RunDetailReviewPackageSemanticSupportBandSummary findings={props.quickDecisionFindings ?? []} />
       <RunDetailInsightDensityMeasurementDenominatorStrip
         actorNodeCount={measurementFloorOptions.actorNodeCount}
         analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}
