@@ -257,6 +257,44 @@ public sealed class ContainerJobsOffloadRegistrationTests
     }
 
     [Fact]
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_extractor_auto_pull_hosted_services()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        services.Should().NotContain(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AzureExtractorAutoPullHostedService));
+        services.Should().NotContain(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AwsExtractorAutoPullHostedService));
+        services.Should().NotContain(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(GcpExtractorAutoPullHostedService));
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_internal_cross_tenant_rollup_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        services.Should().NotContain(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(InternalCrossTenantRollupHostedService));
+    }
+
+    [Fact]
     public void
         AddArchLucidApplicationServices_Api_role_with_cosmos_audit_does_not_register_AuditEventChangeFeedHostedService()
     {

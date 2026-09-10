@@ -258,6 +258,75 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
         runs[0].Should().Be(reference.AddHours(1));
     }
 
+    [Fact]
+    public void Constructor_throws_when_schedule_calculator_is_null()
+    {
+        Action act = () => new ArchitectureReviewRecurrenceNextRunCalculator(null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("scheduleCalculator");
+    }
+
+    [Fact]
+    public void IsSupportedCronExpression_rejects_empty_cron()
+    {
+        _sut.IsSupportedCronExpression(string.Empty).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ComputeNextRunUtc_returns_null_for_empty_cron_expression()
+    {
+        DateTime from = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+
+        DateTime? next = _sut.ComputeNextRunUtc(string.Empty, from);
+
+        next.Should().BeNull();
+    }
+
+    [Fact]
+    public void ComputeNextRunsUtc_returns_empty_for_empty_cron_expression()
+    {
+        DateTime from = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+
+        IReadOnlyList<DateTime> runs = _sut.ComputeNextRunsUtc(string.Empty, from, 3);
+
+        runs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ComputeNextRunsUtc_returns_empty_for_whitespace_only_cron()
+    {
+        DateTime from = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+
+        IReadOnlyList<DateTime> runs = _sut.ComputeNextRunsUtc("   ", from, 3);
+
+        runs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ComputeNextRunsUtc_normalizes_local_reference_kind()
+    {
+        DateTime fromLocal = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Local);
+
+        IReadOnlyList<DateTime> runs = _sut.ComputeNextRunsUtc("@daily", fromLocal, 1);
+
+        runs.Should().ContainSingle();
+        runs[0].Kind.Should().Be(DateTimeKind.Utc);
+        runs[0].Should().Be(fromLocal.ToUniversalTime().AddDays(1));
+    }
+
+    [Fact]
+    public void ComputeNextRunsUtc_does_not_emit_duplicate_instants_when_underlying_repeats_same_occurrence()
+    {
+        DateTime reference = new(2026, 3, 26, 10, 0, 0, DateTimeKind.Utc);
+        RepeatingScanScheduleCalculator stub = new(reference.AddHours(1));
+        ArchitectureReviewRecurrenceNextRunCalculator sut = new(stub);
+
+        IReadOnlyList<DateTime> runs = sut.ComputeNextRunsUtc("@hourly", reference, 3);
+
+        runs.Should().ContainSingle();
+        runs[0].Should().Be(reference.AddHours(1));
+    }
+
     private sealed class StubScanScheduleCalculator : IScanScheduleCalculator
     {
         private readonly DateTime _first;
@@ -373,6 +442,23 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculatorTests
 
             return _calls == 1 ? _first : null;
         }
+
+        public IReadOnlyList<DateTime> ComputeNextRunsUtc(string cronExpression, DateTime fromUtc, int count) =>
+            ScanScheduleNextRuns.Compute(this, cronExpression, fromUtc, count);
+    }
+
+    private sealed class RepeatingScanScheduleCalculator : IScanScheduleCalculator
+    {
+        private readonly DateTime _instant;
+
+        public RepeatingScanScheduleCalculator(DateTime instant)
+        {
+            _instant = instant;
+        }
+
+        public bool IsSupportedCronExpression(string cronExpression) => true;
+
+        public DateTime? ComputeNextRunUtc(string cronExpression, DateTime fromUtc) => _instant;
 
         public IReadOnlyList<DateTime> ComputeNextRunsUtc(string cronExpression, DateTime fromUtc, int count) =>
             ScanScheduleNextRuns.Compute(this, cronExpression, fromUtc, count);
