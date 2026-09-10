@@ -1,4 +1,4 @@
-import { resolveBrowserTimeZoneId } from "@/lib/advisory-schedule-form";
+import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { toStoredIanaTimeZoneId } from "@/lib/iana-time-zone-select";
 import { delayForWarmupRetry, WARMUP_MAX_ATTEMPTS } from "@/lib/warmup-retry";
 
@@ -6,7 +6,7 @@ export const IANA_TIME_ZONE_PREFERENCE_STORAGE_KEY = "archlucid.iana-time-zone-p
 
 export const IANA_TIME_ZONE_PREFERENCE_CHANGED_EVENT = "archlucid:iana-time-zone-preference-changed";
 
-export const DEFAULT_IANA_TIME_ZONE_PREFERENCE = "UTC";
+export { DEFAULT_IANA_TIME_ZONE_ID as DEFAULT_IANA_TIME_ZONE_PREFERENCE } from "@/lib/default-iana-time-zone";
 
 let inFlightTimeZonePut: Promise<boolean> | null = null;
 let queuedTimeZonePutId: string | null = null;
@@ -18,13 +18,13 @@ function dispatchIanaTimeZonePreferenceChanged(): void {
 
 export function normalizeIanaTimeZonePreference(value: string | null | undefined): string {
   if (value === null || value === undefined) {
-    return DEFAULT_IANA_TIME_ZONE_PREFERENCE;
+    return DEFAULT_IANA_TIME_ZONE_ID;
   }
 
   const trimmed = value.trim();
 
   if (trimmed.length === 0) {
-    return DEFAULT_IANA_TIME_ZONE_PREFERENCE;
+    return DEFAULT_IANA_TIME_ZONE_ID;
   }
 
   return toStoredIanaTimeZoneId(trimmed);
@@ -32,20 +32,20 @@ export function normalizeIanaTimeZonePreference(value: string | null | undefined
 
 export function readStoredIanaTimeZonePreference(): string {
   if (typeof window === "undefined") {
-    return DEFAULT_IANA_TIME_ZONE_PREFERENCE;
+    return DEFAULT_IANA_TIME_ZONE_ID;
   }
 
   try {
     const raw = window.localStorage.getItem(IANA_TIME_ZONE_PREFERENCE_STORAGE_KEY);
 
     if (raw === null || raw.length === 0) {
-      return resolveBrowserTimeZoneId();
+      return DEFAULT_IANA_TIME_ZONE_ID;
     }
 
     return normalizeIanaTimeZonePreference(raw);
   }
   catch {
-    return resolveBrowserTimeZoneId();
+    return DEFAULT_IANA_TIME_ZONE_ID;
   }
 }
 
