@@ -540,6 +540,48 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
     }
 
     [Fact]
+    public void GetBlockingReasons_when_same_attempt_duplicates_include_unevaluated_and_rejected_still_blocks()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 2, 10, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 2, 10, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace unevaluatedDuplicate = new()
+        {
+            TraceId = "trace-a-unevaluated",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace rejectedDuplicate = new()
+        {
+            TraceId = "trace-z-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [unevaluatedDuplicate, rejectedDuplicate]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-z-rejected");
+    }
+
+    [Fact]
     public void GetBlockingReasons_when_same_attempt_task_id_differs_only_by_whitespace_prefers_accepted_trace_after_upsert()
     {
         ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };

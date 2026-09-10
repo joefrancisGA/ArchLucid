@@ -275,6 +275,39 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_same_attempt_duplicates_with_unevaluated_and_rejected_prefers_rejected_trace()
+    {
+        DateTime olderUtc = new(2026, 12, 2, 10, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 2, 10, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace unevaluatedDuplicate = new()
+        {
+            TraceId = "trace-a-unevaluated",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace rejectedDuplicate = new()
+        {
+            TraceId = "trace-z-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([unevaluatedDuplicate, rejectedDuplicate]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-z-rejected");
+    }
+
+    [Fact]
     public void Select_when_same_attempt_and_created_utc_ties_prefers_non_rejected_trace()
     {
         DateTime sharedUtc = new(2026, 10, 2, 10, 0, 0, DateTimeKind.Utc);
