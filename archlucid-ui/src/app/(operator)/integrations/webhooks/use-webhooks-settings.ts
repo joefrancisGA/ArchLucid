@@ -119,6 +119,7 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     webhookRows: loadState.webhookRows,
     scopeGenerationRef: loadState.scopeGenerationRef,
     load: loadState.load,
+    getLastLoadFailure: loadState.getLastLoadFailure,
     setFailure: loadState.setFailure,
   });
   mutationResetRef.current = mutations.resetMutationState;

@@ -48,6 +48,7 @@ export type UseWebhooksSettingsMutationsOptions = {
   readonly webhookRows: AlertRoutingSubscription[];
   readonly scopeGenerationRef: React.RefObject<number>;
   readonly load: () => Promise<boolean>;
+  readonly getLastLoadFailure: () => ApiLoadFailureState | null;
   readonly setFailure: React.Dispatch<React.SetStateAction<ApiLoadFailureState | null>>;
 };
 
@@ -218,9 +219,9 @@ export function useWebhooksSettingsMutations(
     setEnableErrorMessage(null);
   }, [setPendingDisable, setPendingEnable]);
 
-  async function executeToggle(routingSubscriptionId: string, generation: number): Promise<void> {
+  async function executeToggle(routingSubscriptionId: string, generation: number): Promise<boolean> {
     if (options.scopeGenerationRef.current !== generation) {
-      return;
+      return false;
     }
 
     options.setFailure(null);
@@ -229,16 +230,28 @@ export function useWebhooksSettingsMutations(
       await toggleAlertRoutingSubscription(routingSubscriptionId);
 
       if (options.scopeGenerationRef.current !== generation) {
-        return;
+        return false;
       }
 
-      await options.load();
+      return await options.load();
     } catch (error: unknown) {
       if (options.scopeGenerationRef.current !== generation) {
-        return;
+        return false;
       }
 
       throw error;
+    }
+  }
+
+  function presentToggleRefreshFailureInDialog(
+    setDialogErrorMessage: (message: string) => void,
+  ): void {
+    const loadFailure = options.getLastLoadFailure();
+
+    options.setFailure(null);
+
+    if (loadFailure !== null) {
+      setDialogErrorMessage(formatCustomerApiFailure(loadFailure));
     }
   }
 
@@ -273,9 +286,15 @@ export function useWebhooksSettingsMutations(
     writeWebhookSubscriptionLastViewedId(pendingEnable.routingSubscriptionId);
 
     try {
-      await executeToggle(pendingEnable.routingSubscriptionId, generation);
+      const refreshed = await executeToggle(pendingEnable.routingSubscriptionId, generation);
 
       if (options.scopeGenerationRef.current !== generation) {
+        return;
+      }
+
+      if (!refreshed) {
+        presentToggleRefreshFailureInDialog(setEnableErrorMessage);
+
         return;
       }
 
@@ -303,9 +322,15 @@ export function useWebhooksSettingsMutations(
     setDisableErrorMessage(null);
 
     try {
-      await executeToggle(pendingDisable.routingSubscriptionId, generation);
+      const refreshed = await executeToggle(pendingDisable.routingSubscriptionId, generation);
 
       if (options.scopeGenerationRef.current !== generation) {
+        return;
+      }
+
+      if (!refreshed) {
+        presentToggleRefreshFailureInDialog(setDisableErrorMessage);
+
         return;
       }
 
