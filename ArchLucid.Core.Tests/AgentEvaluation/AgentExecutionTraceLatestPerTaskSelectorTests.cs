@@ -669,4 +669,66 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
         latest.Should().ContainSingle();
         latest[0].TraceId.Should().Be("trace-z");
     }
+
+    [Fact]
+    public void Select_when_higher_attempt_unevaluated_wins_over_lower_attempt_warned()
+    {
+        DateTime olderUtc = new(2026, 12, 5, 17, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 17, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededWarned = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace latestUnevaluated = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([supersededWarned, latestUnevaluated]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-attempt-2");
+    }
+
+    [Fact]
+    public void Select_when_distinct_task_ids_keeps_one_latest_trace_per_task()
+    {
+        AgentExecutionTrace taskOneAccepted = new()
+        {
+            TraceId = "trace-task-1",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace taskTwoRejected = new()
+        {
+            TraceId = "trace-task-2",
+            TaskId = "task-2",
+            AgentType = AgentType.Cost,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([taskOneAccepted, taskTwoRejected]);
+
+        latest.Should().HaveCount(2);
+        latest.Should().ContainSingle(t => t.TraceId == "trace-task-1");
+        latest.Should().ContainSingle(t => t.TraceId == "trace-task-2");
+    }
 }

@@ -1022,4 +1022,106 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
         RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [])
             .Should().BeEmpty("no traces means no recorded rejections to block on");
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_higher_attempt_unevaluated_does_not_block_on_superseded_warned_trace()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 17, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 17, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededWarned = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace latestUnevaluated = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededWarned, latestUnevaluated])
+            .Should().BeEmpty(
+                "AttemptIndex supersedes quality rank; unevaluated winning attempt is non-blocking under TB-2226");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_recorded_rejected_outcome_blocks_even_when_quality_rejected_false()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-outcome-only",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = false,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [trace]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-outcome-only");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_distinct_tasks_only_blocks_on_rejected_latest_per_task()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace acceptedTask = new()
+        {
+            TraceId = "trace-task-1",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace rejectedTask = new()
+        {
+            TraceId = "trace-task-2",
+            TaskId = "task-2",
+            AgentType = AgentType.Cost,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [acceptedTask, rejectedTask]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-task-2");
+        reasons[0].Should().NotContain("trace-task-1");
+    }
 }

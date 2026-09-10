@@ -375,7 +375,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -425,6 +425,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator` with `Mode=WarnOnly` — **cheap-disproof 2026-09-10 seed hunt #1618:** TB-2226 commit blocking is PilotStrict-only (`GetBlockingReasons_when_warn_only_mode_returns_empty_even_with_rejected_traces`)
 - [x] (valid-no-repro) empty trace list on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1618:** no persisted rejections to evaluate (`GetBlockingReasons_when_empty_traces_returns_empty`)
 - [x] (valid-no-repro) same-attempt duplicate rows tied on `AttemptIndex`, rank, and `CreatedUtc` — **cheap-disproof 2026-09-10 seed hunt #1618:** deterministic `TraceId` lexicographic tie-break (`Select_when_same_attempt_created_utc_and_rank_tie_prefers_lexicographically_greater_trace_id`)
+- [x] (valid-no-repro) higher `AttemptIndex` unevaluated supersedes lower-attempt `Warned` — **cheap-disproof 2026-09-10 seed hunt #1619:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_unevaluated_wins_over_lower_attempt_warned`, `GetBlockingReasons_when_higher_attempt_unevaluated_does_not_block_on_superseded_warned_trace`)
+- [x] (valid-no-repro) `RecordedQualityGateOutcome.Rejected` with `QualityRejected=false` — **cheap-disproof 2026-09-10 seed hunt #1619:** recorded rejection alone is sufficient to block (`GetBlockingReasons_when_recorded_rejected_outcome_blocks_even_when_quality_rejected_false`)
+- [x] (valid-no-repro) distinct `TaskId` groups evaluate independently — **cheap-disproof 2026-09-10 seed hunt #1619:** selector keeps one latest per task and gate blocks only rejected winners (`Select_when_distinct_task_ids_keeps_one_latest_trace_per_task`, `GetBlockingReasons_when_distinct_tasks_only_blocks_on_rejected_latest_per_task`)
+
+2026-09-10 seed hunt #1619 (seed-only): reseeded commit-output-integrity after #1618; cheap-disproof on unevaluated supersession over Warned, outcome-only rejection blocking, and per-task isolation; 55 scoped commit-output-integrity tests passed.
 
 2026-09-10 seed hunt #1618 (seed-only): reseeded commit-output-integrity after #1617; cheap-disproof on Accepted supersession over Rejected, WarnOnly bypass, empty traces, and TraceId tie-break; 50 scoped commit-output-integrity tests passed.
 
