@@ -3,6 +3,7 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { architectureIntelligenceRunModelBlockedReason } from "@/lib/architecture/architecture-intelligence-run-model-blocked-reason";
 import { architectureIntelligenceRunMutationBlockedReason } from "@/lib/architecture/architecture-intelligence-run-mutation-blocked-reason";
+import { architectureIntelligenceSourceContextBlockedReason } from "@/lib/architecture/architecture-intelligence-source-context-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -14,7 +15,6 @@ import type {
   ClosedLoopReasoningSourceText,
 } from "@/lib/architecture/architecture-intelligence-api-types";
 import type { components } from "@/lib/openapi-schemas";
-import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 
 type ArchitectureKnowledgeModel = components["schemas"]["ArchitectureKnowledgeModel"];
 
@@ -24,9 +24,16 @@ const DEFAULT_CONTENT_TYPE = "text/plain";
 export async function fetchArchitectureIntelligenceProductSourceContext(
   runId: string,
 ): Promise<ArchitectureIntelligenceProductSourceContext> {
-  return apiGetSealedManifestAware<ArchitectureIntelligenceProductSourceContext>(
-    `/v1/architecture-intelligence/product-runs/${encodeURIComponent(runId)}/source-context`,
-  );
+  try {
+    return await apiGet<ArchitectureIntelligenceProductSourceContext>(
+      `/v1/architecture-intelligence/product-runs/${encodeURIComponent(runId)}/source-context`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureIntelligenceSourceContextBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function fetchArchitectureIntelligenceRunModel(
