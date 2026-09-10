@@ -175,9 +175,9 @@ public sealed partial class AuthorityCompareController(
             ScopedRunPairLoadOutcome.PinFingerprintMismatch => this.ConflictProblem(
                 "Compare blocked: create-time pin fingerprints differ between the selected runs.",
                 ProblemTypes.Conflict),
-            ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
-                "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
-                ProblemTypes.CommittedArtifactInventoryMismatch),
+            ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => MapCompareSealedManifestConflict(
+                new ConflictException(
+                    "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.")),
             ScopedRunPairLoadOutcome.SealedManifestHashMismatch => MapCompareSealedManifestConflict(
                 new ConflictException(
                     "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),

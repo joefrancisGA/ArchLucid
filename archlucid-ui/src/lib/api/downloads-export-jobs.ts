@@ -1,6 +1,7 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { sponsorValueReportDocxMutationBlockedReason } from "@/lib/pilots/sponsor-value-report-docx-mutation-blocked-reason";
+import { sponsorPackSentMutationBlockedReason } from "@/lib/pilots/sponsor-pack-sent-mutation-blocked-reason";
 import { comparisonReplayMutationBlockedReason } from "@/lib/compare/comparison-replay-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
@@ -104,7 +105,15 @@ export async function markSponsorPackSent(
   body?: { readonly recipientEmail?: string; readonly deliveryMethod?: string },
 ): Promise<void> {
   const path = `/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-pack-sent`;
-  await apiPostNoContent(path, body ?? { deliveryMethod: "email" });
+
+  try {
+    await apiPostNoContent(path, body ?? { deliveryMethod: "email" });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = sponsorPackSentMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** POST sponsor value report DOCX (`ExecuteAuthority`, Standard+ tier on API). Browser-only download. */

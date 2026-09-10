@@ -117,10 +117,10 @@ public sealed partial class PolicyPacksController
 
         if (result.Outcome == PolicyPackHttpOutcome.Conflict)
         {
-            return this.ConflictProblem(
-                result.Message
-                    ?? "Organization-required policy pack assignments cannot be archived.",
-                ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(
+                new ConflictException(
+                    result.Message
+                        ?? "Organization-required policy pack assignments cannot be archived."));
         }
 
         return NoContent();

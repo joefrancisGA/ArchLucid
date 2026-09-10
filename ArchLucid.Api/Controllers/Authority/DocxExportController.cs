@@ -108,9 +108,8 @@ public sealed partial class DocxExportController(
             await _runDetailQueryService.GetRunDetailAsync(runId.ToString("N"), ct).ConfigureAwait(false);
 
         if (architectureDetail is null)
-            return this.ConflictProblem(
-                $"Export blocked: run '{runId:N}' lifecycle detail was not found.",
-                ProblemTypes.Conflict);
+            return MapDocxExportSealedManifestConflict(
+                new ConflictException($"Export blocked: run '{runId:N}' lifecycle detail was not found."));
 
         try
         {
