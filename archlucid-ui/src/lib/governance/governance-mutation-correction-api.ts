@@ -1,4 +1,4 @@
-import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
+import { withLivelihood401Resume } from "@/lib/auth/livelihood-mutation-401-resume";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
 
@@ -57,7 +57,7 @@ export async function recordGovernanceMutationCorrectionWith401Resume(
 ): Promise<GovernanceMutationCorrectionRecorded> {
   const idempotencyKey = options.idempotencyKey.trim();
 
-  return executeIdempotentLivelihoodMutation({
+  return withLivelihood401Resume({
     kind: "governance_mutation_correction",
     returnPath: options.returnPath,
     idempotencyKey,
