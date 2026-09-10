@@ -44,6 +44,17 @@ public sealed class RealModeSmokeCommandOptionsTests
     }
 
     [Fact]
+    public void Parse_Rehearse_AliasMatchesAllowSimulatorOnStaging()
+    {
+        RealModeSmokeCommandOptions? opts = RealModeSmokeCommandOptions.Parse(
+            ["--staging", "--rehearse"],
+            out string? error);
+
+        error.Should().BeNull();
+        opts!.RequireRealExecutionTokens.Should().BeFalse();
+    }
+
+    [Fact]
     public void Parse_AcceptsTimeoutAndPollOverrides()
     {
         RealModeSmokeCommandOptions? opts = RealModeSmokeCommandOptions.Parse(
