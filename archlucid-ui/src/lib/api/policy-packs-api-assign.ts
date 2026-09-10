@@ -16,10 +16,6 @@ import type {
   PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
 
-
-
-
-
 /** Assigns a specific policy pack version to the current scope (project/workspace/tenant). */
 export async function assignPolicyPack(
   policyPackId: string,

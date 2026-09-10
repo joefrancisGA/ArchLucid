@@ -18,19 +18,6 @@ import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
   FindingExplainability,
   FindingLlmAudit,
 } from "@/types/explanation";
-
-
-
-
-
-
-
-
-
-
-
-
-
 import {
   parseFilenameFromContentDisposition,
   triggerBrowserBlobDownload,

@@ -63,7 +63,7 @@ function isDecisionGradeForSemanticSupportExport(
 export function resolveFindingSemanticSupportBandExportFields(
   finding: FindingSemanticSupportBandExportInput,
 ): FindingSemanticSupportBandExportFields | null {
-  if (!isDecisionGradeForSemanticSupportExport(finding)) {
+  if (!isDecisionGradeFinding(finding as QuickDecisionFinding)) {
     return null;
   }
 
