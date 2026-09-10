@@ -1838,3 +1838,4 @@
 {"at":"2026-09-10T19:19:02.9630023Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
 {"at":"2026-09-10T19:22:15.7631521Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
 {"at":"2026-09-10T19:25:24.0740145Z","zoneId":"commit-output-integrity","outcome":"seed-only"}
+{"at":"2026-09-10T20:07:22.4454153Z","zoneId":"host-infra-evidence-composition","outcome":"dry"}
