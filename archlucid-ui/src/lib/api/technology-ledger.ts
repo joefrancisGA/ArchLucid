@@ -15,7 +15,14 @@ const ledgerBase = (runId: string): string =>
   `/v1/runs/${encodeURIComponent(runId)}/technology-ledger`;
 
 export async function getTechnologyLedger(runId: string): Promise<TechnologyLedgerListResponse> {
-  return apiGetSealedManifestAware<TechnologyLedgerListResponse>(ledgerBase(runId));
+  try {
+    return await apiGetSealedManifestAware<TechnologyLedgerListResponse>(ledgerBase(runId));
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = technologyLedgerBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function patchTechnologyLedgerEntry(
