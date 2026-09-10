@@ -11,6 +11,7 @@ import { ArchitectureIdentityDeskCompareAction } from "@/components/architecture
 import { ArchitectureIdentityDeskCurrentDraft } from "@/components/architecture/ArchitectureIdentityDeskCurrentDraft";
 import { ArchitectureIdentityDeskDiagramSourcesStrip } from "@/components/architecture/ArchitectureIdentityDeskDiagramSourcesStrip";
 import { ArchitectureIdentityDeskInventoryBindingPanel } from "@/components/architecture/ArchitectureIdentityDeskInventoryBindingPanel";
+import { ArchitectureIdentityDeskSharePanel } from "@/components/architecture/ArchitectureIdentityDeskSharePanel";
 import { ArchitectureIdentityDeskOpenQuestions } from "@/components/architecture/ArchitectureIdentityDeskOpenQuestions";
 import { ArchitectureIdentityDeskInFlightSection } from "@/components/architecture/ArchitectureIdentityDeskInFlightSection";
 import { ArchitectureIdentityDeskReviewsTable } from "@/components/architecture/ArchitectureIdentityDeskReviewsTable";
@@ -127,6 +128,8 @@ export function ArchitectureIdentityDesk(props: ArchitectureIdentityDeskProps): 
       <ArchitectureIdentityDeskDiagramSourcesStrip latestReviewId={identity.latestReviewId} />
 
       <ArchitectureIdentityDeskInventoryBindingPanel architectureId={identity.architectureId} />
+
+      <ArchitectureIdentityDeskSharePanel architectureId={identity.architectureId} />
 
       <ArchitectureIdentityDeskInFlightSection architectureId={identity.architectureId} />
 

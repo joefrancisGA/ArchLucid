@@ -13,7 +13,8 @@ public sealed class DraftRequestMutateStage(
     IQuestionSelectionEngine questionSelectionEngine,
     IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
     IArchitectureIdentityService architectureIdentityService,
-    IPresenterIntakeTrailSyncService presenterIntakeTrailSyncService) : IDraftRequestMutateStage
+    IPresenterIntakeTrailSyncService presenterIntakeTrailSyncService,
+    DraftForceOverwriteAuditSupport draftForceOverwriteAuditSupport) : IDraftRequestMutateStage
 {
     private readonly IDraftRequestRepository _draftRepository =
         draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
@@ -29,6 +30,9 @@ public sealed class DraftRequestMutateStage(
 
     private readonly IPresenterIntakeTrailSyncService _presenterIntakeTrailSyncService =
         presenterIntakeTrailSyncService ?? throw new ArgumentNullException(nameof(presenterIntakeTrailSyncService));
+
+    private readonly DraftForceOverwriteAuditSupport _draftForceOverwriteAuditSupport =
+        draftForceOverwriteAuditSupport ?? throw new ArgumentNullException(nameof(draftForceOverwriteAuditSupport));
 
     public async Task<DraftRequestResponse?> PatchAsync(
         ScopeContext scope,
@@ -75,6 +79,8 @@ public sealed class DraftRequestMutateStage(
             }
         }
 
+        DateTime previousUpdatedUtc = existing.UpdatedUtc;
+
         DraftDocumentMutator.ApplyPatch(existing.Document, patch);
         DraftDocumentMutator.SyncTransparencyFromDocument(existing.Document);
 
@@ -94,6 +100,13 @@ public sealed class DraftRequestMutateStage(
             await _architectureIdentityService
                 .TryUpgradeUntitledDisplayNameFromDraftAsync(scope, draftId, cancellationToken)
                 .ConfigureAwait(false);
+
+            if (patch.ForceOverwrite == true)
+            {
+                await _draftForceOverwriteAuditSupport
+                    .LogForceOverwriteAsync(scope, draftId, previousUpdatedUtc, cancellationToken)
+                    .ConfigureAwait(false);
+            }
         }
 
         return updated;

@@ -59,7 +59,8 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/integrations/jira");
     expect(hrefs).toContain("/integrations/servicenow");
     expect(hrefs).toContain("/integrations/teams");
-    expect(hrefs).toContain("/governance/remediation-factory");
+    expect(hrefs).toContain("/security/remediation-factory");
+    expect(hrefs).not.toContain("/governance/remediation-factory");
     expect(hrefs).toContain("/administration/users");
     expect(hrefs).toContain("/governance/infrastructure/extract-upload");
     expect(hrefs).not.toContain("/administration/extract-upload");
@@ -74,6 +75,12 @@ describe("product-line catalog", () => {
     expect(hrefs).toContain("/governance/policy-packs");
     expect(hrefs).toContain("/governance/standards-and-rules");
     expect(hrefs).toContain("/governance/findings");
+    expect(hrefs).toContain("/security/assigned-to-me");
+    expect(hrefs).toContain("/security/remediation-factory");
+    expect(hrefs).toContain("/security/remediation-patterns");
+    expect(hrefs).not.toContain("/governance/findings/assigned-to-me");
+    expect(hrefs).not.toContain("/governance/remediation-factory");
+    expect(hrefs).not.toContain("/governance/remediation-patterns");
     expect(hrefs).not.toContain("/administration/ai-usage");
     expect(hrefs).not.toContain("/administration/workspace-settings/recycle-bin");
     expect(hrefs).not.toContain("/administration/branding");
@@ -140,6 +147,10 @@ describe("product-line catalog", () => {
     expect(isPathAllowedForProductLine("/governance/infrastructure/extract-upload", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/extract-upload", "architecture")).toBe(true);
     expect(isPathAllowedForProductLine("/governance/findings/assigned-to-me", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/security/assigned-to-me", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/security/remediation-factory", "security")).toBe(true);
+    expect(isPathAllowedForProductLine("/security/assigned-to-me", "architecture")).toBe(false);
+    expect(isPathAllowedForProductLine("/security/remediation-factory", "architecture")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/billing", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/branding", "security")).toBe(false);
     expect(isPathAllowedForProductLine("/administration/branding", "architecture")).toBe(true);

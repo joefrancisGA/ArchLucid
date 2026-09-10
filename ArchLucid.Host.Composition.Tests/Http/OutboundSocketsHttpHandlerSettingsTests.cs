@@ -29,4 +29,14 @@ public sealed class OutboundSocketsHttpHandlerSettingsTests
         handler.PooledConnectionLifetime.Should().BeGreaterThan(TimeSpan.Zero);
         handler.PooledConnectionIdleTimeout.Should().BeGreaterThan(TimeSpan.Zero);
     }
+
+    [Fact]
+    public void Apply_does_not_configure_connect_callback()
+    {
+        SocketsHttpHandler handler = new();
+        OutboundSocketsHttpHandlerSettings.Apply(handler, OutboundHttpSocketsHandlerProfile.ExternalIntegration);
+
+        handler.ConnectCallback.Should().BeNull(
+            "pool profiles tune transport only; connect-time SSRF guard is opt-in on ConfigureArchLucidOutboundSocketsHandler");
+    }
 }

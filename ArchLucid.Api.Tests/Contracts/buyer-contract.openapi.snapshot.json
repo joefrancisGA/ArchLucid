@@ -5576,6 +5576,52 @@
         },
         "type": "object"
       },
+      "ArchitectureShareListResponse": {
+        "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "restrictToShares": {
+            "type": "boolean"
+          },
+          "shares": {
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureShareResponse"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ArchitectureShareResponse": {
+        "properties": {
+          "actorOid": {
+            "type": "string"
+          },
+          "architectureId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "grantedBy": {
+            "type": "string"
+          },
+          "grantedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "rowVersionBase64": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureTraceTimelineEntry": {
         "properties": {
           "kind": {
@@ -7495,6 +7541,17 @@
           },
           "runtimeFramework": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "BuildSecurityEvidencePathExplanationRequest": {
+        "properties": {
+          "allowInsufficientEvidence": {
+            "type": "boolean"
+          },
+          "useSimulator": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -12970,6 +13027,13 @@
       },
       "DraftRequestSummaryResponse": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdByUserId": {
             "type": "string"
           },
@@ -21901,6 +21965,13 @@
             "format": "date-time",
             "type": "string"
           },
+          "pathId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "payloadHashSha256": {
             "format": "byte",
             "type": "string"
@@ -22628,6 +22699,32 @@
         },
         "type": "object"
       },
+      "PagedResponseOfSecurityEvidencePathSummaryResponse": {
+        "properties": {
+          "hasMore": {
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathSummaryResponse"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PatchArchitectureIdentityRequest": {
         "properties": {
           "archived": {
@@ -22663,6 +22760,17 @@
         },
         "type": "object"
       },
+      "PatchArchitectureRestrictToSharesRequest": {
+        "properties": {
+          "confirmRestrict": {
+            "type": "boolean"
+          },
+          "restrictToShares": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "PatchDraftRequest": {
         "properties": {
           "actorSet": {
@@ -22682,6 +22790,7 @@
             ]
           },
           "expectedUpdatedUtc": {
+            "description": "Required unless forceOverwrite is true. Must match the current draft updatedUtc. Omit returns HTTP 409 with code draft_cas_token_missing, not last-write-wins (ADR 0088).",
             "format": "date-time",
             "type": [
               "null",
@@ -22695,6 +22804,7 @@
             ]
           },
           "forceOverwrite": {
+            "description": "When true, skips CAS and overwrites the server draft (Keep mine). Never defaults to true. Writes a Required audit event. JSON Schema cannot express required-unless-forceOverwrite.",
             "type": [
               "null",
               "boolean"
@@ -22801,6 +22911,12 @@
           }
         },
         "type": "object"
+      },
+      "PathConfidenceBand": {
+        "type": "integer"
+      },
+      "PathKind": {
+        "type": "integer"
       },
       "PatternEvidence": {
         "properties": {
@@ -26204,6 +26320,17 @@
         ],
         "type": "object"
       },
+      "PutArchitectureShareRequest": {
+        "properties": {
+          "actorOid": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PutRunCoverageAcknowledgementRequest": {
         "properties": {
           "entries": {
@@ -27949,6 +28076,23 @@
             "format": "uuid",
             "type": "string"
           },
+          "pathId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pathNarrative": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RemediationPathNarrative"
+              }
+            ]
+          },
           "patternKey": {
             "type": "string"
           },
@@ -27999,6 +28143,76 @@
             "type": "integer"
           },
           "key": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RemediationPathNarrative": {
+        "properties": {
+          "affectedDependencyCloudResourceIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "aiInferenceSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "blastRadiusWarning": {
+            "type": "string"
+          },
+          "canonicalHopHashHex": {
+            "type": "string"
+          },
+          "exposureSummary": {
+            "type": "string"
+          },
+          "pathConfidenceBand": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathKind": {
+            "type": "string"
+          },
+          "preconditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "problemStatement": {
+            "type": "string"
+          },
+          "recommendedChange": {
+            "type": "string"
+          },
+          "recommendedChangeSource": {
+            "type": "string"
+          },
+          "safeRolloutSteps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "verificationQueries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "weakestHopReason": {
+            "type": "string"
+          },
+          "whyItMatters": {
             "type": "string"
           }
         },
@@ -32767,6 +32981,69 @@
         },
         "type": "object"
       },
+      "SecureNowArchitectOutcomeMetricsResponse": {
+        "properties": {
+          "assertedCrownJewelExposurePathsRemoved": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "criticalOrHighConfidencePathsRemoved": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "exceptionsExpired": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "fromSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "privilegedIdentityNodesOnPathsReduced": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "remediationRecurrenceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "ruleVersion": {
+            "type": "string"
+          },
+          "sharedControlBlastRadiusPathsRemoved": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "supportingOperationalMetrics": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecureNowArchitectSupportingOperationalMetricsResponse"
+              }
+            ]
+          },
+          "toSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "unrestrictedEgressCapabilityPathsReduced": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowArchitectSupportingOperationalMetricsResponse": {
+        "properties": {
+          "openFindings": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "SecurityAssessmentPublicationRequest": {
         "properties": {
           "assessmentCode": {
@@ -32806,6 +33083,647 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidenceCutPointSummaryResponse": {
+        "properties": {
+          "collapsedPathIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "cutKind": {
+            "type": "string"
+          },
+          "cutOrder": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "cutPointId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "edgeType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "evidenceReferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "explanationSummary": {
+            "type": "string"
+          },
+          "fromNodeLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "leverageScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "operationalCostClass": {
+            "type": "string"
+          },
+          "pathsCollapsedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "suggestedPatternKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "toNodeLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathDetailResponse": {
+        "properties": {
+          "citingFindingIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "crownJewelAssertionId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "explanationTemplate": {
+            "$ref": "#/components/schemas/SecurityEvidencePathExplanationTemplateResponse"
+          },
+          "hops": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathHopResponse"
+            },
+            "type": "array"
+          },
+          "pathConfidenceBand": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathKind": {
+            "type": "string"
+          },
+          "relatedCutPoints": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidenceCutPointSummaryResponse"
+            },
+            "type": "array"
+          },
+          "routing": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathRoutingResponse"
+            },
+            "type": "array"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "weakestHop": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecurityEvidencePathWeakestHopResponse"
+              }
+            ]
+          },
+          "weakestHopOrdinal": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "weakestHopReason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathExplanationResponse": {
+        "properties": {
+          "businessImpactHypotheses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "citedEvidenceRefs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "executiveSummary": {
+            "type": "string"
+          },
+          "explanationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "proposedRemediation": {
+            "$ref": "#/components/schemas/SecurityEvidencePathProposedRemediationResponse"
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "simulatorLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathExplanationResultResponse": {
+        "properties": {
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecurityEvidencePathExplanationResponse"
+              }
+            ]
+          },
+          "succeeded": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathExplanationTemplateResponse": {
+        "properties": {
+          "actor": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "architectSentence": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "asset": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "identity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "network": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "proposedChange": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "verify": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "weakControl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathHopResponse": {
+        "properties": {
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "edgeType": {
+            "type": "string"
+          },
+          "evidenceReference": {
+            "type": "string"
+          },
+          "fromNodeLabel": {
+            "type": "string"
+          },
+          "hopConfidenceBand": {
+            "type": "string"
+          },
+          "hopOrdinal": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "inferenceSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "toNodeLabel": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathProposedRemediationResponse": {
+        "properties": {
+          "preconditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "recommendedChange": {
+            "type": "string"
+          },
+          "recommendedChangeSource": {
+            "type": "string"
+          },
+          "suggestedPatternKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "verificationQueries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathRankDetailResponse": {
+        "properties": {
+          "blastRadiusScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "breakdownJson": {
+            "type": "string"
+          },
+          "businessConsequenceScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "compositeSortScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "computedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "confidenceBandScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "dimensionProse": {
+            "$ref": "#/components/schemas/SecurityEvidencePathRankDimensionProseResponse"
+          },
+          "explanationSummary": {
+            "type": "string"
+          },
+          "pathConfidenceBand": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathKind": {
+            "type": "string"
+          },
+          "privilegeDepthScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "rankOrder": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "ruleVersion": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "technicalExposureScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathRankDimensionProseResponse": {
+        "properties": {
+          "blastRadius": {
+            "type": "string"
+          },
+          "businessConsequence": {
+            "type": "string"
+          },
+          "confidenceBand": {
+            "type": "string"
+          },
+          "overall": {
+            "type": "string"
+          },
+          "privilegeDepth": {
+            "type": "string"
+          },
+          "technicalExposure": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathRankSummaryResponse": {
+        "properties": {
+          "blastRadiusScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "businessConsequenceScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "compositeSortScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "computedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "confidenceBandScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "explanationSummary": {
+            "type": "string"
+          },
+          "pathConfidenceBand": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathKind": {
+            "type": "string"
+          },
+          "privilegeDepthScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "rankOrder": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "relatedCutPoints": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidenceCutPointSummaryResponse"
+            },
+            "type": "array"
+          },
+          "ruleVersion": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "technicalExposureScore": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathRankedPageResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidencePathRankSummaryResponse"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "topCutPoints": {
+            "items": {
+              "$ref": "#/components/schemas/SecurityEvidenceCutPointSummaryResponse"
+            },
+            "type": "array"
+          },
+          "totalCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathRoutingResponse": {
+        "properties": {
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "principalId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "sourceReference": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathSummaryResponse": {
+        "properties": {
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "pathConfidenceBand": {
+            "type": "string"
+          },
+          "pathId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "pathKind": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "weakestHopOrdinal": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "weakestHopReason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityEvidencePathWeakestHopResponse": {
+        "properties": {
+          "edgeType": {
+            "type": "string"
+          },
+          "hopConfidenceBand": {
+            "type": "string"
+          },
+          "hopOrdinal": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -38853,6 +39771,20 @@
   "paths": {
     "/v1/agent-execution/cost-preview": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -38993,6 +39925,20 @@
     },
     "/v1/auth/trial/local/register": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -39173,6 +40119,20 @@
     },
     "/v1/auth/trial/local/token": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -39353,6 +40313,20 @@
     },
     "/v1/auth/trial/local/verify-email": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -39523,6 +40497,18 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -39742,6 +40728,20 @@
     },
     "/v1/demo/explain": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -39877,6 +40877,20 @@
     },
     "/v1/demo/preview": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -40018,6 +41032,20 @@
     },
     "/v1/demo/quickstart": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -40229,6 +41257,18 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -40416,6 +41456,20 @@
     },
     "/v1/demo/viewer/runs": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -40586,6 +41640,18 @@
             "name": "runId",
             "required": true,
             "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -40768,6 +41834,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -40948,6 +42026,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -41099,6 +42189,18 @@
             "name": "targetRunId",
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -41282,6 +42384,18 @@
               "format": "uuid",
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -41461,6 +42575,18 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -41652,6 +42778,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -41839,6 +42977,18 @@
             "name": "findingId",
             "required": true,
             "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -42068,6 +43218,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -42247,6 +43409,18 @@
             "required": true,
             "schema": {
               "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
               "type": "string"
             }
           }
@@ -42461,6 +43635,20 @@
     },
     "/v1/marketing/early-access": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -42639,6 +43827,20 @@
     },
     "/v1/marketing/enterprise-comparison.pdf": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -42770,6 +43972,20 @@
     },
     "/v1/marketing/pricing/quote-request": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -42948,6 +44164,20 @@
     },
     "/v1/marketing/quick-scan": {
       "post": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/*\u002Bjson": {
@@ -43180,6 +44410,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -43322,6 +44564,20 @@
     },
     "/v1/marketing/quick-scan/status": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -43470,6 +44726,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -43607,6 +44875,20 @@
     },
     "/v1/marketing/sponsor-brief.pdf": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -43738,6 +45020,20 @@
     },
     "/v1/marketing/trust-center/evidence-pack.zip": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -43870,6 +45166,20 @@
     },
     "/v1/marketing/why-archlucid-pack.pdf": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -44008,6 +45318,18 @@
             "schema": {
               "format": "int32",
               "type": "integer"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
             }
           }
         ],
@@ -44164,6 +45486,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -44316,6 +45650,20 @@
     },
     "/v1/roi/sponsor-dashboard-bundle": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -44461,6 +45809,20 @@
     },
     "/v1/roi/sponsor-report": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -44626,6 +45988,18 @@
             "schema": {
               "default": false,
               "type": "boolean"
+            }
+          },
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
             }
           }
         ],
@@ -44796,6 +46170,20 @@
     },
     "/v1/roi/sponsor-report/export": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -44947,6 +46335,20 @@
     },
     "/v1/roi/sponsor-report/history": {
       "get": {
+        "parameters": [
+          {
+            "description": "Optional product shell hint: architecture or security. Omitted inherits ProductLine:Deployment. Cannot escalate past deployment; invalid values are ignored.",
+            "in": "header",
+            "name": "X-ArchLucid-Product-Line",
+            "schema": {
+              "enum": [
+                "architecture",
+                "security"
+              ],
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -45542,7 +46944,13 @@
       "name": "OperationalErrorsAdmin"
     },
     {
+      "name": "OperationalSecurityArchitectMetrics"
+    },
+    {
       "name": "OperationalSecurityFindings"
+    },
+    {
+      "name": "OperationalSecurityPaths"
     },
     {
       "name": "Operations"

@@ -59,7 +59,10 @@ public sealed class PatchDraftRequest
         set;
     }
 
-    /// <summary>Optimistic concurrency token from the last GET (LK-12).</summary>
+    /// <summary>
+    ///     Optimistic concurrency token from the last GET (ADR 0088). Required unless
+    ///     <see cref="ForceOverwrite"/> is true. Omit is HTTP 409 <c>draft_cas_token_missing</c>, not last-write-wins.
+    /// </summary>
     [JsonPropertyName("expectedUpdatedUtc")]
     public DateTime? ExpectedUpdatedUtc
     {
@@ -67,7 +70,10 @@ public sealed class PatchDraftRequest
         set;
     }
 
-    /// <summary>When true, skip stale-token check and overwrite the server document (LK-12 keep mine).</summary>
+    /// <summary>
+    ///     When true, skip CAS and overwrite the server document (Keep mine). Never defaults to true.
+    ///     Writes a Required audit event (LW-015). JSON Schema cannot express required-unless-forceOverwrite.
+    /// </summary>
     [JsonPropertyName("forceOverwrite")]
     public bool? ForceOverwrite
     {

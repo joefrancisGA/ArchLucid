@@ -48,6 +48,7 @@ public sealed partial class ArchLucidApiClient
                 cursorQuery,
                 skip,
                 limit,
+                null,
                 ct);
 
             return DeserializeRoundTrip<ComparisonHistoryResult>(history);
@@ -65,7 +66,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.ComparisonSummaryResponse summary = await _api.SummaryGET2Async(comparisonRecordId, ct);
+            Gen.ComparisonSummaryResponse summary = await _api.SummaryGET2Async(comparisonRecordId, null, ct);
 
             return DeserializeRoundTrip<ComparisonSummary>(summary);
         }
@@ -88,7 +89,7 @@ public sealed partial class ArchLucidApiClient
             Gen.UpdateComparisonRecordRequest bodyModel = new() { Label = label, Tags = tags?.ToList() };
             Gen.Body35? body = MapToOpenApiRequestBody<Gen.Body35>(bodyModel, ContractEnumAwareJson);
 
-            await _api.ComparisonsPATCHAsync(comparisonRecordId, body, ct);
+            await _api.ComparisonsPATCHAsync(comparisonRecordId, null, body, ct);
 
             return true;
         }

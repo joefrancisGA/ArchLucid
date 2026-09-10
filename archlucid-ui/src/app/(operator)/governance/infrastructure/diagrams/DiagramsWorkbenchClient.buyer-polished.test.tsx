@@ -124,9 +124,12 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
 });
 
 import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SKIP_LINK_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS } from "@/lib/design-tokens";
 import { DiagramsWorkbenchClient } from "./DiagramsWorkbenchClient";
 
 describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
@@ -144,6 +147,14 @@ describe("DiagramsWorkbenchClient buyer-polished chrome", () => {
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-snapshot-picker")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-export-png")).toBeInTheDocument();
+
+    const snapshotLabel = screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SNAPSHOT_LABEL);
+    const modeLabel = screen.getByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_MODE_LABEL);
+
+    expect(snapshotLabel).toHaveClass("font-semibold");
+    expect(modeLabel).toHaveClass("font-semibold");
+
+    expect(screen.getByLabelText("Snapshot and mode selection")).toHaveClass("md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]");
   });
 
   it("hides inline resource id behind disclosure when scoped", async () => {
