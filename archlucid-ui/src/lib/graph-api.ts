@@ -23,7 +23,7 @@ export async function getProvenanceGraph(runId: string): Promise<GraphViewModel>
 /** Fetches the full architecture graph for a run (may return 413 when node count exceeds API limit). */
 export async function getArchitectureGraph(runId: string): Promise<GraphViewModel> {
   try {
-    return await apiGetSealedManifestAware<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
+    return await apiGet<GraphViewModel>(`/v1/evidence-graph/reviews/${runId}`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = architectureGraphReadBlockedReason(failure);
