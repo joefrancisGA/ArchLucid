@@ -295,6 +295,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const failure = toApiLoadFailure(error);
       const message =
         findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
+
       if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }
@@ -360,6 +361,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const failure = toApiLoadFailure(error);
       const message =
         findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
+
       if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }

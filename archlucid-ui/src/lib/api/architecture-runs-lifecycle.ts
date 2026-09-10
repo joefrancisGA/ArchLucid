@@ -9,6 +9,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { reviewExecuteMutationBlockedReason } from "@/lib/runs/review-execute-mutation-blocked-reason";
 import { reviewAsyncReplayMutationBlockedReason } from "@/lib/runs/review-async-replay-mutation-blocked-reason";
 import { reviewFinalizeMutationBlockedReason } from "@/lib/runs/review-finalize-mutation-blocked-reason";
+import { reviewArchiveMutationBlockedReason } from "@/lib/runs/review-archive-mutation-blocked-reason";
 import { reviewPinMutationBlockedReason } from "@/lib/runs/review-pin-mutation-blocked-reason";
 import { reviewSelectiveExecuteMutationBlockedReason } from "@/lib/runs/review-selective-execute-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -217,7 +218,14 @@ export async function cloneArchitectureRequest(requestId: string): Promise<unkno
 
 /** Archives an architecture request (PATCH /v1/architecture/request/{requestId}/archive). */
 export async function archiveArchitectureRequest(requestId: string): Promise<void> {
-  await apiPatchJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/archive`, {});
+  try {
+    await apiPatchJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/archive`, {});
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = reviewArchiveMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Soft-deletes an architecture request (DELETE /v1/architecture/request/{requestId}). */

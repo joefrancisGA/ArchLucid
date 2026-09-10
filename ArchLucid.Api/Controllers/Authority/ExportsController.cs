@@ -209,9 +209,9 @@ public sealed partial class ExportsController(
 
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
         {
-            return this.ConflictProblem(
-                $"Export replay for '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds.",
-                ProblemTypes.Conflict);
+            return MapExportReplaySealedManifestConflict(
+                new ConflictException(
+                    $"Export replay for '{result.MissingId}' is blocked until export lineage and sealed-manifest verification succeeds."));
         }
 
         if (result.Outcome is not ExportRecordLoadOutcome.Success)
@@ -258,9 +258,9 @@ public sealed partial class ExportsController(
 
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
         {
-            return this.ConflictProblem(
-                $"Export replay for '{result.MissingId}' is blocked until export lineage verification succeeds.",
-                ProblemTypes.Conflict);
+            return MapExportReplaySealedManifestConflict(
+                new ConflictException(
+                    $"Export replay for '{result.MissingId}' is blocked until export lineage verification succeeds."));
         }
 
         if (result.Outcome is not ExportRecordLoadOutcome.Success)
