@@ -8,11 +8,18 @@ import {
   OPERATOR_QUERY_STALE_MS,
 } from "@/lib/query/operator-query-stale-time";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+<<<<<<< HEAD
+
+export const operationalSecurityFindingDetailQueryKeys = {
+  detail: (scopeKey: readonly unknown[], findingId: string | null) =>
+    ["operational-security-finding", "detail", ...scopeKey, findingId] as const,
+=======
 import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 
 export const operationalSecurityFindingDetailQueryKeys = {
   detail: (scopeKey: OperatorScopeQueryKey, findingId: string | null) =>
     ["operational-security-finding", "detail", scopeKey, findingId] as const,
+>>>>>>> origin/master
 };
 
 export function useOperationalSecurityFindingDetailQuery(findingId: string | null) {

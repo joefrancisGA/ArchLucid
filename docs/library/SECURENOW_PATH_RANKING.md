@@ -38,7 +38,7 @@ When `CrownJewelAssertionId` is absent, **`BusinessConsequenceScore` is stored a
 
 The composite sort key uses a **neutral 2.0** for that dimension — neither zero nor maximum — so a catastrophic technical path is **not** demoted solely because PHI/crown-jewel classification is missing.
 
-When an assertion is linked (future SA-18), the stored consequence score reflects that linkage.
+When an assertion is linked (SA-18), the stored consequence score reflects that linkage only while the assertion remains **Active** and unexpired. Expired or revoked assertions revert to Unknown.
 
 ## Tenant-configurable weights
 

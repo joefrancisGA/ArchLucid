@@ -13,6 +13,7 @@ internal static class InventoryPrivilegePathGraph
         GraphEdgeTypes.CanRead,
         GraphEdgeTypes.CanWrite,
         GraphEdgeTypes.CanAssume,
+        GraphEdgeTypes.FederatesAs,
     ];
 
     public static InventoryPrivilegePathGraphSnapshot Build(AzureInventorySnapshotDetailReadModel snapshot)
