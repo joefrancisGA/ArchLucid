@@ -46,6 +46,8 @@ describe("RunDetailFindingsDenseTableRow", () => {
     expect(screen.getByTestId("run-detail-findings-density-honesty-finding-1")).toHaveTextContent(
       INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE,
     );
+    expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent("Not scored");
+    expect(screen.getByTestId(/^finding-trust-chip-/)).toBeInTheDocument();
   });
 
   it("omits typed-engine honesty for checklist coverage rows", () => {
@@ -62,5 +64,6 @@ describe("RunDetailFindingsDenseTableRow", () => {
     );
 
     expect(screen.queryByTestId("run-detail-findings-density-honesty-finding-1")).toBeNull();
+    expect(screen.queryByTestId("finding-semantic-support-band-finding-1")).toBeNull();
   });
 });
