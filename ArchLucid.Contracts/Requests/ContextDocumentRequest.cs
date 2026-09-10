@@ -8,6 +8,10 @@ public class ContextDocumentRequest
         set;
     } = null!;
 
+    /// <summary>
+    ///     MIME type from <see cref="ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes.All" /> —
+    ///     see <c>docs/library/ARCHITECTURE_REVIEW_DIAGRAM_INPUT_CONTRACT.md</c>. Image/* types are forbidden.
+    /// </summary>
     public string ContentType
     {
         get;

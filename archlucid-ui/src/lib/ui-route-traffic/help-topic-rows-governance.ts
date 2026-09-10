@@ -16,12 +16,12 @@ export const HELP_TOPIC_TRAFFIC_ROWS_GOVERNANCE: readonly UiRouteTrafficRow[] = 
     noteMustContain: ["Score 58", "cannot improve further toward 80"],
     noteMustMatch: [/TB-2092|PageContextualHelp|Learn more|claim-discipline/i],
   },
-  /** Traffic workbook row ID for Governance approval help. Owner backlog shorthand: GO. */
+  /** Traffic workbook row ID for Approval help. Owner backlog shorthand: GO. */
   {
     rowId: "GO",
     path: "/help/governance-approval",
     section: "Help topic",
-    note: "Specialty governance approval guide - HelpGovernanceApprovalGuideView with PageContextualHelpButton (topic map governance-approval; Category-1 registry), claim-discipline callout only (no Sources list; TB-2092), stacked role guides, StatusTag status table, workflow stepper, decision outcomes, and collapsed HelpGovernanceApprovalTechnicalReference. Featured help-center product tier (pdfStatus customer). Primary CTAs to /governance/approval-queue, workspace health on ARE (#workspace-health), and /governance/findings. Related docs link to audit-trail not API contracts (TB-1250 / TB-1387). Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Specialty approval guide - HelpGovernanceApprovalGuideView with PageContextualHelpButton (topic map governance-approval; Category-1 registry), claim-discipline callout only (no Sources list; TB-2092), stacked role guides, StatusTag status table, workflow stepper, decision outcomes, and collapsed HelpGovernanceApprovalTechnicalReference. Featured help-center product tier (pdfStatus customer). Primary CTAs to /governance/approval-queue, workspace health on ARE (#workspace-health), and /governance/findings. Related docs link to audit-trail not API contracts (TB-1250 / TB-1387). Not bare HelpTopicMarkdownView. Score 58/100 (2026-08-08) - help-topic ceiling below HEL hub band; hard-caps higher Evidence without sealed-record diligence Sources trail. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["HelpGovernanceApprovalGuideView", "claim-discipline", "TB-1387", "cannot improve further toward 80"],
     sectionMustNotEqualLower: ["marketing"],
   },

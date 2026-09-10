@@ -30,25 +30,32 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 import { HelpAzurePermissionsGuideView } from "@/app/(operator)/help/_sections/HelpAzurePermissionsGuideView";
 import {
+  AZURE_PERMISSIONS_PAGE_SUBTITLE,
+  AZURE_PERMISSIONS_PAGE_SUBTITLE_BUYER,
+} from "@/lib/azure-cloud-connection-permissions-copy";
+import {
   AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE,
   AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID,
   AZURE_PERMISSIONS_HELP_FOLLOW_UPS_TITLE,
+  AZURE_PERMISSIONS_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES,
+  AZURE_PERMISSIONS_HELP_PAGE_LEAD,
   AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION,
-  AZURE_PERMISSIONS_HELP_SOURCES,
+  AZURE_PERMISSIONS_HELP_START_HERE_HELPER,
 } from "@/lib/azure-permissions-help-evidence-copy";
 import {
   AZURE_PERMISSIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  AZURE_PERMISSIONS_HELP_PRIMARY_CONTENT_ID,
   AZURE_PERMISSIONS_HELP_SKIP_LINK_LABEL,
   AZURE_PERMISSIONS_HELP_SKIP_TARGET_ID,
 } from "@/lib/azure-permissions-help-page-copy";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpAzurePermissionsGuideView buyer-polished shell (HE)", () => {
   const entry = getProductDocumentationEntry("azure-permissions");
 
-  it("renders skip link, workspace before follow-ups, header claim discipline, and hides contextual help", () => {
+  it("renders skip link, buyer subtitle, first-viewport intro, bottom orientation, and hides operator chrome", () => {
     if (entry === undefined) {
       throw new Error("Expected azure-permissions documentation entry.");
     }
@@ -59,6 +66,9 @@ describe("HelpAzurePermissionsGuideView buyer-polished shell (HE)", () => {
       "href",
       `#${AZURE_PERMISSIONS_HELP_SKIP_TARGET_ID}`,
     );
+    expect(screen.getByText(AZURE_PERMISSIONS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.queryByText(AZURE_PERMISSIONS_PAGE_SUBTITLE)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("page-heading-eyebrow")).not.toBeInTheDocument();
     expect(screen.getByTestId(AZURE_PERMISSIONS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
@@ -66,13 +76,18 @@ describe("HelpAzurePermissionsGuideView buyer-polished shell (HE)", () => {
     expect(screen.queryByTestId("help-azure-permissions-claim-discipline-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-print-button")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("help-topic-toc")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-azure-permissions-intro")).toHaveTextContent(AZURE_PERMISSIONS_HELP_PAGE_LEAD);
+    expect(screen.getByTestId("help-azure-permissions-start-here-helper")).toHaveTextContent(
+      AZURE_PERMISSIONS_HELP_START_HERE_HELPER,
+    );
     expect(screen.getByRole("heading", { level: 2, name: AZURE_PERMISSIONS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("azure-permissions-help-sources")).toBeInTheDocument();
 
-    const primaryContent = screen.getByTestId("help-azure-permissions-primary-content");
+    const primaryContent = screen.getByTestId(AZURE_PERMISSIONS_HELP_PRIMARY_CONTENT_ID);
     const firstViewport = screen.getByTestId(AZURE_PERMISSIONS_HELP_FIRST_VIEWPORT_TEST_ID);
     const trustPanel = screen.getByTestId("azure-permissions-trust-panel");
-    const orientationBottom = screen.getByTestId("help-azure-permissions-orientation-bottom");
+    const orientationBottom = screen.getByTestId(AZURE_PERMISSIONS_HELP_ORIENTATION_BOTTOM_TEST_ID);
     const sourcesSection = screen.getByTestId("azure-permissions-help-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
@@ -84,12 +99,7 @@ describe("HelpAzurePermissionsGuideView buyer-polished shell (HE)", () => {
       AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.defaultHref,
     );
 
-    const visibleSources = filterWhereToGoNextFollowUpLinks(AZURE_PERMISSIONS_HELP_SOURCES);
-
-    for (const source of visibleSources) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), AZURE_PERMISSIONS_HELP_ORIENTATION_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

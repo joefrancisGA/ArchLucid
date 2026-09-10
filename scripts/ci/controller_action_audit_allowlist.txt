@@ -83,6 +83,7 @@ ArchLucid.Api.Controllers.Billing.BillingMarketplaceWebhookController.Marketplac
 ArchLucid.Api.Controllers.Billing.BillingStripeWebhookController.StripeWalletAsync
 ArchLucid.Api.Controllers.Billing.BillingStripeWebhookController.StripeSubscriptionsAsync
 ArchLucid.Api.Controllers.E2e.E2EHarnessController.SetTrialExpiresAsync
+ArchLucid.Api.Controllers.E2e.E2EHarnessController.SetInvitationExpiresAsync
 ArchLucid.Api.Controllers.E2e.E2EHarnessController.SimulateSubscriptionActivatedAsync
 ArchLucid.Api.Controllers.E2e.E2EHarnessController.CreatePlatformUserAsync
 ArchLucid.Api.Controllers.Evolution.EvolutionController.CreateCandidateFromPlan
@@ -127,6 +128,8 @@ ArchLucid.Api.Controllers.Planning.ComparisonsController.ReplayComparisonsBatch
 ArchLucid.Api.Controllers.Planning.ComparisonsController.UpdateComparisonRecord
 ArchLucid.Api.Controllers.Planning.FindingFeedbackController.PostFindingFeedbackAsync
 ArchLucid.Api.Controllers.Authority.RunsController.PostFindingFeedbackAsync
+# Durable audit: IFindingVerificationService.CreateReportAsync logs FindingVerificationStarted + FindingVerificationCompleted.
+ArchLucid.Api.Controllers.Findings.FindingVerificationController.PostFindingVerificationAsync
 ArchLucid.Api.Controllers.Tenancy.TenantCustomerSuccessController.PostProductFeedbackAsync
 # SCIM v2: IAuditService.LogAsync runs in ScimUserService / ScimGroupService (see docs/library/AUDIT_COVERAGE_MATRIX.md SCIM rows).
 ArchLucid.Api.Controllers.Scim.ScimGroupsController.CreateAsync

@@ -39,7 +39,10 @@ public sealed partial class DigestSubscriptionFacade
 
         if (IsOutboundWebhookChannel(channelType))
         {
-            string? destinationRejection = AlertRoutingWebhookDestinationPolicy.TryGetRejectionReason(destination);
+            string? destinationRejection =
+                await AlertRoutingWebhookDestinationPolicy
+                    .TryGetRejectionReasonAfterDnsResolveAsync(destination, ct)
+                    .ConfigureAwait(false);
 
             if (destinationRejection is not null)
             {

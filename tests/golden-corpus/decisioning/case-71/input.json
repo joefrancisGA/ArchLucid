@@ -1,0 +1,89 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000071",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000071",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000071-0000-4000-8000-000000000071",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000071",
+    "runId": "20000000-0000-4000-8000-000000000071",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "diagram-node:1",
+        "nodeType": "TopologyResource",
+        "label": "API Gateway",
+        "category": null,
+        "sourceType": "structured-diagram",
+        "sourceId": "1",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse",
+          "structuredDiagram.provenanceKind": "DeterministicInference",
+          "structuredDiagram.inferenceConfidence": "0.7",
+          "structuredDiagram.nodeKind": "system"
+        },
+        "reasoningTrace": "Structured diagram node \u00271\u0027 compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
+      },
+      {
+        "nodeId": "diagram-node:2",
+        "nodeType": "TopologyResource",
+        "label": "SQL Database",
+        "category": null,
+        "sourceType": "structured-diagram",
+        "sourceId": "2",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse",
+          "structuredDiagram.provenanceKind": "DeterministicInference",
+          "structuredDiagram.inferenceConfidence": "0.7",
+          "structuredDiagram.nodeKind": "system"
+        },
+        "reasoningTrace": "Structured diagram node \u00272\u0027 compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": "bcf053fbff3246de971bc7035162af9e",
+        "fromNodeId": "context-10000000000040008000000000000071",
+        "toNodeId": "diagram-node:1",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "84def96e59b04177921498e5135a56e5",
+        "fromNodeId": "context-10000000000040008000000000000071",
+        "toNodeId": "diagram-node:2",
+        "edgeType": "CONTAINS",
+        "label": "contains",
+        "weight": 0.55,
+        "inferenceSource": "context-membership",
+        "properties": {},
+        "reasoningTrace": "ArchLucid linked each ingested artifact node to the run\u0027s context snapshot node with a Contains relationship so traversal always has a stable root."
+      },
+      {
+        "edgeId": "diagram-edge:edge-0",
+        "fromNodeId": "diagram-node:1",
+        "toNodeId": "diagram-node:2",
+        "edgeType": "CONNECTS_TO",
+        "label": null,
+        "weight": 0.7,
+        "inferenceSource": "structured-parse",
+        "properties": {
+          "structuredDiagram.extractionMethod": "StructuredParse",
+          "structuredDiagram.provenanceKind": "DeterministicInference",
+          "structuredDiagram.inferenceConfidence": "0.7",
+          "structuredDiagram.diagramEdgeId": "edge-0",
+          "structuredDiagram.diagramOrigin": "true",
+          "structuredDiagram.diagramCitationRef": "diagram::edge-0"
+        },
+        "reasoningTrace": "Structured diagram edge \u0027edge-0\u0027 compiled from parsed topology (deterministic inference; not inventory ObservedFact)."
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null,
+  "priorGraphFixture": null
+}

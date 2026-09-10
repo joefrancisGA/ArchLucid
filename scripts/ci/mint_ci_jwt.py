@@ -33,6 +33,12 @@ def main() -> int:
     )
     parser.add_argument("--workspace-id", default="", help="Optional workspace_id claim (GUID).")
     parser.add_argument("--project-id", default="", help="Optional project_id claim (GUID).")
+    parser.add_argument(
+        "--exp-seconds",
+        type=int,
+        default=3600,
+        help="JWT exp offset from iat (default 3600). Private-beta Playwright uses 7200 after warm.",
+    )
     parser.add_argument("--out-token", default="", help="Write JWT string to this file.")
     parser.add_argument(
         "--print-token",
@@ -64,7 +70,7 @@ def main() -> int:
         "roles": args.roles,
         "iat": now,
         "nbf": now - 5,
-        "exp": now + 3600,
+        "exp": now + args.exp_seconds,
         "iss": args.issuer,
         "aud": args.audience,
     }

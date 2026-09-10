@@ -8,3 +8,6 @@ export const WEBHOOKS_INTEGRATION_HELP_SKIP_LINK_LABEL = "Skip to webhooks integ
 
 export const WEBHOOKS_INTEGRATION_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-webhooks-integration-header-claim-discipline" as const;
+
+export const WEBHOOKS_INTEGRATION_HELP_ORIENTATION_BOTTOM_TEST_ID =
+  "help-webhooks-integration-orientation-bottom" as const;

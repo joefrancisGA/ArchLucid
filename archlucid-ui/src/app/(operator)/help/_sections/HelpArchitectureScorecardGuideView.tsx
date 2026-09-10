@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HelpArchitectureScorecardHeaderActions } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardHeaderActions";
+import { HelpArchitectureScorecardWorkedExampleDisclosure } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardWorkedExampleDisclosure";
 import { HelpArchitectureScorecardSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ArchitectureScorecardHelpClaimDisciplineStrip } from "@/components/help/ArchitectureScorecardHelpClaimDisciplineStrip";
@@ -38,8 +39,6 @@ import {
   ARCHITECTURE_SCORECARD_HELP_SCORECARD_ROI_SECTION_TITLE,
   ARCHITECTURE_SCORECARD_HELP_SIBLING_REPORTS,
   ARCHITECTURE_SCORECARD_HELP_TILE_ITEMS,
-  ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_LINES,
-  ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_TITLE,
 } from "@/lib/architecture-scorecard-help-guide-content";
 import {
   ARCHITECTURE_SCORECARD_HELP_CANONICAL_PATH,
@@ -231,16 +230,7 @@ export function HelpArchitectureScorecardGuideView(
                 <p className={cn("m-0 font-mono text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_FORMULA}
                 </p>
-                <details className={HELP_PAGE_LAYOUT.details} data-testid="help-architecture-scorecard-worked-example">
-                  <summary className={cn("cursor-pointer font-medium", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                    {ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_TITLE}
-                  </summary>
-                  <ul className={cn(HELP_PAGE_LAYOUT.detailsBody, "m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                    {ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_LINES.map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                </details>
+                <HelpArchitectureScorecardWorkedExampleDisclosure />
                 <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_HREF}>
                   {ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_LABEL} →
                 </Link>
@@ -284,11 +274,7 @@ export function HelpArchitectureScorecardGuideView(
           <HelpTopicTableOfContents headings={guideHeadings} />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-architecture-scorecard-orientation-bottom">
-            <HelpArchitectureScorecardSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpArchitectureScorecardSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

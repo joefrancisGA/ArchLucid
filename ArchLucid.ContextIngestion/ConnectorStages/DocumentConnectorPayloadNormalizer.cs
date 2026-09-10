@@ -2,6 +2,7 @@ using ArchLucid.ContextIngestion.Contracts;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
+using ArchLucid.ContextIngestion.Parsing;
 
 namespace ArchLucid.ContextIngestion.ConnectorStages;
 
@@ -18,6 +19,12 @@ public sealed class DocumentConnectorPayloadNormalizer(IReadOnlyList<IContextDoc
 
         foreach (ContextDocumentReference document in payload.Documents)
         {
+            if (PixelDiagramIntakeStubDetector.TryDetect(document, out PixelDiagramIntakeStubMetadata? pixelStub))
+            {
+                batch.Warnings.Add(PixelDiagramNotVerifiableWarnings.Format(pixelStub));
+                continue;
+            }
+
             IContextDocumentParser? parser = parsers.FirstOrDefault(x => x.CanParse(document.ContentType));
 
             if (parser is null)

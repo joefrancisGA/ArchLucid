@@ -27,6 +27,14 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         HashSet<string> graphNodeIds = new(graph.Nodes.Select(n => n.NodeId), StringComparer.OrdinalIgnoreCase);
 
+        IEnumerable<string> DistinctDecisionKeys()
+        {
+            return manifest.Decisions
+                .Select(d => d.DecisionId)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Select(id => $"decision:{id}");
+        }
+
         foreach (GraphNode n in graph.Nodes)
 
             AddNode(
@@ -103,13 +111,19 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             });
 
         // Findings → Decisions (decision supported by findings)
-        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
+        foreach (IGrouping<string, ResolvedArchitectureDecision> decisionGroup in manifest.Decisions.GroupBy(
+                     d => d.DecisionId,
+                     StringComparer.OrdinalIgnoreCase))
         {
-            string decisionKey = $"decision:{d.DecisionId}";
+            string decisionKey = $"decision:{decisionGroup.Key}";
+
             if (!nodeMap.TryGetValue(decisionKey, out Guid to))
                 continue;
 
-            foreach (string fk in d.SupportingFindingIds.Select(fId => $"finding:{fId}"))
+            foreach (string fk in decisionGroup
+                         .SelectMany(d => d.SupportingFindingIds)
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
+                         .Select(fId => $"finding:{fId}"))
             {
                 if (!nodeMap.TryGetValue(fk, out Guid from))
                     continue;
@@ -125,7 +139,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             if (!nodeMap.TryGetValue(fk, out Guid findingNodeId))
                 continue;
 
-            foreach (string relatedId in f.RelatedNodeIds)
+            foreach (string relatedId in f.RelatedNodeIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 string gk = $"graph:{relatedId}";
                 if (!graphNodeIds.Contains(relatedId) || !nodeMap.TryGetValue(gk, out Guid graphNid))
@@ -136,7 +150,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Rules → Decisions (rules that fired in this trace influenced decisions — v1: cross-product of applied rules × decisions)
-        foreach (string dk in manifest.Decisions.Select(d => $"decision:{d.DecisionId}"))
+        foreach (string dk in DistinctDecisionKeys())
         {
             if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
                 continue;
@@ -158,7 +172,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
                 continue;
 
-            foreach (string dId in a.ContributingDecisionIds.Distinct(StringComparer.Ordinal))
+            foreach (string dId in a.ContributingDecisionIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 string dk = $"decision:{dId}";
                 if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
@@ -169,7 +183,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Decisions → Manifest
-        foreach (string dk in manifest.Decisions.Select(d => $"decision:{d.DecisionId}"))
+        foreach (string dk in DistinctDecisionKeys())
         {
             if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
                 continue;

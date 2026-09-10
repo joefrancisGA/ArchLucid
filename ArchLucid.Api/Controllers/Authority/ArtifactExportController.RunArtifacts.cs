@@ -1,6 +1,8 @@
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
+using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
@@ -50,7 +52,14 @@ public sealed partial class ArtifactExportController
         IReadOnlyList<ArtifactDescriptor> artifacts =
             await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
 
-        return Ok(artifacts.Select(a => ArtifactDescriptorResponse.From(a, manifestId)).ToList());
+        IReadOnlyList<ArtifactDescriptor> verificationArtifacts =
+            await findingVerificationReportQueryService.ListArtifactDescriptorsByRunAsync(scope, summary.RunId, ct);
+
+        return Ok(RunArtifactDescriptorResponses.MergeForRun(
+            manifestId,
+            summary.RunId,
+            artifacts,
+            verificationArtifacts));
     }
 
     /// <summary>Product route: artifact descriptors for the run's golden manifest.</summary>

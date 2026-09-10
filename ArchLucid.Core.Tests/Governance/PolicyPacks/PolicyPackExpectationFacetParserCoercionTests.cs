@@ -98,35 +98,35 @@ public sealed class PolicyPackExpectationFacetParserCoercionTests
     }
 
     [Fact]
-    public void Parse_breach_severity_string_encoded_boolean_maps_label()
+    public void Parse_breach_severity_string_encoded_boolean_ignores_label()
     {
         PolicyPackContentDocument document = new()
         {
             AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "True" },
         };
 
-        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be(nameof(FindingSeverity.Warning));
+        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().BeNull();
     }
 
     [Fact]
-    public void Parse_breach_severity_on_synonym_maps_label()
+    public void Parse_breach_severity_on_synonym_ignores_label()
     {
         PolicyPackContentDocument document = new()
         {
             AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "on" },
         };
 
-        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be(nameof(FindingSeverity.Warning));
+        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().BeNull();
     }
 
     [Fact]
-    public void Parse_breach_severity_off_synonym_maps_info_label()
+    public void Parse_breach_severity_off_synonym_ignores_label()
     {
         PolicyPackContentDocument document = new()
         {
             AdvisoryDefaults = { [PolicyPackExpectationAdvisoryKeys.CostBreachSeverity] = "off" },
         };
 
-        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().Be(nameof(FindingSeverity.Info));
+        PolicyPackExpectationFacetParser.Parse(document).BreachSeverity.Should().BeNull();
     }
 }

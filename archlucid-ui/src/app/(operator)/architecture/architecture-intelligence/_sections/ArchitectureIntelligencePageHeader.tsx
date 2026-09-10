@@ -11,6 +11,7 @@ import { ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE } from "@/lib/architecture/a
 
 export type ArchitectureIntelligencePageHeaderProps = {
   readonly subtitle: string;
+  readonly buyerPolishedShell: boolean;
 };
 
 /** Shared `/architecture/architecture-intelligence` hero — help and buyer-safe subtitle (no breadcrumb trail). */
@@ -27,12 +28,14 @@ export function ArchitectureIntelligencePageHeader(
       claimDiscipline={ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE}
       claimDisciplineTestId="architecture-intelligence-claim-discipline"
       actions={
-        <div
-          className="flex flex-wrap items-center gap-2"
-          data-testid="architecture-intelligence-header-actions"
-        >
-          <PageContextualHelpButton />
-        </div>
+        props.buyerPolishedShell ? null : (
+          <div
+            className="flex flex-wrap items-center gap-2"
+            data-testid="architecture-intelligence-header-actions"
+          >
+            <PageContextualHelpButton />
+          </div>
+        )
       }
     />
   );

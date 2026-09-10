@@ -30,7 +30,7 @@ const bannedStaticImports = [
   '@/components/AdvancedOptionsAccordion"',
 ] as const;
 
-describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => {
+describe("approval-queue deferred imports (TB-934 / wave 10)", () => {
   it("keeps GovernanceWorkflowPageContent off the page static import graph", () => {
     expect(pageSource).not.toContain(
       'import { GovernanceWorkflowPageContent } from "../_sections/GovernanceWorkflowPageContent"',
@@ -60,7 +60,7 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(pageContentSource).toContain("AdvancedOptionsAccordionDeferred");
   });
 
-  it("dynamic-imports deferred governance workflow panels via manifest loaders", () => {
+  it("dynamic-imports deferred approval workflow panels via manifest loaders", () => {
     expect(deferredSource).toContain("createDeferredComponentFromManifest");
     expect(deferredSource).not.toContain("next/dynamic");
     expect(manifestLoaderSource).toContain('import("@/app/(operator)/governance/_sections/GovernanceOverviewPanel")');

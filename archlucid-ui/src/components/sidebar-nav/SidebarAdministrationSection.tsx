@@ -6,6 +6,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import type { ReactElement } from "react";
 
 import { SidebarNavLink } from "@/components/sidebar-nav/SidebarNavLink";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { SIDEBAR_ADMINISTRATION } from "@/lib/nav-disclosure-copy";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import type { NavGroupWithVisibleLinks } from "@/lib/nav-shell-visibility";
@@ -29,6 +30,8 @@ type SidebarAdministrationSectionProps = {
 };
 
 export function SidebarAdministrationSection(props: SidebarAdministrationSectionProps): ReactElement | null {
+  const { productLine } = useProductLine();
+
   if (props.adminNavRows.length === 0) {
     return null;
   }
@@ -79,7 +82,7 @@ export function SidebarAdministrationSection(props: SidebarAdministrationSection
               });
 
               return linksForRender.map((link) => {
-                const presented = presentSidebarNavLink(link, props.buyerPolishedShell);
+                const presented = presentSidebarNavLink(link, props.buyerPolishedShell, false, false, productLine);
 
                 return (
                   <SidebarNavLink

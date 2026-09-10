@@ -3,6 +3,7 @@ import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architec
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveWorkingArchitecturePortfolioParentLink } from "@/lib/resolve-working-evidence-parent-link";
 
 export const ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH = ARCHITECTURE_INTELLIGENCE_PATH;
 
@@ -16,7 +17,12 @@ export const ARCHITECTURE_INTELLIGENCE_SOURCES_INTRO =
 
 
 /** Operator Sources - no self-href to architecture-intelligence. */
-export const ARCHITECTURE_INTELLIGENCE_SOURCES: readonly EvidenceOrientationLink[] = [
+export function buildArchitectureIntelligenceSources(
+  workingMode: boolean,
+): readonly EvidenceOrientationLink[] {
+  const reviewsParent = resolveWorkingArchitecturePortfolioParentLink(workingMode);
+
+  return [
   {
     label: "Findings",
     href: GOVERNANCE_FINDINGS_PATH,
@@ -28,8 +34,8 @@ export const ARCHITECTURE_INTELLIGENCE_SOURCES: readonly EvidenceOrientationLink
     when: "Start an evidence-backed architecture review when reasoning should become a full package",
   },
   {
-    label: "Architecture reviews",
-    href: REVIEWS_LIST_PATH,
+    label: reviewsParent.label,
+    href: reviewsParent.href,
     when: "Browse finalized reviews when reasoning should attach to an existing package",
   },
   {
@@ -43,3 +49,8 @@ export const ARCHITECTURE_INTELLIGENCE_SOURCES: readonly EvidenceOrientationLink
     when: "Open audit when published output needs an audit trail with saved references",
   },
 ] as const;
+}
+
+/** Guided default — prefer {@link buildArchitectureIntelligenceSources}. */
+export const ARCHITECTURE_INTELLIGENCE_SOURCES: readonly EvidenceOrientationLink[] =
+  buildArchitectureIntelligenceSources(false);

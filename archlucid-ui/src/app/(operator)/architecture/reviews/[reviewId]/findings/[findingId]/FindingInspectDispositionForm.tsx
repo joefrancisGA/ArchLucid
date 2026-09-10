@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useRef } from "react";
 
 import { FindingDispositionRecordCorrectionControl } from "@/components/governance/findings/FindingDispositionRecordCorrectionControl";
+import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,8 @@ export type FindingInspectDispositionFormProps = Pick<
   | "setApplyChangePreviewOverride"
   | "tradeOffAcknowledgment"
   | "setTradeOffAcknowledgment"
+  | "architectRestatement"
+  | "setArchitectRestatement"
   | "showIncrementalRereviewLink"
   | "submitRemediationAssignment"
   | "submitDisposition"
@@ -82,6 +85,9 @@ export type FindingInspectDispositionFormProps = Pick<
   | "remediationInlineSaveError"
   | "dispositionLastSavedUtc"
   | "dispositionInlineSaveError"
+  | "dispositionConflict"
+  | "reloadDispositionConflict"
+  | "dismissDispositionConflict"
 >;
 
 export function FindingInspectDispositionForm(props: FindingInspectDispositionFormProps) {
@@ -110,6 +116,8 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
     setApplyChangePreviewOverride,
     tradeOffAcknowledgment,
     setTradeOffAcknowledgment,
+    architectRestatement,
+    setArchitectRestatement,
     showIncrementalRereviewLink,
     submitRemediationAssignment,
     submitDisposition,
@@ -123,6 +131,9 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
     remediationInlineSaveError,
     dispositionLastSavedUtc,
     dispositionInlineSaveError,
+    dispositionConflict,
+    reloadDispositionConflict,
+    dismissDispositionConflict,
   } = props;
   const rationaleRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -294,6 +305,19 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
             />
           </label>
         ) : null}
+        <label className="grid gap-1">
+          <span className="font-medium">Architect restatement (for ARB)</span>
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Your wording for what you will tell the ARB. This is append-only on the disposition trail and does not
+            rewrite sealed engine finding text.
+          </span>
+          <textarea
+            className="min-h-16 rounded-md border border-neutral-300 bg-white px-2 py-1 dark:border-neutral-700 dark:bg-neutral-950"
+            value={architectRestatement}
+            onChange={(event) => setArchitectRestatement(event.target.value)}
+            data-testid="finding-disposition-architect-restatement"
+          />
+        </label>
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
@@ -324,7 +348,17 @@ export function FindingInspectDispositionForm(props: FindingInspectDispositionFo
             {busyAction === "mark-remediated" ? "Marking finding as remediated…" : "Mark as remediated"}
           </Button>
         </div>
-        {dispositionInlineSaveError !== null ? (
+        {dispositionConflict !== null ? (
+          <FindingDispositionConflictPanel
+            conflict={dispositionConflict}
+            onReload={() => {
+              void reloadDispositionConflict();
+            }}
+            onDismiss={dismissDispositionConflict}
+            testId="finding-inspect-disposition-conflict"
+          />
+        ) : null}
+        {dispositionConflict === null && dispositionInlineSaveError !== null ? (
           <OperatorMutationInlineError
             message={dispositionInlineSaveError}
             testId="finding-disposition-inline-save-error"

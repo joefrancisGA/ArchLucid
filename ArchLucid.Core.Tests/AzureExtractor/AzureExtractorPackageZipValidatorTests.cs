@@ -134,7 +134,7 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
-    public void Validate_boolean_schemaVersion_succeeds()
+    public void Validate_boolean_schemaVersion_fails()
     {
         byte[] zipBytes = BuildZip(
             includeManifest: true,
@@ -146,11 +146,13 @@ public sealed class AzureExtractorPackageZipValidatorTests
 
         AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("schemaVersion");
     }
 
     [Fact]
-    public void Validate_string_boolean_schemaVersion_succeeds()
+    public void Validate_string_boolean_schemaVersion_fails()
     {
         byte[] zipBytes = BuildZip(
             includeManifest: true,
@@ -162,11 +164,13 @@ public sealed class AzureExtractorPackageZipValidatorTests
 
         AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("schemaVersion");
     }
 
     [Fact]
-    public void Validate_on_synonym_schemaVersion_succeeds()
+    public void Validate_on_synonym_schemaVersion_fails()
     {
         byte[] zipBytes = BuildZip(
             includeManifest: true,
@@ -178,7 +182,9 @@ public sealed class AzureExtractorPackageZipValidatorTests
 
         AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
 
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("schemaVersion");
     }
 
     [Fact]
@@ -195,6 +201,39 @@ public sealed class AzureExtractorPackageZipValidatorTests
         result.ErrorDetail.Should().Contain("valid JSON");
     }
 
+    [Fact]
+    public void Validate_rejects_non_array_resources_json()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 2, includeResources: true, resourcesJson: "{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("resources.json root must be a JSON array");
+    }
+
+    [Fact]
+    public void Validate_rejects_non_array_role_assignments_json()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            optionalEntryName: AzureExtractorPackageZipEntryNames.RoleAssignments,
+            optionalEntryJson: "{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("role-assignments.json root must be a JSON array");
+    }
+
     private static byte[] BuildZip(
         bool includeManifest,
         int schemaVersion,
@@ -202,7 +241,10 @@ public sealed class AzureExtractorPackageZipValidatorTests
         bool malformedManifest = false,
         bool pascalCaseSchemaVersion = false,
         bool stringSchemaVersion = false,
-        string? rawSchemaVersion = null)
+        string? rawSchemaVersion = null,
+        string resourcesJson = "[]",
+        string? optionalEntryName = null,
+        string? optionalEntryJson = null)
     {
         using MemoryStream ms = new();
 
@@ -234,7 +276,16 @@ public sealed class AzureExtractorPackageZipValidatorTests
 
                 using StreamWriter writer = new(resources.Open());
 
-                writer.Write("[]");
+                writer.Write(resourcesJson);
+            }
+
+            if (optionalEntryName is not null && optionalEntryJson is not null)
+            {
+                ZipArchiveEntry optional = zip.CreateEntry(optionalEntryName);
+
+                using StreamWriter writer = new(optional.Open());
+
+                writer.Write(optionalEntryJson);
             }
         }
 

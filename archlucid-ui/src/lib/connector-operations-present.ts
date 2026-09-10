@@ -1,4 +1,6 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
+import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
 import type {
   ConnectorDisplayStatus,
   ConnectorHumanStatus,
@@ -192,7 +194,14 @@ export function connectorPurposeGroupId(connectorKey: string): ConnectorPurposeG
   return CONNECTOR_GROUP_BY_KEY[connectorKey] ?? "technical";
 }
 
-export function connectorCardTitle(connector: ConnectorSurfaceStatusDto): string {
+export function connectorCardTitle(
+  connector: ConnectorSurfaceStatusDto,
+  productLine: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
+): string {
+  if (connector.connectorKey === "teams") {
+    return productLineMicrosoftTeamsLabel(productLine);
+  }
+
   return CONNECTOR_CARD_TITLES[connector.connectorKey] ?? connector.displayName;
 }
 

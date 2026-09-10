@@ -14,7 +14,10 @@ public sealed class InfrastructureDeclarationRequestValidator : AbstractValidato
         "bicep",
         "arm-json",
         "kubernetes-json",
-        "kubernetes-yaml"
+        "kubernetes-yaml",
+        "helm",
+        "kustomize",
+        "bicep-param"
     ];
 
     public InfrastructureDeclarationRequestValidator()

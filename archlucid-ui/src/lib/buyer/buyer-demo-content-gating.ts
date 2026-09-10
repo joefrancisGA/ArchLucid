@@ -47,7 +47,7 @@ export function shouldMergeDemoRunsIntoProjectPicker(options?: { readonly mergeD
 }
 
 /**
- * Governance findings queue may short-circuit to the curated PHI/decision spine only in explicit demo builds (BDA-004).
+ * Policy findings queue may short-circuit to the curated PHI/decision spine only in explicit demo builds (BDA-004).
  */
 export function shouldUseGovernanceCuratedDemoSpine(): boolean {
   return isExplicitStaticDemoMarketingBuild();

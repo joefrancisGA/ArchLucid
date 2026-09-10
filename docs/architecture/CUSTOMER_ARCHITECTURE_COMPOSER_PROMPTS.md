@@ -3,6 +3,7 @@
 > **Paste-ready files:** [`.cursor/prompts/customer-architecture-00-index.md`](../../.cursor/prompts/customer-architecture-00-index.md) (**CA-01–50**)
 > **Wave 13 skeleton:** [`DURABLE_ARCHITECTURE_COMPOSER_PROMPTS.md`](DURABLE_ARCHITECTURE_COMPOSER_PROMPTS.md) (**DA-01–12**) — **do not paste DA after this set exists**
 > **Wave 12:** [`LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md`](LIVELIHOOD_KERNEL_COMPOSER_PROMPTS.md) (**LK-01–15**)
+> **Wave 17 leftover (locator):** [`ARCHITECTURE_OBJECT_COMPOSER_PROMPTS.md`](ARCHITECTURE_OBJECT_COMPOSER_PROMPTS.md) (**AO-01–50**) — CA kept ADR 0072 review-as-canonical-URL after spawn; AO supersedes that **for Working**. Do not re-run CA.
 
 # Customer-architecture Composer prompts (CA-01–CA-50)
 

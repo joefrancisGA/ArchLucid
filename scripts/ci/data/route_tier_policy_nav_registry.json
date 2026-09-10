@@ -1062,6 +1062,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/ReviewStoredEvidenceFilesController.cs",
+      "class_name": "ReviewStoredEvidenceFilesController",
+      "route_template": "v{version:apiVersion}/architecture/review/{runId:guid}/evidence",
+      "normalized_prefix": "/v1/architecture/review/{runId:guid}/evidence",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/ReviewsDemoController.cs",
       "class_name": "ReviewsDemoController",
       "route_template": "v{version:apiVersion}/reviews",
@@ -1332,6 +1342,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Findings/FindingInsightSignalController.cs",
+      "class_name": "FindingInsightSignalController",
+      "route_template": "v{version:apiVersion}/runs",
+      "normalized_prefix": "/v1/runs",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Findings/FindingInspectController.cs",
       "class_name": "FindingInspectController",
       "route_template": "v{version:apiVersion}/findings",
@@ -1360,6 +1380,36 @@
       "class_policy": "ExecuteAuthority",
       "exemption": null,
       "nav_operator_href": "/governance/findings"
+    },
+    {
+      "controller_file": "Findings/FindingVerificationController.cs",
+      "class_name": "FindingVerificationController",
+      "route_template": "v{version:apiVersion}/runs",
+      "normalized_prefix": "/v1/runs",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Findings/InsightDensityNoveltyRatesController.cs",
+      "class_name": "InsightDensityNoveltyRatesController",
+      "route_template": "v{version:apiVersion}/tenants/current/insight-density",
+      "normalized_prefix": "/v1/tenants/current/insight-density",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Findings/InsightDensityVerificationConfirmedRatesController.cs",
+      "class_name": "InsightDensityVerificationConfirmedRatesController",
+      "route_template": "v{version:apiVersion}/tenants/current/insight-density",
+      "normalized_prefix": "/v1/tenants/current/insight-density",
+      "commercial_tier": "standard",
+      "class_policy": "ExecuteAuthority",
+      "exemption": null,
+      "nav_operator_href": null
     },
     {
       "controller_file": "Governance/GovernanceController.cs",

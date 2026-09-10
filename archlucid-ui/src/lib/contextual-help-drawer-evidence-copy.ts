@@ -3,7 +3,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE =
-  "Contextual help suggests next steps and in-app documentation — it does not open a finalized review record, evidence trail export, or governance approval on its own. Follow links into reviews, findings, or audit surfaces before treating guidance as authoritative.";
+  "Contextual help suggests next steps and in-app documentation — it does not open a finalized review record, evidence trail export, or approval on its own. Follow links into reviews, findings, or audit surfaces before treating guidance as authoritative.";
 
 export const CONTEXTUAL_HELP_DRAWER_CLAIM_HEADING = "Guidance only" as const;
 

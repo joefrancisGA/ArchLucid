@@ -28,6 +28,10 @@ const mockDerivedState = {
   nextStepIndex: 0,
 };
 
+vi.mock("@/hooks/use-operator-home-boolean-disclosure-url-sync", () => ({
+  useOperatorHomeBooleanDisclosureUrlSync: () => [true, vi.fn()],
+}));
+
 vi.mock("@/lib/use-core-pilot-derived-step-status", () => ({
   useCorePilotDerivedStepStatus: () => mockDerivedState,
 }));
@@ -36,6 +40,7 @@ vi.mock("@/lib/use-core-pilot-commit-presentation-context", () => ({
   useCorePilotCommitPresentationContext: () => ({
     hasCommittedManifest: false,
     latestCommittedRunId: null,
+    latestRunId: null,
   }),
 }));
 
@@ -101,7 +106,7 @@ describe("CorePilotChecklist", () => {
     fireEvent.click(screen.getAllByRole("button", { name: "Skip for now" })[0]);
 
     await waitFor(() => {
-      expect(localStorage.getItem("archlucid_core_pilot_step_3_skipped")).toBe("1");
+      expect(localStorage.getItem("archlucid.firstReview.azureInventoryZip.skipped.__workspace__.v1")).toBe("1");
     });
   });
 });

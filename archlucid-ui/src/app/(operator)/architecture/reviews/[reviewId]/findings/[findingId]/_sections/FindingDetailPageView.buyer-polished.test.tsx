@@ -1,5 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { buildFindingDetailOrientationSources } from "@/lib/findings/finding-detail-evidence-copy";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -83,9 +87,11 @@ vi.mock("@/components/operator/OperatorEvidenceLimitsFooter", () => ({
 import type { FindingDetailPageModel } from "./finding-detail-page-model";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import {
+  FINDING_DETAIL_FIRST_VIEWPORT_ID,
   FINDING_DETAIL_PAGE_SUBTITLE_BUYER,
   FINDING_DETAIL_PRIMARY_CONTENT_ID,
   FINDING_DETAIL_SKIP_LINK_LABEL,
+  FINDING_DETAIL_SKIP_TARGET_ID,
 } from "./finding-detail-page-copy";
 import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
 import { FindingDetailPageView } from "./FindingDetailPageView";
@@ -117,33 +123,52 @@ function buyerModel(overrides: Partial<FindingDetailPageModel> = {}): FindingDet
     runExecutionFootnote: null,
     statedConstraintContext: null,
     nextFindingInReview: null,
+    parentArchitectureId: null,
+    transparencyTrail: null,
     ...overrides,
   };
 }
 
 describe("FindingDetailPageView buyer-polished shell (RRF)", () => {
-  it("renders skip link, breadcrumb, buyer subtitle, orientation above body, and hides wayfinding help", () => {
+  it("renders skip link, first-viewport band, orientation above summary, claim discipline, and Sources links", () => {
     render(<FindingDetailPageView model={buyerModel()} />);
 
     expect(screen.getByRole("link", { name: FINDING_DETAIL_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      `#${FINDING_DETAIL_PRIMARY_CONTENT_ID}`,
+      `#${FINDING_DETAIL_SKIP_TARGET_ID}`,
+    );
+    expect(screen.getByTestId(FINDING_DETAIL_PRIMARY_CONTENT_ID)).toHaveAttribute(
+      "id",
+      FINDING_DETAIL_PRIMARY_CONTENT_ID,
     );
     expect(screen.getByText(FINDING_DETAIL_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(screen.getByTestId("finding-detail-claim-discipline").textContent).toContain(
       FINDING_DETAIL_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByTestId("finding-detail-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("finding-detail-wayfinding")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("finding-detail-derivation-causal")).not.toBeInTheDocument();
 
-    const primaryContent = screen.getByTestId("finding-detail-primary-content");
-    const orderedLandmarks = ["finding-detail-orientation-top", "finding-detail-decision-summary"]
-      .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
-      .filter((node): node is HTMLElement => node !== null)
-      .map((node) => node.getAttribute("data-testid"));
+    const primaryContent = screen.getByTestId(FINDING_DETAIL_PRIMARY_CONTENT_ID);
+    const firstViewport = screen.getByTestId(FINDING_DETAIL_FIRST_VIEWPORT_ID);
+    const pageHeader = screen.getByTestId("finding-detail-workspace-header");
+    const orientationTop = screen.getByTestId("finding-detail-orientation-top");
+    const decisionSummary = screen.getByTestId("finding-detail-decision-summary");
+    const sourcesSection = screen.getByTestId("finding-detail-sources");
 
-    expect(orderedLandmarks).toEqual(["finding-detail-orientation-top", "finding-detail-decision-summary"]);
+    expect(primaryContent).toContainElement(pageHeader);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(firstViewport).not.toContainElement(pageHeader);
+    expect(firstViewport).toContainElement(orientationTop);
+    expect(firstViewport).toContainElement(decisionSummary);
+    expect(orientationTop).toContainElement(sourcesSection);
+    expect(orientationTop.compareDocumentPosition(decisionSummary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(
+      buildFindingDetailOrientationSources("run-1", "finding-1"),
+    )) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

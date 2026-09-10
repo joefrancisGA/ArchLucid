@@ -7,6 +7,8 @@ import { CopyGovernanceQueueWorkItemButton } from "@/components/CopyFindingAsWor
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
 import { FindingConfidenceBadge } from "@/components/findings/FindingConfidenceBadge";
 import { FindingFeedbackThumbs } from "@/components/findings/FindingFeedbackThumbs";
+import { FindingDidNotThinkOfThatButton } from "@/components/findings/FindingDidNotThinkOfThatButton";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
 import { FindingPolicyCitationProminentStrip } from "@/components/findings/FindingPolicyCitationProminentStrip";
 import { FindingPolicyEvidenceCitationLinks } from "@/components/findings/FindingPolicyEvidenceCitationLinks";
@@ -97,6 +99,7 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
+        <FindingSemanticSupportBandChip finding={finding} />
         {findingHasNoSourceEvidence(finding) ? (
           <StatusTag
             kind="needs-attention"
@@ -172,6 +175,9 @@ export function QuickDecisionSummaryFindingRow({
           </Button>
         ) : null}
         {canMutate ? <FindingFeedbackThumbs runId={props.runId} findingId={finding.findingId} compact /> : null}
+        {canMutate ? (
+          <FindingDidNotThinkOfThatButton runId={props.runId} findingId={finding.findingId} compact />
+        ) : null}
       </div>
       {finding.traceConfidenceLabel !== null &&
       finding.traceConfidenceLabel !== undefined &&

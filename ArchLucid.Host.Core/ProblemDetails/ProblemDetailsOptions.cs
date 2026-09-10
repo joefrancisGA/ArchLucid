@@ -74,6 +74,9 @@ public static class ProblemTypes
     /// <summary>Agent output quality gate rejected persisted traces for this workspace (RFC 9457; HTTP 409).</summary>
     public const string QualityGateRejected = Base + "#quality-gate-rejected";
 
+    /// <summary>Career artifact export blocked by ADR 0078 completeness validator (RFC 9457; HTTP 409).</summary>
+    public const string CareerArtifactBlocked = Base + "#career-artifact-blocked";
+
     public const string PolicyPackVersionNotFound = Base + "#policy-pack-version-not-found";
 
     /// <summary>A SQL or database timeout occurred; the request may succeed on retry.</summary>

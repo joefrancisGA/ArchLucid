@@ -2,6 +2,15 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
+
+  return {
+    ...actual,
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
+  };
+});
+
 vi.mock("./GcpConnectionSection", () => ({
   GcpConnectionSection: () => <div data-testid="gcp-connection-section-stub" />,
 }));

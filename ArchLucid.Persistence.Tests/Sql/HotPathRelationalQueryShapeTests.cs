@@ -64,13 +64,14 @@ public sealed class HotPathRelationalQueryShapeTests
 
         sql.Should().Contain("SELECT TOP (@Take)");
         sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
-        sql.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug");
+        sql.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
+        sql.Should().Contain("STRING_AGG");
         sql.Should().Contain("r.ScopeProjectId = TRY_CONVERT(uniqueidentifier, @ProjectSlug)");
         sql.Should().Contain("TenantId = @TenantId");
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
         sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY r.CreatedUtc DESC");
+        sql.Should().Contain(RunListWarningFlagSql.CreatedUtcDescOrderBy.Trim());
         sql.Should().Contain("StructuralExecutionMode");
     }
 
@@ -83,7 +84,8 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("SELECT TOP (@Fetch)");
         sql.Should().Contain("@CursorRunId");
         sql.Should().Contain("@CursorCreatedUtc");
-        sql.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug");
+        sql.Should().Contain("STRING_SPLIT(LTRIM(RTRIM(r.ProjectId))");
+        sql.Should().Contain("STRING_AGG");
         sql.Should().Contain("r.ScopeProjectId = TRY_CONVERT(uniqueidentifier, @ProjectSlug)");
         sql.Should().Contain("ArchivedUtc IS NULL");
         sql.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
@@ -115,7 +117,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
         sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY r.CreatedUtc DESC");
+        sql.Should().Contain(RunListWarningFlagSql.CreatedUtcDescOrderBy.Trim());
     }
 
     [SkippableFact]
@@ -128,8 +130,17 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("WorkspaceId = @WorkspaceId");
         sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
         sql.Should().Contain("ArchivedUtc IS NULL");
-        sql.Should().Contain("ORDER BY r.CreatedUtc DESC");
+        sql.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
         sql.Should().Contain("OFFSET @Offset ROWS FETCH NEXT @Fetch ROWS ONLY");
+    }
+
+    [SkippableFact]
+    public void Runs_list_by_project_and_recent_in_scope_use_created_utc_then_run_id_order()
+    {
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should()
+            .Contain(RunListWarningFlagSql.CreatedUtcDescOrderBy.Trim());
+        HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock.Should()
+            .Contain(RunListWarningFlagSql.CreatedUtcDescOrderBy.Trim());
     }
 
     [SkippableFact]
@@ -272,6 +283,14 @@ public sealed class HotPathRelationalQueryShapeTests
         RunRepositorySql.SelectByScopedId.Should().Contain(RunDetailReadSql.SelectGovernanceDispositionColumns.Trim());
         RunRepositorySql.SelectByScopedId.Should().Contain("HasWarnings");
         RunRepositorySql.SelectByRunIdAdmin.Should().NotContain("OperatorGovernanceDecision");
+    }
+
+    [SkippableFact]
+    public void Run_detail_read_reads_persisted_package_origin_without_request_json_fallback()
+    {
+        RunRepositorySql.SelectByScopedId.Should().Contain("PackageOrigin");
+        RunRepositorySql.SelectByScopedId.Should().NotContain("JSON_VALUE(");
+        RunRepositorySql.SelectByScopedIdIncludingArchived.Should().NotContain("JSON_VALUE(");
     }
 
     [SkippableFact]

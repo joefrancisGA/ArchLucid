@@ -6,7 +6,8 @@ import { useEffect } from "react";
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { Button } from "@/components/ui/button";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { listArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ImpactPreviewBaselineOption } from "@/lib/impact-preview-page-types";
 import { cn } from "@/lib/utils";
@@ -91,7 +92,14 @@ export function ImpactPreviewBaselinePickerStrip(
         </div>
         {latestFinalizedRunId !== null ? (
           <Button type="button" variant="outline" size="sm" asChild data-testid="impact-preview-open-latest-finalized">
-            <Link href={reviewDetailPath(latestFinalizedRunId)}>Open latest finalized review</Link>
+            <Link
+              href={resolveWorkingRunReviewLocator({
+                runId: latestFinalizedRunId,
+                draftRegistryEntries: listArchitectureDraftRegistryEntries(),
+              }).href}
+            >
+              Open latest finalized review
+            </Link>
           </Button>
         ) : null}
       </div>

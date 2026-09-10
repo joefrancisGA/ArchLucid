@@ -3,6 +3,18 @@ import { describe, expect, it, vi } from "vitest";
 
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/run-1/findings/finding-1",
+  useRouter: () => ({
+    replace: vi.fn(),
+  }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/components/findings/FindingInspectDiagramCitationPreviewDialog", () => ({
+  FindingInspectDiagramCitationPreviewDialog: () => null,
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
   return {
@@ -21,6 +33,7 @@ describe("FindingInspectEvidenceSection", () => {
   it("renders policy callout before supporting evidence when policy context exists", () => {
     render(
       <FindingInspectEvidenceSection
+        runId="run-1"
         demoFillGaps={false}
         reviewContextHref="/architecture/reviews/run-1"
         reviewContextLabel="Open review"
@@ -62,9 +75,48 @@ describe("FindingInspectEvidenceSection", () => {
     );
   });
 
+  it("renders a keyboard-reachable diagram citation link for diagram evidence refs", () => {
+    render(
+      <FindingInspectEvidenceSection
+        runId="run-1"
+        demoFillGaps={false}
+        reviewContextHref="/architecture/reviews/run-1"
+        reviewContextLabel="Open review"
+        evidence={[
+          {
+            artifactId: "diagram:evidence-mermaid-1:api",
+            lineRange: null,
+            excerpt: "diagram:evidence-mermaid-1:api",
+          },
+        ]}
+        citationModel={{
+          pack: null,
+          policy: null,
+          evidence: [
+            {
+              label: "Open diagram shape api",
+              detail: "diagram:evidence-mermaid-1:api",
+              href: "#diagram-citation-preview",
+              diagramCitation: {
+                evidenceItemId: "evidence-mermaid-1",
+                shapeOrEdgeId: "api",
+              },
+            },
+          ],
+        }}
+      />,
+    );
+
+    const link = screen.getByTestId("finding-diagram-citation-link");
+
+    expect(link).toHaveAttribute("href", expect.stringContaining("diagramCitationPreview=evidence-mermaid-1%7Capi"));
+    expect(link).toHaveTextContent("Open diagram shape api");
+  });
+
   it("keeps evidence-only layout when no policy context is available", () => {
     render(
       <FindingInspectEvidenceSection
+        runId="run-1"
         demoFillGaps={false}
         reviewContextHref="/architecture/reviews/run-1"
         reviewContextLabel="Open review"

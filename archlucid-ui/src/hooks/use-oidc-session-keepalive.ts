@@ -7,6 +7,7 @@ import {
   writeSharedSessionLastActivityAt,
 } from "@/lib/auth/session-idle-timeout";
 import { ensureAccessTokenFresh } from "@/lib/oidc/session";
+import { pulseBffSessionActivity } from "@/lib/oidc/bff-session-sync";
 
 /** Keeps OIDC session fresh during long read-only or mutating operator flows (presenter, print, finalize, export). */
 export function useOidcSessionKeepalive(enabled: boolean): void {
@@ -17,10 +18,12 @@ export function useOidcSessionKeepalive(enabled: boolean): void {
 
     writeSharedSessionLastActivityAt();
     void ensureAccessTokenFresh();
+    void pulseBffSessionActivity();
 
     const heartbeatId = window.setInterval(() => {
       writeSharedSessionLastActivityAt();
       void ensureAccessTokenFresh();
+      void pulseBffSessionActivity();
     }, SESSION_IDLE_FOCUS_HEARTBEAT_MS);
 
     return () => {
@@ -37,4 +40,5 @@ export async function pulseOidcSessionKeepalive(): Promise<void> {
 
   writeSharedSessionLastActivityAt();
   await ensureAccessTokenFresh();
+  await pulseBffSessionActivity();
 }

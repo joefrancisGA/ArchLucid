@@ -1,0 +1,26 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000056",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000056",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000056-0000-4000-8000-000000000056",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000056",
+    "runId": "20000000-0000-4000-8000-000000000056",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": {
+    "cloudProvider": "Aws",
+    "cloudPackageId": "30000000-0000-4000-8000-000000000056",
+    "cloudResourcesJson": "[]",
+    "extraZipEntries": [
+      {
+        "fileName": "advisor-cost.json",
+        "jsonBody": "{\n  \"recommendations\": [\n    {\n      \"id\": \"golden-aws-rec-56\",\n      \"finding\": \"Right-size EC2 instance\",\n      \"estimatedMonthlySavings\": 25\n    }\n  ]\n}"
+      }
+    ]
+  }
+}

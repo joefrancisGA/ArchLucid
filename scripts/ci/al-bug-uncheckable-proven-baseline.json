@@ -1,0 +1,8 @@
+{
+  "uncheckableKeys": [
+    "arm-terraform-source-ids|no-test-cited||",
+    "topology-proposal-merge|no-test-cited||"
+  ],
+  "_measuredDate": "2026-09-07",
+  "_comment": "ABQ-45: known no-test-cited / could-not-run keys in the verifier sample window."
+}

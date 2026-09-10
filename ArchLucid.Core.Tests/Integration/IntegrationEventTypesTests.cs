@@ -18,6 +18,7 @@ public sealed class IntegrationEventTypesTests
         IntegrationEventTypes.AuthorityRunFailedV1,
         IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
         IntegrationEventTypes.FindingsHighSeverityCapturedV1,
+        IntegrationEventTypes.FindingVerificationCompletedV1,
         IntegrationEventTypes.DataConsistencyCheckCompletedV1,
         IntegrationEventTypes.ManifestFinalizedV1,
         IntegrationEventTypes.GovernanceApprovalSubmittedV1,
