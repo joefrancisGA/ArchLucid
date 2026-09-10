@@ -24,4 +24,15 @@ public static class GraphEdgeInferenceSources
     public const string DeclarationIdentityDataFlowPath = "declaration-identity-data-flow-path";
     public const string DeclarationSegmentationPath = "declaration-segmentation-path";
     public const string StructuredParse = "structured-parse";
+
+    public const string InventoryExplicitParentChild = "inventory-explicit-parent-child";
+    public const string InventoryRbacAssignment = "inventory-rbac-assignment";
+    public const string InventoryRbacDataPlaneMap = "inventory-rbac-data-plane-map";
+    public const string InventoryPublicIp = "inventory-public-ip";
+    public const string InventoryPrivateEndpoint = "inventory-private-endpoint";
+    public const string InventoryNicSubnet = "inventory-nic-subnet";
+    public const string InventoryUsesIdentity = "inventory-uses-identity";
+    public const string InventoryDiagnosticTarget = "inventory-diagnostic-target";
+    public const string InventoryPolicyAssignment = "inventory-policy-assignment";
+    public const string InventoryNsgAllowRule = "inventory-nsg-allow-rule";
 }
