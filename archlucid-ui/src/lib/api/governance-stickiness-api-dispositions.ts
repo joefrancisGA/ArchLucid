@@ -1,6 +1,7 @@
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
+import { findingDispositionsBlockedReason } from "@/lib/governance/finding-dispositions-blocked-reason";
 import { findingDispositionMutationBlockedReason } from "@/lib/findings/finding-disposition-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "./http";
@@ -104,7 +105,14 @@ export async function recordBulkFindingDisposition(
 }
 
 export async function listFindingDispositions(findingId: string): Promise<FindingDispositionEvent[]> {
-  return apiGetSealedManifestAware<FindingDispositionEvent[]>(
-    `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
-  );
+  try {
+    return await apiGetSealedManifestAware<FindingDispositionEvent[]>(
+      `${governanceStickinessBase()}/findings/${encodeURIComponent(findingId)}/dispositions`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingDispositionsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
