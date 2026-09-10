@@ -60,6 +60,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
   const showMoreMenu = showAuthorityThemeToggle;
   const showDevAnalysisTopBarChrome = productLine !== "security";
   const showWorkspaceScopeSwitcher = productLine !== "security";
+  const showWorkingCareerRehearsalChooser = productLine !== "security";
 
   useSearchShortcut();
 
@@ -121,7 +122,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
             ) : null}
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2.5 border-l border-neutral-200 pl-3 dark:border-neutral-700">
-              <WorkingCareerRehearsalChooser />
+              {showWorkingCareerRehearsalChooser ? <WorkingCareerRehearsalChooser /> : null}
               <GuidedModeTopBarChip />
               {showDevAnalysisTopBarChrome ? <SimulatorModeTopBarChip /> : null}
               <ShellInFlightOperationsAffordanceDeferred />
