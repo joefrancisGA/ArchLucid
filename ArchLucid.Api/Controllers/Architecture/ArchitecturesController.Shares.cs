@@ -1,12 +1,9 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Api.Support;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Authorization;
@@ -16,47 +13,45 @@ namespace ArchLucid.Api.Controllers.Architecture;
 
 public sealed partial class ArchitecturesController
 {
-    /// <summary>Lists architecture share grants and restrict-to-shares flag (AS-092).</summary>
+    /// <summary>Lists architecture-scoped shares for the current actor when they hold Admin on a restricted package.</summary>
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [HttpGet("{architectureId:guid}/shares")]
     [ProducesResponseType(typeof(ArchitectureShareListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ListShares(Guid architectureId, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ListArchitectureShares(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        string actorOid = _actorContext.GetActorId();
 
-        IActionResult? shareGuardResult =
-            await EnsureArchitectureShareReadAllowedAsync(scope, architectureId, cancellationToken);
-
-        if (shareGuardResult is not null)
-            return shareGuardResult;
-
-        ArchitectureShareListResult result = await _architectureShareManagementService.GetSharesAsync(
+        ArchitectureShareListResponse? response = await _architectureShareService.TryListSharesAsync(
             scope,
             architectureId,
+            actorOid,
             cancellationToken);
 
-        if (result.Status == ArchitectureShareListStatus.ArchitectureNotFound)
+        if (response is null)
         {
             return this.NotFoundProblem(
                 $"Architecture '{architectureId:D}' was not found.",
                 ProblemTypes.ResourceNotFound);
         }
 
-        return Ok(result.Response);
+        return Ok(response);
     }
 
-    /// <summary>Grants or updates one architecture share row (AS-092).</summary>
+    /// <summary>Grants or updates one architecture-scoped share for a workspace user oid.</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [HttpPut("{architectureId:guid}/shares/{userId:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [HttpPut("{architectureId:guid}/shares")]
+    [ProducesResponseType(typeof(ArchitectureShareListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [MutatingAuditExcluded("Audit: AS-093 will co-commit Required durable audit for share mutations.")]
-    public async Task<IActionResult> UpsertShare(
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs ArchitectureShareGranted via LogOrThrowAsync.")]
+    public async Task<IActionResult> PutArchitectureShare(
         Guid architectureId,
-        Guid userId,
-        [FromBody] UpsertArchitectureShareRequest? body,
+        [FromBody] PutArchitectureShareRequest? body,
         CancellationToken cancellationToken)
     {
         if (body is null)
@@ -64,106 +59,177 @@ public sealed partial class ArchitecturesController
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        IActionResult? adminGuardResult = await EnsureArchitectureShareAdminAllowedAsync(
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        string actor = _actorContext.GetActor();
+        string actorOid = _actorContext.GetActorId();
+
+        ArchitectureShareMutationResult result = await _architectureShareService.PutShareAsync(
             scope,
             architectureId,
+            body,
+            actor,
+            actorOid,
             cancellationToken);
 
-        if (adminGuardResult is not null)
-            return adminGuardResult;
-
-        ArchitectureShareUpsertResult result = await _architectureShareManagementService.UpsertShareAsync(
-            scope,
-            architectureId,
-            userId,
-            body.Role,
-            _actorContext.GetActor(),
-            cancellationToken);
-
-        if (result.Status == ArchitectureShareUpsertStatus.ArchitectureNotFound)
+        if (result.Status == ArchitectureShareMutationStatus.ArchitectureNotFound)
         {
             return this.NotFoundProblem(
                 $"Architecture '{architectureId:D}' was not found.",
                 ProblemTypes.ResourceNotFound);
         }
 
-        if (result.Status == ArchitectureShareUpsertStatus.InvalidRole)
+        if (result.Status == ArchitectureShareMutationStatus.NotAuthorized)
         {
-            return this.BadRequestProblem(
-                "Share role must be View, Decide, or Admin.",
-                ProblemTypes.ValidationFailed);
+            return this.NotFoundProblem(
+                $"Architecture '{architectureId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
         }
 
-        return NoContent();
+        if (result.Status == ArchitectureShareMutationStatus.ValidationFailed)
+        {
+            return this.BadRequestProblem(result.ValidationMessage!, ProblemTypes.ValidationFailed);
+        }
+
+        await _architectureShareAuditSupport.LogShareGrantedAsync(
+            scope,
+            actor,
+            architectureId,
+            body.ActorOid,
+            body.Role,
+            cancellationToken);
+
+        return Ok(result.Response);
     }
 
-    /// <summary>Revokes one architecture share row (AS-092).</summary>
+    /// <summary>Revokes one architecture-scoped share for a workspace user oid.</summary>
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
-    [HttpDelete("{architectureId:guid}/shares/{userId:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [HttpDelete("{architectureId:guid}/shares/{targetActorOid}")]
+    [ProducesResponseType(typeof(ArchitectureShareListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [MutatingAuditExcluded("Audit: AS-093 will co-commit Required durable audit for share mutations.")]
-    public async Task<IActionResult> DeleteShare(
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs ArchitectureShareRevoked via LogOrThrowAsync.")]
+    public async Task<IActionResult> RevokeArchitectureShare(
         Guid architectureId,
-        Guid userId,
+        string targetActorOid,
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        IActionResult? adminGuardResult = await EnsureArchitectureShareAdminAllowedAsync(
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        string actor = _actorContext.GetActor();
+        string actorOid = _actorContext.GetActorId();
+
+        ArchitectureShareMutationResult result = await _architectureShareService.RevokeShareAsync(
             scope,
             architectureId,
+            targetActorOid,
+            actor,
+            actorOid,
             cancellationToken);
 
-        if (adminGuardResult is not null)
-            return adminGuardResult;
-
-        ArchitectureShareDeleteResult result = await _architectureShareManagementService.DeleteShareAsync(
-            scope,
-            architectureId,
-            userId,
-            cancellationToken);
-
-        if (result.Status == ArchitectureShareDeleteStatus.ArchitectureNotFound)
+        if (result.Status == ArchitectureShareMutationStatus.ArchitectureNotFound)
         {
             return this.NotFoundProblem(
                 $"Architecture '{architectureId:D}' was not found.",
                 ProblemTypes.ResourceNotFound);
         }
 
-        if (result.Status == ArchitectureShareDeleteStatus.ShareNotFound)
+        if (result.Status == ArchitectureShareMutationStatus.NotAuthorized)
         {
             return this.NotFoundProblem(
-                $"Share for user '{userId:D}' was not found.",
+                $"Architecture '{architectureId:D}' was not found.",
                 ProblemTypes.ResourceNotFound);
         }
 
-        return NoContent();
+        if (result.Status == ArchitectureShareMutationStatus.ValidationFailed)
+        {
+            return this.BadRequestProblem(result.ValidationMessage!, ProblemTypes.ValidationFailed);
+        }
+
+        await _architectureShareAuditSupport.LogShareRevokedAsync(
+            scope,
+            actor,
+            architectureId,
+            targetActorOid,
+            cancellationToken);
+
+        return Ok(result.Response);
     }
 
-    private async Task<IActionResult?> EnsureArchitectureShareAdminAllowedAsync(
-        ScopeContext scope,
+    /// <summary>Enables or disables restrict-to-shares for one architecture identity.</summary>
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [HttpPatch("{architectureId:guid}/restrict-to-shares")]
+    [ProducesResponseType(typeof(ArchitectureShareListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs restrict-to-shares changes via LogOrThrowAsync.")]
+    public async Task<IActionResult> PatchArchitectureRestrictToShares(
         Guid architectureId,
+        [FromBody] PatchArchitectureRestrictToSharesRequest? body,
         CancellationToken cancellationToken)
     {
-        PlatformUserRecord? platformUser = await _platformUserResolver.ResolveAsync(User, cancellationToken);
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        ArchitectureShareAccessEvaluation access = await _architectureShareAccessService.EvaluateAsync(
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? sealedGuardResult =
+            await EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        string actor = _actorContext.GetActor();
+        string actorOid = _actorContext.GetActorId();
+
+        ArchitectureShareMutationResult result = await _architectureShareService.PatchRestrictToSharesAsync(
             scope,
             architectureId,
-            platformUser?.Id,
-            ArchitectureShareAuthorityProbe.HasReadAuthority(User),
-            ArchitectureShareAuthorityProbe.HasExecuteAuthority(User),
-            ArchitectureShareAuthorityProbe.HasWorkspaceAdminAuthority(User),
+            body,
+            actor,
+            actorOid,
             cancellationToken);
 
-        if (!access.ArchitectureFound || !access.CanAdmin)
+        if (result.Status == ArchitectureShareMutationStatus.ArchitectureNotFound)
         {
             return this.NotFoundProblem(
                 $"Architecture '{architectureId:D}' was not found.",
                 ProblemTypes.ResourceNotFound);
         }
 
-        return null;
+        if (result.Status == ArchitectureShareMutationStatus.NotAuthorized)
+        {
+            return this.NotFoundProblem(
+                $"Architecture '{architectureId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (result.Status == ArchitectureShareMutationStatus.ValidationFailed)
+        {
+            return this.BadRequestProblem(result.ValidationMessage!, ProblemTypes.ValidationFailed);
+        }
+
+        await _architectureShareAuditSupport.LogRestrictToSharesChangedAsync(
+            scope,
+            actor,
+            architectureId,
+            body.RestrictToShares,
+            cancellationToken);
+
+        return Ok(result.Response);
     }
 }

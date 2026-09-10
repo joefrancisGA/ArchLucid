@@ -14,15 +14,9 @@ public sealed class ArchitectureShareListResponse
         set;
     }
 
-    public IReadOnlyList<ArchitectureShareGrantResponse> Shares
+    public IReadOnlyList<ArchitectureShareResponse> Shares
     {
         get;
         set;
     } = [];
-
-    public string ConfirmationCopy
-    {
-        get;
-        set;
-    } = ArchitectureRestrictToSharesCopy.OptInConfirmation;
 }

@@ -1,19 +1,14 @@
 using System.Net;
 
-using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Controllers.Architecture;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
-using ArchLucid.Api.Tests.Support;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -40,24 +35,22 @@ public sealed class ArchitecturesControllerRestrictedShareIdorTests
         Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
     private const string SecretDisplayName = "SECRET-RESTRICTED-PACKAGE-AS091";
+    private const string ActorOid = "jwt:tenant:unshared-reader";
 
     private readonly Mock<IScopeContextProvider> _scopeProvider = new();
     private readonly Mock<IActorContext> _actorContext = new();
     private readonly Mock<IAuditService> _auditService = new();
     private readonly Mock<IArchitectureIdentityService> _identityService = new();
     private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
-    private readonly Mock<IArchitectureRestrictToSharesService> _restrictToSharesService = new();
-    private readonly Mock<IArchitectureShareAccessService> _shareAccessService = new();
     private readonly Mock<IArchitectureShareAccessGate> _shareAccessGate = new();
-    private readonly Mock<IAuthenticatedPlatformUserResolver> _platformUserResolver = new();
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IGoldenManifestRepository> _goldenManifestRepository = new();
-    private readonly Mock<IManifestHashService> _manifestHashService = new();
 
     public ArchitecturesControllerRestrictedShareIdorTests()
     {
         _scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(Scope);
+        _actorContext.Setup(static context => context.GetActorId()).Returns(ActorOid);
 
         _shareAccessGate
             .Setup(gate => gate.EnsureArchitectureReadAllowedAsync(
@@ -103,7 +96,11 @@ public sealed class ArchitecturesControllerRestrictedShareIdorTests
     public async Task GetArchitecture_WhenUnshared_Returns404_Not200()
     {
         _identityService
-            .Setup(service => service.GetIdentityAsync(Scope, RestrictedArchitectureId, It.IsAny<CancellationToken>()))
+            .Setup(service => service.GetIdentityAsync(
+                Scope,
+                RestrictedArchitectureId,
+                ActorOid,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureIdentityDetail
             {
                 ArchitectureId = RestrictedArchitectureId,
@@ -123,7 +120,13 @@ public sealed class ArchitecturesControllerRestrictedShareIdorTests
     public async Task ListArchitectures_OmitsRestrictedArchitecture_WhenUnshared()
     {
         _identityService
-            .Setup(service => service.ListIdentitiesAsync(Scope, 1, 50, false, It.IsAny<CancellationToken>()))
+            .Setup(service => service.ListIdentitiesAsync(
+                Scope,
+                1,
+                50,
+                false,
+                ActorOid,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureIdentityListPage
             {
                 Items =
@@ -183,27 +186,14 @@ public sealed class ArchitecturesControllerRestrictedShareIdorTests
     }
 
     private ArchitecturesController BuildSut() =>
-        new(
-            _scopeProvider.Object,
-            _actorContext.Object,
-            _identityService.Object,
-            _bindingService.Object,
-            new ArchitectureInventoryBindingAuditSupport(
-                _auditService.Object,
-                Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
-            _restrictToSharesService.Object,
-            ArchitectureShareManagementServiceTestDefaults.CreatePermissiveService().Object,
-            _shareAccessService.Object,
-            _shareAccessGate.Object,
-            _platformUserResolver.Object,
-            _sealDeltaService.Object,
-            _auditService.Object,
-            _runRepository.Object,
-            _goldenManifestRepository.Object,
-            _manifestHashService.Object,
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
-            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        ArchitecturesControllerTestSupport.BuildController(
+            _scopeProvider,
+            _actorContext,
+            _identityService,
+            _bindingService,
+            _sealDeltaService,
+            _auditService,
+            _runRepository,
+            _goldenManifestRepository,
+            shareAccessGate: _shareAccessGate);
 }

@@ -242,6 +242,7 @@ public sealed class OperationalSecurityFindingIngestService(
                 assessmentId: item.AssessmentId ?? existing.AssessmentId,
                 inventoryDiffId: item.InventoryDiffId ?? existing.InventoryDiffId,
                 auditEvidenceSnapshotId: item.AuditEvidenceSnapshotId ?? existing.AuditEvidenceSnapshotId,
+                pathId: item.PathId ?? existing.PathId,
                 payloadHashSha256: payloadHash,
                 updatedUtc: observedUtc);
 
@@ -312,6 +313,7 @@ public sealed class OperationalSecurityFindingIngestService(
         Guid? assessmentId = null,
         Guid? inventoryDiffId = null,
         Guid? auditEvidenceSnapshotId = null,
+        Guid? pathId = null,
         byte[]? payloadHashSha256 = null,
         DateTime? updatedUtc = null) =>
         new()
@@ -344,6 +346,7 @@ public sealed class OperationalSecurityFindingIngestService(
             AssessmentId = assessmentId ?? source.AssessmentId,
             InventoryDiffId = inventoryDiffId ?? source.InventoryDiffId,
             AuditEvidenceSnapshotId = auditEvidenceSnapshotId ?? source.AuditEvidenceSnapshotId,
+            PathId = pathId ?? source.PathId,
             PayloadHashSha256 = payloadHashSha256 ?? source.PayloadHashSha256,
             CreatedUtc = source.CreatedUtc,
             UpdatedUtc = updatedUtc ?? source.UpdatedUtc,
@@ -401,6 +404,7 @@ public sealed class OperationalSecurityFindingIngestService(
             AssessmentId = item.AssessmentId,
             InventoryDiffId = item.InventoryDiffId,
             AuditEvidenceSnapshotId = item.AuditEvidenceSnapshotId,
+            PathId = item.PathId,
             PayloadHashSha256 = payloadHash,
             CreatedUtc = utcNow,
             UpdatedUtc = utcNow,

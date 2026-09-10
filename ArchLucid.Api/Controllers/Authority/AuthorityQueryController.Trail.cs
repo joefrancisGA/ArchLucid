@@ -31,26 +31,33 @@ public sealed partial class AuthorityQueryController
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunPipelineTimeline(Guid runId, CancellationToken ct = default)
     {
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        IReadOnlyList<RunPipelineTimelineItemResponse>? items =
-            await readHandlers.TryGetPipelineTimelineAsync(runId, ct);
+            IReadOnlyList<RunPipelineTimelineItemResponse>? items =
+                await readHandlers.TryGetPipelineTimelineAsync(runId, ct);
 
-        if (items is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (items is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        await readHandlers.LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, null, ct);
+            await readHandlers.LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, null, ct);
 
-        return Ok(items);
+            return Ok(items);
+        }
+        catch (ConflictException ex)
+        {
+            return MapRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Unified decision rationale (authority or coordinator) for operator triage.</summary>

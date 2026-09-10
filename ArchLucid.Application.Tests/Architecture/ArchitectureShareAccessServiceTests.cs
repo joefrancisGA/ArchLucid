@@ -1,9 +1,13 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
+
+using Moq;
 
 namespace ArchLucid.Application.Tests.Architecture;
 
@@ -19,31 +23,40 @@ public sealed class ArchitectureShareAccessServiceTests
     };
 
     private static readonly Guid ArchitectureId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
-    private static readonly Guid ActorUserId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    private const string ActorOid = "jwt:tenant:actor";
 
     [Fact]
     public async Task EvaluateAsync_loads_restrict_flag_and_share_role_from_repository()
     {
-        InMemoryArchitectureShareRepository repository = new();
-        repository.SeedArchitecture(ArchitectureId, restrictToShares: true);
-        repository.SeedShare(new ArchitectureShareRecord
-        {
-            ArchitectureId = ArchitectureId,
-            UserId = ActorUserId,
-            TenantId = Scope.TenantId,
-            WorkspaceId = Scope.WorkspaceId,
-            ScopeProjectId = Scope.ProjectId,
-            Role = ArchitectureShareRoles.Decide,
-            GrantedBy = "jwt:actor",
-            GrantedUtc = DateTime.UtcNow,
-        });
+        Mock<IArchitectureIdentityRepository> identityRepository = new();
+        InMemoryArchitectureShareRepository shareRepository = new();
 
-        ArchitectureShareAccessService sut = new(repository);
+        identityRepository
+            .Setup(repository => repository.GetByIdAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureIdentityRecord
+            {
+                ArchitectureId = ArchitectureId,
+                RestrictToShares = true,
+            });
+
+        await shareRepository.UpsertAsync(
+            Scope,
+            new ArchitectureShareRecord
+            {
+                ArchitectureId = ArchitectureId,
+                ActorOid = ActorOid,
+                Role = ArchitectureShareRoles.Decide,
+                GrantedBy = "jwt:actor",
+                GrantedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        ArchitectureShareAccessService sut = new(identityRepository.Object, shareRepository);
 
         ArchitectureShareAccessEvaluation evaluation = await sut.EvaluateAsync(
             Scope,
             ArchitectureId,
-            ActorUserId,
+            ActorOid,
             hasReadAuthority: true,
             hasExecuteAuthority: true,
             hasWorkspaceAdminAuthority: false,

@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getArchitectureShares } from "@/lib/api/architecture-share-api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { architectureIdentityMutationBlockedReason } from "@/lib/architecture/architecture-identity-mutation-blocked-reason";
+import { architectureShareBlockedReason } from "@/lib/architecture/architecture-share-blocked-reason";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import {
   OPERATOR_QUERY_GC_MS,
@@ -25,7 +25,7 @@ export function useArchitectureSharesQuery(architectureId: string, enabled = tru
   });
 
   const failure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
-  const blockedReason = architectureIdentityMutationBlockedReason(failure);
+  const blockedReason = architectureShareBlockedReason(failure);
 
   return {
     ...query,

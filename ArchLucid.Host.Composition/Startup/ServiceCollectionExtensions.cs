@@ -46,6 +46,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         RegisterHostedStartupProbes(services, configuration);
+        RegisterProductLineRequestAccessor(services, configuration);
         services.AddSingleton<ExportFormatterService>();
         services.AddSingleton<TemplateProvider>();
         services.AddSingleton(TimeProvider.System);

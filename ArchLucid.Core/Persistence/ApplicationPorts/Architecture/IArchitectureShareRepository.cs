@@ -4,50 +4,30 @@ namespace ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 
 public interface IArchitectureShareRepository
 {
-    Task<int> CountSharesAsync(
+    Task<IReadOnlyList<ArchitectureShareRecord>> ListByArchitectureIdAsync(
         ScopeContext scope,
         Guid architectureId,
         CancellationToken cancellationToken = default);
 
-    Task<bool?> TryGetRestrictToSharesAsync(
+    Task<ArchitectureShareRecord?> TryGetAsync(
         ScopeContext scope,
         Guid architectureId,
+        string actorOid,
         CancellationToken cancellationToken = default);
 
-    Task<bool> TryEnableRestrictToSharesAsync(
+    Task UpsertAsync(
         ScopeContext scope,
-        Guid architectureId,
-        Guid actorUserId,
-        string grantedBy,
+        ArchitectureShareRecord record,
         CancellationToken cancellationToken = default);
 
-    Task<bool> TryDisableRestrictToSharesAsync(
+    Task<bool> TryDeleteAsync(
         ScopeContext scope,
         Guid architectureId,
+        string actorOid,
         CancellationToken cancellationToken = default);
 
-    Task<string?> TryGetShareRoleAsync(
+    Task<int> CountByArchitectureIdAsync(
         ScopeContext scope,
         Guid architectureId,
-        Guid userId,
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<ArchitectureShareRecord>> ListSharesAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        CancellationToken cancellationToken = default);
-
-    Task<bool> UpsertShareAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        Guid userId,
-        string role,
-        string grantedBy,
-        CancellationToken cancellationToken = default);
-
-    Task<bool> TryDeleteShareAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        Guid userId,
         CancellationToken cancellationToken = default);
 }

@@ -188,6 +188,19 @@ public sealed class BundledPolicyPackDeclarationThemeTests
     }
 
     [Fact]
+    public async Task Zta_architecture_emits_network_and_transport_themes_at_p1_floor()
+    {
+        IReadOnlySet<string> zta = await ResolveAtFloorAsync("zero-trust-architecture.json", PolicyPackRulePriority.P1);
+
+        zta.Should().Contain("zta-007");
+        zta.Should().Contain("zta-008");
+        DeclarationSignalPolicyGate.ShouldEmitTheme(NetworkIsolation, zta).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(TransportSecurity, zta).Should().BeTrue();
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(NetworkIsolation, zta).Should().Be("zta-007");
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(TransportSecurity, zta).Should().Be("zta-008");
+    }
+
+    [Fact]
     public async Task Hipaa_architecture_stays_silent_at_shipped_p0_pilot_floor()
     {
         IReadOnlySet<string> hipaa = await ResolveShippedAsync("hipaa-architecture.json");

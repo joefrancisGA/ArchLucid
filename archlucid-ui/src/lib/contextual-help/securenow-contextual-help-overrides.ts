@@ -1,5 +1,6 @@
 import type { PageContextualHelpEntry } from "@/lib/contextual-help/types";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH, GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
 import { CLOUD_CONNECTIONS_HELP_PATH } from "@/lib/cloud-connections-help-guide-content";
@@ -26,7 +27,7 @@ const SECURENOW_FINDINGS_QUEUE_HUB: PageContextualHelpEntry = {
   whereToConfigurePrerequisite: "Assign ARC-AMPE policy packs and connect Azure before expecting inventory-backed findings.",
   whatToDoNextAction: {
     label: "Open assigned-to-me",
-    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   },
   whereToConfigureAction: {
     label: "Open policy packs",
@@ -330,6 +331,7 @@ type SecureNowOverride = {
 };
 
 const SECURENOW_CONTEXTUAL_HELP_OVERRIDES: readonly SecureNowOverride[] = [
+  { prefix: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH, entry: SECURENOW_ASSIGNED_TO_ME_FINDINGS },
   { prefix: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, entry: SECURENOW_ASSIGNED_TO_ME_FINDINGS },
   { prefix: GOVERNANCE_FINDINGS_PATH, entry: SECURENOW_FINDINGS_QUEUE_HUB },
   { prefix: FINDINGS_HELP_PATH, entry: SECURENOW_FINDINGS_HELP_TOPIC },

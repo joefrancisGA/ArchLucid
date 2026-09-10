@@ -81,37 +81,44 @@ public sealed partial class FindingMuteController(
         if (expiresAtUtc is not null && expiresAtUtc <= TimeProvider.System.GetUtcNow())
             return this.BadRequestProblem("ExpiresAtUtc must be in the future.", ProblemTypes.ValidationFailed);
 
-        IActionResult? sealedGuardResult = await EnsureFindingMuteRunSealedManifestAllowedAsync(
-            request.RunId,
-            ct);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureFindingMuteRunSealedManifestAllowedAsync(
+                request.RunId,
+                ct);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        bool updated = await _findingRecordMuteRepository.TryMuteAsync(
-            request.RunId,
-            trimmedId,
-            reason.Trim(),
-            scope,
-            ct,
-            expiresAtUtc);
+            bool updated = await _findingRecordMuteRepository.TryMuteAsync(
+                request.RunId,
+                trimmedId,
+                reason.Trim(),
+                scope,
+                ct,
+                expiresAtUtc);
 
-        if (!updated)
-            return this.NotFoundProblem(
-                $"Finding '{trimmedId}' was not found for run '{request.RunId:D}' in the current scope, or cannot be muted.",
-                ProblemTypes.ResourceNotFound);
+            if (!updated)
+                return this.NotFoundProblem(
+                    $"Finding '{trimmedId}' was not found for run '{request.RunId:D}' in the current scope, or cannot be muted.",
+                    ProblemTypes.ResourceNotFound);
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.FindingMuted,
-                RunId = request.RunId,
-                DataJson = JsonSerializer.Serialize(new { findingId = trimmedId, reason = reason.Trim() })
-            },
-            ct);
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.FindingMuted,
+                    RunId = request.RunId,
+                    DataJson = JsonSerializer.Serialize(new { findingId = trimmedId, reason = reason.Trim() })
+                },
+                ct);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (ConflictException ex)
+        {
+            return MapFindingMuteSealedManifestConflict(ex);
+        }
     }
 }
