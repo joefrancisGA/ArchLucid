@@ -13016,6 +13016,13 @@
       },
       "DraftRequestSummaryResponse": {
         "properties": {
+          "architectureId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdByUserId": {
             "type": "string"
           },
