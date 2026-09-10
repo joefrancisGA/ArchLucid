@@ -46,6 +46,7 @@ export type UseWebhooksSettingsMutationsOptions = {
   readonly setError: UseFormReturn<WebhookSettingsFormValues>["setError"];
   readonly handleSubmit: UseFormHandleSubmit<WebhookSettingsFormValues>;
   readonly webhookRows: AlertRoutingSubscription[];
+  readonly loading: boolean;
   readonly scopeGenerationRef: React.RefObject<number>;
   readonly load: () => Promise<boolean>;
   readonly getLastLoadFailure: () => ApiLoadFailureState | null;
@@ -161,7 +162,7 @@ export function useWebhooksSettingsMutations(
       return;
     }
 
-    if (options.webhookRows.length === 0) {
+    if (options.loading) {
       return;
     }
 
@@ -169,6 +170,8 @@ export function useWebhooksSettingsMutations(
       const subscription = options.webhookRows.find((row) => row.routingSubscriptionId === urlDisableId);
 
       if (subscription === undefined) {
+        syncToggleConfirmToUrl({ disableId: null, enableId: null });
+
         return;
       }
 
@@ -188,6 +191,8 @@ export function useWebhooksSettingsMutations(
     const subscription = options.webhookRows.find((row) => row.routingSubscriptionId === urlEnableId);
 
     if (subscription === undefined) {
+      syncToggleConfirmToUrl({ disableId: null, enableId: null });
+
       return;
     }
 
@@ -200,9 +205,11 @@ export function useWebhooksSettingsMutations(
       subscriptionName: subscription.name,
     });
   }, [
+    options.loading,
     options.webhookRows,
     pendingDisable?.routingSubscriptionId,
     pendingEnable?.routingSubscriptionId,
+    syncToggleConfirmToUrl,
     urlDisableId,
     urlEnableId,
   ]);

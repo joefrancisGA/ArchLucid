@@ -13,12 +13,27 @@ const apiMocks = vi.hoisted(() => ({
 }));
 
 const useOperateCapabilityMock = vi.hoisted(() => vi.fn(() => true));
-const routerReplaceMock = vi.hoisted(() => vi.fn());
+const navigationMocks = vi.hoisted(() => {
+  let searchParams = new URLSearchParams();
+  const routerReplaceMock = vi.fn((href: string) => {
+    const queryIndex = href.indexOf("?");
+
+    searchParams = new URLSearchParams(queryIndex >= 0 ? href.slice(queryIndex + 1) : "");
+  });
+
+  return {
+    routerReplaceMock,
+    getSearchParams: (): URLSearchParams => searchParams,
+    resetSearchParams: (): void => {
+      searchParams = new URLSearchParams();
+    },
+  };
+});
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), replace: routerReplaceMock, refresh: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: navigationMocks.routerReplaceMock, refresh: vi.fn() }),
   usePathname: () => "/integrations/webhooks",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => navigationMocks.getSearchParams(),
 }));
 
 vi.mock("@/hooks/use-operate-capability", () => ({
@@ -84,6 +99,8 @@ describe("WebhooksIntegrationPage", () => {
     apiMocks.toggle.mockReset();
     useOperateCapabilityMock.mockReset();
     useOperateCapabilityMock.mockReturnValue(true);
+    navigationMocks.resetSearchParams();
+    navigationMocks.routerReplaceMock.mockClear();
 
     apiMocks.list.mockResolvedValue([]);
     apiMocks.create.mockResolvedValue({});
@@ -809,6 +826,68 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getByText(/Disable webhook subscription PagerDuty alerts/i)).toBeInTheDocument();
     expect(screen.getByTestId("alert-routing-subscription-disable-error")).toHaveTextContent(/list refresh failed/i);
     expect(screen.getAllByRole("alert")).toHaveLength(1);
+  });
+
+  it("clears stale webhookDisableId from the URL when the subscription is missing from loaded rows", async () => {
+    navigationMocks.getSearchParams().set("webhookDisableId", "missing-subscription");
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-disable-1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(navigationMocks.routerReplaceMock).toHaveBeenCalledWith("/integrations/webhooks", { scroll: false });
+    });
+
+    expect(screen.queryByText(/Disable webhook subscription/i)).not.toBeInTheDocument();
+  });
+
+  it("clears stale webhookEnableId from the URL when the subscription is missing from loaded rows", async () => {
+    navigationMocks.getSearchParams().set("webhookEnableId", "missing-subscription");
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: "sub-enable-1",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(navigationMocks.routerReplaceMock).toHaveBeenCalledWith("/integrations/webhooks", { scroll: false });
+    });
+
+    expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
   });
 
   it("does not render mid-page About webhooks panel (TB-2093)", async () => {

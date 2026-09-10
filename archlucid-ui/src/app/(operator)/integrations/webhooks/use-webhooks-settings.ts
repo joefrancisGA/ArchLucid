@@ -117,6 +117,7 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     setError,
     handleSubmit,
     webhookRows: loadState.webhookRows,
+    loading: loadState.loading,
     scopeGenerationRef: loadState.scopeGenerationRef,
     load: loadState.load,
     getLastLoadFailure: loadState.getLastLoadFailure,
