@@ -1770,10 +1770,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1792,6 +1792,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Evidence default pilot profile path drifts from `$pilotProfileOnly` in `infra/apply-saas.ps1` — **cheap-disproof 2026-09-09 seed hunt #1436:** paths match today; added `DefaultApplyOrderRoots_default_pilot_profile_matches_apply_saas_ps1_pilotProfileOnly` guard alongside existing `$multiRootSequence` / `$hostedCompositionRoots` sync tests.
 - [x] (valid-no-repro) Hardcoded `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_multi_root_order` could pass while `$multiRootSequence` diverges — **cheap-disproof 2026-09-09 seed hunt #1436:** live ps1 parse test `DefaultApplyOrderRoots_leaf_sequence_matches_apply_saas_ps1_multiRootSequence` fails first on drift; hardcoded test is redundant fast-check only.
 - [x] (invalid) Evidence lists pilot after full leaf sequence so deployment-evidence readers assume `-MultiRoot` default — pilot line cites `canonical default profile (metadata + cost knobs; no Azure apply)` and `DocumentationRelativePath` points to `REFERENCE_SAAS_STACK_ORDER.md` § default path (`apply-saas.ps1` without flags runs `$pilotProfileOnly` only).
+- [x] (valid-no-repro) `DefaultApplyOrderRoots` hosted `-MultiRoot` leaves diverge from `$foundationWaveLeaves` + `$platformWaveLeaves` + `$appWaveLeaves` flatten — **cheap-disproof 2026-09-10 seed hunt #1583:** evidence leaves minus orchestrator match hosted wave flatten; regression `DefaultApplyOrderRoots_hosted_wave_leaves_match_apply_saas_ps1_wave_flatten`.
+- [x] (valid-no-repro) Evidence leaf order drifts from `infra/terraform-pilot/main.tf` `nested_infrastructure_roots` path order while apply-saas sync still passes — **cheap-disproof 2026-09-10 seed hunt #1583:** pilot `path =` order matches evidence leaves; regression `DefaultApplyOrderRoots_leaf_sequence_matches_terraform_pilot_nested_infrastructure_roots` (CI `assert_terraform_root_ordering_sync.py` guards the same invariant).
+- [x] (invalid) Annotated evidence lines use ASCII hyphen instead of em dash so `ExtractLeafPaths` corrupts root paths — **cheap-disproof 2026-09-10 seed hunt #1583:** all annotated lines in `DeploymentEvidenceTerraformReference` use ` —`; regression `DefaultApplyOrderRoots_annotated_lines_use_em_dash_path_delimiter`.
+- [x] (invalid) `ParsePowerShellStringArray` test helper breaks when `apply-saas.ps1` arrays are single-line — **cheap-disproof 2026-09-10 seed hunt #1583:** arrays are multiline by design for `scripts/ci/assert_terraform_root_ordering_sync.py` parsing; existing live ps1 parse tests pass.
+
+2026-09-10 seed hunt #1583 (seed-only): reseeded cli-terraform-evidence after #1436; cheap-disproof closed hosted-wave flatten, pilot path-order drift, em-dash delimiter, and single-line ps1 parse candidates; 9 scoped DeploymentEvidenceTerraformReference tests passed.
 
 2026-09-09 seed hunt #1436 (seed-only): re-read static apply-order reference; cheap-disproved pilot-profile and hardcoded-leaf drift candidates; added `$pilotProfileOnly` sync regression; 6 scoped DeploymentEvidenceTerraformReference tests passed.
 
