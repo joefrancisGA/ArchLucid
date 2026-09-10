@@ -17,6 +17,8 @@ import { compareExplainMutationBlockedReason } from "@/lib/compare/compare-expla
 import { explainRunBlockedReason } from "@/lib/explain/explain-run-blocked-reason";
 
 import { compareRunsLoadBlockedReason } from "@/lib/api/compare-runs-load-blocked-reason";
+import { compareExplainMutationBlockedReason } from "@/lib/compare/compare-explain-mutation-blocked-reason";
+import { explainRunBlockedReason } from "@/lib/explain/explain-run-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -131,7 +133,6 @@ export async function compareGoldenManifestRuns(
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }
 
 /** Requests an AI-generated narrative explanation of the differences between two runs. */
@@ -149,7 +150,6 @@ export async function explainComparisonRuns(
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }
 
 /** Requests an AI-generated explanation of a single run's decisions and implications. */
@@ -164,7 +164,6 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-
 }
 
 /**

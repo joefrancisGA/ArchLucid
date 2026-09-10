@@ -138,8 +138,7 @@ public sealed partial class PilotsController
                 return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
             }
 
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-
+            return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
         catch (CareerArtifactExportBlockedException ex)
         {
@@ -254,9 +253,13 @@ public sealed partial class PilotsController
         }
         catch (SponsorFirstValuePdfBlockedException ex)
         {
+            if (!string.IsNullOrWhiteSpace(ex.BlockReasonCode))
+            {
+                return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+            }
+
             return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
-
         catch (ConflictException ex)
         {
             return MapPilotPackSealedManifestConflict(ex);

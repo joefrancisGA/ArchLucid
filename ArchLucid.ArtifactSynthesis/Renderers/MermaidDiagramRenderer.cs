@@ -2,6 +2,7 @@ using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Sanitization;
 
 namespace ArchLucid.ArtifactSynthesis.Renderers;
 
@@ -119,7 +120,7 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
     internal static string EscapeLabel(string label)
     {
-        return label
+        return LlmArtifactFreeTextSanitizer.Sanitize(label)
             .Replace("\r\n", " ", StringComparison.Ordinal)
             .Replace('\n', ' ')
             .Replace('\r', ' ')
