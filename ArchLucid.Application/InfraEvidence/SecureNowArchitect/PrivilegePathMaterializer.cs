@@ -29,7 +29,9 @@ internal static class PrivilegePathMaterializer
                 EdgeType = hop.EdgeType,
                 ProvenanceKind = hop.ProvenanceKind,
                 HopConfidenceBand = MapConfidenceBand(hop),
-                InferenceSource = MapInferenceSource(hop.EdgeType),
+                InferenceSource = string.IsNullOrWhiteSpace(hop.InferenceSource)
+                    ? MapInferenceSource(hop.EdgeType)
+                    : hop.InferenceSource,
                 EvidenceReference = $"snapshot:{snapshotId:D}:{hop.EdgeType}:{hop.FromNodeId}->{hop.ToNodeId}",
             });
         }
@@ -39,7 +41,8 @@ internal static class PrivilegePathMaterializer
 
     private static PathConfidenceBand MapConfidenceBand(PrivilegePathEdge hop)
     {
-        if (hop.EdgeType == "unknown-role-actions")
+        if (hop.EdgeType == "unknown-role-actions"
+            || hop.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown)
         {
             return PathConfidenceBand.InsufficientEvidence;
         }
@@ -64,6 +67,7 @@ internal static class PrivilegePathMaterializer
             GraphEdgeTypes.UsesIdentity => GraphEdgeInferenceSources.InventoryUsesIdentity,
             GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite => GraphEdgeInferenceSources.InventoryRbacDataPlaneMap,
             GraphEdgeTypes.CanAssume => GraphEdgeInferenceSources.InventoryUsesIdentity,
+            GraphEdgeTypes.MemberOf => GraphEdgeInferenceSources.InventoryEntraGroupMembership,
             "unknown-role-actions" => GraphEdgeInferenceSources.InventoryRbacAssignment,
             _ => SecureNowArchitectConstants.SourceSystem,
         };

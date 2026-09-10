@@ -33,4 +33,10 @@ public sealed class PrivilegePathEdge
         get;
         init;
     }
+
+    public string? InferenceSource
+    {
+        get;
+        init;
+    }
 }

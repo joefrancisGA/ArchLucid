@@ -17,6 +17,11 @@ internal static class PrivilegePathNarrative
             return $"Federated deployment identity → {action} → {scope}";
         }
 
+        if (candidate.IsGroupNestedPath)
+        {
+            return $"Group-nested privilege path → {action} → {scope}";
+        }
+
         string start = ShortNodeLabel(candidate.Hops[0].FromNodeId);
 
         return $"Privilege path: {start} → {action} → {scope}";
@@ -33,6 +38,11 @@ internal static class PrivilegePathNarrative
         {
             return
                 $"Federated CI identity may assume deployment privileges via Entra federated credential. {pathSummary}.";
+        }
+
+        if (candidate.IsGroupNestedPath)
+        {
+            return $"Transitive privilege path via Entra group membership. {pathSummary}.";
         }
 
         if (candidate.Hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.UsesIdentity))

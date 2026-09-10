@@ -49,4 +49,10 @@ public sealed class PrivilegePathCandidate
         get;
         init;
     }
+
+    public bool IsGroupNestedPath
+    {
+        get;
+        init;
+    }
 }
