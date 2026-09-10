@@ -1303,7 +1303,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1752,6 +1752,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MapDispositionPointerProjection` accepts whitespace-padded negative numeric disposition strings — **cheap-disproof 2026-09-10 seed hunt #1676:** mapper trims before `Enum.TryParse` and returns null disposition; regression `MapDispositionPointerProjection_returns_null_disposition_for_whitespace_padded_negative_numeric_string`.
 
 2026-09-10 seed hunt #1676 (seed-only): reseeded finding-inspect-sql after #1673; cheap-disproof closed negative numeric confidence parsing, whitespace-padded negative numeric enum guards at mapper and pointer-projection layers; 371 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ParseFindingSeverity` mishandles whitespace-padded fractional numeric strings — **cheap-disproof 2026-09-10 seed hunt #1678:** mapper trims before `Enum.TryParse` and defaults to `Info`; regression `ParseFindingSeverity_trims_whitespace_from_fractional_numeric_string_before_defaulting_to_info`.
+- [x] (valid-no-repro) `ParseHumanReview` mishandles whitespace-padded fractional numeric strings — **cheap-disproof 2026-09-10 seed hunt #1678:** mapper trims before `Enum.TryParse` and defaults to `NotRequired`; regression `ParseHumanReview_trims_whitespace_from_fractional_numeric_string_before_defaulting_to_not_required`.
+- [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` mishandles whitespace-padded fractional numeric strings — **cheap-disproof 2026-09-10 seed hunt #1678:** mapper trims before `Enum.TryParse`; regression `TryParseEvaluationConfidenceLevel_trims_whitespace_from_fractional_numeric_string_before_rejecting`.
+- [x] (valid-no-repro) `ParseDisposition` mishandles whitespace-padded fractional numeric strings beyond a single case — **cheap-disproof 2026-09-10 seed hunt #1678:** mapper trims before `Enum.TryParse` for `0.5` and `1.5`; regression `ParseDisposition_trims_whitespace_from_fractional_numeric_string_before_rejecting_for_all_fractional_inputs`.
+- [x] (valid-no-repro) `MapLatestDisposition` accepts whitespace-padded fractional numeric disposition strings — **cheap-disproof 2026-09-10 seed hunt #1678:** fractional numerics return null via mapper; regression `MapLatestDisposition_returns_null_for_whitespace_padded_fractional_numeric_string`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` accepts whitespace-padded fractional numeric disposition strings — **cheap-disproof 2026-09-10 seed hunt #1678:** mapper trims before `Enum.TryParse` and returns null disposition; regression `MapDispositionPointerProjection_returns_null_disposition_for_whitespace_padded_fractional_numeric_string`.
+
+2026-09-10 seed hunt #1678 (seed-only): reseeded finding-inspect-sql after #1676; cheap-disproof closed whitespace-padded fractional numeric enum guards at mapper and pointer-projection layers; 377 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
