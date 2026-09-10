@@ -555,6 +555,61 @@ public sealed class AzureExtractorPackageInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_returns_empty_companion_arrays_when_optional_files_missing()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.RoleAssignments.Should().BeEmpty();
+        result.DiagnosticSettings.Should().BeEmpty();
+        result.NetworkAssociations.Should().BeEmpty();
+        result.PolicyAssignments.Should().BeEmpty();
+        result.DefenderSummary.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryReadFromZip_serializes_non_sensitive_object_property_values()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1",
+                "resourceType": "Microsoft.Web/sites",
+                "name": "app1",
+                "properties": {
+                  "siteConfig": { "alwaysOn": true, "http20Enabled": false }
+                }
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].Properties["siteConfig"].Should().Contain("alwaysOn");
+        result.Resources[0].Properties["siteConfig"].Should().NotContain("[REDACTED]");
+    }
+
+    [Fact]
     public void TryReadFromZip_throws_when_stream_is_null()
     {
         Action act = () => AzureExtractorPackageInventoryReader.TryReadFromZip(null!);

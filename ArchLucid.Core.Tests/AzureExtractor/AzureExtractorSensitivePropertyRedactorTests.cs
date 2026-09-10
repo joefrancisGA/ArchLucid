@@ -4752,6 +4752,32 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     }
 
     [Fact]
+    public void IsSensitiveKey_detects_hyphenated_connection_string_key_names()
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("connection-string").Should().BeTrue();
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("primary-key").Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsSensitiveKey_ignores_non_prefixed_secret_fragment()
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey("non-secret").Should().BeFalse();
+    }
+
+    [Fact]
+    public void RedactStructuredJson_redacts_sensitive_keys_inside_array_elements()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """[{"apiKey":"abc123"},{"location":"eastus"}]""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("[REDACTED]");
+        redacted.Should().NotContain("abc123");
+        redacted.Should().Contain("eastus");
+    }
+
+    [Fact]
     public void RedactStructuredJson_redacts_sensitive_scalar_in_nested_object()
     {
         using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(

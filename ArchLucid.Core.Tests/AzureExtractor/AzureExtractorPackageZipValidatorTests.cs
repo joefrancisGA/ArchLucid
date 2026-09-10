@@ -452,6 +452,19 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_accepts_schema_v2_with_all_valid_optional_companions()
+    {
+        byte[] zipBytes = BuildZipWithAllOptionalCompanions();
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeTrue();
+        result.FileEntryCount.Should().Be(7);
+    }
+
+    [Fact]
     public void Validate_accepts_valid_optional_companion_arrays()
     {
         byte[] zipBytes = BuildZip(
@@ -577,6 +590,40 @@ public sealed class AzureExtractorPackageZipValidatorTests
                 using StreamWriter writer = new(optional.Open());
 
                 writer.Write(optionalEntryJson);
+            }
+        }
+
+        return ms.ToArray();
+    }
+
+    private static byte[] BuildZipWithAllOptionalCompanions()
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry manifest = zip.CreateEntry("manifest.json");
+
+            using (StreamWriter writer = new(manifest.Open()))
+            {
+                writer.Write(
+                    """{"schemaVersion":2,"subscriptionId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}""");
+            }
+
+            ZipArchiveEntry resources = zip.CreateEntry("resources.json");
+
+            using (StreamWriter writer = new(resources.Open()))
+            {
+                writer.Write("[]");
+            }
+
+            foreach (string entryName in AzureExtractorPackageZipEntryNames.OptionalInventoryEntryNames)
+            {
+                ZipArchiveEntry optional = zip.CreateEntry(entryName);
+
+                using StreamWriter optionalWriter = new(optional.Open());
+
+                optionalWriter.Write("""[{"name":"row1"}]""");
             }
         }
 
