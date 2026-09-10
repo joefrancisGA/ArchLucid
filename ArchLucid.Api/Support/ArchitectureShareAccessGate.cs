@@ -1,8 +1,8 @@
 using System.Security.Claims;
 
-using ArchLucid.Api.Auth.Services;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Architecture;
-using ArchLucid.Core.Identity;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -13,14 +13,14 @@ namespace ArchLucid.Api.Support;
 
 public sealed class ArchitectureShareAccessGate(
     IArchitectureShareAccessService shareAccessService,
-    IAuthenticatedPlatformUserResolver platformUserResolver,
+    IActorContext actorContext,
     IRunRepository runRepository) : IArchitectureShareAccessGate
 {
     private readonly IArchitectureShareAccessService _shareAccessService =
         shareAccessService ?? throw new ArgumentNullException(nameof(shareAccessService));
 
-    private readonly IAuthenticatedPlatformUserResolver _platformUserResolver =
-        platformUserResolver ?? throw new ArgumentNullException(nameof(platformUserResolver));
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -34,12 +34,10 @@ public sealed class ArchitectureShareAccessGate(
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(scope);
 
-        Guid? actorUserId = await ResolveActorUserIdAsync(user, cancellationToken);
-
         return await _shareAccessService.EvaluateAsync(
             scope,
             architectureId,
-            actorUserId,
+            _actorContext.GetActorId(),
             ArchitectureShareAuthorityProbe.HasReadAuthority(user),
             ArchitectureShareAuthorityProbe.HasExecuteAuthority(user),
             ArchitectureShareAuthorityProbe.HasWorkspaceAdminAuthority(user),
@@ -57,7 +55,11 @@ public sealed class ArchitectureShareAccessGate(
             await EvaluateArchitectureAsync(user, scope, architectureId, cancellationToken);
 
         if (!access.ArchitectureFound || !access.CanRead)
-            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.ArchitectureNotFound(controller, architectureId);
+        {
+            return controller.NotFoundProblem(
+                $"Architecture '{architectureId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
 
         return null;
     }
@@ -73,7 +75,11 @@ public sealed class ArchitectureShareAccessGate(
             await EvaluateArchitectureAsync(user, scope, architectureId, cancellationToken);
 
         if (!access.ArchitectureFound || !access.CanDecide)
-            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.ArchitectureNotFound(controller, architectureId);
+        {
+            return controller.NotFoundProblem(
+                $"Architecture '{architectureId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
 
         return null;
     }
@@ -88,7 +94,9 @@ public sealed class ArchitectureShareAccessGate(
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
 
         if (run is null)
-            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(controller, runId);
+        {
+            return controller.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
+        }
 
         if (run.ArchitectureId is not Guid architectureId)
             return null;
@@ -97,7 +105,9 @@ public sealed class ArchitectureShareAccessGate(
             await EvaluateArchitectureAsync(user, scope, architectureId, cancellationToken);
 
         if (!access.CanRead)
-            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(controller, runId);
+        {
+            return controller.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
+        }
 
         return null;
     }
@@ -112,7 +122,9 @@ public sealed class ArchitectureShareAccessGate(
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
 
         if (run is null)
-            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(controller, runId);
+        {
+            return controller.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
+        }
 
         if (run.ArchitectureId is not Guid architectureId)
             return null;
@@ -121,15 +133,10 @@ public sealed class ArchitectureShareAccessGate(
             await EvaluateArchitectureAsync(user, scope, architectureId, cancellationToken);
 
         if (!access.CanDecide)
-            return ArchitectureShareNotVisibleAsNotFoundResponsePolicy.RunNotFound(controller, runId);
+        {
+            return controller.NotFoundProblem($"Run '{runId:D}' was not found.", ProblemTypes.RunNotFound);
+        }
 
         return null;
-    }
-
-    private async Task<Guid?> ResolveActorUserIdAsync(ClaimsPrincipal user, CancellationToken cancellationToken)
-    {
-        PlatformUserRecord? platformUser = await _platformUserResolver.ResolveAsync(user, cancellationToken);
-
-        return platformUser?.Id;
     }
 }

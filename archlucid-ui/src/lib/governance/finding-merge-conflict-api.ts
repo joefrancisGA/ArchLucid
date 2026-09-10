@@ -1,4 +1,7 @@
 import { apiPostJson } from "@/lib/api";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { findingMergeConflictBlockedReason } from "@/lib/findings/finding-merge-conflict-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 export type FindingMergeConflictResolutionAction = "AcceptPrimary" | "AcceptAlternate" | "KeepBoth";
 
@@ -8,8 +11,15 @@ export async function resolveFindingMergeConflict(
   findingId: string,
   action: FindingMergeConflictResolutionAction,
 ): Promise<void> {
-  await apiPostJson<void>(
-    `/v1/governance/runs/${encodeURIComponent(runId)}/finding-merge-conflicts/${encodeURIComponent(findingId)}/resolve`,
-    { action },
-  );
+  try {
+    await apiPostJson<void>(
+      `/v1/governance/runs/${encodeURIComponent(runId)}/finding-merge-conflicts/${encodeURIComponent(findingId)}/resolve`,
+      { action },
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingMergeConflictBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

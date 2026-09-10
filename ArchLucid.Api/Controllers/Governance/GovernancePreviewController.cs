@@ -140,7 +140,7 @@ public sealed partial class GovernancePreviewController(
         catch (ConflictException ex)
         {
             logger.LogWarning(ex, "Preview blocked: sealed manifest verification failed.");
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernancePreviewSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -214,7 +214,7 @@ public sealed partial class GovernancePreviewController(
         catch (ConflictException ex)
         {
             logger.LogWarning(ex, "CompareEnvironments blocked: sealed manifest verification failed.");
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernancePreviewSealedManifestConflict(ex);
         }
     }
 

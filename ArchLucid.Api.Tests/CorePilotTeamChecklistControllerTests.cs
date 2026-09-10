@@ -372,6 +372,9 @@ public sealed class CorePilotTeamChecklistControllerTests
     public async Task PutAsync_valid_persists_and_no_content()
     {
         Mock<ICorePilotTeamChecklistRepository> repo = new();
+        repo
+            .Setup(r => r.ListAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<CorePilotChecklistStepRow>());
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
         Mock<IActorContext> actor = new();

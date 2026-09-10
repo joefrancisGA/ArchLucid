@@ -8,35 +8,17 @@ public sealed class ArchitectureShareRecord
         set;
     }
 
-    public Guid UserId
+    public string ActorOid
     {
         get;
         set;
-    }
-
-    public Guid TenantId
-    {
-        get;
-        set;
-    }
-
-    public Guid WorkspaceId
-    {
-        get;
-        set;
-    }
-
-    public Guid ScopeProjectId
-    {
-        get;
-        set;
-    }
+    } = string.Empty;
 
     public string Role
     {
         get;
         set;
-    } = ArchitectureShareRoles.View;
+    } = string.Empty;
 
     public string GrantedBy
     {
@@ -45,6 +27,12 @@ public sealed class ArchitectureShareRecord
     } = string.Empty;
 
     public DateTime GrantedUtc
+    {
+        get;
+        set;
+    }
+
+    public byte[]? RowVersion
     {
         get;
         set;

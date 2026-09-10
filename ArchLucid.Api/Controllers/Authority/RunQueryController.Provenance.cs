@@ -32,20 +32,27 @@ public sealed partial class RunQueryController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        RunInteractiveGraphQueryResult result =
-            await runGraphQueryService.GetInteractiveGraphSnapshotAsync(runId, cancellationToken);
-
-        return result.Outcome switch
+        try
         {
-            RunGraphQueryOutcome.Success => Ok(result.Response),
-            RunGraphQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
-            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
-        };
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            RunInteractiveGraphQueryResult result =
+                await runGraphQueryService.GetInteractiveGraphSnapshotAsync(runId, cancellationToken);
+
+            return result.Outcome switch
+            {
+                RunGraphQueryOutcome.Success => Ok(result.Response),
+                RunGraphQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
+                _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -60,19 +67,26 @@ public sealed partial class RunQueryController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        ArchitectureRunProvenanceGraph? graph =
-            await runProvenanceQueryService.GetProvenanceAsync(runId, cancellationToken);
+            ArchitectureRunProvenanceGraph? graph =
+                await runProvenanceQueryService.GetProvenanceAsync(runId, cancellationToken);
 
-        return graph is null
-            ? this.NotFoundProblem(
-                $"Run '{runId}' was not found, or its manifest reference is broken.",
-                ProblemTypes.RunNotFound)
-            : Ok(graph);
+            return graph is null
+                ? this.NotFoundProblem(
+                    $"Run '{runId}' was not found, or its manifest reference is broken.",
+                    ProblemTypes.RunNotFound)
+                : Ok(graph);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -94,22 +108,29 @@ public sealed partial class RunQueryController
         if (string.IsNullOrWhiteSpace(nodeId))
             return this.BadRequestProblem("Node id is required.", ProblemTypes.ValidationFailed);
 
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        if (!await runProvenanceQueryService.AuthorityRunExistsInScopeAsync(runId, cancellationToken))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (!await runProvenanceQueryService.AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        ProvenanceNodeExplanationQueryResult unsupported =
-            runProvenanceQueryService.GetProvenanceNodeExplanationNotSupported();
+            ProvenanceNodeExplanationQueryResult unsupported =
+                runProvenanceQueryService.GetProvenanceNodeExplanationNotSupported();
 
-        return this.NotImplementedProblem(
-            unsupported.Detail,
-            ProblemTypes.ProvenanceNodeExplanationNotSupported,
-            "Provenance node explanation not supported",
-            unsupported.Hints);
+            return this.NotImplementedProblem(
+                unsupported.Detail,
+                ProblemTypes.ProvenanceNodeExplanationNotSupported,
+                "Provenance node explanation not supported",
+                unsupported.Hints);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -124,17 +145,24 @@ public sealed partial class RunQueryController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        RunDecisionsQueryResult result =
-            await runProvenanceQueryService.GetRunDecisionsAsync(runId, cancellationToken);
+            RunDecisionsQueryResult result =
+                await runProvenanceQueryService.GetRunDecisionsAsync(runId, cancellationToken);
 
-        return result.Outcome == RunGraphQueryOutcome.Success
-            ? Ok(result.Response)
-            : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
+            return result.Outcome == RunGraphQueryOutcome.Success
+                ? Ok(result.Response)
+                : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -148,17 +176,24 @@ public sealed partial class RunQueryController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        RunEvidenceQueryResult result =
-            await runProvenanceQueryService.GetRunEvidenceAsync(runId, cancellationToken);
+            RunEvidenceQueryResult result =
+                await runProvenanceQueryService.GetRunEvidenceAsync(runId, cancellationToken);
 
-        return result.Outcome == RunGraphQueryOutcome.Success
-            ? Ok(result.Response)
-            : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
+            return result.Outcome == RunGraphQueryOutcome.Success
+                ? Ok(result.Response)
+                : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -175,20 +210,27 @@ public sealed partial class RunQueryController
         [FromQuery] int pageSize = 50,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        RunTracesQueryResult result =
-            await runProvenanceQueryService.GetRunTracesAsync(runId, pageNumber, pageSize, cancellationToken);
-
-        return result.Outcome switch
+        try
         {
-            RunGraphQueryOutcome.Success => Ok(result.Response),
-            RunGraphQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
-            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
-        };
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            RunTracesQueryResult result =
+                await runProvenanceQueryService.GetRunTracesAsync(runId, pageNumber, pageSize, cancellationToken);
+
+            return result.Outcome switch
+            {
+                RunGraphQueryOutcome.Success => Ok(result.Response),
+                RunGraphQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
+                _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -203,16 +245,23 @@ public sealed partial class RunQueryController
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        RunToolInvocationForensicsQueryResult result =
-            await runProvenanceQueryService.GetRunToolInvocationForensicsAsync(runId, cancellationToken);
+            RunToolInvocationForensicsQueryResult result =
+                await runProvenanceQueryService.GetRunToolInvocationForensicsAsync(runId, cancellationToken);
 
-        return result.Outcome == RunGraphQueryOutcome.Success
-            ? Ok(result.Response)
-            : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound);
+            return result.Outcome == RunGraphQueryOutcome.Success
+                ? Ok(result.Response)
+                : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 }

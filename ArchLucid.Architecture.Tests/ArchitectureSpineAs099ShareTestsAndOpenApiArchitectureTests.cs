@@ -23,11 +23,11 @@ public sealed class ArchitectureSpineAs099ShareTestsAndOpenApiArchitectureTests
         string snapshot = File.ReadAllText(path);
 
         snapshot.Should().Contain("/v1/architectures/{architectureId}/shares");
-        snapshot.Should().Contain("/v1/architectures/{architectureId}/shares/{userId}");
+        snapshot.Should().Contain("/v1/architectures/{architectureId}/shares/{targetActorOid}");
         snapshot.Should().Contain("/v1/architectures/{architectureId}/restrict-to-shares");
         snapshot.Should().Contain("ArchitectureShareListResponse");
-        snapshot.Should().Contain("UpsertArchitectureShareRequest");
-        snapshot.Should().Contain("SetArchitectureRestrictToSharesRequest");
+        snapshot.Should().Contain("PutArchitectureShareRequest");
+        snapshot.Should().Contain("PatchArchitectureRestrictToSharesRequest");
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public sealed class ArchitectureSpineAs099ShareTestsAndOpenApiArchitectureTests
 
         source.Should().Contain("OpenApi_v1_json_documents_architecture_share_crud_and_restrict_flag");
         source.Should().Contain("ArchitectureShareListResponse");
-        source.Should().Contain("SetArchitectureRestrictToSharesRequest");
+        source.Should().Contain("PatchArchitectureRestrictToSharesRequest");
     }
 
     [Fact]
@@ -62,9 +62,9 @@ public sealed class ArchitectureSpineAs099ShareTestsAndOpenApiArchitectureTests
             "Security",
             "RestrictedArchitectureShareIdorIntegrationTests.cs");
 
-        File.ReadAllText(sharesTests).Should().Contain("ListShares_ReturnsEmptyShareList_WhenRestrictedWithNoGrants");
+        File.ReadAllText(sharesTests).Should().Contain("ListShares_ReturnsSharePayload");
         File.ReadAllText(sharesTests).Should().Contain("UpsertShare_WithAdmin_Returns204");
-        File.ReadAllText(sharesTests).Should().Contain("DeleteShare_WithAdmin_WritesRequiredRevokedAudit");
+        File.ReadAllText(sharesTests).Should().Contain("DeleteShare_WhenMissing_Returns404");
         File.ReadAllText(restrictTests).Should().Contain("SetRestrictToShares_EnableWithConfirm_AutoInsertsActorAdminShare");
         File.ReadAllText(idorUnitTests).Should().Contain("GetArchitecture_WhenUnshared_Returns404_Not200");
         File.ReadAllText(idorIntegrationTests).Should().Contain("Unshared_user_cannot_get_restricted_architecture_sql");

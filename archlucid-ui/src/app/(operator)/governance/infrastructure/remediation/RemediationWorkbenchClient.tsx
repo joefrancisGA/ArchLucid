@@ -66,6 +66,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   fetchInfraEvidenceSnapshots,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import {
   approveRemediationInstance,
@@ -122,6 +123,7 @@ const cnCard =
 
 const cnField =
   "rounded-md border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950";
+
 
 function formatRemediationWorkbenchApiError(error: unknown): string {
   const failure = toApiLoadFailure(error);
@@ -995,7 +997,7 @@ export function RemediationWorkbenchClient() {
                   >
                     {snapshotOptions.map((snapshot) => (
                       <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription"} · {snapshot.capturedUtc}
+                        {formatInfraEvidenceSnapshotLabel(snapshot)}
                       </option>
                     ))}
                   </select>
@@ -1011,7 +1013,7 @@ export function RemediationWorkbenchClient() {
                   >
                     {snapshotOptions.map((snapshot) => (
                       <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription"} · {snapshot.capturedUtc}
+                        {formatInfraEvidenceSnapshotLabel(snapshot)}
                       </option>
                     ))}
                   </select>

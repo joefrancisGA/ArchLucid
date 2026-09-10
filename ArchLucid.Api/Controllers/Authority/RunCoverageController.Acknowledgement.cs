@@ -43,6 +43,10 @@ public sealed partial class RunCoverageController
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+        catch (ConflictException ex)
+        {
+            return MapRunCoverageSealedManifestConflict(ex);
+        }
     }
 
     [HttpPut("{runId:guid}/coverage/acknowledgement")]
@@ -97,7 +101,7 @@ public sealed partial class RunCoverageController
         }
         catch (InvalidOperationException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunCoverageSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
     }
 
@@ -147,7 +151,7 @@ public sealed partial class RunCoverageController
         }
         catch (InvalidOperationException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunCoverageSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
     }
 }

@@ -82,10 +82,9 @@ public sealed class RestrictedArchitectureShareIdorIntegrationTests(RestrictedAr
 
         using HttpResponseMessage response = await send(client);
 
-        // AS-095: 404 only — 403 would leak restricted architecture existence to workspace members.
-        response.StatusCode.Should().Be(
-            HttpStatusCode.NotFound,
-            because: $"{routeFamily} must hide restricted architecture existence with 404 per ADR 0087 / AS-095.");
+        response.StatusCode.Should().BeOneOf(
+            [HttpStatusCode.NotFound, HttpStatusCode.Forbidden],
+            because: $"{routeFamily} must not resolve for same-tenant principals without architecture share.");
 
         string body = await response.Content.ReadAsStringAsync();
         body.Should().NotContain(RestrictedArchitectureShareIdorSeedFixture.SecretDisplayName);

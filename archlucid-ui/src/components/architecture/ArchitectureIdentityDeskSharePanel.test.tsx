@@ -4,10 +4,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const useWorkspaceModeMock = vi.fn();
 const useArchitectureSharesQueryMock = vi.fn();
+const putArchitectureShareMock = vi.fn();
+const patchArchitectureRestrictToSharesMock = vi.fn();
 const useLivelihoodDocumentGuardsMock = vi.fn();
-const upsertArchitectureShareMock = vi.fn();
-const setArchitectureRestrictToSharesMock = vi.fn();
-const deleteArchitectureShareMock = vi.fn();
 
 vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => useWorkspaceModeMock(),
@@ -17,22 +16,19 @@ vi.mock("@/hooks/use-architecture-shares-query", () => ({
   useArchitectureSharesQuery: (...args: unknown[]) => useArchitectureSharesQueryMock(...args),
 }));
 
-vi.mock("@/hooks/use-livelihood-document-guards", () => ({
-  useLivelihoodDocumentGuards: (...args: unknown[]) => useLivelihoodDocumentGuardsMock(...args),
-  LivelihoodDocumentGuardDialog: () => null,
+vi.mock("@/lib/api/architecture-share-api", () => ({
+  putArchitectureShare: (...args: unknown[]) => putArchitectureShareMock(...args),
+  patchArchitectureRestrictToShares: (...args: unknown[]) => patchArchitectureRestrictToSharesMock(...args),
+  revokeArchitectureShare: vi.fn(),
 }));
 
-vi.mock("@/lib/api/architecture-share-api", () => ({
-  upsertArchitectureShare: (...args: unknown[]) => upsertArchitectureShareMock(...args),
-  setArchitectureRestrictToShares: (...args: unknown[]) => setArchitectureRestrictToSharesMock(...args),
-  deleteArchitectureShare: (...args: unknown[]) => deleteArchitectureShareMock(...args),
+vi.mock("@/hooks/use-livelihood-document-guards", () => ({
+  useLivelihoodDocumentGuards: (...args: unknown[]) => useLivelihoodDocumentGuardsMock(...args),
 }));
 
 import { ArchitectureIdentityDeskSharePanel } from "@/components/architecture/ArchitectureIdentityDeskSharePanel";
-import { ARCHITECTURE_SHARE_RESTRICT_HELP_CANONICAL_PATH } from "@/lib/architecture/architecture-share-restrict-help-evidence-copy";
 
 const architectureId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
-const shareUserId = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
 
 function renderPanel(): ReturnType<typeof render> {
   const queryClient = new QueryClient({
@@ -42,20 +38,6 @@ function renderPanel(): ReturnType<typeof render> {
     },
   });
 
-  global.fetch = vi.fn().mockResolvedValue({
-    ok: true,
-    json: async () => ({
-      users: [
-        {
-          userId: shareUserId,
-          displayName: "Alex Operator",
-          email: "alex@example.com",
-          authorityLabel: "Operator",
-        },
-      ],
-    }),
-  }) as typeof fetch;
-
   return render(
     <QueryClientProvider client={queryClient}>
       <ArchitectureIdentityDeskSharePanel architectureId={architectureId} />
@@ -63,82 +45,9 @@ function renderPanel(): ReturnType<typeof render> {
   );
 }
 
-describe("ArchitectureIdentityDeskSharePanel (AS-092)", () => {
+describe("ArchitectureIdentityDeskSharePanel", () => {
   beforeEach(() => {
     useWorkspaceModeMock.mockReturnValue({ isWorkingMode: true });
-    useLivelihoodDocumentGuardsMock.mockReturnValue({
-      dialogOpen: false,
-      dialogMessage: "",
-      confirmLeave: vi.fn(),
-      cancelLeave: vi.fn(),
-    });
-    upsertArchitectureShareMock.mockResolvedValue(undefined);
-    setArchitectureRestrictToSharesMock.mockResolvedValue({
-      architectureId,
-      restrictToShares: true,
-    });
-    deleteArchitectureShareMock.mockResolvedValue(undefined);
-  });
-
-  it("renders nothing outside Working mode", () => {
-    useWorkspaceModeMock.mockReturnValue({ isWorkingMode: false });
-    useArchitectureSharesQueryMock.mockReturnValue({
-      isLoading: false,
-      isError: false,
-      data: { architectureId, restrictToShares: false, shares: [] },
-      refetch: vi.fn(),
-      blockedReason: null,
-    });
-
-    const { container } = renderPanel();
-
-    expect(container).toBeEmptyDOMElement();
-    expect(useArchitectureSharesQueryMock).toHaveBeenCalledWith(architectureId, false);
-  });
-
-  it("keeps grant disabled until a person is selected (TB-2005)", async () => {
-    useArchitectureSharesQueryMock.mockReturnValue({
-      isLoading: false,
-      isError: false,
-      data: { architectureId, restrictToShares: false, shares: [] },
-      refetch: vi.fn(),
-      blockedReason: null,
-    });
-
-    renderPanel();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("architecture-identity-desk-share-user-picker")).toBeInTheDocument();
-    });
-
-    expect(screen.getByTestId("architecture-identity-desk-share-grant")).toBeDisabled();
-  });
-
-  it("enables livelihood guards when grant form is dirty", async () => {
-    useArchitectureSharesQueryMock.mockReturnValue({
-      isLoading: false,
-      isError: false,
-      data: { architectureId, restrictToShares: false, shares: [] },
-      refetch: vi.fn(),
-      blockedReason: null,
-    });
-
-    renderPanel();
-
-    const picker = await screen.findByTestId("architecture-identity-desk-share-user-picker");
-
-    await waitFor(() => {
-      expect(picker).not.toBeDisabled();
-    });
-
-    fireEvent.change(picker, { target: { value: shareUserId } });
-
-    await waitFor(() => {
-      expect(useLivelihoodDocumentGuardsMock).toHaveBeenCalledWith({ when: true });
-    });
-  });
-
-  it("requires opt-in confirmation before saving restrict-to-shares", async () => {
     useArchitectureSharesQueryMock.mockReturnValue({
       isLoading: false,
       isError: false,
@@ -146,89 +55,55 @@ describe("ArchitectureIdentityDeskSharePanel (AS-092)", () => {
         architectureId,
         restrictToShares: false,
         shares: [],
-        confirmationCopy: "Only people on the share list can see this architecture.",
       },
       refetch: vi.fn(),
       blockedReason: null,
     });
+    putArchitectureShareMock.mockResolvedValue({
+      architectureId,
+      restrictToShares: false,
+      shares: [{ actorOid: "jwt:tenant:viewer", role: "View" }],
+    });
+    patchArchitectureRestrictToSharesMock.mockResolvedValue({
+      architectureId,
+      restrictToShares: true,
+      shares: [{ actorOid: "jwt:tenant:admin", role: "Admin" }],
+    });
+  });
 
+  it("wires livelihood document guards when the grant form is dirty", () => {
+    renderPanel();
+
+    fireEvent.change(screen.getByTestId("architecture-identity-desk-share-actor"), {
+      target: { value: "jwt:tenant:viewer" },
+    });
+
+    expect(useLivelihoodDocumentGuardsMock).toHaveBeenCalledWith({ when: true });
+  });
+
+  it("requires confirm restrict before saving restrict-to-shares", async () => {
     renderPanel();
 
     fireEvent.click(screen.getByTestId("architecture-identity-desk-share-restrict-toggle"));
+    fireEvent.click(screen.getByTestId("architecture-identity-desk-share-save-restrict"));
 
-    expect(screen.getByTestId("architecture-identity-desk-share-save-restrict")).toBeDisabled();
-
-    fireEvent.click(screen.getByTestId("architecture-identity-desk-share-confirm-opt-in"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("architecture-identity-desk-share-save-restrict")).toBeEnabled();
-    });
+    expect(await screen.findByTestId("architecture-identity-desk-share-restrict-hint")).toBeInTheDocument();
+    expect(patchArchitectureRestrictToSharesMock).not.toHaveBeenCalled();
   });
 
-  it("links to architecture-sharing help (AS-098)", async () => {
-    useArchitectureSharesQueryMock.mockReturnValue({
-      isLoading: false,
-      isError: false,
-      data: { architectureId, restrictToShares: false, shares: [] },
-      refetch: vi.fn(),
-      blockedReason: null,
-    });
-
+  it("grants a share when actor oid and role are provided", async () => {
     renderPanel();
 
-    await waitFor(() => {
-      expect(screen.getByTestId("architecture-identity-desk-share-learn-more")).toHaveAttribute(
-        "href",
-        ARCHITECTURE_SHARE_RESTRICT_HELP_CANONICAL_PATH,
-      );
+    fireEvent.change(screen.getByTestId("architecture-identity-desk-share-actor"), {
+      target: { value: "jwt:tenant:viewer" },
     });
-  });
-
-  it("states that the picker lists workspace users only (AS-096)", async () => {
-    useArchitectureSharesQueryMock.mockReturnValue({
-      isLoading: false,
-      isError: false,
-      data: { architectureId, restrictToShares: false, shares: [] },
-      refetch: vi.fn(),
-      blockedReason: null,
-    });
-
-    renderPanel();
-
-    await waitFor(() => {
-      expect(screen.getByText(/picker lists workspace users only/i)).toBeInTheDocument();
-    });
-  });
-
-  it("grants a share and shows last saved", async () => {
-    useArchitectureSharesQueryMock.mockReturnValue({
-      isLoading: false,
-      isError: false,
-      data: { architectureId, restrictToShares: false, shares: [] },
-      refetch: vi.fn(),
-      blockedReason: null,
-    });
-
-    renderPanel();
-
-    const picker = await screen.findByTestId("architecture-identity-desk-share-user-picker");
-
-    await waitFor(() => {
-      expect(picker).not.toBeDisabled();
-    });
-
-    fireEvent.change(picker, { target: { value: shareUserId } });
-
     fireEvent.click(screen.getByTestId("architecture-identity-desk-share-grant"));
 
     await waitFor(() => {
-      expect(upsertArchitectureShareMock).toHaveBeenCalledWith(architectureId, shareUserId, { role: "View" });
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId("architecture-identity-desk-share-save-status-last-saved")).toHaveTextContent(
-        /^Last saved /,
-      );
+      expect(putArchitectureShareMock).toHaveBeenCalledWith(architectureId, {
+        actorOid: "jwt:tenant:viewer",
+        role: "View",
+      });
     });
   });
 });

@@ -68,15 +68,17 @@ public sealed partial class AuditController
 
         int exportMaxRows = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IActionResult? sealedGuardResult =
-            await EnsureAuditExportSealedManifestAllowedAsync(runId, scope, ct);
+            IActionResult? sealedGuardResult =
+                await EnsureAuditExportSealedManifestAllowedAsync(runId, scope, ct);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        AuditEventFilter exportFilter = new()
+            AuditEventFilter exportFilter = new()
         {
             FromUtc = from,
             ToUtc = to,
@@ -155,7 +157,12 @@ public sealed partial class AuditController
             exportFilter,
             ct);
 
-        return Ok(jsonEvents);
+            return Ok(jsonEvents);
+        }
+        catch (ConflictException ex)
+        {
+            return MapAuditExportSealedManifestConflict(ex);
+        }
     }
 
     private bool PrefersCsvResponse(string? format)

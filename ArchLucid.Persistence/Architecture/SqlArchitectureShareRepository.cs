@@ -4,17 +4,12 @@ using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
-using Microsoft.Data.SqlClient;
-
 namespace ArchLucid.Persistence.Architecture;
 
 public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connectionFactory)
     : IArchitectureShareRepository
 {
-    private readonly ISqlConnectionFactory _connectionFactory =
-        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-
-    public async Task<int> CountSharesAsync(
+    public async Task<IReadOnlyList<ArchitectureShareRecord>> ListByArchitectureIdAsync(
         ScopeContext scope,
         Guid architectureId,
         CancellationToken cancellationToken = default)
@@ -22,303 +17,23 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
         ArgumentNullException.ThrowIfNull(scope);
 
         const string sql = """
-            SELECT COUNT(1)
-            FROM dbo.ArchitectureShares
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId
-              AND ArchitectureId = @ArchitectureId;
+            SELECT
+                ArchitectureId,
+                ActorOid,
+                Role,
+                GrantedBy,
+                GrantedUtc,
+                RowVersion
+            FROM dbo.ArchitectureShares s
+            INNER JOIN dbo.Architectures a ON a.ArchitectureId = s.ArchitectureId
+            WHERE a.TenantId = @TenantId
+              AND a.WorkspaceId = @WorkspaceId
+              AND a.ScopeProjectId = @ScopeProjectId
+              AND s.ArchitectureId = @ArchitectureId
+            ORDER BY s.ActorOid;
             """;
 
-        await using SqlConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-        return await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    ArchitectureId = architectureId,
-                },
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
-    }
-
-    public async Task<bool?> TryGetRestrictToSharesAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        const string sql = """
-            SELECT RestrictToShares
-            FROM dbo.Architectures
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId
-              AND ArchitectureId = @ArchitectureId;
-            """;
-
-        await using SqlConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-        return await connection.ExecuteScalarAsync<bool?>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    ArchitectureId = architectureId,
-                },
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
-    }
-
-    public async Task<bool> TryEnableRestrictToSharesAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        Guid actorUserId,
-        string grantedBy,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-        ArgumentException.ThrowIfNullOrWhiteSpace(grantedBy);
-
-        DateTime grantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-        DateTime updatedUtc = grantedUtc;
-
-        await using SqlConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-        await using SqlTransaction transaction =
-            (SqlTransaction)await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
-
-        const string existsSql = """
-            SELECT 1
-            FROM dbo.Architectures
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId
-              AND ArchitectureId = @ArchitectureId;
-            """;
-
-        int? exists = await connection.ExecuteScalarAsync<int?>(
-            new CommandDefinition(
-                existsSql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    ArchitectureId = architectureId,
-                },
-                transaction,
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-        if (exists is not 1)
-        {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-
-            return false;
-        }
-
-        const string countSql = """
-            SELECT COUNT(1)
-            FROM dbo.ArchitectureShares
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId
-              AND ArchitectureId = @ArchitectureId;
-            """;
-
-        int shareCount = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(
-                countSql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    ArchitectureId = architectureId,
-                },
-                transaction,
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-        if (shareCount == 0)
-        {
-            const string insertShareSql = """
-                INSERT INTO dbo.ArchitectureShares
-                (
-                    ArchitectureId,
-                    UserId,
-                    TenantId,
-                    WorkspaceId,
-                    ScopeProjectId,
-                    Role,
-                    GrantedBy,
-                    GrantedUtc
-                )
-                VALUES
-                (
-                    @ArchitectureId,
-                    @UserId,
-                    @TenantId,
-                    @WorkspaceId,
-                    @ScopeProjectId,
-                    @Role,
-                    @GrantedBy,
-                    @GrantedUtc
-                );
-                """;
-
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    insertShareSql,
-                    new
-                    {
-                        ArchitectureId = architectureId,
-                        UserId = actorUserId,
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        ScopeProjectId = scope.ProjectId,
-                        Role = ArchitectureShareRoles.Admin,
-                        GrantedBy = grantedBy,
-                        GrantedUtc = grantedUtc,
-                    },
-                    transaction,
-                    cancellationToken: cancellationToken)).ConfigureAwait(false);
-        }
-
-        const string updateSql = """
-            UPDATE dbo.Architectures
-            SET RestrictToShares = 1,
-                UpdatedUtc = @UpdatedUtc
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId
-              AND ArchitectureId = @ArchitectureId;
-            """;
-
-        int rows = await connection.ExecuteAsync(
-            new CommandDefinition(
-                updateSql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    ArchitectureId = architectureId,
-                    UpdatedUtc = updatedUtc,
-                },
-                transaction,
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-        if (rows != 1)
-        {
-            await transaction.RollbackAsync(cancellationToken).ConfigureAwait(false);
-
-            return false;
-        }
-
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-
-        return true;
-    }
-
-    public async Task<bool> TryDisableRestrictToSharesAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        const string sql = """
-            UPDATE dbo.Architectures
-            SET RestrictToShares = 0,
-                UpdatedUtc = @UpdatedUtc
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId
-              AND ArchitectureId = @ArchitectureId;
-            """;
-
-        await using SqlConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-        int rows = await connection.ExecuteAsync(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    ArchitectureId = architectureId,
-                    UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-                },
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-        return rows == 1;
-    }
-
-    public async Task<string?> TryGetShareRoleAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        Guid userId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        const string sql = """
-            SELECT Role
-            FROM dbo.ArchitectureShares
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId
-              AND ArchitectureId = @ArchitectureId
-              AND UserId = @UserId;
-            """;
-
-        await using SqlConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-        return await connection.ExecuteScalarAsync<string?>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    ArchitectureId = architectureId,
-                    UserId = userId,
-                },
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
-    }
-
-    public async Task<IReadOnlyList<ArchitectureShareRecord>> ListSharesAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        const string sql = """
-            SELECT ArchitectureId, UserId, TenantId, WorkspaceId, ScopeProjectId, Role, GrantedBy, GrantedUtc
-            FROM dbo.ArchitectureShares
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId
-              AND ArchitectureId = @ArchitectureId
-            ORDER BY GrantedUtc ASC, UserId ASC;
-            """;
-
-        await using SqlConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<ArchitectureShareRecord> rows = await connection.QueryAsync<ArchitectureShareRecord>(
             new CommandDefinition(
@@ -330,114 +45,141 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
                     ScopeProjectId = scope.ProjectId,
                     ArchitectureId = architectureId,
                 },
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
+                cancellationToken: cancellationToken));
 
         return rows.ToList();
     }
 
-    public async Task<bool> UpsertShareAsync(
+    public async Task<ArchitectureShareRecord?> TryGetAsync(
         ScopeContext scope,
         Guid architectureId,
-        Guid userId,
-        string role,
-        string grantedBy,
+        string actorOid,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ArgumentException.ThrowIfNullOrWhiteSpace(role);
-        ArgumentException.ThrowIfNullOrWhiteSpace(grantedBy);
-
-        DateTime grantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-
-        await using SqlConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-
-        const string updateSql = """
-            UPDATE dbo.ArchitectureShares
-            SET Role = @Role,
-                GrantedBy = @GrantedBy,
-                GrantedUtc = @GrantedUtc
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId
-              AND ArchitectureId = @ArchitectureId
-              AND UserId = @UserId;
-            """;
-
-        object parameters = new
-        {
-            ArchitectureId = architectureId,
-            UserId = userId,
-            scope.TenantId,
-            scope.WorkspaceId,
-            ScopeProjectId = scope.ProjectId,
-            Role = role.Trim(),
-            GrantedBy = grantedBy.Trim(),
-            GrantedUtc = grantedUtc,
-        };
-
-        int updatedRows = await connection.ExecuteAsync(
-            new CommandDefinition(
-                updateSql,
-                parameters,
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-        if (updatedRows > 0)
-            return true;
-
-        const string insertSql = """
-            INSERT INTO dbo.ArchitectureShares
-            (
-                ArchitectureId,
-                UserId,
-                TenantId,
-                WorkspaceId,
-                ScopeProjectId,
-                Role,
-                GrantedBy,
-                GrantedUtc
-            )
-            VALUES
-            (
-                @ArchitectureId,
-                @UserId,
-                @TenantId,
-                @WorkspaceId,
-                @ScopeProjectId,
-                @Role,
-                @GrantedBy,
-                @GrantedUtc
-            );
-            """;
-
-        int insertedRows = await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertSql,
-                parameters,
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
-
-        return insertedRows == 1;
-    }
-
-    public async Task<bool> TryDeleteShareAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        Guid userId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actorOid);
 
         const string sql = """
-            DELETE FROM dbo.ArchitectureShares
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId
-              AND ArchitectureId = @ArchitectureId
-              AND UserId = @UserId;
+            SELECT
+                s.ArchitectureId,
+                s.ActorOid,
+                s.Role,
+                s.GrantedBy,
+                s.GrantedUtc,
+                s.RowVersion
+            FROM dbo.ArchitectureShares s
+            INNER JOIN dbo.Architectures a ON a.ArchitectureId = s.ArchitectureId
+            WHERE a.TenantId = @TenantId
+              AND a.WorkspaceId = @WorkspaceId
+              AND a.ScopeProjectId = @ScopeProjectId
+              AND s.ArchitectureId = @ArchitectureId
+              AND s.ActorOid = @ActorOid;
             """;
 
-        await using SqlConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        return await connection.QuerySingleOrDefaultAsync<ArchitectureShareRecord>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ArchitectureId = architectureId,
+                    ActorOid = actorOid.Trim(),
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task UpsertAsync(
+        ScopeContext scope,
+        ArchitectureShareRecord record,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(record);
+
+        const string sql = """
+            MERGE dbo.ArchitectureShares AS target
+            USING (
+                SELECT
+                    @ArchitectureId AS ArchitectureId,
+                    @ActorOid AS ActorOid,
+                    @TenantId AS TenantId,
+                    @WorkspaceId AS WorkspaceId,
+                    @ScopeProjectId AS ScopeProjectId) AS source
+            ON target.ArchitectureId = source.ArchitectureId
+               AND target.ActorOid = source.ActorOid
+               AND target.TenantId = source.TenantId
+               AND target.WorkspaceId = source.WorkspaceId
+               AND target.ScopeProjectId = source.ScopeProjectId
+            WHEN MATCHED THEN
+                UPDATE SET
+                    Role = @Role,
+                    GrantedBy = @GrantedBy,
+                    GrantedUtc = @GrantedUtc
+            WHEN NOT MATCHED THEN
+                INSERT (
+                    ArchitectureId,
+                    ActorOid,
+                    TenantId,
+                    WorkspaceId,
+                    ScopeProjectId,
+                    Role,
+                    GrantedBy,
+                    GrantedUtc)
+                VALUES (
+                    @ArchitectureId,
+                    @ActorOid,
+                    @TenantId,
+                    @WorkspaceId,
+                    @ScopeProjectId,
+                    @Role,
+                    @GrantedBy,
+                    @GrantedUtc);
+            """;
+
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    record.ArchitectureId,
+                    ActorOid = record.ActorOid.Trim(),
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    record.Role,
+                    record.GrantedBy,
+                    record.GrantedUtc,
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<bool> TryDeleteAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        string actorOid,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actorOid);
+
+        const string sql = """
+            DELETE s
+            FROM dbo.ArchitectureShares s
+            INNER JOIN dbo.Architectures a ON a.ArchitectureId = s.ArchitectureId
+            WHERE a.TenantId = @TenantId
+              AND a.WorkspaceId = @WorkspaceId
+              AND a.ScopeProjectId = @ScopeProjectId
+              AND s.ArchitectureId = @ArchitectureId
+              AND s.ActorOid = @ActorOid;
+            """;
+
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         int rows = await connection.ExecuteAsync(
             new CommandDefinition(
@@ -448,44 +190,31 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,
                     ArchitectureId = architectureId,
-                    UserId = userId,
+                    ActorOid = actorOid.Trim(),
                 },
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
+                cancellationToken: cancellationToken));
 
-        return rows == 1;
+        return rows > 0;
     }
 
-    public async Task<int> CountRestrictedWithoutActorShareAsync(
+    public async Task<int> CountByArchitectureIdAsync(
         ScopeContext scope,
-        Guid? actorUserId,
+        Guid architectureId,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
         const string sql = """
             SELECT COUNT(1)
-            FROM dbo.Architectures AS a
+            FROM dbo.ArchitectureShares s
+            INNER JOIN dbo.Architectures a ON a.ArchitectureId = s.ArchitectureId
             WHERE a.TenantId = @TenantId
               AND a.WorkspaceId = @WorkspaceId
               AND a.ScopeProjectId = @ScopeProjectId
-              AND a.ArchivedUtc IS NULL
-              AND a.RestrictToShares = 1
-              AND (
-                  @ActorUserId IS NULL
-                  OR NOT EXISTS (
-                      SELECT 1
-                      FROM dbo.ArchitectureShares AS s
-                      WHERE s.TenantId = a.TenantId
-                        AND s.WorkspaceId = a.WorkspaceId
-                        AND s.ScopeProjectId = a.ScopeProjectId
-                        AND s.ArchitectureId = a.ArchitectureId
-                        AND s.UserId = @ActorUserId
-                  )
-              );
+              AND s.ArchitectureId = @ArchitectureId;
             """;
 
-        await using SqlConnection connection =
-            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
@@ -495,8 +224,8 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
                     scope.TenantId,
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,
-                    ActorUserId = actorUserId,
+                    ArchitectureId = architectureId,
                 },
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
+                cancellationToken: cancellationToken));
     }
 }

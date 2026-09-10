@@ -60,10 +60,13 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IGraphSnapshotSqlAuthorityWriter, GraphSnapshotSqlAuthorityWriterAdapter>();
         services.AddSingleton<ICosmosGraphSnapshotOutboxRepository, NoOpCosmosGraphSnapshotOutboxRepository>();
         services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
+        services.AddSingleton<IArchitectureShareRepository, InMemoryArchitectureShareRepository>();
         services.AddSingleton<IArchitectureIdentityRepository>(static sp =>
             new InMemoryArchitectureIdentityRepository(
                 sp.GetRequiredService<IDraftRequestRepository>(),
-                sp.GetRequiredService<IRunRepository>()));
+                sp.GetRequiredService<IRunRepository>(),
+                architectureVersionRepository: null,
+                shareRepository: sp.GetRequiredService<IArchitectureShareRepository>()));
         services.AddSingleton<IArchitectureVersionRepository, InMemoryArchitectureVersionRepository>();
         services.AddSingleton<IArchitectureInventoryBindingRepository, InMemoryArchitectureInventoryBindingRepository>();
         services.AddSingleton<IArchitectureShareRepository, InMemoryArchitectureShareRepository>();

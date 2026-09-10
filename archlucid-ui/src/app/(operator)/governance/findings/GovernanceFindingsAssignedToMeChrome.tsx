@@ -4,6 +4,7 @@ import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPag
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -11,6 +12,7 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_REFRESHING_LABEL,
 } from "@/lib/governance/governance-assigned-to-me-empty-state";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
+import { shouldShowGovernanceAssignedToMeWorkspaceLabel } from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 import { cn } from "@/lib/utils";
 
 export type GovernanceFindingsAssignedToMeChromeProps = {
@@ -81,6 +83,8 @@ export function GovernanceFindingsAssignedToMeHeaderMetadata({
   GovernanceFindingsAssignedToMeChromeProps,
   "assignedToMeWorkspaceLabel" | "assignedToMeCheckedAt" | "assignedToMeRefreshing"
 >) {
+  const { productLine } = useProductLine();
+  const showWorkspaceLabel = shouldShowGovernanceAssignedToMeWorkspaceLabel(productLine);
   const assignedToMeFreshnessLabel = assignedToMeRefreshing
     ? GOVERNANCE_ASSIGNED_TO_ME_REFRESHING_LABEL
     : operatorFreshnessMetadataWithClockLabel({
@@ -91,10 +95,12 @@ export function GovernanceFindingsAssignedToMeHeaderMetadata({
 
   return (
     <>
-      <span className="text-al-text-secondary" data-testid="governance-assigned-to-me-workspace">
-        Workspace:{" "}
-        <span className="font-medium text-al-text-primary">{assignedToMeWorkspaceLabel}</span>
-      </span>
+      {showWorkspaceLabel ? (
+        <span className="text-al-text-secondary" data-testid="governance-assigned-to-me-workspace">
+          Workspace:{" "}
+          <span className="font-medium text-al-text-primary">{assignedToMeWorkspaceLabel}</span>
+        </span>
+      ) : null}
       <OperatorPageFreshnessMetadata
         testId="governance-assigned-to-me-last-checked"
         lastRefreshedAt={assignedToMeRefreshing ? null : assignedToMeCheckedAt}

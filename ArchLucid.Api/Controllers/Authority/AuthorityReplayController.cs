@@ -109,11 +109,11 @@ public sealed partial class AuthorityReplayController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAuthorityReplaySealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Authority replay blocked", StringComparison.Ordinal))
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAuthorityReplaySealedManifestConflict(new ConflictException(ex.Message, ex));
         }
 
         if (result is null)
