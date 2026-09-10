@@ -25,6 +25,33 @@ vi.mock("@/hooks/use-review-pipeline-in-flight-for-run", () => ({
   useReviewPipelineInFlightForRun: vi.fn(() => null),
 }));
 
+const effectiveDoorMock = vi.hoisted(() => ({ value: "career" as "career" | "rehearsal" }));
+const workingDeskMock = vi.hoisted(() => ({ value: false }));
+
+vi.mock("@/hooks/use-effective-working-career-rehearsal-door", () => ({
+  useEffectiveWorkingCareerRehearsalDoor: () => ({
+    door: effectiveDoorMock.value,
+    effectiveDoor: effectiveDoorMock.value,
+    mounted: true,
+  }),
+}));
+
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionDeskChrome: () => workingDeskMock.value,
+}));
+
+vi.mock("@/hooks/use-health-ready-summary-query", () => ({
+  useHealthReadySummaryQuery: () => ({
+    data: {
+      preCommitGateEnabled: true,
+      agentExecutionMode: "Real",
+      agentOutputQualityGateMode: "Enforce",
+    },
+    isPending: false,
+    isSuccess: true,
+  }),
+}));
+
 import { getRunSummary } from "@/lib/api";
 import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
@@ -56,6 +83,8 @@ function committedSummary(runId: string): RunSummary {
 describe("RunProgressTracker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    effectiveDoorMock.value = "career";
+    workingDeskMock.value = false;
     mockUseReviewPipelineInFlightForRun.mockReturnValue(null);
     mockGetRunStageTimeline.mockResolvedValue([]);
     mockUseWorkspaceReviewDurationEstimate.mockReturnValue({ estimate: null, loading: false });
@@ -105,9 +134,36 @@ describe("RunProgressTracker", () => {
     expect(screen.getByRole("heading", { name: "Assessment progress" })).toBeInTheDocument();
     expect(screen.getByTestId("run-progress-stage-count")).toHaveTextContent("Progress: 3 / 3 stages");
     expect(screen.getByText(/Ready to finalize/i)).toBeInTheDocument();
-    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Not created yet");
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Pending");
     expect(screen.queryByText(/We're preparing this review/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /retry polling/i })).not.toBeInTheDocument();
+  });
+
+  it("suppresses Ready to finalize copy on Working Rehearsal door (AS-079)", async () => {
+    effectiveDoorMock.value = "rehearsal";
+    workingDeskMock.value = true;
+
+    render(
+      <RunProgressTracker
+        runId="prefinalize-rehearsal-1"
+        initialSummary={{
+          ...baseSummary,
+          runId: "prefinalize-rehearsal-1",
+          hasContextSnapshot: true,
+          hasGraphSnapshot: true,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+        }}
+        preFinalizeReadyToFinalize
+        buyerAssessmentCopy
+      />,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByText(/Ready to finalize/i)).not.toBeInTheDocument();
   });
 
   it("enters pre-finalize terminal from live summary while assessment is still running on mount", async () => {
@@ -140,7 +196,7 @@ describe("RunProgressTracker", () => {
     });
 
     expect(screen.getByText(/Ready to finalize/i)).toBeInTheDocument();
-    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Not created yet");
+    expect(screen.getByTestId("run-progress-signed-record-row")).toHaveTextContent("Pending");
     expect(screen.queryByText(/We're preparing this review/i)).not.toBeInTheDocument();
   });
 
@@ -460,13 +516,7 @@ describe("RunProgressTracker", () => {
 
     expect(mockGetRunStageTimeline).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("run-progress-stage-count")).toHaveTextContent("Progress: 0 / 4 stages");
-    expect(
-      screen.getByText(
-        (_, element) =>
-          element?.textContent ===
-          "Assessment did not finish — see Do this next above for what happened and how to recover.",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/0 of 4 assessment stages complete/i)).toBeInTheDocument();
     expect(screen.queryByText(/Execution failed before the first pipeline stage/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/authority_pipeline_dead_letter/i)).not.toBeInTheDocument();
     expect(

@@ -20,6 +20,8 @@ public sealed class RemediationInstanceService(
     IAdvisoryTerraformRepresentationService advisoryTerraformService,
     IAuditService auditService,
     IOperationalSecurityFindingRepository operationalFindingRepository,
+    IRemediationPathNarrativeBuilder pathNarrativeBuilder,
+    ISecurityEvidencePathRepository pathRepository,
     IAuditManualEvidenceRepository auditManualEvidenceRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService) : IRemediationInstanceService
@@ -64,6 +66,35 @@ public sealed class RemediationInstanceService(
         if (!RemediationPatternFactoryGuard.TryValidateForFactoryUse(version, out string? rejection))
             return Blocked(rejection!);
 
+        OperationalSecurityFindingRecord? finding =
+            await operationalFindingRepository.TryGetByIdAsync(scope.TenantId, findingId, cancellationToken);
+
+        Guid? pathId = null;
+        string? pathNarrativeJson = null;
+        Guid? cloudResourceId = finding?.CloudResourceId;
+
+        if (finding is not null
+            && finding.PathId is Guid citedPathId
+            && citedPathId != Guid.Empty)
+        {
+            RemediationPathNarrative? narrative = await pathNarrativeBuilder.TryBuildAsync(
+                scope,
+                finding,
+                version!,
+                cancellationToken);
+
+            if (narrative is not null)
+            {
+                pathId = citedPathId;
+                pathNarrativeJson = RemediationPathNarrativeJson.Serialize(narrative);
+
+                if (cloudResourceId is null || cloudResourceId == Guid.Empty)
+                {
+                    cloudResourceId = narrative.AffectedDependencyCloudResourceIds.FirstOrDefault();
+                }
+            }
+        }
+
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         Guid instanceId = Guid.NewGuid();
 
@@ -80,6 +111,9 @@ public sealed class RemediationInstanceService(
             FrozenPatternVersion = activeMatch.PatternVersion,
             AutomationLevel = version!.AutomationLevel,
             Status = RemediationInstanceStatus.Classified,
+            CloudResourceId = cloudResourceId,
+            PathId = pathId,
+            PathNarrativeJson = pathNarrativeJson,
             CreatedByActorKey = actorKey.Trim(),
             CreatedUtc = utcNow,
             UpdatedUtc = utcNow,
@@ -416,11 +450,35 @@ public sealed class RemediationInstanceService(
         if (verificationSnapshot is null)
             return Failed("Verification inventory snapshot was not found.");
 
+        RemediationPathNarrative? pathNarrative =
+            RemediationPathNarrativeJson.TryDeserialize(instance.PathNarrativeJson);
+
+        RemediationPathVerificationContext? pathVerificationContext = null;
+
+        if (pathNarrative is not null)
+        {
+            IReadOnlyList<SecurityEvidencePathRecord> verificationPaths =
+                await pathRepository.ListBySnapshotAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    verificationSnapshot.Header.SnapshotId,
+                    cancellationToken);
+
+            pathVerificationContext = new RemediationPathVerificationContext
+            {
+                SourcePathCanonicalHash = Convert.FromHexString(pathNarrative.CanonicalHopHashHex),
+                VerificationSnapshotPaths = verificationPaths,
+            };
+        }
+
         RemediationInstanceVerificationResult verification = RemediationInstanceVerificationEvaluator.Evaluate(
             instance,
             content!,
             verificationSnapshot,
-            instance.ExecutionSnapshotId.Value);
+            instance.ExecutionSnapshotId.Value,
+            pathNarrative,
+            pathVerificationContext);
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
@@ -612,6 +670,8 @@ public sealed class RemediationInstanceService(
             AutomationLevel = source.AutomationLevel,
             Status = status ?? source.Status,
             CloudResourceId = source.CloudResourceId,
+            PathId = source.PathId,
+            PathNarrativeJson = source.PathNarrativeJson,
             AssessmentId = source.AssessmentId,
             ControlId = source.ControlId,
             PreflightSnapshotId = preflightSnapshotId ?? source.PreflightSnapshotId,

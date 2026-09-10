@@ -1,7 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DiagramsWorkbenchClient } from "@/app/(operator)/governance/infrastructure/diagrams/DiagramsWorkbenchClient";
+
+const { fetchInfraEvidenceSnapshotsMock } = vi.hoisted(() => ({
+  fetchInfraEvidenceSnapshotsMock: vi.fn(),
+}));
 
 let searchParams = new URLSearchParams();
 
@@ -16,23 +20,7 @@ vi.mock("@/hooks/use-tenant-branding-presentation-query", () => ({
 }));
 
 vi.mock("@/lib/infra-evidence/infra-evidence-drift-api", () => ({
-  fetchInfraEvidenceSnapshots: vi.fn(async () => ({
-    items: [
-      {
-        snapshotId: "11111111-1111-1111-1111-111111111111",
-        subscriptionId: "sub-1",
-        subscriptionName: "Prod",
-        capturedUtc: "2026-09-01T12:00:00Z",
-        captureStatus: 1,
-        resourceCount: 500,
-        relationshipCount: 120,
-      },
-    ],
-    totalCount: 1,
-    page: 1,
-    pageSize: 50,
-    hasMore: false,
-  })),
+  fetchInfraEvidenceSnapshots: fetchInfraEvidenceSnapshotsMock,
   formatInfraEvidenceApiError: (error: unknown) => String(error),
 }));
 
@@ -117,7 +105,30 @@ vi.mock("@/lib/use-nav-surface", () => ({
   }),
 }));
 
+const defaultSnapshotsResponse = {
+  items: [
+    {
+      snapshotId: "11111111-1111-1111-1111-111111111111",
+      subscriptionId: "sub-1",
+      subscriptionName: "Prod",
+      capturedUtc: "2026-09-01T12:00:00Z",
+      captureStatus: 1,
+      resourceCount: 500,
+      relationshipCount: 120,
+    },
+  ],
+  totalCount: 1,
+  page: 1,
+  pageSize: 50,
+  hasMore: false,
+};
+
 describe("DiagramsWorkbenchClient", () => {
+  beforeEach(() => {
+    fetchInfraEvidenceSnapshotsMock.mockReset();
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue(defaultSnapshotsResponse);
+  });
+
   it("renders snapshot picker and partitioned fallback cards", async () => {
     searchParams = new URLSearchParams();
     render(<DiagramsWorkbenchClient />);
@@ -126,10 +137,14 @@ describe("DiagramsWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-diagrams-fallback-cards")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-fallback-executive")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-fallback-network")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-diagrams-export-png")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-export-png")).toBeInTheDocument();
     expect(await screen.findByTestId("infra-diagrams-open-ask")).toHaveAttribute(
       "href",
       "/governance/infrastructure/ask?snapshotId=11111111-1111-1111-1111-111111111111&tab=diagram",
+    );
+    expect(await screen.findByTestId("infra-diagrams-render-status-strip")).toBeInTheDocument();
+    expect(await screen.findByTestId("infra-diagrams-snapshot-id-readout")).toHaveTextContent(
+      "11111111-1111-1111-1111-111111111111",
     );
   });
 
@@ -173,6 +188,34 @@ describe("DiagramsWorkbenchClient", () => {
     );
   });
 
+  it("omits UUID subscription ids from snapshot picker labels", async () => {
+    const subscriptionId = "0966098b-4d6c-4f09-af1b-965bc2a2ad1d";
+    fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
+      items: [
+        {
+          snapshotId: "11111111-1111-1111-1111-111111111111",
+          subscriptionId,
+          subscriptionName: null,
+          capturedUtc: "2026-09-01T12:00:00Z",
+          captureStatus: 1,
+          resourceCount: 889,
+          relationshipCount: 120,
+        },
+      ],
+      totalCount: 1,
+      page: 1,
+      pageSize: 50,
+      hasMore: false,
+    });
+
+    searchParams = new URLSearchParams();
+    render(<DiagramsWorkbenchClient />);
+
+    const picker = await screen.findByTestId("infra-diagrams-snapshot-picker");
+    expect(picker).toHaveTextContent("889 resources");
+    expect(picker).not.toHaveTextContent(subscriptionId);
+  });
+
   it("opens dependency neighborhood drill-down when seed node is in the URL", async () => {
     const armId = "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/gateway";
     searchParams = new URLSearchParams(
@@ -186,5 +229,13 @@ describe("DiagramsWorkbenchClient", () => {
       "href",
       `/governance/infrastructure/ask?cloudResourceId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111&seedNodeId=${encodeURIComponent(armId)}&tab=diagram`,
     );
+  });
+
+  it("shows deep-linked missing snapshot status and suppresses render strip", async () => {
+    searchParams = new URLSearchParams("snapshotId=99999999-9999-9999-9999-999999999999");
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-diagrams-snapshot-deep-link-missing")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-fallback-cards")).not.toBeInTheDocument();
   });
 });
