@@ -1,3 +1,6 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+
 export const API_KEYS_PAGE_TITLE = "API keys";
 
 export const API_KEYS_PAGE_SUBTITLE =
@@ -37,6 +40,10 @@ export const API_KEYS_RECENT_EVENTS_EMPTY = "No key events recorded in this sess
 
 export const API_KEYS_ONE_TIME_COPY_NOTICE =
   "Copy this key now. ArchLucid will not show it again.";
+
+export function apiKeysOneTimeCopyNotice(productLineId: ProductLineId = "architecture"): string {
+  return localizeProductCopy(productLineId, API_KEYS_ONE_TIME_COPY_NOTICE);
+}
 
 export const API_KEYS_ROTATE_SUCCESS_ADMIN = "Admin key rotated";
 export const API_KEYS_ROTATE_SUCCESS_READONLY = "Read-only key rotated";

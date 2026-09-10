@@ -106,6 +106,10 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
             sb.AppendLine($"- Cost Risk: {risk}");
 
+        foreach (string note in manifest.Cost.Notes)
+
+            sb.AppendLine($"- Cost Note: {note}");
+
         sb.AppendLine();
 
         sb.AppendLine("## Objective");

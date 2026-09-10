@@ -9,4 +9,7 @@ export const USERS_AND_ROLES_HELP_SKIP_LINK_LABEL = "Skip to users and roles wor
 export const USERS_AND_ROLES_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-users-and-roles-header-claim-discipline" as const;
 
+export const USERS_AND_ROLES_HELP_ORIENTATION_BOTTOM_TEST_ID =
+  "help-users-and-roles-orientation-bottom" as const;
+
 export const USERS_AND_ROLES_HELP_ACTION_PANEL_TITLE = "Manage workspace access" as const;

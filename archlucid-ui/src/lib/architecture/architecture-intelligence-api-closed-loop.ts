@@ -32,6 +32,14 @@ export async function fetchArchitectureIntelligenceProductSourceContext(
 export async function fetchArchitectureIntelligenceRunModel(
   runId: string,
 ): Promise<ArchitectureKnowledgeModel> {
+  return apiGetSealedManifestAware<ArchitectureKnowledgeModel>(
+    `/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}`,
+  );
+}
+
+export async function fetchArchitectureIntelligenceRunModel(
+  runId: string,
+): Promise<ArchitectureKnowledgeModel> {
   try {
     return await apiGet<ArchitectureKnowledgeModel>(
       `/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}`,

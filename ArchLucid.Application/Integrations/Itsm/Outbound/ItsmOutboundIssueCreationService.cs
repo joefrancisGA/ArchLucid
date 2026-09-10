@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -80,6 +81,18 @@ public sealed class ItsmOutboundIssueCreationService(
             _authorityQueryService,
             _manifestHashService,
             ct).ConfigureAwait(false);
+
+        FindingClassification? classification =
+            ItsmFindingAuthorityPayloadMapper.TryGetClassification(inspect.TypedPayload);
+
+        if (DecisionGradeFindingExportFilter.IsChecklistCoverageForExport(classification))
+        {
+            return new ItsmOutboundIssueCreationResult
+            {
+                Kind = ItsmOutboundCreateTerminalKind.NotDecisionGrade,
+                UserMessage = DecisionGradeFindingExportFilter.ChecklistCoverageItsmExportBlockedMessage,
+            };
+        }
 
         ItsmFindingCorrelationRecord? existingCorrelation = await _correlations
             .TryGetByFindingAndProviderAsync(scope.TenantId, findingId.Trim(), connector.ProviderLabel, ct)

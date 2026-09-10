@@ -133,7 +133,7 @@ export const INSIGHTS_TOPICS: readonly HelpSearchPanelTopic[] = [
 export const GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "governance-workflow",
-    title: "Governance approval workflow",
+    title: "Approval workflow",
     description: "Approve, reject, promote, or monitor reviews.",
     keywords: ["governance", "approval", "promote", "workflow", "disposition"],
     action: { kind: "route", href: "/help/governance-approval", helpSlug: "governance-approval" },
@@ -266,7 +266,7 @@ export const SITUATION_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "resolve-blocking-findings",
     title: "Resolve findings that block approval",
-    description: "Work each blocking finding, record its decision, then return to governance approval.",
+    description: "Work each blocking finding, record its decision, then return to approval.",
     keywords: ["blocked", "blocking", "approval", "findings", "disposition", "remediation"],
     action: { kind: "route", href: "/help/findings", helpSlug: "findings" },
   },

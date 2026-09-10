@@ -58,14 +58,24 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "Policy resolution, enforced rules, and diagnostic export",
   },
   {
+    "slug": "governance-infrastructure-drift",
+    "title": "Drift & snapshots",
+    "summary": "Compare inventory snapshots, review semantic drift rows, and export advisory Terraform.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-09-09",
+    "releaseApplicability": "infrastructure drift workbench orientation",
+  },
+  {
     "slug": "model-governance",
-    "title": "AI and model governance",
+    "title": "AI and model policy",
     "summary": "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",
     "audience": "operator",
     "sourcePaths": [
     ],
     "lastReviewed": "2026-08-13",
-    "releaseApplicability": "administration model governance orientation",
+    "releaseApplicability": "administration model approval orientation",
   },
   {
     "slug": "alerts",

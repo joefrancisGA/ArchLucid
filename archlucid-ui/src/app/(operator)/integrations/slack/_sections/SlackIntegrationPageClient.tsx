@@ -9,6 +9,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { DigestsTeamsSlackVocabularyRail } from "@/components/DigestsTeamsSlackVocabularyRail";
 import { SlackIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { SlackIntegrationSourcesOrientationStrip } from "./SlackIntegrationSourcesOrientationStrip";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -19,7 +20,10 @@ import {
   testWebhookSubscription,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
-import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   slackIntegrationDefaultValues,
   slackIntegrationFormSchema,
@@ -52,13 +56,24 @@ import {
   parseSlackDisableIdFromSearch,
   slackDisableRouteHrefFromSearch,
 } from "@/lib/integrations/slack-disable-route-url";
+import {
+  SLACK_INTEGRATION_BUYER_OVERVIEW,
+  SLACK_INTEGRATION_FIRST_VIEWPORT_TEST_ID,
+  SLACK_INTEGRATION_PAGE_LEAD,
+  SLACK_INTEGRATION_PRIMARY_CONTENT_ID,
+  SLACK_INTEGRATION_SKIP_LINK_LABEL,
+  SLACK_INTEGRATION_SKIP_TARGET_ID,
+} from "@/lib/slack-integration-shell-page-copy";
 
 const SLACK_CHANNEL_TYPE = "SlackWebhook";
 
 const SAVE_FAILURE_MESSAGE = "We could not save this destination. Check the fields and try again.";
 
-/** Slack alert routing — incoming webhook destinations for governance alerts in this workspace scope. */
+/** Slack alert routing — incoming webhook destinations for approval alerts in this workspace scope. */
 export function SlackIntegrationPageClient(): React.ReactElement {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
+  const showOperatorNotes = isShowSystemAdministrationNavEnabled();
   const router = useRouter();
   const pathname = usePathname() ?? INTEGRATIONS_SLACK_PATH;
   const searchParams = useSearchParams();
@@ -302,23 +317,8 @@ export function SlackIntegrationPageClient(): React.ReactElement {
     }
   });
 
-  return (
-    <OperatorPageContainer
-      variant="workflow"
-      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
-      data-testid="integrations-slack-page"
-    >
-      <SlackIntegrationPageHeader
-        activeDestinationCount={activeDestinationCount}
-        refreshing={loading}
-        refreshDisabled={loading || testingForm || testingId !== null}
-        lastCheckedAt={lastCheckedAt}
-        onRefresh={() => void load()}
-      />
-
-      <DigestsTeamsSlackVocabularyRail currentSurfaceId="slack" />
-      <SlackIntegrationEvidenceOrientationStrip />
-
+  const workspaceBody = (
+    <>
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
@@ -373,9 +373,77 @@ export function SlackIntegrationPageClient(): React.ReactElement {
             totalDestinationCount={slackRows.length}
             activeDestinationCount={activeDestinationCount}
             formTestSucceeded={formTestSucceeded}
+            showOperatorNotes={showOperatorNotes}
           />
         </div>
       </FormProvider>
+    </>
+  );
+
+  return (
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+      data-testid="integrations-slack-page"
+    >
+      {buyerPolishedShell ? (
+        <a
+          href={`#${SLACK_INTEGRATION_SKIP_TARGET_ID}`}
+          className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
+        >
+          {SLACK_INTEGRATION_SKIP_LINK_LABEL}
+        </a>
+      ) : null}
+
+      <div
+        id={buyerPolishedShell ? SLACK_INTEGRATION_PRIMARY_CONTENT_ID : undefined}
+        data-testid={buyerPolishedShell ? SLACK_INTEGRATION_PRIMARY_CONTENT_ID : undefined}
+        className={cn(buyerPolishedShell && "scroll-mt-24", buyerPolishedShell && OPERATOR_LAYOUT.sectionStack)}
+      >
+        <SlackIntegrationPageHeader
+          activeDestinationCount={activeDestinationCount}
+          refreshing={loading}
+          refreshDisabled={loading || testingForm || testingId !== null}
+          lastCheckedAt={lastCheckedAt}
+          onRefresh={() => void load()}
+        />
+
+        {!buyerPolishedShell ? (
+          <>
+            <DigestsTeamsSlackVocabularyRail currentSurfaceId="slack" />
+            <SlackIntegrationEvidenceOrientationStrip />
+          </>
+        ) : null}
+
+        {buyerPolishedShell ? (
+          <>
+            <div
+              id={SLACK_INTEGRATION_SKIP_TARGET_ID}
+              data-testid={SLACK_INTEGRATION_FIRST_VIEWPORT_TEST_ID}
+              className={cn(
+                "scroll-mt-24 border-b border-neutral-200 pb-6 dark:border-neutral-800",
+                OPERATOR_LAYOUT.sectionStack,
+              )}
+            >
+              <div className="space-y-4" data-testid="slack-integration-buyer-intro">
+                <p className={readingBodyClass} data-testid="slack-integration-intro">
+                  {SLACK_INTEGRATION_PAGE_LEAD}
+                </p>
+              </div>
+            </div>
+            <p
+              className={readingBodyClass}
+              data-testid="slack-integration-overview"
+            >
+              {SLACK_INTEGRATION_BUYER_OVERVIEW}
+            </p>
+          </>
+        ) : null}
+
+        {workspaceBody}
+
+        {buyerPolishedShell ? <SlackIntegrationSourcesOrientationStrip /> : null}
+      </div>
 
       <AlertRoutingSubscriptionDisableDialog
         target={pendingDisable}

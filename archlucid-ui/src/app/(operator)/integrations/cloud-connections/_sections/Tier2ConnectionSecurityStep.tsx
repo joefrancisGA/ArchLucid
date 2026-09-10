@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  AZURE_FEDERATION_IDENTIFIER_SOURCING_LEAD,
+  azureFederationIdentifierSourcingLead,
   AZURE_FEDERATION_IDENTIFIER_SOURCING_MID,
   AZURE_FEDERATION_IDENTIFIER_SOURCING_TAIL,
   AZURE_FEDERATION_IDENTIFIER_UNPUBLISHED_VALUE,
@@ -15,10 +16,11 @@ import {
   AZURE_FEDERATION_SETUP_SCRIPT_UNAVAILABLE_TAIL,
 } from "@/lib/azure-cloud-connection-federation-identity-source";
 import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
+import { productLineFederationIdentifiersHeading } from "@/lib/product-line/product-line-display-name";
 import { cn } from "@/lib/utils";
 
 import {
-  TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT,
+  tier2AzureSetupScriptReplaceHint,
   TIER2_WIZARD_HELP_HREFS,
 } from "./tier2-connection-wizard-content";
 import type { Tier2ConnectionWizardViewModel } from "./use-tier2-connection-wizard";
@@ -37,6 +39,11 @@ export function Tier2ConnectionSecurityStep({
   handleCopyIdentifier,
   handleCopyScript,
 }: Tier2ConnectionSecurityStepProps): React.ReactElement {
+  const { productLine } = useProductLine();
+  const federationIdentifiersHeading = productLineFederationIdentifiersHeading(productLine);
+  const setupScriptReplaceHint = tier2AzureSetupScriptReplaceHint(productLine);
+  const federationSourcingLead = azureFederationIdentifierSourcingLead(productLine);
+
   return (
     <section className="space-y-4" aria-labelledby="tier2-wizard-script-heading">
       <div>
@@ -48,7 +55,7 @@ export function Tier2ConnectionSecurityStep({
           <Link href={TIER2_WIZARD_HELP_HREFS.connectAzureSecurely} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Terraform / Bicep onboarding templates
           </Link>{" "}
-          in your tenant. {TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT} See the{" "}
+          in your tenant. {setupScriptReplaceHint} See the{" "}
           <Link href={TIER2_WIZARD_HELP_HREFS.azurePermissions} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Azure permissions guide
           </Link>{" "}
@@ -57,12 +64,12 @@ export function Tier2ConnectionSecurityStep({
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-950/80">
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>ArchLucid federation identifiers</p>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{federationIdentifiersHeading}</p>
         <p
           className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="tier2-federation-identifiers-sourcing"
         >
-          {AZURE_FEDERATION_IDENTIFIER_SOURCING_LEAD}{" "}
+          {federationSourcingLead}{" "}
           <Link href="/assurance-status" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Assurance status
           </Link>{" "}

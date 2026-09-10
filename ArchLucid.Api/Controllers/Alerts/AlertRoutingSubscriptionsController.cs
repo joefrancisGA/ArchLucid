@@ -67,7 +67,10 @@ public sealed class AlertRoutingSubscriptionsController(
 
         if (IsOutboundWebhookChannel(channelType))
         {
-            string? destinationRejection = AlertRoutingWebhookDestinationPolicy.TryGetRejectionReason(destination);
+            string? destinationRejection =
+                await AlertRoutingWebhookDestinationPolicy
+                    .TryGetRejectionReasonAfterDnsResolveAsync(destination, ct)
+                    .ConfigureAwait(false);
 
             if (destinationRejection is not null)
                 return this.BadRequestProblem(destinationRejection, ProblemTypes.ValidationFailed);

@@ -54,7 +54,7 @@ public sealed partial class PreFinalizeChecklistService
             };
         }
 
-        List<Finding> findings = await LoadFindingsAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
+        List<Finding> findings = await LoadFindingsAsync(scope, runKey.ToString("D"), run, cancellationToken).ConfigureAwait(false);
         FindingsSnapshot? findingsSnapshot =
             await LoadFindingsSnapshotAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
 

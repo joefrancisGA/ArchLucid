@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { InvitationAcceptBuyerChrome } from "@/app/(operator)/auth/invite/InvitationAcceptBuyerChrome";
 import { InvitationAcceptLoadingView } from "@/app/(operator)/auth/invite/InvitationAcceptLoadingView";
 import { InvitationAcceptPageClient } from "@/app/(operator)/auth/invite/InvitationAcceptPageClient";
-import { AuthFlowShell } from "@/components/auth/AuthFlowShell";
 import {
   AUTH_INVITE_PAGE_DESCRIPTION,
   AUTH_INVITE_PAGE_TITLE,
@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 
 function InvitationAcceptLoading() {
   return (
-    <AuthFlowShell showEvaluationSignupLink={false}>
+    <InvitationAcceptBuyerChrome>
       <InvitationAcceptLoadingView />
-    </AuthFlowShell>
+    </InvitationAcceptBuyerChrome>
   );
 }
 

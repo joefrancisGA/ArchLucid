@@ -33,7 +33,7 @@ export const BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING = "Review record summary r
 export const BUYER_MANIFEST_SUMMARY_MISSING_HEADING = "Review record summary missing.";
 
 export const BUYER_SEALED_MANIFEST_TOOLTIP =
-  "Finalized review record: hash-verified, write-locked record after governance approval — not informal draft text.";
+  "Finalized review record: hash-verified, write-locked record after approval — not informal draft text.";
 
 export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download finalized review";
 

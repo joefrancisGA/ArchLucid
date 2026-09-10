@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Models;
 
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.Governance;
@@ -76,6 +78,41 @@ public sealed class PreCommitGateEvaluatorTests
             blockCommitMinimumSeverity: (int)FindingSeverity.Critical,
             policyPackIdLabel: "pack-test",
             warnOnlySeverities: null);
+
+        result.Blocked.Should().BeFalse();
+        result.BlockingFindingIds.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Evaluate_ignores_remediated_findings_when_blocking_on_critical()
+    {
+        List<Finding> findings =
+        [
+            new Finding
+            {
+                FindingId = "f-remediated-critical",
+                FindingType = "Compliance",
+                Category = "Compliance",
+                EngineType = "Compliance",
+                Severity = FindingSeverity.Critical,
+                Title = "Remediated policy breach",
+                Rationale = "Remediated policy breach",
+                EnforcementTier = FindingEnforcementTier.PolicyViolation,
+            },
+        ];
+
+        Dictionary<string, Disposition> dispositions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["f-remediated-critical"] = Disposition.Remediated,
+        };
+
+        PreCommitGateResult result = PreCommitGateEvaluator.Evaluate(
+            findings,
+            blockCommitOnCritical: true,
+            blockCommitMinimumSeverity: (int)FindingSeverity.Critical,
+            policyPackIdLabel: "pack-test",
+            warnOnlySeverities: null,
+            dispositions);
 
         result.Blocked.Should().BeFalse();
         result.BlockingFindingIds.Should().BeEmpty();

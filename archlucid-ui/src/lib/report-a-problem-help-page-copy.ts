@@ -9,4 +9,6 @@ export const REPORT_A_PROBLEM_HELP_SKIP_LINK_LABEL = "Skip to support intake gui
 export const REPORT_A_PROBLEM_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-report-a-problem-header-claim-discipline" as const;
 
+export const REPORT_A_PROBLEM_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-report-a-problem-orientation-bottom" as const;
+
 export const REPORT_A_PROBLEM_HELP_FIRST_VIEWPORT_ACTION_TITLE = "Start here" as const;

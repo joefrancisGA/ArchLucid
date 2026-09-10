@@ -8,9 +8,11 @@ import {
 } from "@/components/usability/PageScopedContextualHelpPanel";
 import type { PageContextualHelpEntry } from "@/lib/contextual-help-registry";
 
+const routerReplace = vi.fn();
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/governance/findings",
-  useRouter: () => ({ replace: vi.fn() }),
+  useRouter: () => ({ replace: routerReplace }),
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -57,6 +59,26 @@ function pressTrigger(): HTMLElement {
 }
 
 describe("PageScopedContextualHelpPanel", () => {
+  it("syncs open state to the URL after the drawer toggles", async () => {
+    routerReplace.mockClear();
+
+    render(
+      <PageScopedContextualHelpPanel
+        entry={MINIMAL_ENTRY}
+        triggerLabel="Reviews"
+        learnMoreHref={null}
+      />,
+    );
+
+    pressTrigger();
+
+    await screen.findByTestId("page-scoped-contextual-help-panel");
+
+    await waitFor(() => {
+      expect(routerReplace).toHaveBeenCalledWith("/governance/findings?pageHelpOpen=1", { scroll: false });
+    });
+  });
+
   it("renders available fields, task steps, and the full-help link in a right drawer", async () => {
     render(
       <PageScopedContextualHelpPanel

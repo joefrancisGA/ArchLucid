@@ -1,3 +1,4 @@
+import { EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK } from "@/lib/evidence-graph-operator-source-link";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
@@ -11,7 +12,7 @@ export const SPONSOR_SUMMARY_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to the sponsor report path. */
 export const SPONSOR_SUMMARY_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Evidence trail", href: "/insights/evidence-graph" },
+  EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK,
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "ROI methodology help", href: inAppHelpHref("sponsor-report") },
   { label: "Assurance status", href: "/assurance-status" },

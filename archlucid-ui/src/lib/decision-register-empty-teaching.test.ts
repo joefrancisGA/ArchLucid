@@ -39,4 +39,19 @@ describe("decision-register-empty-teaching (TB-2263)", () => {
     expect(model.actions[2]?.href).toBe(REVIEWS_LIST_PATH);
     expect(model.actions[2]?.href).toBe("/architecture/reviews");
   });
+
+  it("SY-34: Working empty CTA points at architectures portfolio or last-open desk", () => {
+    expect(
+      buildDecisionRegisterEmptyTeaching({ workingMode: true }).actions[2]?.href,
+    ).toBe("/architecture/architectures");
+    expect(
+      buildDecisionRegisterEmptyTeaching({
+        workingMode: true,
+        lastOpenArchitectureId: "architecture-identity-001",
+      }).actions[1]?.href,
+    ).toBe("/architecture/architectures/architecture-identity-001");
+    expect(
+      buildDecisionRegisterEmptyTeaching({ workingMode: true }).actions[1]?.href,
+    ).toBe("/architecture/architectures/new");
+  });
 });

@@ -57,7 +57,7 @@ public sealed class ArchitectureKnowledgeModelGraphProjector : IArchitectureKnow
         warnings.Add(
             "Graph projected from ArchitectureKnowledgeModel (κ→Γ morphism); not a sealed intake rebuild.");
 
-        HashSet<string> nodeIds = new(StringComparer.Ordinal);
+        Dictionary<string, string> canonicalNodeIdsByKey = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (ArchitectureModelElement element in model.Elements)
         {
@@ -66,8 +66,10 @@ public sealed class ArchitectureKnowledgeModelGraphProjector : IArchitectureKnow
 
             string nodeId = ToGraphNodeId(element.ElementId);
 
-            if (!nodeIds.Add(nodeId))
+            if (canonicalNodeIdsByKey.ContainsKey(nodeId))
                 continue;
+
+            canonicalNodeIdsByKey[nodeId] = nodeId;
 
             nodes.Add(new GraphNode
             {
@@ -89,21 +91,21 @@ public sealed class ArchitectureKnowledgeModelGraphProjector : IArchitectureKnow
 
             string fromNodeId = ToGraphNodeId(element.ElementId);
 
-            if (!nodeIds.Contains(fromNodeId))
+            if (!canonicalNodeIdsByKey.TryGetValue(fromNodeId, out string? resolvedFromNodeId))
                 continue;
 
             foreach (string relatedId in element.RelatedElementIds)
             {
                 string toNodeId = ToGraphNodeId(relatedId);
 
-                if (!nodeIds.Contains(toNodeId))
+                if (!canonicalNodeIdsByKey.TryGetValue(toNodeId, out string? resolvedToNodeId))
                     continue;
 
                 edges.Add(new GraphEdge
                 {
-                    EdgeId = $"{fromNodeId}->{toNodeId}:RELATES",
-                    FromNodeId = fromNodeId,
-                    ToNodeId = toNodeId,
+                    EdgeId = $"{resolvedFromNodeId}->{resolvedToNodeId}:RELATES",
+                    FromNodeId = resolvedFromNodeId,
+                    ToNodeId = resolvedToNodeId,
                     EdgeType = MapEdgeType(element.Kind),
                     Label = element.Kind.ToString(),
                     Weight = element.ExtractionConfidence > 0 ? element.ExtractionConfidence : 1d,

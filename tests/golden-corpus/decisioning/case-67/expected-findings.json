@@ -1,0 +1,141 @@
+[
+  {
+    "findingId": "545a8407-2621-b4fe-6e13-6c424158a7d7",
+    "findingType": "ComplianceFinding",
+    "category": "Compliance",
+    "severity": "Warning",
+    "title": "Compliance gap: Storage resources must be covered by policy controls",
+    "rationale": "Every storage resource should be covered by at least one policy control.",
+    "relatedNodeIds": [
+      "obj-20e802c9f328be36e29db119fe242dc8"
+    ],
+    "payloadType": "ComplianceFindingPayload",
+    "rulesApplied": [
+      "storage-must-have-policy-applicability"
+    ],
+    "decisionsTaken": [
+      "Detected uncovered resources against compliance rule requirements."
+    ]
+  },
+  {
+    "findingId": "19077b6b-8b12-9002-d078-0ceb2c4f22e5",
+    "findingType": "IdentityBlastRadiusFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Machine actor \u0027pay_runner\u0027 has roles/secretmanager.admin access to regulated datastore \u0027pay_secret\u0027",
+    "rationale": "A machine identity can reach datastore \u0027pay_secret\u0027 through role \u0027roles/secretmanager.admin\u0027 within 2 graph hop(s).",
+    "relatedNodeIds": [
+      "declaration-actor-10000000000040008000000000000067-1",
+      "obj-20e802c9f328be36e29db119fe242dc8",
+      "obj-655b04ee3ad8bb6a0f02e512a10f5360"
+    ],
+    "payloadType": "IdentityBlastRadiusFindingPayload",
+    "rulesApplied": [
+      "identity-blast-radius",
+      "roles/secretmanager.admin"
+    ],
+    "decisionsTaken": [
+      "Machine actor path to regulated datastore through allow-listed write/admin role."
+    ]
+  },
+  {
+    "findingId": "b28df42f-dfe5-d49d-b221-1107170a161a",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "obj-20e802c9f328be36e29db119fe242dc8",
+      "obj-655b04ee3ad8bb6a0f02e512a10f5360",
+      "obj-71f91e7e1fb43e61757c1658b0135da2"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "6b75a8d2-0c99-d494-b4d5-ba4284dee25c",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "obj-20e802c9f328be36e29db119fe242dc8",
+      "obj-655b04ee3ad8bb6a0f02e512a10f5360",
+      "obj-71f91e7e1fb43e61757c1658b0135da2"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "2b544d69-3c60-5014-92d2-792d9de80604",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "obj-20e802c9f328be36e29db119fe242dc8",
+      "obj-655b04ee3ad8bb6a0f02e512a10f5360",
+      "obj-71f91e7e1fb43e61757c1658b0135da2"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "40c4ae30-5bb5-cfb7-3dd0-83c502e06ed9",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "pay_runner",
+      "pay_secret",
+      "runner_admin"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "95f1fc0c-6e17-fd45-5ef1-261461761864",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "obj-20e802c9f328be36e29db119fe242dc8",
+      "obj-655b04ee3ad8bb6a0f02e512a10f5360",
+      "obj-71f91e7e1fb43e61757c1658b0135da2"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

@@ -24,6 +24,8 @@ public sealed class SecurityBaselineCompletenessFindingEngine(IGraphCoverageAnal
 
         List<string> scopeNodeIds = WorkloadExpectationFindingGraphScope.CollectScopeNodeIds(graphSnapshot);
 
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, scopeNodeIds);
+
         Finding finding = new()
         {
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -56,6 +58,7 @@ public sealed class SecurityBaselineCompletenessFindingEngine(IGraphCoverageAnal
                 "Add or extend security baseline controls with PROTECTS edges for each missing control family."
             ],
             RelatedNodeIds = scopeNodeIds,
+            EvidenceRefs = evidenceRefs,
             Trace = new ExplainabilityTrace
             {
                 GraphNodeIdsExamined = scopeNodeIds,

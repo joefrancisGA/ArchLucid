@@ -78,6 +78,16 @@ describe("useShortcutNavigation", () => {
     expect(routerPush).toHaveBeenCalledWith("/insights/compare-two-reviews");
   });
 
+  it("prefills Compare base review when Alt+C is pressed on review-detail in Guided mode", () => {
+    mockPathname.mockReturnValue("/architecture/reviews/run-abc");
+
+    renderHook(() => useShortcutNavigation());
+
+    fireEvent.keyDown(window, { key: "c", altKey: true });
+
+    expect(routerPush).toHaveBeenCalledWith("/insights/compare-two-reviews?priorRunId=run-abc");
+  });
+
   it("prefills Compare base review when Alt+C is pressed on review-detail in Working mode", () => {
     mockPathname.mockReturnValue("/architecture/reviews/run-abc");
     mockWorkspaceMode.mockReturnValue({

@@ -11,12 +11,14 @@ import {
   pathIsArchitectureDraftDetail,
 } from "@/lib/architectures-draft-evidence-copy";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
+import { CLOUD_CONNECTIONS_CANONICAL_PATH } from "@/lib/cloud-connections-evidence-copy";
 import { ADMINISTRATION_CONTEXTUAL_HELP_ROWS, SETTINGS_HUB_CONTEXTUAL_HELP } from "@/lib/contextual-help/administration-rows";
 import { API_KEYS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/api-keys-rows";
 import { AZURE_BOARDS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/azure-boards-integration-rows";
 import { BASELINE_SETTINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/baseline-settings-rows";
 import { CLOUD_CONNECTIONS_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/cloud-connections-integration-rows";
 import { ARCHITECTURE_CONTEXTUAL_HELP_ROWS, resolveArchitectureContextualHelpEntry } from "@/lib/contextual-help/architecture-rows";
+import { resolveWorkingContextualHelpEntry } from "@/lib/contextual-help/resolve-working-contextual-help-entry";
 import { ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/architecture-drafts-rows";
 import { APPROVAL_LINEAGE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-lineage-rows";
 import { APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/approval-queue-rows";
@@ -29,6 +31,7 @@ import { MODEL_GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/mod
 import { SERVICENOW_INTEGRATION_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/servicenow-integration-rows";
 import { SPONSOR_DASHBOARD_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/sponsor-dashboard-rows";
 import { FINDINGS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/findings-rows";
+import { GOVERNANCE_INFRASTRUCTURE_DRIFT_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-infrastructure-drift-rows";
 import { GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-approval-rows";
 import { GOVERNANCE_AUDIT_POLICY_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-audit-policy-rows";
 import { GOVERNANCE_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/governance-rows";
@@ -60,11 +63,14 @@ import { INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-hel
 import { INTEGRATIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/integrations-rows";
 import { INTERNAL_OPS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/internal-ops-rows";
 import { MARKETING_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/marketing-rows";
+import { localizePageContextualHelpEntry } from "@/lib/contextual-help/localize-page-contextual-help-entry";
+import type { PageContextualHelpEntry, PageContextualHelpRow } from "@/lib/contextual-help/types";
+import { HELP_TOPIC_MIRROR_TASK_STEPS } from "@/lib/contextual-help/types";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
-  HELP_TOPIC_MIRROR_TASK_STEPS,
-  type PageContextualHelpEntry,
-  type PageContextualHelpRow,
-} from "@/lib/contextual-help/types";
+  cloudConnectionsHubContextualLeadForProductLine,
+  isCloudConnectionPathExcludedForProductLine,
+} from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   EVIDENCE_TRACE_CONTEXTUAL_HELP,
   pathIsFindingEvidenceTrace,
@@ -116,6 +122,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...FINDINGS_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_AUDIT_POLICY_CONTEXTUAL_HELP_ROWS,
+  ...GOVERNANCE_INFRASTRUCTURE_DRIFT_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS,
   ...GOVERNANCE_SETUP_CONTEXTUAL_HELP_ROWS,
   ...ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS,
@@ -184,14 +191,20 @@ function normalizePathname(pathname: string): string {
 /** Resolve short-form contextual help for an architect pathname, or `null` when not migrated yet. */
 export function contextualHelpForPathname(
   pathname: string,
-  options?: { readonly workingMode?: boolean },
+  options?: { readonly workingMode?: boolean; readonly productLineId?: ProductLineId },
 ): PageContextualHelpEntry | null {
   const path = normalizePathname(pathname);
   const workingMode = options?.workingMode === true;
+  const productLineId = options?.productLineId ?? "architecture";
+
+  if (isCloudConnectionPathExcludedForProductLine(path, productLineId)) {
+    return null;
+  }
+
   const parameterized = PARAMETERIZED_ROUTE_MATCHERS.find((matcher) => matcher.matches(path));
 
   if (parameterized !== undefined) {
-    return parameterized.entry;
+    return localizePageContextualHelpEntry(parameterized.entry, productLineId);
   }
 
   const row = PAGE_CONTEXTUAL_HELP_BY_SPECIFICITY.find(
@@ -204,9 +217,35 @@ export function contextualHelpForPathname(
 
   const architectureOverride = resolveArchitectureContextualHelpEntry(row.prefix, workingMode);
 
-  if (architectureOverride !== null && ARCHITECTURE_CONTEXTUAL_HELP_ROWS.some((r) => r.prefix === row.prefix)) {
-    return architectureOverride;
+  if (architectureOverride !== null) {
+    if (workingMode) {
+      return localizePageContextualHelpEntry(
+        resolveWorkingContextualHelpEntry(row.prefix, architectureOverride),
+        productLineId,
+      );
+    }
+
+    return localizePageContextualHelpEntry(architectureOverride, productLineId);
   }
 
-  return row.entry;
+  if (workingMode) {
+    return localizePageContextualHelpEntry(
+      resolveWorkingContextualHelpEntry(row.prefix, row.entry),
+      productLineId,
+    );
+  }
+
+  if (path === CLOUD_CONNECTIONS_CANONICAL_PATH || path.startsWith(`${CLOUD_CONNECTIONS_CANONICAL_PATH}/`)) {
+    if (path === CLOUD_CONNECTIONS_CANONICAL_PATH) {
+      return localizePageContextualHelpEntry(
+        {
+          ...row.entry,
+          whatIsThisPage: cloudConnectionsHubContextualLeadForProductLine(productLineId),
+        },
+        productLineId,
+      );
+    }
+  }
+
+  return localizePageContextualHelpEntry(row.entry, productLineId);
 }

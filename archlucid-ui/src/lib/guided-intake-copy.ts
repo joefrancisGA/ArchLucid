@@ -137,6 +137,10 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_IN_PROGRESS_HINT =
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_VIEW_IN_PROGRESS_BUTTON = "View in-progress list";
 
+/** DR-14 / DR-06 — honest recovery when GET /v1/operations/{id} returns not found. */
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_OPERATION_MISSING =
+  "This structured-brief suggestion is no longer tracked on the server (it may have expired after a restart). Retry Suggest from overview to run it again.";
+
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT =
   "This draft is locked while a linked review is open. Continue in the linked review for findings and exports, or start a new draft from this snapshot if you need a separate brief.";
 

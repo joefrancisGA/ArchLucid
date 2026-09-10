@@ -5,6 +5,7 @@ import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-
 import type { FindingJobView } from "@/lib/findings/finding-inspect-job-view";
 import type { FindingDetailPageModel } from "./finding-detail-page-model";
 import type { deriveFindingDecisionSummary } from "./finding-detail-route-display";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 /** Derived presentation values for finding detail layout sections. */
 export type FindingDetailPresentation = {
@@ -40,4 +41,5 @@ export type FindingDetailPresentation = {
   readonly sponsorPlainEnglishInput: ComponentProps<typeof SponsorPlainEnglishFindingPanel>["input"];
   readonly showBuyerPolishedBody: boolean;
   readonly buyerHeroSubtitle: string;
+  readonly transparencyTrail: TransparencyTrail | null;
 };

@@ -4,7 +4,7 @@
 
 **Audience:** Founder / principal architect deciding whether to fund full framework rule coverage in the merged file catalog.
 
-**Status:** Option **B** pilot slice **shipped** (2026-08-28) — twelve previously unbacked declaration-mapped ids added to `ga-starter-compliance.rules.json` (`soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021`). Full Option A (~144 rules) remains deferred.
+**Status:** Option **B** pilot slice **shipped** (2026-08-28) — twelve previously unbacked declaration-mapped ids added to `ga-starter-compliance.rules.json` (`soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021`). **QR-12 (2026-09-09)** extended the HIPAA clinical boundary slice (`hipaa-011`..`hipaa-025`) and wired `hipaa-architecture.json` keys so the pack emits declaration themes at **P1**. **QR-20 (2026-09-09, `#2689`)** extended ISO 27001 P1 (`iso27001-010`..`iso27001-025`). **QR-31 (2026-09-10)** extended PCI DSS P1 (`pci-007`, `pci-009`). Full Option A (~144 rules) remains deferred; Zero Trust mapped stubs remain open.
 
 ## Problem statement
 
@@ -17,7 +17,7 @@
 - **18 of 28** declared keys in **18** bundled packs resolve to **nothing** at any floor.
 - Mapped ids such as `soc2-018`, `cis-az-012/018/019/025/027`, `hipaa-017/022/024`, `iso27001-025`, `aks-015/021` can **never fire** until catalog rows exist with real `appliesToCategory` / `requiredNodeType` / `requiredEdgeType`.
 
-HIPAA, ISO 27001, and Zero Trust stay declaration-silent at **any** floor until this gap closes or packs stop advertising those keys.
+HIPAA, ISO 27001, and PCI DSS P1 slices ship (QR-12 / QR-20 / QR-31). Zero Trust mapped ids remain declaration-silent at **P1** until those catalog rows exist or packs stop advertising those keys.
 
 ## What PP-01 already fixed (do not re-do)
 
@@ -86,4 +86,7 @@ HIPAA, ISO 27001, and Zero Trust stay declaration-silent at **any** floor until 
 
 - [`policy-filter-golden-delta.md`](policy-filter-golden-delta.md) § Bundled-pack declaration coverage (PP-01)
 - [`WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md`](../architecture/WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md) PP-01 follow-up
+- [`V9_QUALITY_ROI_COMPOSER_PROMPTS.md`](../architecture/V9_QUALITY_ROI_COMPOSER_PROMPTS.md) **QR-12** — HIPAA Option B slice (shipped)
+- [`V10_QUALITY_ROI_COMPOSER_PROMPTS.md`](../architecture/V10_QUALITY_ROI_COMPOSER_PROMPTS.md) **QR-20** — ISO 27001 P1 Option B slice (on `#2689`)
+- [`V11_QUALITY_ROI_COMPOSER_PROMPTS.md`](../architecture/V11_QUALITY_ROI_COMPOSER_PROMPTS.md) **QR-31** — PCI DSS P1 Option B slice
 - [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](../go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md) — `-DeclarationPriorityFloor P1` for SOC 2 vs CIS Azure

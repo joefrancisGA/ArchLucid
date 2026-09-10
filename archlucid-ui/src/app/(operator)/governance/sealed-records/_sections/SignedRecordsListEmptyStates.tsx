@@ -2,6 +2,7 @@
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { Button } from "@/components/ui/button";
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
@@ -10,12 +11,13 @@ import {
   SIGNED_RECORDS_LIST_EMPTY_BODY,
   SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL,
   SIGNED_RECORDS_LIST_EMPTY_SAMPLE_CTA,
-  SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF,
   SIGNED_RECORDS_LIST_EMPTY_SECONDARY_LABEL,
   SIGNED_RECORDS_LIST_EMPTY_TITLE,
   SIGNED_RECORDS_LIST_FILTER_CLEAR_ACTION,
   SIGNED_RECORDS_LIST_FILTER_NO_MATCH_BODY,
   SIGNED_RECORDS_LIST_FILTER_NO_MATCH_TITLE,
+  resolveSignedRecordsListEmptyPrimaryHref,
+  resolveSignedRecordsListEmptySecondaryHref,
 } from "./signed-records-list-copy";
 
 export type SignedRecordsListEmptyStatesProps = {
@@ -33,6 +35,8 @@ export function SignedRecordsListEmptyStates({
   showcaseSampleAvailable,
   onClearFilters,
 }: SignedRecordsListEmptyStatesProps) {
+  const { isWorkingMode } = useWorkspaceMode();
+
   if (showEmptyState) {
     if (workspaceScopeTeaching !== null) {
       return (
@@ -49,10 +53,14 @@ export function SignedRecordsListEmptyStates({
         title={SIGNED_RECORDS_LIST_EMPTY_TITLE}
         description={SIGNED_RECORDS_LIST_EMPTY_BODY}
         actions={[
-          { label: SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL, href: "/architecture/reviews/new", variant: "primary" },
+          {
+            label: SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL,
+            href: resolveSignedRecordsListEmptyPrimaryHref(isWorkingMode),
+            variant: "primary",
+          },
           {
             label: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_LABEL,
-            href: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF,
+            href: resolveSignedRecordsListEmptySecondaryHref(isWorkingMode),
             variant: "outline",
           },
           ...(showcaseSampleAvailable

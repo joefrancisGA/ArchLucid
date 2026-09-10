@@ -1,5 +1,6 @@
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
@@ -122,6 +123,14 @@ public sealed class CommitOutputIntegrityService(
             throw new ConflictException(
                 "Commit blocked: agent output quality gate rejected one or more traces. "
                 + string.Join(" ", qualityReasons));
+        }
+
+        IReadOnlyList<string> unsupportedSemanticSupportReasons =
+            UnsupportedSemanticSupportFinalizeHoldEvaluator.GetBlockingReasons(run, gateOptions, findings.Findings);
+
+        if (unsupportedSemanticSupportReasons.Count > 0)
+        {
+            throw new ConflictException(string.Join(" ", unsupportedSemanticSupportReasons));
         }
 
         IReadOnlyList<string> provenanceViolations = DecisionGradeFindingProvenanceValidator.GetViolations(findings);

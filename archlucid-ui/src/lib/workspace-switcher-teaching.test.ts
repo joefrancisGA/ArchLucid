@@ -9,6 +9,7 @@ import {
   buildWorkspaceSwitcherTeaching,
   dismissWorkspaceSwitcherTeaching,
   isWorkspaceSwitcherTeachingDismissed,
+  workspaceSwitcherTeachingLead,
 } from "@/lib/workspace-switcher-teaching";
 
 describe("workspace-switcher-teaching (TB-2234)", () => {
@@ -32,6 +33,14 @@ describe("workspace-switcher-teaching (TB-2234)", () => {
     expect(model.steps[0]?.body.toLowerCase()).toContain("organization");
     expect(model.steps[1]?.body.toLowerCase()).toContain("architecture package");
     expect(model.steps[2]?.body.toLowerCase()).toContain("review");
+  });
+
+  it("names SecureNow in the Security shell lead copy", () => {
+    expect(workspaceSwitcherTeachingLead("security")).toBe(
+      "SecureNow organizes work as tenant → workspace → project. This switcher sets which workspace and project you are viewing.",
+    );
+    expect(buildWorkspaceSwitcherTeaching("security").lead).toContain("SecureNow");
+    expect(buildWorkspaceSwitcherTeaching("security").lead).not.toContain("ArchLucid");
   });
 
   it("reads and writes the localStorage dismiss key", () => {

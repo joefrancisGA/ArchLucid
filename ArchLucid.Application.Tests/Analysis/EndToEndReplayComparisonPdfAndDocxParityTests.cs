@@ -1,5 +1,6 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Findings;
 
 using DocumentFormat.OpenXml.Packaging;
 
@@ -214,6 +215,37 @@ public sealed class EndToEndReplayComparisonPdfAndDocxParityTests
         string text = ExtractPdfText(pdf);
 
         text.Should().Contain("policy-pack:encrypt-at-rest");
+    }
+
+    [SkippableFact]
+    public async Task GeneratePdf_includes_finding_correlation_metadata_header()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            FindingCorrelation = new ComparisonFindingCorrelationMetadata
+            {
+                PrimaryCorrelationMethod = nameof(FindingCorrelationMethod.PolicyRuleAndFingerprint),
+                PolicyRuleMatchCount = 2,
+                HonestyNote = "Fuzzy matches are possible, not proven equivalence.",
+            },
+        };
+
+        byte[] pdf = await sut.GeneratePdfAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
+        string text = ExtractPdfText(pdf);
+
+        // PdfPig ligature stripping can drop "ti" from "correlation" on Helvetica exports.
+        text.Should().Contain("Finding correla");
+        text.Should().Contain("method:");
+        text.Should().Contain(nameof(FindingCorrelationMethod.PolicyRuleAndFingerprint));
+        text.Should().Contain("Fuzzy matches are possible");
     }
 
     private static string ExtractDocxBodyText(byte[] docxBytes)

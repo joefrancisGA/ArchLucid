@@ -19,7 +19,6 @@ public sealed class SupportProblemReportNotifier(
 {
     private const string EventType = "support-problem-report";
     private const string SubmitterAckEventType = "support-problem-report-ack";
-    private const string DefaultProductName = "ArchLucid";
 
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
@@ -126,9 +125,7 @@ public sealed class SupportProblemReportNotifier(
         }
 
         EmailNotificationOptions opts = _emailOptionsMonitor.CurrentValue;
-        string productName = string.IsNullOrWhiteSpace(opts.ProductDisplayName)
-            ? DefaultProductName
-            : opts.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(opts);
         string referenceId = report.Id.ToString("D");
         string acknowledgement = SupportProblemReportCopy.FormatAcknowledgement(referenceId);
         string settingsUrl = BuildSettingsSupportUrl(opts.OperatorBaseUrl);

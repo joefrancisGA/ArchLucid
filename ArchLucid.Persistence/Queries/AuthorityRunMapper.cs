@@ -36,6 +36,7 @@ internal static class AuthorityRunMapper
             PackageOrigin = run.PackageOrigin,
             StructuralExecutionMode = run.StructuralExecutionMode,
             AuthorityLifecyclePhase = AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(run),
+            LegacyRunStatus = run.LegacyRunStatus,
         };
     }
 

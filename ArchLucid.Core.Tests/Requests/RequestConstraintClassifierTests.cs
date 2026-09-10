@@ -75,6 +75,82 @@ public sealed class RequestConstraintClassifierTests
     }
 
     [Fact]
+    public void HasEncryptionConstraint_returns_true_when_trailing_clause_negates_unrelated_requirement()
+    {
+        ArchitectureRequest request = CreateRequest(
+            constraints: ["encryption for tenants that do not require isolation"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_returns_true_when_encryption_leads_subordinate_clause_without_customer_keys()
+    {
+        ArchitectureRequest request = CreateRequest(
+            constraints: ["encryption that does not require customer-managed keys"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_encryption_that_is_not_required_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["encryption that is not required for dev"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_returns_true_when_comma_contrast_negates_later_scope_only()
+    {
+        ArchitectureRequest request = CreateRequest(
+            constraints: ["encryption at rest required, not encryption in transit only"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_returns_true_when_leading_exclusion_clause_precedes_affirmative_encryption()
+    {
+        ArchitectureRequest request = CreateRequest(
+            constraints: ["no managed identity, encryption at rest required"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_openai_token()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["email-openai-gateway integration only"]);
+
+        RequestConstraintClassifier.RequiresAiCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_hyphenated_product_name_embedding_encryption_token()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["field-encryption-module integration only"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresSearchCapability_does_not_false_positive_on_hyphenated_product_name_embedding_search_token()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["enterprise-search-gateway integration only"]);
+
+        RequestConstraintClassifier.RequiresSearchCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RequiresAiCapability_does_not_false_positive_on_hyphenated_product_name_embedding_ai_token()
+    {
+        ArchitectureRequest request = CreateRequest(capabilities: ["email-ai-gateway integration only"]);
+
+        RequestConstraintClassifier.RequiresAiCapability(request).Should().BeFalse();
+    }
+
+    [Fact]
     public void RequiresSearchCapability_returns_true_when_search_is_required()
     {
         ArchitectureRequest request = CreateRequest(capabilities: ["Hybrid search"]);
@@ -374,6 +450,22 @@ public sealed class RequestConstraintClassifierTests
     public void HasEncryptionConstraint_does_not_false_positive_on_should_not_require_encryption_phrasing()
     {
         ArchitectureRequest request = CreateRequest(constraints: ["workloads should not require encryption at rest"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_should_not_require_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["encryption should not require customer-managed keys"]);
+
+        RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_must_not_be_required_phrasing()
+    {
+        ArchitectureRequest request = CreateRequest(constraints: ["encryption must not be required for legacy blobs"]);
 
         RequestConstraintClassifier.HasEncryptionConstraint(request).Should().BeFalse();
     }

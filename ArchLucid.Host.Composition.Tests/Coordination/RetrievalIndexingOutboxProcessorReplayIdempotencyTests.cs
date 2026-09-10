@@ -3,7 +3,9 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Retrieval;
@@ -77,6 +79,10 @@ public sealed class RetrievalIndexingOutboxProcessorReplayIdempotencyTests
         query
             .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
+            query,
+            runId,
+            detail.GoldenManifest!);
 
         Mock<IArtifactQueryService> artifactQuery = new();
         artifactQuery
@@ -109,6 +115,7 @@ public sealed class RetrievalIndexingOutboxProcessorReplayIdempotencyTests
         services.AddScoped(_ => artifactQuery.Object);
         services.AddScoped(_ => indexer.Object);
         services.AddScoped(_ => provenanceBuilder.Object);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services, detail.GoldenManifest!.ManifestHash!);
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory factory = provider.GetRequiredService<IServiceScopeFactory>();
 

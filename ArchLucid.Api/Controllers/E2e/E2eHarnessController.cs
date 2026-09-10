@@ -4,6 +4,7 @@ using System.Text;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Models.E2e;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Admin;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
@@ -38,6 +39,7 @@ public sealed class E2EHarnessController(
     ITenantRepository tenantRepository,
     BillingWebhookTrialActivator billingWebhookTrialActivator,
     IPlatformUserRepository platformUserRepository,
+    IUserInvitationRepository userInvitationRepository,
     ILocalTrialJwtIssuer jwtIssuer) : ControllerBase
 {
     private readonly BillingWebhookTrialActivator _billingWebhookTrialActivator =
@@ -54,6 +56,9 @@ public sealed class E2EHarnessController(
 
     private readonly IPlatformUserRepository _platformUserRepository =
         platformUserRepository ?? throw new ArgumentNullException(nameof(platformUserRepository));
+
+    private readonly IUserInvitationRepository _userInvitationRepository =
+        userInvitationRepository ?? throw new ArgumentNullException(nameof(userInvitationRepository));
 
     private readonly ILocalTrialJwtIssuer _jwtIssuer =
         jwtIssuer ?? throw new ArgumentNullException(nameof(jwtIssuer));
@@ -123,6 +128,37 @@ public sealed class E2EHarnessController(
             1,
             rawJson,
             cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>
+    ///     Forces an invitation expiry for private-beta invite-recovery Playwright (TB-797 wave 2).
+    /// </summary>
+    [HttpPost("invitations/set-expires")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> SetInvitationExpiresAsync(
+        [FromBody] E2eHarnessInvitationExpiresPostRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (!IsHarnessAuthorized())
+        {
+            return this.NotFoundProblem(
+                "E2E harness is not available or the request is not authorized.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (body is null || body.InvitationId == Guid.Empty)
+        {
+            return this.NotFoundProblem(
+                "Invalid or missing request body for E2E harness endpoint.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        await _userInvitationRepository.E2eHarnessSetExpiresUtcAsync(
+            body.InvitationId,
+            body.ExpiresUtc,
+            cancellationToken).ConfigureAwait(false);
 
         return NoContent();
     }

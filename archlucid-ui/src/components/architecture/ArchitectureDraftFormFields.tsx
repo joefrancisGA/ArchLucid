@@ -15,6 +15,11 @@ import type { ArchitectureDraftFieldState } from "@/lib/architecture/architectur
 import { ArchitectureDraftStructuredBriefFields } from "@/components/architecture/ArchitectureDraftStructuredBriefFields";
 import { ARCHITECTURE_DRAFT_ALTERNATIVES_HINT } from "@/lib/create-vs-review-intake-copy";
 import {
+  ARCHITECTURE_OPEN_QUESTIONS_HELPER,
+  ARCHITECTURE_OPEN_QUESTIONS_LABEL,
+  ARCHITECTURE_OPEN_QUESTIONS_PLACEHOLDER,
+} from "@/lib/architecture/architecture-open-questions-copy";
+import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
   GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
@@ -198,6 +203,28 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
           }));
         }}
       />
+
+      <div className="space-y-2" data-testid="architecture-draft-open-questions">
+        <IntakeFieldLabel
+          htmlFor="architecture-draft-open-questions"
+          label={ARCHITECTURE_OPEN_QUESTIONS_LABEL}
+          required={false}
+        />
+        <Textarea
+          id="architecture-draft-open-questions"
+          value={props.fields.openQuestions}
+          onChange={(event) => {
+            props.onFieldsChange((fields) => ({ ...fields, openQuestions: event.target.value }));
+          }}
+          rows={4}
+          disabled={props.disabled === true}
+          placeholder={ARCHITECTURE_OPEN_QUESTIONS_PLACEHOLDER}
+          data-testid="architecture-draft-open-questions-input"
+        />
+        <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+          {ARCHITECTURE_OPEN_QUESTIONS_HELPER}
+        </p>
+      </div>
     </div>
   );
 }

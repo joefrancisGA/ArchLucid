@@ -340,11 +340,7 @@ export function HelpAuditTrailGuideView(props: HelpAuditTrailGuideViewProps): Re
           <HelpTopicTableOfContents headings={tocHeadings} enableScrollSpy={!buyerPolishedShell} />
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-audit-trail-orientation-bottom">
-            <HelpAuditTrailSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpAuditTrailSourcesOrientationStrip /> : null}
 
         <section className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
           <HelpAuditTrailTechnicalReference />
