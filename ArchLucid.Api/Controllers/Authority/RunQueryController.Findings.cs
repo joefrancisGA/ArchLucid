@@ -32,29 +32,36 @@ public sealed partial class RunQueryController
         [FromQuery] Guid? cursorFindingRecordId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        RunFindingsListQueryResult result = await runFindingsQueryService.ListRunFindingsAsync(
-            runId,
-            orderBy,
-            take,
-            cursorSortOrder,
-            cursorPriorityRank,
-            cursorFindingRecordId,
-            cancellationToken);
+            RunFindingsListQueryResult result = await runFindingsQueryService.ListRunFindingsAsync(
+                runId,
+                orderBy,
+                take,
+                cursorSortOrder,
+                cursorPriorityRank,
+                cursorFindingRecordId,
+                cancellationToken);
 
-        if (result.Outcome == RunFindingsQueryOutcome.BadRequest)
-            return this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed);
+            if (result.Outcome == RunFindingsQueryOutcome.BadRequest)
+                return this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed);
 
-        if (result.Outcome != RunFindingsQueryOutcome.Success)
-            return this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
+            if (result.Outcome != RunFindingsQueryOutcome.Success)
+                return this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
 
-        IActionResult? findingsNotModified = this.TryConditionalNotModified(result.Etag!);
+            IActionResult? findingsNotModified = this.TryConditionalNotModified(result.Etag!);
 
-        return findingsNotModified ?? this.OkWithConditionalEtag(result.Response!, result.Etag!);
+            return findingsNotModified ?? this.OkWithConditionalEtag(result.Response!, result.Etag!);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -71,22 +78,29 @@ public sealed partial class RunQueryController
         [FromServices] IAuditService auditService,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        RunFindingsCsvExportQueryResult result =
-            await runFindingsQueryService.ExportRunFindingsCsvAsync(runId, cancellationToken);
-
-        return result.Outcome switch
+        try
         {
-            RunFindingsQueryOutcome.ManifestNotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound),
-            RunFindingsQueryOutcome.NotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound),
-            RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
-                new ConflictException(result.ProblemDetail!)),
-            _ => await ExportFindingsCsvSuccessAsync(result, auditService, cancellationToken)
-        };
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            RunFindingsCsvExportQueryResult result =
+                await runFindingsQueryService.ExportRunFindingsCsvAsync(runId, cancellationToken);
+
+            return result.Outcome switch
+            {
+                RunFindingsQueryOutcome.ManifestNotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound),
+                RunFindingsQueryOutcome.NotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound),
+                RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
+                    new ConflictException(result.ProblemDetail!)),
+                _ => await ExportFindingsCsvSuccessAsync(result, auditService, cancellationToken)
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -101,22 +115,29 @@ public sealed partial class RunQueryController
         [FromRoute] string findingId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        FindingEvidenceChainQueryResult result =
-            await runFindingsQueryService.GetFindingEvidenceChainAsync(runId, findingId, cancellationToken);
-
-        return result.Outcome switch
+        try
         {
-            RunFindingsQueryOutcome.Success => Ok(result.Chain),
-            RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
-                new ConflictException(result.ProblemDetail!)),
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
-        };
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            FindingEvidenceChainQueryResult result =
+                await runFindingsQueryService.GetFindingEvidenceChainAsync(runId, findingId, cancellationToken);
+
+            return result.Outcome switch
+            {
+                RunFindingsQueryOutcome.Success => Ok(result.Chain),
+                RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
+                    new ConflictException(result.ProblemDetail!)),
+
+                _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -133,26 +154,33 @@ public sealed partial class RunQueryController
         [FromQuery] bool includeTypedPayload = true,
         CancellationToken cancellationToken = default)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        FindingInspectQueryResult result = await runFindingsQueryService.GetFindingInspectForRunAsync(
-            runId,
-            findingId,
-            includeTypedPayload,
-            cancellationToken);
-
-        return result.Outcome switch
+        try
         {
-            RunFindingsQueryOutcome.Success => Ok(result.Response),
-            RunFindingsQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
-            RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
-                new ConflictException(result.ProblemDetail!)),
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
-        };
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            FindingInspectQueryResult result = await runFindingsQueryService.GetFindingInspectForRunAsync(
+                runId,
+                findingId,
+                includeTypedPayload,
+                cancellationToken);
+
+            return result.Outcome switch
+            {
+                RunFindingsQueryOutcome.Success => Ok(result.Response),
+                RunFindingsQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
+                RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
+                    new ConflictException(result.ProblemDetail!)),
+
+                _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>ZIP bundle: run summary, audit slice for the run, and decision traces (size-capped).</summary>

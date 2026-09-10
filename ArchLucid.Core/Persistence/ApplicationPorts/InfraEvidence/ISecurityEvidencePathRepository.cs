@@ -24,4 +24,13 @@ public interface ISecurityEvidencePathRepository
         SecurityEvidencePathRecord pathHeader,
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
         CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)> ListPagedAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        SecurityEvidencePathListFilter filter,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }
