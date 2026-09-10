@@ -418,6 +418,36 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
   });
 
+  it("filters reviews by displayName when the visible title differs from description", () => {
+    const displayTitledRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000aa",
+      displayName: "Q3 Platform Architecture",
+      description: "",
+    };
+    const otherRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Other review",
+    };
+
+    render(
+      <RunsListClient
+        runs={[displayTitledRun, otherRun]}
+        projectId="default"
+        page={1}
+        pageSize={20}
+        totalCount={2}
+      />,
+    );
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Platform Architecture" } });
+
+    expect(screen.getByTestId(`runs-row-${displayTitledRun.runId}`)).toBeInTheDocument();
+    expect(screen.queryByTestId(`runs-row-${otherRun.runId}`)).toBeNull();
+  });
+
   it("Escape in the filter field clears the query without closing an open inspector", () => {
     const secondRun: RunSummary = {
       ...sampleRun,

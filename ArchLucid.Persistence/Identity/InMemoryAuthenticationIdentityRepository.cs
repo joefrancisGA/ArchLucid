@@ -10,6 +10,8 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
 
     private readonly ConcurrentDictionary<string, Guid> _activeExternalKeys = new(StringComparer.Ordinal);
 
+    private readonly object _lifecycleLock = new();
+
     public Task<AuthenticationIdentityRecord?> FindByExternalKeyAsync(
         ExternalIdentityKey key,
         CancellationToken cancellationToken)
@@ -77,69 +79,82 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
         _ = cancellationToken;
         ArgumentNullException.ThrowIfNull(insert);
 
-        ExternalIdentityKey key = new()
+        lock (_lifecycleLock)
         {
-            ProviderType = insert.ProviderType,
-            NormalizedIssuer = insert.NormalizedIssuer,
-            Subject = insert.Subject,
-            TenantId = insert.TenantId,
-            TenantIdentityProviderId = insert.TenantIdentityProviderId,
-        };
+            ExternalIdentityKey key = new()
+            {
+                ProviderType = insert.ProviderType,
+                NormalizedIssuer = insert.NormalizedIssuer,
+                Subject = insert.Subject,
+                TenantId = insert.TenantId,
+                TenantIdentityProviderId = insert.TenantIdentityProviderId,
+            };
 
-        string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(key);
+            string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(key);
 
-        AuthenticationIdentityRecord row = AuthenticationIdentityRepositoryCore.CreateFromInsert(
-            insert,
-            TimeProvider.System.GetUtcNow());
+            AuthenticationIdentityRecord row = AuthenticationIdentityRepositoryCore.CreateFromInsert(
+                insert,
+                TimeProvider.System.GetUtcNow());
 
-        if (!_activeExternalKeys.TryAdd(storageKey, row.Id))
-            throw new DuplicateAuthenticationIdentityException(key);
+            if (!_activeExternalKeys.TryAdd(storageKey, row.Id))
+                throw new DuplicateAuthenticationIdentityException(key);
 
-        _byId[row.Id] = row;
+            _byId[row.Id] = row;
 
-        return Task.FromResult(row);
+            return Task.FromResult(row);
+        }
     }
 
     public Task DisableAsync(Guid identityId, DateTimeOffset disabledUtc, CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
-        if (!_byId.TryGetValue(identityId, out AuthenticationIdentityRecord? existing))
+        lock (_lifecycleLock)
+        {
+            if (!_byId.TryGetValue(identityId, out AuthenticationIdentityRecord? existing))
+                return Task.CompletedTask;
+
+            if (existing.DisabledUtc is not null)
+                return Task.CompletedTask;
+
+            string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(
+                AuthenticationIdentityRepositoryCore.ToExternalKey(existing));
+
+            if (_activeExternalKeys.TryGetValue(storageKey, out Guid occupantId) && occupantId == identityId)
+                _activeExternalKeys.TryRemove(storageKey, out _);
+
+            AuthenticationIdentityRecord updated = AuthenticationIdentityRepositoryCore.WithDisabled(existing, disabledUtc);
+
+            _byId[identityId] = updated;
+
             return Task.CompletedTask;
-
-        AuthenticationIdentityRecord updated = AuthenticationIdentityRepositoryCore.WithDisabled(existing, disabledUtc);
-
-        _byId[identityId] = updated;
-
-        string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(
-            AuthenticationIdentityRepositoryCore.ToExternalKey(existing));
-
-        _activeExternalKeys.TryRemove(storageKey, out _);
-
-        return Task.CompletedTask;
+        }
     }
 
     public Task<bool> ReEnableAsync(Guid identityId, CancellationToken cancellationToken)
     {
         _ = cancellationToken;
 
-        if (!_byId.TryGetValue(identityId, out AuthenticationIdentityRecord? existing) || existing.DisabledUtc is null)
-            return Task.FromResult(false);
+        lock (_lifecycleLock)
+        {
+            if (!_byId.TryGetValue(identityId, out AuthenticationIdentityRecord? existing) || existing.DisabledUtc is null)
+                return Task.FromResult(false);
 
-        string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(
-            AuthenticationIdentityRepositoryCore.ToExternalKey(existing));
+            string storageKey = AuthenticationIdentityRepositoryCore.BuildStorageKey(
+                AuthenticationIdentityRepositoryCore.ToExternalKey(existing));
 
-        if (_activeExternalKeys.TryGetValue(storageKey, out Guid occupantId) && occupantId != identityId)
-            return Task.FromResult(false);
+            if (_activeExternalKeys.TryGetValue(storageKey, out Guid occupantId) && occupantId != identityId)
+                return Task.FromResult(false);
 
-        if (!_activeExternalKeys.TryAdd(storageKey, identityId))
-            return Task.FromResult(false);
+            if (!_activeExternalKeys.TryAdd(storageKey, identityId))
+                return Task.FromResult(false);
 
-        AuthenticationIdentityRecord updated = AuthenticationIdentityRepositoryCore.WithReEnabled(existing);
+            AuthenticationIdentityRecord updated = AuthenticationIdentityRepositoryCore.WithReEnabled(existing);
 
-        _byId[identityId] = updated;
+            _byId[identityId] = updated;
 
-        return Task.FromResult(true);
+            return Task.FromResult(true);
+        }
     }
 
     public Task RecordAuthenticationAsync(

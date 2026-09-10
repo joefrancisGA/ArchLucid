@@ -209,6 +209,55 @@ public sealed class InMemoryAuthenticationIdentityRepositoryCoverageTests
     }
 
     [Fact]
+    public async Task DisableAsync_on_already_disabled_identity_does_not_unclaim_active_external_key()
+    {
+        InMemoryAuthenticationIdentityRepository sut = new();
+        AuthenticationIdentityInsert sharedKey = new()
+        {
+            ProviderType = AuthenticationProviderType.MicrosoftIdentity,
+            NormalizedIssuer = "issuer",
+            Subject = "subject",
+        };
+
+        AuthenticationIdentityRecord disabled = await sut.InsertAsync(
+            new AuthenticationIdentityInsert
+            {
+                UserId = Guid.NewGuid(),
+                ProviderType = sharedKey.ProviderType,
+                NormalizedIssuer = sharedKey.NormalizedIssuer,
+                Subject = sharedKey.Subject,
+            },
+            CancellationToken.None);
+
+        await sut.DisableAsync(disabled.Id, DateTimeOffset.UtcNow, CancellationToken.None);
+
+        AuthenticationIdentityRecord replacement = await sut.InsertAsync(
+            new AuthenticationIdentityInsert
+            {
+                UserId = Guid.NewGuid(),
+                ProviderType = sharedKey.ProviderType,
+                NormalizedIssuer = sharedKey.NormalizedIssuer,
+                Subject = sharedKey.Subject,
+            },
+            CancellationToken.None);
+
+        ExternalIdentityKey key = new()
+        {
+            ProviderType = sharedKey.ProviderType,
+            NormalizedIssuer = sharedKey.NormalizedIssuer,
+            Subject = sharedKey.Subject,
+        };
+
+        await sut.DisableAsync(disabled.Id, DateTimeOffset.UtcNow, CancellationToken.None);
+
+        AuthenticationIdentityRecord? active = await sut.FindByExternalKeyAsync(key, CancellationToken.None);
+
+        active.Should().NotBeNull();
+        active!.Id.Should().Be(replacement.Id);
+        (await sut.HasActiveIdentityAsync(replacement.UserId, CancellationToken.None)).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task FindAnyByExternalKeyAsync_returns_disabled_row_when_no_active_match()
     {
         InMemoryAuthenticationIdentityRepository sut = new();

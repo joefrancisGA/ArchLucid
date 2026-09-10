@@ -318,6 +318,23 @@ export function DiagramReconcileWorkbenchClient() {
   }, [filteredRows.length, selectedCorrespondenceId, urlCorrespondenceId]);
 
   useEffect(() => {
+    if (selectedCorrespondenceId === null || selectedCorrespondenceId.length === 0) {
+      return;
+    }
+
+    if (loadingReconciliation) {
+      return;
+    }
+
+    const stillVisible = filteredRows.some((row) => row.correspondenceId === selectedCorrespondenceId);
+
+    if (!stillVisible) {
+      setSelectedCorrespondenceId(null);
+      syncUrl({ correspondenceId: "" });
+    }
+  }, [filteredRows, loadingReconciliation, selectedCorrespondenceId, syncUrl]);
+
+  useEffect(() => {
     let cancelled = false;
 
     async function loadSnapshots() {
