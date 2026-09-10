@@ -7,6 +7,8 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scim;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;

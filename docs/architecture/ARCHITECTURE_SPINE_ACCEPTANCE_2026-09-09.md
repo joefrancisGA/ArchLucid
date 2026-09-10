@@ -42,6 +42,7 @@ This audit does **not** claim IE collector implementation, G-REAL-06, or vision 
 | AS-097 no SQL RLS ratchet | Yes | DDL grep tests on migration 380 | None |
 | AS-098 share help boundary | Yes | `/help/architecture-sharing`; AS-098 tests | None |
 | AS-089–AS-099 share API/UI/OpenAPI | Yes | `ArchitecturesController.Shares`; `ArchitectureShareService`; `ARCHITECTURE_SHARE_ACL_CONTRACT.md`; desk panel AS-092 | None |
+| AS-094 hub/search share filter | Yes | `share-visible-architecture-inventory.ts`; hub + global search filter; `DraftRequestSummaryResponse.ArchitectureId` | None |
 | AS-100 close audit | Yes | This file; `architecture-spine-prompt-inventory.test.ts` | None |
 
 ## Residuals (out of wave)

@@ -202,5 +202,4 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
         // TryDeserialize trims failureClass before comparison; writers emit canonical class strings without padding.
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
     }
->>>>>>> origin/bugsmash
 }
