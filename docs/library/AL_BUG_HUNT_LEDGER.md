@@ -10473,13 +10473,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-07
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-07 — recycle bin advertised purge schedule for soft-deletes missing DeletedUtc
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** unknown
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
@@ -10492,6 +10492,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-09-07 thorough hunt #1208 (dry): cheap-disproved three workspace restore/list parity candidates; no failing production repro.
 2026-09-07 seed hunt #1172 (hit): reseeded tenancy workspace controllers; proved recycle-bin purge schedule false promise for soft-deletes missing `DeletedUtc`.
+
+- [x] (invalid) `DeleteProjectAsync` soft-deletes the workspace default architecture project — **cheap-disproof 2026-09-10 seed hunt #1569:** `workspace.DefaultProjectId == projectId` returns `400 BusinessRuleViolation` before repository call; regression `DeleteProjectAsync_returns_bad_request_when_deleting_workspace_default_project`
+- [x] (invalid) `DeleteProjectAsync` accepts `Guid.Empty` project id and reaches repository soft-delete — **cheap-disproof 2026-09-10 seed hunt #1569:** empty `projectId` returns `400 ValidationFailed`; regression `DeleteProjectAsync_returns_bad_request_when_project_id_is_empty`
+- [x] (valid-no-repro) `ListRecycleBinAsync` exposes unclamped `RetentionDays` when purge options are misconfigured below minimum — **cheap-disproof 2026-09-10 seed hunt #1569:** `ArchitectureProjectRetentionSchedule.ClampRetentionDays` clamps `0` to `1`; regression `ListRecycleBinAsync_clamps_retention_days_from_configuration`
+- [x] (invalid) `ListAsync` returns workspace projects when `scope.WorkspaceId` is absent from `ListWorkspacesAsync` — **cheap-disproof 2026-09-10 seed hunt #1569:** missing workspace membership returns `404 ResourceNotFound`; regression `ListAsync_returns_not_found_when_scope_workspace_missing_from_tenant_list`
+
+2026-09-10 seed hunt #1569 (seed-only): reseeded api-tenancy-workspaces after master merge; cheap-disproof closed default-project delete, empty project id, retention clamp, and scope/workspace membership guards; 26 scoped TenantWorkspaces tests passed.
 
 ---
 ## Zone: application-agents
