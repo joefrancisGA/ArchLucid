@@ -32881,6 +32881,69 @@
         },
         "type": "object"
       },
+      "SecureNowArchitectOutcomeMetricsResponse": {
+        "properties": {
+          "assertedCrownJewelExposurePathsRemoved": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "criticalOrHighConfidencePathsRemoved": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "exceptionsExpired": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "fromSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "privilegedIdentityNodesOnPathsReduced": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "remediationRecurrenceCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "ruleVersion": {
+            "type": "string"
+          },
+          "sharedControlBlastRadiusPathsRemoved": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "supportingOperationalMetrics": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SecureNowArchitectSupportingOperationalMetricsResponse"
+              }
+            ]
+          },
+          "toSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "unrestrictedEgressCapabilityPathsReduced": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "SecureNowArchitectSupportingOperationalMetricsResponse": {
+        "properties": {
+          "openFindings": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "SecurityAssessmentPublicationRequest": {
         "properties": {
           "assessmentCode": {
@@ -174893,6 +174956,179 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/operational-security/architect-metrics": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "fromSnapshotId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "toSnapshotId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureNowArchitectOutcomeMetricsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureNowArchitectOutcomeMetricsResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecureNowArchitectOutcomeMetricsResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized."
+          },
+          "403": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "OperationalSecurityArchitectMetrics"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/operational-security/findings": {
       "get": {
         "parameters": [
@@ -211423,6 +211659,9 @@
     },
     {
       "name": "OperationalErrorsAdmin"
+    },
+    {
+      "name": "OperationalSecurityArchitectMetrics"
     },
     {
       "name": "OperationalSecurityFindings"
