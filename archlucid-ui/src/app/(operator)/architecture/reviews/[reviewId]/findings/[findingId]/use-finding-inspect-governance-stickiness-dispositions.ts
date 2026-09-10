@@ -123,7 +123,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   const [dispositionHistoryAsOfUtc, setDispositionHistoryAsOfUtc] = useState<string | null>(null);
   const [dispositionHistoryFailure, setDispositionHistoryFailure] = useState<ApiLoadFailureState | null>(null);
   const [dispositionHistoryBlockedReason, setDispositionHistoryBlockedReason] = useState<string | null>(null);
-const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
+  const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
     null,
   );
 

@@ -61,6 +61,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   });
   const meetingCaptureBlockedReason = meetingCaptureQuery.blockedReason;
 
+  const meetingCaptureBlockedReason = meetingCaptureQuery.blockedReason;
+
   useOidcSessionKeepalive(true);
 
   const failure: ApiLoadFailureState | null = useMemo(
