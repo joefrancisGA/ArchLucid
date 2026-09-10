@@ -164,16 +164,9 @@ public sealed class ArchitectureIntelligenceControllerTests
             productPublishService: Mock.Of<IArchitectureIntelligenceProductPublishService>(),
             productRunSourceContextLoader ?? Mock.Of<IArchitectureIntelligenceProductRunSourceContextLoader>(),
             scopeProvider.Object,
-<<<<<<< HEAD
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IRunDetailQueryService>(),
-            Mock.Of<IManifestHashService>(),
-
-=======
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
->>>>>>> 40a64c36cc (Fix Core CI: align stickiness and sealed-manifest test doubles)
             auditService.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
