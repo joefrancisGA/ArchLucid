@@ -1,6 +1,7 @@
 using ArchLucid.Api.Http.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Authorization;
@@ -67,31 +68,38 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        if (!string.IsNullOrWhiteSpace(request.TargetRunId))
+        try
         {
-            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(
-                request.TargetRunId.Trim(),
+            if (!string.IsNullOrWhiteSpace(request.TargetRunId))
+            {
+                IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(
+                    request.TargetRunId.Trim(),
+                    cancellationToken);
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+            }
+
+            PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
+                request.PolicyPackContentJson,
+                string.IsNullOrWhiteSpace(request.TargetRunId) ? null : request.TargetRunId.Trim(),
+                request.TargetManifestId,
+                request.BlockCommitOnCritical,
+                request.BlockCommitMinimumSeverity,
+                request.ProposedPolicyPackId,
                 cancellationToken);
 
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            if (result is null)
+                return this.NotFoundProblem(
+                    "The target run or manifest was not found in the current tenant/workspace/project scope.",
+                    ProblemTypes.ResourceNotFound);
+
+            return Ok(result);
         }
-
-        PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
-            request.PolicyPackContentJson,
-            string.IsNullOrWhiteSpace(request.TargetRunId) ? null : request.TargetRunId.Trim(),
-            request.TargetManifestId,
-            request.BlockCommitOnCritical,
-            request.BlockCommitMinimumSeverity,
-            request.ProposedPolicyPackId,
-            cancellationToken);
-
-        if (result is null)
-            return this.NotFoundProblem(
-                "The target run or manifest was not found in the current tenant/workspace/project scope.",
-                ProblemTypes.ResourceNotFound);
-
-        return Ok(result);
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -179,21 +187,28 @@ public sealed partial class GovernanceController
         if (tenantProblem is not null)
             return tenantProblem;
 
-        IActionResult? sealedGuardResult = await EnsureDryRunRunIdsSealedManifestReadAllowedAsync(
-            evaluateAgainstRunIds,
-            cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureDryRunRunIdsSealedManifestReadAllowedAsync(
+                evaluateAgainstRunIds,
+                cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        PolicyPackDryRunResponse result = await _policyPackDryRunService.EvaluateAsync(
-            id,
-            proposedThresholds,
-            evaluateAgainstRunIds,
-            pageSize,
-            page,
-            cancellationToken);
+            PolicyPackDryRunResponse result = await _policyPackDryRunService.EvaluateAsync(
+                id,
+                proposedThresholds,
+                evaluateAgainstRunIds,
+                pageSize,
+                page,
+                cancellationToken);
 
-        return Ok(result);
+            return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapGovernanceSealedManifestConflict(ex);
+        }
     }
 }
