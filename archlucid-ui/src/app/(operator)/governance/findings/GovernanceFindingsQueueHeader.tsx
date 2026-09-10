@@ -17,9 +17,7 @@ import {
   GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID,
   GOVERNANCE_FINDINGS_SKIP_LINK_LABEL,
 } from "@/lib/governance-findings-page-copy";
-import {
-  GOVERNANCE_ASSIGNED_TO_ME_CLAIM_DISCIPLINE,
-} from "@/lib/governance/governance-assigned-to-me-evidence-copy";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID,
   GOVERNANCE_ASSIGNED_TO_ME_SKIP_LINK_LABEL,
@@ -29,6 +27,7 @@ import type { GovernanceJobId } from "@/lib/governance/governance-job-router";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { governanceRegisterMetricPresentation } from "@/lib/metric-count-presentation";
 import { GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE } from "@/lib/governance/governance-findings-evidence-copy";
+import { resolveGovernanceAssignedToMeClaimDiscipline } from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 
 export type GovernanceFindingsQueueHeaderProps = {
   readonly isAssignedToMe: boolean;
@@ -68,16 +67,16 @@ export function GovernanceFindingsQueueHeader({
   loading,
   currentJobId,
 }: GovernanceFindingsQueueHeaderProps) {
+  const { productLine } = useProductLine();
   const skipLinkTargetId = isAssignedToMe
     ? GOVERNANCE_ASSIGNED_TO_ME_PRIMARY_CONTENT_ID
     : GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID;
   const skipLinkLabel = isAssignedToMe
     ? GOVERNANCE_ASSIGNED_TO_ME_SKIP_LINK_LABEL
     : GOVERNANCE_FINDINGS_SKIP_LINK_LABEL;
-  const claimDiscipline =
-    isAssignedToMe && buyerPolishedShell
-      ? GOVERNANCE_ASSIGNED_TO_ME_CLAIM_DISCIPLINE
-      : GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE;
+  const claimDiscipline = isAssignedToMe
+    ? resolveGovernanceAssignedToMeClaimDiscipline(productLine, buyerPolishedShell)
+    : GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE;
   const claimDisciplineTestId = isAssignedToMe
     ? "governance-assigned-to-me-claim-discipline"
     : "governance-findings-claim-discipline";

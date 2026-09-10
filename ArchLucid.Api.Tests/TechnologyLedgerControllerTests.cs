@@ -4,6 +4,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -133,6 +134,56 @@ public sealed class TechnologyLedgerControllerTests
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TechnologyLedgerEntryUpdated),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task PatchTechnologyLedgerEntry_returns_bad_request_when_rationale_exceeds_max_free_text_length()
+    {
+        string overLimit = new string('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1);
+        TechnologyLedgerController sut = BuildSut();
+
+        IActionResult result = await sut.PatchTechnologyLedgerEntry(
+            RunGuid,
+            "entry-1",
+            new PatchTechnologyLedgerEntryRequest { Rationale = overLimit },
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        _service.Verify(
+            static s => s.PatchEntryAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<PatchTechnologyLedgerEntryCommand>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task PatchTechnologyLedgerEntry_returns_bad_request_when_technology_name_exceeds_max_free_text_length()
+    {
+        string overLimit = new string('x', DraftIntakeValidation.MaximumFreeTextIntentLength + 1);
+        TechnologyLedgerController sut = BuildSut();
+
+        IActionResult result = await sut.PatchTechnologyLedgerEntry(
+            RunGuid,
+            "entry-1",
+            new PatchTechnologyLedgerEntryRequest { TechnologyName = overLimit },
+            CancellationToken.None);
+
+        ObjectResult bad = result.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+
+        _service.Verify(
+            static s => s.PatchEntryAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<PatchTechnologyLedgerEntryCommand>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
