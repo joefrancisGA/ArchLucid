@@ -8615,11 +8615,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 11
-- **bugs-found:** 20
+- **hunts:** 12
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — DOCX requirements coverage table bypassed free-text sanitizer and could crash export on control chars
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — finding verification DOCX table omitted sanitizer/severity parity; markdown requirement metadata; Mermaid label control chars
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8652,13 +8652,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `MermaidDiagramArtifactExtractor.TryGetDiagramSource` — blind 48k-char truncation can corrupt mid-line Mermaid source embedded in DOCX fallback — **hit 2026-09-08 (#1328):** truncate at last newline before cap (`TryGetDiagramSource_truncates_at_line_boundary_before_max_chars`).
 - [x] (proven) `DocxExportService.AppendManifestComparison` — comparison summary/delta strings bypass `SanitizeArtifactText` — **hit 2026-09-08 (#1328):** highlights and delta lines sanitized per field (`ExportAsync_strips_control_chars_from_manifest_comparison_sections`).
 
-- [ ] (candidate) `FindingVerificationReportDocxRenderer.Render` — finding table cells bypass `LlmArtifactFreeTextSanitizer` — **seeded 2026-09-09 seed hunt #1412:** `AddFourColumnTable` uses newline-only `Sanitize()` on `Title`/`TraceText`/`Status`/`FindingId`; no DOCX renderer tests today
-- [ ] (candidate) `FindingVerificationReportDocxRenderer.Render` vs `FindingVerificationReportMarkdownRenderer.Render` — DOCX omits `Severity` column present in markdown export of the same model — **seeded 2026-09-09 seed hunt #1412**
-- [ ] (candidate) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — omit `RequirementCoverageItem.CoverageStatus` and `.IsMandatory` while DOCX coverage table and `inventory.json` expose them — **seeded 2026-09-09 seed hunt #1412**
-- [ ] (candidate) `MermaidDiagramRenderer.EscapeLabel` — control/bidi characters in node/edge labels bypass sanitizer (distinct from bracket/pipe/newline fixes in #890/#1328) — **seeded 2026-09-09 seed hunt #1412**
+- [x] (proven) `FindingVerificationReportDocxRenderer.Render` — finding table cells bypass `LlmArtifactFreeTextSanitizer` — **hit 2026-09-10 thorough hunt #1534:** `AddFourColumnTable` used newline-only `Sanitize()` on finding cells; fixed with `LlmArtifactFreeTextSanitizer` via `SanitizeFindingCell`; regression `Render_strips_control_chars_from_finding_table_cells`
+- [x] (proven) `FindingVerificationReportDocxRenderer.Render` vs `FindingVerificationReportMarkdownRenderer.Render` — DOCX omits `Severity` column present in markdown export of the same model — **hit 2026-09-10 thorough hunt #1534:** added five-column table with `Severity`; regression `Render_includes_severity_column_matching_markdown_export`
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` / `ArchitectureNarrativeArtifactGenerator` — omit `RequirementCoverageItem.CoverageStatus` and `.IsMandatory` while DOCX coverage table and `inventory.json` expose them — **hit 2026-09-10 thorough hunt #1534:** requirement bullets now include coverage status and mandatory flag; regressions `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag` and `ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_requirement_coverage_status_and_mandatory_flag`
+- [x] (proven) `MermaidDiagramRenderer.EscapeLabel` — control/bidi characters in node/edge labels bypass sanitizer (distinct from bracket/pipe/newline fixes in #890/#1328) — **hit 2026-09-10 thorough hunt #1534:** `EscapeLabel` now prefixes `LlmArtifactFreeTextSanitizer.Sanitize`; regression `MermaidDiagramRenderer_Render_strips_control_chars_from_labels`
 - [x] (proven) `DocxExportService.BuildDocumentAsync` — Requirements coverage three-column table bypasses `SanitizeArtifactText` — **hit 2026-09-09 seed hunt #1412:** raw `RequirementName`/`CoverageStatus` reached `AddThreeColumnTable`; ASCII control chars could throw on OpenXML save; fixed with per-cell `SanitizeArtifactText`; regression `ExportAsync_strips_control_chars_from_requirements_coverage_table_cells`
 
 2026-09-08 thorough hunt #1328 (hit): proved five seed candidates — DOCX decisions/issues/comparison sanitization, Mermaid pipe escaping, and line-boundary diagram truncation.
+
+2026-09-10 thorough hunt #1534 (hit): proved all four #1412 seed candidates — finding verification DOCX sanitizer/severity parity, markdown requirement metadata parity, Mermaid label control-char sanitization; 194 scoped ArtifactSynthesis tests passed.
 
 2026-09-09 seed hunt #1412 (hit): reseeded four follow-on candidates (finding verification DOCX sanitization/severity parity, markdown requirement metadata parity, Mermaid control-char escaping); proved requirements coverage table sanitization gap; 189 ArtifactSynthesis + 14 DocxExportService scoped tests passed.
 
