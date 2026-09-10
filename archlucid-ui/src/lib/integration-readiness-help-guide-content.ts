@@ -1,5 +1,17 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+
 export const INTEGRATION_READINESS_HELP_OVERVIEW =
   "Integration readiness is a setup-priority overview — not a gate before architecture reviews. Open Connection status for live connector labels, then configure recommended chat notifications before optional ITSM destinations.";
+
+export const SECURENOW_INTEGRATION_READINESS_HELP_OVERVIEW =
+  "Integration readiness is a setup-priority overview for SecureNow. Open Connection status for live connector labels, then configure Azure inventory collection before outbound Jira, ServiceNow, or Teams destinations.";
+
+export function integrationReadinessHelpOverview(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_INTEGRATION_READINESS_HELP_OVERVIEW
+    : INTEGRATION_READINESS_HELP_OVERVIEW;
+}
 
 export const INTEGRATION_READINESS_HELP_STATUS_GLOSSARY_TITLE = "Status label glossary";
 

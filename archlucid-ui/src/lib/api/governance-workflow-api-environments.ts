@@ -1,4 +1,7 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { governanceEnvironmentCatalogBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { GovernanceEnvironmentActivation } from "@/types/governance-workflow";
 import type {
   GovernanceEnvironmentCatalog,
@@ -42,7 +45,14 @@ export async function listActivations(runId: string): Promise<GovernanceEnvironm
 
 /** Returns the administrator-defined governance environment catalog for the current scope. */
 export async function fetchGovernanceEnvironmentCatalog(): Promise<GovernanceEnvironmentCatalog> {
-  return apiGetSealedManifestAware<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`);
+  try {
+    return await apiGetSealedManifestAware<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceEnvironmentCatalogBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Replaces the governance environment catalog and allowed transitions for the current scope. */

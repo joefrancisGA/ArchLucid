@@ -2,14 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import {
   DEFAULT_WORKING_CAREER_REHEARSAL_DOOR,
-  LEGACY_WORKING_SIMULATOR_REHEARSAL_DOOR_DEFAULT,
-  LEGACY_WORKING_DOOR_USAGE_SIGNAL_STORAGE_KEYS,
-  NEW_WORKING_TENANT_CAREER_REHEARSAL_DOOR_DEFAULT,
   readWorkingCareerRehearsalDoorFromStorage,
-  resolveDefaultWorkingCareerRehearsalDoor,
   resolveWorkingCareerRehearsalDoorScope,
-  shouldSuppressReadyToFinalizeForWorkingRehearsalDoor,
-  WORKING_CAREER_REHEARSAL_TENANT_GRANDFATHER_STORAGE_KEY,
   WORKING_CAREER_REHEARSAL_TENANT_STORAGE_KEY,
   workingCareerRehearsalArchitectureStorageKey,
   writeWorkingCareerRehearsalDoorToStorage,
@@ -20,42 +14,9 @@ describe("working-career-rehearsal-door", () => {
     window.localStorage.clear();
   });
 
-  it("defaults to Career for first-run Working tenants (AS-080)", () => {
-    expect(NEW_WORKING_TENANT_CAREER_REHEARSAL_DOOR_DEFAULT).toBe("career");
-    expect(readWorkingCareerRehearsalDoorFromStorage({ kind: "tenant" })).toBe("career");
-  });
-
-  it("keeps suppression fallback on rehearsal when door context is unknown (AS-079)", () => {
-    expect(DEFAULT_WORKING_CAREER_REHEARSAL_DOOR).toBe(LEGACY_WORKING_SIMULATOR_REHEARSAL_DOOR_DEFAULT);
+  it("defaults to rehearsal when no preference is stored", () => {
     expect(DEFAULT_WORKING_CAREER_REHEARSAL_DOOR).toBe("rehearsal");
-  });
-
-  it("grandfathers rehearsal for legacy Working usage signals without explicit door preference", () => {
-    window.localStorage.setItem(LEGACY_WORKING_DOOR_USAGE_SIGNAL_STORAGE_KEYS[0], "working");
-
     expect(readWorkingCareerRehearsalDoorFromStorage({ kind: "tenant" })).toBe("rehearsal");
-    expect(window.localStorage.getItem(WORKING_CAREER_REHEARSAL_TENANT_GRANDFATHER_STORAGE_KEY)).toBe("1");
-  });
-
-  it("resolveDefaultWorkingCareerRehearsalDoor honors grandfather inputs", () => {
-    expect(
-      resolveDefaultWorkingCareerRehearsalDoor({
-        hasGrandfatherRehearsalMarker: true,
-      }),
-    ).toBe("rehearsal");
-    expect(
-      resolveDefaultWorkingCareerRehearsalDoor({
-        hasLegacyWorkingUsageSignals: true,
-      }),
-    ).toBe("rehearsal");
-    expect(resolveDefaultWorkingCareerRehearsalDoor({})).toBe("career");
-  });
-
-  it("honors explicit tenant preference over grandfather default", () => {
-    window.localStorage.setItem(LEGACY_WORKING_DOOR_USAGE_SIGNAL_STORAGE_KEYS[0], "working");
-    writeWorkingCareerRehearsalDoorToStorage({ kind: "tenant" }, "career");
-
-    expect(readWorkingCareerRehearsalDoorFromStorage({ kind: "tenant" })).toBe("career");
   });
 
   it("persists tenant-level door preference", () => {
@@ -89,27 +50,6 @@ describe("working-career-rehearsal-door", () => {
         architectureId: "architecture-002",
       }),
     ).toBe("career");
-  });
-
-  it("suppresses Ready labels on Working Rehearsal door (AS-079)", () => {
-    expect(
-      shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
-        workingDesk: true,
-        effectiveWorkingCareerRehearsalDoor: "rehearsal",
-      }),
-    ).toBe(true);
-    expect(
-      shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
-        workingDesk: true,
-        effectiveWorkingCareerRehearsalDoor: "career",
-      }),
-    ).toBe(false);
-    expect(
-      shouldSuppressReadyToFinalizeForWorkingRehearsalDoor({
-        workingDesk: false,
-        effectiveWorkingCareerRehearsalDoor: "rehearsal",
-      }),
-    ).toBe(false);
   });
 
   it("resolves architecture scope when architecture id is present", () => {
