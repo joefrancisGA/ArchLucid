@@ -44,21 +44,6 @@ export async function fetchArchitectureIntelligenceRunModel(
   }
 }
 
-export async function fetchArchitectureIntelligenceRunModel(
-  runId: string,
-): Promise<ArchitectureKnowledgeModel> {
-  try {
-    return await apiGet<ArchitectureKnowledgeModel>(
-      `/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}`,
-    );
-  } catch (error: unknown) {
-    const failure = toApiLoadFailure(error);
-    const blockedReason = architectureIntelligenceRunModelBlockedReason(failure);
-
-    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
-  }
-}
-
 export async function runArchitectureIntelligenceReasoning(
   body: Record<string, unknown>,
 ): Promise<ClosedLoopReasoningResult> {

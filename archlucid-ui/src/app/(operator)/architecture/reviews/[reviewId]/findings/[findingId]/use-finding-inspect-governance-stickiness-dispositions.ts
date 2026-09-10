@@ -122,7 +122,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   const [dispositionHistoryAsOfUtc, setDispositionHistoryAsOfUtc] = useState<string | null>(null);
   const [dispositionHistoryFailure, setDispositionHistoryFailure] = useState<ApiLoadFailureState | null>(null);
   const [dispositionHistoryBlockedReason, setDispositionHistoryBlockedReason] = useState<string | null>(null);
-  const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
+const [dispositionConflict, setDispositionConflict] = useState<FindingDispositionConflictDetail | null>(
     null,
   );
 
@@ -295,6 +295,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const failure = toApiLoadFailure(error);
       const message =
         findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
+
       if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }
@@ -360,6 +361,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const failure = toApiLoadFailure(error);
       const message =
         findingDispositionMutationBlockedReason(failure) ?? resolveMutationError(error);
+
       if (isLivelihoodMutation401RedirectError(error)) {
         return;
       }

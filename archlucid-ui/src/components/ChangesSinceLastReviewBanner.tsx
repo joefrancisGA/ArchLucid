@@ -60,7 +60,6 @@ export function ChangesSinceLastReviewBanner(props: ChangesSinceLastReviewBanner
   useEffect(() => {
     setBannerOpenState(parseChangesSinceLastReviewOpenFromSearch(changesSinceLastReviewOpenParam));
   }, [changesSinceLastReviewOpenParam]);
-
   if (blockedReason.length > 0) {
     return (
       <OperatorWarningCallout data-testid="changes-since-last-review-banner">

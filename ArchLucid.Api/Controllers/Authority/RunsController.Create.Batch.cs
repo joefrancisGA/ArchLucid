@@ -2,6 +2,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Requests;
@@ -60,9 +61,8 @@ public sealed partial class RunsController
             cancellationToken);
 
         if (result.Outcome == BatchCreateRunOutcome.IdempotencyKeyPayloadMismatch)
-            return this.ConflictProblem(
-                "Idempotency-Key was reused with a different request payload.",
-                ProblemTypes.Conflict);
+            return MapRunsSealedManifestConflict(
+                new ConflictException("Idempotency-Key was reused with a different request payload."));
 
         if (result.Outcome == BatchCreateRunOutcome.IdempotentReplay)
         {

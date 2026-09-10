@@ -1,4 +1,9 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { governanceEnvironmentCatalogBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
+import { governanceEnvironmentCatalogMutationBlockedReason } from "@/lib/governance/governance-environment-catalog-mutation-blocked-reason";
+import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/governance-workflow-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { GovernanceEnvironmentActivation } from "@/types/governance-workflow";
 import type {
   GovernanceEnvironmentCatalog,
@@ -22,11 +27,18 @@ export async function activateEnvironment(body: {
 }): Promise<GovernanceEnvironmentActivation> {
   void body.activatedBy;
 
-  return apiPostJson<GovernanceEnvironmentActivation>(`${governanceBase()}/activations`, {
-    runId: body.runId,
-    manifestVersion: body.manifestVersion,
-    environment: body.environment,
-  });
+  try {
+    return await apiPostJson<GovernanceEnvironmentActivation>(`${governanceBase()}/activations`, {
+      runId: body.runId,
+      manifestVersion: body.manifestVersion,
+      environment: body.environment,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Lists environment activation rows for a run. */
@@ -42,12 +54,26 @@ export async function listActivations(runId: string): Promise<GovernanceEnvironm
 
 /** Returns the administrator-defined governance environment catalog for the current scope. */
 export async function fetchGovernanceEnvironmentCatalog(): Promise<GovernanceEnvironmentCatalog> {
-  return apiGetSealedManifestAware<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`);
+  try {
+    return await apiGetSealedManifestAware<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceEnvironmentCatalogBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Replaces the governance environment catalog and allowed transitions for the current scope. */
 export async function replaceGovernanceEnvironmentCatalog(
   body: ReplaceGovernanceEnvironmentCatalogRequest,
 ): Promise<GovernanceEnvironmentCatalog> {
-  return apiPutJson<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`, body);
+  try {
+    return await apiPutJson<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceEnvironmentCatalogMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
