@@ -1224,4 +1224,103 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
         RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [rejected])
             .Should().BeEmpty("commit blocking requires Enabled=true and PilotStrict mode");
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_higher_attempt_accepted_does_not_block_on_superseded_warned_trace()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 19, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 19, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededWarned = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace latestAccepted = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededWarned, latestAccepted])
+            .Should().BeEmpty(
+                "AttemptIndex supersedes quality rank; Accepted winning attempt is intentionally non-blocking");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_distinct_tasks_warned_and_rejected_only_blocks_rejected()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace warnedTask = new()
+        {
+            TraceId = "trace-warned",
+            TaskId = "task-warned",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+        };
+        AgentExecutionTrace rejectedTask = new()
+        {
+            TraceId = "trace-rejected",
+            TaskId = "task-rejected",
+            AgentType = AgentType.Cost,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [warnedTask, rejectedTask]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-rejected");
+        reasons[0].Should().NotContain("trace-warned");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_single_warned_trace_does_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace warned = new()
+        {
+            TraceId = "trace-warned",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [warned])
+            .Should().BeEmpty("TB-2226 fail-closed scope is recorded rejections, not Warned outcomes");
+    }
 }

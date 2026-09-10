@@ -375,7 +375,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 23
+- **hunts:** 24
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -432,6 +432,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) higher `AttemptIndex` `Warned` supersedes lower-attempt `Accepted` — **cheap-disproof 2026-09-10 seed hunt #1620:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_warned_wins_over_lower_attempt_accepted`, `GetBlockingReasons_when_higher_attempt_warned_does_not_block_on_superseded_accepted_trace`)
 - [x] (valid-no-repro) multiple rejected latest-per-task traces — **cheap-disproof 2026-09-10 seed hunt #1620:** gate accumulates one blocking reason per rejected winner (`GetBlockingReasons_when_multiple_rejected_tasks_return_multiple_reasons`)
 - [x] (valid-no-repro) `Enabled=false` with `Mode=WarnOnly` — **cheap-disproof 2026-09-10 seed hunt #1620:** both bypass conditions must hold for PilotStrict blocking (`GetBlockingReasons_when_gate_disabled_with_warn_only_mode_returns_empty`)
+- [x] (valid-no-repro) empty trace list in selector — **cheap-disproof 2026-09-10 seed hunt #1621:** `Select` fast-path returns empty when `traces.Count` is zero (`Select_when_empty_traces_returns_empty_list`)
+- [x] (valid-no-repro) higher `AttemptIndex` `Accepted` supersedes lower-attempt `Warned` — **cheap-disproof 2026-09-10 seed hunt #1621:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_accepted_wins_over_lower_attempt_warned`, `GetBlockingReasons_when_higher_attempt_accepted_does_not_block_on_superseded_warned_trace`)
+- [x] (valid-no-repro) distinct tasks with `Warned` and `Rejected` winners — **cheap-disproof 2026-09-10 seed hunt #1621:** gate blocks only rejected latest-per-task (`GetBlockingReasons_when_distinct_tasks_warned_and_rejected_only_blocks_rejected`)
+- [x] (valid-no-repro) single `Warned` trace on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1621:** TB-2226 scopes blocking to rejections (`GetBlockingReasons_when_single_warned_trace_does_not_block`)
+
+2026-09-10 seed hunt #1621 (seed-only): reseeded commit-output-integrity after #1620; cheap-disproof on empty selector input, Accepted supersession over Warned, mixed Warned/Rejected per-task blocking, and lone Warned trace; 65 scoped commit-output-integrity tests passed.
 
 2026-09-10 seed hunt #1620 (seed-only): reseeded commit-output-integrity after #1619; cheap-disproof on single-trace fast path, Warned supersession over Accepted, multi-task rejection accumulation, and dual bypass config; 60 scoped commit-output-integrity tests passed.
 
