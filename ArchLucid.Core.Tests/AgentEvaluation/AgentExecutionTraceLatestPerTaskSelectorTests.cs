@@ -822,4 +822,37 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
         latest.Should().ContainSingle();
         latest[0].TraceId.Should().Be("trace-attempt-2");
     }
+
+    [Fact]
+    public void Select_when_higher_attempt_unevaluated_wins_over_lower_attempt_accepted()
+    {
+        DateTime olderUtc = new(2026, 12, 5, 20, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 20, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededAccepted = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace latestUnevaluated = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([supersededAccepted, latestUnevaluated]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-attempt-2");
+    }
 }

@@ -1323,4 +1323,140 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
         RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [warned])
             .Should().BeEmpty("TB-2226 fail-closed scope is recorded rejections, not Warned outcomes");
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_higher_attempt_unevaluated_does_not_block_on_superseded_accepted_trace()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 20, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 20, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededAccepted = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace latestUnevaluated = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededAccepted, latestUnevaluated])
+            .Should().BeEmpty(
+                "AttemptIndex supersedes quality rank; unevaluated winning attempt is non-blocking under TB-2226");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_distinct_tasks_both_accepted_after_retries_does_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace topologyRetryChain = new()
+        {
+            TraceId = "trace-topology-2",
+            TaskId = "task-topology",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace topologySuperseded = new()
+        {
+            TraceId = "trace-topology-0",
+            TaskId = "task-topology",
+            AgentType = AgentType.Topology,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace costRetryChain = new()
+        {
+            TraceId = "trace-cost-1",
+            TaskId = "task-cost",
+            AgentType = AgentType.Cost,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+        AgentExecutionTrace costSuperseded = new()
+        {
+            TraceId = "trace-cost-0",
+            TaskId = "task-cost",
+            AgentType = AgentType.Cost,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [topologySuperseded, topologyRetryChain, costSuperseded, costRetryChain])
+            .Should().BeEmpty("each task's winning attempt is Accepted after auto-retry");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_rejected_trace_with_both_flags_returns_single_reason()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-dual-flag",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [trace]);
+
+        reasons.Should().ContainSingle();
+        reasons[0].Should().Contain("trace-dual-flag");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_single_accepted_trace_does_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace accepted = new()
+        {
+            TraceId = "trace-accepted",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(run, options, [accepted])
+            .Should().BeEmpty("Accepted outcomes are intentionally non-blocking");
+    }
 }

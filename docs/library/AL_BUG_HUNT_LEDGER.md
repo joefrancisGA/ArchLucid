@@ -375,7 +375,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -436,6 +436,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) higher `AttemptIndex` `Accepted` supersedes lower-attempt `Warned` — **cheap-disproof 2026-09-10 seed hunt #1621:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_accepted_wins_over_lower_attempt_warned`, `GetBlockingReasons_when_higher_attempt_accepted_does_not_block_on_superseded_warned_trace`)
 - [x] (valid-no-repro) distinct tasks with `Warned` and `Rejected` winners — **cheap-disproof 2026-09-10 seed hunt #1621:** gate blocks only rejected latest-per-task (`GetBlockingReasons_when_distinct_tasks_warned_and_rejected_only_blocks_rejected`)
 - [x] (valid-no-repro) single `Warned` trace on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1621:** TB-2226 scopes blocking to rejections (`GetBlockingReasons_when_single_warned_trace_does_not_block`)
+- [x] (valid-no-repro) higher `AttemptIndex` unevaluated supersedes lower-attempt `Accepted` — **cheap-disproof 2026-09-10 seed hunt #1622:** `AttemptIndex` ordering precedes quality rank (`Select_when_higher_attempt_unevaluated_wins_over_lower_attempt_accepted`, `GetBlockingReasons_when_higher_attempt_unevaluated_does_not_block_on_superseded_accepted_trace`)
+- [x] (valid-no-repro) distinct tasks both retry to `Accepted` — **cheap-disproof 2026-09-10 seed hunt #1622:** superseded rejections per task do not block when winning attempt is Accepted (`GetBlockingReasons_when_distinct_tasks_both_accepted_after_retries_does_not_block`)
+- [x] (valid-no-repro) rejected trace with both `QualityRejected=true` and `RecordedQualityGateOutcome.Rejected` — **cheap-disproof 2026-09-10 seed hunt #1622:** dual-flag trace yields one blocking reason (`GetBlockingReasons_when_rejected_trace_with_both_flags_returns_single_reason`)
+- [x] (valid-no-repro) single `Accepted` trace on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1622:** Accepted outcomes are non-blocking (`GetBlockingReasons_when_single_accepted_trace_does_not_block`)
+
+2026-09-10 seed hunt #1622 (seed-only): reseeded commit-output-integrity after #1621; cheap-disproof on unevaluated supersession over Accepted, multi-task retry success, dual-flag single reason, and lone Accepted trace; 70 scoped commit-output-integrity tests passed.
 
 2026-09-10 seed hunt #1621 (seed-only): reseeded commit-output-integrity after #1620; cheap-disproof on empty selector input, Accepted supersession over Warned, mixed Warned/Rejected per-task blocking, and lone Warned trace; 65 scoped commit-output-integrity tests passed.
 
