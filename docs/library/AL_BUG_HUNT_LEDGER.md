@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1351,6 +1351,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ParseFindingSeverity` is sensitive to surrounding whitespace in the DB column — **cheap-disproof 2026-09-10 seed hunt #1634:** mapper trims before `Enum.TryParse`; regression `ParseFindingSeverity_maps_or_defaults` for `"  critical  "`.
 
 2026-09-10 seed hunt #1634 (seed-only): reseeded finding-inspect-sql after #1633; cheap-disproof closed audit run scoping, trace/action ordering, waiver expiry filter, null disposition exclusion, rationale-only metadata payload, empty-object payload handling, and severity trim; 68 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MainInspect*` omits `TOP 1` and can return an arbitrary rerun when `FindingId` collides — **cheap-disproof 2026-09-10 seed hunt #1635:** both main inspect queries use `SELECT TOP 1` with `ORDER BY r.CreatedUtc DESC, r.RunId DESC`; regression `MainInspect_uses_top_one_for_deterministic_run_selection`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule subquery concatenates all `RuleText` rows instead of the first — **cheap-disproof 2026-09-10 seed hunt #1635:** trace subquery selects `TOP 1 tra.RuleText` ordered by `tra.SortOrder`; regression `FollowUpBatch_trace_rules_subquery_uses_top_one_for_first_rule_text`.
+- [x] (valid-no-repro) Audit-event lookup ignores `EventType` and can return unrelated audit rows — **cheap-disproof 2026-09-10 seed hunt #1635:** audit subquery filters `ae.EventType = @EventType` (`AuthorityCommittedChainPersisted`); regression `FollowUpBatch_audit_event_filters_authority_committed_event_type`.
+- [x] (valid-no-repro) Audit-event lookup returns the oldest commit row — **cheap-disproof 2026-09-10 seed hunt #1635:** audit subquery orders `ae.OccurredUtc DESC, ae.EventId DESC`; regression `FollowUpBatch_audit_event_orders_by_latest_occurrence`.
+- [x] (valid-no-repro) `MainInspect*` joins `Runs` directly without `FindingsSnapshots` — **cheap-disproof 2026-09-10 seed hunt #1635:** main inspect path joins `FindingRecords` → `FindingsSnapshots` → `Runs`; regression `MainInspect_joins_run_through_findings_snapshot`.
+- [x] (valid-no-repro) `ResolveRuleFields` preserves surrounding whitespace in `AppliedRuleIdsJson` elements — **cheap-disproof 2026-09-10 seed hunt #1635:** first valid id is `.Trim()` before return; regression `ResolveRuleFields_trims_whitespace_from_applied_rule_ids`.
+- [x] (valid-no-repro) `ParseHumanReview` / `ParseDisposition` / `TryParseEvaluationConfidenceLevel` are whitespace-sensitive — **cheap-disproof 2026-09-10 seed hunt #1635:** mappers trim before `Enum.TryParse`; regressions `ParseHumanReview_maps_or_defaults` for `"  Pending  "`, `ParseDisposition_trims_surrounding_whitespace`, and `TryParseEvaluationConfidenceLevel_trims_surrounding_whitespace`.
+
+2026-09-10 seed hunt #1635 (seed-only): reseeded finding-inspect-sql after #1634; cheap-disproof closed TOP 1 run selection, trace-rule TOP 1, audit event type/order filters, snapshot join path, applied-rule-id trim, and enum trim parity; 77 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

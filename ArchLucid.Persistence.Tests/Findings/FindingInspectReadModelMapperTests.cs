@@ -25,6 +25,7 @@ public sealed class FindingInspectReadModelMapperTests
 
     [Theory]
     [InlineData(null, FindingHumanReviewStatus.NotRequired)]
+    [InlineData("  Pending  ", FindingHumanReviewStatus.Pending)]
     [InlineData("Pending", FindingHumanReviewStatus.Pending)]
     [InlineData("bad", FindingHumanReviewStatus.NotRequired)]
     [InlineData("99", FindingHumanReviewStatus.NotRequired)]
@@ -66,6 +67,14 @@ public sealed class FindingInspectReadModelMapperTests
         actual.Should().Be(FindingConfidenceLevel.High);
     }
 
+    [Fact]
+    public void TryParseEvaluationConfidenceLevel_trims_surrounding_whitespace()
+    {
+        FindingConfidenceLevel? actual = FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel("  High  ");
+
+        actual.Should().Be(FindingConfidenceLevel.High);
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -80,6 +89,14 @@ public sealed class FindingInspectReadModelMapperTests
     public void ParseDisposition_parses_known_value()
     {
         FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("Accepted");
+
+        actual.Should().Be(FindingDisposition.Accepted);
+    }
+
+    [Fact]
+    public void ParseDisposition_trims_surrounding_whitespace()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("  Accepted  ");
 
         actual.Should().Be(FindingDisposition.Accepted);
     }

@@ -199,6 +199,44 @@ public sealed class FindingInspectReadSqlTests
         dispositionSql.Should().Contain("e.Disposition IS NOT NULL");
     }
 
+    [Fact]
+    public void MainInspect_uses_top_one_for_deterministic_run_selection()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("SELECT TOP 1");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("SELECT TOP 1");
+    }
+
+    [Fact]
+    public void FollowUpBatch_trace_rules_subquery_uses_top_one_for_first_rule_text()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().Contain("SELECT TOP 1 tra.RuleText");
+    }
+
+    [Fact]
+    public void FollowUpBatch_audit_event_filters_authority_committed_event_type()
+    {
+        string auditSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.AuditEvents");
+
+        auditSql.Should().Contain("ae.EventType = @EventType");
+    }
+
+    [Fact]
+    public void FollowUpBatch_audit_event_orders_by_latest_occurrence()
+    {
+        string auditSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.AuditEvents");
+
+        auditSql.Should().Contain("ORDER BY ae.OccurredUtc DESC");
+    }
+
+    [Fact]
+    public void MainInspect_joins_run_through_findings_snapshot()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("INNER JOIN dbo.Runs r ON r.RunId = fs.RunId");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
