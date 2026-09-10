@@ -241,4 +241,119 @@ public sealed class OrchestratorTransientDbRetryTests
         await act.Should().ThrowAsync<SqlException>();
         attempts.Should().Be(1);
     }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_bare_timeout_exception()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new TimeoutException("command timed out");
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_sql_timeout_error_number_minus_two()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(-2);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_azure_sql_unavailable_error_40613()
+    {
+        int attempts = 0;
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw SqlExceptionTestFactory.Create(40613);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_nested_aggregate_exception_when_inner_aggregate_contains_deadlock()
+    {
+        int attempts = 0;
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(new AggregateException(deadlock));
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_does_not_retry_bare_invalid_operation_exception()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+                throw new InvalidOperationException("orchestrator persist failed");
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        attempts.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_generic_overload_exhausts_max_retries_then_throws_transient_sql_error()
+    {
+        int attempts = 0;
+
+        Func<Task> act = () => OrchestratorTransientDbRetry.ExecuteAsync<int>(
+            _ =>
+            {
+                attempts++;
+                return Task.FromException<int>(SqlExceptionTestFactory.Create(1205));
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<SqlException>();
+        attempts.Should().Be(4);
+    }
 }
