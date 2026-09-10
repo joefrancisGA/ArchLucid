@@ -75,21 +75,29 @@ describe("lost-write 401 resume inventory (LW-003)", () => {
   it("keeps yes-row wrappers in source", () => {
     const disposition = readRepoFile("lib/api/governance-stickiness-api-dispositions.ts");
     const correction = readRepoFile("lib/governance/governance-mutation-correction-api.ts");
+    const resumeCore = readRepoFile("lib/auth/livelihood-mutation-401-resume.ts");
 
     expect(disposition).toContain("recordFindingDispositionWith401Resume");
     expect(correction).toContain("recordGovernanceMutationCorrectionWith401Resume");
+    expect(disposition).toContain("withLivelihood401Resume");
+    expect(correction).toContain("withLivelihood401Resume");
+    expect(resumeCore).toContain("export async function withLivelihood401Resume");
   });
 });
 
 describe("lost-write browser WIP keys (LW-005)", () => {
-  it("records pending mutation as sessionStorage and v1 offline queue as localStorage without expectedUtc", () => {
-    const pending = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "pending-mutation-v1");
+  it("records pending mutation v2 as localStorage and v1 offline queue as localStorage without expectedUtc", () => {
+    const pendingV1 = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "pending-mutation-v1");
+    const pendingV2 = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "pending-mutation-v2");
     const queueV1 = LOST_WRITE_BROWSER_WIP_KEYS.find((row) => row.id === "offline-draft-queue-v1");
 
-    expect(pending?.storage).toBe("sessionStorage");
-    expect(pending?.survivesTabClose).toBe(false);
-    expect(pending?.crossDevice).toBe(false);
-    expect(pending?.key).toBe(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY);
+    expect(pendingV1?.storage).toBe("sessionStorage");
+    expect(pendingV1?.survivesTabClose).toBe(false);
+
+    expect(pendingV2?.storage).toBe("localStorage");
+    expect(pendingV2?.survivesTabClose).toBe(true);
+    expect(pendingV2?.crossDevice).toBe(false);
+    expect(pendingV2?.key).toBe(LIVELIHOOD_PENDING_MUTATION_STORAGE_KEY);
 
     expect(queueV1?.storage).toBe("localStorage");
     expect(queueV1?.key).toBe(ARCHITECTURE_DRAFT_OFFLINE_QUEUE_KEY_V1);
