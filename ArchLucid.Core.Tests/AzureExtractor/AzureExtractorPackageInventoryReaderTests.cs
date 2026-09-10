@@ -316,6 +316,142 @@ public sealed class AzureExtractorPackageInventoryReaderTests
         result.Error.Should().Contain("role-assignments.json root must be a JSON array");
     }
 
+    [Fact]
+    public void TryReadFromZip_fails_on_non_array_network_associations_json()
+    {
+        byte[] zipBytes = BuildZipWithCompanion(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """,
+            AzureExtractorPackageZipEntryNames.NetworkAssociations,
+            "{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeFalse();
+        result.Error.Should().Contain("network-associations.json root must be a JSON array");
+    }
+
+    [Fact]
+    public void TryReadFromZip_fails_on_non_array_policy_assignments_json()
+    {
+        byte[] zipBytes = BuildZipWithCompanion(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """,
+            AzureExtractorPackageZipEntryNames.PolicyAssignments,
+            "{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeFalse();
+        result.Error.Should().Contain("policy-assignments.json root must be a JSON array");
+    }
+
+    [Fact]
+    public void TryReadFromZip_fails_on_non_array_defender_summary_json()
+    {
+        byte[] zipBytes = BuildZipWithCompanion(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """,
+            AzureExtractorPackageZipEntryNames.DefenderSummary,
+            "{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeFalse();
+        result.Error.Should().Contain("defender-summary.json root must be a JSON array");
+    }
+
+    [Fact]
+    public void TryReadFromZip_resolves_resources_entry_case_insensitively()
+    {
+        byte[] zipBytes = BuildZipWithEntryName(
+            "RESOURCES.JSON",
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].Name.Should().Be("sa1");
+    }
+
+    [Fact]
+    public void TryReadFromZip_returns_empty_resources_when_resources_json_missing()
+    {
+        using MemoryStream stream = new(BuildEmptyZip());
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryReadFromZip_extracts_resource_group_from_arm_id_when_not_on_row()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg-east/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "name": "sa1"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].ResourceGroup.Should().Be("rg-east");
+    }
+
     private static byte[] BuildZip(string resourcesJson)
     {
         using MemoryStream ms = new();
@@ -354,5 +490,30 @@ public sealed class AzureExtractorPackageInventoryReaderTests
         }
 
         return output.ToArray();
+    }
+
+    private static byte[] BuildZipWithEntryName(string entryName, string resourcesJson)
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive archive = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            ZipArchiveEntry entry = archive.CreateEntry(entryName);
+            using StreamWriter writer = new(entry.Open(), Encoding.UTF8);
+            writer.Write(resourcesJson);
+        }
+
+        return ms.ToArray();
+    }
+
+    private static byte[] BuildEmptyZip()
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive archive = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+        }
+
+        return ms.ToArray();
     }
 }

@@ -253,6 +253,63 @@ public sealed class AzureExtractorPackageZipValidatorTests
         result.ErrorDetail.Should().Contain("diagnostic-settings.json root must be a JSON array");
     }
 
+    [Fact]
+    public void Validate_rejects_non_array_network_associations_json()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            optionalEntryName: AzureExtractorPackageZipEntryNames.NetworkAssociations,
+            optionalEntryJson: "{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("network-associations.json root must be a JSON array");
+    }
+
+    [Fact]
+    public void Validate_rejects_non_array_policy_assignments_json()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            optionalEntryName: AzureExtractorPackageZipEntryNames.PolicyAssignments,
+            optionalEntryJson: "{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("policy-assignments.json root must be a JSON array");
+    }
+
+    [Fact]
+    public void Validate_rejects_non_array_defender_summary_json()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            optionalEntryName: AzureExtractorPackageZipEntryNames.DefenderSummary,
+            optionalEntryJson: "{}");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("defender-summary.json root must be a JSON array");
+    }
+
     private static byte[] BuildZip(
         bool includeManifest,
         int schemaVersion,
