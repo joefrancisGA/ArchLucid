@@ -204,7 +204,7 @@ public sealed partial class ExportsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapExportReplaySealedManifestConflict(ex);
         }
 
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)
@@ -253,7 +253,7 @@ public sealed partial class ExportsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapExportReplaySealedManifestConflict(ex);
         }
 
         if (result.Outcome is ExportRecordLoadOutcome.LineageUnverified)

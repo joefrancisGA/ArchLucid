@@ -120,7 +120,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
     }
 
@@ -152,7 +152,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
     }
 
@@ -187,7 +187,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -242,7 +242,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
     }
 
@@ -271,7 +271,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
     }
 
@@ -300,7 +300,7 @@ public sealed partial class RoiController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRoiReadSealedManifestConflict(ex);
         }
     }
 

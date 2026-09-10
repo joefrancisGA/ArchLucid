@@ -236,7 +236,7 @@ public sealed partial class AuthorityReadsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapReviewTrailSealedManifestConflict(ex);
         }
     }
 
@@ -320,7 +320,7 @@ public sealed partial class AuthorityReadsController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapReviewTrailSealedManifestConflict(ex);
         }
     }
 }

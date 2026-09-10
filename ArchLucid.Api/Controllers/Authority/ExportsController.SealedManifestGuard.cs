@@ -34,11 +34,17 @@ public sealed partial class ExportsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapExportReplaySealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps export replay <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapExportReplaySealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 
     private async Task<IActionResult?> EnsureSealedManifestReadAllowedForExportRecordAsync(
         string exportRecordId,
