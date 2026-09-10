@@ -1588,4 +1588,125 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
             .Should().BeEmpty(
                 "rank ladder prefers Accepted duplicate over Rejected when CreatedUtc differs");
     }
+
+    [Fact]
+    public void GetBlockingReasons_throws_when_run_null()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        Action act = () => RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+            null!,
+            options,
+            []);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void GetBlockingReasons_throws_when_options_null()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+
+        Action act = () => RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+            run,
+            null!,
+            []);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void GetBlockingReasons_throws_when_traces_null()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+
+        Action act = () => RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+            run,
+            options,
+            null!);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_distinct_tasks_all_unevaluated_does_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        AgentExecutionTrace topologyUnevaluated = new()
+        {
+            TraceId = "trace-topology",
+            TaskId = "task-topology",
+            AgentType = AgentType.Topology,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+        AgentExecutionTrace costUnevaluated = new()
+        {
+            TraceId = "trace-cost",
+            TaskId = "task-cost",
+            AgentType = AgentType.Cost,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [topologyUnevaluated, costUnevaluated])
+            .Should().BeEmpty("TB-2226 blocks only recorded rejections on winning traces");
+    }
+
+    [Fact]
+    public void GetBlockingReasons_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted_does_not_block()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        DateTime olderUtc = new(2026, 12, 5, 22, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 5, 22, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace qualityRejectedAcceptedDuplicate = new()
+        {
+            TraceId = "trace-qr-accepted",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace cleanAcceptedDuplicate = new()
+        {
+            TraceId = "trace-clean-accepted",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+            QualityRejected = false,
+        };
+
+        RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [qualityRejectedAcceptedDuplicate, cleanAcceptedDuplicate])
+            .Should().BeEmpty(
+                "rank ladder prefers clean Accepted duplicate over QualityRejected+Accepted drift row");
+    }
 }

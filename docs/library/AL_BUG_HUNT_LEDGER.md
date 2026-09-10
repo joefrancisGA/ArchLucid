@@ -375,7 +375,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -445,6 +445,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) single unevaluated trace on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1623:** missing recorded rejection is non-blocking (`GetBlockingReasons_when_single_unevaluated_trace_does_not_block`)
 - [x] (valid-no-repro) multiple `Warned` latest-per-task traces — **cheap-disproof 2026-09-10 seed hunt #1623:** Warned outcomes do not accumulate blocking reasons (`GetBlockingReasons_when_multiple_warned_tasks_do_not_block`)
 - [x] (valid-no-repro) distinct tasks with unevaluated and `Rejected` winners — **cheap-disproof 2026-09-10 seed hunt #1623:** gate blocks only rejected latest-per-task (`GetBlockingReasons_when_distinct_tasks_unevaluated_and_rejected_only_blocks_rejected`)
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` null `run`/`options`/`traces` — **cheap-disproof 2026-09-10 seed hunt #1624:** `ArgumentNullException` on null inputs (`GetBlockingReasons_throws_when_run_null`, `GetBlockingReasons_throws_when_options_null`, `GetBlockingReasons_throws_when_traces_null`)
+- [x] (valid-no-repro) distinct tasks where every latest-per-task winner is unevaluated — **cheap-disproof 2026-09-10 seed hunt #1624:** TB-2226 blocks only recorded rejections (`GetBlockingReasons_when_distinct_tasks_all_unevaluated_does_not_block`)
+- [x] (valid-no-repro) same-attempt duplicate with `QualityRejected=true` + `Accepted` vs clean `Accepted` sibling — **cheap-disproof 2026-09-10 seed hunt #1624:** rank ladder prefers clean Accepted (rank 3) over QR+Accepted drift row (rank 1); regressions `Select_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted`, `GetBlockingReasons_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted_does_not_block`
+- [ ] (candidate) same-attempt duplicate with `QualityRejected=true` + `RecordedQualityGateOutcome.Rejected` vs sibling `Warned` — rank ladder may prefer Warned and suppress blocking on the reject duplicate
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-`Real` `StructuralExecutionMode` returns before trace fetch so persisted rejections are never evaluated at the integrity layer
+
+2026-09-10 seed hunt #1624 (seed-only): reseeded commit-output-integrity after #1623; cheap-disproof on null evaluator guards, all-unevaluated multi-task non-blocking, and QR+Accepted vs clean Accepted duplicate rank; 82 scoped commit-output-integrity tests passed; removed duplicate Core `ArchitectureShareRoles` and stale `ArchitectureShareManagementService` merge fallout blocking compile.
 
 2026-09-10 seed hunt #1623 (seed-only): reseeded commit-output-integrity after #1622; cheap-disproof on null selector input, Accepted-over-Rejected CreatedUtc skew, lone unevaluated trace, multi-Warned tasks, and mixed unevaluated/Rejected per-task blocking; 76 scoped commit-output-integrity tests passed.
 
