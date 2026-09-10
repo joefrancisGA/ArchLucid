@@ -665,6 +665,15 @@ public sealed class FindingInspectReadSqlTests
     }
 
     [Fact]
+    public void FollowUpBatch_disposition_subquery_reads_row_version_from_pointer_table()
+    {
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+
+        dispositionSql.Should().Contain("c.RowVersionStamp");
+        dispositionSql.Should().NotContain("e.RowVersionStamp");
+    }
+
+    [Fact]
     public void MainInspect_scopes_runs_table_to_tenant_and_workspace()
     {
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.TenantId = @TenantId");

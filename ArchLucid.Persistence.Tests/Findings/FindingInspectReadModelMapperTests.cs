@@ -250,4 +250,10 @@ public sealed class FindingInspectReadModelMapperTests
 
         actual.Should().Be(FindingSeverity.Critical);
     }
+
+    [Fact]
+    public void ParseFindingSeverity_maps_negative_numeric_string_to_info_default()
+    {
+        FindingInspectReadModelMapper.ParseFindingSeverity("-1").Should().Be(FindingSeverity.Info);
+    }
 }

@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1555,6 +1555,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `FollowUpBatch` active waiver count hardcodes `Status = 'Active'` instead of binding `@ActiveStatus` — **cheap-disproof 2026-09-10 seed hunt #1653:** waiver subquery uses the parameterized status filter; regression `FollowUpBatch_active_waiver_count_binds_status_parameter`.
 
 2026-09-10 seed hunt #1653 (seed-only): reseeded finding-inspect-sql after #1652; cheap-disproof closed null event-id passthrough, null collection filtering, metadata key casing, empty/whitespace rule-name fallback semantics, JSON-over-metadata precedence, and waiver status parameter binding; 246 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ResolveTraceRuleFields` throws when `firstRuleText` is null — **cheap-disproof 2026-09-10 seed hunt #1654:** null trace text yields `(null, null)`; regression `ResolveTraceRuleFields_returns_nulls_when_trace_text_is_null`.
+- [x] (valid-no-repro) `FilterRecommendedActions` applies different trimming rules than `FilterNonBlankTrimmedStrings` — **cheap-disproof 2026-09-10 seed hunt #1654:** recommended-action filter delegates to the shared trim helper; regression `FilterRecommendedActions_matches_filter_non_blank_trimmed_strings_output`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains object elements deserializes nested rule ids — **cheap-disproof 2026-09-10 seed hunt #1654:** object array elements fail `List<string>` deserialize and fall back to trace text; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_object_elements_falls_back_to_trace_text`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` is JSON literal `null` treats the column as a present rule id — **cheap-disproof 2026-09-10 seed hunt #1654:** null literal deserializes to absent ids and falls back to trace text; regression `ResolveRuleFields_when_applied_rule_ids_json_is_null_literal_falls_back_to_trace_text`.
+- [x] (valid-no-repro) `MapLatestDisposition` parses empty-string disposition values when a pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1654:** empty disposition raw parses to null; regression `MapLatestDisposition_returns_null_when_disposition_raw_is_empty_with_row_present`.
+- [x] (valid-no-repro) `EncodeRowVersionStampBase64` returns null for a single zero byte stamp — **cheap-disproof 2026-09-10 seed hunt #1654:** zero-byte stamps base64-encode normally; regression `EncodeRowVersionStampBase64_encodes_single_zero_byte_stamp`.
+- [x] (valid-no-repro) `TryParsePayloadJson` treats JSON number zero as corrupt and returns null — **cheap-disproof 2026-09-10 seed hunt #1654:** numeric zero deserializes to `JsonValueKind.Number`; regression `TryParsePayloadJson_returns_deserialized_zero_for_json_number_zero`.
+- [x] (valid-no-repro) `ParseFindingSeverity` maps negative numeric strings to `Critical` — **cheap-disproof 2026-09-10 seed hunt #1654:** undefined negative ordinals default to `Info`; regression `ParseFindingSeverity_maps_negative_numeric_string_to_info_default`.
+- [x] (valid-no-repro) `FollowUpBatch` disposition subquery reads `RowVersionStamp` from review events instead of the pointer table — **cheap-disproof 2026-09-10 seed hunt #1654:** projection selects `c.RowVersionStamp`; regression `FollowUpBatch_disposition_subquery_reads_row_version_from_pointer_table`.
+
+2026-09-10 seed hunt #1654 (seed-only): reseeded finding-inspect-sql after #1653; cheap-disproof closed null trace fallback, recommended-action filter parity, object/null applied-rule JSON fallback, empty disposition mapping, zero-byte row-version encoding, JSON zero payload parse, negative severity defaulting, and pointer row-version SQL source; 255 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

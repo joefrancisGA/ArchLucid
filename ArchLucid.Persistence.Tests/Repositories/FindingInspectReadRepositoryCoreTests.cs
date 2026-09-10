@@ -1345,4 +1345,67 @@ public sealed class FindingInspectReadRepositoryCoreTests
         typed!.Value.GetProperty("resourceId").GetString().Should().Be("vm-1");
         typed!.Value.TryGetProperty("title", out _).Should().BeFalse();
     }
+
+    [Fact]
+    public void ResolveTraceRuleFields_returns_nulls_when_trace_text_is_null()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveTraceRuleFields(null);
+
+        ruleId.Should().BeNull();
+        ruleName.Should().BeNull();
+    }
+
+    [Fact]
+    public void FilterRecommendedActions_matches_filter_non_blank_trimmed_strings_output()
+    {
+        string[] values = ["  Rotate keys  ", "   ", "Enable MFA"];
+
+        FindingInspectReadRepositoryCore.FilterRecommendedActions(values)
+            .Should()
+            .Equal(FindingInspectReadRepositoryCore.FilterNonBlankTrimmedStrings(values));
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_contains_object_elements_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            """[{"ruleId":"cost-guardrail"}]""",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_is_null_literal_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            "null",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void MapLatestDisposition_returns_null_when_disposition_raw_is_empty_with_row_present()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition(string.Empty, hasDispositionRow: true).Should().BeNull();
+    }
+
+    [Fact]
+    public void EncodeRowVersionStampBase64_encodes_single_zero_byte_stamp()
+    {
+        FindingInspectReadRepositoryCore.EncodeRowVersionStampBase64([0x00]).Should().Be(Convert.ToBase64String([0x00]));
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_zero_for_json_number_zero()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("0");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.ValueKind.Should().Be(JsonValueKind.Number);
+        parsed!.Value.GetInt32().Should().Be(0);
+    }
 }
