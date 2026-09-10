@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8020,6 +8020,18 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `MapResourceRow` omits `resourceGroup` when only ARM id is present — **cheap-disproof 2026-09-10 seed hunt #1595:** `ExtractResourceGroup` parses `/resourceGroups/{name}/`; regression `TryReadFromZip_extracts_resource_group_from_arm_id_when_not_on_row`.
 
 2026-09-10 seed hunt #1595 (seed-only): reseeded core-azure-extractor after #1588; cheap-disproof closed remaining companion-array fail-closed parity, case-insensitive entry lookup, missing resources.json behavior, and ARM resource-group extraction; 881 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) `AzureExtractorResourceInventoryReader` fails instead of returning empty when `resources.json` is absent — **cheap-disproof 2026-09-10 seed hunt #1596:** absent entry yields empty list by design; regression `TryReadFromZip_returns_empty_when_resources_json_missing`.
+- [x] (valid-no-repro) `AzureExtractorResourceInventoryReader` silently returns zero rows on non-array `resources.json` root — **cheap-disproof 2026-09-10 seed hunt #1596:** fail-closed with explicit error; regression `TryReadFromZip_fails_on_non_array_resources_json`.
+- [x] (valid-no-repro) `AzureExtractorResourceInventoryReader` misses `resources.json` when ZIP entry name casing differs — **cheap-disproof 2026-09-10 seed hunt #1596:** ordinal-ignore-case fallback; regression `TryReadFromZip_resolves_resources_entry_case_insensitively`.
+- [x] (valid-no-repro) `AzureExtractorResourceInventoryReader` fails entire read on non-object resource rows — **cheap-disproof 2026-09-10 seed hunt #1596:** invalid array elements are skipped; regression `TryReadFromZip_skips_non_object_resource_rows`.
+- [x] (valid-no-repro) `AzureExtractorResourceInventoryReader` ignores PascalCase `Name`/`ResourceType`/`Location` properties — **cheap-disproof 2026-09-10 seed hunt #1596:** case-insensitive property binding; regression `TryReadFromZip_reads_pascal_case_name_and_resource_type`.
+- [x] (valid-no-repro) `AzureExtractorPackageInventoryReader` ignores `id` when `resourceId` is absent — **cheap-disproof 2026-09-10 seed hunt #1596:** `id` fallback populates `AzureResourceId`; regression `TryReadFromZip_uses_id_property_when_resource_id_missing`.
+- [x] (valid-no-repro) `AzureExtractorPackageZipValidator` accepts schema v2 ZIP missing `resources.json` — **cheap-disproof 2026-09-10 seed hunt #1596:** validator rejects with explicit detail; regression `Validate_rejects_zip_missing_resources_json`.
+- [x] (valid-no-repro) `ValidateFile` throws or returns success when ZIP path does not exist — **cheap-disproof 2026-09-10 seed hunt #1596:** returns invalid result with `ZIP file not found`; regression `ValidateFile_returns_error_when_zip_path_does_not_exist`.
+- [x] (valid-no-repro) `CountFileEntries` counts ZIP directory entries toward file totals — **cheap-disproof 2026-09-10 seed hunt #1596:** only file entries counted; regression `CountFileEntries_ignores_directory_entries`.
+
+2026-09-10 seed hunt #1596 (seed-only): reseeded core-azure-extractor after #1595; cheap-disproof closed ResourceInventoryReader parity (missing entry, non-array root, case-insensitive lookup, non-object skip, PascalCase binding), `id` fallback in PackageInventoryReader, and ZipValidator missing-entry / missing-file / directory-entry counting; 890 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
