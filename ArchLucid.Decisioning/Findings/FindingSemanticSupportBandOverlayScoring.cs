@@ -12,7 +12,7 @@ public static class FindingSemanticSupportBandOverlayScoring
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        string findingMessage = BuildFindingMessage(finding);
+        string findingMessage = FindingSemanticSupportBandClaimMessageResolver.Resolve(finding);
         IReadOnlyList<string> citationExcerpts = BuildCitationExcerpts(finding);
 
         FindingSemanticSupportBand band = finding.SemanticSupportBand
@@ -24,14 +24,6 @@ public static class FindingSemanticSupportBandOverlayScoring
             band,
             FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1,
             evidenceHash);
-    }
-
-    private static string BuildFindingMessage(Finding finding)
-    {
-        if (!string.IsNullOrWhiteSpace(finding.Rationale))
-            return finding.Rationale.Trim();
-
-        return finding.Title.Trim();
     }
 
     private static IReadOnlyList<string> BuildCitationExcerpts(Finding finding)
