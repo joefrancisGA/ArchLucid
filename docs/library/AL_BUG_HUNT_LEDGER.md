@@ -696,7 +696,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-10
@@ -770,6 +770,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `EmailOtpRequestFlow.ResolveInvitationIdAsync` links invitation tokens when invitee email differs from sign-in email — **cheap-disproof 2026-09-10 seed hunt #1573:** normalized email equality guard returns null; regression `RequestCodeAsync_omits_invitation_link_when_token_email_mismatches_sign_in_email`.
 
 2026-09-10 seed hunt #1573 (seed-only): reseeded email-otp-auth; restored per-email verify rate-limit regression and cheap-disproof closed invitation-token linkage candidates; 36 scoped EmailOtp tests passed.
+
+- [x] (valid-no-repro) `TryAcceptInvitationAsync` — verify omits `InvitationToken` so challenge-linked invitation is not accepted — **cheap-disproof 2026-09-10 seed hunt #1630:** `challenge.InvitationId` is consulted before token hash lookup; regression `VerifyCodeAsync_accepts_challenge_linked_invitation_without_verify_invitation_token`.
+- [x] (valid-no-repro) `ResolveNextStepAsync` — multi-workspace users receive elevated membership role before workspace selection — **cheap-disproof 2026-09-10 seed hunt #1630:** `SelectWorkspace` returns `ArchLucidRoles.Reader` placeholder until explicit pick; regression `VerifyCodeAsync_select_workspace_returns_reader_placeholder_role`.
+- [x] (valid-no-repro) `ResolveNextStepAsync` — suspended/revoked memberships count toward `SelectWorkspace` routing — **cheap-disproof 2026-09-10 seed hunt #1630:** only `WorkspaceMembershipStatus.Active` rows are counted; regression `VerifyCodeAsync_completes_when_user_has_one_active_and_one_inactive_membership`.
+- [x] (valid-no-repro) `ResolveNextStepAsync` — expired challenge-linked invitation still routes to `AcceptInvitation` after OTP verify — **cheap-disproof 2026-09-10 seed hunt #1630:** `GetPendingByIdAsync` filters `ExpiresUtc`; regression `VerifyCodeAsync_routes_past_expired_challenge_linked_invitation_to_create_workspace`.
+- [x] (valid-no-repro) `IsEmailOtpVerificationRateLimitedAsync` — rate-limited verify emits duplicate `EmailOtpVerificationFailed` audits — **cheap-disproof 2026-09-10 seed hunt #1630:** second failure logs `EmailOtpRateLimitTriggered` only; first wrong code still emits one `EmailOtpVerificationFailed`; regression `VerifyCodeAsync_rate_limit_emits_rate_limit_audit_not_verification_failed`.
+
+- [ ] (candidate) `InMemoryUserInvitationRepository.GetPendingByIdAsync` — uses `TimeProvider.System` while `EmailOtpVerifyFlow` uses injected `TimeProvider`, so fake-clock tests can observe `AcceptInvitation` after invitation expiry until repository clock alignment is fixed (test-infra reachability only)
+
+2026-09-10 seed hunt #1630 (seed-only): reseeded email-otp-auth after #1573; cheap-disproof closed challenge-linked accept without verify token, SelectWorkspace placeholder role, inactive membership filtering, expired linked-invitation routing, and verify rate-limit audit pairing; 41 scoped EmailOtp tests passed.
 
 ---
 
