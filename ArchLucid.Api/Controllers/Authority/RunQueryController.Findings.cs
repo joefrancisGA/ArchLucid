@@ -32,29 +32,36 @@ public sealed partial class RunQueryController
         [FromQuery] Guid? cursorFindingRecordId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        RunFindingsListQueryResult result = await runFindingsQueryService.ListRunFindingsAsync(
-            runId,
-            orderBy,
-            take,
-            cursorSortOrder,
-            cursorPriorityRank,
-            cursorFindingRecordId,
-            cancellationToken);
+            RunFindingsListQueryResult result = await runFindingsQueryService.ListRunFindingsAsync(
+                runId,
+                orderBy,
+                take,
+                cursorSortOrder,
+                cursorPriorityRank,
+                cursorFindingRecordId,
+                cancellationToken);
 
-        if (result.Outcome == RunFindingsQueryOutcome.BadRequest)
-            return this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed);
+            if (result.Outcome == RunFindingsQueryOutcome.BadRequest)
+                return this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed);
 
-        if (result.Outcome != RunFindingsQueryOutcome.Success)
-            return this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
+            if (result.Outcome != RunFindingsQueryOutcome.Success)
+                return this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound);
 
-        IActionResult? findingsNotModified = this.TryConditionalNotModified(result.Etag!);
+            IActionResult? findingsNotModified = this.TryConditionalNotModified(result.Etag!);
 
-        return findingsNotModified ?? this.OkWithConditionalEtag(result.Response!, result.Etag!);
+            return findingsNotModified ?? this.OkWithConditionalEtag(result.Response!, result.Etag!);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
