@@ -118,8 +118,8 @@ if [ "${LIVE_E2E_PRIVATE_BETA_ACCESS:-}" = "1" ]; then
     "create architecture run" \
     "${API_URL}/v1/architecture/request" \
     "${CREATE_BODY}" \
-    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-600}" \
-    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-2}"
+    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_MAX_TIME:-120}" \
+    "${ARCHLUCID_PRIVATE_BETA_CREATE_RUN_WARM_ATTEMPTS:-1}"
   echo "Skipping draft inventory shell warm (LIVE_E2E_PRIVATE_BETA_ACCESS=1); Playwright stubs draft inventory in-browser."
 else
   warm_path "draft inventory" "${API_URL}/v1/architecture/draft?mine=true&page=1&pageSize=1"

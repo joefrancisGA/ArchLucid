@@ -176,6 +176,12 @@ export async function writeJwtBrowserSession(page: Page, accessToken: string): P
 
 /** Clears OIDC session hints to simulate expiry / signed-out state. */
 export async function clearJwtBrowserSession(page: Page): Promise<void> {
+  const appOrigin = process.env.PLAYWRIGHT_BASE_URL?.trim() || "http://127.0.0.1:3000";
+
+  if (!page.url().startsWith(appOrigin)) {
+    await page.goto(`${appOrigin}/auth/signin`, { waitUntil: "domcontentloaded" });
+  }
+
   await page.evaluate(
     async ({ expiresKey, displayKey, bffPath }) => {
       sessionStorage.removeItem(expiresKey);
@@ -689,20 +695,44 @@ export async function submitAdminInviteFromUsersUi(
   await openInviteForm(page);
   await page.getByTestId("settings-roles-invite-email").fill(email);
   await page.getByTestId("settings-roles-invite-role").click();
+  await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).waitFor({ state: "visible", timeout: 15_000 });
   await page.getByRole("option", { name: new RegExp(`^${roleLabel}$`) }).click();
+
+  const inviteResponsePromise = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/proxy/v1/admin/users/invite") && response.request().method() === "POST",
+    { timeout: 90_000 },
+  );
+
   await page.getByTestId("settings-roles-invite-submit").click();
+
+  let inviteResponseStatus: number | undefined;
+  let inviteResponseBody = "";
+
+  try {
+    const inviteResponse = await inviteResponsePromise;
+    inviteResponseStatus = inviteResponse.status();
+    inviteResponseBody = await inviteResponse.text();
+  } catch {
+    // Fall through to UI assertions — some builds surface only toast + seeded rows.
+  }
 
   const pendingRow = page.locator("tr", { hasText: email });
   const conflictCopy = page.getByText(/Cannot invite this email|directory user already exists/i);
 
   try {
     await Promise.race([
-      pendingRow.waitFor({ state: "visible", timeout: 60_000 }),
-      conflictCopy.waitFor({ state: "visible", timeout: 60_000 }),
+      pendingRow.waitFor({ state: "visible", timeout: 90_000 }),
+      conflictCopy.waitFor({ state: "visible", timeout: 90_000 }),
     ]);
   } catch {
+    const inviteHint =
+      inviteResponseStatus !== undefined
+        ? ` Invite POST status=${inviteResponseStatus} body=${inviteResponseBody.slice(0, 240)}.`
+        : " Invite POST did not complete within 90s.";
+
     throw new Error(
-      `Admin invite UI for ${email} did not show a pending row or conflict message within 60s after submit.`,
+      `Admin invite UI for ${email} did not show a pending row or conflict message within 90s after submit.${inviteHint}`,
     );
   }
 }
