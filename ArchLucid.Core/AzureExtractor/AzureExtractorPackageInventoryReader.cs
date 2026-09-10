@@ -99,7 +99,7 @@ public static class AzureExtractorPackageInventoryReader
             AzureResourceId = azureResourceId.Trim(),
             ResourceType = resourceType.Trim(),
             Name = name.Trim(),
-            Location = location,
+            Location = string.IsNullOrWhiteSpace(location) ? null : location.Trim(),
             ResourceGroup = resourceGroup,
             SkuName = skuName,
             Tags = tags,
@@ -116,12 +116,24 @@ public static class AzureExtractorPackageInventoryReader
             return [];
 
         using Stream stream = entry.Open();
-        using JsonDocument document = JsonDocument.Parse(stream);
 
-        if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            throw new JsonException($"{entryName} root must be a JSON array.");
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
 
-        return document.RootElement.EnumerateArray().Select(static element => element.Clone()).ToList();
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+                throw new JsonException($"{entryName} root must be a JSON array.");
+
+            return document.RootElement.EnumerateArray().Select(static element => element.Clone()).ToList();
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{entryName} is not valid JSON.");
+        }
     }
 
     private static ZipArchiveEntry? FindEntry(ZipArchive archive, string entryName) =>

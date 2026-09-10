@@ -116,6 +116,38 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_rejects_negative_schemaVersion()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 1,
+            includeResources: true,
+            rawSchemaVersion: "-1");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("below the required V1 GA minimum");
+    }
+
+    [Fact]
+    public void Validate_schema_rejection_reports_file_entry_count()
+    {
+        byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 99, includeResources: true);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.FileEntryCount.Should().Be(2);
+    }
+
+    [Fact]
     public void Validate_rejects_manifest_with_non_object_root()
     {
         byte[] zipBytes = BuildZip(
