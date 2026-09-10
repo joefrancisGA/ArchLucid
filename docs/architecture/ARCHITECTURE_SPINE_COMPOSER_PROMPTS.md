@@ -20,7 +20,7 @@ Four first livelihood-ontology failures (2026-09-09 diagnosis):
 3. **The default day is still rehearsal.** Host `AgentExecution:Mode` stays Simulator (G-REAL-06 is owner). Working can still look like unlabeled career work. This wave adds **Career vs Rehearsal doors**, not a host-config flip.
 4. **Permission is the workspace, not the architecture.** ADR 0074 deferred per-architecture ACL. Consultancies and ARB+delivery in one tenant cannot isolate a package. This wave adds **optional RestrictToShares** (ADR 0087) inside the tenant.
 
-Problem 5 (concurrent desk without presence) is **out of wave** — named for wave 23 (work lease). Do not add live occupancy or finding-comment chat here.
+Problem 5 (concurrent desk without presence) is **out of this wave** — implemented as livelihood UX wave 23 [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md) (**LW-001–LW-100**, ADR **0090** lease plus mandatory draft CAS). Do not add live occupancy or finding-comment chat in AS files.
 
 ### Done test
 

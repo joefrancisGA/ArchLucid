@@ -49,7 +49,7 @@ All **100** paste-ready files under `.cursor/prompts/architecture-spine-*.md` pl
 
 | Item | Tracking | Notes |
 |------|----------|-------|
-| Concurrent desk / work lease without presence | **Wave 23** | Problem 5 from 2026-09-09 diagnosis — not closed here |
+| Concurrent desk / work lease without presence | Livelihood UX wave 23 **LW-001–LW-100** | [`LOST_WRITE_COMPOSER_PROMPTS.md`](LOST_WRITE_COMPOSER_PROMPTS.md) — ADR **0090** + mandatory draft CAS (**0088**); not live presence |
 | Intake wizard + architecture-rename dirty-form guards | LP-11 deferred | Livelihood document guards partial |
 | Stop-analysis confirm | FP leftover | Not a disposition write |
 | Findings-queue list DTO row versions (N+1) | FP residual | Pointer CAS follow-on |
