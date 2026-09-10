@@ -69,6 +69,42 @@ public sealed class GoldenCorpusProductCitationTests
     }
 
     [Fact]
+    public async Task Case40_dr_rpo_topology_has_concrete_citation()
+    {
+        GraphSnapshot graph = await LoadGraphAsync("case-40");
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        AssertAllHaveConcreteCitation(findings);
+    }
+
+    [Fact]
+    public async Task Case42_requirement_sku_tier_has_concrete_citation()
+    {
+        GraphSnapshot graph = await LoadGraphAsync("case-42");
+        RequirementSkuTierFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        AssertAllHaveConcreteCitation(findings);
+    }
+
+    [Fact]
+    public async Task Case45_dr_rpo_topology_second_has_concrete_citation()
+    {
+        GraphSnapshot graph = await LoadGraphAsync("case-45");
+        DrRpoTopologyFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        findings.Should().NotBeEmpty();
+        AssertAllHaveConcreteCitation(findings);
+    }
+
+    [Fact]
     public async Task Case47_data_flow_trust_boundary_has_concrete_citation()
     {
         GraphSnapshot graph = await LoadGraphAsync("case-47");
