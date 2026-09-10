@@ -158,44 +158,6 @@ export async function replayArchitectureRunAsync(
   }
 }
 
-export type ReplayArchitectureRunAsyncResult = {
-  readonly operationId: string;
-  readonly location: string | null;
-};
-
-/** Tier C async replay (TB-2075): 202 + Location for long-running replay work. */
-export async function replayArchitectureRunAsync(
-  runId: string,
-  body: {
-    readonly executionMode?: string;
-    readonly commitReplay?: boolean;
-    readonly manifestVersionOverride?: string | null;
-  } = {},
-): Promise<ReplayArchitectureRunAsyncResult> {
-  const accepted = await apiPostAcceptedWithLocation(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/replay/async`,
-    {
-      executionMode: body.executionMode,
-      commitReplay: body.commitReplay,
-      manifestVersionOverride: body.manifestVersionOverride ?? undefined,
-    },
-    { suppressErrorToast: true },
-  );
-  const operationId =
-    parseOperationIdFromLocation(accepted.location) ?? reviewPipelineOperationId(runId);
-
-  trackInFlightOperation({
-    operationId,
-    title: REVIEW_PIPELINE_IN_FLIGHT_TITLE,
-    href: reviewPipelineDetailHref(runId),
-    runId,
-    stepLabel: "Replay queued",
-    state: "Pending",
-  });
-
-  return { operationId, location: accepted.location };
-}
-
 /** TB-938: re-execute selected agents only (POST /v1/architecture/review/{runId}/execute/selective). */
 export async function executeArchitectureRunSelective(
   runId: string,
@@ -299,19 +261,4 @@ export async function deleteArchitectureRequest(requestId: string): Promise<void
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-}
-
-/** Clones an architecture request as a new template (POST /v1/architecture/request/{requestId}/clone). */
-export async function cloneArchitectureRequest(requestId: string): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/clone`, {});
-}
-
-/** Archives an architecture request (PATCH /v1/architecture/request/{requestId}/archive). */
-export async function archiveArchitectureRequest(requestId: string): Promise<void> {
-  await apiPatchJson<unknown>(`/v1/architecture/request/${encodeURIComponent(requestId)}/archive`, {});
-}
-
-/** Soft-deletes an architecture request (DELETE /v1/architecture/request/{requestId}). */
-export async function deleteArchitectureRequest(requestId: string): Promise<void> {
-  await apiDelete(`/v1/architecture/request/${encodeURIComponent(requestId)}`);
 }

@@ -82,26 +82,6 @@ export async function compareAgentResultsSummary(
 
 }
 
-/** Structured agent-result diff between two runs. */
-export async function compareAgentResults(
-  leftRunId: string,
-  rightRunId: string,
-): Promise<components["schemas"]["AgentResultCompareResponse"]> {
-  return apiGetSealedManifestAware<components["schemas"]["AgentResultCompareResponse"]>(
-    `/v1/architecture/review/compare/agents?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
-  );
-}
-
-/** Markdown summary of agent-result diffs between two runs. */
-export async function compareAgentResultsSummary(
-  leftRunId: string,
-  rightRunId: string,
-): Promise<components["schemas"]["AgentResultCompareSummaryResponse"]> {
-  return apiGetSealedManifestAware<components["schemas"]["AgentResultCompareSummaryResponse"]>(
-    `/v1/architecture/review/compare/agents/summary?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
-  );
-}
-
 /** Legacy flat-diff comparison between two runs (run-level + optional manifest diffs). */
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
   try {

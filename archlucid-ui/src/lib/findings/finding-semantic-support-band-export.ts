@@ -30,7 +30,7 @@ export type SemanticSupportBandExportStamp = {
 export function resolveFindingSemanticSupportBandExportFields(
   finding: Pick<QuickDecisionFinding, "classification" | "semanticSupportBand">,
 ): FindingSemanticSupportBandExportFields | null {
-  if (!isDecisionGradeFinding(finding)) {
+  if (!isDecisionGradeFinding(finding as QuickDecisionFinding)) {
     return null;
   }
 

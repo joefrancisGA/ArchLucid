@@ -67,8 +67,12 @@ function CloudConnectionsStartHereActionPanel(props: { readonly productLineId: P
   const primaryActions = cloudConnectionsHelpPrimaryActions(props.productLineId);
   const secureNowShell = isSecureNowProductLine(props.productLineId);
   const primaryCta = secureNowShell
-    ? primaryActions.openExtractUpload
-    : primaryActions.startEvidenceOnlyReview;
+    ? "openExtractUpload" in primaryActions
+      ? primaryActions.openExtractUpload
+      : primaryActions.openHub
+    : "startEvidenceOnlyReview" in primaryActions
+      ? primaryActions.startEvidenceOnlyReview
+      : primaryActions.openHub;
 
   return (
     <section
