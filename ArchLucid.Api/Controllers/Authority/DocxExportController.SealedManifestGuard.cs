@@ -38,11 +38,17 @@ public sealed partial class DocxExportController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDocxExportSealedManifestConflict(ex);
         }
 
         return null;
     }
+
+    /// <summary>
+    ///     Maps DOCX export <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapDocxExportSealedManifestConflict(ConflictException ex) =>
+        this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 
     private async Task<IActionResult?> EnsureCompareRunDocxSealedManifestAllowedAsync(
         Guid compareRunId,
@@ -60,7 +66,7 @@ public sealed partial class DocxExportController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDocxExportSealedManifestConflict(ex);
         }
 
         return null;

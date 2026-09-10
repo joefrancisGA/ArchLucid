@@ -172,7 +172,7 @@ public sealed partial class AuthorityQueryController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunQuerySealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

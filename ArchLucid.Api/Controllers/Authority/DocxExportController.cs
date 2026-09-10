@@ -118,7 +118,7 @@ public sealed partial class DocxExportController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDocxExportSealedManifestConflict(ex);
         }
 
         IActionResult? docxSealedGuardResult =
@@ -160,7 +160,7 @@ public sealed partial class DocxExportController(
                 }
                 catch (ConflictException ex)
                 {
-                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                    return MapDocxExportSealedManifestConflict(ex);
                 }
             }
 

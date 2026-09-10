@@ -1,4 +1,5 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.InfraEvidence.RemediationInstances;
 
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,9 @@ public sealed partial class RemediationInstancesController
         message?.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase) == true
         || message?.Contains("sealed manifest", StringComparison.OrdinalIgnoreCase) == true
         || message?.Contains("lifecycle must be Complete", StringComparison.OrdinalIgnoreCase) == true;
+
+    private IActionResult MapRemediationInstanceSealedManifestConflict(ConflictException ex) =>
+        MapRemediationSealedManifestConflict(ex.Message);
 
     private IActionResult MapRemediationSealedManifestConflict(string? message) =>
         this.ConflictProblem(

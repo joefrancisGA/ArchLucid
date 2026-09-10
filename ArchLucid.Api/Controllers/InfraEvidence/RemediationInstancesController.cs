@@ -48,7 +48,7 @@ public sealed partial class RemediationInstancesController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRemediationInstanceSealedManifestConflict(ex);
         }
     }
 
@@ -72,7 +72,7 @@ public sealed partial class RemediationInstancesController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRemediationInstanceSealedManifestConflict(ex);
         }
     }
 

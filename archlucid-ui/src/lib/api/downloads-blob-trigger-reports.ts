@@ -1,5 +1,8 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { firstValueReportMutationBlockedReason } from "@/lib/pilots/first-value-report-mutation-blocked-reason";
+import { boardPackMutationBlockedReason } from "@/lib/pilots/board-pack-mutation-blocked-reason";
+import { sponsorOnePagerMutationBlockedReason } from "@/lib/pilots/sponsor-one-pager-mutation-blocked-reason";
 import { consultingDocxMutationBlockedReason } from "@/lib/compare/consulting-docx-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
@@ -116,7 +119,9 @@ export async function downloadFirstValueReportPdf(runId: string): Promise<void> 
   if (!response.ok) {
     const errText = await response.text();
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason = firstValueReportMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   assertBinaryDownloadContentType(response, ["application/pdf"]);
@@ -157,7 +162,9 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
   if (!response.ok) {
     const errText = await response.text();
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason = boardPackMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   assertBinaryDownloadContentType(response, ["application/pdf"]);
@@ -195,7 +202,9 @@ export async function downloadSponsorOnePagerPdf(runId: string): Promise<void> {
   if (!response.ok) {
     const errText = await response.text();
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason = sponsorOnePagerMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   assertBinaryDownloadContentType(response, ["application/pdf"]);
