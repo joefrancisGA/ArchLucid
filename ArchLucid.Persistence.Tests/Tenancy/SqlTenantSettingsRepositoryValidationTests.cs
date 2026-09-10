@@ -54,6 +54,32 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
     }
 
     [Fact]
+    public void EnsureSettingValueLength_rejects_whitespace_only_value()
+    {
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength("   ");
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Serialized_allowed_engine_set_with_twelve_aliases_fits_migration_setting_value_limit()
+    {
+        List<string> aliasIds = Enumerable
+            .Range(1, 12)
+            .Select(index => $"managed-azure-openai-alias-{index:D2}")
+            .ToList();
+
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                allowedAliasIds = aliasIds,
+                defaultAliasId = aliasIds[0],
+            });
+
+        json.Length.Should().BeLessThanOrEqualTo(TenantSettingsSchemaLimits.SettingValueMaxLength);
+    }
+
+    [Fact]
     public void Serialized_allowed_engine_set_with_thirteen_aliases_fits_migration_setting_value_limit()
     {
         List<string> aliasIds = Enumerable

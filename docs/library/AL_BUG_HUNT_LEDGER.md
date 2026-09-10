@@ -239,7 +239,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 16
+- **hunts:** 17
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -302,6 +302,15 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) Concurrent upsert and delete wrappers cross-clear `WriteInFlightKeys` because `TryRemove` is not ref-counted — **cheap-disproof 2026-09-10 seed hunt #1548:** same slot semantics as prior upsert/delete write-in-flight rows (#1358/#1547); generation bumps plus inner persistence still expose the latest committed value; regression `TenantSettings_TryGetAsync_reflects_upsert_after_delete_loses_write_in_flight_flag`
 
 2026-09-10 seed hunt #1548 (seed-only): reseeded tenant-settings-sql after #1547; cheap-disproof closed default-catalog JSON budget, whitespace setting-key normalization, generation-stamped eviction mismatch, and upsert/delete write-in-flight cross-clear; 37 scoped TenantSettings tests passed.
+
+- [ ] (candidate) `CachingTenantSettingsRepository` generation-stamped cache keys collide across tenants for the same normalized `settingKey` — would leak tenant A values to tenant B reads
+- [x] (valid-no-repro) cross-tenant cache leak for identical setting keys — **cheap-disproof 2026-09-10 seed hunt #1552:** `BuildCacheKey` includes `tenantId`; regression `TenantSettings_TryGetAsync_does_not_leak_cached_values_across_tenants`
+- [x] (valid-no-repro) `UpsertAsync` accepts whitespace-only `SettingValue` and stores an empty row — **cheap-disproof 2026-09-10 seed hunt #1552:** `ThrowIfNullOrWhiteSpace` on value before `TenantSettingsWriteGuard`; regressions `UpsertAsync_rejects_whitespace_only_setting_value` and `EnsureSettingValueLength_rejects_whitespace_only_value`
+- [x] (valid-no-repro) `DeleteAsync` accepts whitespace-only `SettingKey` and deletes the normalized default slot — **cheap-disproof 2026-09-10 seed hunt #1552:** `TenantSettingKeyNormalizer.Normalize` throws on blank keys; regression `DeleteAsync_rejects_whitespace_only_setting_key`
+- [x] (valid-no-repro) `TryGetAsync` with `Guid.Empty` poisons hybrid-cache slots for live tenant reads — **cheap-disproof 2026-09-10 seed hunt #1552:** inner throws before cache write; regression `TenantSettings_TryGetAsync_throws_when_tenant_id_empty_without_poisoning_cached_tenant`
+- [x] (valid-no-repro) twelve-alias allowed-engine JSON exceeds migration `NVARCHAR(512)` — **cheap-disproof 2026-09-10 seed hunt #1552:** twelve aliases still fit under budget (thirteen fits / fourteen exceeds per #1323/#1547); regression `Serialized_allowed_engine_set_with_twelve_aliases_fits_migration_setting_value_limit`
+
+2026-09-10 seed hunt #1552 (seed-only): reseeded tenant-settings-sql after #1548; cheap-disproof closed cross-tenant cache isolation, whitespace value delete-key guards, empty-tenant TryGet cache poison, and twelve-alias JSON budget; 43 scoped TenantSettings tests passed.
 
 2026-09-08 seed hunt #1358 (seed-only): reseeded after #1347; cheap-disproof closed failed-delete generation-bump and empty-tenant-id cache-poison candidates; seeded out-of-band SQL cache staleness and multi-key partial-write candidates; no hunt-ready row reproduces.
 
