@@ -2859,10 +2859,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-04 — production-like guard trusted Guid.Empty claim-bound scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2882,8 +2882,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) ApiKey-authenticated principal with bound `tenant_id` claim still accepts hostile `x-workspace-id` — generic `ValidateHeaderOnlyDimensionEscalation` branch rejects any unbound dimension; regression in `InvokeAsync_api_key_with_tenant_claim_rejects_x_workspace_id_header`
 - [x] (proven) Production-like guard trusted `Guid.Empty` claim-bound scope — **hit 2026-09-04:** `ScopeResolutionGuard.IsUntrusted` only rejected Header/Default/development-default claims; `tenant_id=00000000-0000-0000-0000-000000000000` passed staging guard; fixed by rejecting `Guid.Empty` for any source; regressions in `RequiresTrustedScopeRejection_true_when_tenant_claim_is_empty_guid` and `InvokeAsync_staging_host_rejects_empty_guid_tenant_claim`
 - [x] (invalid) Whitespace-padded route `tenantId` bypasses `RouteTenantScopeBindingFilter` — admin/value-report routes bind `{tenantId:guid}`; non-parseable segments never reach the filter
-- [ ] (candidate) `DevelopmentBypass` authentication type omitted from `RequiresBoundScopeClaimsForHeaders` — handler materializes scope claims from headers at authenticate time; `Validate` still rejects claim/header disagreement for authenticated principals
-- [ ] (candidate) Unauthenticated mutating requests receive 403 from `ScopeResolutionGuardMiddleware` before authorization — fail-closed scope semantics; not cross-tenant IDOR in this zone's contract
+- [x] (invalid) `DevelopmentBypass` authentication type omitted from `RequiresBoundScopeClaimsForHeaders` — **cheap-disproof 2026-09-10 thorough hunt #1672:** handler always emits parseable `tenant_id`/`workspace_id`/`project_id` claims; header-only guard intentionally skipped for dev auth type; `Validate` still rejects claim/header disagreement (`Validate_rejects_conflicting_workspace_header_for_development_bypass_principal`, `InvokeAsync_development_bypass_rejects_conflicting_workspace_header`, `ValidateHeaderOnlyScopeEscalation_skips_workspace_header_guard_for_development_bypass_auth_type`)
+- [x] (invalid) Unauthenticated mutating requests receive 403 from `ScopeResolutionGuardMiddleware` before authorization — **cheap-disproof 2026-09-10 thorough hunt #1672:** production-like guard fail-closes untrusted default scope before authorization; intentional TB-304 semantics, not cross-tenant IDOR (`InvokeAsync_staging_host_rejects_unauthenticated_default_scope`)
+- [x] (valid-no-repro) `ScopeResolutionGuardMiddleware` blocks `IAllowAnonymous` endpoints on staging — **cheap-disproof 2026-09-10 thorough hunt #1672:** `ShouldSkip` honors `IAllowAnonymous` metadata; regression `InvokeAsync_staging_host_skips_allow_anonymous_metadata`
+
+2026-09-10 thorough hunt #1672 (dry): closed both open candidates as invalid; cheap-disproof confirmed DevelopmentBypass claim/header `Validate` path and staging unauthenticated fail-closed guard; 44 scoped unit tests passed (`ScopeIdentityBindingIntegrationTests` skipped — no SQL Server in cloud VM).
 
 ---
 
