@@ -308,6 +308,70 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
     }
 
     [Fact]
+    public void Select_when_same_attempt_rejected_newer_and_warned_older_prefers_warned_trace()
+    {
+        DateTime olderUtc = new(2026, 12, 3, 10, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 3, 10, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace warnedDuplicate = new()
+        {
+            TraceId = "trace-a-warned",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+        };
+        AgentExecutionTrace rejectedDuplicate = new()
+        {
+            TraceId = "trace-z-rejected",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([rejectedDuplicate, warnedDuplicate]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-a-warned");
+    }
+
+    [Fact]
+    public void Select_when_same_attempt_unevaluated_newer_and_warned_older_prefers_warned_trace()
+    {
+        DateTime olderUtc = new(2026, 12, 3, 11, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 12, 3, 11, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace warnedDuplicate = new()
+        {
+            TraceId = "trace-a-warned",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Warned,
+        };
+        AgentExecutionTrace unevaluatedDuplicate = new()
+        {
+            TraceId = "trace-z-unevaluated",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = null,
+            QualityRejected = false,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([unevaluatedDuplicate, warnedDuplicate]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-a-warned");
+    }
+
+    [Fact]
     public void Select_when_same_attempt_and_created_utc_ties_prefers_non_rejected_trace()
     {
         DateTime sharedUtc = new(2026, 10, 2, 10, 0, 0, DateTimeKind.Utc);
