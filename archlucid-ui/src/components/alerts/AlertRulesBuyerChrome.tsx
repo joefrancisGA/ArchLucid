@@ -1,18 +1,25 @@
 "use client";
 
+import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { ALERT_RULES_CONDITIONS_CLAIM_DISCIPLINE } from "@/lib/alert-rules-conditions-evidence-copy";
 
-import { AlertRulesConditionsClaimOrientationStrip } from "./AlertRulesConditionsClaimOrientationStrip";
+import { AlertRulesConditionsSourcesOrientationStrip } from "./AlertRulesConditionsSourcesOrientationStrip";
 
-/** Buyer default: mount Sources orientation after primary Conditions workspace (GLR). */
+/** Buyer default: mount claim discipline and Sources orientation after primary Conditions workspace (GLR). */
 export function AlertRulesBuyerChrome(): React.JSX.Element | null {
   if (!isBuyerPolishedOperatorShellEnv()) {
     return null;
   }
 
   return (
-    <div data-testid="alert-rules-conditions-orientation-bottom">
-      <AlertRulesConditionsClaimOrientationStrip />
-    </div>
+    <>
+      <PageHeaderClaimDiscipline
+        text={ALERT_RULES_CONDITIONS_CLAIM_DISCIPLINE}
+        testId="alert-rules-conditions-claim-discipline"
+        className="max-w-prose text-left"
+      />
+      <AlertRulesConditionsSourcesOrientationStrip />
+    </>
   );
 }

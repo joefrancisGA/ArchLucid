@@ -1,3 +1,4 @@
+import { EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK } from "@/lib/evidence-graph-operator-source-link";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
@@ -17,7 +18,7 @@ export const PATTERN_LIBRARY_DETAIL_SOURCES_INTRO =
 export const PATTERN_LIBRARY_DETAIL_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Pattern library", href: PATTERN_LIBRARY_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
-  { label: "Evidence trail", href: "/insights/evidence-graph" },
+  EVIDENCE_GRAPH_OPERATOR_SOURCE_LINK,
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
   { label: "Getting started", href: inAppHelpHref("getting-started") },
 ] as const;

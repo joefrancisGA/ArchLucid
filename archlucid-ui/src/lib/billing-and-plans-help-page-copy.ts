@@ -8,3 +8,5 @@ export const BILLING_HELP_SKIP_LINK_LABEL = "Skip to billing workspace" as const
 
 export const BILLING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-billing-header-claim-discipline" as const;
+
+export const BILLING_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-billing-orientation-bottom" as const;

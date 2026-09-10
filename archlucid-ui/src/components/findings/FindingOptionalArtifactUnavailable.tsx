@@ -2,11 +2,18 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { OperatorErrorCallout } from "@/components/operator/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import {
+  FINDING_OPTIONAL_ARTIFACT_TECHNICAL_DETAILS_OPEN_PARAM,
+  findingOptionalArtifactTechnicalDetailsDisclosureHrefFromSearch,
+  parseFindingOptionalArtifactTechnicalDetailsOpenFromSearch,
+} from "@/lib/findings/finding-optional-artifact-technical-details-disclosure-url";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -26,6 +33,35 @@ export type FindingOptionalArtifactUnavailableProps = {
 export function FindingOptionalArtifactUnavailable(
   props: FindingOptionalArtifactUnavailableProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const findingOptionalArtifactTechnicalDetailsParam = searchParams.get(
+    FINDING_OPTIONAL_ARTIFACT_TECHNICAL_DETAILS_OPEN_PARAM,
+  );
+  const [findingOptionalArtifactTechnicalDetailsOpen, setFindingOptionalArtifactTechnicalDetailsOpenState] =
+    useState(() => parseFindingOptionalArtifactTechnicalDetailsOpenFromSearch(findingOptionalArtifactTechnicalDetailsParam));
+  const syncFindingOptionalArtifactTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        findingOptionalArtifactTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setFindingOptionalArtifactTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setFindingOptionalArtifactTechnicalDetailsOpenState(open);
+      syncFindingOptionalArtifactTechnicalDetailsOpenToUrl(open);
+    },
+    [syncFindingOptionalArtifactTechnicalDetailsOpenToUrl],
+  );
+  useEffect(() => {
+    setFindingOptionalArtifactTechnicalDetailsOpenState(
+      parseFindingOptionalArtifactTechnicalDetailsOpenFromSearch(findingOptionalArtifactTechnicalDetailsParam),
+    );
+  }, [findingOptionalArtifactTechnicalDetailsParam]);
   const correlationId = ensureCorrelationId(props.failure?.correlationId ?? props.failure?.problem?.correlationId);
   const httpStatus = props.failure?.httpStatus ?? props.failure?.problem?.status ?? null;
   const showTechnicalDetails = props.buyerPolishedShell !== true && props.failure !== null && props.failure !== undefined;
@@ -55,6 +91,8 @@ export function FindingOptionalArtifactUnavailable(
             "mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/50",
             OPERATOR_TYPOGRAPHY.micro,
           )}
+          open={findingOptionalArtifactTechnicalDetailsOpen}
+          onToggle={(event) => setFindingOptionalArtifactTechnicalDetailsOpen(event.currentTarget.open)}
         >
           <summary className={cn("cursor-pointer select-none text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
             Technical details

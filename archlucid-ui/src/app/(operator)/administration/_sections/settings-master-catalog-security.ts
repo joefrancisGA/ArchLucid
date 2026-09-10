@@ -35,7 +35,6 @@ export const SETTINGS_MASTER_SECTIONS_SECURITY: readonly SettingsMasterSection[]
         source: "inherited",
         editability: "read-only",
         saveBehavior: "Changes require confirmation on destination page",
-        highImpact: true,
       },
       {
         id: "governance-audit",
@@ -63,7 +62,6 @@ export const SETTINGS_MASTER_SECTIONS_SECURITY: readonly SettingsMasterSection[]
         source: "overridden",
         editability: "admin-only",
         saveBehavior: "Save on destination page",
-        highImpact: true,
       },
     ],
   },
@@ -92,15 +90,15 @@ export const SETTINGS_MASTER_SECTIONS_SECURITY: readonly SettingsMasterSection[]
   },
   {
     id: "security-trust",
-    navLabel: "Security & Trust",
-    title: "Security & Trust",
+    navLabel: "Security & trust",
+    title: "Security & trust",
     description: "Procurement materials and trust-center links.",
     keywords: ["security", "trust", "procurement", "compliance"],
     tier: "common",
     destinations: [
       {
         id: "security-trust-hub",
-        title: OPERATOR_NAV_LINK_LABELS.securityTrust,
+        title: "Security & trust",
         description: "Share procurement-ready materials, trust-center links, and assessment status.",
         href: SETTINGS_SECURITY_TRUST_PATH,
         cta: "Open security & trust",
@@ -134,7 +132,6 @@ export const SETTINGS_MASTER_SECTIONS_SECURITY: readonly SettingsMasterSection[]
         source: "overridden",
         editability: "admin-only",
         saveBehavior: "Save on destination page",
-        highImpact: true,
       },
       {
         id: "identity-providers",

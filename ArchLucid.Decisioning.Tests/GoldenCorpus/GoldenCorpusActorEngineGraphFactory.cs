@@ -78,4 +78,46 @@ internal static class GoldenCorpusActorEngineGraphFactory
             Warnings = [],
         };
     }
+
+    internal static GraphSnapshot CreateLegacyMixedOriginActorGraph()
+    {
+        GraphNode externalActor = new()
+        {
+            NodeId = "external-actor-1",
+            NodeType = GraphNodeTypes.Actor,
+            Label = "anonymous_client",
+            SourceType = "GuidedIntake",
+            SourceId = "intake-external",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["kind"] = nameof(ActorKind.Human),
+                ["trustOrigin"] = nameof(TrustOrigin.PublicAnonymous),
+            },
+        };
+
+        GraphNode intakeHuman = new()
+        {
+            NodeId = "intake-human-1",
+            NodeType = GraphNodeTypes.Actor,
+            Label = "architect",
+            SourceType = "GuidedIntake",
+            SourceId = "intake-1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["kind"] = nameof(ActorKind.Human),
+                ["trustOrigin"] = nameof(TrustOrigin.Internal),
+            },
+        };
+
+        return new GraphSnapshot
+        {
+            GraphSnapshotId = Guid.Parse("00000036-0000-4000-8000-000000000036"),
+            ContextSnapshotId = Guid.Parse("10000000-0000-4000-8000-000000000036"),
+            RunId = Guid.Parse("20000000-0000-4000-8000-000000000036"),
+            CreatedUtc = CreatedUtc,
+            Nodes = [externalActor, intakeHuman],
+            Edges = [],
+            Warnings = [],
+        };
+    }
 }

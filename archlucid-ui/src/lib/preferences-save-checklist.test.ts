@@ -22,16 +22,12 @@ describe("preferences-save-checklist", () => {
     const steps = resolvePreferencesSaveSteps({
       appearance: implicitDefault,
       timeZone: implicitDefault,
-      cloudPlatforms: implicitDefault,
-      sampleReviewsOnOverview: implicitDefault,
       followUpLinkStrips: implicitDefault,
     });
 
     expect(steps.map((step) => step.id)).toEqual([
       "appearance",
       "time-zone",
-      "cloud-platforms",
-      "sample-reviews-on-overview",
       "follow-up-link-strips",
     ]);
   });
@@ -40,8 +36,6 @@ describe("preferences-save-checklist", () => {
     const steps = resolvePreferencesSaveSteps({
       appearance: implicitDefault,
       timeZone: implicitDefault,
-      cloudPlatforms: implicitDefault,
-      sampleReviewsOnOverview: implicitDefault,
       followUpLinkStrips: implicitDefault,
     });
 
@@ -56,15 +50,11 @@ describe("preferences-save-checklist", () => {
         mounted: true,
         accountSyncState: "local-only",
       },
-      cloudPlatforms: implicitDefault,
-      sampleReviewsOnOverview: explicitSynced,
       followUpLinkStrips: implicitDefault,
     });
 
     expect(steps.find((step) => step.id === "appearance")?.status).toBe("done");
     expect(steps.find((step) => step.id === "time-zone")?.status).toBe("pending");
-    expect(steps.find((step) => step.id === "cloud-platforms")?.status).toBe("default");
-    expect(steps.find((step) => step.id === "sample-reviews-on-overview")?.status).toBe("done");
     expect(steps.find((step) => step.id === "follow-up-link-strips")?.status).toBe("default");
   });
 
@@ -76,8 +66,6 @@ describe("preferences-save-checklist", () => {
         mounted: true,
         accountSyncState: "local-only",
       },
-      cloudPlatforms: implicitDefault,
-      sampleReviewsOnOverview: implicitDefault,
       followUpLinkStrips: implicitDefault,
     });
 
@@ -86,8 +74,6 @@ describe("preferences-save-checklist", () => {
     const allDoneSteps = resolvePreferencesSaveSteps({
       appearance: explicitSynced,
       timeZone: explicitSynced,
-      cloudPlatforms: explicitSynced,
-      sampleReviewsOnOverview: explicitSynced,
       followUpLinkStrips: explicitSynced,
     });
 

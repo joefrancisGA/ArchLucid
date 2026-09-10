@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 
@@ -38,7 +39,9 @@ public static class AgentOutputTraceQualityEvaluator
         IAgentResultEmbeddingFaithfulnessScorer? embeddingFaithfulnessScorer = null,
         IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator = null,
         IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId = null,
-        AgentOutputLlmFaithfulnessOptions? llmFaithfulnessOptions = null) =>
+        AgentOutputLlmFaithfulnessOptions? llmFaithfulnessOptions = null,
+        StructuralExecutionMode? taskStructuralExecutionMode = null,
+        string? hostAgentExecutionMode = null) =>
         TryEvaluateTraceAsyncCore(
             trace,
             options,
@@ -51,7 +54,9 @@ public static class AgentOutputTraceQualityEvaluator
             embeddingFaithfulnessScorer,
             llmFaithfulnessEvaluator,
             calibratedConfidenceByTaskId,
-            llmFaithfulnessOptions ?? new AgentOutputLlmFaithfulnessOptions());
+            llmFaithfulnessOptions ?? new AgentOutputLlmFaithfulnessOptions(),
+            taskStructuralExecutionMode,
+            hostAgentExecutionMode);
 
     private static async Task<TraceQualityEvaluationResult?> TryEvaluateTraceAsyncCore(
         AgentExecutionTrace trace,
@@ -65,7 +70,9 @@ public static class AgentOutputTraceQualityEvaluator
         IAgentResultEmbeddingFaithfulnessScorer? embeddingFaithfulnessScorer,
         IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator,
         IReadOnlyDictionary<string, double?>? calibratedConfidenceByTaskId,
-        AgentOutputLlmFaithfulnessOptions llmFaithfulnessOptions)
+        AgentOutputLlmFaithfulnessOptions llmFaithfulnessOptions,
+        StructuralExecutionMode? taskStructuralExecutionMode,
+        string? hostAgentExecutionMode)
     {
         ArgumentNullException.ThrowIfNull(trace);
         ArgumentNullException.ThrowIfNull(options);
@@ -118,6 +125,12 @@ public static class AgentOutputTraceQualityEvaluator
         AgentOutputSemanticScore semanticScore =
             await semanticEvaluator.EvaluateAsync(trace.TraceId, trace.ParsedResultJson, trace.AgentType, cancellationToken)
                 .ConfigureAwait(false);
+
+        AgentOutputTraceFindingCitationCoverageApplicator.Apply(
+            semanticScore,
+            trace.ParsedResultJson,
+            taskStructuralExecutionMode,
+            hostAgentExecutionMode);
 
         double? calibratedConfidence = null;
 

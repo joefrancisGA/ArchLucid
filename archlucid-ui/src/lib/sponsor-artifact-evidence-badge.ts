@@ -23,6 +23,8 @@ export type ResolveSponsorArtifactEvidenceBadgeInput = {
   readonly proofPackageCompleteness?: ProofPackageCompletenessJson | null;
   readonly savingsPricingBasis?: string | null;
   readonly costEvidenceFreshnessStatus?: string | null;
+  /** When true, avoid "Evidence-backed" sponsor copy (FC-13). */
+  readonly assertedTrailEmpty?: boolean;
 };
 
 function normalizeFreshness(status: string | null | undefined): SponsorEvidenceFreshnessBadge {

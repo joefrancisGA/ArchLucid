@@ -20,7 +20,16 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { RunStatusBadge, deriveRunListPipelineLabel } from "@/components/runs/RunStatusBadge";
+import { WorkingCareerRehearsalIntentProvider } from "@/components/governance/WorkingCareerRehearsalIntentProvider";
 import type { RunSummary } from "@/types/authority";
+
+function renderRunStatusBadge(run: RunSummary, finalizeHonesty?: Parameters<typeof RunStatusBadge>[0]["finalizeHonesty"]) {
+  return render(
+    <WorkingCareerRehearsalIntentProvider>
+      <RunStatusBadge run={run} finalizeHonesty={finalizeHonesty} />
+    </WorkingCareerRehearsalIntentProvider>,
+  );
+}
 
 const base: RunSummary = {
   runId: "00000000-0000-0000-0000-000000000001",
@@ -46,13 +55,65 @@ describe("deriveRunListPipelineLabel", () => {
       }),
     ).toBe("Ready to finalize");
   });
+
+  it("suppresses Ready to finalize when transparency trail would block sealing (FC-70)", () => {
+    expect(
+      deriveRunListPipelineLabel(
+        {
+          ...base,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+        },
+        {
+          transparencyTrail: {
+            asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+            inferred: [],
+            skipped: [{ questionKey: "drRpo", tier: "Must" }],
+          },
+        },
+      ),
+    ).toBe("In pipeline");
+  });
+
+  it("suppresses Ready to finalize when pre-finalize gate is disabled on Working (LP-18)", () => {
+    expect(
+      deriveRunListPipelineLabel(
+        {
+          ...base,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+        },
+        {
+          workingDesk: true,
+          preCommitGateEnabled: false,
+        },
+      ),
+    ).toBe("In pipeline");
+  });
+
+  it("suppresses Ready to finalize for Working Rehearsal intent (AS-079)", () => {
+    expect(
+      deriveRunListPipelineLabel(
+        {
+          ...base,
+          hasFindingsSnapshot: true,
+          hasGoldenManifest: false,
+          structuralExecutionMode: 1,
+        },
+        {
+          workingDesk: true,
+          workingCareerRehearsalIntent: "rehearsal",
+        },
+      ),
+    ).toBe("In pipeline");
+  });
 });
 
 describe("RunStatusBadge", () => {
   it("exposes canonical review status in aria-label when vocabulary pass is active", () => {
     runStatusVocabularyPassForced.on = true;
 
-    render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
+    renderRunStatusBadge({ ...base, hasGoldenManifest: true });
 
     expect(screen.getByLabelText(/Review status: Ready/i)).toBeInTheDocument();
   });
@@ -60,7 +121,7 @@ describe("RunStatusBadge", () => {
   it("delegates styling to the canonical approved StatusTag (Ready label)", () => {
     runStatusVocabularyPassForced.on = true;
 
-    const { container } = render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
+    const { container } = renderRunStatusBadge({ ...base, hasGoldenManifest: true });
     const pill = container.querySelector('[aria-label="Review status: Ready"]');
 
     expect(pill).not.toBeNull();
@@ -71,7 +132,7 @@ describe("RunStatusBadge", () => {
   it("shows engineering pipeline labels when vocabulary pass is off", () => {
     runStatusVocabularyPassForced.on = false;
 
-    render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
+    renderRunStatusBadge({ ...base, hasGoldenManifest: true });
 
     expect(
       screen.getByLabelText(/Architecture review pipeline status: Finalized/i),
@@ -81,14 +142,12 @@ describe("RunStatusBadge", () => {
   it("maps ready-to-finalize internal state to Needs attention when vocabulary pass is on", () => {
     runStatusVocabularyPassForced.on = true;
 
-    render(
-      <RunStatusBadge
-        run={{
-          ...base,
-          hasFindingsSnapshot: true,
-          hasGoldenManifest: false,
-        }}
-      />,
+    renderRunStatusBadge(
+      {
+        ...base,
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: false,
+      },
     );
 
     expect(screen.getByLabelText(/Review status: Needs attention/i)).toBeInTheDocument();

@@ -16,6 +16,7 @@ public static class FindingsSnapshotEstimatedSavingsCalculator
         ArgumentNullException.ThrowIfNull(findings);
 
         return findings
+            .Where(static f => !f.IsMuted)
             .Where(IsAcceptedCostFinding)
             .Sum(static f => f.ProjectedImpactUsd ?? 0m);
     }

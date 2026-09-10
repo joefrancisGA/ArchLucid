@@ -1,3 +1,22 @@
+export const SIGNED_RECORD_ARTIFACT_PRIMARY_CONTENT_ID =
+  "governance-signed-record-artifact-primary-content" as const;
+
+export const SIGNED_RECORD_ARTIFACT_SKIP_LINK_LABEL = "Skip to artifact preview" as const;
+
+/** Buyer-facing copy for `/governance/sealed-records/[manifestId]/artifacts/[artifactId]` (GAR). */
+export const SIGNED_RECORD_ARTIFACT_PAGE_LEAD =
+  "Preview one deliverable from a finalized review record — review metadata here, then open Preview or download the full file.";
+
+export const SIGNED_RECORD_ARTIFACT_BUYER_START_HERE_HELPER =
+  "Use sibling artifacts below to compare outputs from the same finalized review record, or return to the record detail for the full package.";
+
+export const SIGNED_RECORD_ARTIFACT_LOAD_ERROR =
+  "Could not load this artifact preview. Try again in a moment." as const;
+
+export const SIGNED_RECORD_ARTIFACT_LOAD_ERROR_RETRY_LABEL = "Try again" as const;
+
+export const SIGNED_RECORD_ARTIFACT_LOADING_STATUS = "Loading artifact preview…" as const;
+
 export const SIGNED_RECORD_ARTIFACT_PAGE_TITLE = "Artifact preview";
 
 export const SIGNED_RECORD_ARTIFACT_PAGE_SUBTITLE =

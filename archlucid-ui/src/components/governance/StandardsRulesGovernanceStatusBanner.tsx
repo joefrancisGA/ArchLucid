@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   STANDARDS_RULES_BANNER_BODY,
@@ -14,6 +18,10 @@ import {
 import { formatActionActorName } from "@/lib/action-actor-display";
 import type { StandardsRulesGovernanceBannerHrefs } from "@/lib/governance/governance-resolution-page-presentation";
 import { STANDARDS_RULES_INLINE_LINK_CLASS } from "@/lib/standards-rules-table-presentation";
+import {
+  parseStandardsRulesApprovalRecordDetailsOpenFromSearch,
+  standardsRulesApprovalRecordDetailsDisclosureHrefFromSearch,
+} from "@/lib/governance/standards-rules-approval-record-details-disclosure-url";
 import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -27,9 +35,40 @@ export type StandardsRulesGovernanceStatusBannerProps = {
 /** Compact governance context for Standards & rules — banner actions share table link typography. */
 export function StandardsRulesGovernanceStatusBanner(props: StandardsRulesGovernanceStatusBannerProps) {
   const { className, subjectLabel, provenance, hrefs } = props;
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const standardsRulesApprovalRecordDetailsOpenParam = searchParams.get("standardsRulesApprovalRecordDetailsOpen");
+  const [approvalRecordDetailsOpen, setApprovalRecordDetailsOpenState] = useState(() =>
+    parseStandardsRulesApprovalRecordDetailsOpenFromSearch(standardsRulesApprovalRecordDetailsOpenParam),
+  );
   const approverLabel = formatActionActorName(provenance.approverLabel);
   const approvedAtLabel = formatGovernanceApprovalProvenanceTimestamp(provenance.approvedAtUtc);
   const recordId = provenance.recordId.trim();
+
+  const syncApprovalRecordDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        standardsRulesApprovalRecordDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setApprovalRecordDetailsOpen = useCallback(
+    (open: boolean) => {
+      setApprovalRecordDetailsOpenState(open);
+      syncApprovalRecordDetailsOpenToUrl(open);
+    },
+    [syncApprovalRecordDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setApprovalRecordDetailsOpenState(
+      parseStandardsRulesApprovalRecordDetailsOpenFromSearch(standardsRulesApprovalRecordDetailsOpenParam),
+    );
+  }, [standardsRulesApprovalRecordDetailsOpenParam]);
 
   return (
     <section
@@ -55,7 +94,13 @@ export function StandardsRulesGovernanceStatusBanner(props: StandardsRulesGovern
             {" · "}
             <span className="font-semibold text-al-text-primary">Approved:</span> {approvedAtLabel}
           </p>
-          <details className="mt-2">
+          <details
+            className="mt-2"
+            open={approvalRecordDetailsOpen}
+            onToggle={(event) => {
+              setApprovalRecordDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
+          >
             <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               Approval record details
             </summary>

@@ -1,3 +1,8 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  cloudConnectionsHelpSubtitleForProductLine,
+  isSecureNowProductLine,
+} from "@/lib/product-line/securenow-cloud-platform-policy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const CLOUD_CONNECTIONS_HELP_PATH = "/help/cloud-connections" as const;
@@ -6,6 +11,10 @@ export const CLOUD_CONNECTIONS_HELP_PAGE_TITLE = "Cloud connections";
 
 export const CLOUD_CONNECTIONS_HELP_PAGE_SUBTITLE =
   "Optional Azure, AWS, and GCP connectors for read-only evidence — or run evidence-only reviews without any cloud connector.";
+
+export function cloudConnectionsHelpPageSubtitle(productLineId: ProductLineId = "architecture"): string {
+  return cloudConnectionsHelpSubtitleForProductLine(productLineId);
+}
 
 export const CLOUD_CONNECTIONS_HELP_PAGE_INTRO =
   "Cloud connectors are optional and read-only. Pick a tier below when you need provider inventory in a review — or skip connectors entirely and attach other evidence.";
@@ -56,11 +65,40 @@ export const CLOUD_CONNECTIONS_HELP_TIER_2 = {
     "Federated read-only roles in Azure, AWS, or GCP when you want ArchLucid to poll inventory on a schedule without storing access keys in tenant configuration on the primary federated path.",
 } as const;
 
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_TIER_2 = {
+  title: CLOUD_CONNECTIONS_HELP_TIER_2.title,
+  eyebrow: CLOUD_CONNECTIONS_HELP_TIER_2.eyebrow,
+  useWhen:
+    "Federated read-only Azure roles when you want SecureNow to poll inventory on a schedule without storing access keys in tenant configuration on the primary federated path.",
+} as const;
+
+export function cloudConnectionsHelpTier2(productLineId: ProductLineId = "architecture") {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_CLOUD_CONNECTIONS_HELP_TIER_2;
+  }
+
+  return CLOUD_CONNECTIONS_HELP_TIER_2;
+}
+
 export const CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS = [
   "Get-ArchLucidAzurePackage.ps1",
   "Get-ArchLucidAwsPackage.ps1",
   "Get-ArchLucidGcpPackage.ps1",
 ] as const;
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS = [
+  "Get-ArchLucidAzurePackage.ps1",
+] as const;
+
+export function cloudConnectionsHelpPackagingScripts(
+  productLineId: ProductLineId = "architecture",
+): readonly string[] {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS;
+  }
+
+  return CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS;
+}
 
 /** Wizard shows download/run commands for packaging scripts — not `/help/cli-usage` (product .NET CLI). */
 export const CLOUD_CONNECTIONS_HELP_PACKAGING_SCRIPTS_HINT =
@@ -116,19 +154,98 @@ export const CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS = {
   openHub: { label: "Open cloud connections", href: "/integrations/cloud-connections" },
 } as const;
 
-export const CLOUD_CONNECTIONS_HELP_FOLLOW_UP_LINKS: readonly CloudConnectionsHelpFollowUpLink[] = [
-  {
-    label: CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.label,
-    href: CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href,
-    kind: "product",
+export function cloudConnectionsHelpProviderScopeRows(
+  productLineId: ProductLineId = "architecture",
+): readonly CloudConnectionsProviderScopeRow[] {
+  if (!isSecureNowProductLine(productLineId)) {
+    return CLOUD_CONNECTIONS_HELP_PROVIDER_SCOPE_ROWS;
+  }
+
+  return CLOUD_CONNECTIONS_HELP_PROVIDER_SCOPE_ROWS.filter((row) => row.platform === "Azure");
+}
+
+export function cloudConnectionsHelpFollowUpLinks(
+  productLineId: ProductLineId = "architecture",
+): readonly CloudConnectionsHelpFollowUpLink[] {
+  return [
+    {
+      label: CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.label,
+      href: CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href,
+      kind: "product",
+    },
+    ...cloudConnectionsHelpProviderScopeRows(productLineId).map((row) => ({
+      label: row.guideLabel,
+      href: row.guideHref,
+      kind: "help" as const,
+    })),
+    { label: "Assurance status", href: "/assurance-status", kind: "product" },
+  ];
+}
+
+export const CLOUD_CONNECTIONS_HELP_FOLLOW_UP_LINKS: readonly CloudConnectionsHelpFollowUpLink[] =
+  cloudConnectionsHelpFollowUpLinks("architecture");
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_PAGE_INTRO =
+  "Azure connectors are optional and read-only. Pick a tier below when you need provider inventory in SecureNow — or upload a validated inventory ZIP without a connector.";
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE = "Start with inventory ZIP upload" as const;
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE =
+  "This guide explains optional read-only Azure connectors and inventory ZIP intake for SecureNow — not where procurement goes for audit lineage citations.";
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD =
+  "This guide explains optional read-only Azure connectors and how to pick an evidence tier for cloud inventory scans.";
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_TIER_1 = {
+  title: "Tier 1 · Upload inventory",
+  eyebrow: "Recommended",
+  useWhen:
+    "Run packaging scripts from your SecureNow distribution, then upload the inventory ZIP from Extract and upload. SecureNow never receives long-lived credentials in your cloud account.",
+} as const;
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS = {
+  openExtractUpload: {
+    label: "Extract and upload",
+    href: "/governance/infrastructure/extract-upload",
   },
-  ...CLOUD_CONNECTIONS_HELP_PROVIDER_SCOPE_ROWS.map((row) => ({
-    label: row.guideLabel,
-    href: row.guideHref,
-    kind: "help" as const,
-  })),
-  { label: "Assurance status", href: "/assurance-status", kind: "product" },
-];
+  openHub: { label: "Open Azure connections", href: "/integrations/cloud-connections" },
+} as const;
+
+export function cloudConnectionsHelpPageIntro(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_PAGE_INTRO
+    : CLOUD_CONNECTIONS_HELP_PAGE_INTRO;
+}
+
+export function cloudConnectionsHelpStartHereCardTitle(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE
+    : CLOUD_CONNECTIONS_HELP_START_HERE_CARD_TITLE;
+}
+
+export function cloudConnectionsHelpClaimDiscipline(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE
+    : CLOUD_CONNECTIONS_HELP_CLAIM_DISCIPLINE;
+}
+
+export function cloudConnectionsHelpOrientationLead(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD
+    : CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD;
+}
+
+export function cloudConnectionsHelpTier1(productLineId: ProductLineId = "architecture") {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_TIER_1
+    : CLOUD_CONNECTIONS_HELP_TIER_1;
+}
+
+export function cloudConnectionsHelpPrimaryActions(productLineId: ProductLineId = "architecture") {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS
+    : CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS;
+}
 
 /** Operator Sources — no self-href to `/help/cloud-connections`. */
 export const CLOUD_CONNECTIONS_HELP_SOURCES: readonly CloudConnectionsHelpFollowUpLink[] = [

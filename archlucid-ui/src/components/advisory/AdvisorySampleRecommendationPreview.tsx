@@ -1,6 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,6 +20,11 @@ import {
   ADVISORY_SCANS_SAMPLE_RECOMMENDATION,
   ADVISORY_SCANS_SAMPLE_SECTION_TITLE,
 } from "@/lib/advisory-copy";
+import {
+  ADVISORY_SAMPLE_DISPOSITION_OPEN_PARAM,
+  advisorySampleDispositionDisclosureHrefFromSearch,
+  parseAdvisorySampleDispositionOpenFromSearch,
+} from "@/lib/advisory/advisory-sample-disposition-disclosure-url";
 import { OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 const SAMPLE_DISPOSITION_ACTIONS: ReadonlyArray<{ readonly label: string; readonly hint: string }> = [
@@ -28,6 +36,34 @@ const SAMPLE_DISPOSITION_ACTIONS: ReadonlyArray<{ readonly label: string; readon
 
 /** Preview card illustrating advisory recommendation value before a scan is generated. */
 export function AdvisorySampleRecommendationPreview(): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const advisorySampleDispositionParam = searchParams.get(ADVISORY_SAMPLE_DISPOSITION_OPEN_PARAM);
+  const [advisorySampleDispositionOpen, setAdvisorySampleDispositionOpenState] = useState(() =>
+    parseAdvisorySampleDispositionOpenFromSearch(advisorySampleDispositionParam),
+  );
+  const syncAdvisorySampleDispositionOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        advisorySampleDispositionDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setAdvisorySampleDispositionOpen = useCallback(
+    (open: boolean) => {
+      setAdvisorySampleDispositionOpenState(open);
+      syncAdvisorySampleDispositionOpenToUrl(open);
+    },
+    [syncAdvisorySampleDispositionOpenToUrl],
+  );
+  useEffect(() => {
+    setAdvisorySampleDispositionOpenState(
+      parseAdvisorySampleDispositionOpenFromSearch(advisorySampleDispositionParam),
+    );
+  }, [advisorySampleDispositionParam]);
   const sample = ADVISORY_SCANS_SAMPLE_RECOMMENDATION;
 
   return (
@@ -69,6 +105,8 @@ export function AdvisorySampleRecommendationPreview(): React.JSX.Element {
         <details
           className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/40"
           data-testid="advisory-sample-disposition-disclosure"
+          open={advisorySampleDispositionOpen}
+          onToggle={(event) => setAdvisorySampleDispositionOpen(event.currentTarget.open)}
         >
           <summary
             className={cn(

@@ -10,3 +10,6 @@ a538addceb7d7e059e336d3a03df1b149d433ade:docs/AUDIT_RETENTION_POLICY.md:curl-aut
 bbf8d44bd1956eeebbc44cc44b5e21da6e1b8eca:docs/library/TECH_BACKLOG.md:generic-api-key:196
 # Same rule on a prior ignore-file comment (744e611a0); comment reworded; not a credential.
 744e611a0e0554f4ad7818dca7ba87038ba63f45:.gitleaksignore:generic-api-key:9
+
+# wave70 CAIQ SIG help URL param Vitest fixture; generic-api-key false positive on caiqSigEvidenceSegmentKey query name
+8b88f6597deba8cac47bb8e608be0e602e27df3d:archlucid-ui/src/lib/wave11-filter-url-helpers.test.ts:generic-api-key:5583

@@ -78,7 +78,7 @@ describe("PageHeading nav identity", () => {
     render(
       <PageHeading
         navHref={INTEGRATIONS_JIRA_PATH}
-        title="Jira integration for architecture governance alert routing and work item creation"
+        title="Jira integration for architecture approval alert routing and work item creation"
         className="max-w-xs"
       />,
     );

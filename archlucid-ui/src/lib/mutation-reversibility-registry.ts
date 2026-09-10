@@ -35,7 +35,7 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     classification: "reversible_with_audit",
     amendable: true,
     confirmationLead:
-      "This records governance approval on the finalized review record. Prior approval remains on the audit trail; use Record correction after confirming if approval was mistaken.",
+      "This records approval on the finalized review record. Prior approval remains on the audit trail; use Record correction after confirming if approval was mistaken.",
   },
   governance_workflow_approve: {
     id: "governance_workflow_approve",

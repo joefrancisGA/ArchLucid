@@ -57,7 +57,7 @@ export const ADMIN_PREREQUISITE_SORT_ORDER = {
   billing: 60,
 } as const;
 
-const OPTIONAL_READINESS_ROW_IDS = new Set<string>(["cloud-connection"]);
+export const OPTIONAL_READINESS_ROW_IDS = new Set<string>(["cloud-connection"]);
 
 function buildCorporateSignInRow(input: ResolveAdminPrerequisitesReadinessInput): AdminPrerequisiteRow {
   const identityReady = resolveCorporateSignInConfigured(input.identity, input.identityLoadFailed) === true;
@@ -213,7 +213,7 @@ export function filterUnmetAdminPrerequisiteRows(rows: readonly AdminPrerequisit
   return visibleRows;
 }
 
-function isMandatoryForTenantReadiness(row: AdminPrerequisiteRow): boolean {
+export function isMandatoryForTenantReadiness(row: AdminPrerequisiteRow): boolean {
   return !OPTIONAL_READINESS_ROW_IDS.has(row.id);
 }
 

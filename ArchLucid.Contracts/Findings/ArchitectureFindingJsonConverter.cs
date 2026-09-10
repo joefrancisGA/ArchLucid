@@ -129,6 +129,12 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             finding.Classification = classification;
         }
 
+        if (TryGetPropertyIgnoreCase(root, "semanticSupportBand", out JsonElement supportBandElement) &&
+            TryReadFindingSemanticSupportBand(supportBandElement, out FindingSemanticSupportBand supportBand))
+        {
+            finding.SemanticSupportBand = supportBand;
+        }
+
         finding.WhyThisIsNotGeneric = ReadOptionalStringProperty(root, "whyThisIsNotGeneric");
         finding.PrincipalArchitectValue = ReadOptionalStringProperty(root, "principalArchitectValue");
         finding.DecisionConsequence = ReadOptionalStringProperty(root, "decisionConsequence");
@@ -144,6 +150,9 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
 
         if (value.Classification is { } classification)
             writer.WriteString("classification", classification.ToString());
+
+        if (value.SemanticSupportBand is { } semanticSupportBand)
+            writer.WriteString("semanticSupportBand", semanticSupportBand.ToString());
 
         WriteOptionalStringProperty(writer, "whyThisIsNotGeneric", value.WhyThisIsNotGeneric);
         WriteOptionalStringProperty(writer, "principalArchitectValue", value.PrincipalArchitectValue);
@@ -193,6 +202,34 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         }
 
         treatment = default;
+        return false;
+    }
+
+    private static bool TryReadFindingSemanticSupportBand(
+        JsonElement element,
+        out FindingSemanticSupportBand supportBand)
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+
+            if (!Enum.IsDefined(typeof(FindingSemanticSupportBand), numeric))
+            {
+                supportBand = default;
+                return false;
+            }
+
+            supportBand = (FindingSemanticSupportBand)numeric;
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(element.GetString(), ignoreCase: true, out FindingSemanticSupportBand parsed))
+        {
+            supportBand = parsed;
+            return true;
+        }
+
+        supportBand = default;
         return false;
     }
 

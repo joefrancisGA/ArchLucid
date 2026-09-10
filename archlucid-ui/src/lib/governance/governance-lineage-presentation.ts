@@ -29,7 +29,7 @@ function normalizedStatusToken(value: string): string {
   return value.trim().toLowerCase();
 }
 
-/** Maps governance approval API status strings to canonical StatusTag presentation. */
+/** Maps approval API status strings to canonical StatusTag presentation. */
 export function governanceApprovalStatusTagPresentation(status: string): GovernanceLineageStatusTagPresentation {
   const normalized = normalizedStatusToken(status);
 

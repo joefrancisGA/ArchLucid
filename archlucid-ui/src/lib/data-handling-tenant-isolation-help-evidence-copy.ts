@@ -55,7 +55,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES: readonly EvidenceDilig
   {
     label: "Finalized review record",
     href: inAppHelpHref("review-packages"),
-    evidences: "Governed review outputs retained in your tenant",
+    evidences: "Formal review outputs retained in your tenant",
     access: "Tenant workspace",
   },
   {

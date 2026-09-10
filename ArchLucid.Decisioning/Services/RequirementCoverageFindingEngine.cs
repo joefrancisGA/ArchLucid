@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -21,6 +22,10 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
         List<Finding> findings = [];
 
         if (result.UnrelatedRequirementCount > 0)
+        {
+            List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(
+                graphSnapshot,
+                result.UncoveredRequirements);
 
             findings.Add(new Finding
             {
@@ -41,6 +46,7 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
                     UncoveredRequirements = result.UncoveredRequirements
                 },
                 RelatedNodeIds = [.. result.UncoveredRequirements],
+                EvidenceRefs = evidenceRefs,
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [.. result.UncoveredRequirements],
@@ -61,6 +67,7 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
                     ]
                 }
             });
+        }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }

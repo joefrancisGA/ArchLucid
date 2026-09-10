@@ -1,6 +1,7 @@
 using ArchLucid.Application.AiUsage;
 using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.AiUsage;
+using ArchLucid.Core.Billing;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
@@ -193,8 +194,14 @@ public sealed class TenantAiBudgetPolicyResolverSelfServiceTrialTests
 
         IConfiguration configuration = new ConfigurationBuilder().Build();
 
+        Mock<IBillingLedger> billingLedger = new();
+        billingLedger
+            .Setup(l => l.TryGetSubscriptionAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((BillingSubscriptionSnapshot?)null);
+
         return new TenantAiBudgetPolicyResolver(
             tenantRepository,
+            billingLedger.Object,
             policyRepository,
             budgetRepository,
             new InMemoryTenantAzureOpenAiConnectionRepository(),

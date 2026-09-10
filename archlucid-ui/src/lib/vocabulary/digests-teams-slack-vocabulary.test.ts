@@ -31,7 +31,16 @@ describe("digests-teams-slack-vocabulary (TB-2325)", () => {
 
     expect(model.digestsLink.href).toBe(DIGESTS_HUB_PATH);
     expect(model.teamsLink.href).toBe(INTEGRATIONS_TEAMS_PATH);
+    expect(model.teamsLink.label).toBe("Microsoft Teams");
     expect(model.slackLink.href).toBe(INTEGRATIONS_SLACK_PATH);
+  });
+
+  it("uses Teams instead of Microsoft Teams in SecureNow vocabulary", () => {
+    const model = buildDigestsTeamsSlackVocabulary("security");
+
+    expect(model.teamsLink.label).toBe("Teams");
+    expect(model.whyThree).toContain("Teams and Slack");
+    expect(model.whyThree).not.toContain("Microsoft Teams");
   });
 
   it("resolves current and peer links for each triad surface", () => {

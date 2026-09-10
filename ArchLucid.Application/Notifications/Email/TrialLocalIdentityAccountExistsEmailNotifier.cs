@@ -15,7 +15,6 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifier(
     IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
     ILogger<TrialLocalIdentityAccountExistsEmailNotifier> logger) : ITrialLocalIdentityAccountExistsNotifier
 {
-    private const string DefaultProductName = "ArchLucid";
     private const string TemplateId = "trial-local-identity-account-exists";
     private readonly IEmailProvider _emailProvider = emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
 
@@ -37,7 +36,7 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifier(
 
         string trimmed = toEmail.Trim();
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
         string safeProduct = WebUtility.HtmlEncode(productName);
         string subject = $"{productName}: sign-in request";
         string html = $"<p>You already have a {safeProduct} account for this email address.</p>" +

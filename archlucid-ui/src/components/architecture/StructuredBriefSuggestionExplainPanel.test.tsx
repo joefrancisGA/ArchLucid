@@ -7,6 +7,12 @@ import { ApiRequestError } from "@/lib/api-request-error";
 import { clearStructuredBriefSuggestionExplainCache } from "@/lib/architecture/structured-brief-suggestion-explain-cache";
 import { GUIDED_INTAKE_EXPLAIN_SUGGESTION_LOADING } from "@/lib/guided-intake-copy";
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/architecture/reviews/new",
+  useRouter: () => ({ replace: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/lib/api/structured-brief-suggestion-explain-api", () => ({
   explainStructuredBriefSuggestion: vi.fn(),
   buildStructuredBriefSuggestionExplainCacheKey: vi.fn(async () => "cache-key-1"),
@@ -16,6 +22,8 @@ const mockedExplain = vi.mocked(explainStructuredBriefSuggestion);
 
 const sourceText =
   "Architecture overview:\nTenant migration platform with private networking and EU residency goals.";
+
+const explainKey = "constraints:EU data residency";
 
 describe("StructuredBriefSuggestionExplainPanel", () => {
   beforeEach(() => {
@@ -35,6 +43,7 @@ describe("StructuredBriefSuggestionExplainPanel", () => {
         suggestionKind="Constraint"
         suggestionText="EU data residency"
         sourceText={sourceText}
+        explainKey={explainKey}
       />,
     );
 
@@ -58,6 +67,7 @@ describe("StructuredBriefSuggestionExplainPanel", () => {
         suggestionKind="Constraint"
         suggestionText="EU data residency"
         sourceText={sourceText}
+        explainKey={explainKey}
         testId="constraint-explain"
       />,
     );
@@ -93,6 +103,7 @@ describe("StructuredBriefSuggestionExplainPanel", () => {
         suggestionKind="Constraint"
         suggestionText="EU data residency"
         sourceText={sourceText}
+        explainKey={explainKey}
       />,
     );
 
@@ -116,6 +127,7 @@ describe("StructuredBriefSuggestionExplainPanel", () => {
         suggestionKind="Constraint"
         suggestionText="EU data residency"
         sourceText={sourceText}
+        explainKey={explainKey}
       />,
     );
 

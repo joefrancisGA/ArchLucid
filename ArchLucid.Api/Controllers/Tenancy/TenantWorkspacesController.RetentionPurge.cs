@@ -44,7 +44,7 @@ public sealed partial class TenantWorkspacesController
             ArchitectureProjectRetentionSchedule.ClampRetentionDays(_retentionPurgeOptions.CurrentValue.RetentionDays);
 
         IEnumerable<ArchitectureProjectRecord> workspaceDeleted =
-            deleted.Where(p => p.WorkspaceId == scope.WorkspaceId)
+            deleted.Where(p => p.WorkspaceId == scope.WorkspaceId && p.DeletedUtc.HasValue)
                 .OrderBy(static p => p.Name, StringComparer.OrdinalIgnoreCase);
 
         TenantWorkspaceRecycleBinApiDto dto = new()
@@ -56,7 +56,7 @@ public sealed partial class TenantWorkspacesController
                 .Select(
                     p =>
                     {
-                        DateTimeOffset deletedUtc = p.DeletedUtc ?? p.CreatedUtc;
+                        DateTimeOffset deletedUtc = p.DeletedUtc!.Value;
 
                         return new TenantWorkspaceDeletedProjectApiDto
                         {

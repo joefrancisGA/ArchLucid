@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 
 import { comparePickerFootnote } from "@/app/(operator)/insights/compare-two-reviews/_sections/compare-page-helpers";
 import { useCompareFinalizedRunAvailability } from "@/app/(operator)/insights/compare-two-reviews/_sections/useCompareFinalizedRunAvailability";
+import { useArchitectureIdentityQuery } from "@/hooks/use-architecture-identity-query";
+import { resolveArchitectureCompareSiblingDefaults } from "@/lib/architecture/resolve-architecture-compare-defaults";
 import {
   compareRunIdsAreSameAfterDemoCanonicalization,
   readCompareRunIdsFromSearchParams,
@@ -85,10 +87,46 @@ export function useCompareFormRunSelection(options: {
     leftTrim === SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID &&
     rightTrim === SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID;
   const architectureId = searchParams?.get("architectureId")?.trim() ?? "";
+  const architectureQuery = useArchitectureIdentityQuery(architectureId, architectureId.length > 0);
   const { finalizedCount, insufficientForCompare } = useCompareFinalizedRunAvailability({
     architectureId: architectureId.length > 0 ? architectureId : undefined,
   });
   const buyerPolished = evalChrome;
+
+  useEffect(() => {
+    if (architectureId.length === 0 || architectureQuery.data === undefined) {
+      return;
+    }
+
+    const siblingDefaults = resolveArchitectureCompareSiblingDefaults({
+      architectureId,
+      reviews: architectureQuery.data.reviews,
+      baseRunId: leftRunId.length > 0 ? leftRunId : rightRunId,
+    });
+
+    if (siblingDefaults === null) {
+      return;
+    }
+
+    if (leftRunId.trim().length === 0 && rightRunId.trim().length === 0) {
+      setLeftRunId(siblingDefaults.priorRunId);
+      setRightRunId(siblingDefaults.laterRunId);
+      syncSelectionToUrlRef.current(siblingDefaults.priorRunId, siblingDefaults.laterRunId);
+
+      return;
+    }
+
+    if (leftRunId.trim().length > 0 && rightRunId.trim().length === 0) {
+      setRightRunId(siblingDefaults.laterRunId);
+      syncSelectionToUrlRef.current(leftRunId, siblingDefaults.laterRunId);
+    }
+  }, [
+    architectureId,
+    architectureQuery.data,
+    leftRunId,
+    rightRunId,
+    syncSelectionToUrlRef,
+  ]);
 
   const leftPickerLabel = isDemoClaimsIntakeComparePair ? "Baseline Claims Intake Review" : "Baseline review";
   const rightPickerLabel = isDemoClaimsIntakeComparePair ? "Updated Claims Intake Review" : "Updated review";

@@ -1,4 +1,5 @@
 using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
+using ArchLucid.Application.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
@@ -34,6 +35,8 @@ internal static class SqlFindingsSnapshotRepositoryRegistrar
         services.AddScoped<IFindingInspectReadRepository, DapperFindingInspectReadRepository>();
         services.AddScoped<IRunFindingExternalTrackingReadRepository, DapperRunFindingExternalTrackingReadRepository>();
         services.AddScoped<IFindingRecordMuteRepository, DapperFindingRecordMuteRepository>();
+        services.AddScoped<IFindingSemanticSupportBandOverlayRepository, DapperFindingSemanticSupportBandOverlayRepository>();
+        services.AddScoped<FindingSemanticSupportBandOverlayWriter>();
         services.AddScoped<IFindingRecordRemediationAssignmentRepository, DapperFindingRecordRemediationAssignmentRepository>();
         services.AddScoped<IDecisionTraceRepository, SqlDecisionTraceRepository>();
     }

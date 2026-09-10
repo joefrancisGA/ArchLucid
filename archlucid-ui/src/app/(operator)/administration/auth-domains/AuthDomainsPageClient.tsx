@@ -5,6 +5,7 @@ import { Fingerprint } from "lucide-react";
 import { useMemo } from "react";
 
 import { AuthDomainsSettingsBuyerChrome } from "@/app/(operator)/administration/auth-domains/AuthDomainsSettingsBuyerChrome";
+import { AuthBetaReadinessInviteCallout } from "@/app/(operator)/administration/users/_sections/AuthBetaReadinessInviteCallout";
 import { AuthDomainsActionConfirmDialog } from "@/app/(operator)/administration/auth-domains/AuthDomainsActionConfirmDialog";
 import { AuthDomainsDomainListPanel } from "@/app/(operator)/administration/auth-domains/AuthDomainsDomainListPanel";
 import { AuthDomainsEnforcementPanel } from "@/app/(operator)/administration/auth-domains/AuthDomainsEnforcementPanel";
@@ -169,6 +170,8 @@ export function AuthDomainsPageClient() {
           reason={adminAuthorityDisabledReason}
           testId="auth-domains-admin-authority-disabled-hint"
         />
+
+        <AuthBetaReadinessInviteCallout diagnosticsHref="/administration/identity-providers/diagnostics" />
 
         <div
           id={AUTH_DOMAINS_SETTINGS_SKIP_TARGET_ID}

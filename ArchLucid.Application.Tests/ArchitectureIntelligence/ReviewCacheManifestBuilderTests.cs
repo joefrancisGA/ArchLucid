@@ -107,6 +107,20 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_changes_content_hash_when_review_tier_changes()
+    {
+        ClosedLoopReasoningRequest trial = CreateRequest("Architecture note.");
+        trial.ReviewTier = ArchitectureIntelligenceReviewTier.Trial;
+
+        ClosedLoopReasoningRequest standard = CreateRequest("Architecture note.");
+        standard.ReviewTier = ArchitectureIntelligenceReviewTier.Standard;
+
+        ReviewCacheManifestBuilder.Build(trial).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(standard).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_baseline_ledger_fingerprint_changes_for_supplied_run_id()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -233,6 +247,20 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_changes_content_hash_when_client_supplied_run_id_differs_with_same_sources()
+    {
+        ClosedLoopReasoningRequest runA = CreateRequest("Architecture note.");
+        runA.RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        ClosedLoopReasoningRequest runB = CreateRequest("Architecture note.");
+        runB.RunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+        ReviewCacheManifestBuilder.Build(runA).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(runB).ContentHash);
+    }
+
+    [Fact]
     public void BuildWithResolvedRunId_emits_model_fingerprint_for_assigned_run_id()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
@@ -250,6 +278,63 @@ public sealed class ReviewCacheManifestBuilderTests
                 request,
                 "assigned-run-id",
                 model).ContentHash);
+    }
+
+    [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_partitions_from_continue_build()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.ContinueFromExistingRun = true;
+
+        ReviewCacheDependencyManifest continueBuild = ReviewCacheManifestBuilder.Build(request);
+        ReviewCacheDependencyManifest coalesceManifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-cache",
+                "run-continue");
+
+        coalesceManifest.ContentHash.Should().NotBe(continueBuild.ContentHash);
+        coalesceManifest.ReuseReason.Should().Be("closed-loop-continue-existing");
+    }
+
+    [Fact]
+    public void BuildWithResolvedRunId_matches_build_content_hash_when_request_carries_same_run_id()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        ArchitectureKnowledgeModel baseline = new()
+        {
+            ModelId = "model-1",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheDependencyManifest lookupManifest =
+            ReviewCacheManifestBuilder.Build(request, baseline, technologyLedgerEntries: null);
+
+        ReviewCacheDependencyManifest storageManifest =
+            ReviewCacheManifestBuilder.BuildWithResolvedRunId(
+                request,
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                baseline,
+                technologyLedgerEntries: null);
+
+        lookupManifest.ContentHash.Should().Be(storageManifest.ContentHash);
+    }
+
+    [Fact]
+    public void Build_changes_tenant_configuration_hash_when_workspace_changes()
+    {
+        ClosedLoopReasoningRequest workspaceA = CreateRequest("Architecture note.");
+        workspaceA.WorkspaceId = "11111111-1111-1111-1111-111111111111";
+
+        ClosedLoopReasoningRequest workspaceB = CreateRequest("Architecture note.");
+        workspaceB.WorkspaceId = "22222222-2222-2222-2222-222222222222";
+
+        ReviewCacheManifestBuilder.Build(workspaceA).TenantConfigurationHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(workspaceB).TenantConfigurationHash);
     }
 
     private static ClosedLoopReasoningRequest CreateRequest(string content)

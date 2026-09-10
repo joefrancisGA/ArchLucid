@@ -1,0 +1,50 @@
+[
+  {
+    "findingId": "a2df080a-cfa0-f03f-f7d2-2de66867a2eb",
+    "findingType": "InventoryReconciliationFinding",
+    "category": "Correctness",
+    "severity": "Warning",
+    "title": "Topology graph and GCP inventory are out of sync",
+    "rationale": "At least one topology resource identifier does not match the latest scoped GCP inventory snapshot.",
+    "relatedNodeIds": [],
+    "payloadType": "InventoryReconciliationFindingPayload",
+    "rulesApplied": [
+      "graph-gcp-inventory-reconciliation"
+    ],
+    "decisionsTaken": [
+      "Compared topology resource identifiers to scoped GCP inventory resources.json rows."
+    ]
+  },
+  {
+    "findingId": "9f3846a9-ee42-93e5-52f9-a89cf87b3a9b",
+    "findingType": "OrphanedGcpResource",
+    "category": "CostOptimization",
+    "severity": "Warning",
+    "title": "Orphaned GCP resource: compute.googleapis.com/Disk",
+    "rationale": "Unattached persistent disk (no users).",
+    "relatedNodeIds": [],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "orphaned-gcp-resource-classifier"
+    ],
+    "decisionsTaken": [
+      "Flagged unattached disk or static IP from GCP inventory."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

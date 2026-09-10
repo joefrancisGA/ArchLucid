@@ -31,10 +31,20 @@ export function resolveReviewFailureRecordedAtUtc(input: {
   readonly pipelineSummary?: RunSummary | null;
   readonly runCompletedUtc?: string | null;
 }): string | null {
-  const completedUtc = (input.runCompletedUtc ?? input.pipelineSummary?.completedUtc ?? "").trim();
+  const candidates = [input.runCompletedUtc, input.pipelineSummary?.completedUtc];
 
-  return completedUtc.length > 0 ? completedUtc : null;
+  for (const candidate of candidates) {
+    const normalized = (candidate ?? "").trim();
+
+    if (normalized.length > 0) {
+      return normalized;
+    }
+  }
+
+  return null;
 }
+
+export const REVIEW_FAILURE_RECORDED_AT_UNAVAILABLE_LABEL = "Failure time not recorded" as const;
 
 export function formatReviewFailureRecordedAtLabel(recordedAtUtc: string | null | undefined): string | null {
   const normalized = (recordedAtUtc ?? "").trim();

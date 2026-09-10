@@ -1,4 +1,4 @@
-import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { REVIEWS_LIST_PATH, ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH } from "@/lib/governance/governance-route-paths";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
@@ -9,6 +9,13 @@ import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 export const PACKAGES_NAV_LABEL = "Packages" as const;
 
 export const PACKAGES_NAV_HREF = REVIEWS_LIST_PATH;
+
+/** SY-35: Working daily object is the architectures portfolio, not the reviews inbox. */
+export const WORKING_PACKAGES_NAV_HREF = ARCHITECTURES_LIST_PATH;
+
+export function resolvePackagesNavHref(workingMode: boolean): string {
+  return workingMode ? WORKING_PACKAGES_NAV_HREF : PACKAGES_NAV_HREF;
+}
 
 /** Single governance inbox aggregating attention queues. */
 export const NEEDS_ATTENTION_INBOX_PATH = GOVERNANCE_NEEDS_ATTENTION_INBOX_PATH;

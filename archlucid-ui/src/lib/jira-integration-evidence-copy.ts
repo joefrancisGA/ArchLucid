@@ -1,4 +1,5 @@
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
@@ -7,10 +8,17 @@ export const JIRA_INTEGRATION_CANONICAL_PATH = "/integrations/jira" as const;
 
 export const JIRA_INTEGRATION_HELP_TOPIC_LABEL = "How Jira integration works";
 
+export const JIRA_INTEGRATION_CLAIM_DISCIPLINE =
+  "Jira integration settings configure outbound ticket routing from findings — not delivery retry forensics, a signed audit record, or platform incident response. Use Integration readiness or Audit when operations needs readiness context or export follow-up.";
+
 export const JIRA_INTEGRATION_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const JIRA_INTEGRATION_SOURCES_INTRO =
   "Use these follow-ups when connection health, readiness checks, or related work-item integrations need attention.";
+
+export const JIRA_INTEGRATION_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "connection health turns into readiness checks, related integrations, or audit follow-up",
+);
 
 /** Operator Sources — no self-href to `/integrations/jira`. */
 export const JIRA_INTEGRATION_SOURCES: readonly EvidenceSourceLink[] = [

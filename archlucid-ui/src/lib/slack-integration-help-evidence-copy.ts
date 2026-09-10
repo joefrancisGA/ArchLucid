@@ -2,6 +2,7 @@ import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
 import {
   SLACK_INTEGRATION_SOURCES_INTRO,
 } from "@/lib/slack-integration-evidence-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { GOVERNANCE_ALERT_RULES_PATH, GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -16,6 +17,10 @@ export const SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE =
 export const SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SLACK_INTEGRATION_HELP_SOURCES_INTRO = SLACK_INTEGRATION_SOURCES_INTRO;
+
+export const SLACK_INTEGRATION_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "destinations need routing rules, readiness checks, or a sibling notification channel",
+);
 
 /** Help follow-ups — no self-href to `/integrations/slack`; one Alert rules destination. */
 export const SLACK_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [

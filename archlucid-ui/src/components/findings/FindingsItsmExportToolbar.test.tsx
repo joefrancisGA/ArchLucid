@@ -43,4 +43,22 @@ describe("FindingsItsmExportToolbar", () => {
     expect(screen.getByRole("button", { name: "Export 1 rendered CSV" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Export 1 rendered JSON" })).toBeInTheDocument();
   });
+
+  it("labels checklist coverage omitted from ITSM export", () => {
+    render(
+      <FindingsItsmExportToolbar
+        runId="run-1"
+        findings={[
+          finding({ findingId: "f-policy", enforcementTier: "PolicyViolation", classification: "DecisionGradeFinding" }),
+          finding({ findingId: "f-checklist", enforcementTier: "Advisory", classification: "ChecklistCoverage" }),
+        ]}
+        compact
+      />,
+    );
+
+    expect(
+      screen.getByText("Exporting 1 decision-grade finding (1 checklist coverage omitted)."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Export 1 CSV" })).toBeInTheDocument();
+  });
 });

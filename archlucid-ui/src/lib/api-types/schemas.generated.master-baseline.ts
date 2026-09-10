@@ -6768,12 +6768,18 @@ export interface components {
         };
         RecordBulkFindingDispositionRequest: {
             disposition: components["schemas"]["FindingDisposition"];
+            expectedCurrentDispositionRowVersionBase64ByFindingId?: {
+                [key: string]: string;
+            } | null;
             findingIds: string[];
             rationale: string;
             /** Format: date-time */
             revisitDueUtc?: null | string;
         };
         RecordBulkFindingDispositionResponse: {
+            currentDispositionRowVersionBase64ByFindingId?: {
+                [key: string]: string;
+            } | null;
             /** Format: int32 */
             processedCount?: number;
             updatedFindingIds: string[];

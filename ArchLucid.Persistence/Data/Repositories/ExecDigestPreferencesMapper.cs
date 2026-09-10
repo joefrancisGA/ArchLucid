@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Notifications;
+using ArchLucid.Contracts.User;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -17,7 +18,7 @@ internal static class ExecDigestPreferencesMapper
             IsConfigured = true,
             EmailEnabled = row.EmailEnabled,
             RecipientEmails = ParseEmails(row.RecipientEmails),
-            IanaTimeZoneId = string.IsNullOrWhiteSpace(row.IanaTimeZoneId) ? "UTC" : row.IanaTimeZoneId.Trim(),
+            IanaTimeZoneId = string.IsNullOrWhiteSpace(row.IanaTimeZoneId) ? IanaTimeZonePreferenceValues.Default : row.IanaTimeZoneId.Trim(),
             DayOfWeek = row.DayOfWeek,
             HourOfDay = row.HourOfDay,
             UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero)

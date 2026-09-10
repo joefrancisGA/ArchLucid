@@ -79,6 +79,7 @@ internal static class AuthorityCommitPipelineCompositionRegistrar
         services.AddScoped<IAuthorityPipelineStagePersistence, AuthorityPipelineStagePersistence>();
         services.AddScoped<AuthorityPipelineStageContextHydrator>();
         services.AddScoped<IAuthorityPipelineContextIngestionStage, AuthorityPipelineContextIngestionStage>();
+        services.AddScoped<IBoundArchitectureInventoryGraphOverlayApplicator, BoundArchitectureInventoryGraphOverlayApplicator>();
         services.AddScoped<IAuthorityPipelineGraphStage, AuthorityPipelineGraphStage>();
         services.AddScoped<IAuthorityPipelineFindingsStage, AuthorityPipelineFindingsStage>();
         services.AddScoped<IAuthorityPipelineDecisioningStage, AuthorityPipelineDecisioningStage>();

@@ -34,10 +34,12 @@ import {
   AUTH_DOMAINS_SETTINGS_SOURCES,
   AUTH_DOMAINS_SETTINGS_SOURCES_INTRO,
 } from "@/lib/auth-domains-settings-evidence-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE,
-  PREFERENCES_SETTINGS_SOURCES,
   PREFERENCES_SETTINGS_SOURCES_INTRO,
+  preferencesSettingsSources,
 } from "@/lib/preferences-settings-evidence-copy";
 import {
   SETTINGS_ROLES_SETTINGS_CLAIM_DISCIPLINE,
@@ -166,6 +168,7 @@ export function ExtractUploadSettingsEvidenceOrientationStrip(
       sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -250,14 +253,20 @@ export function OperatorBillingSettingsEvidenceOrientationStrip(): React.JSX.Ele
   );
 }
 
-export function PreferencesSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function PreferencesSettingsEvidenceOrientationStrip(
+  props: { readonly productLineId?: ProductLineId; readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  const productLineId = props.productLineId ?? resolveProductLineIdFromEnv();
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="preferences-settings"
       sourcesTitle={PREFERENCES_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={PREFERENCES_SETTINGS_SOURCES_INTRO}
-      sources={PREFERENCES_SETTINGS_SOURCES}
+      sources={preferencesSettingsSources(productLineId)}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -277,7 +286,9 @@ export function NotificationPreferenceCenterEvidenceOrientationStrip(): React.JS
   );
 }
 
-export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function RoleMappingSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="role-mapping-settings"
@@ -285,6 +296,8 @@ export function RoleMappingSettingsEvidenceOrientationStrip(): React.JSX.Element
       sourcesIntro={ROLE_MAPPING_SETTINGS_SOURCES_INTRO}
       sources={ROLE_MAPPING_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -319,19 +332,25 @@ export function AuthDomainsSettingsEvidenceOrientationStrip(): React.JSX.Element
   );
 }
 
-export function ModelGovernanceSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function ModelGovernanceSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="model-governance-settings"
+      sourcesTestId="model-governance-settings-sources"
       sourcesTitle={MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO}
       sources={MODEL_GOVERNANCE_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
     />
   );
 }
 
-export function AiUsageSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function AiUsageSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="ai-usage-settings"
@@ -339,6 +358,8 @@ export function AiUsageSettingsEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={AI_USAGE_SETTINGS_SOURCES_INTRO}
       sources={AI_USAGE_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -356,7 +377,7 @@ export function IdentityProvidersSettingsEvidenceOrientationStrip(): React.JSX.E
 }
 
 export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
-  props: { readonly sources?: readonly EvidenceOrientationLink[] } = {},
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
 ): React.JSX.Element {
   const sources = props.sources ?? IDENTITY_PROVIDERS_OIDC_SOURCES;
 
@@ -368,18 +389,27 @@ export function IdentityProvidersOidcSettingsEvidenceOrientationStrip(
       sourcesIntro={IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
 
-export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(): React.JSX.Element {
+export function IdentityProvidersSamlSettingsEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
+): React.JSX.Element {
+  const sources = props.sources ?? IDENTITY_PROVIDERS_SAML_SOURCES;
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="identity-providers-saml-settings"
+      sourcesTestId="identity-providers-saml-settings-sources"
       sourcesTitle={IDENTITY_PROVIDERS_SAML_FOLLOW_UPS_TITLE}
       sourcesIntro={IDENTITY_PROVIDERS_SAML_SOURCES_INTRO}
-      sources={IDENTITY_PROVIDERS_SAML_SOURCES}
+      sources={sources}
       sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -469,6 +499,7 @@ export function ApiKeysSettingsEvidenceOrientationStrip(
       sources={API_KEYS_SETTINGS_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }

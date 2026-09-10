@@ -2,9 +2,11 @@
 
 import { useCallback, useMemo } from "react";
 
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { useFinishSetupReadinessContext } from "@/hooks/use-finish-setup-readiness-context";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { readCachedLastOpenArchitectureId } from "@/lib/desk-continuity-preference";
 import { isLiveOperatorShellRecoveryContext } from "@/lib/live-operator-shell-recovery";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { SealedReviewRecordSummary } from "@/lib/core-pilot-commit-context";
@@ -13,6 +15,7 @@ import {
   resolveFirstReviewGuideProgress,
   resolveFirstReviewGuideReadiness,
   resolveFirstReviewGuideRequiredBlockers,
+  resolveFirstReviewGuideRunHref,
   resolveFirstReviewGuideSteps,
   type FirstReviewGuideHeaderActions,
   type FirstReviewGuideProgress,
@@ -77,6 +80,7 @@ function resolveLoadingHeaderActions(): FirstReviewGuideHeaderActions {
 
 export function useFirstReviewGuideState(): FirstReviewGuideViewState {
   const canExecute = useOperateCapability();
+  const { isWorkingMode } = useWorkspaceMode();
   const commitQuery = useCorePilotCommitContextQuery();
   const finishSetup = useFinishSetupReadinessContext();
 
@@ -115,6 +119,8 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       canExecute,
       finishSetupContext: finishSetup.context,
       finishSetupLoaded: finishSetup.phase === "ready",
+      workingMode: isWorkingMode,
+      architectureId: readCachedLastOpenArchitectureId(),
     };
 
     return {
@@ -132,7 +138,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
       readyToFinalize: commitContext.latestRunReadyToFinalize && !commitContext.hasCommittedManifest,
       latestRunHref:
         commitContext.latestRunId !== null
-          ? `/architecture/reviews/${encodeURIComponent(commitContext.latestRunId)}`
+          ? resolveFirstReviewGuideRunHref(commitContext.latestRunId, stateInput)
           : null,
       hasCommittedManifest: commitContext.hasCommittedManifest,
       sealedReviewRecord: commitContext.sealedReviewRecord,
@@ -144,6 +150,7 @@ export function useFirstReviewGuideState(): FirstReviewGuideViewState {
     commitQuery.isPending,
     finishSetup.context,
     finishSetup.phase,
+    isWorkingMode,
     retry,
   ]);
 }

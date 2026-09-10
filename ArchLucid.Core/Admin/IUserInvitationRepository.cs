@@ -35,4 +35,7 @@ public interface IUserInvitationRepository
         CancellationToken cancellationToken);
 
     Task<bool> MarkAcceptedAsync(Guid invitationId, DateTimeOffset acceptedUtc, CancellationToken cancellationToken);
+
+    /// <summary>E2E harness only — sets invitation expiry without waiting for natural TTL.</summary>
+    Task E2eHarnessSetExpiresUtcAsync(Guid invitationId, DateTimeOffset expiresUtc, CancellationToken cancellationToken);
 }

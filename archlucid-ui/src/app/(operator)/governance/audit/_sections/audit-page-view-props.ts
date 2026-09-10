@@ -65,4 +65,5 @@ export type AuditPageViewProps = {
   readonly ctoDemoAuditFilterActive: boolean;
   readonly onClearCtoDemoAuditFilter: () => void;
   readonly auditFiltersActive: boolean;
+  readonly reviewPackageHref: string;
 };

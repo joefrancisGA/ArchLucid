@@ -1,5 +1,6 @@
 "use client";
 
+import { HelpTopicCatchallResidualView } from "@/app/(operator)/help/_sections/HelpTopicCatchallResidualView";
 import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
 import { HelpApiContractsGuideView } from "@/app/(operator)/help/_sections/HelpApiContractsGuideView";
 import { HelpConfigurationReferenceGuideView } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceGuideView";
@@ -44,7 +45,7 @@ export function HelpTopicMarkdownClient(props: HelpTopicMarkdownClientProps): Re
   }
 
   return (
-    <HelpTopicMarkdownView
+    <HelpTopicCatchallResidualView
       entry={props.entry}
       markdown={markdown}
       showContextualHelp

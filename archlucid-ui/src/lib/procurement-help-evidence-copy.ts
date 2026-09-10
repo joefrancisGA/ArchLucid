@@ -1,4 +1,5 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { buildCustomPolicyPackQuoteHref } from "@/lib/marketing-custom-policy-pack-authoring";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -29,6 +30,13 @@ export const PROCUREMENT_HELP_CLAIM_DISCIPLINE =
 export const PROCUREMENT_HELP_SOURCES_INTRO =
   "Use these follow-ups when procurement FAQ vocabulary turns into assurance hubs, isolation depth, or contract templates.";
 
+export const PROCUREMENT_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "procurement FAQ vocabulary turns into assurance hubs, isolation depth, or contract templates",
+);
+
+export const PROCUREMENT_HELP_FOLLOW_UPS_TITLE = "Where to go next" as const;
+
+export const PROCUREMENT_HELP_CLAIM_HEADING_ID = "help-procurement-claim-discipline-heading" as const;
 
 /** Operator Sources — no self-href to `/help/procurement`. */
 export const PROCUREMENT_HELP_SOURCES: readonly EvidenceSourceLink[] = [
