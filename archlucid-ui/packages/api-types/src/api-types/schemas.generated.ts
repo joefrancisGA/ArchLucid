@@ -9660,6 +9660,64 @@ export interface components {
             publishedOn?: null | string;
             summaryReference?: string;
         };
+        SecurityAssetAssertionCreateApiRequest: {
+            approvedByActorKey?: string;
+            businessCriticality?: string;
+            /** Format: uuid */
+            cloudResourceId?: string;
+            dataSensitivity?: string;
+            deploymentEnvironment?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            isPatientImpact?: boolean;
+            isRevenueImpact?: boolean;
+            rationale?: string;
+            regulatoryClass?: string;
+            requestedByActorKey?: string;
+        };
+        SecurityAssetAssertionCreateApiResponse: {
+            /** Format: uuid */
+            assertionId?: string;
+        };
+        SecurityAssetAssertionExpirySweepApiResponse: {
+            /** Format: int32 */
+            expiredCount?: number;
+            /** Format: int32 */
+            observationsCreatedCount?: number;
+        };
+        SecurityAssetAssertionRenewApiRequest: {
+            approvedByActorKey?: string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            renewedByActorKey?: string;
+        };
+        SecurityAssetAssertionResponse: {
+            /** Format: uuid */
+            assertionId?: string;
+            businessCriticality?: string;
+            /** Format: uuid */
+            cloudResourceId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            dataSensitivity?: string;
+            deploymentEnvironment?: string;
+            evidenceReference?: null | string;
+            /** Format: date-time */
+            expirationUtc?: string;
+            isPatientImpact?: boolean;
+            isRevenueImpact?: boolean;
+            provenanceKind?: string;
+            qualifiesAsCrownJewel?: boolean;
+            rationale?: string;
+            regulatoryClass?: string;
+            status?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        SecurityAssetAssertionRevokeApiRequest: {
+            revokedByActorKey?: string;
+        };
         SecurityDelta: {
             baseStatus?: null | string;
             controlName?: string;

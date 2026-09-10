@@ -33067,6 +33067,158 @@
         },
         "type": "object"
       },
+      "SecurityAssetAssertionCreateApiRequest": {
+        "properties": {
+          "approvedByActorKey": {
+            "type": "string"
+          },
+          "businessCriticality": {
+            "type": "string"
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "dataSensitivity": {
+            "type": "string"
+          },
+          "deploymentEnvironment": {
+            "type": "string"
+          },
+          "evidenceReference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "expirationUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isPatientImpact": {
+            "type": "boolean"
+          },
+          "isRevenueImpact": {
+            "type": "boolean"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "regulatoryClass": {
+            "type": "string"
+          },
+          "requestedByActorKey": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityAssetAssertionCreateApiResponse": {
+        "properties": {
+          "assertionId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityAssetAssertionExpirySweepApiResponse": {
+        "properties": {
+          "expiredCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "observationsCreatedCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityAssetAssertionRenewApiRequest": {
+        "properties": {
+          "approvedByActorKey": {
+            "type": "string"
+          },
+          "expirationUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "renewedByActorKey": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityAssetAssertionResponse": {
+        "properties": {
+          "assertionId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "businessCriticality": {
+            "type": "string"
+          },
+          "cloudResourceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "dataSensitivity": {
+            "type": "string"
+          },
+          "deploymentEnvironment": {
+            "type": "string"
+          },
+          "evidenceReference": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "expirationUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isPatientImpact": {
+            "type": "boolean"
+          },
+          "isRevenueImpact": {
+            "type": "boolean"
+          },
+          "provenanceKind": {
+            "type": "string"
+          },
+          "qualifiesAsCrownJewel": {
+            "type": "boolean"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "regulatoryClass": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "SecurityAssetAssertionRevokeApiRequest": {
+        "properties": {
+          "revokedByActorKey": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "SecurityDelta": {
         "properties": {
           "baseStatus": {
@@ -46933,6 +47085,9 @@
     },
     {
       "name": "OperationalSecurityArchitectMetrics"
+    },
+    {
+      "name": "OperationalSecurityAssetAssertions"
     },
     {
       "name": "OperationalSecurityFindings"
