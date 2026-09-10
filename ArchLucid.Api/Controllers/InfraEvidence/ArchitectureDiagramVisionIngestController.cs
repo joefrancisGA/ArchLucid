@@ -88,10 +88,6 @@ public sealed partial class ArchitectureDiagramVisionIngestController(
         {
             return MapDiagramVisionIngestSealedManifestConflict(ex);
         }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
         catch (InvalidOperationException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
