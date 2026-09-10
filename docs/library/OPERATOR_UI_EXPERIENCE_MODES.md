@@ -45,8 +45,8 @@ Personal preference stored in `dbo.UserSettings` (`WorkspaceMode`). **Missing/nu
 
 | Mode | Behavior |
 |------|----------|
-| **Working** (default) | Teaching chrome off — Overview leads with the work queue; full authorized nav unlocks even before first commit; dense architect chrome on production builds; Getting started demoted from main nav. **Working is not an `/al-ui-rate` buyer-confidence target** — that command rates Working screenshots as an all-day instrument (ADR 0080 / WS-07). |
-| **Guided** | Teaching chrome on — tours, first-finding strips, shortcut coaches, Where to go next strips, sample reviews on Overview when enabled. Live architecture packages only. |
+| **Working** (default) | Teaching chrome off — Overview leads with the work queue; full authorized nav unlocks even before first commit; dense architect chrome on production builds; Getting started demoted from main nav. **Career / Rehearsal door** chooser in the operator top bar (`WorkingCareerRehearsalChooser`) — explicit execute intent for livelihood gravity (ADR 0086 / AS-077+). New first-run Working tenants default to **Career** (AS-080); legacy Simulator clones grandfather **Rehearsal**. **Working is not an `/al-ui-rate` buyer-confidence target** — that command rates Working screenshots as an all-day instrument (ADR 0080 / WS-07). |
+| **Guided** | Teaching chrome on — tours, first-finding strips, shortcut coaches, Where to go next strips, sample reviews on Overview when enabled. Live architecture packages only. **No Career / Rehearsal chooser** — Guided keeps Simulator teaching and eval hand-holding per ADR 0067/0080 (AS-081 / WS-23). |
 
 Users switch modes in **Account → Preferences → Workspace mode**. After the user's first sealed review, Working-mode users may see a dismissible offer to switch to Guided for teaching chrome — never an auto-switch.
 
@@ -55,6 +55,19 @@ API: `GET /v1/user/preferences` returns `workspaceMode` and `workspaceModeGradua
 Frontend: `WorkspaceModeProvider` in `archlucid-ui/src/app/layout.tsx`; `useTeachingChromeVisible()` gates teaching surfaces.
 
 **WS-23 ratchet:** `resolveProductionEvalChrome()` must stay **true** for Guided, demo, static showcase, and frictionless trial; production **Working** must stay **false**. Vitest: `production-desk-chrome.test.ts`, `*.working-eval-leakage.test.tsx`, and `ArchitecturesHubBuyerChrome.working-eval-leakage.test.tsx`. Working = all-day instrument; Guided = eval teaching product — do not auto-switch modes.
+
+## Working Career vs Rehearsal door (ADR 0086 / AS-081)
+
+The **Career / Rehearsal** segmented control is **Working-only** product chrome — not a host `AgentExecution:Mode` flip and not shown on Guided, demo, static showcase, or frictionless trial seats.
+
+| Door | Execute posture | UI contract |
+|------|-----------------|-------------|
+| **Career** | Real when available (AS-078 may block with honesty dialog when host is Simulator-pinned or live AI is not ready) | Career artifacts, sponsor/export honesty under ADR 0078 |
+| **Rehearsal** | Simulator or Fallback with rehearsal labeling | Teaching and dry-runs — cannot screenshot as career-ready (AS-079) |
+
+**Guided split (AS-081):** `WorkingCareerRehearsalChooser` returns `null` when `isWorkingWorkspaceMode(mode)` is false. Guided screenshots and teaching flows keep Simulator coaching without requiring the Career door. Vitest ratchet: `working-career-rehearsal-guided-split.test.ts`. C# ratchet: `ArchitectureSpineAs081GuidedKeepsSimulatorTeachingArchitectureTests`.
+
+**Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
 ## Related
 
