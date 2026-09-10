@@ -8,6 +8,7 @@ import {
   isInternalAppHref,
   isSameDocumentPath,
 } from "@/lib/in-app-navigation-guard-helpers";
+import { registerLivelihoodDocumentGuardDirty } from "@/lib/operator/livelihood-document-guard-dirty-registry";
 import {
   livelihoodDocumentGuardHrefFromSearch,
   parseLivelihoodDocumentGuardOpenFromSearch,
@@ -89,6 +90,14 @@ export function useInAppNavigationGuard(args: UseInAppNavigationGuardArgs) {
 
     syncNavGuardOpenToUrl(dialogOpen);
   }, [navGuardOpenParam, pendingNavigation, syncNavGuardOpenToUrl]);
+
+  useEffect(() => {
+    if (!args.when) {
+      return;
+    }
+
+    return registerLivelihoodDocumentGuardDirty();
+  }, [args.when]);
 
   useEffect(() => {
     if (!args.when) {

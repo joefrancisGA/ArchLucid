@@ -34,6 +34,7 @@ describe("livelihood-document-guard inventory (RS-07)", () => {
     expect(surfaceIds).toContain("governance-approval-rationale");
     expect(surfaceIds).toContain("architecture-identity-rename");
     expect(surfaceIds).toContain("architecture-intake-wizards");
+    expect(surfaceIds).toContain("governance-remediation-patterns-yaml");
   });
 
   it("documents deferred livelihood guard surfaces with explicit reasons", () => {
@@ -79,6 +80,15 @@ describe("livelihood-document-guard shrink ratchet (LP-11)", () => {
 
     expect(deferredIds).not.toContain("architecture-identity-rename");
     expect(deferredIds).not.toContain("architecture-intake-wizards");
+    expect(LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES.length).toBe(
+      LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE,
+    );
+  });
+
+  it("removes remediation YAML from deferred after LW-081", () => {
+    const deferredIds = LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES.map((surface) => surface.id);
+
+    expect(deferredIds).not.toContain("governance-remediation-patterns-yaml");
     expect(LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES.length).toBe(
       LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE,
     );

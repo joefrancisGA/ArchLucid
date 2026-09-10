@@ -27,6 +27,11 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => mockSearchParams(),
 }));
 
+import {
+  clearLivelihoodDocumentGuardDirtyRegistryForTests,
+  hasActiveLivelihoodDocumentGuardDirty,
+} from "@/lib/operator/livelihood-document-guard-dirty-registry";
+
 import { useInAppNavigationGuard } from "./use-in-app-navigation-guard";
 
 describe("useInAppNavigationGuard (LW-076 / LW-079)", () => {
@@ -34,6 +39,7 @@ describe("useInAppNavigationGuard (LW-076 / LW-079)", () => {
   let underlyingReplace: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    clearLivelihoodDocumentGuardDirtyRegistryForTests();
     underlyingPush = vi.fn();
     underlyingReplace = vi.fn();
     testRouter.push = underlyingPush;
@@ -53,6 +59,16 @@ describe("useInAppNavigationGuard (LW-076 / LW-079)", () => {
 
     expect(underlyingPush).toHaveBeenCalledWith("/architecture/reviews");
     expect(result.current.dialogOpen).toBe(false);
+  });
+
+  it("registers dirty state while the guard is active", () => {
+    const { unmount } = renderHook(() => useInAppNavigationGuard({ when: true }));
+
+    expect(hasActiveLivelihoodDocumentGuardDirty()).toBe(true);
+
+    unmount();
+
+    expect(hasActiveLivelihoodDocumentGuardDirty()).toBe(false);
   });
 
   it("blocks router.push to another operator route until the operator confirms leave", () => {

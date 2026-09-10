@@ -116,6 +116,11 @@ export const LIVELIHOOD_DOCUMENT_GUARD_SURFACES: readonly ErrorRecoveryContractG
     sourceRoots: ["app/(operator)/architecture/reviews/new/SocraticIntakeWizardGuards.tsx"],
     requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
   },
+  {
+    id: "governance-remediation-patterns-yaml",
+    sourceRoots: ["app/(operator)/governance/remediation-patterns/RemediationPatternsGuards.tsx"],
+    requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
+  },
 ] as const;
 
 /**
@@ -155,11 +160,6 @@ export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES: readonly LivelihoodDoc
     reason: "Run pair selection syncs to URL immediately; no free-text document dirty state.",
   },
   {
-    id: "governance-remediation-patterns-yaml",
-    sourceRoots: ["app/(operator)/governance/remediation-patterns/RemediationPatternsClient.tsx"],
-    reason: "YAML import draft is admin-only and ships with explicit import confirmation — LP-12 follow-up.",
-  },
-  {
     id: "pilot-scorecard-assumptions",
     sourceRoots: ["app/(operator)/insights/architecture-scorecard/_sections/use-pilot-scorecard-page.ts"],
     reason: "Scorecard assumption overrides are exploratory analytics — defer until sponsor desk LP-14 preview gate.",
@@ -167,7 +167,7 @@ export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES: readonly LivelihoodDoc
 ] as const;
 
 /** LP-11 baseline — deferred rows may shrink or stay flat; growth requires a documented exception id. */
-export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE = 3;
+export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE = 2;
 
 /** Deferred surface ids allowed above the baseline count (must match a row in {@link LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES}). */
 export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_DOCUMENTED_EXCEPTIONS: readonly string[] = [] as const;
