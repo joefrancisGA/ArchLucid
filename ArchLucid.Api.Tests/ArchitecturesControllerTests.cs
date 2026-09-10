@@ -1,5 +1,7 @@
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Controllers.Architecture;
+using ArchLucid.Api.Support;
+using ArchLucid.Api.Tests.Support;
 using ArchLucid.Application.Architecture;
 using Microsoft.Extensions.Logging.Abstractions;
 using ArchLucid.Application.Common;
@@ -39,6 +41,7 @@ public sealed class ArchitecturesControllerTests
     private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
     private readonly Mock<IArchitectureRestrictToSharesService> _restrictToSharesService = new();
     private readonly Mock<IArchitectureShareAccessService> _shareAccessService = new();
+    private readonly Mock<IArchitectureShareAccessGate> _shareAccessGate = ArchitectureShareAccessGateTestDefaults.CreatePermissiveGate();
     private readonly Mock<IAuthenticatedPlatformUserResolver> _platformUserResolver = new();
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
@@ -204,6 +207,7 @@ public sealed class ArchitecturesControllerTests
                 NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
             _restrictToSharesService.Object,
             _shareAccessService.Object,
+            _shareAccessGate.Object,
             _platformUserResolver.Object,
             _sealDeltaService.Object,
             _auditService.Object,
