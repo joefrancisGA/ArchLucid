@@ -9,6 +9,7 @@ import {
 import { throwApiRequestError } from "@/lib/api/http-verbs-get";
 import { notifyIfIdempotencyReplayed } from "@/lib/api/http-verbs-mutate-shared";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { findingUnmuteMutationBlockedReason } from "@/lib/findings/finding-unmute-mutation-blocked-reason";
 
 /** Clears a finding mute for one authority run (ExecuteAuthority). */
@@ -37,7 +38,7 @@ export async function deleteFindingMute(runId: string, findingId: string): Promi
       const failure = toApiLoadFailure(error);
       const blocked = findingUnmuteMutationBlockedReason(failure);
 
-      throw new Error(blocked ?? failure.message);
+      throw new Error(blocked ?? formatExportSealedManifestAwareApiError(failure));
     }
   }
 

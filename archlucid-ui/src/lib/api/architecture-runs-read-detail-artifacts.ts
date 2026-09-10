@@ -12,6 +12,7 @@ import type {
 
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
+import { runAgentForensicsBlockedReason } from "@/lib/runs/run-agent-forensics-blocked-reason";
 import { runProvenanceBlockedReason } from "@/lib/provenance/run-provenance-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
@@ -72,27 +73,48 @@ export async function getRunTraces(
   q.set("pageNumber", String(pageNumber));
   q.set("pageSize", String(pageSize));
 
-  return apiGetSealedManifestAware<AgentExecutionTraceListPayload>(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/traces?${q}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<AgentExecutionTraceListPayload>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/traces?${q}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runAgentForensicsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Trace-derived redacted invocation forensics (TB-110). */
 export async function getRunToolInvocationForensics(
   runId: string,
 ): Promise<RunToolInvocationForensicsPayload> {
-  return apiGetSealedManifestAware<RunToolInvocationForensicsPayload>(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/tool-invocation-forensics`,
-  );
+  try {
+    return await apiGetSealedManifestAware<RunToolInvocationForensicsPayload>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/tool-invocation-forensics`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runAgentForensicsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** On-demand structural evaluation of persisted `parsedResultJson` per trace (no OTel side effects in API). */
 export async function getRunAgentEvaluation(
   runId: string,
 ): Promise<AgentOutputEvaluationSummaryPayload> {
-  return apiGetSealedManifestAware<AgentOutputEvaluationSummaryPayload>(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/agent-evaluation`,
-  );
+  try {
+    return await apiGetSealedManifestAware<AgentOutputEvaluationSummaryPayload>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/agent-evaluation`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runAgentForensicsBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Redaction-safe retrieval grounding diagnostics for one authority run. */

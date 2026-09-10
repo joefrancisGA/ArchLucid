@@ -1,3 +1,7 @@
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
+
+
 import {
   FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
   FINDING_CLASSIFICATION_DECISION_GRADE,
@@ -11,8 +15,7 @@ import {
   resolveDecisionGradeSemanticSupportBand,
   type FindingSemanticSupportBandValue,
 } from "@/lib/findings/semantic-support-band-presentation";
-import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
+
 
 /** Mirrors `FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1` (AS-057 / AS-060). */
 export const FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION = "as057-v1";

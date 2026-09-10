@@ -54,45 +54,52 @@ public sealed partial class AuditController
         if (effectiveFrom.HasValue && effectiveTo.HasValue && effectiveFrom.Value > effectiveTo.Value)
             return this.BadRequestProblem("fromUtc must not be after toUtc.", ProblemTypes.ValidationFailed);
 
-        int exportMaxRows = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-
-        IActionResult? sealedGuardResult =
-            await EnsureAuditExportSealedManifestAllowedAsync(runId, scope, ct);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        AuditEventFilter filter = new()
+        try
         {
-            EventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim(),
-            FromUtc = effectiveFrom,
-            ToUtc = effectiveTo,
-            CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? null : correlationId.Trim(),
-            ActorUserId = string.IsNullOrWhiteSpace(actorUserId) ? null : actorUserId.Trim(),
-            RunId = runId,
-            Take = exportMaxRows
-        };
+            int exportMaxRows = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
+            ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        IActionResult? rowCapProblem =
-            await EnsureAuditExportWithinRowCapOrConflictAsync(scope, filter, exportMaxRows, ct);
+            IActionResult? sealedGuardResult =
+                await EnsureAuditExportSealedManifestAllowedAsync(runId, scope, ct);
 
-        if (rowCapProblem is not null)
-            return rowCapProblem;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        DateTime nameFrom = effectiveFrom ?? TimeProvider.System.GetUtcNow().UtcDateTime;
-        DateTime nameTo = effectiveTo ?? nameFrom;
-        string attachmentName = exportFormatter.BuildAuditExportCsvFileName(nameFrom, nameTo);
+            AuditEventFilter filter = new()
+            {
+                EventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType.Trim(),
+                FromUtc = effectiveFrom,
+                ToUtc = effectiveTo,
+                CorrelationId = string.IsNullOrWhiteSpace(correlationId) ? null : correlationId.Trim(),
+                ActorUserId = string.IsNullOrWhiteSpace(actorUserId) ? null : actorUserId.Trim(),
+                RunId = runId,
+                Take = exportMaxRows
+            };
 
-        IAsyncEnumerable<AuditEvent> events = repo.StreamFilteredExportAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            filter,
-            ct);
+            IActionResult? rowCapProblem =
+                await EnsureAuditExportWithinRowCapOrConflictAsync(scope, filter, exportMaxRows, ct);
 
-        await AuditEventCsvResponseWriter.WriteAsync(Response, exportFormatter, events, attachmentName, ct);
+            if (rowCapProblem is not null)
+                return rowCapProblem;
 
-        return new EmptyResult();
+            DateTime nameFrom = effectiveFrom ?? TimeProvider.System.GetUtcNow().UtcDateTime;
+            DateTime nameTo = effectiveTo ?? nameFrom;
+            string attachmentName = exportFormatter.BuildAuditExportCsvFileName(nameFrom, nameTo);
+
+            IAsyncEnumerable<AuditEvent> events = repo.StreamFilteredExportAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                filter,
+                ct);
+
+            await AuditEventCsvResponseWriter.WriteAsync(Response, exportFormatter, events, attachmentName, ct);
+
+            return new EmptyResult();
+        }
+        catch (ConflictException ex)
+        {
+            return MapAuditExportSealedManifestConflict(ex);
+        }
     }
 }

@@ -97,29 +97,36 @@ public sealed partial class GovernancePreCommitSimulationController(
         if (tenantProblem is not null)
             return tenantProblem;
 
-        Guid runGuid = Guid.Parse(runIdNormalized);
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunRecord? run = await _runRepository
-            .GetByIdAsync(scope, runGuid, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (run is null)
+        try
         {
-            return this.NotFoundProblem(
-                $"Run '{runIdNormalized}' was not found.",
-                ProblemTypes.RunNotFound);
+            Guid runGuid = Guid.Parse(runIdNormalized);
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, runGuid, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (run is null)
+            {
+                return this.NotFoundProblem(
+                    $"Run '{runIdNormalized}' was not found.",
+                    ProblemTypes.RunNotFound);
+            }
+
+            IActionResult? sealedGuardResult =
+                await EnsurePreCommitSimulationSealedManifestAllowedAsync(runGuid, scope, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            PreFinalizeChecklistResult checklist =
+                await preFinalizeChecklistService.BuildAsync(runIdNormalized, cancellationToken);
+
+            return Ok(checklist);
         }
-
-        IActionResult? sealedGuardResult =
-            await EnsurePreCommitSimulationSealedManifestAllowedAsync(runGuid, scope, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        PreFinalizeChecklistResult checklist =
-            await preFinalizeChecklistService.BuildAsync(runIdNormalized, cancellationToken);
-
-        return Ok(checklist);
+        catch (ConflictException ex)
+        {
+            return MapPreCommitSimulationSealedManifestConflict(ex);
+        }
     }
 
     // idempotency-posture: dry-run-no-persist
@@ -172,56 +179,63 @@ public sealed partial class GovernancePreCommitSimulationController(
         if (tenantProblem is not null)
             return tenantProblem;
 
-        Guid runGuid = Guid.Parse(runIdNormalized);
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunRecord? run = await _runRepository
-            .GetByIdAsync(scope, runGuid, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (run is null)
+        try
         {
-            return this.NotFoundProblem(
-                $"Run '{runIdNormalized}' was not found.",
-                ProblemTypes.RunNotFound);
-        }
+            Guid runGuid = Guid.Parse(runIdNormalized);
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            RunRecord? run = await _runRepository
+                .GetByIdAsync(scope, runGuid, cancellationToken)
+                .ConfigureAwait(false);
 
-        IActionResult? sealedGuardResult =
-            await EnsurePreCommitSimulationSealedManifestAllowedAsync(runGuid, scope, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        PreCommitGateResult outcome = await gate.SimulateSyntheticFindingsAsync(
-            runIdNormalized,
-            body.SyntheticSeverity,
-            body.SyntheticCount,
-            cancellationToken);
-
-        Guid? auditRunId = runGuid;
-
-        await auditService.LogAsync(
-            new AuditEvent
+            if (run is null)
             {
-                EventType = AuditEventTypes.GovernancePreCommitSimulationEvaluated,
-                RunId = auditRunId,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    runId = runIdNormalized,
-                    syntheticSeverity = body.SyntheticSeverity,
-                    syntheticCount = body.SyntheticCount,
-                    blocked = outcome.Blocked,
-                    warnOnly = outcome.WarnOnly,
-                    reason = outcome.Reason,
-                    policyPackId = outcome.PolicyPackId,
-                    minimumBlockingSeverity = outcome.MinimumBlockingSeverity,
-                    blockingFindingIdCount = outcome.BlockingFindingIds.Count,
-                    blockingFindingIdsSample = outcome.BlockingFindingIds.Take(10).ToArray(),
-                    warningsCount = outcome.Warnings.Count
-                })
-            },
-            cancellationToken);
+                return this.NotFoundProblem(
+                    $"Run '{runIdNormalized}' was not found.",
+                    ProblemTypes.RunNotFound);
+            }
 
-        return Ok(outcome);
+            IActionResult? sealedGuardResult =
+                await EnsurePreCommitSimulationSealedManifestAllowedAsync(runGuid, scope, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            PreCommitGateResult outcome = await gate.SimulateSyntheticFindingsAsync(
+                runIdNormalized,
+                body.SyntheticSeverity,
+                body.SyntheticCount,
+                cancellationToken);
+
+            Guid? auditRunId = runGuid;
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.GovernancePreCommitSimulationEvaluated,
+                    RunId = auditRunId,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        runId = runIdNormalized,
+                        syntheticSeverity = body.SyntheticSeverity,
+                        syntheticCount = body.SyntheticCount,
+                        blocked = outcome.Blocked,
+                        warnOnly = outcome.WarnOnly,
+                        reason = outcome.Reason,
+                        policyPackId = outcome.PolicyPackId,
+                        minimumBlockingSeverity = outcome.MinimumBlockingSeverity,
+                        blockingFindingIdCount = outcome.BlockingFindingIds.Count,
+                        blockingFindingIdsSample = outcome.BlockingFindingIds.Take(10).ToArray(),
+                        warningsCount = outcome.Warnings.Count
+                    })
+                },
+                cancellationToken);
+
+            return Ok(outcome);
+        }
+        catch (ConflictException ex)
+        {
+            return MapPreCommitSimulationSealedManifestConflict(ex);
+        }
     }
 
     /// <remarks>
