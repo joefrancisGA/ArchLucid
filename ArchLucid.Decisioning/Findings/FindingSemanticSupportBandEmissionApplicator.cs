@@ -19,7 +19,7 @@ public static class FindingSemanticSupportBandEmissionApplicator
             if (finding.EvidenceRefs.Count == 0)
                 continue;
 
-            string findingMessage = BuildFindingMessage(finding);
+            string findingMessage = FindingSemanticSupportBandClaimMessageResolver.Resolve(finding);
             IReadOnlyList<string> citationExcerpts = BuildCitationExcerpts(finding);
 
             if (citationExcerpts.Count == 0)
@@ -33,14 +33,6 @@ public static class FindingSemanticSupportBandEmissionApplicator
 
             finding.SemanticSupportBand = scoredBand;
         }
-    }
-
-    private static string BuildFindingMessage(Finding finding)
-    {
-        if (!string.IsNullOrWhiteSpace(finding.Rationale))
-            return finding.Rationale.Trim();
-
-        return finding.Title.Trim();
     }
 
     private static IReadOnlyList<string> BuildCitationExcerpts(Finding finding)
