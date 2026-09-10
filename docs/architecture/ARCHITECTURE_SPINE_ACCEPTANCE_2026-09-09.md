@@ -4,7 +4,7 @@
 
 > **Date:** 2026-09-10 (wave 22 — AS-001–AS-100)  
 > **Owner decision:** Diagrams and bound inventory are **decide inputs**, not inspect-only decoration. Semantic support is a Working **career band**, not a sync commit gate. Career vs Rehearsal is product chrome without flipping host `AgentExecution:Mode`.  
-> **Spine:** [ADR 0084](adrs/0084-architecture-review-inputs-include-diagrams-and-bound-inventory.md) · [ADR 0085](adrs/0085-semantic-support-band-not-sync-commit-gate.md) · [ADR 0086](adrs/0086-career-vs-rehearsal-doors-no-host-mode-flip.md) · [ADR 0087](adrs/0087-architecture-share-acl-inside-tenant.md) · [`ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md`](ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md)
+> **Spine:** [ADR 0084](adrs/0084-architecture-review-inputs-include-diagrams-and-bound-inventory.md) · [ADR 0085](adrs/0085-semantic-support-band-working-career-not-commit-gate.md) · [ADR 0086](adrs/0086-career-vs-rehearsal-doors-no-host-mode-flip.md) · [ADR 0087](adrs/0087-architecture-share-acl-inside-tenant.md) · [`ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md`](ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md)
 
 ## Verdict
 
