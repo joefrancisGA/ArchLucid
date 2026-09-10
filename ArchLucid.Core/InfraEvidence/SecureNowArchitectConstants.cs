@@ -12,6 +12,13 @@ public static class SecureNowArchitectConstants
 
     public const string ToxicCombinationControlId = "securenow.toxic-combination";
 
+    public const string CapabilityToFlowControlId = "securenow.capability-to-flow";
+
+    /// <summary>Synthetic hop for possible information movement (SA-07) — never ObservedFact.</summary>
+    public const string PossibleMovementHopEdgeType = "possible-movement";
+
+    public const string InsufficientEvidenceEgressHopEdgeType = "egress-not-collected-or-unverified";
+
     /// <summary>Synthetic start node for internet-facing exposure paths (SA-05).</summary>
     public const string InternetPublicExposureNodeId = "internet://public-exposure";
 
