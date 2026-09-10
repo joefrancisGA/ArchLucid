@@ -8,6 +8,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   SECURENOW_REMEDIATION_FACTORY_PATH,
@@ -70,6 +71,16 @@ describe("SecureNow governance contextual help rows", () => {
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_PATH, "security")?.slug).not.toBe("cloud-connections");
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH, "security")?.slug).toBe(
       "governance-infrastructure-drift",
+    );
+  });
+
+  it("does not resolve Approval copy for inventory diagrams", () => {
+    const entry = contextualHelpForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, { productLineId: "security" });
+
+    expect(entry?.whatIsThisPage).toContain("Inventory diagrams");
+    expect(entry?.whatIsThisPage).not.toContain("Approval");
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.label).toBe(
+      "Inventory diagrams",
     );
   });
 

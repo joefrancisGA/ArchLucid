@@ -1,11 +1,11 @@
 import {
   GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
@@ -29,7 +29,7 @@ export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinati
     summary: "Review advisory Terraform mapping reconstructed from inventory evidence.",
   },
   {
-    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+    href: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
     label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
     summary: "Render large inventory diagrams with partitioned fallbacks and server PNG export.",
   },
