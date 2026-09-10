@@ -190,6 +190,7 @@ public sealed class ArchitecturesControllerTests
     }
 
     private ArchitecturesController BuildSut() =>
+<<<<<<< HEAD
         new(
             _scopeProvider.Object,
             _actorContext.Object,
@@ -208,4 +209,15 @@ public sealed class ArchitecturesControllerTests
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
+=======
+        ArchitecturesControllerTestSupport.BuildController(
+            _scopeProvider,
+            _actorContext,
+            _service,
+            _bindingService,
+            _sealDeltaService,
+            _auditService,
+            _runRepository,
+            _goldenManifestRepository);
+>>>>>>> 24079b3915 (Fix merge compile error and refresh OpenAPI snapshot post-merge)
 }
