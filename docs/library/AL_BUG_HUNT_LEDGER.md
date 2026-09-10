@@ -2830,10 +2830,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-04 — duplicate Stripe-Signature / Authorization headers comma-joined and rejected
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -2848,8 +2848,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Wallet `payment_intent.succeeded` acked without crediting on bad metadata — **hit 2026-08-24:** missing/invalid `tenant_id` on `llm_wallet_refill` intents was ignored and the event was marked `Processed`; fixed by validating metadata and throwing so the ledger records `Failed` and Stripe can retry.
 - [x] (proven) Marketplace dedupe key used 32-bit `GetHashCode` — **hit 2026-08-24:** distinct `ChangeQuantity` payloads could collide and be falsely rejected; fixed with SHA-256 payload fingerprints in `BillingMarketplaceWebhookDedupeKey`.
 - [x] (proven) `BillingStripeWebhookController` / `BillingMarketplaceWebhookController` — duplicate `Stripe-Signature` or `Authorization` headers were comma-joined via `StringValues.ToString()`, breaking signature/JWT verification when a blank first value preceded a valid one — **hit 2026-09-04 (#671):** `InboundWebhookHeaderReader` extracts first non-empty header; regression in `InboundWebhookHeaderReaderTests` and `BillingStripeWebhookReplayHttpTests`.
-- [ ] (candidate) Stripe/Marketplace providers call `HasSeenAsync` before ledger insert instead of `TryRegisterEventAsync` — ledger `Received` status + `BillingWebhookLedgerReplayPolicy` already reject in-flight duplicates; wire `TryRegisterEventAsync` only if a repro shows double-mutation without ledger row.
-- [ ] (candidate) Wallet-route `payment_intent.*` events without `purpose=llm_wallet_refill` return handled without crediting — intentional filter so Stripe does not retry forever on subscription-route events posted to wallet URL.
+- [x] (invalid) Stripe/Marketplace providers call `HasSeenAsync` before ledger insert instead of `TryRegisterEventAsync` — **cheap-disproof 2026-09-10 thorough hunt #1677:** `HasSeenAsync` short-circuits hot replays before ledger I/O; in-flight duplicates are rejected via `BillingWebhookLedgerReplayPolicy` on `Received`/`Processed` status; regressions `ShouldRejectDuplicateLedgerEntry_returns_true_for_in_flight_or_completed_status`, `HandleWebhookAsync_in_flight_received_event_returns_replay_without_replaying_mutation`, and `HandleWebhookAsync_does_not_call_try_register_on_replay_guard`.
+- [x] (invalid) Wallet-route `payment_intent.*` events without `purpose=llm_wallet_refill` return handled without crediting — **cheap-disproof 2026-09-10 thorough hunt #1677:** intentional filter on wallet route; regressions `HandleWebhookAsync_wallet_payment_intent_without_wallet_purpose_succeeds_without_credit` and `HandleWebhookAsync_wallet_payment_intent_missing_purpose_metadata_succeeds_without_credit`.
+
+2026-09-10 thorough hunt #1677 (dry): cheap-disproof closed both open candidates as invalid; 21 scoped billing webhook unit tests passed (`BillingStripeWebhookControllerIntegrationTests` skipped — no SQL Server in cloud VM).
 
 2026-09-04 seed hunt #671: proved duplicate billing webhook signature/bearer header comma-join; seeded replay-guard TryRegister wiring and wallet-purpose filter candidates.
 
