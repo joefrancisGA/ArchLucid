@@ -2796,13 +2796,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-09 — equal-count snapshot severity tie kept agent buckets; muted cost findings inflated estimated USD savings rollups
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** unknown
 
 ### Hypotheses
 
