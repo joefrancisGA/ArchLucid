@@ -1,4 +1,4 @@
-> **Scope:** Placeholder — wave-115 robustness controls (1365–1376) when opened.
+> **Scope:** Contributor-reference — placeholder for wave-115 robustness controls (1365–1376) when opened; not buyer-facing copy.
 
 # Architecture create/review robustness — wave 115
 

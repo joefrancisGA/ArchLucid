@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — SecureNow cut-point analysis engine contract and leverage scoring. Internal engineering only.
+
 # SecureNow cut-point analysis (SA-10)
 
 Rule version: **`SA10-cut-v1`**
