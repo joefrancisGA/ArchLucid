@@ -15,6 +15,7 @@ import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed
 import { runExplanationSummaryBlockedReason } from "@/lib/explain/run-explanation-summary-blocked-reason";
 import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
 import { runAgentForensicsBlockedReason } from "@/lib/runs/run-agent-forensics-blocked-reason";
+import { runDetailBlockedReason } from "@/lib/runs/run-detail-blocked-reason";
 import { runManifestReadBlockedReason } from "@/lib/runs/run-manifest-read-blocked-reason";
 import { runProvenanceBlockedReason } from "@/lib/provenance/run-provenance-blocked-reason";
 import { runRationaleBlockedReason } from "@/lib/runs/run-rationale-blocked-reason";
@@ -55,10 +56,16 @@ export async function getRunDetail(
     throw new Error(`Run id "${runId.trim()}" is not a live authority key.`);
   }
 
-  return apiGetSealedManifestAware<RunDetail>(
-    `/v1/runs/${runId}`,
-    options,
-  ).then((data) => ({ data, traceId: null }));
+  try {
+    const data = await apiGet<RunDetail>(`/v1/runs/${runId}`, options);
+
+    return { data, traceId: null };
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runDetailBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */
