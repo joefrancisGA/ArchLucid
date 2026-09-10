@@ -69,6 +69,8 @@ The **Career / Rehearsal** segmented control is **Working-only** product chrome 
 
 **Working tests** that assert Career / Rehearsal chrome must mock `useWorkingCareerRehearsalDoor` / `useEffectiveWorkingCareerRehearsalDoor` and set workspace mode to **Working**. **Guided tests** must not require `working-career-rehearsal-chooser` test ids.
 
+**Help (AS-082):** In-app topic [`/help/career-rehearsal-doors`](/help/career-rehearsal-doors) — Rehearsal is practice; Career is the sealed-record path; Simulator output is not sponsor proof.
+
 ## Related
 
 - [operator-shell.md](operator-shell.md) — workflow and nav behavior
