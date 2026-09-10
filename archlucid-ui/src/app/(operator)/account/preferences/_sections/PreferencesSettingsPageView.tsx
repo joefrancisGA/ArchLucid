@@ -3,8 +3,6 @@
 import { PreferencesSaveChecklist } from "@/components/preferences/PreferencesSaveChecklist";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { CloudPlatformScopePanel } from "@/components/preferences/CloudPlatformScopePanel";
-import { SampleReviewsOnOverviewPreferencePanel } from "@/components/preferences/SampleReviewsOnOverviewPreferencePanel";
 import { TimeZonePreferencePanel } from "@/components/preferences/TimeZonePreferencePanel";
 import { WhereToGoNextPreferencePanel } from "@/components/preferences/WhereToGoNextPreferencePanel";
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
@@ -12,16 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { PreferencesSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
-import { PREFERENCES_CLOUD_PLATFORMS_HEADING } from "@/lib/cloud-platform-scope-copy";
 import { PREFERENCES_TIME_ZONE_HEADING } from "@/lib/iana-time-zone-preference-copy";
 import {
   PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID,
   PREFERENCES_WHERE_TO_GO_NEXT_HEADING,
 } from "@/lib/where-to-go-next-preference-copy";
-import {
-  PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID,
-  PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING,
-} from "@/lib/sample-reviews-on-overview-preference-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -31,6 +24,7 @@ import {
   PREFERENCES_SETTINGS_PRIMARY_CONTENT_ID,
   PREFERENCES_SETTINGS_SKIP_LINK_LABEL,
   PREFERENCES_SETTINGS_SKIP_TARGET_ID,
+  preferencesAppearanceThemeLead,
   preferencesSettingsPageSubtitle,
 } from "@/lib/preferences-page-copy";
 import {
@@ -38,20 +32,16 @@ import {
   resolvePreferencesSaveSteps,
 } from "@/lib/preferences-save-checklist";
 import { useUserAppearancePreference } from "@/lib/use-user-appearance-preference";
-import { useCloudPlatformScope } from "@/lib/use-cloud-platform-scope";
 import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { useUserPreferencesExplicitFlags } from "@/lib/use-user-preferences-explicit-flags";
-import { useSampleReviewsOnOverviewPreference } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { useWhereToGoNextPreference } from "@/components/WhereToGoNextPreferenceProvider";
-import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { WorkspaceModePreferencePanel } from "@/components/preferences/WorkspaceModePreferencePanel";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { cn } from "@/lib/utils";
-import { WORKSPACE_MODE_PREFERENCE_HEADING } from "@/lib/workspace-mode/workspace-mode-copy";
 
 export function PreferencesSettingsPageView() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { productLine } = useProductLine();
   const { mounted: appearanceMounted, accountSyncState: appearanceAccountSyncState } = useUserAppearancePreference();
-  const { scope, mounted, accountSyncState, setAndPersist } = useCloudPlatformScope();
   const {
     enabled: whereToGoNextEnabled,
     mounted: whereToGoNextMounted,
@@ -59,24 +49,12 @@ export function PreferencesSettingsPageView() {
     setAndPersist: setWhereToGoNextAndPersist,
   } = useWhereToGoNextPreference();
   const {
-    enabled: sampleReviewsOnOverviewEnabled,
-    mounted: sampleReviewsOnOverviewMounted,
-    accountSyncState: sampleReviewsOnOverviewAccountSyncState,
-    setAndPersist: setSampleReviewsOnOverviewAndPersist,
-  } = useSampleReviewsOnOverviewPreference();
-  const {
     ianaTimeZoneId,
     mounted: timeZoneMounted,
     accountSyncState: timeZoneAccountSyncState,
     setAndPersist: setTimeZoneAndPersist,
   } = useIanaTimeZonePreference();
   const explicitFlags = useUserPreferencesExplicitFlags();
-  const {
-    mode: workspaceMode,
-    mounted: workspaceModeMounted,
-    accountSyncState: workspaceModeAccountSyncState,
-    setAndPersist: setWorkspaceModeAndPersist,
-  } = useWorkspaceMode();
 
   const preferencesSaveSteps = resolvePreferencesSaveSteps({
     appearance: {
@@ -89,25 +67,10 @@ export function PreferencesSettingsPageView() {
       mounted: timeZoneMounted,
       accountSyncState: timeZoneAccountSyncState,
     },
-    cloudPlatforms: {
-      isExplicit: explicitFlags.cloudPlatformScopeIsExplicit,
-      mounted,
-      accountSyncState,
-    },
-    sampleReviewsOnOverview: {
-      isExplicit: explicitFlags.sampleReviewsOnOverviewIsExplicit,
-      mounted: sampleReviewsOnOverviewMounted,
-      accountSyncState: sampleReviewsOnOverviewAccountSyncState,
-    },
     followUpLinkStrips: {
       isExplicit: explicitFlags.whereToGoNextIsExplicit,
       mounted: whereToGoNextMounted,
       accountSyncState: whereToGoNextAccountSyncState,
-    },
-    workspaceMode: {
-      isExplicit: explicitFlags.workspaceModeIsExplicit,
-      mounted: workspaceModeMounted,
-      accountSyncState: workspaceModeAccountSyncState,
     },
   });
   const preferencesSaveEmphasizedStepId = resolvePreferencesSaveEmphasizedStepId(preferencesSaveSteps);
@@ -150,25 +113,6 @@ export function PreferencesSettingsPageView() {
             emphasizedStepId={preferencesSaveEmphasizedStepId}
             testIdPrefix="preferences-save"
           />
-          <Card id="workspace-mode" data-testid="preferences-workspace-mode-card">
-            <CardHeader>
-              <CardTitle id="preferences-workspace-mode-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                {WORKSPACE_MODE_PREFERENCE_HEADING}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {workspaceModeMounted ? (
-                <WorkspaceModePreferencePanel
-                  mode={workspaceMode}
-                  onModeChange={setWorkspaceModeAndPersist}
-                  accountSyncState={workspaceModeAccountSyncState}
-                  labelledById="preferences-workspace-mode-heading"
-                />
-              ) : (
-                <div aria-hidden="true" className="h-24 w-full" data-testid="workspace-mode-preference-loading" />
-              )}
-            </CardContent>
-          </Card>
           <Card id="appearance" data-testid="preferences-appearance-card">
             <CardHeader>
               <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
@@ -179,7 +123,7 @@ export function PreferencesSettingsPageView() {
                   Theme
                 </p>
                 <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                  Choose how ArchLucid appears.
+                  {preferencesAppearanceThemeLead(productLine)}
                 </p>
               </div>
               <ThemePreferenceSelector fieldsetLabelledById="preferences-theme-label" />
@@ -201,55 +145,6 @@ export function PreferencesSettingsPageView() {
                 />
               ) : (
                 <div aria-hidden="true" className="h-20 w-full" data-testid="time-zone-preference-loading" />
-              )}
-            </CardContent>
-          </Card>
-          <Card id="cloud-platforms-shown" data-testid="preferences-cloud-platforms-card">
-            <CardHeader>
-              <CardTitle id="preferences-cloud-platforms-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-                {PREFERENCES_CLOUD_PLATFORMS_HEADING}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {mounted ? (
-                <CloudPlatformScopePanel
-                  scope={scope}
-                  onScopeChange={setAndPersist}
-                  accountSyncState={accountSyncState}
-                  labelledById="preferences-cloud-platforms-heading"
-                />
-              ) : (
-                <div aria-hidden="true" className="h-24 w-full" data-testid="cloud-platform-scope-loading" />
-              )}
-            </CardContent>
-          </Card>
-          <Card
-            id={PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID}
-            data-testid="preferences-sample-reviews-on-overview-card"
-          >
-            <CardHeader>
-              <CardTitle
-                id="preferences-sample-reviews-on-overview-heading"
-                as="h2"
-                className={OPERATOR_TYPOGRAPHY.cardTitle}
-              >
-                {PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {sampleReviewsOnOverviewMounted ? (
-                <SampleReviewsOnOverviewPreferencePanel
-                  enabled={sampleReviewsOnOverviewEnabled}
-                  onEnabledChange={setSampleReviewsOnOverviewAndPersist}
-                  accountSyncState={sampleReviewsOnOverviewAccountSyncState}
-                  labelledById="preferences-sample-reviews-on-overview-heading"
-                />
-              ) : (
-                <div
-                  aria-hidden="true"
-                  className="h-16 w-full"
-                  data-testid="sample-reviews-on-overview-preference-loading"
-                />
               )}
             </CardContent>
           </Card>
@@ -275,7 +170,10 @@ export function PreferencesSettingsPageView() {
         </div>
 
         <div data-testid="preferences-settings-orientation-bottom">
-          <PreferencesSettingsEvidenceOrientationStrip readingBodyClassName={HELP_PAGE_LAYOUT.readingBody} />
+          <PreferencesSettingsEvidenceOrientationStrip
+            productLineId={productLine}
+            readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
+          />
         </div>
       </div>
     </OperatorPageContainer>
