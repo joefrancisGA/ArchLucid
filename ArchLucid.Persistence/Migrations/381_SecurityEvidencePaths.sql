@@ -63,18 +63,44 @@ BEGIN
 END;
 GO
 
-IF COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NULL
+/*
+  SQL Server compiles each GO batch against the current catalog. Adding PathId and then
+  referencing it for FK/index in the same batch fails with error 207 (invalid column name)
+  because the column does not exist at compile time — IF COL_LENGTH does not defer binding.
+  See migration 366 for the same pattern.
+*/
+
+IF OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NULL
 BEGIN
     ALTER TABLE dbo.OperationalSecurityFindings
         ADD PathId UNIQUEIDENTIFIER NULL;
+END;
+GO
 
-    IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
-    BEGIN
-        ALTER TABLE dbo.OperationalSecurityFindings
-            ADD CONSTRAINT FK_OperationalSecurityFindings_SecurityEvidencePaths
-                FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId);
-    END;
+IF OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NOT NULL
+   AND OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.foreign_keys
+       WHERE name = N'FK_OperationalSecurityFindings_SecurityEvidencePaths'
+         AND parent_object_id = OBJECT_ID(N'dbo.OperationalSecurityFindings'))
+BEGIN
+    ALTER TABLE dbo.OperationalSecurityFindings
+        ADD CONSTRAINT FK_OperationalSecurityFindings_SecurityEvidencePaths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId);
+END;
+GO
 
+IF OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_OperationalSecurityFindings_Tenant_PathId'
+         AND object_id = OBJECT_ID(N'dbo.OperationalSecurityFindings'))
+BEGIN
     CREATE NONCLUSTERED INDEX IX_OperationalSecurityFindings_Tenant_PathId
         ON dbo.OperationalSecurityFindings (TenantId, PathId)
         WHERE PathId IS NOT NULL;
