@@ -43,11 +43,9 @@ public sealed class ArchitectureRestrictToSharesServiceTests
 
         result.Status.Should().Be(ArchitectureRestrictToSharesSetStatus.ConfirmationRequired);
         shares.Verify(
-            repository => repository.TryEnableRestrictToSharesAsync(
+            repository => repository.UpsertAsync(
                 It.IsAny<ScopeContext>(),
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<string>(),
+                It.IsAny<ArchitectureShareRecord>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -57,15 +55,16 @@ public sealed class ArchitectureRestrictToSharesServiceTests
     {
         Mock<IArchitectureIdentityRepository> identities = CreateIdentityMock();
         Mock<IArchitectureShareRepository> shares = new();
+
         shares
-            .Setup(repository => repository.CountSharesAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
+            .Setup(repository => repository.CountByArchitectureIdAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
-        shares
-            .Setup(repository => repository.TryEnableRestrictToSharesAsync(
+
+        identities
+            .Setup(repository => repository.TrySetRestrictToSharesAsync(
                 Scope,
                 ArchitectureId,
-                ActorUserId,
-                "jwt:actor",
+                true,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
@@ -83,6 +82,15 @@ public sealed class ArchitectureRestrictToSharesServiceTests
         result.Status.Should().Be(ArchitectureRestrictToSharesSetStatus.Success);
         result.Response!.RestrictToShares.Should().BeTrue();
         result.Response.ActorAdminShareInserted.Should().BeTrue();
+
+        shares.Verify(
+            repository => repository.UpsertAsync(
+                Scope,
+                It.Is<ArchitectureShareRecord>(share =>
+                    share.Role == ArchitectureShareRoles.Admin
+                    && share.ActorOid == ArchitectureSharePlatformUserActorOid.FromUserId(ActorUserId)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -90,8 +98,13 @@ public sealed class ArchitectureRestrictToSharesServiceTests
     {
         Mock<IArchitectureIdentityRepository> identities = CreateIdentityMock();
         Mock<IArchitectureShareRepository> shares = new();
-        shares
-            .Setup(repository => repository.TryDisableRestrictToSharesAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
+
+        identities
+            .Setup(repository => repository.TrySetRestrictToSharesAsync(
+                Scope,
+                ArchitectureId,
+                false,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         ArchitectureRestrictToSharesService sut = new(identities.Object, shares.Object);
@@ -113,6 +126,7 @@ public sealed class ArchitectureRestrictToSharesServiceTests
     private static Mock<IArchitectureIdentityRepository> CreateIdentityMock()
     {
         Mock<IArchitectureIdentityRepository> identities = new();
+
         identities
             .Setup(repository => repository.GetByIdAsync(Scope, ArchitectureId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureIdentityRecord

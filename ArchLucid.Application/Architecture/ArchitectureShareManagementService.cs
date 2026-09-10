@@ -26,18 +26,15 @@ public sealed class ArchitectureShareManagementService(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        if (!await ArchitectureExistsAsync(scope, architectureId, cancellationToken))
-            return ArchitectureShareListResult.ArchitectureNotFound();
-
-        bool? restrictToShares = await _shareRepository.TryGetRestrictToSharesAsync(
+        ArchitectureIdentityRecord? identity = await _architectureIdentityRepository.GetByIdAsync(
             scope,
             architectureId,
             cancellationToken);
 
-        if (restrictToShares is null)
+        if (identity is null)
             return ArchitectureShareListResult.ArchitectureNotFound();
 
-        IReadOnlyList<ArchitectureShareRecord> shares = await _shareRepository.ListSharesAsync(
+        IReadOnlyList<ArchitectureShareRecord> shares = await _shareRepository.ListByArchitectureIdAsync(
             scope,
             architectureId,
             cancellationToken);
@@ -46,14 +43,16 @@ public sealed class ArchitectureShareManagementService(
             new ArchitectureShareListResponse
             {
                 ArchitectureId = architectureId,
-                RestrictToShares = restrictToShares.Value,
+                RestrictToShares = identity.RestrictToShares,
                 Shares = shares
-                    .Select(share => new ArchitectureShareGrantResponse
+                    .Select(share => new ArchitectureShareResponse
                     {
-                        UserId = share.UserId,
+                        ArchitectureId = architectureId,
+                        ActorOid = share.ActorOid,
                         Role = share.Role,
                         GrantedBy = share.GrantedBy,
                         GrantedUtc = share.GrantedUtc,
+                        RowVersionBase64 = share.RowVersion is null ? null : Convert.ToBase64String(share.RowVersion),
                     })
                     .ToList(),
             });
@@ -70,7 +69,7 @@ public sealed class ArchitectureShareManagementService(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(grantedBy);
 
-        if (!IsValidRole(role))
+        if (!ArchitectureShareRoles.IsKnownRole(role))
             return ArchitectureShareUpsertResult.InvalidRole();
 
         if (!await ArchitectureExistsAsync(scope, architectureId, cancellationToken))
@@ -85,16 +84,20 @@ public sealed class ArchitectureShareManagementService(
         if (grantTarget.Status == ArchitectureShareGrantTargetValidationStatus.UserNotFound)
             return ArchitectureShareUpsertResult.UserNotFound();
 
-        bool upserted = await _shareRepository.UpsertShareAsync(
-            scope,
-            architectureId,
-            userId,
-            role,
-            grantedBy,
-            cancellationToken);
+        string normalizedRole = ArchitectureShareRoles.NormalizeRole(role);
+        DateTime grantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
-        if (!upserted)
-            return ArchitectureShareUpsertResult.ArchitectureNotFound();
+        await _shareRepository.UpsertAsync(
+            scope,
+            new ArchitectureShareRecord
+            {
+                ArchitectureId = architectureId,
+                ActorOid = ArchitectureSharePlatformUserActorOid.FromUserId(userId),
+                Role = normalizedRole,
+                GrantedBy = grantedBy.Trim(),
+                GrantedUtc = grantedUtc,
+            },
+            cancellationToken);
 
         return ArchitectureShareUpsertResult.Success();
     }
@@ -110,10 +113,10 @@ public sealed class ArchitectureShareManagementService(
         if (!await ArchitectureExistsAsync(scope, architectureId, cancellationToken))
             return ArchitectureShareDeleteResult.ArchitectureNotFound();
 
-        bool deleted = await _shareRepository.TryDeleteShareAsync(
+        bool deleted = await _shareRepository.TryDeleteAsync(
             scope,
             architectureId,
-            userId,
+            ArchitectureSharePlatformUserActorOid.FromUserId(userId),
             cancellationToken);
 
         if (!deleted)
@@ -133,14 +136,5 @@ public sealed class ArchitectureShareManagementService(
             cancellationToken);
 
         return identity is not null;
-    }
-
-    private static bool IsValidRole(string role)
-    {
-        string trimmed = role.Trim();
-
-        return trimmed is ArchitectureShareRoles.View
-            or ArchitectureShareRoles.Decide
-            or ArchitectureShareRoles.Admin;
     }
 }
