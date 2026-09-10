@@ -1798,3 +1798,4 @@
 {"at":"2026-09-10T16:25:07.5875334Z","zoneId":"archlucid-contracts","outcome":"dry"}
 {"at":"2026-09-10T16:33:05.1133113Z","zoneId":"orchestrator-transient-retry","outcome":"seed-only"}
 {"at":"2026-09-10T16:37:16.2780241Z","zoneId":"cli-terraform-evidence","outcome":"seed-only"}
+{"at":"2026-09-10T16:49:53.1143632Z","zoneId":"ui-auth-proxy","outcome":"hit"}
