@@ -1801,3 +1801,4 @@
 {"at":"2026-09-10T16:49:53.1143632Z","zoneId":"ui-auth-proxy","outcome":"hit"}
 {"at":"2026-09-10T16:54:01.6072129Z","zoneId":"ui-runs-list","outcome":"seed-only"}
 {"at":"2026-09-10T17:00:04.6070779Z","zoneId":"review-recurrence","outcome":"seed-only"}
+{"at":"2026-09-10T17:02:27.4533644Z","zoneId":"ui-auth-callback","outcome":"seed-only"}
