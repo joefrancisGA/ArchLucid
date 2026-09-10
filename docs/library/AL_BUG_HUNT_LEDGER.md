@@ -7981,11 +7981,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 18
-- **bugs-found:** 11
+- **hunts:** 19
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — PackageInventoryReader ignored PascalCase location/resourceGroup fields and omitted resources.json context on malformed JSON errors
+- **last-bug:** 2026-09-10 — PackageInventoryReader ignored PascalCase identity/SKU fields and left padded SKU names untrimmed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8167,6 +8167,14 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) Missing `resources.json` ZIP validation omits `FileEntryCount` — **cheap-disproof 2026-09-10 seed hunt #1608:** entry count populated on failure; regression `Validate_missing_resources_reports_file_entry_count`.
 
 2026-09-10 seed hunt #1608 (hit): reseeded core-azure-extractor after #1607; proved PascalCase field binding gap, resources.json malformed-JSON error context, and explicit resourceGroup trim; cheap-disproof closed diagnostic-settings malformed parity, whitespace-only location nulling, sensitive-null RedactStructuredJson behavior, and missing-resources file counts; 1009 scoped `AzureExtractor` tests passed.
+
+- [x] (proven) `AzureExtractorPackageInventoryReader.MapResourceRow` — PascalCase `Name`/`ResourceId`/`ResourceType` identity fields ignored — **hit 2026-09-10 seed hunt #1609:** only lowercase property names bound after #1608 location/resourceGroup fix; fixed with PascalCase fallbacks for core identity fields; regressions `TryReadFromZip_reads_pascal_case_name_on_resource_row`, `TryReadFromZip_reads_pascal_case_resource_id_on_resource_row`.
+- [x] (proven) `AzureExtractorPackageInventoryReader.ExtractSku` — PascalCase `Sku`/`Name` ignored and padded SKU names persisted — **hit 2026-09-10 seed hunt #1609:** SKU object binding and trim missing; fixed with PascalCase fallbacks and whitespace normalization; regressions `TryReadFromZip_reads_pascal_case_sku_object_name_property`, `TryReadFromZip_trims_whitespace_from_object_sku_name_property`.
+- [x] (valid-no-repro) Malformed `network-associations.json` companion errors omit entry name — **cheap-disproof 2026-09-10 seed hunt #1609:** wrapped parse error parity from #1607; regression `TryReadFromZip_fails_on_malformed_network_associations_companion_json`.
+- [x] (valid-no-repro) Missing `manifest.json` ZIP validation omits `FileEntryCount` — **cheap-disproof 2026-09-10 seed hunt #1609:** entry count populated on failure; regression `Validate_missing_manifest_reports_file_entry_count`.
+- [x] (valid-no-repro) `RedactStructuredJson` redacts non-sensitive `null` scalar values — **cheap-disproof 2026-09-10 seed hunt #1609:** null tokens preserved for non-sensitive keys; regression `RedactStructuredJson_preserves_non_sensitive_null_scalar_values`.
+
+2026-09-10 seed hunt #1609 (hit): reseeded core-azure-extractor after #1608; proved remaining PascalCase identity/SKU binding gaps; cheap-disproof closed network-associations malformed parity, missing-manifest file counts, and non-sensitive-null RedactStructuredJson behavior; 1016 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
