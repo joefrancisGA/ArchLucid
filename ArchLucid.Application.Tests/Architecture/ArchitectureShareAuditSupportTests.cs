@@ -1,6 +1,6 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -33,13 +33,12 @@ public sealed class ArchitectureShareAuditSupportTests
         ArchitectureShareAuditSupport sut = new(audit.Object, NullLogger<ArchitectureShareAuditSupport>.Instance);
 
         Guid architectureId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-        Guid userId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
         await sut.LogShareGrantedAsync(
             Scope,
             "owner@example.com",
             architectureId,
-            userId,
+            "jwt:tenant:target-actor",
             ArchitectureShareRoles.View,
             CancellationToken.None);
 
@@ -66,7 +65,7 @@ public sealed class ArchitectureShareAuditSupportTests
             Scope,
             "owner@example.com",
             Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-            Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            "jwt:tenant:target-actor",
             CancellationToken.None);
 
         await act.Should().ThrowAsync<DurableAuditWriteFailedException>();

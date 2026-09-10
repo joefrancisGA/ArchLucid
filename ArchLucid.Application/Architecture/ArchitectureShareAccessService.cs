@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
