@@ -1,5 +1,12 @@
 import type { ArchitectureIntelligenceReviewTier } from "@/lib/architecture/architecture-intelligence-review-tier";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { architectureIntelligenceRunModelBlockedReason } from "@/lib/architecture/architecture-intelligence-run-model-blocked-reason";
+import { architectureIntelligenceRunMutationBlockedReason } from "@/lib/architecture/architecture-intelligence-run-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
+import { apiGet } from "@/lib/api/http";
 
 import type {
   ArchitectureIntelligenceProductSourceContext,
@@ -25,9 +32,16 @@ export async function fetchArchitectureIntelligenceProductSourceContext(
 export async function fetchArchitectureIntelligenceRunModel(
   runId: string,
 ): Promise<ArchitectureKnowledgeModel> {
-  return apiGetSealedManifestAware<ArchitectureKnowledgeModel>(
-    `/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}`,
-  );
+  try {
+    return await apiGet<ArchitectureKnowledgeModel>(
+      `/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureIntelligenceRunModelBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function runArchitectureIntelligenceReasoning(
@@ -122,20 +136,37 @@ export function formatArchitectureIntelligenceSpendSummary(result: ClosedLoopRea
 }
 
 async function postJson<T>(path: string, body: unknown): Promise<T> {
-  const response = await fetch(
-    path,
-    mergeRegistrationScopeForProxy({
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }),
-  );
+  const scoped = mergeRegistrationScopeForProxy({
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const headers = new Headers(scoped.headers);
+  const { headers: correlatedHeaders, correlationId } = applyCorrelationHeaders(headers);
 
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
+  let response: Response;
 
-    throw new Error(`Request failed (HTTP ${response.status}). ${text.slice(0, 240)}`);
+  try {
+    response = await fetch(path, { ...scoped, headers: correlatedHeaders });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureIntelligenceRunMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
-  return (await response.json()) as T;
+  const text = await response.text().catch(() => "");
+
+  if (!response.ok) {
+    const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
+    const blockedReason = architectureIntelligenceRunMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
+
+  if (text.trim().length === 0) {
+    return undefined as T;
+  }
+
+  return JSON.parse(text) as T;
 }

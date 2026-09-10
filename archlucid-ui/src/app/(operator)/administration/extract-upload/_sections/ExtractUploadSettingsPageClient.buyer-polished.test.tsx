@@ -49,6 +49,7 @@ import {
   EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE,
   EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES,
 } from "@/lib/extract-upload-settings-evidence-copy";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { ExtractUploadSettingsPageClient } from "./ExtractUploadSettingsPageClient";
@@ -119,7 +120,12 @@ describe("ExtractUploadSettingsPageClient buyer-polished shell (ADX)", () => {
     expect(orientationTop).toContainElement(sourcesSection);
     expect(orientationTop.compareDocumentPosition(pageLayout) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
-    for (const source of filterWhereToGoNextFollowUpLinks(EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES)) {
+    const orientationFollowUps = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES),
+      "/administration/extract-upload",
+    );
+
+    for (const source of orientationFollowUps) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

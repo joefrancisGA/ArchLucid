@@ -19,11 +19,35 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn(),
 }));
 
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", async () => {
+  const { createOperatorNavAuthorityVitestMock } = await import("@/testing/operator-nav-authority-vitest-mock");
+
+  return createOperatorNavAuthorityVitestMock({
+    currentPrincipal: {
+      name: "Taylor Morgan",
+      authorityRank: 4,
+      maxAuthority: "Execute",
+      hasCommittedArchitectureReview: false,
+      meClaims: [{ type: "email", value: "taylor@example.com" }],
+    },
+  });
+});
+
+const invalidateQueries = vi.fn().mockResolvedValue(undefined);
+
+vi.mock("@/lib/query/operator-query-client", () => ({
+  getOperatorQueryClient: () => ({
+    invalidateQueries,
+  }),
+}));
+
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import {
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
+  EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
+  EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE,
   EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND,
@@ -45,10 +69,39 @@ function scriptVersionResponse(version: string): Response {
   return new Response(`$scriptVersion = "${version}"`, { status: 200 });
 }
 
+async function waitForExtractUploadBaselineSettled(): Promise<void> {
+  await waitFor(() => {
+    expect(screen.queryByText(EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL)).not.toBeInTheDocument();
+  });
+}
+
+function baselineUnavailableFetchMock(
+  uploadHandler?: (input: RequestInfo | URL, init?: RequestInit) => Response | Promise<Response>,
+): ReturnType<typeof vi.fn> {
+  return vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+
+    if (url.includes("workspace-baseline-artifacts")) {
+      return baselineArtifactsResponse({ hasBaselineArtifacts: false, extractorScriptVersion: "1.0.0" });
+    }
+
+    if (url.includes("Get-ArchLucidAzurePackage.ps1")) {
+      return scriptVersionResponse("1.0.0");
+    }
+
+    if (uploadHandler !== undefined) {
+      return uploadHandler(input, init);
+    }
+
+    return new Response("not found", { status: 404 });
+  });
+}
+
 describe("ExtractUploadSettingsPageClient", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.clearAllMocks();
+    window.localStorage.clear();
   });
 
   it("renders header short help trigger and workflow layout", async () => {
@@ -161,17 +214,13 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.getByTestId("extract-upload-demo-aside")).toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-validate-disclosure")).toBeInTheDocument();
     expect(screen.getByText(EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND)).toBeInTheDocument();
-    expect(screen.getByText(EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND)).toBeInTheDocument();
-    expect(screen.getByText(EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND)).toBeInTheDocument();
+    expect(screen.queryByText(EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND)).not.toBeInTheDocument();
+    expect(screen.queryByText(EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND)).not.toBeInTheDocument();
   });
 
   it("renders structured upload failure with semantic error code and doc link", async () => {
-    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const fetchMock = baselineUnavailableFetchMock((input, init) => {
       const url = String(input);
-
-      if (url.includes("workspace-baseline-artifacts") || url.includes("Get-ArchLucidAzurePackage.ps1")) {
-        return new Response("{}", { status: 404 });
-      }
 
       if (url.includes("/v1/azure-extractor/upload") && init?.method === "POST") {
         return new Response(
@@ -200,6 +249,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<ExtractUploadSettingsPageClient />);
+    await waitForExtractUploadBaselineSettled();
 
     const fileInput = screen.getByTestId("extract-upload-drop-zone-input");
     const bytes = zipSync({
@@ -273,12 +323,8 @@ describe("ExtractUploadSettingsPageClient", () => {
   });
 
   it("accepts current packager schemaVersion 2 and calls the upload API", async () => {
-    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const fetchMock = baselineUnavailableFetchMock((input, init) => {
       const url = String(input);
-
-      if (url.includes("workspace-baseline-artifacts") || url.includes("Get-ArchLucidAzurePackage.ps1")) {
-        return new Response("{}", { status: 404 });
-      }
 
       if (url.includes("/v1/azure-extractor/upload") && init?.method === "POST") {
         return new Response(JSON.stringify({ packageId: "pkg-schema-v2" }), {
@@ -293,6 +339,7 @@ describe("ExtractUploadSettingsPageClient", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<ExtractUploadSettingsPageClient />);
+    await waitForExtractUploadBaselineSettled();
 
     const fileInput = screen.getByTestId("extract-upload-drop-zone-input");
     const bytes = zipSync({
@@ -319,5 +366,140 @@ describe("ExtractUploadSettingsPageClient", () => {
     });
 
     expect(screen.queryByTestId("extract-upload-error-code")).not.toBeInTheDocument();
+  });
+
+  it("invalidates baseline artifacts query after accepted upload", async () => {
+    const fetchMock = baselineUnavailableFetchMock((input, init) => {
+      const url = String(input);
+
+      if (url.includes("/v1/azure-extractor/upload") && init?.method === "POST") {
+        return new Response(JSON.stringify({ packageId: "pkg-invalidate-test" }), {
+          status: 202,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+    await waitForExtractUploadBaselineSettled();
+
+    const fileInput = screen.getByTestId("extract-upload-drop-zone-input");
+    const bytes = zipSync({
+      "manifest.json": strToU8(
+        JSON.stringify({
+          schemaVersion: 2,
+          scriptVersion: "0.4.0",
+          collectionTimestamp: "2026-01-01T00:00:00Z",
+          subscriptionId: "11111111-1111-1111-1111-111111111111",
+          scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg",
+        }),
+      ),
+      "resources.json": strToU8("[]"),
+    });
+    const file = new File([bytes], "archlucid-azure-package.zip", { type: "application/zip" });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(invalidateQueries).toHaveBeenCalled();
+    });
+  });
+
+  it("announces upload success in a live region", async () => {
+    const fetchMock = baselineUnavailableFetchMock((input, init) => {
+      const url = String(input);
+
+      if (url.includes("/v1/azure-extractor/upload") && init?.method === "POST") {
+        return new Response(JSON.stringify({ packageId: "pkg-live-region" }), {
+          status: 202,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+    await waitForExtractUploadBaselineSettled();
+
+    const fileInput = screen.getByTestId("extract-upload-drop-zone-input");
+    const bytes = zipSync({
+      "manifest.json": strToU8(
+        JSON.stringify({
+          schemaVersion: 2,
+          scriptVersion: "0.4.0",
+          collectionTimestamp: "2026-01-01T00:00:00Z",
+          subscriptionId: "11111111-1111-1111-1111-111111111111",
+          scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg",
+        }),
+      ),
+      "resources.json": strToU8("[]"),
+    });
+    const file = new File([bytes], "archlucid-azure-package.zip", { type: "application/zip" });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-success-live")).toHaveAttribute("role", "status");
+    });
+
+    expect(screen.getByTestId("extract-upload-success-live")).toHaveTextContent(
+      EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE,
+    );
+  });
+
+  it("prompts before replacing workspace baseline inventory", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts")) {
+        return baselineArtifactsResponse({ hasBaselineArtifacts: true, extractorScriptVersion: "1.0.0" });
+      }
+
+      if (url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return scriptVersionResponse("1.0.0");
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-header-inventory-status")).toHaveTextContent(
+        EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
+      );
+    });
+
+    const fileInput = screen.getByTestId("extract-upload-drop-zone-input");
+    const bytes = zipSync({
+      "manifest.json": strToU8(
+        JSON.stringify({
+          schemaVersion: 2,
+          scriptVersion: "0.4.0",
+          collectionTimestamp: "2026-01-01T00:00:00Z",
+          subscriptionId: "11111111-1111-1111-1111-111111111111",
+          scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg",
+        }),
+      ),
+      "resources.json": strToU8("[]"),
+    });
+    const file = new File([bytes], "archlucid-azure-package.zip", { type: "application/zip" });
+
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-baseline-overwrite-dialog")).toBeInTheDocument();
+    });
+
+    expect(fetchMock).not.toHaveBeenCalledWith(expect.stringContaining("/v1/azure-extractor/upload"), expect.anything());
   });
 });

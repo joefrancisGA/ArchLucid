@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveContinueLastWebhookSubscription } from "@/lib/resolve-continue-last-webhook-subscription";
+import {
+  resolveContinueLastWebhookSubscription,
+  WEBHOOK_SUBSCRIPTION_LAST_VIEWED_STORAGE_KEY,
+  writeWebhookSubscriptionLastViewedId,
+} from "@/lib/resolve-continue-last-webhook-subscription";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
 function subscription(overrides: Partial<AlertRoutingSubscription> = {}): AlertRoutingSubscription {
@@ -55,5 +59,19 @@ describe("resolveContinueLastWebhookSubscription", () => {
 
     expect(match?.subscriptionId).toBe("enabled-new");
     expect(match?.name).toBe("Enabled new");
+  });
+
+  it("returns null when stored id does not match any loaded subscription", () => {
+    writeWebhookSubscriptionLastViewedId("workspace-a-subscription");
+
+    const match = resolveContinueLastWebhookSubscription([
+      subscription({
+        routingSubscriptionId: "workspace-b-subscription",
+        name: "Workspace B hook",
+      }),
+    ]);
+
+    expect(match).toBeNull();
+    window.localStorage.removeItem(WEBHOOK_SUBSCRIPTION_LAST_VIEWED_STORAGE_KEY);
   });
 });

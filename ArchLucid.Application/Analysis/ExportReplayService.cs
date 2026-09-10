@@ -4,9 +4,11 @@ using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Runs;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Configuration;
@@ -30,7 +32,9 @@ public sealed class ExportReplayService(
     IRunDetailQueryService runDetailQueryService,
     IGraphSnapshotRepository graphSnapshotRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
-    IConfiguration configuration) : IExportReplayService
+    IConfiguration configuration,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : IExportReplayService
 {
     private readonly IRunExportRecordRepository _runExportRecordRepository =
         runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
@@ -66,6 +70,12 @@ public sealed class ExportReplayService(
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
 
     private const string ExportTypeConsultingDocx = "analysis-report-consulting-docx";
 
@@ -126,7 +136,9 @@ public sealed class ExportReplayService(
                 scope,
                 workingDesk: true,
                 _configuration,
-                cancellationToken);
+                cancellationToken,
+                _runRepository,
+                _architectureInventoryBindingRepository);
 
             CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial(careerExportHonesty);
         }

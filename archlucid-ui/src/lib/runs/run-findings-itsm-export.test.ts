@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION } from "@/lib/findings/finding-semantic-support-band-export";
+import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import {
   buildGovernanceFindingsItsmJsonExportDocument,
   buildQuickDecisionFindingsCsv,
@@ -41,6 +43,39 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
     expect(document.workItems[0]?.links.inspect).toContain("/findings/f1/evidence-trace");
     expect(document.workItems[0]?.trustLabel).toBe("DeterministicRule");
     expect(document.workItems[0]?.trustLabelReason).toBe("Matched egress policy.");
+  });
+
+  it("includes semantic support band stamp and per-finding band fields (AS-071)", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f1",
+        title: "Open port",
+        recommendation: "Close the port.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+        semanticSupportBand: "Unsupported",
+      },
+    ];
+
+    const document = buildRunFindingsItsmJsonExportDocument(
+      "run-a",
+      findings,
+      "https://demo.example.org",
+    );
+
+    expect(document.semanticSupportBandStamp?.scorerVersion).toBe(
+      FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION,
+    );
+    expect(document.semanticSupportBandStamp?.unsupported).toBe(1);
+    expect(document.workItems[0]?.semanticSupportBand).toBe("Unsupported");
+    expect(document.workItems[0]?.semanticSupportBandScorerVersion).toBe(
+      FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION,
+    );
   });
 
   it("omits checklist coverage rows and records omitted count", () => {

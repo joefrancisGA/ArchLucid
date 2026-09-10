@@ -9,6 +9,9 @@ import { FindingDispositionRecordCorrectionControl } from "@/components/governan
 import { DisclosureTriangleIndicator } from "@/components/DisclosureTriangleIndicator";
 import { QuickDecisionFindingRationale } from "@/components/findings/QuickDecisionFindingRationale";
 import { FindingInsightDensityBand } from "@/components/findings/FindingInsightDensityBand";
+import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
+import { FindingTrustChip } from "@/components/findings/FindingTrustChip";
+import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
 import { QuickDecisionWorkspaceFindingSupportingDetails } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import type { QuickDecisionWorkspaceCardContext } from "@/components/findings/QuickDecisionWorkspaceFindingSupportingDetails";
 import { Button } from "@/components/ui/button";
@@ -129,6 +132,15 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 findingId={finding.findingId}
                 insightDensityScore={finding.insightDensityScore}
               />
+            ) : null}
+            {isDecisionGradeFinding(finding) ? (
+              <>
+                <FindingTrustChip finding={finding} />
+                <FindingSemanticSupportBandChip
+                  finding={finding}
+                  structuralExecutionMode={props.context.structuralExecutionMode}
+                />
+              </>
             ) : null}
             <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{finding.title}</span>
           </div>

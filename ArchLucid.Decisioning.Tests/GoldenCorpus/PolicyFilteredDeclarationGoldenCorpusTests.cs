@@ -18,6 +18,8 @@ public sealed class PolicyFilteredDeclarationGoldenCorpusTests
     private const string CisAzurePublicAccessRuleId = "cis-az-006";
     private const string HipaaPublicAccessRuleId = "hipaa-011";
     private const string HipaaTransportRuleId = "hipaa-024";
+    private const string PciEncryptionRuleId = "pci-007";
+    private const string PciTransportRuleId = "pci-009";
 
     [Fact]
     public async Task Policy_filtered_postures_emit_different_declaration_findings()
@@ -67,6 +69,32 @@ public sealed class PolicyFilteredDeclarationGoldenCorpusTests
         transportFindings[0].PolicyRuleId.Should().Be(HipaaTransportRuleId);
         transportFindings[0].Title.Should().Contain("HTTPS only", because: "transport-security theme");
         transportFindings[0].Title.Contains("public network access", StringComparison.OrdinalIgnoreCase).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Pci_filtered_postures_emit_different_declaration_findings()
+    {
+        GraphSnapshot encryptionGraph = DeclarationPolicyTestGraphs.CreateWeakSqlPostureGraph();
+        GraphSnapshot transportGraph = DeclarationPolicyTestGraphs.CreatePublicAccessAndHttpsDisabledGraph();
+
+        ComplianceRulePack encryptionPack = CreatePack(PciEncryptionRuleId);
+        ComplianceRulePack transportPack = CreatePack(PciTransportRuleId);
+
+        IReadOnlyList<Finding> encryptionFindings =
+            await RunDeclarationSecurityEngineAsync(encryptionPack, encryptionGraph);
+        IReadOnlyList<Finding> transportFindings =
+            await RunDeclarationSecurityEngineAsync(transportPack, transportGraph);
+
+        encryptionFindings.Should().ContainSingle();
+        transportFindings.Should().ContainSingle();
+
+        encryptionFindings[0].PolicyRuleId.Should().Be(PciEncryptionRuleId);
+        encryptionFindings[0].Title.Should().Contain("SQL server", because: "encryption theme");
+        encryptionFindings[0].Title.Contains("HTTPS only", StringComparison.OrdinalIgnoreCase).Should().BeFalse();
+
+        transportFindings[0].PolicyRuleId.Should().Be(PciTransportRuleId);
+        transportFindings[0].Title.Should().Contain("HTTPS only", because: "transport-security theme");
+        transportFindings[0].Title.Contains("SQL server", StringComparison.OrdinalIgnoreCase).Should().BeFalse();
     }
 
     [Fact]

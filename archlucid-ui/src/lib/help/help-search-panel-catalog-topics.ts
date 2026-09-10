@@ -1,6 +1,14 @@
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_FINDINGS_PATH,
+  GOVERNANCE_POLICY_PACKS_PATH,
+} from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";
+import { FINDINGS_HELP_PATH } from "@/lib/findings/findings-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 import type { HelpSearchPanelGroup, HelpSearchPanelTopic } from "@/lib/help/help-search-panel-catalog";
 
@@ -86,6 +94,80 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
       href: `/architecture/reviews/${CUSTOMER_INTAKE_SAMPLE_RUN_ID}`,
       helpSlug: null,
     },
+  },
+];
+
+export const SECURITY_START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "getting-started-help",
+    title: "Getting started",
+    description:
+      "Learn how SecureNow connects cloud evidence, routes alerts, and supports security operations workflows.",
+    keywords: ["getting started", "concepts", "overview", "introduction", "securenow"],
+    action: { kind: "route", href: "/help/getting-started", helpSlug: "getting-started" },
+  },
+  {
+    id: "connect-azure",
+    title: "Connect Azure securely",
+    description: "Workload identity federation, read-only roles, and connection validation.",
+    keywords: ["azure", "federation", "workload identity", "permissions", "cloud connection"],
+    action: { kind: "route", href: inAppHelpHref("cloud-connections-azure"), helpSlug: "cloud-connections-azure" },
+  },
+  {
+    id: "findings-help",
+    title: FINDINGS_HELP_TOPIC_LABEL,
+    description: "Triage cloud-evidence findings, assign remediation owners, and record disposition.",
+    keywords: ["findings", "triage", "remediation", "disposition", "risk register"],
+    action: { kind: "route", href: FINDINGS_HELP_PATH, helpSlug: "findings" },
+  },
+  {
+    id: "assigned-to-me-findings",
+    title: "Assigned to me",
+    description: "Your personal remediation queue for findings assigned to you.",
+    keywords: ["assigned to me", "my findings", "remediation queue", "personal queue"],
+    action: { kind: "route", href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, helpSlug: null },
+  },
+  {
+    id: "authentication-sign-in",
+    title: "Authentication and sign-in",
+    description: "Work or school accounts, email one-time codes, invitations, SSO, and account recovery.",
+    keywords: ["sign in", "authentication", "email code", "sso", "invitation", "recovery", "passwordless"],
+    action: { kind: "route", href: "/help/authentication-sign-in", helpSlug: "authentication-sign-in" },
+  },
+];
+
+export const SECURITY_FINDINGS_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "risk-register",
+    title: "Findings",
+    description: "Track accepted risks, owners, exceptions, and follow-up.",
+    keywords: ["risk", "register", "exceptions", "accepted risk", "findings queue"],
+    action: { kind: "route", href: GOVERNANCE_FINDINGS_PATH, helpSlug: null },
+  },
+  {
+    id: "infra-remediation-workbench",
+    title: "Infrastructure remediation",
+    description: "Track remediation instances, waves, and verification for cloud resources.",
+    keywords: ["remediation", "infrastructure", "instance", "wave", "verify"],
+    action: { kind: "route", href: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH, helpSlug: null },
+  },
+  {
+    id: "infra-drift-help",
+    title: "Infrastructure drift",
+    description: "Compare live cloud inventory to expected posture and open remediation follow-up.",
+    keywords: ["drift", "infrastructure", "inventory", "cloud posture"],
+    action: {
+      kind: "route",
+      href: inAppHelpHref("governance-infrastructure-drift"),
+      helpSlug: "governance-infrastructure-drift",
+    },
+  },
+  {
+    id: "remediation-factory",
+    title: "Remediation factory",
+    description: "Rank findings, plan remediation waves, and open factory instances.",
+    keywords: ["remediation factory", "wave", "ranked findings", "factory"],
+    action: { kind: "route", href: "/governance/remediation-factory", helpSlug: null },
   },
 ];
 
@@ -318,6 +400,18 @@ export const HELP_SEARCH_PANEL_GROUPS: readonly HelpSearchPanelGroup[] = [
   { id: "troubleshooting", heading: "Troubleshooting and support", topics: TROUBLESHOOTING_TOPICS },
 ];
 
+export const HELP_SEARCH_PANEL_GROUPS_SECURITY: readonly HelpSearchPanelGroup[] = [
+  { id: HELP_SEARCH_PANEL_START_HERE_GROUP_ID, heading: "Start here", topics: SECURITY_START_HERE_TOPICS },
+  { id: "findings-work", heading: "Findings and remediation", topics: SECURITY_FINDINGS_WORK_TOPICS },
+  { id: "governance", heading: "Approval", topics: GOVERNANCE_TOPICS },
+  { id: "setup", heading: "Setup", topics: SETUP_TOPICS },
+  { id: "troubleshooting", heading: "Troubleshooting and support", topics: TROUBLESHOOTING_TOPICS },
+];
+
+export function resolveHelpSearchPanelGroups(productLineId: ProductLineId): readonly HelpSearchPanelGroup[] {
+  return productLineId === "security" ? HELP_SEARCH_PANEL_GROUPS_SECURITY : HELP_SEARCH_PANEL_GROUPS;
+}
+
 /** Synonyms expand search queries to curated topic ids. */
 export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string[]>> = {
   "proof packet": ["review-artifacts"],
@@ -348,10 +442,13 @@ export const HELP_DRAWER_SEARCH_ALIASES: Readonly<Record<string, readonly string
   privacy: ["data-handling-help", "security-trust-help"],
 };
 
-export function collectHelpSearchPanelTopics(isAdmin: boolean): HelpSearchPanelTopic[] {
+export function collectHelpSearchPanelTopics(
+  isAdmin: boolean,
+  productLineId: ProductLineId = "architecture",
+): HelpSearchPanelTopic[] {
   const topics: HelpSearchPanelTopic[] = [];
 
-  for (const group of HELP_SEARCH_PANEL_GROUPS) {
+  for (const group of resolveHelpSearchPanelGroups(productLineId)) {
     for (const topic of group.topics) {
       if (topic.adminOnly === true && !isAdmin) {
         continue;

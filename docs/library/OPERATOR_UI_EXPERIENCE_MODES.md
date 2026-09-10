@@ -45,8 +45,8 @@ Personal preference stored in `dbo.UserSettings` (`WorkspaceMode`). **Missing/nu
 
 | Mode | Behavior |
 |------|----------|
-| **Working** (default) | Teaching chrome off — Overview leads with the work queue; full authorized nav unlocks even before first commit; dense architect chrome on production builds; Getting started demoted from main nav. **Working is not an `/al-ui-rate` buyer-confidence target** — that command rates Working screenshots as an all-day instrument (ADR 0080 / WS-07). |
-| **Guided** | Teaching chrome on — tours, first-finding strips, shortcut coaches, Where to go next strips, sample reviews on Overview when enabled. Live architecture packages only. |
+| **Working** (default) | Teaching chrome off — Overview leads with the work queue; full authorized nav unlocks even before first commit; dense architect chrome on production builds; Getting started demoted from main nav. **Career vs Rehearsal** chooser sets session intent (Career = sealed-record path; Rehearsal = labeled practice — Simulator is not sponsor proof). **Working is not an `/al-ui-rate` buyer-confidence target** — that command rates Working screenshots as an all-day instrument (ADR 0080 / WS-07). |
+| **Guided** | Teaching chrome on — tours, first-finding strips, shortcut coaches, Where to go next strips, sample reviews on Overview when enabled. Live architecture packages only. **No Career/Rehearsal chooser** — Guided keeps Simulator teaching surfaces (AS-081). |
 
 Users switch modes in **Account → Preferences → Workspace mode**. After the user's first sealed review, Working-mode users may see a dismissible offer to switch to Guided for teaching chrome — never an auto-switch.
 

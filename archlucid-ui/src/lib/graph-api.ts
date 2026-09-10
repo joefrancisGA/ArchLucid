@@ -1,13 +1,23 @@
 import { apiGetSealedManifestAware } from "@/lib/api/api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { getRunSummary } from "@/lib/api/architecture-runs";
+import { architectureGraphTemporalSnapshotBlockedReason } from "@/lib/graph/architecture-graph-temporal-snapshot-blocked-reason";
+import { provenanceGraphAliasBlockedReason } from "@/lib/graph/provenance-graph-alias-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "@/lib/api/http";
 import type { components } from "@/lib/openapi-schemas";
 import type { GraphNodesPageResponse, GraphViewModel } from "@/types/graph";
 
 /** Fetches the full provenance graph for a run (all decisions, findings, rules, artifacts). */
 export async function getProvenanceGraph(runId: string): Promise<GraphViewModel> {
-  return apiGetSealedManifestAware<GraphViewModel>(`/v1/provenance/runs/${encodeURIComponent(runId)}/graph`);
+  try {
+    return await apiGetSealedManifestAware<GraphViewModel>(`/v1/provenance/runs/${encodeURIComponent(runId)}/graph`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = provenanceGraphAliasBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Fetches the full architecture graph for a run (may return 413 when node count exceeds API limit). */
@@ -56,7 +66,10 @@ export async function getArchitectureGraphTemporalSnapshot(
       try {
         throwApiRequestError(response, text);
       } catch (error: unknown) {
-        throw new Error(formatExportSealedManifestAwareApiError(error));
+        const failure = toApiLoadFailure(error);
+        const blockedReason = architectureGraphTemporalSnapshotBlockedReason(failure);
+
+        throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
       }
     }
 

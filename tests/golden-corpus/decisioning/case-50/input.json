@@ -15,7 +15,10 @@
         "category": null,
         "sourceType": null,
         "sourceId": "azurerm_key_vault_secret.orders_db_password",
-        "properties": {},
+        "properties": {
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000050/resourceGroups/rg-golden/providers/Microsoft.KeyVault/vaults/orders-db-password",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000050/resourceGroups/rg-golden/providers/Microsoft.KeyVault/vaults/orders-db-password"
+        },
         "reasoningTrace": null
       }
     ],

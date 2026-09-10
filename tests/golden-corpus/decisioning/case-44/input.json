@@ -17,7 +17,9 @@
         "sourceId": "azurerm_network_security_group.db",
         "properties": {
           "terraformType": "azurerm_network_security_group",
-          "tf.security_rule": "access = allow direction = inbound source_address_prefix = * destination_port_range = 3389"
+          "tf.security_rule": "access = allow direction = inbound source_address_prefix = * destination_port_range = 3389",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000044/resourceGroups/rg-golden/providers/Microsoft.Network/networkSecurityGroups/db-nsg",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000044/resourceGroups/rg-golden/providers/Microsoft.Network/networkSecurityGroups/db-nsg"
         },
         "reasoningTrace": null
       },
@@ -29,7 +31,9 @@
         "sourceType": null,
         "sourceId": null,
         "properties": {
-          "category": "network"
+          "category": "network",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000044/resourceGroups/rg-golden/providers/Microsoft.Network/virtualNetworks/db-subnet",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000044/resourceGroups/rg-golden/providers/Microsoft.Network/virtualNetworks/db-subnet"
         },
         "reasoningTrace": null
       },
@@ -41,7 +45,9 @@
         "sourceType": null,
         "sourceId": null,
         "properties": {
-          "category": "data"
+          "category": "data",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000044/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-hr-prod",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000044/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/sql-hr-prod"
         },
         "reasoningTrace": null
       }

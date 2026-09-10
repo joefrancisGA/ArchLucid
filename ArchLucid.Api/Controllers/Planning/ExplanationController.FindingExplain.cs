@@ -35,17 +35,10 @@ public sealed partial class ExplanationController
                 $"Run '{runId}' was not found or has no committed manifest in the current scope.",
                 ProblemTypes.RunNotFound);
 
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         if (detail.FindingsSnapshot?.Findings is not { Count: > 0 } list)
             return this.NotFoundProblem(
@@ -87,17 +80,10 @@ public sealed partial class ExplanationController
                 $"Run '{runId}' was not found or has no committed manifest in the current scope.",
                 ProblemTypes.RunNotFound);
 
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         FindingLlmAuditResult? body = await findingLlmAudit.BuildAsync(runId, findingId, ct);
 

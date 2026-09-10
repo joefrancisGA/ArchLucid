@@ -11,7 +11,7 @@ export const SECURENOW_COMPLIANCE_HOME_SECTION_HEADING = "ARC-AMPE Compliance" a
 export const SECURENOW_COMPLIANCE_NAV_GROUP_LABEL = "ARC-AMPE compliance" as const;
 
 export const SECURENOW_COMPLIANCE_HOME_SECTION_LEAD =
-  "Assign ARC-AMPE architecture themes, review cloud-evidence findings, and export audit control lineage for CMS ACA and Medicaid partner diligence." as const;
+  "Assign ARC-AMPE architecture themes, review cloud-evidence findings, and export audit control lineage for CMS partner diligence." as const;
 
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 

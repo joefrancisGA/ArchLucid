@@ -30,7 +30,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [Route("v{version:apiVersion}/ask")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class AskController(
+public sealed partial class AskController(
     IAskService ask,
     IScopeContextProvider scopeProvider,
     ILogger<AskController> logger) : ControllerBase
@@ -71,7 +71,7 @@ public sealed class AskController(
         catch (ConflictException ex)
         {
             logger.LogWarning(ex, "Ask failed: sealed manifest or inventory guard rejected the request.");
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapAskSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

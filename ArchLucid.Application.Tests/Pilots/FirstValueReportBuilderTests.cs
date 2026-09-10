@@ -6,6 +6,7 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Configuration;
@@ -100,6 +101,74 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("## Decision delta (recommended changes)");
         md.Should().Contain("Rotate storage account keys from snapshot");
         md.Should().NotContain("No active findings recorded in this package.");
+    }
+
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenUnsupportedDecisionGradePresent_RemainsVisibleOnSponsorArtifact()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        detail.Results =
+        [
+            new AgentResult
+            {
+                TaskId = "t1",
+                RunId = "r1",
+                AgentType = AgentType.Topology,
+                Findings =
+                [
+                    new ArchitectureFinding
+                    {
+                        FindingId = "f-unsupported",
+                        Severity = FindingSeverity.Error,
+                        Category = "Security",
+                        Message = "Public database ingress without private endpoint",
+                        SemanticSupportBand = FindingSemanticSupportBand.Unsupported,
+                        Classification = FindingClassification.DecisionGradeFinding,
+                    },
+                    new ArchitectureFinding
+                    {
+                        FindingId = "f-supported",
+                        Severity = FindingSeverity.Warning,
+                        Category = "Cost",
+                        Message = "Resize underutilized app service plan",
+                        SemanticSupportBand = FindingSemanticSupportBand.Supported,
+                        Classification = FindingClassification.DecisionGradeFinding,
+                    },
+                ],
+            },
+        ];
+
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity = [new KeyValuePair<string, int>("Error", 1), new KeyValuePair<string, int>("Warning", 1)],
+            AuditRowCount = 0,
+            LlmCallCount = 1,
+            TopFindingId = "f-unsupported",
+            TopFindingSeverity = "Error",
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("| Semantic support |");
+        md.Should().Contain("1 Unsupported");
+        md.Should().Contain("f-unsupported: Public database ingress without private endpoint");
+        md.Should().Contain("## Semantic support (decision-grade)");
+        md.Should().Contain("**Unsupported decision-grade findings:**");
+        md.Should().NotContain("No unsupported decision-grade findings on this sponsor artifact.");
     }
 
     [SkippableFact]
@@ -573,6 +642,7 @@ public sealed class FirstValueReportBuilderTests
             FirstValueReportBuilderTestDoubles.CreateGraphSnapshotRepository(),
             Mock.Of<ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository>(),
             Mock.Of<IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>(),
             NullLogger<FirstValueReportBuilder>.Instance);
     }
 }

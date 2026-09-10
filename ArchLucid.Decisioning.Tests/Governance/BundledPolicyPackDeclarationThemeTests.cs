@@ -157,6 +157,50 @@ public sealed class BundledPolicyPackDeclarationThemeTests
     }
 
     [Fact]
+    public async Task Iso_architecture_emits_declaration_themes_at_p1_floor()
+    {
+        IReadOnlySet<string> iso = await ResolveAtFloorAsync("iso27001-architecture.json", PolicyPackRulePriority.P1);
+
+        IReadOnlyList<string> themes = EnabledThemes(iso);
+
+        themes.Should().BeEquivalentTo(
+            [DataProtection, Encryption, NetworkIsolation, TransportSecurity, WorkloadIsolation],
+            "QR-20 ISO 27001 P1 architecture slice backs every declaration theme");
+
+        iso.Should().Contain("iso27001-011");
+        iso.Should().Contain("iso27001-024");
+        DeclarationSignalPolicyGate.ShouldEmitTheme(DataProtection, iso).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(TransportSecurity, iso).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(Encryption, iso).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Pci_architecture_emits_encryption_and_transport_themes_at_p1_floor()
+    {
+        IReadOnlySet<string> pci = await ResolveAtFloorAsync("pci-dss-architecture.json", PolicyPackRulePriority.P1);
+
+        pci.Should().Contain("pci-007");
+        pci.Should().Contain("pci-009");
+        DeclarationSignalPolicyGate.ShouldEmitTheme(Encryption, pci).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(TransportSecurity, pci).Should().BeTrue();
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(Encryption, pci).Should().Be("pci-007");
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(TransportSecurity, pci).Should().Be("pci-009");
+    }
+
+    [Fact]
+    public async Task Zta_architecture_emits_network_and_transport_themes_at_p1_floor()
+    {
+        IReadOnlySet<string> zta = await ResolveAtFloorAsync("zero-trust-architecture.json", PolicyPackRulePriority.P1);
+
+        zta.Should().Contain("zta-007");
+        zta.Should().Contain("zta-008");
+        DeclarationSignalPolicyGate.ShouldEmitTheme(NetworkIsolation, zta).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(TransportSecurity, zta).Should().BeTrue();
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(NetworkIsolation, zta).Should().Be("zta-007");
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(TransportSecurity, zta).Should().Be("zta-008");
+    }
+
+    [Fact]
     public async Task Hipaa_architecture_stays_silent_at_shipped_p0_pilot_floor()
     {
         IReadOnlySet<string> hipaa = await ResolveShippedAsync("hipaa-architecture.json");

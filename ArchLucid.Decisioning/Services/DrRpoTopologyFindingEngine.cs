@@ -40,7 +40,9 @@ public sealed class DrRpoTopologyFindingEngine : IFindingEngine
     {
         string objectiveText = BuildObjectiveText(gap.RpoMinutes, gap.RtoMinutes);
         List<string> relatedNodeIds = [gap.RequirementNodeId, gap.DatastoreNodeId];
-        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectFromNodeIds(graphSnapshot, relatedNodeIds);
+        List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
+            graphSnapshot,
+            relatedNodeIds);
 
         return new Finding
         {

@@ -62,6 +62,28 @@ describe("PackagePrintPageView (TB-2205)", () => {
     );
   });
 
+  it("renders semantic support stamp line when provided (AS-071)", () => {
+    render(
+      <PackagePrintPageView
+        presentation={{
+          title: "Payments edge",
+          statusLabel: "Finalized",
+          statusKind: "approved",
+          findingsSummary: "3 findings",
+          sponsorSynopsis: null,
+          createdUtc: "2026-08-01T12:00:00Z",
+          runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          manifestVersionForGuard: "manifest-1",
+          semanticSupportBandStampLine: "Semantic support (decision-grade): 1 Supported",
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("package-print-semantic-support-band-line")).toHaveTextContent(
+      "1 Supported",
+    );
+  });
+
   it("omits synopsis section when null", () => {
     render(
       <PackagePrintPageView

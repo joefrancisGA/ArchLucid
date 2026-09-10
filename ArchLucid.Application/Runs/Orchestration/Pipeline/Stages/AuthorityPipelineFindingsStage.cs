@@ -48,6 +48,7 @@ public sealed class AuthorityPipelineFindingsStage(
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
     IArchitectureRequestRepository? architectureRequestRepository = null,
     IEvidenceGraphMaterializer? evidenceGraphMaterializer = null,
+    FindingSemanticSupportBandOverlayWriter? semanticSupportBandOverlayWriter = null,
     TimeProvider? timeProvider = null) : IAuthorityPipelineFindingsStage
 {
     private readonly IFindingsOrchestrator _findingsOrchestrator =
@@ -100,6 +101,9 @@ public sealed class AuthorityPipelineFindingsStage(
     private readonly IArchitectureRequestRepository? _architectureRequestRepository = architectureRequestRepository;
 
     private readonly IEvidenceGraphMaterializer? _evidenceGraphMaterializer = evidenceGraphMaterializer;
+
+    private readonly FindingSemanticSupportBandOverlayWriter? _semanticSupportBandOverlayWriter =
+        semanticSupportBandOverlayWriter;
 
     private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
@@ -177,6 +181,17 @@ public sealed class AuthorityPipelineFindingsStage(
         await _stagePersistence.SaveFindingsAsync(findingsSnapshot, context.UnitOfWork, cancellationToken);
         context.FindingsSnapshot = findingsSnapshot;
 
+        if (_semanticSupportBandOverlayWriter is not null)
+        {
+            await _semanticSupportBandOverlayWriter
+                .PersistSnapshotOverlaysAsync(
+                    findingsSnapshot.FindingsSnapshotId,
+                    scope,
+                    findingsSnapshot.Findings,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         RecordFindingsProducedForMetrics(findingsSnapshot);
 
         run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
@@ -184,6 +199,13 @@ public sealed class AuthorityPipelineFindingsStage(
 
         if (findingsSnapshot.GenerationStatus == FindingsSnapshotGenerationStatus.Complete)
         {
+            if (_semanticSupportBandOverlayWriter is not null)
+            {
+                await _semanticSupportBandOverlayWriter
+                    .FreezeSnapshotOverlaysAsync(findingsSnapshot.FindingsSnapshotId, scope, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
             await _auditService.LogAsync(
                 new AuditEvent
                 {

@@ -5956,6 +5956,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "snapshotId"
+        ],
         "type": "object"
       },
       "AuditEvaluationOutcome": {
@@ -15026,6 +15029,16 @@
               "string"
             ]
           },
+          "semanticSupportBand": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingSemanticSupportBand"
+              }
+            ]
+          },
           "severity": {
             "$ref": "#/components/schemas/FindingSeverity"
           },
@@ -15922,6 +15935,15 @@
           }
         },
         "type": "object"
+      },
+      "FindingSemanticSupportBand": {
+        "enum": [
+          "Supported",
+          "Unchecked",
+          "Unsupported",
+          "NotScored",
+          null
+        ]
       },
       "FindingSeverity": {
         "enum": [
@@ -136457,28 +136479,13 @@
           },
           "404": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/problem\u002Bjson": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             },
-            "description": "Not Found"
+            "description": "Not Found."
           },
           "405": {
             "content": {

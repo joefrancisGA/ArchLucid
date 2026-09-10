@@ -15,6 +15,7 @@ import {
   OperatorWarningCallout,
 } from "@/components/operator/OperatorShellMessage";
 import { SponsorLensCompareSummaryPanel } from "@/components/compare/SponsorLensCompareSummaryPanel";
+import { compareExplainMutationBlockedReason } from "@/lib/compare/compare-explain-mutation-blocked-reason";
 import { compareRunPairBlockedReason } from "@/lib/compare/compare-run-pair-blocked-reason";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
 import {
@@ -97,7 +98,7 @@ export function CompareResultsPanelVerdictChrome({
   } = viewModel;
   const legacyCompareBlockedReason = compareRunPairBlockedReason(legacyFailure);
   const goldenCompareBlockedReason = compareRunPairBlockedReason(goldenFailure);
-  const aiCompareBlockedReason = compareRunPairBlockedReason(aiFailure);
+  const aiCompareBlockedReason = compareExplainMutationBlockedReason(aiFailure);
 
   return (
     <>

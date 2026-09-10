@@ -1,3 +1,4 @@
+import { comparisonDocxMutationBlockedReason } from "@/lib/compare/comparison-docx-mutation-blocked-reason";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
 export type EndToEndCompareExportFormat = "markdown" | "docx" | "file";
@@ -41,6 +42,7 @@ export async function downloadEndToEndCompareExport(options: {
       accept: "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/json",
       defaultFileName: `end_to_end_compare_${left}_to_${right}.docx`,
       expectedContentTypePrefixes: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      resolveBlockedReason: comparisonDocxMutationBlockedReason,
     });
 
     return;
@@ -51,6 +53,7 @@ export async function downloadEndToEndCompareExport(options: {
       accept: "text/markdown, application/json",
       defaultFileName: `end_to_end_compare_${left}_to_${right}.md`,
       expectedContentTypePrefixes: ["text/markdown"],
+      resolveBlockedReason: comparisonDocxMutationBlockedReason,
     });
 
     return;
@@ -60,5 +63,6 @@ export async function downloadEndToEndCompareExport(options: {
     accept: "text/markdown, application/json",
     defaultFileName: `end_to_end_compare_${left}_to_${right}.md`,
     expectedContentTypePrefixes: ["text/markdown"],
+    resolveBlockedReason: comparisonDocxMutationBlockedReason,
   });
 }

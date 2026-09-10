@@ -37,20 +37,10 @@ public sealed partial class AuthorityQueryController
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        if (detail.GoldenManifest is not null)
-        {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         IReadOnlyList<RunPipelineTimelineItemResponse>? items =
             await readHandlers.TryGetPipelineTimelineAsync(runId, ct);
@@ -81,20 +71,10 @@ public sealed partial class AuthorityQueryController
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        if (detail.GoldenManifest is not null)
-        {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         RunRationale? rationale = await readHandlers.GetRunRationaleAsync(runId, ct);
 
@@ -126,24 +106,10 @@ public sealed partial class AuthorityQueryController
         RunDetailDto? manifestDetail =
             await queryService.GetRunDetailForManifestCompareAsync(scope, result.RunId, ct);
 
-        try
-        {
-            if (manifestDetail?.GoldenManifest is null)
-            {
-                return this.ConflictProblem(
-                    $"Manifest '{manifestId}' sealed hash verification is unavailable because the committed golden manifest is missing.",
-                    ProblemTypes.Conflict);
-            }
+        IActionResult? sealedGuardResult = EnsureManifestSummarySealedReadAllowed(result, manifestDetail);
 
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                manifestDetail.GoldenManifest,
-                result.RunId.ToString("D"),
-                manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         return Ok(new ManifestSummaryResponse
         {
@@ -191,7 +157,7 @@ public sealed partial class AuthorityQueryController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapRunQuerySealedManifestConflict(ex);
         }
     }
 
@@ -203,20 +169,10 @@ public sealed partial class AuthorityQueryController
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        if (detail.GoldenManifest is not null)
-        {
-            try
-            {
-                SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                    detail.GoldenManifest,
-                    runId.ToString("D"),
-                    manifestHashService);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         (DecisionProvenanceGraph? graph, RunDetailDto? provenanceDetail, string? unprocessableDetail) =
             await readHandlers.TryGetProvenanceGraphAsync(runId, ct);
@@ -256,17 +212,10 @@ public sealed partial class AuthorityQueryController
                 $"Golden manifest for run '{runId}' was not found.",
                 ProblemTypes.ManifestNotFound);
 
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         await readHandlers.LogRunScopedAuditAsync(
             AuditEventTypes.ManifestViewed,

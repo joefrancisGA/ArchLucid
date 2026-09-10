@@ -1,5 +1,6 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { formatAuditEvidenceSealedManifestAwareApiError } from "@/lib/governance/audit-evidence-sealed-manifest-conflict";
+import { auditEvidencePackageBlockedReason } from "@/lib/governance/audit-evidence-package-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -26,7 +27,9 @@ export async function downloadAuditEvidencePackageZip(
   if (!response.ok) {
     const text = await response.text();
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
-    throw new Error(formatAuditEvidenceSealedManifestAwareApiError(failure));
+    const blockedReason = auditEvidencePackageBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatAuditEvidenceSealedManifestAwareApiError(failure));
   }
 
   const blob = await response.blob();
@@ -35,5 +38,12 @@ export async function downloadAuditEvidencePackageZip(
 }
 
 export function formatAuditEvidencePackageApiError(error: unknown): string {
+  const failure = toApiLoadFailure(error);
+  const blockedReason = auditEvidencePackageBlockedReason(failure);
+
+  if (blockedReason !== null) {
+    return blockedReason;
+  }
+
   return formatAuditEvidenceSealedManifestAwareApiError(error);
 }

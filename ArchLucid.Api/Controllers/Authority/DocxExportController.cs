@@ -18,12 +18,14 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.CareerArtifacts;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
@@ -53,7 +55,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [Route("v{version:apiVersion}/docx")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class DocxExportController(
+public sealed partial class DocxExportController(
     IAuthorityQueryService authorityQueryService,
     IRunDetailQueryService runDetailQueryService,
     IArtifactQueryService artifactQueryService,
@@ -67,11 +69,16 @@ public sealed class DocxExportController(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IConfiguration configuration,
     IAuditService auditService,
-    ILogger<DocxExportController> logger)
+    ILogger<DocxExportController> logger,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository)
     : ControllerBase
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly ILogger<DocxExportController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -87,6 +94,12 @@ public sealed class DocxExportController(
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
 
     /// <summary>Streams a DOCX architecture package for <paramref name="runId" />.</summary>
     /// <param name="runId">Primary run (must have golden manifest).</param>
@@ -138,23 +151,14 @@ public sealed class DocxExportController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapDocxExportSealedManifestConflict(ex);
         }
 
-        try
-        {
-            await ConsultingDocxExportSealedReceiptGuard.EnsureVerifiedOrThrowAsync(
-                runId,
-                runId.ToString("N"),
-                authorityQueryService,
-                manifestHashService,
-                scope,
-                ct);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        IActionResult? docxSealedGuardResult =
+            await EnsureArchitecturePackageDocxSealedManifestAllowedAsync(runId, scope, ct);
+
+        if (docxSealedGuardResult is not null)
+            return docxSealedGuardResult;
 
         ManifestDocument? manifest = runDetail.GoldenManifest;
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
@@ -189,23 +193,15 @@ public sealed class DocxExportController(
                 }
                 catch (ConflictException ex)
                 {
-                    return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+                    return MapDocxExportSealedManifestConflict(ex);
                 }
             }
 
-            try
-            {
-                await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                    compareWithRunId.Value.ToString("N"),
-                    scope,
-                    authorityQueryService,
-                    manifestHashService,
-                    ct);
-            }
-            catch (ConflictException ex)
-            {
-                return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-            }
+            IActionResult? compareSealedGuardResult =
+                await EnsureCompareRunDocxSealedManifestAllowedAsync(compareWithRunId.Value, scope, ct);
+
+            if (compareSealedGuardResult is not null)
+                return compareSealedGuardResult;
 
             manifestComparison = comparisonService.Compare(manifest, targetDetail.GoldenManifest);
         }
@@ -243,7 +239,9 @@ public sealed class DocxExportController(
                 scope,
                 workingDesk: true,
                 _configuration,
-                ct);
+                ct,
+                _runRepository,
+                _architectureInventoryBindingRepository);
             TransparencyTrail? transparencyTrail = careerExportHonesty.CoverageContext.Verdict?.TransparencyTrail;
             CareerArtifactCompletenessInput careerArtifactInput = CareerArtifactCompletenessInputMapper.MapForExport(
                 careerExportHonesty,

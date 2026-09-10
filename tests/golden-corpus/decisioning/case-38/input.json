@@ -17,7 +17,9 @@
         "sourceId": null,
         "properties": {
           "kind": "Machine",
-          "trustOrigin": "Internal"
+          "trustOrigin": "Internal",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000038/resourceGroups/rg-golden/providers/Microsoft.Web/sites/checkout-func",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000038/resourceGroups/rg-golden/providers/Microsoft.Web/sites/checkout-func"
         },
         "reasoningTrace": null
       },
@@ -30,7 +32,9 @@
         "sourceId": null,
         "properties": {
           "terraformType": "azurerm_role_assignment",
-          "roleName": "Contributor"
+          "roleName": "Contributor",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000038/resourceGroups/rg-golden/providers/Microsoft.Authorization/roleAssignments/checkout-contributor-kv",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000038/resourceGroups/rg-golden/providers/Microsoft.Authorization/roleAssignments/checkout-contributor-kv"
         },
         "reasoningTrace": null
       },
@@ -43,7 +47,9 @@
         "sourceId": null,
         "properties": {
           "category": "storage",
-          "topologySensitivity": "data-bearing"
+          "topologySensitivity": "data-bearing",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000038/resourceGroups/rg-golden/providers/Microsoft.KeyVault/vaults/kv-pay-prod",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000038/resourceGroups/rg-golden/providers/Microsoft.KeyVault/vaults/kv-pay-prod"
         },
         "reasoningTrace": null
       }

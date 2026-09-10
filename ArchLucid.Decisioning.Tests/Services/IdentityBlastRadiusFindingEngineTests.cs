@@ -57,6 +57,7 @@ public sealed class IdentityBlastRadiusFindingEngineTests
 
         Finding finding = findings.Should().ContainSingle().Subject;
         finding.EvidenceRefs.Should().ContainSingle().Which.Should().Be(armResourceId);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeTrue();
     }
 
     [Fact]
