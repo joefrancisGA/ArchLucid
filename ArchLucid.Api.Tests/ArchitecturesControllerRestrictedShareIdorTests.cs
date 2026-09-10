@@ -97,6 +97,14 @@ public sealed class ArchitecturesControllerRestrictedShareIdorTests
                 CanDecide = false,
                 CanAdmin = false,
             });
+
+        _shareAccessService
+            .Setup(service => service.CountRestrictedWithoutActorShareAsync(
+                Scope,
+                It.IsAny<Guid?>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
     }
 
     [Fact]
@@ -147,6 +155,7 @@ public sealed class ArchitecturesControllerRestrictedShareIdorTests
         ArchitectureIdentityListPage response = ok.Value.Should().BeOfType<ArchitectureIdentityListPage>().Subject;
         response.Items.Should().BeEmpty();
         response.Items.Should().NotContain(item => item.DisplayName == SecretDisplayName);
+        response.TotalCount.Should().Be(0);
     }
 
     [Fact]

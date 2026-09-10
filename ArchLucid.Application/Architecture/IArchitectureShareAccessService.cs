@@ -12,4 +12,13 @@ public interface IArchitectureShareAccessService
         bool hasExecuteAuthority,
         bool hasWorkspaceAdminAuthority,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Restricted architectures in scope the actor cannot view without a share row (workspace admins: 0).
+    /// </summary>
+    Task<int> CountRestrictedWithoutActorShareAsync(
+        ScopeContext scope,
+        Guid? actorUserId,
+        bool hasWorkspaceAdminAuthority,
+        CancellationToken cancellationToken = default);
 }

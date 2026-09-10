@@ -54,4 +54,38 @@ public sealed class ArchitectureShareAccessServiceTests
         evaluation.ShareRole.Should().Be(ArchitectureShareRoles.Decide);
         evaluation.CanDecide.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task CountRestrictedWithoutActorShareAsync_returns_zero_for_workspace_admin()
+    {
+        InMemoryArchitectureShareRepository repository = new();
+        repository.SeedArchitecture(ArchitectureId, restrictToShares: true);
+
+        ArchitectureShareAccessService sut = new(repository);
+
+        int count = await sut.CountRestrictedWithoutActorShareAsync(
+            Scope,
+            ActorUserId,
+            hasWorkspaceAdminAuthority: true,
+            CancellationToken.None);
+
+        count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task CountRestrictedWithoutActorShareAsync_counts_restricted_without_share_row()
+    {
+        InMemoryArchitectureShareRepository repository = new();
+        repository.SeedArchitecture(ArchitectureId, restrictToShares: true);
+
+        ArchitectureShareAccessService sut = new(repository);
+
+        int count = await sut.CountRestrictedWithoutActorShareAsync(
+            Scope,
+            ActorUserId,
+            hasWorkspaceAdminAuthority: false,
+            CancellationToken.None);
+
+        count.Should().Be(1);
+    }
 }

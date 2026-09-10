@@ -103,6 +103,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<PlatformUserAuthVersionValidator>();
         services.AddScoped<IAuthenticatedPlatformUserResolver, AuthenticatedPlatformUserResolver>();
         services.AddScoped<Support.IArchitectureShareAccessGate, Support.ArchitectureShareAccessGate>();
+        services.AddScoped<Support.GlobalSearchShareAccessFilter>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
         services.AddScoped<IDocumentTextExtractionService, DocumentTextExtractionService>();

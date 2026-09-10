@@ -1,5 +1,7 @@
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Mvc;
@@ -53,12 +55,30 @@ public sealed partial class ArchitecturesController
                 visibleItems.Add(item);
         }
 
+        Guid? actorUserId = await ResolveActorUserIdForShareFilterAsync(cancellationToken);
+
+        int shareRestrictedHiddenCount = await _architectureShareAccessService.CountRestrictedWithoutActorShareAsync(
+            scope,
+            actorUserId,
+            ArchitectureShareAuthorityProbe.HasWorkspaceAdminAuthority(User),
+            cancellationToken);
+
+        int adjustedTotalCount = Math.Max(0, page.TotalCount - shareRestrictedHiddenCount);
+
         return new ArchitectureIdentityListPage
         {
             Items = visibleItems,
-            TotalCount = visibleItems.Count,
+            TotalCount = adjustedTotalCount,
             Page = page.Page,
             PageSize = page.PageSize,
+            ArchivedHiddenCount = page.ArchivedHiddenCount,
         };
+    }
+
+    private async Task<Guid?> ResolveActorUserIdForShareFilterAsync(CancellationToken cancellationToken)
+    {
+        PlatformUserRecord? platformUser = await _platformUserResolver.ResolveAsync(User, cancellationToken);
+
+        return platformUser?.Id;
     }
 }

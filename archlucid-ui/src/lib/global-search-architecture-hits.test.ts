@@ -56,6 +56,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
 
   it("returns draft hits on title match with child URLs when linked to an identity", () => {
     const lookup = buildDraftIdToArchitectureIdLookup(identities);
+    const visibleArchitectureIds = new Set(identities.map((identity) => identity.architectureId));
     const hits = filterGlobalSearchArchitectureDraftHits(
       [
         draftEntry({
@@ -65,6 +66,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
       ],
       "payments",
       lookup,
+      visibleArchitectureIds,
     );
 
     expect(hits).toEqual([
@@ -79,6 +81,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
   it("keeps identity and draft hits separate when titles match", () => {
     const lookup = buildDraftIdToArchitectureIdLookup(identities);
     const identityHits = filterGlobalSearchArchitectureIdentityHits(identities, "payments platform");
+    const visibleArchitectureIds = new Set(identities.map((identity) => identity.architectureId));
     const draftHits = filterGlobalSearchArchitectureDraftHits(
       [
         draftEntry({
@@ -88,6 +91,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
       ],
       "payments platform",
       lookup,
+      visibleArchitectureIds,
     );
 
     expect(identityHits).toHaveLength(1);
@@ -118,6 +122,7 @@ describe("global-search-architecture-hits (CA-42)", () => {
       ],
       "archived",
       new Map(),
+      new Set(),
     );
 
     expect(hits).toEqual([]);
@@ -125,6 +130,24 @@ describe("global-search-architecture-hits (CA-42)", () => {
 
   it("does not return identity rows when search is empty", () => {
     expect(filterGlobalSearchArchitectureIdentityHits(identities, "")).toEqual([]);
-    expect(filterGlobalSearchArchitectureDraftHits([], "", new Map())).toEqual([]);
+    expect(filterGlobalSearchArchitectureDraftHits([], "", new Map(), new Set())).toEqual([]);
+  });
+
+  it("omits draft hits for architectures omitted from the identity list (AS-094)", () => {
+    const lookup = buildDraftIdToArchitectureIdLookup(identities);
+    const hits = filterGlobalSearchArchitectureDraftHits(
+      [
+        draftEntry({
+          draftId: "draft-payments-1",
+          displayName: "Payments platform",
+          parentArchitectureId: "architecture-identity-001",
+        }),
+      ],
+      "payments",
+      lookup,
+      new Set(["architecture-identity-002"]),
+    );
+
+    expect(hits).toEqual([]);
   });
 });

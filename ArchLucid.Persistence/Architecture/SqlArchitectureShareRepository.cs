@@ -454,4 +454,49 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
 
         return rows == 1;
     }
+
+    public async Task<int> CountRestrictedWithoutActorShareAsync(
+        ScopeContext scope,
+        Guid? actorUserId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+            SELECT COUNT(1)
+            FROM dbo.Architectures AS a
+            WHERE a.TenantId = @TenantId
+              AND a.WorkspaceId = @WorkspaceId
+              AND a.ScopeProjectId = @ScopeProjectId
+              AND a.ArchivedUtc IS NULL
+              AND a.RestrictToShares = 1
+              AND (
+                  @ActorUserId IS NULL
+                  OR NOT EXISTS (
+                      SELECT 1
+                      FROM dbo.ArchitectureShares AS s
+                      WHERE s.TenantId = a.TenantId
+                        AND s.WorkspaceId = a.WorkspaceId
+                        AND s.ScopeProjectId = a.ScopeProjectId
+                        AND s.ArchitectureId = a.ArchitectureId
+                        AND s.UserId = @ActorUserId
+                  )
+              );
+            """;
+
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        return await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ActorUserId = actorUserId,
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+    }
 }
