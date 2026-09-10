@@ -189,6 +189,11 @@ const HelpStructuredBriefGuideView = dynamic(() =>
 const HelpTroubleshootingGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpTroubleshootingGuideView").then((module) => module.HelpTroubleshootingGuideView),
 );
+const HelpWorkingCareerRehearsalGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpWorkingCareerRehearsalGuideView").then(
+    (module) => module.HelpWorkingCareerRehearsalGuideView,
+  ),
+);
 
 export function tryResolveOperateHelpTopicView(
   loaded: LoadedHelpTopicContent,
@@ -231,6 +236,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "connection-status") {
     return <HelpConnectionStatusGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "career-rehearsal-doors") {
+    return <HelpWorkingCareerRehearsalGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "standards-and-rules") {
     return <HelpStandardsRulesGuideView entry={loaded.entry} />;

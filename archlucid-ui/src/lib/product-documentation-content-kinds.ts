@@ -31,6 +31,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "roi-summary": "product-help",
   "architecture-scorecard": "product-help",
   "connection-status": "product-help",
+  "career-rehearsal-doors": "product-help",
   "standards-and-rules": "product-help",
   "baseline-settings": "product-help",
   "slack-integration": "product-help",

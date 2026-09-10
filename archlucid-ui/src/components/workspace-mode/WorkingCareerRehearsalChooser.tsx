@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState, type ReactElement } from "react";
 
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
@@ -18,8 +19,10 @@ import { WORKING_CAREER_DOOR_BLOCKED_TITLE } from "@/lib/governance/working-care
 import {
   WORKING_CAREER_DOOR_DETAIL,
   WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL,
+  WORKING_CAREER_REHEARSAL_HELP_LEARN_MORE_LABEL,
   WORKING_REHEARSAL_DOOR_DETAIL,
 } from "@/lib/governance/working-career-rehearsal-door-copy";
+import { WORKING_CAREER_REHEARSAL_HELP_CANONICAL_PATH } from "@/lib/governance/working-career-rehearsal-help-evidence-copy";
 import {
   cycleWorkingCareerRehearsalDoor,
   labelForWorkingCareerRehearsalDoor,
@@ -46,7 +49,7 @@ export function workingCareerRehearsalDoorTestId(door: WorkingCareerRehearsalDoo
 /**
  * Persistent Working execution door control (Career vs Rehearsal) for the operator shell top bar.
  * Hidden on Guided seats — not a buyer pill (ADR 0086 / AS-077). Career is blocked when the host
- * cannot run Real execute (AS-078 / TB-1299).
+ * cannot run Real execute (AS-078 / TB-1299). AS-082 learn-more handoff: `/help/career-rehearsal-doors`.
  */
 export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChooserProps): ReactElement | null {
   const { mode, mounted: workspaceMounted } = useWorkspaceMode();
@@ -126,7 +129,15 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
         ) : null}
         <FieldHelpTooltip
           label={WORKING_CAREER_REHEARSAL_CHOOSER_ARIA_LABEL}
-          hint={activeDetail}
+          hint={
+            <>
+              {activeDetail}
+              {" "}
+              <Link href={WORKING_CAREER_REHEARSAL_HELP_CANONICAL_PATH} className="underline">
+                {WORKING_CAREER_REHEARSAL_HELP_LEARN_MORE_LABEL}
+              </Link>
+            </>
+          }
         />
       </span>
       <WorkingCareerDoorBlockedDialog
