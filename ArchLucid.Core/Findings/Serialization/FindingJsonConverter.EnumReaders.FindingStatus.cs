@@ -17,14 +17,6 @@ public sealed partial class FindingJsonConverter
             return (FindingTreatment)numeric;
         }
 
-        if (TryReadBooleanOrdinal(element, out int booleanOrdinal))
-        {
-            if (!Enum.IsDefined(typeof(FindingTreatment), booleanOrdinal))
-                throw new JsonException($"Unknown finding treatment value '{booleanOrdinal}'.");
-
-            return (FindingTreatment)booleanOrdinal;
-        }
-
         if (element.ValueKind != JsonValueKind.String)
             throw new JsonException("Expected string or number for finding treatment.");
 
@@ -32,14 +24,6 @@ public sealed partial class FindingJsonConverter
 
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding treatment value is required.");
-
-        if (TryParseBooleanOrdinalString(raw, out int booleanOrdinalFromString))
-        {
-            if (!Enum.IsDefined(typeof(FindingTreatment), booleanOrdinalFromString))
-                throw new JsonException($"Unknown finding treatment value '{raw}'.");
-
-            return (FindingTreatment)booleanOrdinalFromString;
-        }
 
         if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
             || TryParseWholeNumberString(raw, out numericFromString))
@@ -66,14 +50,6 @@ public sealed partial class FindingJsonConverter
             return (FindingHumanReviewStatus)numeric;
         }
 
-        if (TryReadBooleanOrdinal(element, out int booleanOrdinal))
-        {
-            if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), booleanOrdinal))
-                throw new JsonException($"Unknown finding human review status value '{booleanOrdinal}'.");
-
-            return (FindingHumanReviewStatus)booleanOrdinal;
-        }
-
         if (element.ValueKind != JsonValueKind.String)
             throw new JsonException("Expected string or number for finding human review status.");
 
@@ -81,14 +57,6 @@ public sealed partial class FindingJsonConverter
 
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding human review status value is required.");
-
-        if (TryParseBooleanOrdinalString(raw, out int booleanOrdinalFromString))
-        {
-            if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), booleanOrdinalFromString))
-                throw new JsonException($"Unknown finding human review status value '{raw}'.");
-
-            return (FindingHumanReviewStatus)booleanOrdinalFromString;
-        }
 
         if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericFromString)
             || TryParseWholeNumberString(raw, out numericFromString))

@@ -22,6 +22,8 @@ describe("sign-in-return-destination", () => {
   });
 
   it("formats the session-expired return hint", () => {
-    expect(formatSessionExpiredReturnHint("Review detail")).toBe("Sign in to return to Review detail.");
+    expect(formatSessionExpiredReturnHint("Review detail")).toBe(
+      "Continue where you left off — sign in to return to Review detail.",
+    );
   });
 });

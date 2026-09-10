@@ -1,3 +1,5 @@
+"use client";
+
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 import { cn } from "@/lib/utils";
@@ -14,6 +16,7 @@ import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
 import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
 import { usePilotScorecardQuery } from "@/hooks/use-pilot-scorecard-query";
 import { OperatorAiQualityProofCard } from "@/components/operator/OperatorAiQualityProofCard";
+import { useOperatorHomeBooleanDisclosureUrlSync } from "@/hooks/use-operator-home-boolean-disclosure-url-sync";
 import { buildTier1InventoryExtractorCommandLines } from "@/lib/get-archlucid-cloud-package-command";
 import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { Button } from "@/components/ui/button";
@@ -47,6 +50,18 @@ import {
 } from "@/lib/buyer/buyer-shell-home-present";
 import { mapReadinessStatusToEnterpriseKind } from "@/lib/vocabulary/first-pilot-operator-status-vocabulary";
 import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
+import {
+  firstPilotAssistantDiagnosticsDisclosureHrefFromSearch,
+  parseFirstPilotAssistantDiagnosticsOpenFromSearch,
+} from "@/lib/first-pilot/first-pilot-assistant-diagnostics-disclosure-url";
+import {
+  firstPilotReadinessCockpitDisclosureHrefFromSearch,
+  parseFirstPilotReadinessCockpitOpenFromSearch,
+} from "@/lib/first-pilot/first-pilot-readiness-cockpit-disclosure-url";
+import {
+  firstPilotReadinessDetailsDisclosureHrefFromSearch,
+  parseFirstPilotReadinessDetailsOpenFromSearch,
+} from "@/lib/first-pilot/first-pilot-readiness-details-disclosure-url";
 import {
   buildCorePilotCommitContextFromRunItems,
   fetchTrialAnchoredCommit,
@@ -321,6 +336,28 @@ export function FirstPilotReadinessCockpit() {
         ? `/architecture/reviews/${encodeURIComponent(commitCtx.latestRunId)}`
         : "/architecture/reviews";
 
+  const [cockpitExpanded, setCockpitExpanded] = useOperatorHomeBooleanDisclosureUrlSync(
+    OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.workspaceReadiness,
+    "firstPilotReadinessCockpitOpen",
+    parseFirstPilotReadinessCockpitOpenFromSearch,
+    firstPilotReadinessCockpitDisclosureHrefFromSearch,
+    false,
+  );
+  const [readinessDetailsExpanded, setReadinessDetailsExpanded] = useOperatorHomeBooleanDisclosureUrlSync(
+    OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.readinessDetails,
+    "firstPilotReadinessDetailsOpen",
+    parseFirstPilotReadinessDetailsOpenFromSearch,
+    firstPilotReadinessDetailsDisclosureHrefFromSearch,
+    false,
+  );
+  const [assistantDiagnosticsExpanded, setAssistantDiagnosticsExpanded] = useOperatorHomeBooleanDisclosureUrlSync(
+    OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.assistantDiagnostics,
+    "firstPilotAssistantDiagnosticsOpen",
+    parseFirstPilotAssistantDiagnosticsOpenFromSearch,
+    firstPilotAssistantDiagnosticsDisclosureHrefFromSearch,
+    false,
+  );
+
   return (
     <OperatorHomeDisclosureSection
       title="Workspace readiness"
@@ -328,6 +365,8 @@ export function FirstPilotReadinessCockpit() {
       sectionTestId="first-pilot-readiness-cockpit"
       storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.workspaceReadiness}
       defaultExpanded={false}
+      expanded={cockpitExpanded}
+      onExpandedChange={setCockpitExpanded}
       description="Current readiness summary: platform connectivity, authority assignment, evidence ingestion, review posture, and sponsor evidence bundle status."
       collapsedSummary={collapsedReadinessSummary(pendingProbes, rows)}
     >
@@ -373,8 +412,11 @@ export function FirstPilotReadinessCockpit() {
           <OperatorHomeDisclosureSection
             title="View readiness details"
             titleId="first-pilot-readiness-details-heading"
+            sectionTestId="first-pilot-readiness-details"
             storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.readinessDetails}
             defaultExpanded={false}
+            expanded={readinessDetailsExpanded}
+            onExpandedChange={setReadinessDetailsExpanded}
             collapsedSummary={collapsedReadinessSummary(pendingProbes, rows)}
             sectionClassName="shadow-none"
             bodyClassName="mt-0"
@@ -417,8 +459,11 @@ export function FirstPilotReadinessCockpit() {
             <OperatorHomeDisclosureSection
               title="Assistant readiness diagnostics"
               titleId="first-pilot-assistant-diagnostics-heading"
+              sectionTestId="first-pilot-assistant-diagnostics"
               storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.assistantDiagnostics}
               defaultExpanded={false}
+              expanded={assistantDiagnosticsExpanded}
+              onExpandedChange={setAssistantDiagnosticsExpanded}
               collapsedSummary="AI quality proof signals for assistant readiness."
               sectionClassName="mt-4 shadow-none"
               bodyClassName="mt-0"

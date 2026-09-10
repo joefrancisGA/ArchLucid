@@ -68,6 +68,8 @@ public static class SponsorReviewCoverageHonestyMarkdownFormatter
             sb.AppendLine($"- **Skipped required questions:** {string.Join(", ", skippedMustKeys)}");
         }
 
+        TransparencyTrailMarkdownFormatter.AppendMarkdownSection(sb, verdict?.TransparencyTrail);
+
         sb.AppendLine();
     }
 

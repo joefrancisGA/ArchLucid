@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useOperatorShellNavRows } from "@/hooks/useOperatorShellNavRows";
+import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 import { useSidebarNavGroupExpansion } from "@/hooks/useSidebarNavGroupExpansion";
 import { findSidebarNavGroupIdsForActivePath } from "@/lib/sidebar-nav-active-group-expansion";
@@ -74,6 +75,7 @@ export function MobileNavDrawer() {
     roleNavDensityShowFullNav,
     toggleRoleNavDensityShowFullNav,
   } = useOperatorShellNavRows();
+  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
 
   useLayoutEffect(() => {
     setMounted(true);
@@ -88,6 +90,7 @@ export function MobileNavDrawer() {
       pathname: pathname ?? "/",
       buyerPolishedShell,
       demoUi,
+      architectWorkspaceChrome,
       setGroupExpanded,
     });
 
@@ -96,7 +99,7 @@ export function MobileNavDrawer() {
     for (const groupId of activeGroupIds) {
       setGroupExpanded(groupId, true);
     }
-  }, [allRows, buyerPolishedShell, demoUi, mounted, pathname, setGroupExpanded]);
+  }, [allRows, architectWorkspaceChrome, buyerPolishedShell, demoUi, mounted, pathname, setGroupExpanded]);
 
   function closeDrawer(): void {
     setOpen(false);

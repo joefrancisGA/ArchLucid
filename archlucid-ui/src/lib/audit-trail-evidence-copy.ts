@@ -23,3 +23,10 @@ export const AUDIT_TRAIL_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
+
+const AUDIT_TRAIL_EXCLUDED_ORIENTATION_SOURCE_HREFS = new Set<string>([AUDIT_TRAIL_CANONICAL_PATH]);
+
+/** Audit-trail orientation Sources — excludes self-href to `/governance/audit` (AUD). */
+export const AUDIT_TRAIL_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] = AUDIT_TRAIL_SOURCES.filter(
+  (source) => !AUDIT_TRAIL_EXCLUDED_ORIENTATION_SOURCE_HREFS.has(source.href),
+);

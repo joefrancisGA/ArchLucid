@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Governance.PolicyPacks;
@@ -11,8 +12,26 @@ internal static class PolicyPackAssignmentScope
         if (assignment is null)
             return false;
 
-        return assignment.TenantId == scope.TenantId
-            && assignment.WorkspaceId == scope.WorkspaceId
-            && assignment.ProjectId == scope.ProjectId;
+        if (assignment.TenantId != scope.TenantId)
+            return false;
+
+        string normalizedScopeLevel = GovernanceScopeLevel.TryNormalize(assignment.ScopeLevel)
+            ?? GovernanceScopeLevel.Project;
+
+        switch (normalizedScopeLevel)
+        {
+            case GovernanceScopeLevel.Tenant:
+                return true;
+
+            case GovernanceScopeLevel.Workspace:
+                return assignment.WorkspaceId == scope.WorkspaceId;
+
+            case GovernanceScopeLevel.Project:
+                return assignment.WorkspaceId == scope.WorkspaceId
+                    && assignment.ProjectId == scope.ProjectId;
+
+            default:
+                return false;
+        }
     }
 }

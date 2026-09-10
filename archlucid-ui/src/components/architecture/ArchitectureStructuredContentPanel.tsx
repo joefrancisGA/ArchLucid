@@ -2,7 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
@@ -10,6 +11,11 @@ import { parseArchitectureGeneratedContent } from "@/lib/architecture/architectu
 import {
   ARCHITECTURE_STRUCTURED_VIEW_SOURCE_LABEL,
 } from "@/lib/architecture/architecture-structured-content-copy";
+import {
+  ARCHITECTURE_STRUCTURED_SOURCE_OPEN_PARAM,
+  architectureStructuredSourceDisclosureHrefFromSearch,
+  parseArchitectureStructuredSourceOpenFromSearch,
+} from "@/lib/architecture/architecture-structured-source-disclosure-url";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -24,6 +30,34 @@ export type ArchitectureStructuredContentPanelProps = {
 export function ArchitectureStructuredContentPanel(
   props: ArchitectureStructuredContentPanelProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureStructuredSourceParam = searchParams.get(ARCHITECTURE_STRUCTURED_SOURCE_OPEN_PARAM);
+  const [architectureStructuredSourceOpen, setArchitectureStructuredSourceOpenState] = useState(() =>
+    parseArchitectureStructuredSourceOpenFromSearch(architectureStructuredSourceParam),
+  );
+  const syncArchitectureStructuredSourceOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        architectureStructuredSourceDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setArchitectureStructuredSourceOpen = useCallback(
+    (open: boolean) => {
+      setArchitectureStructuredSourceOpenState(open);
+      syncArchitectureStructuredSourceOpenToUrl(open);
+    },
+    [syncArchitectureStructuredSourceOpenToUrl],
+  );
+  useEffect(() => {
+    setArchitectureStructuredSourceOpenState(
+      parseArchitectureStructuredSourceOpenFromSearch(architectureStructuredSourceParam),
+    );
+  }, [architectureStructuredSourceParam]);
   const [parseAttempt, setParseAttempt] = useState(0);
   const parseResult = useMemo(
     () => {
@@ -68,6 +102,8 @@ export function ArchitectureStructuredContentPanel(
         <details
           className="rounded-md border border-dashed border-neutral-200 p-3 dark:border-neutral-700"
           data-testid="architecture-structured-source"
+          open={architectureStructuredSourceOpen}
+          onToggle={(event) => setArchitectureStructuredSourceOpen(event.currentTarget.open)}
         >
           <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
             {ARCHITECTURE_STRUCTURED_VIEW_SOURCE_LABEL}

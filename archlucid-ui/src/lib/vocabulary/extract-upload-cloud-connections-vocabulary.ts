@@ -61,19 +61,26 @@ export const EXTRACT_UPLOAD_CLOUD_CONNECTIONS_CLOUD_LINK: ExtractUploadCloudConn
   };
 
 /** Pairwise model for Extract & Upload ↔ Cloud connections (fixed routes). */
-export function buildExtractUploadCloudConnectionsPairwiseRail(): PairwiseVocabularyRailModel<ExtractUploadCloudConnectionsSurfaceId> {
+export function buildExtractUploadCloudConnectionsPairwiseRail(
+  extractUploadHref: string = EXTRACT_UPLOAD_SETTINGS_PATH,
+): PairwiseVocabularyRailModel<ExtractUploadCloudConnectionsSurfaceId> {
   return {
     heading: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_HEADING,
     whyTwo: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_WHY_TWO,
     compactLine: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_COMPACT_LINE,
-    currentLink: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_EXTRACT_LINK,
+    currentLink: {
+      ...EXTRACT_UPLOAD_CLOUD_CONNECTIONS_EXTRACT_LINK,
+      href: extractUploadHref,
+    },
     peerLink: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_CLOUD_LINK,
   };
 }
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildExtractUploadCloudConnectionsVocabulary(): ExtractUploadCloudConnectionsVocabularyModel {
-  const rail = buildExtractUploadCloudConnectionsPairwiseRail();
+export function buildExtractUploadCloudConnectionsVocabulary(
+  extractUploadHref: string = EXTRACT_UPLOAD_SETTINGS_PATH,
+): ExtractUploadCloudConnectionsVocabularyModel {
+  const rail = buildExtractUploadCloudConnectionsPairwiseRail(extractUploadHref);
 
   return {
     heading: rail.heading,

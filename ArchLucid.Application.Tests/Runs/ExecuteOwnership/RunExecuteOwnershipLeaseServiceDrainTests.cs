@@ -38,6 +38,27 @@ public sealed class RunExecuteOwnershipLeaseServiceDrainTests
     }
 
     [Fact]
+    public async Task RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        WorkerHostDrainGate drainGate = new();
+        drainGate.BeginDrain();
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases, drainGate);
+
+        await sut.RenewAsync(runId, CancellationToken.None);
+
+        leases.Verify(
+            l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ReleaseAllHeldByThisInstanceAsync_releases_all_leases_for_instance()
     {
         Mock<IRunExecuteOwnershipLeaseRepository> leases = new();

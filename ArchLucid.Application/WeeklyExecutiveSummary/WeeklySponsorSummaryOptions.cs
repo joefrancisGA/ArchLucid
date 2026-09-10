@@ -1,5 +1,7 @@
 namespace ArchLucid.Application.WeeklySponsorSummary;
 
+using ArchLucid.Contracts.User;
+
 /// <summary>Global schedule for automated weekly run-summary one-pager emails to commercial tenants.</summary>
 public sealed class WeeklySponsorSummaryOptions
 {
@@ -11,12 +13,12 @@ public sealed class WeeklySponsorSummaryOptions
         set;
     } = true;
 
-    /// <summary>IANA timezone for the weekly send window (default UTC).</summary>
+    /// <summary>IANA timezone for the weekly send window (default US Eastern).</summary>
     public string IanaTimeZoneId
     {
         get;
         set;
-    } = "UTC";
+    } = IanaTimeZonePreferenceValues.Default;
 
     /// <summary>Day-of-week in the configured timezone (0 = Sunday, 1 = Monday, …).</summary>
     public int DayOfWeek

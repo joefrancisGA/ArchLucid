@@ -17,6 +17,12 @@ import {
 import type { AzureHostedFederationConfig } from "@/lib/azure-cloud-connection-federation-config";
 
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  localizeProductCopy,
+  productLineManagedIdentityObjectIdLabel,
+  productLineTenantIdLabel,
+} from "@/lib/product-line/product-line-display-name";
 
 
 
@@ -56,47 +62,37 @@ export type Tier2RbacChecklistItem = {
 
 
 
-export const TIER2_RBAC_CHECKLIST_ITEMS: Tier2RbacChecklistItem[] = [
-
+const TIER2_RBAC_CHECKLIST_ITEMS_ARCHITECTURE: Tier2RbacChecklistItem[] = [
   {
-
     id: "scope",
-
     label:
-
       "Service principal is scoped to a subscription or management group only — not tenant-wide Directory.Read.All or Global Reader.",
-
   },
-
   {
-
     id: "roles",
-
     label:
-
       "Reader is assigned for inventory; Cost Management Reader is optional when cost evidence is needed (no Owner, Contributor, or write roles).",
-
   },
-
   {
-
     id: "federation",
-
     label:
-
       "Federated workload identity trusts ArchLucid's published managed identity — no long-lived client secrets are stored in ArchLucid.",
-
   },
-
   {
-
     id: "review",
-
     label: "Security review completed against Connect Azure securely and procurement FAQ.",
-
   },
-
 ];
+
+/** @deprecated Use {@link tier2RbacChecklistItems} for product-line-aware copy. */
+export const TIER2_RBAC_CHECKLIST_ITEMS = TIER2_RBAC_CHECKLIST_ITEMS_ARCHITECTURE;
+
+export function tier2RbacChecklistItems(productLineId: ProductLineId = "architecture"): Tier2RbacChecklistItem[] {
+  return TIER2_RBAC_CHECKLIST_ITEMS_ARCHITECTURE.map((item) => ({
+    ...item,
+    label: localizeProductCopy(productLineId, item.label),
+  }));
+}
 
 
 
@@ -138,9 +134,15 @@ export const TIER2_WIZARD_HELP_HREFS = {
 
 /** Helper copy — only SUBSCRIPTION_ID remains operator-supplied in the rendered script. */
 
-export const TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT =
-
+const TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT_ARCHITECTURE =
   "Before running, set SUBSCRIPTION_ID at the top of the script to your Azure subscription GUID. ArchLucid tenant and managed-identity object IDs are pre-filled from this environment.";
+
+/** @deprecated Use {@link tier2AzureSetupScriptReplaceHint} for product-line-aware copy. */
+export const TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT = TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT_ARCHITECTURE;
+
+export function tier2AzureSetupScriptReplaceHint(productLineId: ProductLineId = "architecture"): string {
+  return localizeProductCopy(productLineId, TIER2_AZURE_SETUP_SCRIPT_REPLACE_HINT_ARCHITECTURE);
+}
 
 
 
@@ -254,36 +256,24 @@ export type Tier2AzureFederationIdentifier = {
 
 
 
-export function tier2AzureFederationIdentifiers(config: AzureHostedFederationConfig): readonly Tier2AzureFederationIdentifier[] {
-
+export function tier2AzureFederationIdentifiers(
+  config: AzureHostedFederationConfig,
+  productLineId: ProductLineId = "architecture",
+): readonly Tier2AzureFederationIdentifier[] {
   return [
-
     {
-
       id: "archlucid-tenant-id",
-
-      label: "ArchLucid tenant ID",
-
+      label: productLineTenantIdLabel(productLineId),
       value: config.tenantId,
-
-      hint: AZURE_CONNECTION_ARCHLUCID_TENANT_ID_HINT,
-
+      hint: localizeProductCopy(productLineId, AZURE_CONNECTION_ARCHLUCID_TENANT_ID_HINT),
     },
-
     {
-
       id: "archlucid-managed-identity-object-id",
-
-      label: "ArchLucid managed identity object ID",
-
+      label: productLineManagedIdentityObjectIdLabel(productLineId),
       value: config.managedIdentityObjectId,
-
-      hint: AZURE_CONNECTION_MANAGED_IDENTITY_OBJECT_ID_HINT,
-
+      hint: localizeProductCopy(productLineId, AZURE_CONNECTION_MANAGED_IDENTITY_OBJECT_ID_HINT),
     },
-
   ];
-
 }
 
 

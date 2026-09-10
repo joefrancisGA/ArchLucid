@@ -23,11 +23,12 @@ export type MutatingInTenantChipCopy = {
 export function formatMutatingInTenantChipLabel(
   tenantScopeLabel: string,
   prefix: string = MUTATING_IN_TENANT_CHIP_PREFIX,
+  includeTenantScopeLabel: boolean = true,
 ): string {
   const trimmedLabel = tenantScopeLabel.trim();
   const trimmedPrefix = prefix.trim();
 
-  if (trimmedLabel.length === 0) {
+  if (!includeTenantScopeLabel || trimmedLabel.length === 0) {
     return trimmedPrefix;
   }
 
@@ -38,8 +39,11 @@ export function formatMutatingInTenantChipLabel(
   return `${trimmedPrefix}: ${trimmedLabel}`;
 }
 
-export function buildMutatingInTenantChipCopy(tenantScopeLabel: string): MutatingInTenantChipCopy {
-  const label = formatMutatingInTenantChipLabel(tenantScopeLabel);
+export function buildMutatingInTenantChipCopy(
+  tenantScopeLabel: string,
+  includeTenantScopeLabel: boolean = true,
+): MutatingInTenantChipCopy {
+  const label = formatMutatingInTenantChipLabel(tenantScopeLabel, MUTATING_IN_TENANT_CHIP_PREFIX, includeTenantScopeLabel);
 
   return {
     prefix: MUTATING_IN_TENANT_CHIP_PREFIX,
@@ -51,20 +55,28 @@ export function buildMutatingInTenantChipCopy(tenantScopeLabel: string): Mutatin
 /** Resolve chip copy from tenant context (SSR-safe with null scope). */
 export function resolveMutatingInTenantChipFromContext(
   context: ActiveTenantContextView | null,
+  includeTenantScopeLabel: boolean = true,
 ): MutatingInTenantChipCopy {
   const tenantScopeLabel = context?.displayName?.trim() ?? "";
 
-  return buildMutatingInTenantChipCopy(tenantScopeLabel.length > 0 ? tenantScopeLabel : "this organization");
+  return buildMutatingInTenantChipCopy(
+    tenantScopeLabel.length > 0 ? tenantScopeLabel : "this tenant",
+    includeTenantScopeLabel,
+  );
 }
 
 /** Resolve chip copy from an operator scope record (SSR-safe with null). */
 export function resolveMutatingInTenantChipFromRecord(
   record: OperatorScopeRecord | null,
+  includeTenantScopeLabel: boolean = true,
 ): MutatingInTenantChipCopy {
-  return resolveMutatingInTenantChipFromContext(resolveActiveTenantContext(record));
+  return resolveMutatingInTenantChipFromContext(
+    resolveActiveTenantContext(record),
+    includeTenantScopeLabel,
+  );
 }
 
 /** Browser-side reader; uses the same tenant display name as the scope switcher footer. */
-export function readMutatingInTenantChipCopy(): MutatingInTenantChipCopy {
-  return resolveMutatingInTenantChipFromContext(readActiveTenantContext());
+export function readMutatingInTenantChipCopy(includeTenantScopeLabel: boolean = true): MutatingInTenantChipCopy {
+  return resolveMutatingInTenantChipFromContext(readActiveTenantContext(), includeTenantScopeLabel);
 }

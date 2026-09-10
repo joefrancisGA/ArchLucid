@@ -2,6 +2,9 @@
 
 import { useCallback } from "react";
 
+import { useAuditTrailReviewHref } from "@/hooks/use-audit-trail-review-href";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 
@@ -52,6 +55,9 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     runId: filters.runId,
     ctoDemoAuditFilterActive: filters.ctoDemoAuditFilterActive,
   });
+  const effectiveRunId =
+    filters.runId.trim().length > 0 ? filters.runId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID;
+  const reviewPackageHref = useAuditTrailReviewHref(effectiveRunId);
 
   return {
     buyerPolishedShell: filters.buyerPolishedShell,
@@ -105,5 +111,6 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     ctoDemoAuditFilterActive: filters.ctoDemoAuditFilterActive,
     onClearCtoDemoAuditFilter: filters.onClearCtoDemoAuditFilter,
     auditFiltersActive: filters.auditFiltersActive,
+    reviewPackageHref,
   };
 }

@@ -66,6 +66,23 @@ public sealed class DeclarationPremiseConflictClassifierTests
     }
 
     [Fact]
+    public void Classify_does_not_fire_admin_ingress_conflict_for_unblock_ssh_phrase()
+    {
+        GraphNode topology = CreateTopology("nsg", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.ingress"] = "0.0.0.0/0:22",
+        });
+
+        GraphNode baseline = CreateIntent("baseline-admin", "Unblock ssh from bastion only after change ticket");
+
+        IReadOnlyList<DeclarationPremiseConflictSignal> signals = DeclarationPremiseConflictClassifier.Classify(
+            topology,
+            [new ApplicableIntentNode(baseline, true)]);
+
+        signals.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Classify_marks_broad_applicability_when_not_narrow()
     {
         GraphNode topology = CreateTopology("docs", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -172,6 +189,23 @@ public sealed class DeclarationPremiseConflictClassifierTests
         GraphNode baseline = CreateIntent(
             "baseline-optional",
             "No requirement to disable public network access for this integration subnet");
+
+        IReadOnlyList<DeclarationPremiseConflictSignal> signals = DeclarationPremiseConflictClassifier.Classify(
+            topology,
+            [new ApplicableIntentNode(baseline, true)]);
+
+        signals.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Classify_does_not_fire_private_network_conflict_for_prohibitive_no_private_network_phrase()
+    {
+        GraphNode topology = CreateTopology("docs", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["tf.public_network_access"] = "enabled",
+        });
+
+        GraphNode baseline = CreateIntent("baseline-flex", "No private network required for this workload");
 
         IReadOnlyList<DeclarationPremiseConflictSignal> signals = DeclarationPremiseConflictClassifier.Classify(
             topology,

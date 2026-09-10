@@ -23,10 +23,10 @@
  *   **`EnterpriseControlsContextHints`** use **`useNavCallerAuthorityRank()`** with **`AUTHORITY_RANK.ExecuteAuthority`** for
  *   reader vs operator lines — parallel to (2) but **do not** replace **`filterNavLinksByAuthority`** for **`ReadAuthority`**
  *   destinations still shown in nav. A route may branch **(2)** on **`useOperateCapability()`** separately from
- *   rank cues (e.g. governance resolution **Change related controls**). **docs/PRODUCT_PACKAGING.md** §3 *Four UI shaping surfaces*.
+ *   rank cues (e.g. policy resolution **Change related controls**). **docs/PRODUCT_PACKAGING.md** §3 *Four UI shaping surfaces*.
  *
  * **`ReadAuthority`** on a **`NavLinkItem`** marks read-mostly destinations; **`ExecuteAuthority`** marks Execute-class
- * primary workflows (replay, governance workflow, selected alert configuration). **`AdminAuthority`** is rare on nav;
+ * primary workflows (replay, approval workflow, selected alert configuration). **`AdminAuthority`** is rare on nav;
  * many admin-only POSTs stay server-gated while list pages stay **`ReadAuthority`** — see **`docs/NAV_CONFIG_CONTRACT.md`**.
  *
  * ## Packaging references

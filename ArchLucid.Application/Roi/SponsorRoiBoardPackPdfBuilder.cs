@@ -1,4 +1,5 @@
 using ArchLucid.Application.Rendering;
+using ArchLucid.Application.Roi;
 
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -14,6 +15,14 @@ public sealed class SponsorRoiBoardPackPdfBuilder
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(markdown);
 
+        bool includesAdvisoryNarrative = markdown.Contains(
+            SponsorRoiBoardPackNarrativeBuilder.AdvisoryNarrativeHeading,
+            StringComparison.Ordinal);
+
+        string footer = includesAdvisoryNarrative
+            ? "Generated from Sponsor ROI summary. Advisory narrative is LLM-generated; sealed figures below are authoritative."
+            : "Generated from Sponsor ROI summary — sealed structural metrics only.";
+
         return QuestPdfDocumentBytes.Generate(container =>
         {
             container.Page(page =>
@@ -23,7 +32,7 @@ public sealed class SponsorRoiBoardPackPdfBuilder
                 page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Helvetica"));
                 page.Header().Text("ArchLucid — Sponsor ROI Board Pack").Bold().FontSize(14);
                 page.Content().Column(column => MarkdownPdfRenderer.Render(column, markdown));
-                page.Footer().AlignCenter().Text("Generated from Sponsor ROI summary — no LLM on this path.");
+                page.Footer().AlignCenter().Text(footer);
             });
         });
     }

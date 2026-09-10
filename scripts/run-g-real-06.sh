@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Thin launcher for G-REAL-06 on Linux/macOS — requires PowerShell 7+ (pwsh).
+# Phases: Prerequisites | CollectRun1 | CollectRun2 | CollectRun2b | CollectRun3 | Rollup | Interactive | All
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"

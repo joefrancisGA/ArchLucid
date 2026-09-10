@@ -68,6 +68,10 @@ function resolveLikelyCauseSentence(input: {
     return "Re-run could not load the architecture request needed to resume the deferred pipeline — data repair or support may be required.";
   }
 
+  if (input.reasonCode === "ExecuteOwnershipLeaseExpired") {
+    return "Execute worker lost its ownership lease before finishing — reopen or retry execute; retry skips persisted agents but may rebill unpersisted LLM spend.";
+  }
+
   if (input.failureClass === "invalidOperation" && input.completedStages === 0) {
     return "Pre-stage invalid operation — processing stopped before pipeline stage 1. Often the same deferred-pipeline scheduling miss when reasonCode is absent on older failure records.";
   }
@@ -77,6 +81,27 @@ function resolveLikelyCauseSentence(input: {
   }
 
   return null;
+}
+
+/** Buyer-visible likely-cause sentence promoted into the What failed line. */
+export function resolveReviewFailureLikelyCause(input: {
+  readonly failureClass?: string | null;
+  readonly reasonCode?: string | null;
+  readonly completedStages?: number;
+}): string | null {
+  const failureClass = normalize(input.failureClass);
+  const reasonCode = normalize(input.reasonCode);
+  const completedStages = input.completedStages ?? 0;
+
+  if (failureClass.length === 0 && reasonCode.length === 0) {
+    return null;
+  }
+
+  return resolveLikelyCauseSentence({
+    failureClass,
+    reasonCode,
+    completedStages,
+  });
 }
 
 function resolveAgentLabel(summary: RunDetailLastFailureSummary | null | undefined): string | null {
@@ -140,8 +165,8 @@ export function formatReviewFailureTechnicalMetadataRows(
   );
   pushRow(rows, "Review outcome", legacyRunStatus, true);
   pushRow(rows, "Failure axis", axis, true);
-  pushRow(rows, "Pipeline progress", `${completedStages} / 4 stages`);
-  pushRow(rows, "Pipeline stage flags", formatPipelineStageFlags(pipelineSummary), true);
+  pushRow(rows, "Assessment progress", `${completedStages} / 4 assessment steps`);
+  pushRow(rows, "Assessment step flags", formatPipelineStageFlags(pipelineSummary), true);
   pushRow(rows, "Failure class", failureClass, true);
   pushRow(rows, "Failure class (label)", plainLanguageFailureClassLabel(summary?.failureClass));
   pushRow(rows, "Reason code", reasonCode, true);

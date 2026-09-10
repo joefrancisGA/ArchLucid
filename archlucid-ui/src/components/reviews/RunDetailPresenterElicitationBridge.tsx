@@ -1,13 +1,15 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 
 import { ReviewPresenterElicitationActions } from "@/components/reviews/ReviewPresenterElicitationActions";
 import {
   ReviewDetailWorkspace,
   type ReviewDetailWorkspaceProps,
 } from "@/components/reviews/ReviewDetailWorkspace";
+import { ReviewRoomElicitationPanel } from "@/components/reviews/ReviewRoomElicitationPanel";
+import { useReviewDetailWorkspaceRoomElicitation } from "@/components/reviews/use-review-detail-workspace-room-elicitation";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useReviewPresenterElicitation } from "@/hooks/use-review-presenter-elicitation";
 import { listPresenterAssertedAnswerEntries } from "@/lib/reviews/review-presenter-asserted-trail";
@@ -18,6 +20,7 @@ import {
   reviewPresenterAssertedCaptureLine,
 } from "@/lib/reviews/review-presenter-elicitation-copy";
 import { readPresenterModeFromSearchParams } from "@/lib/review-detail-workspace-tabs";
+import { readRoomElicitationFromSearchParams } from "@/lib/reviews/review-room-elicitation-url";
 import {
   parseReviewPresenterQuestionIdFromSearch,
   reviewPresenterElicitationHrefFromSearch,
@@ -28,7 +31,7 @@ export type RunDetailPresenterElicitationBridgeProps = ReviewDetailWorkspaceProp
   readonly architectureRequestId?: string | null;
 };
 
-/** Wires presenter elicitation actions into {@link ReviewDetailWorkspace} (FD-01). */
+/** Wires presenter and room elicitation into {@link ReviewDetailWorkspace} (FD-01 / DR-16). */
 export function RunDetailPresenterElicitationBridge(
   props: RunDetailPresenterElicitationBridgeProps,
 ): React.JSX.Element {
@@ -39,13 +42,17 @@ export function RunDetailPresenterElicitationBridge(
   const presenterQuestionIdParam = searchParams.get("presenterQuestionId");
   const { isWorkingMode } = useWorkspaceMode();
   const presenterMode = readPresenterModeFromSearchParams(searchParams);
+  const roomElicitationMode = readRoomElicitationFromSearchParams(searchParams);
+  const room = useReviewDetailWorkspaceRoomElicitation();
   const elicitation = useReviewPresenterElicitation(architectureRequestId, workspaceProps.runId);
 
-  const showPresenterElicitation = presenterMode && isWorkingMode;
+  const showElicitation = isWorkingMode && (presenterMode || roomElicitationMode);
+  const showPresenterSurface = presenterMode && isWorkingMode;
+  const showInlineRoomPanel = showElicitation && !showPresenterSurface;
   const primaryQuestionKey = elicitation.primaryQuestion?.questionKey ?? "";
 
   useEffect(() => {
-    if (!showPresenterElicitation) {
+    if (!showElicitation) {
       return;
     }
 
@@ -66,12 +73,12 @@ export function RunDetailPresenterElicitationBridge(
     primaryQuestionKey,
     router,
     searchParams,
-    showPresenterElicitation,
+    showElicitation,
   ]);
 
-  const presenterFindingTitle = showPresenterElicitation ? elicitation.title : undefined;
+  const presenterFindingTitle = showPresenterSurface ? elicitation.title : undefined;
 
-  const presenterFindingBody = showPresenterElicitation ? (
+  const presenterFindingBody = showPresenterSurface ? (
     <div className="space-y-6" data-testid="review-presenter-elicitation-body">
       {workspaceProps.defensibilityStrip ?? null}
       {elicitation.lastRecordedEntry !== null ? (
@@ -121,13 +128,28 @@ export function RunDetailPresenterElicitationBridge(
     </div>
   ) : undefined;
 
-  const presenterFindingActions = showPresenterElicitation ? (
+  const presenterFindingActions = showPresenterSurface ? (
     <ReviewPresenterElicitationActions elicitation={elicitation} />
   ) : undefined;
+
+  const roomElicitationLead = showInlineRoomPanel ? (
+    <ReviewRoomElicitationPanel elicitation={elicitation} onExit={room.exitRoomElicitation} />
+  ) : null;
+
+  const activePanelLead =
+    roomElicitationLead !== null || workspaceProps.activePanelLead !== undefined
+      ? (
+        <Fragment>
+          {roomElicitationLead}
+          {workspaceProps.activePanelLead ?? null}
+        </Fragment>
+      )
+      : undefined;
 
   return (
     <ReviewDetailWorkspace
       {...workspaceProps}
+      activePanelLead={activePanelLead}
       presenterFindingTitle={presenterFindingTitle}
       presenterFindingBody={presenterFindingBody}
       presenterFindingActions={presenterFindingActions}

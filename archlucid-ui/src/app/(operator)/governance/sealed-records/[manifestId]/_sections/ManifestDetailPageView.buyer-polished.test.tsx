@@ -5,9 +5,16 @@ import { BUYER_MANIFEST_AUTHORITY_SUMMARY } from "@/lib/buyer/buyer-polish-copy"
 import { OPERATOR_SHORT_HELPER_MEASURE_CLASS } from "@/lib/design-tokens";
 import { MANIFEST_DETAIL_TABLIST_ARIA_LABEL } from "@/lib/manifest-detail-section-tabs";
 import {
+  SEALED_RECORD_DETAIL_BUYER_START_HERE_HELPER,
+  SEALED_RECORD_DETAIL_PAGE_LEAD,
+  SEALED_RECORD_DETAIL_PAGE_SUBTITLE_BUYER,
   SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID,
   SEALED_RECORD_DETAIL_SKIP_LINK_LABEL,
 } from "@/lib/sealed-record-detail-page-copy";
+import {
+  SIGNED_RECORD_CLAIM_DISCIPLINE,
+  SIGNED_RECORD_FOLLOW_UPS_TITLE,
+} from "@/lib/signed-record-evidence-copy";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ManifestSummary } from "@/types/authority";
 
@@ -22,6 +29,10 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
     isBuyerPolishedOperatorShellEnv: (): boolean => true,
   };
 });
+
+vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
+  useWhereToGoNextVisible: () => true,
+}));
 
 vi.mock("@/components/ManifestDetailSummaryPanel", () => ({
   ManifestDetailSummaryPanel: () => <div data-testid="manifest-summary" />,
@@ -79,7 +90,7 @@ describe("ManifestDetailPageView buyer polish", () => {
     window.history.replaceState({}, "", "/");
   });
 
-  it("renders skip link, section tabs, and claim orientation above the Decision panel", () => {
+  it("renders skip link, first-viewport intro, and orientation after the section tabs", () => {
     render(<ManifestDetailPageView model={buildModel()} />);
 
     const skipLink = screen.getByRole("link", { name: SEALED_RECORD_DETAIL_SKIP_LINK_LABEL });
@@ -90,17 +101,27 @@ describe("ManifestDetailPageView buyer polish", () => {
     expect(screen.getByRole("tab", { name: "Decision" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tab", { name: "Evidence" })).toHaveAttribute("aria-selected", "false");
 
+    expect(screen.getByTestId("sealed-record-detail-claim-discipline").textContent).toContain(
+      SIGNED_RECORD_CLAIM_DISCIPLINE.slice(0, 40),
+    );
+    expect(screen.getByText(SEALED_RECORD_DETAIL_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
+    expect(screen.getByTestId("governance-sealed-record-detail-first-viewport")).toBeInTheDocument();
+    expect(screen.getByTestId("governance-sealed-record-detail-intro")).toHaveTextContent(SEALED_RECORD_DETAIL_PAGE_LEAD);
+    expect(screen.getByTestId("governance-sealed-record-detail-buyer-start-here-helper")).toHaveTextContent(
+      SEALED_RECORD_DETAIL_BUYER_START_HERE_HELPER,
+    );
     expect(screen.queryByRole("heading", { name: "What this finalized review record is not" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: SIGNED_RECORD_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("sealed-record-detail-sources")).toBeInTheDocument();
 
-    const orientation = screen.getByTestId("sealed-record-detail-orientation-top");
+    const orientation = screen.getByTestId("sealed-record-detail-orientation-bottom");
     const primary = screen.getByTestId("sealed-record-detail-primary-content");
-    const summary = screen.getByTestId("manifest-summary");
     const tabs = screen.getByTestId("manifest-detail-section-tabs");
+    const evidenceFooter = screen.getByTestId("evidence-footer");
 
     expect(primary).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(tabs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(orientation.compareDocumentPosition(summary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(tabs.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(evidenceFooter) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("keeps deliverables off the first viewport until Evidence is selected", () => {

@@ -6,21 +6,20 @@ import {
   HELP_HUB_PRIMARY_CONTENT_ID,
   HELP_HUB_SKIP_LINK_LABEL,
 } from "@/lib/help/help-hub-page-copy";
-import { TRUST_CENTER_PUBLIC_LAYOUT } from "@/lib/trust-center-public-layout";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 import { HelpHubBreadcrumb } from "./HelpHubBreadcrumb";
-import { HelpHubClaimOrientationStrip } from "./HelpHubClaimOrientationStrip";
 
 type HelpHubBuyerChromeProps = {
   readonly hero: ReactNode;
   readonly children: ReactNode;
 };
 
-/** Shared buyer-facing chrome for `/help` — skip link, breadcrumb, claim/Sources, guide body. */
+/** Shared buyer-facing chrome for `/help` — skip link, breadcrumb, header, primary guide body. */
 export function HelpHubBuyerChrome({ hero, children }: HelpHubBuyerChromeProps): React.JSX.Element {
   return (
     <>
-      <a href={`#${HELP_HUB_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
+      <a href={`#${HELP_HUB_PRIMARY_CONTENT_ID}`} className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>
         {HELP_HUB_SKIP_LINK_LABEL}
       </a>
 
@@ -29,10 +28,6 @@ export function HelpHubBuyerChrome({ hero, children }: HelpHubBuyerChromeProps):
       </div>
 
       {hero}
-
-      <div className="mb-6 text-left" data-testid="help-hub-orientation-top">
-        <HelpHubClaimOrientationStrip />
-      </div>
 
       <div
         id={HELP_HUB_PRIMARY_CONTENT_ID}

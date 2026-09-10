@@ -93,7 +93,7 @@ public sealed class ArchitectureRecommendationProposedChangeTests
             path.Contains("private network", StringComparison.OrdinalIgnoreCase)
             || path.Contains("API gateway", StringComparison.OrdinalIgnoreCase));
         recommendation.AlternativeOptions.Should().Contain(option =>
-            option.Path.Contains("additional evidence", StringComparison.OrdinalIgnoreCase));
+            option.Path.Contains("discovery spike", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

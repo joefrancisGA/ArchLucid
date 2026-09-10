@@ -255,10 +255,6 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
   }, [args, persistDraft]);
 
   useEffect(() => {
-    args.autosaveBlockedRef.current = false;
-  }, [args, args.fields]);
-
-  useEffect(() => {
     if (!enabled || !args.hasUnsavedChanges || args.autosaveBlockedRef.current) return;
     if (!hasArchitectureDraftSaveableContent(args.fields)) return;
     args.markDirty();

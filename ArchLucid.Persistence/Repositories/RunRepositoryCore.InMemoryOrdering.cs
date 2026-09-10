@@ -177,6 +177,8 @@ internal static partial class RunRepositoryCore
         if (architectureId == Guid.Empty || goldenManifestId == Guid.Empty)
             return null;
 
+        RunRecord? best = null;
+
         foreach (RunRecord candidate in candidates)
         {
             if (!IsActiveInScope(candidate, scope))
@@ -194,10 +196,15 @@ internal static partial class RunRepositoryCore
             if (!IsCommittedRun(candidate))
                 continue;
 
-            return candidate.RunId;
+            if (best is null
+                || candidate.CreatedUtc > best.CreatedUtc
+                || (candidate.CreatedUtc == best.CreatedUtc && candidate.RunId.CompareTo(best.RunId) > 0))
+            {
+                best = candidate;
+            }
         }
 
-        return null;
+        return best?.RunId;
     }
 
     public static Guid? SelectLatestCommittedRunIdByArchitectureVersionId(

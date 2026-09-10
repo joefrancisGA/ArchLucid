@@ -8,6 +8,8 @@ import {
 } from "@/hooks/use-review-completion-notification";
 import { useRunStageTimelineQuery } from "@/hooks/use-run-stage-timeline-query";
 import { useReviewPipelineInFlightForRun } from "@/hooks/use-review-pipeline-in-flight-for-run";
+import { useHealthReadySummaryQuery } from "@/hooks/use-health-ready-summary-query";
+import { useProductionDeskChrome } from "@/hooks/useProductionDeskChrome";
 import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import {
@@ -29,6 +31,7 @@ import {
   type ReviewPipelineDiagnosticContext,
 } from "@/lib/review-pipeline-stall-diagnosis";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
+import { shouldSuppressReadyToFinalizeForPreCommitGateHonesty } from "@/lib/governance/pre-commit-gate-career-honesty";
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import { formatWorkspaceReviewDurationBand } from "@/lib/workspace-review-duration-estimate";
@@ -47,6 +50,8 @@ export type UseRunProgressTrackerOptions = {
   readonly initialSummary: RunSummary | null;
   readonly preFinalizeReadyToFinalize?: boolean;
   readonly buyerAssessmentCopy?: boolean;
+  /** Working desk: customer review-progress copy without pipeline transport jargon (WS-16). */
+  readonly workingDeskProgressCopy?: boolean;
   readonly diagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly deferFailureRecoveryToDoThisNext?: boolean;
 };
@@ -56,29 +61,37 @@ export function useRunProgressTracker({
   initialSummary,
   preFinalizeReadyToFinalize,
   buyerAssessmentCopy = false,
+  workingDeskProgressCopy = false,
   diagnosticContext = null,
   deferFailureRecoveryToDoThisNext = false,
 }: UseRunProgressTrackerOptions) {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
   const pipelineDebugEnabled = isReviewPipelineDebugEnabled();
+  const workingDesk = useProductionDeskChrome();
+  const healthQuery = useHealthReadySummaryQuery({ enabled: workingDesk });
   const [preFinalizeTerminal, setPreFinalizeTerminal] = useState(() =>
     resolvePreFinalizeTerminal(initialSummary, preFinalizeReadyToFinalize),
   );
+  const gateSuppressesReady = shouldSuppressReadyToFinalizeForPreCommitGateHonesty({
+    workingDesk,
+    preCommitGateEnabled: healthQuery.data?.preCommitGateEnabled,
+  });
+  const effectivePreFinalizeTerminal = preFinalizeTerminal && !gateSuppressesReady;
   const pipelineTerminalFailure = isReviewPipelineTerminalFailure(diagnosticContext);
   const inFlightOperation = useReviewPipelineInFlightForRun(runId);
   const rerunning =
     inFlightOperation !== null && !isTerminalOperationState(inFlightOperation.state);
   const showPipelineTerminalFailure = pipelineTerminalFailure && !rerunning;
   const pollEnabled =
-    (!allStagesReady(initialSummary) && !preFinalizeTerminal && !pipelineTerminalFailure) || rerunning;
+    (!allStagesReady(initialSummary) && !effectivePreFinalizeTerminal && !pipelineTerminalFailure) || rerunning;
 
   const [pollSession, setPollSession] = useState(0);
   const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
-    preFinalizeTerminal || allStagesReady(initialSummary) ? "complete" : "polling",
+    effectivePreFinalizeTerminal || allStagesReady(initialSummary) ? "complete" : "polling",
   );
   const liveTrackingActive = pollEnabled && (clientPhase === "polling" || rerunning);
   const timelineEnabled =
-    buyerAssessmentCopy || pollEnabled || preFinalizeTerminal || pipelineTerminalFailure;
+    buyerAssessmentCopy || pollEnabled || effectivePreFinalizeTerminal || pipelineTerminalFailure;
   const stageTimelineQuery = useRunStageTimelineQuery(runId, {
     enabled: timelineEnabled,
     pollSession,
@@ -258,8 +271,8 @@ export function useRunProgressTracker({
   }, [activeSummary, buyerPolished, inFlightOperation?.stepLabel, rerunning, stageTimeline]);
 
   const pipelineJobLabel = useMemo(
-    () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy),
-    [activeSummary, buyerAssessmentCopy],
+    () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy, workingDeskProgressCopy),
+    [activeSummary, buyerAssessmentCopy, workingDeskProgressCopy],
   );
 
   const terminalFailureDiagnosis = useMemo(
@@ -274,7 +287,7 @@ export function useRunProgressTracker({
   );
 
   const liveStatus = useMemo(() => {
-    if (preFinalizeTerminal) {
+    if (effectivePreFinalizeTerminal) {
       return "Ready to finalize — use Finalize review to create the finalized review record for this architecture review.";
     }
 
@@ -283,9 +296,31 @@ export function useRunProgressTracker({
     }
 
     if (showPipelineTerminalFailure) {
-      return deferFailureRecoveryToDoThisNext
-        ? "Assessment did not finish — see Do this next above for what happened and how to recover."
-        : "Assessment did not finish — use Do this next above to recover.";
+      if (deferFailureRecoveryToDoThisNext) {
+        const stageNoun = buyerAssessmentCopy
+          ? `${completedAssessmentStages} of ${assessmentStageCount} assessment stages complete.`
+          : `${completedPipelineStages} of 4 assessment stages complete.`;
+
+        return stageNoun;
+      }
+
+      return "Assessment did not finish — use Do this next above to recover.";
+    }
+
+    if (workingDeskProgressCopy) {
+      if (clientPhase === "complete") {
+        return `${completedPipelineStages} of 4 review stages complete.`;
+      }
+
+      if (clientPhase === "timeout") {
+        return resolveReviewPipelineTimeoutMessage({
+          buyerPolished,
+          runId,
+          p90Seconds: durationEstimate?.p90Seconds,
+        });
+      }
+
+      return `${completedPipelineStages} of 4 review stages complete.`;
     }
 
     if (buyerAssessmentCopy) {
@@ -316,6 +351,7 @@ export function useRunProgressTracker({
 
     return `${completedPipelineStages} of 4 ${pipelineJobLabel.stageSummaryNoun} stages complete (${transport}).`;
   }, [
+    workingDeskProgressCopy,
     buyerAssessmentCopy,
     pipelineJobLabel.stageSummaryNoun,
     clientPhase,
@@ -325,7 +361,7 @@ export function useRunProgressTracker({
     durationEstimate?.p90Seconds,
     showPipelineTerminalFailure,
     rerunning,
-    preFinalizeTerminal,
+    effectivePreFinalizeTerminal,
     deferFailureRecoveryToDoThisNext,
     runId,
     sseConnected,
@@ -340,7 +376,7 @@ export function useRunProgressTracker({
   }, []);
 
   const shouldRender =
-    pollEnabled || preFinalizeTerminal || buyerAssessmentCopy || pipelineTerminalFailure;
+    pollEnabled || effectivePreFinalizeTerminal || buyerAssessmentCopy || pipelineTerminalFailure;
 
   return {
     runId,
@@ -348,9 +384,10 @@ export function useRunProgressTracker({
     diagnosticContext,
     buyerPolished,
     buyerAssessmentCopy,
+    workingDeskProgressCopy,
     pipelineDebugEnabled,
     pollEnabled,
-    preFinalizeTerminal,
+    preFinalizeTerminal: effectivePreFinalizeTerminal,
     pipelineTerminalFailure,
     showPipelineTerminalFailure,
     rerunning,

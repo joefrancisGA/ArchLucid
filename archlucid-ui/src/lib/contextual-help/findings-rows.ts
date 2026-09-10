@@ -1,4 +1,4 @@
-/** Governance findings queue surface and findings help topic. */
+/** Policy findings queue surface and findings help topic. */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";

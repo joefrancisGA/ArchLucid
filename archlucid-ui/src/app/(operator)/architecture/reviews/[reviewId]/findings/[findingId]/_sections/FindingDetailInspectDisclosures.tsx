@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
+import { findingSemanticSupportBandFromTypedPayload } from "@/components/findings/FindingSemanticSupportBandInspectSection";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { FindingItsmExportPanel } from "@/components/findings/FindingItsmExportPanel";
 import { FindingProvenancePanel } from "@/components/findings/FindingProvenancePanel";
@@ -33,6 +34,7 @@ import {
 import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
 import { FindingExplainabilityTracePanel } from "@/components/findings/FindingExplainabilityTracePanel";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+import type { TransparencyTrail } from "@/types/feasibility-verdict";
 
 import { FindingInspectAuditSection } from "../FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "../FindingInspectEvidenceSection";
@@ -43,6 +45,7 @@ type FindingDetailInspectDisclosuresProps = {
   readonly findingIdRouteParam: string;
   readonly decodedFindingId: string;
   readonly inspectPayload: FindingInspectPayload;
+  readonly transparencyTrail?: TransparencyTrail | null;
   readonly demoFillGaps: boolean;
   readonly evidenceBasisSummary: string;
   readonly validationRequirementText: string;
@@ -182,6 +185,7 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
         summaryLine={evidenceBasisSummary}
       >
         <FindingInspectEvidenceSection
+          runId={runId}
           demoFillGaps={demoFillGaps}
           reviewContextHref={reviewPackageHref}
           reviewContextLabel="Open review summary"
@@ -300,7 +304,12 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
         onToggle={setExportOpen}
         summaryLine="Copy for Jira, Azure Boards, or ServiceNow"
       >
-        <FindingItsmExportPanel runId={runId} findingId={decodedFindingId} payload={inspectPayload} />
+        <FindingItsmExportPanel
+          runId={runId}
+          findingId={decodedFindingId}
+          payload={inspectPayload}
+          transparencyTrail={props.transparencyTrail ?? null}
+        />
       </CollapsibleSection>
 
       <CollapsibleSection
@@ -310,7 +319,22 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
         summaryLine="Ask, ITSM workflow, and feedback"
       >
         <div className="space-y-4">
-          <FindingAskInlinePanel findingId={decodedFindingId} runId={runId} />
+          <FindingAskInlinePanel
+            findingId={decodedFindingId}
+            runId={runId}
+            semanticSupportBand={findingSemanticSupportBandFromTypedPayload(
+              inspectPayload.typedPayload !== null && typeof inspectPayload.typedPayload === "object"
+                ? (inspectPayload.typedPayload as Record<string, unknown>)
+                : null,
+              inspectPayload.typedPayload !== null
+              && typeof inspectPayload.typedPayload === "object"
+              && ((inspectPayload.typedPayload as Record<string, unknown>).classification === "DecisionGradeFinding"
+                || (inspectPayload.typedPayload as Record<string, unknown>).classification === "ChecklistCoverage")
+                ? ((inspectPayload.typedPayload as Record<string, unknown>).classification as
+                    "DecisionGradeFinding" | "ChecklistCoverage")
+                : null,
+            )}
+          />
           <FindingInspectItsmWorkflowPanel findingId={decodedFindingId} />
           {isOperatorExperienceFullShellEnv() ? (
             <ProductLearningFeedbackControls

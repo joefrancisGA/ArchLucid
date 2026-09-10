@@ -32,6 +32,7 @@ type UseItsmConnectorPageOptions = {
 };
 
 export function useItsmConnectorPage(options: UseItsmConnectorPageOptions) {
+  const { providerId, buildPageLoadResult, applySettings, onPageLoaded } = options;
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
   const [settings, setSettings] = useState<TenantItsmOutboundSettingsResponse | null>(null);
   const [connection, setConnection] = useState<TenantItsmConnectorConnectionResponse | null>(null);
@@ -49,10 +50,10 @@ export function useItsmConnectorPage(options: UseItsmConnectorPageOptions) {
     const [healthOutcome, settingsOutcome, connectionOutcome] = await Promise.allSettled([
       fetchItsmIntegrationHealth(),
       fetchTenantItsmOutboundSettings(),
-      fetchTenantItsmConnectorConnection(options.providerId),
+      fetchTenantItsmConnectorConnection(providerId),
     ]);
 
-    const loaded = options.buildPageLoadResult({
+    const loaded = buildPageLoadResult({
       health: healthOutcome,
       settings: settingsOutcome,
       connection: connectionOutcome,
@@ -68,7 +69,7 @@ export function useItsmConnectorPage(options: UseItsmConnectorPageOptions) {
 
     if (!loaded.settings.failed) {
       setSettings(loaded.settings.value);
-      options.applySettings(loaded.settings.value);
+      applySettings(loaded.settings.value);
     }
 
     if (!loaded.connection.failed) {
@@ -76,10 +77,10 @@ export function useItsmConnectorPage(options: UseItsmConnectorPageOptions) {
     }
 
     setLoadError(loaded.loadError);
-    options.onPageLoaded?.(loaded);
+    onPageLoaded?.(loaded);
     setLastCheckedAt(new Date());
     setIsLoading(false);
-  }, [options]);
+  }, [applySettings, buildPageLoadResult, onPageLoaded, providerId]);
 
   return {
     health,

@@ -18,6 +18,8 @@ import {
   INTEGRATIONS_SLACK_PATH,
   INTEGRATIONS_TEAMS_PATH,
 } from "@/lib/integrations-nav-paths";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
 import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 
 export type DigestsTeamsSlackSurfaceId = "digests" | "teams" | "slack";
@@ -76,13 +78,20 @@ const ALL_LINKS: readonly DigestsTeamsSlackLink[] = [
 ];
 
 /** Full triad vocabulary model (heading, why-three, and deep links). */
-export function buildDigestsTeamsSlackVocabulary(): DigestsTeamsSlackVocabularyModel {
+export function buildDigestsTeamsSlackVocabulary(
+  productLine: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
+): DigestsTeamsSlackVocabularyModel {
+  const teamsLink: DigestsTeamsSlackLink = {
+    ...DIGESTS_TEAMS_SLACK_TEAMS_LINK,
+    label: localizeProductCopy(productLine, DIGESTS_TEAMS_SLACK_TEAMS_LINK.label),
+  };
+
   return {
     heading: DIGESTS_TEAMS_SLACK_HEADING,
-    whyThree: DIGESTS_TEAMS_SLACK_WHY_THREE,
+    whyThree: localizeProductCopy(productLine, DIGESTS_TEAMS_SLACK_WHY_THREE),
     compactLine: DIGESTS_TEAMS_SLACK_COMPACT_LINE,
     digestsLink: DIGESTS_TEAMS_SLACK_DIGESTS_LINK,
-    teamsLink: DIGESTS_TEAMS_SLACK_TEAMS_LINK,
+    teamsLink,
     slackLink: DIGESTS_TEAMS_SLACK_SLACK_LINK,
   };
 }

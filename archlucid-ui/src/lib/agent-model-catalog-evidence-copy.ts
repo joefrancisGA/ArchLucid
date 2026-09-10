@@ -14,8 +14,8 @@ export const AGENT_MODEL_CATALOG_SOURCES_INTRO =
 /** Operator Sources — no self-href to `/internal/agent-model-catalog`. */
 export const AGENT_MODEL_CATALOG_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Fleet LLM COGS", href: INTERNAL_FLEET_LLM_COGS_PATH },
-  { label: "Model governance", href: "/administration/model-governance" },
+  { label: "Model policy", href: "/administration/model-governance" },
   { label: "AI usage", href: "/administration/ai-usage" },
-  { label: "Model governance help", href: inAppHelpHref("model-governance") },
+  { label: "Model policy help", href: inAppHelpHref("model-governance") },
   { label: "System health", href: "/administration/system-health" },
 ] as const;

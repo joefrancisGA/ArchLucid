@@ -192,6 +192,63 @@ public sealed class RunAgentOutputPilotEvidenceAggregatorTests
             because: "PilotStrict sponsor gating must mirror recorder Phase B LLM faithfulness rejection");
     }
 
+    [Fact]
+    public async Task WouldPilotStrictBlockSponsorEvidenceAsync_blocks_when_finding_citation_coverage_below_floor_on_real_task()
+    {
+        const string runKey = "90909090909090909090909090909090";
+        const string taskId = "task-citation-coverage";
+        string parsedJson =
+            """
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":["ev-1"],"confidence":0.85,"findings":[{"findingId":"f-uncited","severity":"High","description":"Long enough description text for semantic scoring.","enforcementTier":"PolicyViolation","evidenceRefs":[]}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"ev-1"}]}
+            """;
+
+        AgentOutputQualityGateOptions gateOptions = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 0,
+            SemanticWarnBelow = 0,
+            PilotStrictMinStructuralCompleteness = 0,
+            PilotStrictMinSemanticScore = 0,
+            PilotStrictMinEvidenceRefCount = 0,
+            PilotStrictMinCitationCoverageRatio = 0.5,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "trace-citation-coverage",
+            TaskId = taskId,
+            RunId = runKey,
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = parsedJson,
+        };
+
+        AgentResult agentResult = new()
+        {
+            ResultId = "result-citation-coverage",
+            TaskId = taskId,
+            RunId = runKey,
+            AgentType = AgentType.Topology,
+            TaskStructuralExecutionMode = StructuralExecutionMode.Real,
+        };
+
+        RunAgentOutputPilotEvidenceAggregator sut = CreateSut(
+            gateOptions,
+            [agentResult],
+            agentExecutionMode: "Real");
+
+        bool blocked = await sut.WouldPilotStrictBlockSponsorEvidenceAsync(
+            [trace],
+            explanationSummary: null,
+            CancellationToken.None);
+
+        blocked.Should().BeTrue(
+            because: "PilotStrict sponsor gating must reject Real tasks when per-finding citation coverage is below floor");
+    }
+
     private sealed class NoOpLlmFaithfulnessEvaluator : IAgentOutputFaithfulnessEvaluator
     {
         public Task<double?> TryEvaluateAsync(
@@ -207,7 +264,8 @@ public sealed class RunAgentOutputPilotEvidenceAggregatorTests
         IReadOnlyList<AgentResult>? agentResults = null,
         IAgentOutputFaithfulnessEvaluator? llmFaithfulnessEvaluator = null,
         AgentOutputLlmFaithfulnessOptions? llmFaithfulnessOptions = null,
-        AgentEvidencePackage? evidencePackage = null)
+        AgentEvidencePackage? evidencePackage = null,
+        string agentExecutionMode = "Simulator")
     {
         Mock<IAgentOutputQualityGateOptionsResolver> optionsResolver = new();
         optionsResolver
@@ -247,7 +305,8 @@ public sealed class RunAgentOutputPilotEvidenceAggregatorTests
             new AgentOutputQualityGate(Options.Create(gateOptions)),
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
             llmFaithfulnessEvaluator ?? new NoOpLlmFaithfulnessEvaluator(),
-            Options.Create(llmFaithfulnessOptions ?? new AgentOutputLlmFaithfulnessOptions()));
+            Options.Create(llmFaithfulnessOptions ?? new AgentOutputLlmFaithfulnessOptions()),
+            Options.Create(new AgentExecutionOptions { Mode = agentExecutionMode }));
     }
 
     private static string LoadGoldenFixtureWithCitations(string fileName)

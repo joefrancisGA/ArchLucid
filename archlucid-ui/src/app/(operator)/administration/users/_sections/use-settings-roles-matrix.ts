@@ -10,6 +10,10 @@ import {
   settingsRolesMatrixConfirmHrefFromSearch,
   type SettingsRolesMatrixConfirmKind,
 } from "@/lib/administration/settings-roles-matrix-confirm-url";
+import {
+  parseSettingsRolesMatrixCollapsedGroupsFromSearch,
+  settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch,
+} from "@/lib/administration/settings-roles-matrix-collapsed-groups-disclosure-url";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
 import { roleDisplayLabel } from "@/lib/role-display-labels";
 import { showError, showSuccess } from "@/lib/toast";
@@ -75,6 +79,7 @@ export function useSettingsRolesMatrix() {
   const searchParams = useSearchParams();
   const rolesMatrixConfirmKindParam = searchParams.get("rolesMatrixConfirm");
   const rolesMatrixConfirmRoleNameParam = searchParams.get("rolesMatrixRoleName");
+  const settingsRolesMatrixCollapsedGroupsParam = searchParams.get("settingsRolesMatrixCollapsedGroups");
   const [matrix, setMatrix] = useState<RoleMatrixState>(EMPTY_MATRIX_STATE);
   const [loading, setLoading] = useState(true);
   const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
@@ -90,6 +95,16 @@ export function useSettingsRolesMatrix() {
     (state: { kind: SettingsRolesMatrixConfirmKind | null; roleName: string | null }) => {
       router.replace(
         settingsRolesMatrixConfirmHrefFromSearch(searchParams.toString(), state, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const syncCollapsedGroupsToUrl = useCallback(
+    (groups: readonly string[]) => {
+      router.replace(
+        settingsRolesMatrixCollapsedGroupsDisclosureHrefFromSearch(searchParams.toString(), groups, pathname),
         { scroll: false },
       );
     },
@@ -160,6 +175,16 @@ export function useSettingsRolesMatrix() {
   const columns = useMemo(() => sortMatrixRoles(roles), [roles]);
   const unsavedRoleNames = useMemo(() => dirtyRoleDisplayNames(roles, matrix.baseline), [matrix.baseline, roles]);
   const hasUnsavedEdits = unsavedRoleNames.length > 0;
+
+  useEffect(() => {
+    const collapsedFromUrl = parseSettingsRolesMatrixCollapsedGroupsFromSearch(settingsRolesMatrixCollapsedGroupsParam);
+
+    if (collapsedFromUrl.length === 0) {
+      return;
+    }
+
+    setCollapsedGroups(new Set(collapsedFromUrl));
+  }, [settingsRolesMatrixCollapsedGroupsParam]);
 
   useEffect(() => {
     const kind = parseSettingsRolesMatrixConfirmKindFromSearch(rolesMatrixConfirmKindParam);
@@ -238,6 +263,8 @@ export function useSettingsRolesMatrix() {
         next.delete(area);
       else
         next.add(area);
+
+      syncCollapsedGroupsToUrl([...next]);
 
       return next;
     });
