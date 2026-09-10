@@ -375,11 +375,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 15
-- **bugs-found:** 10
+- **hunts:** 16
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — selector ranked CreatedUtc before quality preference on same-attempt duplicate rows
+- **last-bug:** 2026-09-10 — selector treated null RecordedQualityGateOutcome as Accepted rank on duplicate rows
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** yes
 
@@ -408,6 +408,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) same-attempt duplicate rows with `Rejected` vs `Warned` — selector `QualityPreferenceRank` prefers Warned and commit does not block — **cheap-disproof 2026-09-10 seed hunt #1549:** intentional non-blocking tie-break aligned with #1330 Accepted-over-Rejected policy (`GetBlockingReasons_when_same_attempt_rejected_and_warned_duplicates_prefers_warned_and_does_not_block`)
 - [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `Enabled=false` on Real PilotStrict-configured options — **cheap-disproof 2026-09-10 seed hunt #1549:** tenant gate disable is intentional product configuration, not a commit-integrity bypass in these files (`GetBlockingReasons_when_gate_disabled_returns_empty_even_with_rejected_traces`)
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` — same-attempt upsert-drift duplicates with different `CreatedUtc` ranked newer rejected trace over older accepted sibling — **hit 2026-09-10 seed hunt #1611:** #1330 quality-preference tie-break only applied when `CreatedUtc` tied; fixed by ordering `QualityPreferenceRank` before `CreatedUtc`; regressions `Select_when_same_attempt_duplicates_with_different_created_utc_prefers_non_rejected_trace`, `GetBlockingReasons_when_same_attempt_duplicates_with_different_created_utc_does_not_block_on_newer_rejected`
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector.QualityPreferenceRank` — null `RecordedQualityGateOutcome` ranked equal to Accepted, letting stale unevaluated duplicate beat recorded Rejected sibling — **hit 2026-09-10 seed hunt #1612:** explicit rank ladder (unevaluated 0, Rejected 1, Warned 2, Accepted 3); regressions `Select_when_same_attempt_duplicates_with_unevaluated_and_rejected_prefers_rejected_trace`, `GetBlockingReasons_when_same_attempt_duplicates_include_unevaluated_and_rejected_still_blocks`
+
+2026-09-10 seed hunt #1612 (hit): reseeded commit-output-integrity; proved unevaluated duplicate row fail-open over recorded rejection; 28 scoped commit-output-integrity tests passed.
 
 2026-09-10 seed hunt #1611 (hit): reseeded commit-output-integrity; proved same-attempt duplicate CreatedUtc ordering gap; 26 scoped commit-output-integrity tests passed.
 
