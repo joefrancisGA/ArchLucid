@@ -22,6 +22,10 @@ internal static class GoldenCorpusDxEngineGraphFactory
                     {
                         ["appSettings"] =
                             "KeyVaultUri=https://payments-kv.vault.azure.net/secrets/db-connection",
+                        ["armResourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000041/resourceGroups/rg-golden/providers/Microsoft.Web/sites/checkout-func",
+                        ["resourceId"] =
+                            "/subscriptions/00000000-0000-4000-8000-000000000041/resourceGroups/rg-golden/providers/Microsoft.Web/sites/checkout-func",
                     },
                 },
             ],
