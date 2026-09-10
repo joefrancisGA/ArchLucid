@@ -1,3 +1,5 @@
+import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
 import { DIGESTS_SUBSCRIPTIONS_TAB_PATH } from "@/lib/digests-route-paths";
 import { ALERT_ROUTING_TAB_PATH } from "@/lib/alert-routing-evidence-copy";
 import { INTEGRATIONS_SLACK_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
@@ -15,10 +17,6 @@ export type NotificationPreferenceChannel = {
   readonly ctaLabel: string;
 };
 
-/**
- * Product hub channels for "what will ping me?" - each CTA opens the existing configure surface.
- * There is no unified backend preference API; delivery is owned by each destination page.
- */
 export const NOTIFICATION_PREFERENCE_CHANNELS: readonly NotificationPreferenceChannel[] = [
   {
     id: "digests",
@@ -62,6 +60,21 @@ export const NOTIFICATION_PREFERENCE_CHANNELS: readonly NotificationPreferenceCh
     ctaLabel: "Configure Slack",
   },
 ] as const;
+
+export function resolveNotificationPreferenceChannels(
+  productLine: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
+): readonly NotificationPreferenceChannel[] {
+  return NOTIFICATION_PREFERENCE_CHANNELS.map((channel) => {
+    if (channel.id !== "teams") {
+      return channel;
+    }
+
+    return {
+      ...channel,
+      title: productLineMicrosoftTeamsLabel(productLine),
+    };
+  });
+}
 
 export function statusHintForNotificationChannel(
   channel: NotificationPreferenceChannel,

@@ -1,0 +1,20 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000051",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000051",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000051-0000-4000-8000-000000000051",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000051",
+    "runId": "20000000-0000-4000-8000-000000000051",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": {
+    "cloudProvider": "Aws",
+    "cloudPackageId": "30000000-0000-4000-8000-000000000051",
+    "cloudResourcesJson": "[\n  {\n    \"name\": \"arn:aws:ec2:us-east-1:123456789012:volume/vol-golden-51\",\n    \"resourceType\": \"AWS::EC2::Volume\",\n    \"location\": \"us-east-1\",\n    \"properties\": {\n      \"state\": \"available\",\n      \"attachments\": []\n    }\n  }\n]"
+  }
+}

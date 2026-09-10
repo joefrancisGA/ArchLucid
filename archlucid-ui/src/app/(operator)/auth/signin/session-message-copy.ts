@@ -25,7 +25,10 @@ const SESSION_RECOVERY_SCOPE_NOTE =
   "This page covers sign-in recovery only — not a full audit export.";
 
 const SERVER_WORK_PRESERVATION_NOTE =
-  "Saved drafts and other server-stored work remain available after you sign in again. Unsaved changes in this browser tab were not preserved.";
+  "Saved drafts and other server-stored work remain available after you sign in again. Unsaved changes in this browser tab were not preserved — if you had a dirty draft, you may see a recovery prompt after sign-in.";
+
+const IDLE_SCOPE_RESTORE_NOTE =
+  "Your workspace and project selection will be restored after you sign in again when they were active before the timeout.";
 
 const REASON_COPY: Record<SessionMessageReason, SessionMessageCopy> = {
   "idle-timeout": {
@@ -33,7 +36,7 @@ const REASON_COPY: Record<SessionMessageReason, SessionMessageCopy> = {
     body: `For your security, ArchLucid signed you out after ${SESSION_IDLE_TIMEOUT_MINUTES} minutes of inactivity.`,
     showsReturnDestinationHint: true,
     workPreservationNote: SERVER_WORK_PRESERVATION_NOTE,
-    scopeNote: SESSION_RECOVERY_SCOPE_NOTE,
+    scopeNote: IDLE_SCOPE_RESTORE_NOTE,
   },
   "session-expired": {
     title: "Your session expired",

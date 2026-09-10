@@ -41,6 +41,7 @@ describe("run-detail-evidence-inventory", () => {
 
     expect(items).toHaveLength(1);
     expect(items[0]?.sourceName).toBe("storageAccount.bicep");
+    expect(items[0]?.inventoryKind).toBe("citation");
     expect(items[0]?.citingFindingCount).toBe(2);
     expect(countRunDetailEvidenceInventoryItems(items)).toBe(1);
   });
@@ -54,6 +55,41 @@ describe("run-detail-evidence-inventory", () => {
 
     expect(items).toHaveLength(1);
     expect(items[0]?.kind).toBe("Architecture brief");
+    expect(items[0]?.inventoryKind).toBe("architecture-brief");
+  });
+
+  it("marks intake-attached Word files as citation when not in stored catalog", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-08-30T19:46:00Z",
+      submittedArchitecturePresent: false,
+      attachedFileNames: ["ARCHITECTURE_HANDBOOK.docx"],
+    });
+
+    expect(items).toHaveLength(1);
+    expect(items[0]?.sourceName).toBe("ARCHITECTURE_HANDBOOK.docx");
+    expect(items[0]?.kind).toBe("Document");
+    expect(items[0]?.inventoryKind).toBe("citation");
+    expect(items[0]?.citingFindingCount).toBe(0);
+  });
+
+  it("marks catalog-matched files as stored-file with evidenceItemId", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-08-30T19:46:00Z",
+      submittedArchitecturePresent: false,
+      attachedFileNames: ["ARCHITECTURE_HANDBOOK.docx"],
+      storedEvidenceCatalog: [
+        {
+          evidenceItemId: "abc123",
+          originalFileName: "ARCHITECTURE_HANDBOOK.docx",
+        },
+      ],
+    });
+
+    expect(items).toHaveLength(1);
+    expect(items[0]?.inventoryKind).toBe("stored-file");
+    expect(items[0]?.evidenceItemId).toBe("abc123");
   });
 
   it("lists intake-attached Word files even when the generated brief is hidden", () => {

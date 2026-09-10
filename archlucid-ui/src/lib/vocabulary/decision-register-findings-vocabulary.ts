@@ -5,7 +5,7 @@
  * - Decision register (`/governance/decision-register`) records locked architecture
  *   dispositions from completed reviews.
  * - Findings queue (`/governance/findings`) is risk disposition work — triage and
- *   resolve open governance findings.
+ *   resolve open policy findings.
  *
  * They stay separate because the decision register is the locked disposition record,
  * not the same list as open findings triage. Distinct from empty-state teaching (TB-2263).

@@ -13,6 +13,7 @@ import { AI_USAGE_BILLING_ESTIMATES_HONESTY } from "@/lib/vocabulary/ai-usage-bi
 
 import { CostReportingSettingsPageView } from "./CostReportingSettingsPageView";
 import type { CostReportingSettingsPageViewModel } from "./cost-reporting-settings-page-view-model";
+import { AI_USAGE_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID } from "./ai-usage-settings-page-copy";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -223,7 +224,7 @@ describe("CostReportingSettingsPageView (TB-1216–1219)", () => {
 
     expect(screen.getByTestId("page-heading-icon")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("ai-usage-settings-claim-discipline")).toHaveTextContent(
+    expect(screen.getByTestId(AI_USAGE_SETTINGS_HEADER_CLAIM_DISCIPLINE_TEST_ID)).toHaveTextContent(
       AI_USAGE_SETTINGS_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(pageHelpTopicForPathname(AI_USAGE_SETTINGS_PATH)?.label).toBe(AI_USAGE_HELP_TOPIC_LABEL);

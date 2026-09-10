@@ -1,4 +1,5 @@
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { resolveArchitectureReviewTabHref } from "@/lib/architecture/working-architecture-review-routes";
 
 import type { TrackedInFlightOperation } from "@/lib/operations/in-flight-operations-store";
 import { isTerminalOperationState, type OperationState } from "@/lib/operations/operation-state";
@@ -28,6 +29,11 @@ export function isVisibleInFlightDeskOperation(operation: TrackedInFlightOperati
  */
 export function buildInFlightDeskHref(operation: TrackedInFlightOperation): string {
   const runId = operation.runId?.trim() ?? "";
+  const architectureId = operation.architectureId?.trim() ?? "";
+
+  if (runId.length > 0 && architectureId.length > 0) {
+    return resolveArchitectureReviewTabHref(runId, "activity", architectureId);
+  }
 
   if (runId.length > 0) {
     return buildReviewWorkspaceTabHref(runId, "activity");
@@ -54,6 +60,28 @@ export function mapInFlightOperationsToDeskRows(
   operations: readonly TrackedInFlightOperation[],
 ): readonly InFlightDeskRow[] {
   return operations.filter(isVisibleInFlightDeskOperation).map(mapInFlightOperationToDeskRow);
+}
+
+/** In-flight operations parented under one architecture identity desk (AO-21). */
+export function filterInFlightOperationsForArchitecture(
+  operations: readonly TrackedInFlightOperation[],
+  architectureId: string,
+): readonly TrackedInFlightOperation[] {
+  const expected = architectureId.trim();
+
+  if (expected.length === 0) {
+    return [];
+  }
+
+  return operations.filter((operation) => {
+    if (!isVisibleInFlightDeskOperation(operation)) {
+      return false;
+    }
+
+    const parentArchitectureId = operation.architectureId?.trim() ?? "";
+
+    return parentArchitectureId.length > 0 && parentArchitectureId === expected;
+  });
 }
 
 /** Active review run ids from the shell in-flight store (for hub inventory ordering). */

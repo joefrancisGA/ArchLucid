@@ -36,7 +36,7 @@ internal static class RunAgentExecutionLlmCostEstimateAppender
             TokenCounts = new RunLlmTokenCountsResponse
             {
                 Prompt = summary.PromptTokens,
-                Completion = summary.CompletionTokens,
+                Completion = summary.CombinedOutputTokens,
             },
             Model = summary.ModelLabel,
             CostEstimationBasis = summary.CostEstimationBasis,

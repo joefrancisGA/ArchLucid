@@ -2,6 +2,12 @@ export const MARKETING_FAQ_PAGE_TITLE = "Product FAQ" as const;
 
 export const MARKETING_FAQ_PRIMARY_CONTENT_ID = "marketing-faq-primary-content" as const;
 
+export const MARKETING_FAQ_FIRST_VIEWPORT_ID = "marketing-faq-first-viewport" as const;
+
+export const MARKETING_FAQ_SKIP_TARGET_ID = MARKETING_FAQ_FIRST_VIEWPORT_ID;
+
+export const MARKETING_FAQ_SKIP_LINK_LABEL = "Skip to FAQ content" as const;
+
 export const MARKETING_FAQ_PAGE_INTRO =
   "Evaluation Q&A for architects and sponsors — start with Most asked, then browse by category." as const;
 export const MARKETING_FAQ_BACK_TO_OVERVIEW_LABEL = "Back to overview" as const;

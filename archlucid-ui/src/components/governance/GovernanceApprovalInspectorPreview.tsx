@@ -23,7 +23,7 @@ export function approvalRequestPrimaryLabel(row: GovernanceApprovalRequest): str
 }
 
 /**
- * Read-only approval request summary for the governance dashboard inspector (dashboard payload only).
+ * Read-only approval request summary for the approval dashboard inspector (dashboard payload only).
  */
 export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprovalInspectorPreviewProps) {
   const approvalSecondaryViewPresentation = buildCanonicalObjectSecondaryView(

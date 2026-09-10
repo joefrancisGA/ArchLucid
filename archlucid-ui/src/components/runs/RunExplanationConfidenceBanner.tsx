@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
@@ -8,7 +10,7 @@ import {
   type ExplanationConfidenceDisposition,
 } from "@/lib/runs/run-explanation-confidence-disposition";
 import { buyerExplanationConfidenceDispositionLabel } from "@/lib/buyer/buyer-explanation-confidence-labels";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 function dispositionClass(disposition: ExplanationConfidenceDisposition): string {
@@ -39,7 +41,7 @@ export function RunExplanationConfidenceBanner(props: {
   if (confidence === null)
     return null;
 
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const buyerPolished = useProductionEvalChrome();
   const dispositionLabel = buyerPolished
     ? buyerExplanationConfidenceDispositionLabel(confidence.disposition)
     : confidence.disposition;

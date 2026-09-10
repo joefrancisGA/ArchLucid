@@ -15,8 +15,10 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
+using ArchLucid.Core.Evidence;
 using ArchLucid.Persistence.Architecture;
 using ArchLucid.Persistence.Budgeting;
+using ArchLucid.Persistence.Evidence;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
@@ -77,6 +79,7 @@ partial class CoordinatorArtifactsCompositionModule
             services.AddSingleton<IDecisionNodeRepository, InMemoryDecisionNodeRepository>();
             services.AddScoped<IUnifiedGoldenManifestReader, UnifiedGoldenManifestReader>();
             services.AddSingleton<IEvidenceBundleRepository, InMemoryEvidenceBundleRepository>();
+            services.AddSingleton<IRunStoredEvidenceFileRepository, InMemoryRunStoredEvidenceFileRepository>();
             services.AddSingleton<IAgentEvidencePackageRepository, InMemoryAgentEvidencePackageRepository>();
             services.AddSingleton<IAgentExecutionTraceRepository, InMemoryAgentExecutionTraceRepository>();
             services.AddSingleton<ITechnologyLedgerRepository, InMemoryTechnologyLedgerRepository>();

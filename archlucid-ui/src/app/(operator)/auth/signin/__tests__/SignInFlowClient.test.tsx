@@ -222,6 +222,28 @@ describe("SignInFlowClient", () => {
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(/not correct/i);
     });
+
+    expect(screen.queryByTestId("fatal-page-report-problem-row")).toBeNull();
+  });
+
+  it("shows Report Problem when email OTP challenge hits a network failure", async () => {
+    requestChallengeMock.mockResolvedValueOnce({
+      kind: "failure",
+      category: "network",
+    });
+
+    render(<SignInFlowClient />);
+
+    fireEvent.click(screen.getByTestId("sign-in-email-code"));
+    fireEvent.change(screen.getByTestId("sign-in-email-input"), {
+      target: { value: "ops@example.com" },
+    });
+    fireEvent.click(screen.getByTestId("sign-in-send-code"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(/could not reach archlucid/i);
+      expect(screen.getByTestId("fatal-page-report-problem-row")).toBeInTheDocument();
+    });
   });
 
   it("routes invitation next step to signup", async () => {

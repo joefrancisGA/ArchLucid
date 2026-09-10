@@ -6,13 +6,16 @@ import { GovernanceModeProvider } from "@/components/governance/GovernanceModePr
 import { ItsmNativeCreateReadinessProvider } from "@/components/itsm/ItsmNativeCreateReadinessProvider";
 
 import { AppShellClientDeferred } from "./operator-layout-deferred-chunks";
+import { ProductLineRouteGate } from "@/components/product-line/ProductLineRouteGate";
 
 /** Client boundary for operator routes — keeps AppShellClient off the layout parent chunk. */
 export function OperatorLayoutClient(props: { readonly children: ReactNode }) {
   return (
     <GovernanceModeProvider>
       <ItsmNativeCreateReadinessProvider>
-        <AppShellClientDeferred>{props.children}</AppShellClientDeferred>
+        <AppShellClientDeferred>
+          <ProductLineRouteGate>{props.children}</ProductLineRouteGate>
+        </AppShellClientDeferred>
       </ItsmNativeCreateReadinessProvider>
     </GovernanceModeProvider>
   );

@@ -1,4 +1,4 @@
-> **Reviewed:** 2026-07-25
+> **Reviewed:** 2026-09-07
 
 > **Scope:** ArchLucid — Pricing philosophy and packaging - full detail, tables, and links in the sections below.
 
@@ -9,9 +9,9 @@
 
 **Audience:** Product leadership, sales, and finance — internal alignment before external pricing publication.
 
-**Last reviewed:** 2026-07-25 (interim Stripe Team bundled monthly — § 3.2)
+**Last reviewed:** 2026-09-07 (**M-305** profit re-rate — §5.1 discount-stack work-down, Professional expansion SKU, overage/COGS, LLM caps)
 
-**Grounding:** Pricing anchors to the ROI model in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~180 architect-hours/year) and buyer personas in [BUYER_PERSONAS.md](BUYER_PERSONAS.md).
+**Grounding:** Pricing anchors to the ROI model in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~184 architect-hours/year) and buyer personas in [BUYER_PERSONAS.md](BUYER_PERSONAS.md).
 
 **Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request. **Marketplace tier naming** (Team / Professional / Enterprise) is guarded by `scripts/ci/assert_marketplace_pricing_alignment.py` against [`AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md).
 
@@ -55,11 +55,12 @@
 |--|----------|-----------------|----------------|
 | **Target buyer** | Small architecture team exploring AI-assisted review | Established architecture practice with governance needs | Large organization with compliance, audit, and multi-team requirements |
 | **Target persona** | Persona 3 (CTO/VP Eng) | Persona 1 (Enterprise Architect) | Persona 1 + Persona 2 (Platform Eng Lead) |
-| **Platform fee** | $199 / workspace / month | $899 / workspace / month (up to 5 workspaces) | Included in annual contract |
-| **Seats included** | Up to 5 architects | Up to 20 architects | Unlimited (named) |
-| **Seat price** | $79 / architect / month (add-on seats capped at 5 — **10 seats max**; 11+ seats require Professional) | $179 / architect / month | Included in annual contract |
-| **Workspaces** | 1 | Up to 5 | Unlimited |
-| **Architecture packages / month** | 20 included; $10 / **architecture package** overage | 100 included; $8 / **architecture package** overage | Unlimited (2,000 **architecture packages**/mo fair-use soft cap) |
+| **Public / Stripe bundle** | **$1,169** / month (5 seats + 1 workspace) | **$2,299** / month (10 seats + 1 workspace) | Custom annual contract |
+| **Platform fee (add-on / quote decomposition)** | $339 / workspace / month | $1,079 / workspace / month | Included in annual contract |
+| **Seats included in bundle** | 5 architects | 10 architects | Unlimited (named) |
+| **Seat price (add-on)** | $211 / architect / month (add-on seats capped at 5 — **10 seats max**; 11+ seats require Professional) | $215 / architect / month (seats 11–20; **20 seats max**; 21+ requires Enterprise) | Included in annual contract |
+| **Workspaces** | 1 included (no Team add-on workspace) | 1 included; add-on workspaces at platform fee up to **5** | Unlimited |
+| **Architecture packages / month** | 20 included; $25 / **architecture package** overage | 100 included; $20 / **architecture package** overage | Unlimited (2,000 **architecture packages**/mo fair-use soft cap; LLM spend scheduled in the contract — §3.3) |
 | **Annual prepay** | 2 months free | 2 months free | Custom |
 | **Finding engines** | All 10 | All 10 | All 10 + custom engine support |
 | **Governance** | Basic (pre-finalize gate) | Full (approval workflows, policy packs, segregation of duties) | Full + custom policy packs |
@@ -69,11 +70,14 @@
 | **Support** | Community / email | Business hours email + onboarding call | Dedicated CSM, priority response |
 | **SLA** | Shared SLO targets | Shared SLO targets | Custom SLA with credits |
 
-**Example monthly invoice — Team, 3 seats, 1 workspace:**
-Platform fee $199 + (3 × $79) = **$436 / month** (within the < $500 discretionary budget guardrail).
+**Example monthly invoice — Team, 3 seats, 1 workspace (à la carte quote):**
+Platform fee $339 + (3 × $211) = **$972 / month**. Self-serve Stripe still bills the 5-seat Team bundle (**$1,169**). Architect (**$169** / month, 1 seat) remains the discretionary self-serve entry SKU.
 
 **Example monthly invoice — Professional, 8 seats, 1 workspace:**
-Platform fee $899 + (8 × $179) = **$2,331 / month** (within the $2K–$5K manager-approval range).
+Public / sales bundle **$2,299 / month** (10 seats + 1 workspace included — 8-seat teams pay the bundle, not a per-seat build-up). Within the $2K–$5K manager-approval range.
+
+**Example monthly invoice — Professional, 15 seats, 2 workspaces:**
+Bundle $2,299 + (5 × $215) + $1,079 = **$4,453 / month** (expansion above the included 10 seats / 1 workspace).
 
 **Authentication scope.** Entra ID remains the default documented hosted-SaaS path. Generic OIDC issuers and native SAML 2.0 SP workforce SSO are V1-supported configuration surfaces where the tenant provides issuer / metadata / claim mapping details; see [`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.12 and [`CONFIGURATION_REFERENCE.md`](../library/CONFIGURATION_REFERENCE.md). Turnkey per-vendor admin wizards are separate implementation polish, not new pricing-tier commitments.
 
@@ -103,14 +107,28 @@ Stripe Checkout uses **one** recurring **Price** for Team conversions (see **`Bi
 
 | Field | Value |
 |-------|-------|
-| **Monthly amount (USD)** | **$499** / billing period for subscriptions created under this SKU (**M-200** repricing decision, 2026-07-29) |
-| **Relationship to § 5.2** | Locked list still decomposes Team as **workspace + seats** for **quotes**, order forms, and ROI comparisons ($199 + 5 × $79 = **$594** / month à la carte); the **$499** bundle is an explicit **~16% bundle discount** against that decomposition and is **only** the self-serve Stripe subscription total for this interim implementation |
-| **Team seat cap** | Team supports at most **10 architect seats** total — 5 included in the bundle plus up to **5 add-on seats** at the § 5.2 Team seat price. An 11th seat requires **Professional** (20 included seats). The cap keeps the value ladder monotonic: Professional is better per seat, per AI credit, and per review than Team at every allowed Team configuration |
-| **Pre-launch status (no grandfathering)** | Decided **2026-07-29** (**M-200**): the product has **no active subscriptions**, so this repricing migrates nobody and no grandfathering policy exists. Any future list-price change for active subscribers goes through the § 5.3 re-rate gates (price-lock for the remainder of the current term plus one renewal) rather than a per-SKU grandfather clause |
-| **Hosted AOAI spend guard (SaaS default)** | **$50** / tenant / UTC month “included” planning band (internal **estimated** USD from token counts × **`AgentExecution:LlmCostEstimation`** rates — **not** a separate Stripe line item). **Warn** at **75%** (~**$37.50**) via durable audit **`LlmTenantMonthlyDollarBudgetApproaching`**. **Hard stop** real-mode LLM completions at **$75** / UTC month (`LlmMonthlyTenantDollarBudget` in appsettings — enabled on **`appsettings.SaaS.json`**). Simulator / fake / echo providers are excluded. Operators must align USD/M token rates with the **Azure OpenAI** deployment’s list price. |
-| **Self-serve LLM overage wallet (TB-014, opt-in)** | Non-expiring prepaid balance after the UTC-month hard cap. **$50** auto-refill when balance **< $10**; tenant sets a **$0–$500** monthly auto-replenish cap in **$50** steps. Card charged at each refill (Stripe PaymentIntent). Balance **never expires**; on cancellation it is **non-refundable credit** consumable only via ArchLucid LLM usage. Default at signup: **overage off**. See [`docs/library/LLM_BUDGET_TOP_UP.md`](../library/LLM_BUDGET_TOP_UP.md). |
+| **Monthly amount (USD)** | **$1,169** / billing period for subscriptions created under this SKU (**M-305** profit re-rate, 2026-09-07; supersedes **M-200** $499) |
+| **Relationship to § 5.2** | Locked list still decomposes Team as **workspace + seats** for **quotes**, order forms, and ROI comparisons ($339 + 5 × $211 = **$1,394** / month à la carte); the **$1,169** bundle is an explicit **~16% bundle discount** against that decomposition and is **only** the self-serve Stripe subscription total for this interim implementation |
+| **Team seat cap** | Team supports at most **10 architect seats** total — 5 included in the bundle plus up to **5 add-on seats** at the § 5.2 Team seat price. An 11th seat requires **Professional** (10 included seats, 20 max). The cap keeps the value ladder monotonic: Professional is better per seat, per AI credit, and per architecture package than Team at every allowed Team configuration |
+| **Pre-launch status (no grandfathering)** | Decided **2026-07-29** (**M-200**) and reaffirmed **2026-09-07** (**M-305**): the product has **no active subscriptions**, so this repricing migrates nobody and no grandfathering policy exists. Any future list-price change for active subscribers goes through the § 5.3 re-rate gates (price-lock for the remainder of the current term plus one renewal) rather than a per-SKU grandfather clause |
+| **Hosted AOAI spend guard (tier-scaled)** | Internal **estimated** USD from token counts × **`AgentExecution:LlmCostEstimation`** rates — **not** a separate Stripe line item. Warn at **75%** of the included band via durable audit **`LlmTenantMonthlyDollarBudgetApproaching`**. Simulator / fake / echo providers are excluded. Operators must align USD/M token rates with the **Azure OpenAI** deployment’s list price. See **§3.3**. |
+| **Self-serve LLM overage wallet (TB-014, opt-in)** | Non-expiring prepaid balance after the UTC-month hard cap. **$50** auto-refill when balance **< $10**; tenant sets a **$0–$500** monthly auto-replenish cap in **$50** steps. Card charged at each refill (Stripe PaymentIntent). Wallet debits apply a **1.4× markup** on estimated LLM USD so overage is not sold at COGS. Balance **never expires**; on cancellation it is **non-refundable credit** consumable only via ArchLucid LLM usage. Default at signup: **overage off**. See [`docs/library/LLM_BUDGET_TOP_UP.md`](../library/LLM_BUDGET_TOP_UP.md). |
 
 Operational setup (Dashboard Price object, webhook events) stays in **`docs/go-to-market/STRIPE_CHECKOUT.md`** and **`docs/library/BILLING.md`**.
+
+### 3.3 Hosted LLM spend schedule (tier-scaled)
+
+Hosted Azure OpenAI is **included up to a planning band**, then hard-stopped unless the tenant enables the TB-014 wallet. Bands are sized so included architecture-package allowances remain deliverable at typical $2–$10/run LLM cost without selling the cheapest SKU at a loss.
+
+| Plan | Included (estimated USD / UTC month) | Hard stop | Notes |
+|------|--------------------------------------|-----------|-------|
+| **Architect** | $20 | $35 | Protects the $169 SKU; ~5 included packages at typical run cost |
+| **Team** | $50 | $75 | Default SaaS host overlay; ~20 included packages with wallet for heavy real-mode months |
+| **Professional** | $200 | $300 | Sized for 100 included packages at ~$2–$3 estimated USD/run |
+| **Enterprise** | Contract schedule | Contract schedule | Fair-use 2,000 packages/month does **not** include unlimited AOAI. Every Enterprise order form must attach an LLM spend schedule (included USD, hard stop, and overage/wallet rules). |
+| **Trial (Free)** | $10 (`AiUsageControls:DefaultTrialAiBudgetUsd`) | Same as included unless operator override | Unchanged |
+
+Host config: `LlmMonthlyTenantDollarBudget` in **`appsettings.SaaS.json`** (Team band as the host default) plus **`ByPlan`** overlays. Paid tenants resolve Architect / Team / Professional via billing subscription shape (`LlmMonthlySpendPlanId`); per-tenant `dbo.TenantAiBudgetPolicy` rows win when present. Enterprise uses the host default until the contracted schedule is written to that override. Wallet overage after the hard stop debits at **1.4×** estimated USD (`LlmTenantWalletDefaults.OverageDebitMarkupMultiplier`).
 
 ---
 
@@ -119,13 +137,13 @@ Operational setup (Dashboard Price object, webhook events) stays in **`docs/go-t
 | Scenario | Pricing | Duration | Conversion path |
 |----------|---------|----------|-----------------|
 | **Self-serve trial** | Free | 30 days | Auto-upgrade prompt; see [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md). Team-tier features, simulator agents, 10 runs, 3 seats, sample seeded. One-time 14-day extension available. |
-| **Guided pilot** | $15,000 flat, fully credited on conversion to Professional or Enterprise | 6 weeks (per [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)) | Scorecard review → commercial proposal |
+| **Guided pilot** | $15,000 flat, fully credited on conversion to Professional or Enterprise **if conversion is signed within 90 days of pilot end** | 6 weeks (per [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)) | Scorecard review → commercial proposal |
 | **Design partner** | 50% off Professional list price for 12 months; **capped at first 3 customers** | Contract term | In exchange for: published case study + quarterly reference call |
 | **Enterprise evaluation** | Custom | Negotiated | Champion + sponsor sponsor path |
 
-**Guided pilot credit:** The $15,000 pilot fee is fully credited against the first annual invoice on conversion, making it zero net cost to the buyer who converts.
+**Guided pilot credit:** The $15,000 pilot fee is fully credited against the first annual invoice on conversion to Professional or Enterprise, making it zero net cost to the buyer who converts **within 90 days of the pilot end date**. After 90 days the credit expires (it is not an indefinite option). Credit is not transferable to Team or Architect SKUs.
 
-**Design partner eligibility:** Must be within the first 3 signed design-partner agreements. Sales must confirm the slot before quoting. Commitment deliverables (case study + reference call) are contractual.
+**Design partner eligibility:** Must be within the first 3 signed design-partner agreements. Sales must confirm the slot before quoting. Commitment deliverables (case study + reference call) are contractual. Design partner **cannot** stack with the §4.1 reference-customer discount — the design-partner term already purchases the reference commitment (see §4.3).
 
 ### 4.1 Reference-customer discount (standardized 2026-04-21)
 
@@ -138,9 +156,21 @@ When a customer agrees to be a **published reference** (logo + case study + at l
 | **Duration** | For the contract term in which the reference is published, plus one renewal at the same discount; renegotiated thereafter |
 | **Owner** | Product marketing |
 | **Trigger** | Row in [`reference-customers/README.md`](reference-customers/README.md) reaches `Status: Published`; `scripts/ci/check_reference_customer_status.py` strict step auto-flips |
-| **Stack interaction** | Independent of the Trust / Reference / Self-serve discount stack in § 5.1; this is an *outbound* discount applied at quote time, not a list-price modifier |
+| **Stack interaction** | **Mutually exclusive** with the §4 design-partner 50% discount (both purchase a published reference). May combine with annual prepay (2 months free) only. Subject to the §4.3 aggregate floor. |
 
 **Why standardized.** Negotiating per deal slows decision velocity and creates inconsistency between accounts. A standard 15% offer is the industry norm for B2B reference programs.
+
+### 4.3 Discount stacking and floors (M-305)
+
+Quote-time discounts are commercial choices, not product-readiness deductions. Rules:
+
+| Rule | Detail |
+|------|--------|
+| **Design partner ⊻ reference** | A customer is either a design partner (50% off Professional list for 12 months) **or** a published-reference customer (15% off applicable list) — never both. |
+| **Trust concession** | The −25% trust discount is **baked into Professional / Enterprise list** only (attestation-sensitive, sales-led). It is **not** a second quote-time off those lists, and it is **not** offered on Architect / Team (those lists destack trust — see §5.1). |
+| **Aggregate floor** | Combined quote-time discounts (design partner, reference, promotional §7, and any one-off) must never take the **effective monthly price below 50% of the applicable locked list** in §5.2. Design partner at 50% sits on the floor; do not add further percentage off. |
+| **Pilot credit window** | Guided-pilot $15,000 credit applies only when conversion is signed within **90 days** of pilot end. |
+| **PS SKUs** | Custom policy-pack fees do **not** stack with SaaS reference or design-partner discounts. |
 
 ### 4.2 Custom Policy Pack Authoring (professional services)
 
@@ -173,11 +203,12 @@ Productized **fixed-fee** professional services for authoring customer-specific 
 
 ## 5. Locked list prices (2026)
 
-> **Effective date:** 2026-04-17.
+> **Effective date:** 2026-09-07 (**M-305** profit re-rate; prior freeze 2026-04-17, Team bundle **M-200** 2026-07-29).
 > **Valid for:** 12 months, or until a re-rate gate below triggers an explicit re-rate decision.
 > **Change control:** Any revision to the numbers in this section requires a product leadership decision and an update to this file + CHANGELOG.md before becoming effective.
+> **Grandfathering:** none — no active subscriptions at re-rate (same as **M-200**).
 
-### 5.1 Derivation (50%-of-fair-value basis)
+### 5.1 Derivation (split stack after M-305)
 
 | Input | Value | Source |
 |-------|-------|--------|
@@ -185,16 +216,25 @@ Productized **fixed-fee** professional services for authoring customer-specific 
 | Value per architect per year | ~$49,000 | $294K ÷ 6 |
 | Capture target (10–20% of value) | $4,900–$9,800 / architect / year | Industry benchmark for B2B SaaS |
 | "Fair value" seat price | $408–$817 / seat / month | Divide by 12 |
-| **Current price multiplier** | **~50% of fair value** | See discount stack below |
 
-**Discount stack applied to arrive at locked prices:**
+**April 2026 lock** applied a uniform **−50%** stack (trust −25% + reference −15% + self-serve −10%). **M-305 (2026-09-07)** executes the overdue self-serve gate and destacks trust from self-serve SKUs:
 
-| Discount | Reason | Magnitude |
-|----------|--------|-----------|
-| Trust discount | SOC 2 Type II not yet attested; no published pen-test report | −25% |
-| Reference discount | No named reference customer logo or published case study | −15% |
-| Self-serve discount | Trial/billing loop not fully in production at lock date | −10% |
-| **Total discount** | | **−50%** |
+| Discount | Architect / Team (self-serve) | Professional / Enterprise (sales-led, attestation-sensitive) |
+|----------|-------------------------------|--------------------------------------------------------------|
+| Trust (−25%) | **Destacked from list** — not a quote lever on these SKUs | **Remains in list** — named concession, not an extra 25% off at quote time |
+| Reference (−15%) | Remains in list | Remains in list |
+| Self-serve (−10%) | **Removed (gate #3 applied)** | **Removed (gate #3 applied)** |
+| **Resulting multiplier vs original fair-value band** | **~85%** (reference only) | **~60%** (trust + reference) |
+
+Architect / Team list therefore moves more than Professional. The Team public bundle also includes a **ladder-alignment bump** so Professional can include **10 seats** (not 20) without inverting per-seat / per-credit / per-package unit rates on `/pricing` (`pricing-catalog-coherence.ts`).
+
+**Discount stack remaining after M-305:**
+
+| Discount | Reason | Magnitude | Where it still sits |
+|----------|--------|-----------|---------------------|
+| Trust discount | SOC 2 Type II not yet attested; no published pen-test report | −25% | Professional / Enterprise list only |
+| Reference discount | No named reference customer logo or published case study | −15% | All paid lists |
+| Self-serve discount | Trial/billing loop engineering bar cleared 2026-04-17; **applied 2026-09-07** | — | **Cleared** |
 
 ### 5.2 Locked price table (do not edit without re-rate gate decision)
 
@@ -203,7 +243,7 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
 ```locked-prices
 {
   "schemaVersion": 1,
-  "effectiveDate": "2026-07-29",
+  "effectiveDate": "2026-09-07",
   "currency": "USD",
   "architectStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
   "architectStripeCheckoutUrlSalesLedPlaceholder": true,
@@ -214,45 +254,52 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
       "id": "architect",
       "title": "Architect",
       "summary": "For one architect creating and reviewing architecture packages.",
-      "planMonthlyUsd": 99,
+      "planMonthlyUsd": 169,
       "pricingDisplay": "monthly",
       "includedUsers": 1,
       "includedWorkspaces": 1,
       "monthlyAiCredits": 500,
       "includedReviewsPerMonth": 5,
-      "overageReviewUsd": 12
+      "overageReviewUsd": 30,
+      "llmIncludedUsdPerUtcMonth": 20,
+      "llmHardCutoffUsdPerUtcMonth": 35
     },
     {
       "id": "team",
       "title": "Team",
       "summary": "Small architecture team with basic governance",
-      "planMonthlyUsd": 499,
+      "planMonthlyUsd": 1169,
       "pricingDisplay": "monthly",
       "includedUsers": 5,
       "includedWorkspaces": 1,
       "monthlyAiCredits": 2500,
-      "workspaceMonthlyUsd": 199,
+      "workspaceMonthlyUsd": 339,
       "includedArchitectSeats": 5,
       "maxArchitectSeats": 10,
-      "seatMonthlyUsd": 79,
+      "seatMonthlyUsd": 211,
       "includedReviewsPerMonth": 20,
-      "overageReviewUsd": 10
+      "overageReviewUsd": 25,
+      "llmIncludedUsdPerUtcMonth": 50,
+      "llmHardCutoffUsdPerUtcMonth": 75
     },
     {
       "id": "professional",
       "title": "Professional",
       "summary": "Governed architecture review practice with policy packs and audit exports",
-      "planMonthlyUsd": 1799,
+      "planMonthlyUsd": 2299,
       "pricingDisplay": "monthly",
-      "includedUsers": 20,
-      "includedWorkspaces": 5,
+      "includedUsers": 10,
+      "includedWorkspaces": 1,
       "monthlyAiCredits": 10000,
-      "workspaceMonthlyUsd": 899,
+      "workspaceMonthlyUsd": 1079,
       "maxWorkspaces": 5,
-      "includedArchitectSeats": 20,
-      "seatMonthlyUsd": 179,
+      "includedArchitectSeats": 10,
+      "maxArchitectSeats": 20,
+      "seatMonthlyUsd": 215,
       "includedReviewsPerMonth": 100,
-      "overageReviewUsd": 8
+      "overageReviewUsd": 20,
+      "llmIncludedUsdPerUtcMonth": 200,
+      "llmHardCutoffUsdPerUtcMonth": 300
     },
     {
       "id": "enterprise",
@@ -262,27 +309,32 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
       "includedUsers": 0,
       "includedWorkspaces": 0,
       "monthlyAiCredits": 0,
+      "annualFloorUsd": 60000,
       "annualCeilingUsd": 250000
     }
   ]
 }
 ```
 
-**`teamStripeCheckoutUrl` (Team card — optional Stripe CTA).** The value above is a **non-production placeholder** (not a real Payment Link or Checkout session). Replace it with a live `https://buy.stripe.com/…` or `https://checkout.stripe.com/c/…` URL before launch, or remove the key to hide the “Subscribe with Stripe” button until billing is ready. **`teamStripeCheckoutUrlSalesLedPlaceholder`** must remain **`true`** while the URL contains substring markers matched by **`archlucid-ui/src/lib/team-stripe-checkout-url.ts`** (`placeholder-replace-before-launch`, `checkout-placeholder`) so CI proves the Subscribe CTA stays **sales-led** unless **Next.js build-time** **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED`** opt-in deliberately surfaces Stripe. **Allowed states for public pricing JSON:** (**a**) live buyer-facing checkout — use a live Stripe URL, set **`teamStripeCheckoutUrlSalesLedPlaceholder`** to **`false`** or omit it, and set **`teamStripeCheckoutUrlStripeTestMode`** to **`false`** or omit it; (**b**) placeholder URL with **`teamStripeCheckoutUrlSalesLedPlaceholder: true`** (Subscribe CTA stays hidden in the UI — **`team-stripe-checkout-url.ts`** — quote request remains available); (**c**) no **`teamStripeCheckoutUrl`** key (no checkout URL in the bundle); (**d**) Stripe **test-mode** hosted checkout only — for URLs matching hosted test patterns (`cs_test_*` session paths, `buy.stripe.com/test_*` Payment Links), set **`teamStripeCheckoutUrlStripeTestMode: true`** so CI cannot merge unlabeled test checkout; do **not** set that flag on live **`cs_live_*`** or live **`buy.stripe.com/…`** links. Shared validation: **`scripts/ci/pricing_json_checkout_guard.py`** (also invoked from **`scripts/ci/generate_pricing_json.py`** and **`scripts/ci/assert_public_pricing_placeholder_guard.py`**). Backend Checkout (**`Billing:Stripe:PriceIdTeam`**) must attach a Stripe recurring Price matching **§ 3.2** (**$499** / month interim Team SKU).
+**`teamStripeCheckoutUrl` (Team card — optional Stripe CTA).** The value above is a **non-production placeholder** (not a real Payment Link or Checkout session). Replace it with a live `https://buy.stripe.com/…` or `https://checkout.stripe.com/c/…` URL before launch, or remove the key to hide the “Subscribe with Stripe” button until billing is ready. **`teamStripeCheckoutUrlSalesLedPlaceholder`** must remain **`true`** while the URL contains substring markers matched by **`archlucid-ui/src/lib/team-stripe-checkout-url.ts`** (`placeholder-replace-before-launch`, `checkout-placeholder`) so CI proves the Subscribe CTA stays **sales-led** unless **Next.js build-time** **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED`** opt-in deliberately surfaces Stripe. **Allowed states for public pricing JSON:** (**a**) live buyer-facing checkout — use a live Stripe URL, set **`teamStripeCheckoutUrlSalesLedPlaceholder`** to **`false`** or omit it, and set **`teamStripeCheckoutUrlStripeTestMode`** to **`false`** or omit it; (**b**) placeholder URL with **`teamStripeCheckoutUrlSalesLedPlaceholder: true`** (Subscribe CTA stays hidden in the UI — **`team-stripe-checkout-url.ts`** — quote request remains available); (**c**) no **`teamStripeCheckoutUrl`** key (no checkout URL in the bundle); (**d**) Stripe **test-mode** hosted checkout only — for URLs matching hosted test patterns (`cs_test_*` session paths, `buy.stripe.com/test_*` Payment Links), set **`teamStripeCheckoutUrlStripeTestMode: true`** so CI cannot merge unlabeled test checkout; do **not** set that flag on live **`cs_live_*`** or live **`buy.stripe.com/…`** links. Shared validation: **`scripts/ci/pricing_json_checkout_guard.py`** (also invoked from **`scripts/ci/generate_pricing_json.py`** and **`scripts/ci/assert_public_pricing_placeholder_guard.py`**). Backend Checkout (**`Billing:Stripe:PriceIdTeam`**) must attach a Stripe recurring Price matching **§ 3.2** (**$1,169** / month interim Team SKU).
 
 | Item | Price |
 |------|-------|
-| Team platform fee | $199 / workspace / month |
-| Team seat | $79 / architect / month |
-| Team architecture package overage | $10 / architecture package |
-| Professional platform fee | $899 / workspace / month |
-| Professional seat | $179 / architect / month |
-| Professional architecture package overage | $8 / architecture package |
+| Architect bundle | $169 / month (1 seat, 1 workspace) |
+| Architect architecture package overage | $30 / architecture package |
+| Team public / Stripe bundle | $1,169 / month (5 seats, 1 workspace) |
+| Team platform fee (quote decomposition / not an extra workspace) | $339 / workspace / month |
+| Team seat (add-on) | $211 / architect / month |
+| Team architecture package overage | $25 / architecture package |
+| Professional public bundle | $2,299 / month (10 seats, 1 workspace) |
+| Professional platform fee (add-on workspace) | $1,079 / workspace / month |
+| Professional seat (add-on, seats 11–20) | $215 / architect / month |
+| Professional architecture package overage | $20 / architecture package |
 | Enterprise annual floor | $60,000 / year |
 | Enterprise land range | $60,000–$250,000 / year |
-| Enterprise **review** metering | Unlimited in fair-use (2,000 / month soft cap) |
-| Guided pilot | $15,000 flat (fully credited on conversion) |
-| Design partner discount | 50% off Professional list, 12 months, first 3 customers only |
+| Enterprise **review** metering | Unlimited in fair-use (2,000 / month soft cap) plus a contracted LLM spend schedule (§3.3) |
+| Guided pilot | $15,000 flat (fully credited on conversion within 90 days of pilot end) |
+| Design partner discount | 50% off Professional list, 12 months, first 3 customers only; mutually exclusive with §4.1 |
 | Custom Pack — Starter (customer-exclusive) | $15,000 one-time |
 | Custom Pack — Starter (ArchLucid-owned) | $9,500 one-time |
 | Custom Pack — Standard (customer-exclusive) | $40,000 one-time |
@@ -291,33 +343,35 @@ The fenced JSON block below is the **machine-readable** source for `archlucid-ui
 | Custom Pack — Program (ArchLucid-owned) | $65,000+ one-time |
 | Custom Pack maintenance (annual) | 20% of original authoring fee |
 
+**Professional bundle vs add-on rate card.** The **$2,299** SKU is the buyer-facing Professional base (10 seats + 1 workspace). Component rates ($1,079 / workspace, $215 / seat) apply to **expansion above that allotment** and to order-form line items when quoting extra seats or workspaces — they are not a second public price for the same 10+1 pack.
+
 ### 5.3 Re-rate plan
 
-Each gate below removes its associated discount from the stack. Trigger a **product leadership pricing review** (not an automatic price change) when any gate clears. Existing customers receive **price-lock for the remainder of their current term plus one renewal** before any increase applies.
+Each remaining gate below removes its associated discount from the stack. Trigger a **product leadership pricing review** (not an automatic price change) when any gate clears. Existing customers receive **price-lock for the remainder of their current term plus one renewal** before any increase applies.
 
-| Gate | Discount removed | Expected list price increase |
-|------|-----------------|------------------------------|
-| CPA SOC 2 evidence gate cleared under NDA | −25% trust discount | Raise list ~25% |
-| Two named, referenceable customers (case study or logo + quote) | −15% reference discount | Raise list ~15% |
-| Self-serve signup → tenant → billing loop in production | −10% self-serve discount | Raise list ~10% |
+| Gate | Discount removed | Expected list price increase | Status |
+|------|-----------------|------------------------------|--------|
+| CPA SOC 2 evidence gate cleared under NDA | −25% trust discount (Professional / Enterprise list) | Raise Professional / Enterprise list ~25% relative | Open — GTM owner work **G-REAL-05** / **G-ASSURANCE-02** (do not treat as an engineering batch) |
+| Two named, referenceable customers (case study or logo + quote) | −15% reference discount | Raise all paid lists ~15% relative | Open |
+| Self-serve signup → tenant → billing loop in production | −10% self-serve discount | Raise list ~10% relative | **Applied 2026-09-07 (M-305)** |
 
-**Gate #3 (2026-04-17):** In-repo evidence clears the *engineering* bar: merge-blocking **`ui-e2e-live`** runs [`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`](../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) (register → SQL trial → metering → Noop checkout → harness activation → Prometheus counters). **This still triggers a product-leadership pricing review**, not an automatic list-price change — see §5.3 intro and §7.
+**Gate #3 applied (2026-09-07):** In-repo evidence cleared the *engineering* bar on 2026-04-17: merge-blocking **`ui-e2e-live`** runs [`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`](../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts). Product leadership ratified the list-price change in **M-305**; this is not an automatic future increase.
 
-**All three gates cleared:** fair-value pricing (~$408–$817 / seat / month) becomes defensible. Re-rate to Professional seat ~$299 / seat / month as a full-discount-cleared target.
+**Both remaining gates cleared:** fair-value pricing (~$408–$817 / seat / month) becomes defensible. Re-rate Professional add-on seat toward ~$299 / seat / month as a full-discount-cleared target.
 
 ### 5.4 Discount-stack work-down
 
-> **Why this section.** § 5.3 above describes *what triggers a re-rate*. This section is the **operational tracker** that names *who is driving each gate to clear*, *when* it is expected to clear, *what evidence will close it*, and *which CI / repo signal* will tell finance the gate is ready for a pricing review. The discount magnitudes in § 5.1 and the locked prices in § 5.2 are **unchanged** by this section — it is a project-management overlay, not a price change.
+> **Why this section.** § 5.3 above describes *what triggers a re-rate*. This section is the **operational tracker** that names *who is driving each remaining gate to clear*. Locked prices in § 5.2 change only via an explicit product-leadership decision (as **M-305** just did).
 
 | Discount line | Magnitude | Owner | Target close date | Evidence link | Re-rate trigger |
 |---------------|-----------|-------|-------------------|---------------|-----------------|
-| Trust discount (SOC 2 Type II + published pen-test) | −25% | TBD (security lead) | TBD (gated on auditor selection) | `docs/security/PEN_TEST_PROGRAM.md` once it lands (file does not yet exist; the link will be made live in the same PR that introduces the program); future CPA attestation evidence filed under NDA after issuance | Auditor opinion letter received **and** filed in the trust portal; pen-test report (or sponsor summary) approved for prospect distribution |
-| Reference discount (named, published reference customer) | −15% | **Product marketing** (standardized 2026-04-21) | Standing offer — clears the moment first row reaches `Status: Published` | [`reference-customers/README.md`](reference-customers/README.md) — first row reaching `Status: Published`; CI runs `scripts/ci/check_reference_customer_status.py` twice in `.github/workflows/ci.yml` — warn-only first, then a **strict** re-run **only when** the warn step succeeds (auto-flip; **do not** remove `continue-on-error` by hand on publish day) | At least **one** row in the reference-customers index has `Status: Published` **and** the strict re-run step is active (same commit that introduces the Published row is enough). **Outbound offer to subsequent customers is the standardized 15% per § 4.1** — no per-deal negotiation required. |
+| Trust discount (SOC 2 Type II + published pen-test) | −25% on Professional / Enterprise list only | TBD (security lead) | TBD (gated on auditor selection) | `docs/security/PEN_TEST_PROGRAM.md` once it lands (file does not yet exist; the link will be made live in the same PR that introduces the program); future CPA attestation evidence filed under NDA after issuance | Auditor opinion letter received **and** filed in the trust portal; pen-test report (or sponsor summary) approved for prospect distribution |
+| Reference discount (named, published reference customer) | −15% | **Product marketing** (standardized 2026-04-21) | Standing offer — clears the moment first row reaches `Status: Published` | [`reference-customers/README.md`](reference-customers/README.md) — first row reaching `Status: Published`; CI runs `scripts/ci/check_reference_customer_status.py` twice in `.github/workflows/ci.yml` — warn-only first, then a **strict** re-run **only when** the warn step succeeds (auto-flip; **do not** remove `continue-on-error` by hand on publish day) | At least **one** row in the reference-customers index has `Status: Published` **and** the strict re-run step is active (same commit that introduces the Published row is enough). **Outbound offer to subsequent customers is the standardized 15% per § 4.1** — mutually exclusive with design partner per §4.3. |
+| Self-serve discount (trial / billing loop in production) | −10% | Product leadership | **Applied 2026-09-07** | Merge-blocking `ui-e2e-live` plus **M-305** list update | No further evidence required; do not re-open as a list-price hold |
 
-> **TODO (reference discount copy removal):** Do **not** delete the −15% line from §5.1 / §5.2 until product leadership runs the §5.3 **re-rate review**. The **engineering** signal that the gate is ready is the **same** merge to `main` where the first README row hits `Published` (strict CI step auto-flips — no YAML surgery).
-| Self-serve discount (trial / billing loop in production) | −10% | TBD (platform PM) | Cleared in-repo as of 2026-04-17; awaits product-leadership pricing review | Merge-blocking `ui-e2e-live` runs [`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`](../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) — see § 5.3 Gate #3 | Product leadership signs off on the engineering signal; no further evidence required |
+> **TODO (reference discount copy removal):** Do **not** delete the −15% line from §5.1 until product leadership runs the next §5.3 **re-rate review**. The **engineering** signal that the gate is ready is the **same** merge to `main` where the first README row hits `Published` (strict CI step auto-flips — no YAML surgery).
 
-**How this table is maintained.** Every PR that materially advances a gate (e.g., publishes a real reference customer, lands the SOC 2 attestation, completes the pen-test exec summary) updates the matching row's *Owner* and *Target close date* fields and adds a one-line entry to [`docs/CHANGELOG.md`](../CHANGELOG.md). When all three rows reach a "ready for re-rate" state, finance triggers the re-rate gate decision in § 5.3 — this table does **not** authorize price changes on its own.
+**How this table is maintained.** Every PR that materially advances a remaining gate updates the matching row's *Owner* and *Target close date* fields and adds a one-line entry to [`docs/CHANGELOG.md`](../CHANGELOG.md). This table does **not** authorize price changes on its own.
 
 **Cross-references.** The reference-customers index and case-study placeholder live in [`reference-customers/`](reference-customers/). The CI guard backing the reference row is `scripts/ci/check_reference_customer_status.py`, wired non-blocking in `.github/workflows/ci.yml`. Both are described from the discoverability side in **[`REPOSITORY_README.md`](../REPOSITORY_README.md)** (documentation spine / deeper index).
 
@@ -327,25 +381,26 @@ Each gate below removes its associated discount from the stack. Trigger a **prod
 
 | Lever | Trigger |
 |-------|---------|
-| **Add seats** | New architects join the practice or additional teams adopt |
-| **Add workspaces** | New business units, product lines, or projects |
-| **Tier upgrade** | Need governance, policy packs, audit export, or dedicated support |
-| **Run overage** | Sustained usage above tier allowance |
+| **Add seats** | New architects join the practice or additional teams adopt (Team add-ons to 10; Professional add-ons 11–20) |
+| **Add workspaces** | Professional add-on workspaces 2–5 at the platform fee; new business units, product lines, or projects |
+| **Tier upgrade** | Need governance, policy packs, audit export, or dedicated support; Team 11th seat requires Professional |
+| **Package overage** | Sustained usage above tier allowance (priced above typical LLM COGS — §5.2) |
+| **LLM wallet** | Real-mode spend above the tier hard stop (1.4× estimated USD) |
 | **Professional services** | Custom finding engines, policy packs, integration consulting |
 
 ---
 
 ## 7. Sensitivity playbook
 
-Use this when first deals produce signal about price tolerance. Do not change list prices without a product leadership decision — use discounting within deal economics until patterns emerge.
+Use this when first deals produce signal about price tolerance. Do not change list prices without a product leadership decision — use discounting within deal economics **and the §4.3 floor** until patterns emerge.
 
 | Signal | Recommended response |
 |--------|---------------------|
-| Deals stalling at Pro; price is the stated objection | Offer Pro seat at **$129 / seat / month** as a first-year promotional price (document separately; do not change list) |
-| First 5 Pro deals close in < 30 days without discount | Raise Pro seat to **$229 / seat / month** at next quarterly re-rate |
-| Azure Marketplace is the primary buying motion | Collapse to flat tiers: Team **$499 / month** (up to 5 seats); Pro **$2,499 / month** (up to 15 seats); Enterprise: talk to sales |
-| Run overage causes friction (> 3 deals cite it) | Move Pro/Enterprise to **unlimited runs in fair-use**; keep overage only at Team tier |
-| Buyers ignore platform fee / only count per-seat | Roll platform fee into higher seat price: Team **$119 / seat**; Pro **$249 / seat** (equivalent monthly at typical seat counts) |
+| Deals stalling at Professional; price is the stated objection | Offer Professional add-on seat at **$165 / seat / month** as a first-year promotional price (document separately; do not change list; remain above the 50% floor) |
+| First 5 Professional deals close in < 30 days without discount | Raise Professional add-on seat toward **$259 / seat / month** at next quarterly re-rate |
+| Azure Marketplace is the primary buying motion | Collapse to flat tiers: Team **$1,169 / month** (up to 5 seats); Professional **$2,299 / month** (up to 10 seats); Enterprise: talk to sales |
+| Package overage causes friction (> 3 deals cite it) | Move Professional/Enterprise to **unlimited packages in fair-use**; keep overage only at Architect/Team |
+| Buyers ignore platform fee / only count per-seat | Quote the public bundle; do not discount below the §4.3 floor |
 
 ---
 

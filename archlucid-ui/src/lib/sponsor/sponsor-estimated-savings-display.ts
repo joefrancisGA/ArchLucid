@@ -55,5 +55,14 @@ export function presentSponsorEstimatedSavings(
     };
   }
 
-  return { display: formatUsd(amount), footnote: null };
+  const basisDescription = (options.summary?.savingsPricingBasisDescription ?? "").trim();
+  const basisLabel = (options.summary?.savingsPricingBasis ?? "").trim();
+  const footnote =
+    basisDescription.length > 0
+      ? basisDescription
+      : basisLabel.length > 0
+        ? `Basis: ${basisLabel}`
+        : null;
+
+  return { display: formatUsd(amount), footnote };
 }

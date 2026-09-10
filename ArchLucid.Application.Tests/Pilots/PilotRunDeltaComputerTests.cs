@@ -1147,7 +1147,115 @@ public sealed class PilotRunDeltaComputerTests
         deltas.GovernedFindingCoverage.GovernedCount.Should().Be(1);
         deltas.TopFindingId.Should().Be("snapshot-critical");
         deltas.TopFindingSeverity.Should().Be("Critical");
+        deltas.SponsorNarrativeFindings.Should().HaveCount(2);
+        deltas.SponsorNarrativeFindings.Select(static finding => finding.FindingId)
+            .Should()
+            .BeEquivalentTo(["snapshot-critical", "snapshot-warning"]);
         evidence.Verify(e => e.BuildAsync(run.RunId, "snapshot-critical", It.IsAny<CancellationToken>()), Times.Once);
         evidence.Verify(e => e.BuildAsync(run.RunId, "agent-advisory", It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task ComputeAsync_WhenAgentAndSnapshotHaveEqualCounts_PrefersSnapshotWhenSeverityIsHigher()
+    {
+        Guid runGuid = Guid.Parse("34343434-2222-3333-4444-555555555555");
+        Guid findingsSnapshotId = Guid.Parse("45454545-2222-3333-4444-555555555555");
+        DateTime created = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        ArchitectureRun run = new()
+        {
+            RunId = runGuid.ToString("N"),
+            RequestId = "req-equal-count-severity-tie",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = created,
+            CompletedUtc = created.AddMinutes(12),
+            CurrentManifestVersion = "v1",
+            FindingsSnapshotId = findingsSnapshotId,
+        };
+
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = new GoldenManifest
+            {
+                RunId = run.RunId,
+                SystemName = "ArchLucid",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = created.AddMinutes(12) },
+                Governance = new ManifestGovernance(),
+            },
+            Results =
+            [
+                new AgentResult
+                {
+                    TaskId = "t-agent-warning",
+                    RunId = run.RunId,
+                    AgentType = AgentType.Topology,
+                    Findings =
+                    [
+                        new ArchitectureFinding
+                        {
+                            FindingId = "agent-warning",
+                            Severity = FindingSeverity.Warning,
+                            Message = "agent warning",
+                            EnforcementTier = FindingEnforcementTier.Advisory,
+                        },
+                    ],
+                },
+            ],
+            DecisionTraces = [],
+        };
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        snapshots.Setup(s => s.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsSnapshotId,
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "snapshot-error",
+                        Severity = FindingSeverity.Error,
+                        EngineType = "topology",
+                        Category = "security",
+                        EnforcementTier = FindingEnforcementTier.Advisory,
+                    },
+                ],
+            });
+
+        Mock<IFindingEvidenceChainService> evidence = new();
+        evidence.Setup(e => e.BuildAsync(run.RunId, "snapshot-error", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingEvidenceChainResponse
+            {
+                RunId = run.RunId,
+                FindingId = "snapshot-error",
+                ManifestVersion = "v1",
+            });
+
+        PilotRunDeltaComputer sut = CreatePilotDeltaComputer(
+            evidence.Object,
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAuditRepository>(),
+            LooseArtifacts().Object,
+            scopeProvider.Object,
+            findingsSnapshotRepository: snapshots.Object);
+
+        PilotRunDeltas deltas = await sut.ComputeAsync(detail);
+
+        deltas.FindingsBySeverity.Should().ContainSingle()
+            .Which.Should().Be(new KeyValuePair<string, int>("Error", 1));
+        deltas.TopFindingId.Should().Be("snapshot-error");
+        deltas.TopFindingSeverity.Should().Be("Error");
+        evidence.Verify(e => e.BuildAsync(run.RunId, "snapshot-error", It.IsAny<CancellationToken>()), Times.Once);
+        evidence.Verify(e => e.BuildAsync(run.RunId, "agent-warning", It.IsAny<CancellationToken>()), Times.Never);
     }
 }

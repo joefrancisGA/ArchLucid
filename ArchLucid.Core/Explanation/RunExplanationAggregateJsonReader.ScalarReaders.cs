@@ -111,15 +111,31 @@ internal static partial class RunExplanationAggregateJsonReader
 
     public static bool TryReadWholeNumber(JsonElement element, out int value)
     {
-        if (element.TryGetInt32(out value))
-            return true;
-
-        if (element.TryGetDouble(out double numeric)
-            && double.IsFinite(numeric)
-            && numeric >= 0
-            && numeric == Math.Floor(numeric))
+        if (element.ValueKind == JsonValueKind.Number)
         {
-            value = (int)numeric;
+            if (element.TryGetInt32(out value))
+                return true;
+
+            if (element.TryGetDouble(out double numeric)
+                && double.IsFinite(numeric)
+                && numeric >= 0
+                && numeric == Math.Floor(numeric))
+            {
+                value = (int)numeric;
+
+                return true;
+            }
+        }
+        else if (element.ValueKind == JsonValueKind.String)
+        {
+            string? raw = element.GetString();
+
+            if (TryParseWholeNumberString(raw, out value))
+                return true;
+        }
+        else if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            value = element.ValueKind == JsonValueKind.True ? 1 : 0;
 
             return true;
         }

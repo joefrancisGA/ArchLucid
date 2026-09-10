@@ -45,7 +45,7 @@ function nodeLabelForPresentation(node: GraphViewModel["nodes"][number], present
     return node.label;
   }
 
-  return `${node.label}\n(${node.type})`;
+  return `${node.label}\n(${resolveGraphNodeKindBuyerLabel(node.type) ?? node.type})`;
 }
 
 function humanizeEdgeLabel(edgeType: string): string {

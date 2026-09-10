@@ -45,8 +45,7 @@ public static class AdvisoryTerraformRepresentationBuilder
             }
 
             blocks.Add(
-                "# " + TerraformAdvisoryExportCopy.DisclaimerLine + Environment.NewLine
-                + "# arm.id=" + resource.AzureResourceId + Environment.NewLine
+                "# arm.id=" + resource.AzureResourceId + Environment.NewLine
                 + "# arm.type=" + resource.ResourceType + Environment.NewLine
                 + "# reconstruction-only — not original Terraform" + Environment.NewLine
                 + "# " + uncertainty + Environment.NewLine

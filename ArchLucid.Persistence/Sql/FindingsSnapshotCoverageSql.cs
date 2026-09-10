@@ -17,6 +17,6 @@ internal static class FindingsSnapshotCoverageSql
 
     /// <summary>Finding metadata for coverage engine counts — omit <c>PayloadJson</c> and child LOBs.</summary>
     public const string SelectFindingMetadataColumns = """
-                                                       FindingId, FindingType, Category, EngineType, Severity, Title, PolicyRuleId, SortOrder
+                                                       FindingId, FindingType, Category, EngineType, Severity, Title, PolicyRuleId, SortOrder, IsMuted
                                                        """;
 }

@@ -26,8 +26,16 @@ import { useGraphPage } from "@/app/(operator)/insights/evidence-graph/_sections
 import { GraphPageToolbar } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageToolbar";
 import { GraphPageCanvasShell } from "@/app/(operator)/insights/evidence-graph/_sections/GraphPageCanvasShell";
 
-export function GraphPageContent() {
-  const vm = useGraphPage();
+export type GraphPageContentProps = {
+  readonly basePathname?: string;
+  readonly pinnedArchitectureId?: string;
+};
+
+export function GraphPageContent(props: GraphPageContentProps = {}) {
+  const vm = useGraphPage({
+    basePathname: props.basePathname,
+    pinnedArchitectureId: props.pinnedArchitectureId,
+  });
 
   return (
     <OperatorPageContainer variant="dashboard">

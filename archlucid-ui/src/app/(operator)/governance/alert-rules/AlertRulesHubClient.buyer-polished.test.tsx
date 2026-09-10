@@ -1,5 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 const tabValue: { current: string | null } = { current: null };
 const push = vi.fn();
@@ -93,7 +96,7 @@ import {
   ALERTS_CONFIGURATION_PAGE_SUBTITLE,
   BUYER_ALERTS_CONFIGURATION_PAGE_SUBTITLE,
 } from "@/lib/alerts-page-copy";
-import { ALERT_RULES_CLAIM_DISCIPLINE, ALERT_RULES_FOLLOW_UPS_TITLE } from "@/lib/alert-rules-evidence-copy";
+import { ALERT_RULES_CLAIM_DISCIPLINE, ALERT_RULES_FOLLOW_UPS_TITLE, ALERT_RULES_ORIENTATION_SOURCES } from "@/lib/alert-rules-evidence-copy";
 import { GOVERNANCE_OVERVIEW_PAGE_LEAD } from "@/lib/governance/governance-overview-copy";
 import {
   ALERT_RULES_HUB_FIRST_VIEWPORT_ID,
@@ -103,13 +106,13 @@ import {
 
 import { AlertRulesHubClient } from "./AlertRulesHubClient";
 
-describe("AlertRulesHubClient buyer-polished shell (GOT)", () => {
+describe("AlertRulesHubClient buyer-polished shell (SAX)", () => {
   beforeEach(() => {
     push.mockReset();
     tabValue.current = "test-alerts";
   });
 
-  it("renders skip link, workspace before follow-ups, buyer subtitle, and keeps contextual help", () => {
+  it("renders skip link, workspace before follow-ups, buyer subtitle, and hides contextual help", () => {
     render(<AlertRulesHubClient />);
 
     expect(screen.getByRole("link", { name: ALERT_RULES_HUB_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -119,9 +122,11 @@ describe("AlertRulesHubClient buyer-polished shell (GOT)", () => {
     expect(screen.getByText(BUYER_ALERTS_CONFIGURATION_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByText(ALERTS_CONFIGURATION_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.queryByTestId("layer-header-collapsible-guidance")).toBeNull(); // TB-2093
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-refresh-button")).toBeInTheDocument();
     expect(screen.queryByTestId("alert-rules-scope-details")).toBeNull(); // TB-2093
+    expect(screen.queryByTestId("alert-rules-config-provenance")).toBeNull();
+    expect(screen.queryByTestId("composite-rules-config-provenance")).toBeNull();
     expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
     expect(screen.getByTestId("alert-rules-hub-claim-discipline")).toHaveTextContent(
       ALERT_RULES_CLAIM_DISCIPLINE.slice(0, 40),
@@ -134,10 +139,17 @@ describe("AlertRulesHubClient buyer-polished shell (GOT)", () => {
     const firstViewport = screen.getByTestId(ALERT_RULES_HUB_FIRST_VIEWPORT_ID);
     const simulationPanel = screen.getByTestId("stub-simulation");
     const orientationBottom = screen.getByTestId("alert-rules-hub-orientation-bottom");
+    const sourcesSection = screen.getByTestId("alert-rules-hub-sources");
 
     expect(primaryContent).toContainElement(firstViewport);
     expect(firstViewport).toContainElement(simulationPanel);
     expect(primaryContent).toContainElement(orientationBottom);
+    expect(orientationBottom).toContainElement(sourcesSection);
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const source of filterWhereToGoNextFollowUpLinks(ALERT_RULES_ORIENTATION_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
   });
 });

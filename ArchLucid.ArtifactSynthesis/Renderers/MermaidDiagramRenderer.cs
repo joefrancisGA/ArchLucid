@@ -125,6 +125,7 @@ public class MermaidDiagramRenderer : IDiagramRenderer
             .Replace('\r', ' ')
             .Replace("\"", "'", StringComparison.Ordinal)
             .Replace("[", "#91;", StringComparison.Ordinal)
-            .Replace("]", "#93;", StringComparison.Ordinal);
+            .Replace("]", "#93;", StringComparison.Ordinal)
+            .Replace("|", "#124;", StringComparison.Ordinal);
     }
 }

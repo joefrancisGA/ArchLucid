@@ -29,6 +29,22 @@ public sealed class ContextDocumentRequestValidatorTests
     }
 
     [Theory]
+    [InlineData("application/vnd.archlucid.diagram+json")]
+    [InlineData("text/vnd.mermaid")]
+    [InlineData("application/vnd.archlucid.diagram+svg")]
+    [InlineData("application/vnd.jgraph.mxfile")]
+    public async Task Validate_Succeeds_ForStructuredDiagramContentTypes(string contentType)
+    {
+        ContextDocumentRequest doc = ValidDocument();
+        doc.ContentType = contentType;
+        doc.Content = """{"nodes":[{"id":"api","label":"API"}],"edges":[]}""";
+
+        ValidationResult result = await _validator.ValidateAsync(doc);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]

@@ -1,6 +1,8 @@
 using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models.ConnectorPayloads;
 
 using FluentAssertions;
 
@@ -814,5 +816,64 @@ public sealed class BicepInfrastructureDeclarationParserTests
 
         result.Should().ContainSingle();
         result[0].Properties["tf.publicnetworkaccess"].Should().Be("enabled");
+    }
+
+    [Fact]
+    public async Task ParseAsync_InBatchModule_IncludesModuleResources()
+    {
+        InfrastructureDeclarationsPayloadNormalizer normalizer = new([_sut]);
+
+        InfrastructureDeclarationsPayload payload = new()
+        {
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationReference
+                {
+                    Name = "main.bicep",
+                    Format = "bicep",
+                    DeclarationId = "decl-bicep-main",
+                    Content = """
+                              module storageModule 'modules/storage.bicep' = {
+                              }
+                              """,
+                },
+                new InfrastructureDeclarationReference
+                {
+                    Name = "modules/storage.bicep",
+                    Format = "bicep",
+                    DeclarationId = "decl-bicep-module",
+                    Content = """
+                              resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                              }
+                              """,
+                },
+            ],
+        };
+
+        NormalizedContextBatch batch = await normalizer.NormalizeAsync(payload, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle(o => o.Name == "storage");
+        batch.CanonicalObjects[0].SourceId.Should().Be("decl-bicep-module");
+    }
+
+    [Fact]
+    public async Task ParseAsync_MissingModuleFile_IsNoOp()
+    {
+        InfrastructureDeclarationReference main = new()
+        {
+            Name = "main.bicep",
+            Format = "bicep",
+            DeclarationId = "decl-bicep-missing-module",
+            Content = """
+                      module storageModule 'missing/storage.bicep' = {
+                      }
+                      resource kv 'Microsoft.KeyVault/vaults@2023-02-01' = {
+                      }
+                      """
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(main, CancellationToken.None);
+
+        result.Should().ContainSingle(o => o.Name == "kv");
     }
 }

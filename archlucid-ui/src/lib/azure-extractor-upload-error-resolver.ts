@@ -1,4 +1,6 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import { extractUploadPackagerScriptReference } from "@/lib/extract-upload-product-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export type AzureExtractorUploadFailureKind = "schema" | "archive" | "validation" | "unknown";
 
@@ -113,20 +115,25 @@ function resolveSemanticCode(detail: string, failureKind: AzureExtractorUploadFa
   return "AZURE_EXTRACTOR_UPLOAD_UNKNOWN";
 }
 
-function guidanceForSemanticCode(code: AzureExtractorUploadSemanticCode): string {
+function guidanceForSemanticCode(
+  code: AzureExtractorUploadSemanticCode,
+  productLineId: ProductLineId = "architecture",
+): string {
+  const packagerScript = extractUploadPackagerScriptReference(productLineId);
+
   switch (code) {
     case "AZURE_EXTRACTOR_UNSUPPORTED_SCHEMA_VERSION":
-      return "Re-run Get-ArchLucidAzurePackage.ps1 from the current CDN script so manifest.json uses a supported schemaVersion, then upload the new ZIP.";
+      return `Re-run ${packagerScript} from the current packager script download so manifest.json uses a supported schemaVersion, then upload the new ZIP.`;
     case "AZURE_EXTRACTOR_MISSING_MANIFEST":
       return "The ZIP must contain manifest.json at the archive root. Re-run the extractor script and upload the complete package.";
     case "AZURE_EXTRACTOR_INVALID_MANIFEST_JSON":
       return "manifest.json is not valid JSON. Re-run the extractor locally and confirm the file opens cleanly before uploading.";
     case "AZURE_EXTRACTOR_MISSING_SCHEMA_VERSION":
-      return "manifest.json must include schemaVersion 1. Download the latest extractor script and regenerate the ZIP.";
+      return "manifest.json must include a supported schemaVersion (1–2). Download the latest extractor script and regenerate the ZIP.";
     case "AZURE_EXTRACTOR_MISSING_RESOURCES_JSON":
-      return "The ZIP must include resources.json from Get-ArchLucidAzurePackage.ps1. Do not upload a manifest-only archive.";
+      return `The ZIP must include resources.json from ${packagerScript}. Do not upload a manifest-only archive.`;
     case "AZURE_EXTRACTOR_INVALID_ZIP_ARCHIVE":
-      return "Upload a complete .zip produced by Get-ArchLucidAzurePackage.ps1. Partial downloads or renamed folders often fail archive validation.";
+      return `Upload a complete .zip produced by ${packagerScript}. Partial downloads or renamed folders often fail archive validation.`;
     case "AZURE_EXTRACTOR_RUN_SCOPE_MISMATCH":
       return "The runId query parameter does not match a review in this workspace. Upload without runId or open the correct workspace scope first.";
     case "AZURE_EXTRACTOR_ZIP_TOO_LARGE":
@@ -166,6 +173,7 @@ function docPathForSemanticCode(code: AzureExtractorUploadSemanticCode): string 
 export function resolveAzureExtractorUploadError(
   problem: ApiProblemDetails | null,
   fallbackMessage: string,
+  productLineId: ProductLineId = "architecture",
 ): AzureExtractorUploadErrorResolution {
   const detail = problem?.detail?.trim() ?? fallbackMessage.trim();
   const failureKind = readFailureKind(problem, detail);
@@ -175,7 +183,7 @@ export function resolveAzureExtractorUploadError(
     semanticCode,
     failureKind,
     heading: headingForFailureKind(failureKind),
-    guidance: guidanceForSemanticCode(semanticCode),
+    guidance: guidanceForSemanticCode(semanticCode, productLineId),
     docPath: docPathForSemanticCode(semanticCode),
   };
 }
