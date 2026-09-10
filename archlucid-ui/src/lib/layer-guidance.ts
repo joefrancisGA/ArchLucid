@@ -354,7 +354,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Advanced operations",
     headline: "Ask grounded questions about inventory evidence.",
     useWhen: "Use canned prompts or your own question when citations and InsufficientEvidence states are acceptable.",
-    firstPilotNote: "Simulator mode is on by default for deterministic, citation-grounded answers.",
+    firstPilotNote: "Answers cite structured inventory rows in scope — insufficient-evidence outcomes are honest.",
     omitReviewPackageScopeHelp: true,
   },
   "infrastructure-remediation": {

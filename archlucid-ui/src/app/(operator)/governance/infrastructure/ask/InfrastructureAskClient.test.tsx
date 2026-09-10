@@ -15,7 +15,6 @@ const mockAskResponse = {
       label: "gateway-pip",
     },
   ],
-  simulatorLabel: "SIMULATOR — deterministic template grounded on cited structured rows only.",
 };
 
 let searchParams = new URLSearchParams("");
@@ -53,7 +52,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
 }));
 
 describe("InfrastructureAskClient", () => {
-  it("shows insufficient evidence state, simulator banner, and citation link", async () => {
+  it("shows insufficient evidence state and citation link", async () => {
     searchParams = new URLSearchParams("");
     render(<InfrastructureAskClient />);
 
@@ -64,7 +63,7 @@ describe("InfrastructureAskClient", () => {
 
     expect(await screen.findByTestId("infra-ask-response")).toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-insufficient-evidence")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-ask-simulator-banner")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-ask-simulator-banner")).not.toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-citation-CloudResourceId-11111111-1111-1111-1111-111111111111")).toBeInTheDocument();
   });
 
