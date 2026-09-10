@@ -521,4 +521,29 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         actual.Should().Be(new DateTimeOffset(utc));
     }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_when_include_typed_payload_true_deserializes_payload_json()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: true,
+            payloadJson: """{"resourceId":"vm-1"}""",
+            title: "Encrypt at rest",
+            rationale: "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("resourceId").GetString().Should().Be("vm-1");
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_null_for_null_input()
+    {
+        FindingInspectReadRepositoryCore.TryParsePayloadJson(null).Should().BeNull();
+    }
+
+    [Fact]
+    public void MapLatestDisposition_returns_null_for_invalid_disposition_when_row_is_present()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition("bogus", hasDispositionRow: true).Should().BeNull();
+    }
 }

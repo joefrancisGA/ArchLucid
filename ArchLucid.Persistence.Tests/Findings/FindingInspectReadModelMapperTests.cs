@@ -194,4 +194,28 @@ public sealed class FindingInspectReadModelMapperTests
 
         actual.Should().Be(FindingDisposition.Remediated);
     }
+
+    [Fact]
+    public void ParseDisposition_parses_case_insensitive_rejected_as_not_applicable_value()
+    {
+        FindingDisposition? actual = FindingInspectReadModelMapper.ParseDisposition("rejectedasnotapplicable");
+
+        actual.Should().Be(FindingDisposition.RejectedAsNotApplicable);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_case_insensitive_not_required_value()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("notrequired");
+
+        actual.Should().Be(FindingHumanReviewStatus.NotRequired);
+    }
+
+    [Fact]
+    public void ParseHumanReview_parses_case_insensitive_approved_value()
+    {
+        FindingHumanReviewStatus actual = FindingInspectReadModelMapper.ParseHumanReview("approved");
+
+        actual.Should().Be(FindingHumanReviewStatus.Approved);
+    }
 }

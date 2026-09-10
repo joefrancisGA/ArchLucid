@@ -508,6 +508,53 @@ public sealed class FindingInspectReadSqlTests
         dispositionSql.Should().Contain("c.CurrentEventId = e.EventId");
     }
 
+    [Fact]
+    public void FollowUpBatch_trace_rules_joins_finding_record_by_id()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().Contain("INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = tra.FindingRecordId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_recommended_actions_joins_finding_record_by_id()
+    {
+        string actionsSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRecommendedActions");
+
+        actionsSql.Should().Contain("INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = fra.FindingRecordId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_disposition_subquery_uses_top_one()
+    {
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+
+        dispositionSql.Should().Contain("SELECT TOP 1 e.Disposition");
+    }
+
+    [Fact]
+    public void MainInspect_queries_finding_records_table()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("FROM dbo.FindingRecords fr");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("FROM dbo.FindingRecords fr");
+    }
+
+    [Fact]
+    public void FollowUpBatch_related_nodes_filters_by_finding_id()
+    {
+        string relatedNodesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRelatedNodes");
+
+        relatedNodesSql.Should().Contain("fr.FindingId = @FindingId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_trace_rules_joins_findings_snapshot()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().Contain("INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
