@@ -1,4 +1,7 @@
+import { formatExportSealedManifestAwareApiError } from "./export-sealed-manifest-conflict";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { governancePostureBlockedReason } from "@/lib/governance/governance-posture-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   type ArchitectureDecisionRegisterFilters,
   type ArchitectureDecisionRegisterResponse,
@@ -111,5 +114,13 @@ export async function getGovernancePosture(projectId?: string): Promise<Architec
   const query = new URLSearchParams();
   if (projectId) query.set("projectId", projectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
-  return apiGetSealedManifestAware(`${governanceStickinessBase()}/posture${suffix}`);
+
+  try {
+    return await apiGetSealedManifestAware(`${governanceStickinessBase()}/posture${suffix}`);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governancePostureBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

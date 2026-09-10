@@ -23,4 +23,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave88Arc
 
 **Hasher baseline note:** wave 88 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** none — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE89.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE89.md) (1053–1064) when opened.
+**Deferred:** none — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE89.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE89.md) (1053–1064).

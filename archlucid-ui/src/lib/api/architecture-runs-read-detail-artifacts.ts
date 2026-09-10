@@ -10,7 +10,10 @@ import type {
   RunRetrievalGroundingPayload,
 } from "@/types/agent-forensics";
 
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
+import { runProvenanceBlockedReason } from "@/lib/provenance/run-provenance-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 import {
   type ApiGetOptions,
@@ -47,9 +50,16 @@ export async function getRunDetail(
 
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */
 export async function getRunProvenance(runId: string): Promise<DecisionProvenanceGraph> {
-  return apiGetSealedManifestAware<DecisionProvenanceGraph>(
-    `/v1/runs/${encodeURIComponent(runId)}/review-trail/provenance`,
-  );
+  try {
+    return await apiGetSealedManifestAware<DecisionProvenanceGraph>(
+      `/v1/runs/${encodeURIComponent(runId)}/review-trail/provenance`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runProvenanceBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Paginated agent execution traces (LLM audit rows) for a coordinator architecture run. */

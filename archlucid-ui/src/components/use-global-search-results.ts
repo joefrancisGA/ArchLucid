@@ -6,7 +6,7 @@ import type { RetrievalHit } from "@/app/(operator)/insights/search-review-evide
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchitectureIdentitiesListQuery } from "@/hooks/use-architecture-identities-list-query";
-import { apiGet } from "@/lib/api";
+import { fetchRetrievalSearchHits } from "@/lib/api/retrieval-search-api";
 import {
   buildDraftIdToArchitectureIdLookup,
   filterGlobalSearchArchitectureDraftHits,
@@ -112,10 +112,7 @@ export function useGlobalSearchResults(
       setPackageSearchError(false);
 
       try {
-        const params = new URLSearchParams();
-        params.set("q", trimmed);
-        params.set("runId", packageRunId);
-        const data = await apiGet<RetrievalHit[]>(`/v1/retrieval/search?${params.toString()}`);
+        const data = await fetchRetrievalSearchHits({ q: trimmed, runId: packageRunId });
         setPackageHits(filterLivePackageSearchHits(data, packageRunId));
       } catch {
         setPackageHits([]);
