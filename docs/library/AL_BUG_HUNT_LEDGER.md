@@ -1591,9 +1591,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
 - **related-pd-tb:** none
@@ -1650,11 +1650,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 409 Conflict to FAIL not PASS for deny-status probes — **cheap-disproof 2026-09-10 seed hunt #1546:** sealed-manifest hash conflicts are not denied access; fail-closed rather than false-passing isolation; regression `EvaluateDenyStatus_Treats409AsFailNotPass`
 - [x] (valid-no-repro) `ProbePrimaryRunVisibilityAsync` maps HTTP 503 to FAIL not SKIP, skipping cross-tenant probes — **cheap-disproof 2026-09-10 seed hunt #1546:** primary scope must read `--run-id` before alternate probes run; infra errors block ship without claiming isolation passed; regression `RunLiveAsync_WhenPrimaryRunReturns503_SkipsCrossTenantProbesAndReportsFail`
 - [x] (valid-no-repro) `TryParseRunListContinuation` ignores `nextCursor` when `hasMore` is false — **cheap-disproof 2026-09-10 seed hunt #1546:** `AuthorityReadsController.ListRuns` only emits `nextCursor` when `HasMore && Items.Count > 0`; orphan cursors are not part of the product contract
-- [ ] (candidate) `TryFindRunIdInRunList` only inspects top-level `items[].runId` and would miss a foreign run id nested under a different property — reachability depends on `RunSummaryResponse` list shape from `AuthorityReadsController.ListRuns`
+- [x] (invalid) `TryFindRunIdInRunList` only inspects top-level `items[].runId` and would miss a foreign run id nested under a different property — reachability depends on `RunSummaryResponse` list shape from `AuthorityReadsController.ListRuns` — **cheap-disproof 2026-09-10 thorough hunt #1555:** `AuthorityReadsController.ListRuns` returns `CursorPagedResponse<RunSummaryResponse>` with top-level `runId` on each item (`RunSummaryResponse.cs`); nested property shapes are out of contract; regression `TryFindRunIdInRunList_IgnoresNestedRunIdPropertyNotUsedByRunSummaryResponse`
 - [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 3xx redirects to FAIL not PASS for deny-status probes — **cheap-disproof 2026-09-10 seed hunt #1550:** redirects are not denied-access signals; regression `EvaluateDenyStatus_Treats3xxAsFailNotPass`
 - [x] (valid-no-repro) `TryFindRunIdInRunList` misses foreign run ids when `/v1/runs` returns a bare JSON array — **cheap-disproof 2026-09-10 seed hunt #1550:** root-array branch still scans `runId` values; product list uses `CursorPagedResponse` with `items` but substring/array paths fail closed; regression `TryFindRunIdInRunList_DetectsForeignRunIdInRootLevelArray`
 - [x] (valid-no-repro) `ProbePrimaryRunVisibilityAsync` maps HTTP 401 to FAIL and skips cross-tenant probes — **cheap-disproof 2026-09-10 seed hunt #1550:** primary scope must read `--run-id` before alternate probes; regression `RunLiveAsync_WhenPrimaryRunReturns401_SkipsCrossTenantProbesAndReportsFail`
 - [x] (valid-no-repro) run-list exclude probe maps HTTP 408 to SKIP via `ListUnavailable` — **cheap-disproof 2026-09-10 seed hunt #1550:** non-2xx list responses cannot verify foreign runId exclusion; regression `RunLiveAsync_SkipsRunListProbeWhenAlternateScopeReceives408`
+
+2026-09-10 thorough hunt #1555 (dry): cheap-disproof closed nested runId property candidate against `RunSummaryResponse` list contract; no hunt-ready rows remain; 35 scoped TenantIsolationNegativeTestRunner tests passed.
 
 2026-09-10 seed hunt #1550 (seed-only): reseeded cli-tenant-isolation after #1546; cheap-disproof closed HTTP 3xx deny false-pass, bare-array list parsing, primary 401 gate, and HTTP 408 list SKIP; seeded nested runId property candidate; 34 scoped TenantIsolationNegativeTestRunner tests passed.
 

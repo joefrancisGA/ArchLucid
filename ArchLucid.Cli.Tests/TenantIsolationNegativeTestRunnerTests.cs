@@ -142,6 +142,22 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void TryFindRunIdInRunList_IgnoresNestedRunIdPropertyNotUsedByRunSummaryResponse()
+    {
+        string json = """
+                      {
+                        "items": [
+                          { "summary": { "runId": "aaaaaaaa-1111-1111-1111-111111111111" } }
+                        ]
+                      }
+                      """;
+
+        TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(json, RunId)
+            .Should()
+            .BeFalse("AuthorityReadsController.ListRuns returns CursorPagedResponse items with top-level RunSummaryResponse.runId only");
+    }
+
+    [Fact]
     public void TryFindRunIdInRunList_DetectsForeignRunIdWhenListItemRunIdIsJsonGuid()
     {
         Guid foreignRunId = Guid.Parse(RunId);
