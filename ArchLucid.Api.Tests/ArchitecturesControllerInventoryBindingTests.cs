@@ -1,3 +1,4 @@
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Controllers.Architecture;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
@@ -38,6 +39,8 @@ public sealed class ArchitecturesControllerInventoryBindingTests
     private readonly ArchitectureInventoryBindingAuditSupport _bindingAuditSupport;
     private readonly Mock<IArchitectureIdentityService> _identityService = new();
     private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
+    private readonly Mock<IArchitectureRestrictToSharesService> _restrictToSharesService = new();
+    private readonly Mock<IAuthenticatedPlatformUserResolver> _platformUserResolver = new();
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IGoldenManifestRepository> _goldenManifestRepository = new();
@@ -255,6 +258,8 @@ public sealed class ArchitecturesControllerInventoryBindingTests
             _identityService.Object,
             _bindingService.Object,
             _bindingAuditSupport,
+            _restrictToSharesService.Object,
+            _platformUserResolver.Object,
             _sealDeltaService.Object,
             _auditService.Object,
             _runRepository.Object,

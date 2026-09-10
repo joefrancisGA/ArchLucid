@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
@@ -38,6 +39,8 @@ public sealed partial class ArchitecturesController(
     IArchitectureIdentityService architectureIdentityService,
     IArchitectureInventoryBindingService architectureInventoryBindingService,
     ArchitectureInventoryBindingAuditSupport architectureInventoryBindingAuditSupport,
+    IArchitectureRestrictToSharesService architectureRestrictToSharesService,
+    IAuthenticatedPlatformUserResolver platformUserResolver,
     IArchitectureSealDeltaService architectureSealDeltaService,
     IAuditService auditService,
     IRunRepository runRepository,
@@ -75,6 +78,12 @@ public sealed partial class ArchitecturesController(
 
     private readonly ArchitectureInventoryBindingAuditSupport _architectureInventoryBindingAuditSupport =
         architectureInventoryBindingAuditSupport ?? throw new ArgumentNullException(nameof(architectureInventoryBindingAuditSupport));
+
+    private readonly IArchitectureRestrictToSharesService _architectureRestrictToSharesService =
+        architectureRestrictToSharesService ?? throw new ArgumentNullException(nameof(architectureRestrictToSharesService));
+
+    private readonly IAuthenticatedPlatformUserResolver _platformUserResolver =
+        platformUserResolver ?? throw new ArgumentNullException(nameof(platformUserResolver));
 
     private readonly IArchitectureSealDeltaService _architectureSealDeltaService =
         architectureSealDeltaService ?? throw new ArgumentNullException(nameof(architectureSealDeltaService));

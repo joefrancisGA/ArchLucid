@@ -5,6 +5,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
@@ -20,10 +21,10 @@ using Moq;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>AS-088: grandfathered architectures (RestrictToShares = 0) stay visible to workspace readers.</summary>
+/// <summary>AS-089: opt-in restrict-to-shares cannot lock everyone out.</summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
-public sealed class ArchitecturesControllerGrandfatherShareTests
+public sealed class ArchitecturesControllerRestrictToSharesTests
 {
     private static readonly ScopeContext Scope = new()
     {
@@ -32,13 +33,13 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
-    private static readonly Guid GrandfatheredArchitectureId =
-        Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+    private static readonly Guid ArchitectureId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+    private static readonly Guid ActorUserId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
     private readonly Mock<IScopeContextProvider> _scopeProvider = new();
     private readonly Mock<IActorContext> _actorContext = new();
     private readonly Mock<IAuditService> _auditService = new();
-    private readonly Mock<IArchitectureIdentityService> _service = new();
+    private readonly Mock<IArchitectureIdentityService> _identityService = new();
     private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
     private readonly Mock<IArchitectureRestrictToSharesService> _restrictToSharesService = new();
     private readonly Mock<IAuthenticatedPlatformUserResolver> _platformUserResolver = new();
@@ -47,82 +48,90 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
     private readonly Mock<IGoldenManifestRepository> _goldenManifestRepository = new();
     private readonly Mock<IManifestHashService> _manifestHashService = new();
 
-    public ArchitecturesControllerGrandfatherShareTests()
+    public ArchitecturesControllerRestrictToSharesTests()
     {
-        _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
+        _scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(Scope);
+        _actorContext.Setup(static context => context.GetActorId()).Returns("jwt:actor");
     }
 
     [Fact]
-    public void ListArchitectures_RequiresReadAuthority_ForWorkspaceReaders()
+    public void SetRestrictToShares_RequiresExecuteAuthority()
     {
         AuthorizeAttribute? attribute = typeof(ArchitecturesController)
-            .GetMethod(nameof(ArchitecturesController.ListArchitectures))
+            .GetMethod(nameof(ArchitecturesController.SetRestrictToShares))
             ?.GetCustomAttributes(typeof(AuthorizeAttribute), inherit: true)
             .Cast<AuthorizeAttribute>()
             .FirstOrDefault();
 
         attribute.Should().NotBeNull();
-        attribute!.Policy.Should().Be(ArchLucidPolicies.ReadAuthority);
+        attribute!.Policy.Should().Be(ArchLucidPolicies.ExecuteAuthority);
     }
 
     [Fact]
-    public async Task ListArchitectures_IncludesGrandfatheredWorkspaceVisibleArchitecture()
+    public async Task SetRestrictToShares_WithoutConfirm_Returns400()
     {
-        ArchitectureIdentityListPage page = new()
-        {
-            Items =
-            [
-                new ArchitectureIdentityListItem
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.SetRestrictToShares(
+            ArchitectureId,
+            new SetArchitectureRestrictToSharesRequest
+            {
+                RestrictToShares = true,
+                ConfirmOptIn = false,
+            },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task SetRestrictToShares_EnableWithConfirm_AutoInsertsActorAdminShare()
+    {
+        _platformUserResolver
+            .Setup(resolver => resolver.ResolveAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlatformUserRecord { Id = ActorUserId, PrimaryEmail = "owner@example.com" });
+
+        _restrictToSharesService
+            .Setup(service => service.SetAsync(
+                Scope,
+                ArchitectureId,
+                true,
+                true,
+                ActorUserId,
+                "jwt:actor",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureRestrictToSharesSetResult.Success(
+                new ArchitectureRestrictToSharesResponse
                 {
-                    ArchitectureId = GrandfatheredArchitectureId,
-                    DisplayName = "Legacy package",
-                },
-            ],
-            TotalCount = 1,
-            Page = 1,
-            PageSize = 50,
-        };
-
-        _service
-            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, false, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(page);
+                    ArchitectureId = ArchitectureId,
+                    RestrictToShares = true,
+                    ActorAdminShareInserted = true,
+                }));
 
         ArchitecturesController sut = BuildSut();
 
-        IActionResult result = await sut.ListArchitectures(cancellationToken: CancellationToken.None);
+        IActionResult result = await sut.SetRestrictToShares(
+            ArchitectureId,
+            new SetArchitectureRestrictToSharesRequest
+            {
+                RestrictToShares = true,
+                ConfirmOptIn = true,
+            },
+            CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        ArchitectureIdentityListPage response = ok.Value.Should().BeOfType<ArchitectureIdentityListPage>().Subject;
-        response.Items.Should().ContainSingle(item => item.ArchitectureId == GrandfatheredArchitectureId);
-    }
-
-    [Fact]
-    public async Task GetArchitecture_Returns200_ForGrandfatheredWorkspaceVisibleArchitecture()
-    {
-        ArchitectureIdentityDetail detail = new()
-        {
-            ArchitectureId = GrandfatheredArchitectureId,
-            DisplayName = "Legacy package",
-        };
-
-        _service
-            .Setup(s => s.GetIdentityAsync(Scope, GrandfatheredArchitectureId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(detail);
-
-        ArchitecturesController sut = BuildSut();
-
-        IActionResult result = await sut.GetArchitecture(GrandfatheredArchitectureId, CancellationToken.None);
-
-        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        ArchitectureIdentityDetail response = ok.Value.Should().BeOfType<ArchitectureIdentityDetail>().Subject;
-        response.ArchitectureId.Should().Be(GrandfatheredArchitectureId);
+        ArchitectureRestrictToSharesResponse response =
+            ok.Value.Should().BeOfType<ArchitectureRestrictToSharesResponse>().Subject;
+        response.RestrictToShares.Should().BeTrue();
+        response.ActorAdminShareInserted.Should().BeTrue();
     }
 
     private ArchitecturesController BuildSut() =>
         new(
             _scopeProvider.Object,
             _actorContext.Object,
-            _service.Object,
+            _identityService.Object,
             _bindingService.Object,
             new ArchitectureInventoryBindingAuditSupport(
                 _auditService.Object,

@@ -1477,6 +1477,13 @@ export interface components {
             id: string;
             name: string;
         };
+        ArchitectureRestrictToSharesResponse: {
+            actorAdminShareInserted?: boolean;
+            /** Format: uuid */
+            architectureId?: string;
+            confirmationCopy?: string;
+            restrictToShares?: boolean;
+        };
         ArchitectureReviewRecurrenceSchedule: {
             /** Format: uuid */
             architectureId?: null | string;
@@ -9602,6 +9609,10 @@ export interface components {
         ServiceType: "Unknown" | "Api" | "Worker" | "Ui" | "Integration" | "DataService" | "SearchService" | "AiService";
         SetAppearancePreferenceRequest: {
             value?: string;
+        };
+        SetArchitectureRestrictToSharesRequest: {
+            confirmOptIn?: boolean;
+            restrictToShares?: boolean;
         };
         SetCloudPlatformScopeRequest: {
             scope?: components["schemas"]["CloudPlatformScopeDto"];
