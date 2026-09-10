@@ -326,6 +326,24 @@ public sealed class AzureExtractorPackageZipValidatorTests
     }
 
     [Fact]
+    public void Validate_rejects_malformed_resources_json()
+    {
+        byte[] zipBytes = BuildZip(
+            includeManifest: true,
+            schemaVersion: 2,
+            includeResources: true,
+            resourcesJson: "{ not-valid-json");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorZipValidationResult result = AzureExtractorPackageZipValidator.Validate(stream);
+
+        result.IsValid.Should().BeFalse();
+        result.IsSchemaRejection.Should().BeTrue();
+        result.ErrorDetail.Should().Contain("resources.json is not valid JSON");
+    }
+
+    [Fact]
     public void Validate_rejects_non_array_defender_summary_json()
     {
         byte[] zipBytes = BuildZip(

@@ -295,6 +295,45 @@ public sealed class AzureExtractorResourceInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_reads_pascal_case_sku_name()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "name": "storage1",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "location": "eastus",
+                "Sku": { "Name": "Standard_GRS" }
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        error.Should().BeNull();
+        lines.Should().ContainSingle();
+        lines![0].SkuName.Should().Be("Standard_GRS");
+    }
+
+    [Fact]
+    public void TryReadFromZip_returns_error_when_resources_json_is_malformed()
+    {
+        byte[] zipBytes = BuildZip("{ not-valid-json");
+
+        using MemoryStream stream = new(zipBytes);
+
+        (IReadOnlyList<AzureExtractorInventoryResourceLine>? lines, string? error) =
+            AzureExtractorResourceInventoryReader.TryReadFromZip(stream);
+
+        lines.Should().BeNull();
+        error.Should().Be("resources.json JSON is malformed.");
+    }
+
+    [Fact]
     public void TryReadFromZip_boolean_sku_coerces_to_string()
     {
         byte[] zipBytes = BuildZip(
