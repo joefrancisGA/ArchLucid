@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1589,6 +1589,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `EncodeRowVersionStampBase64` truncates multi-byte row-version stamps — **cheap-disproof 2026-09-10 seed hunt #1656:** multi-byte stamps base64-encode in full; regression `EncodeRowVersionStampBase64_encodes_multi_byte_stamp`.
 
 2026-09-10 seed hunt #1656 (seed-only): reseeded finding-inspect-sql after #1655; cheap-disproof closed whitespace-rationale metadata payload, defined numeric enum parsing, JSON null literal parse, duplicate string preservation, JSON-only rule resolution, unspecified revisit-due UTC labeling, and multi-byte row-version encoding; 267 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ParseHumanReview` maps defined numeric strings like `"1"` to `Approved` — **cheap-disproof 2026-09-10 seed hunt #1657:** defined ordinals parse via `Enum.TryParse` + `Enum.IsDefined`; regressions `ParseHumanReview_maps_defined_numeric_string_one_to_pending` and `ParseHumanReview_maps_defined_numeric_string_zero_to_not_required`.
+- [x] (valid-no-repro) `ParseDisposition` rejects defined numeric strings like `"1"` / `"0"` — **cheap-disproof 2026-09-10 seed hunt #1657:** defined ordinals parse to `Deferred` / `Accepted`; regressions `ParseDisposition_maps_defined_numeric_string_one_to_deferred` and `ParseDisposition_maps_defined_numeric_string_zero_to_accepted`.
+- [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` rejects defined numeric string `"1"` — **cheap-disproof 2026-09-10 seed hunt #1657:** defined ordinals parse to `Medium`; regression `TryParseEvaluationConfidenceLevel_parses_defined_numeric_string_one_as_medium`.
+- [x] (valid-no-repro) `ParseFindingSeverity` rejects defined numeric strings `"0"` / `"2"` — **cheap-disproof 2026-09-10 seed hunt #1657:** defined ordinals parse to `Info` / `Error`; regressions `ParseFindingSeverity_maps_defined_numeric_string_zero_to_info` and `ParseFindingSeverity_maps_defined_numeric_string_two_to_error`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` builds metadata fallback when corrupt `PayloadJson` and title/rationale are whitespace-only — **cheap-disproof 2026-09-10 seed hunt #1657:** blank metadata after trim yields null typed payload; regression `ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_whitespace_only_fields`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` preserves local offset for `DateTimeKind.Local` `RevisitDueUtc` — **cheap-disproof 2026-09-10 seed hunt #1657:** `ToUtcDateTimeOffset` labels local-kind SQL timestamps as UTC; regression `MapDispositionPointerProjection_converts_local_revisit_due_to_utc_offset`.
+- [x] (valid-no-repro) `BuildInspectResponse` drops `DecisionRuleId` when `ruleName` is empty string — **cheap-disproof 2026-09-10 seed hunt #1657:** `DecisionRuleId` passes through while empty `ruleName` is preserved; regression `BuildInspectResponse_preserves_decision_rule_id_when_rule_name_is_empty_string`.
+
+2026-09-10 seed hunt #1657 (seed-only): reseeded finding-inspect-sql after #1656; cheap-disproof closed additional defined numeric enum parsing, corrupt-payload whitespace metadata guard, local revisit-due UTC labeling, and empty rule-name response passthrough; 277 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

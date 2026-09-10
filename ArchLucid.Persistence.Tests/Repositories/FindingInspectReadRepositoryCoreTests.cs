@@ -1520,4 +1520,67 @@ public sealed class FindingInspectReadRepositoryCoreTests
 
         FindingInspectReadRepositoryCore.EncodeRowVersionStampBase64(stamp).Should().Be(Convert.ToBase64String(stamp));
     }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_whitespace_only_fields()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "   ",
+            "   ").Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_converts_local_revisit_due_to_utc_offset()
+    {
+        DateTime local = new(2026, 11, 1, 0, 0, 0, DateTimeKind.Local);
+
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Deferred",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: local,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.RevisitDueUtc.Should().Be(new DateTimeOffset(DateTime.SpecifyKind(local, DateTimeKind.Utc)));
+    }
+
+    [Fact]
+    public void BuildInspectResponse_preserves_decision_rule_id_when_rule_name_is_empty_string()
+    {
+        FindingInspectResponse response = FindingInspectReadRepositoryCore.BuildInspectResponse(
+            findingId: "finding-1",
+            severity: FindingSeverity.Info,
+            typedPayload: null,
+            ruleId: "cost-guardrail",
+            ruleName: string.Empty,
+            evidence: [],
+            recommendedActions: [],
+            auditRowId: null,
+            runId: Guid.NewGuid(),
+            manifestVersion: null,
+            modelDeploymentName: null,
+            modelAlias: null,
+            promptTemplateVersion: null,
+            confidenceScore: null,
+            evaluationConfidenceScore: null,
+            confidenceLevel: null,
+            humanReviewStatus: FindingHumanReviewStatus.NotRequired,
+            isMuted: false,
+            muteReason: null,
+            reasoningTrace: null,
+            reasoningTraceDigestSha256: null,
+            latestDisposition: null,
+            latestDispositionOccurredAtUtc: null,
+            hasActiveWaiver: false,
+            assignedToUserId: null,
+            remediationDueUtc: null,
+            runStructuralExecutionMode: StructuralExecutionMode.Simulator,
+            runRealModeFellBackToSimulator: false);
+
+        response.DecisionRuleId.Should().Be("cost-guardrail");
+        response.DecisionRuleName.Should().BeEmpty();
+    }
 }
