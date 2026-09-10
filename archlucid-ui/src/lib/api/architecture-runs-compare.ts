@@ -13,6 +13,8 @@ import {
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { compareRunsLoadBlockedReason } from "@/lib/api/compare-runs-load-blocked-reason";
+import { compareExplainMutationBlockedReason } from "@/lib/compare/compare-explain-mutation-blocked-reason";
+import { explainRunBlockedReason } from "@/lib/explain/explain-run-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -75,9 +77,16 @@ export async function compareGoldenManifestRuns(
   baseRunId: string,
   targetRunId: string,
 ): Promise<GoldenManifestComparison> {
-  return apiGetSealedManifestAware<GoldenManifestComparison>(
-    `/v1/compare?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<GoldenManifestComparison>(
+      `/v1/compare?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = compareRunsLoadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Requests an AI-generated narrative explanation of the differences between two runs. */
@@ -85,14 +94,30 @@ export async function explainComparisonRuns(
   baseRunId: string,
   targetRunId: string,
 ): Promise<ComparisonExplanation> {
-  return apiGetSealedManifestAware<ComparisonExplanation>(
-    `/v1/explain/compare/explain?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<ComparisonExplanation>(
+      `/v1/explain/compare/explain?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = compareExplainMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Requests an AI-generated explanation of a single run's decisions and implications. */
 export async function explainRun(runId: string): Promise<RunExplanation> {
-  return apiGetSealedManifestAware<RunExplanation>(`/v1/explain/runs/${encodeURIComponent(runId)}/explain`);
+  try {
+    return await apiGetSealedManifestAware<RunExplanation>(
+      `/v1/explain/runs/${encodeURIComponent(runId)}/explain`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = explainRunBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /**

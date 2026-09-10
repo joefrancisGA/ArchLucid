@@ -1,6 +1,8 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { governanceEnvironmentCatalogBlockedReason } from "@/lib/governance/governance-workflow-read-blocked-reason";
+import { governanceEnvironmentCatalogMutationBlockedReason } from "@/lib/governance/governance-environment-catalog-mutation-blocked-reason";
+import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/governance-workflow-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { GovernanceEnvironmentActivation } from "@/types/governance-workflow";
 import type {
@@ -25,11 +27,18 @@ export async function activateEnvironment(body: {
 }): Promise<GovernanceEnvironmentActivation> {
   void body.activatedBy;
 
-  return apiPostJson<GovernanceEnvironmentActivation>(`${governanceBase()}/activations`, {
-    runId: body.runId,
-    manifestVersion: body.manifestVersion,
-    environment: body.environment,
-  });
+  try {
+    return await apiPostJson<GovernanceEnvironmentActivation>(`${governanceBase()}/activations`, {
+      runId: body.runId,
+      manifestVersion: body.manifestVersion,
+      environment: body.environment,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceWorkflowMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Lists environment activation rows for a run. */
@@ -59,5 +68,12 @@ export async function fetchGovernanceEnvironmentCatalog(): Promise<GovernanceEnv
 export async function replaceGovernanceEnvironmentCatalog(
   body: ReplaceGovernanceEnvironmentCatalogRequest,
 ): Promise<GovernanceEnvironmentCatalog> {
-  return apiPutJson<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`, body);
+  try {
+    return await apiPutJson<GovernanceEnvironmentCatalog>(`${governanceBase()}/environment-catalog`, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceEnvironmentCatalogMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

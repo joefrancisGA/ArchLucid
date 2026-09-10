@@ -107,7 +107,7 @@ public sealed partial class GovernanceController
         }
         catch (ConflictException ex)
         {
-return MapGovernanceSealedManifestConflict(ex);
+            return MapGovernanceSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -212,7 +212,7 @@ return MapGovernanceSealedManifestConflict(ex);
         }
         catch (ConflictException ex)
         {
-return MapGovernanceSealedManifestConflict(ex);
+            return MapGovernanceSealedManifestConflict(ex);
         }
         catch (InvalidOperationException ex)
         {

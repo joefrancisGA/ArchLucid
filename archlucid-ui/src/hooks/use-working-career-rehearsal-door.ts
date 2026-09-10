@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import {
-  cycleWorkingCareerRehearsalDoor,
   readWorkingCareerRehearsalDoorFromStorage,
   resolveWorkingCareerRehearsalDoorScope,
   writeWorkingCareerRehearsalDoorToStorage,
@@ -14,14 +13,10 @@ import {
   extractArchitectureIdentityIdFromPathname,
   readCachedLastOpenArchitectureId,
 } from "@/lib/desk-continuity-preference";
-import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
-import { WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_KEY } from "@/lib/governance/working-career-rehearsal-door-shortcuts";
-
 export type UseWorkingCareerRehearsalDoorResult = {
   readonly door: WorkingCareerRehearsalDoorId;
   readonly mounted: boolean;
   readonly setDoor: (door: WorkingCareerRehearsalDoorId) => void;
-  readonly cycleDoor: () => void;
 };
 
 function resolveArchitectureIdForDoor(pathname: string, search: string): string | null {
@@ -65,21 +60,9 @@ export function useWorkingCareerRehearsalDoor(): UseWorkingCareerRehearsalDoorRe
     [scope],
   );
 
-  const cycleDoor = useCallback(() => {
-    setDoor(cycleWorkingCareerRehearsalDoor(door));
-  }, [door, setDoor]);
-
-  useKeyboardShortcuts({
-    [WORKING_CAREER_REHEARSAL_DOOR_SHORTCUT_KEY]: {
-      description: "Cycle Working execution door",
-      handler: cycleDoor,
-    },
-  });
-
   return {
     door,
     mounted,
     setDoor,
-    cycleDoor,
   };
 }
