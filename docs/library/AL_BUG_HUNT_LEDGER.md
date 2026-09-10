@@ -1194,11 +1194,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 8
-- **bugs-found:** 5
+- **hunts:** 9
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — zero-width-only trade-off acknowledgment passed Accepted validation
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — zero-width-only preview override reason passed Working desk Remediated attestation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1233,6 +1233,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingDispositionValidation.Validate` for `Accepted` — trade-off acknowledgment of only zero-width/format characters satisfies `Trim().Length >= MinimumRationaleLength` — **hit 2026-09-09 seed hunt #1470 (seed→hit):** extended `HasSubstantiveText` guard to rationale, trade-off acknowledgment, and evidence request text; regression `Validate_accepted_rejects_zero_width_space_only_trade_off_acknowledgment`.
 
 2026-09-09 seed hunt #1470 (seed→hit): reseeded finding-disposition; proved invisible trade-off acknowledgment bypass; 24 scoped `FindingDispositionValidationTests` passed.
+
+- [x] (proven) `FindingDispositionValidation.ValidateWorkingRemediatedImpactPreviewAttestation` — zero-width/format-only `PreviewOverrideReason` satisfied `Trim().Length >= MinimumRationaleLength` without `HasSubstantiveText` — **hit 2026-09-10 seed hunt #1529:** same invisible-text class as #1470 trade-off acknowledgment; regression `Validate_working_remediated_rejects_zero_width_space_only_preview_override_reason`
+
+2026-09-10 seed hunt #1529 (hit): reseeded finding-disposition; proved invisible preview override reason bypass on Working desk Remediated; 25 scoped `FindingDispositionValidationTests` passed.
 
 ---
 
