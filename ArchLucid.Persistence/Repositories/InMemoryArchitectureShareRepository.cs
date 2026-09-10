@@ -1,5 +1,4 @@
-using System.Collections.Concurrent;
-
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 
@@ -7,112 +6,89 @@ namespace ArchLucid.Persistence.Repositories;
 
 public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepository
 {
-    private readonly ConcurrentDictionary<Guid, bool> _restrictToSharesByArchitectureId = new();
-    private readonly ConcurrentDictionary<(Guid ArchitectureId, Guid UserId), ArchitectureShareRecord> _shares = new();
+    private readonly Dictionary<(Guid ArchitectureId, string ActorOid), ArchitectureShareRecord> _byKey = new();
 
-    public Task<int> CountSharesAsync(
+    public Task<IReadOnlyList<ArchitectureShareRecord>> ListByArchitectureIdAsync(
         ScopeContext scope,
         Guid architectureId,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        _ = cancellationToken;
 
-        int count = _shares.Values.Count(share =>
-            share.ArchitectureId == architectureId
-            && share.TenantId == scope.TenantId
-            && share.WorkspaceId == scope.WorkspaceId
-            && share.ScopeProjectId == scope.ProjectId);
+        List<ArchitectureShareRecord> shares = _byKey.Values
+            .Where(record => record.ArchitectureId == architectureId)
+            .OrderBy(record => record.ActorOid, StringComparer.Ordinal)
+            .Select(Clone)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<ArchitectureShareRecord>>(shares);
+    }
+
+    public Task<ArchitectureShareRecord?> TryGetAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        string actorOid,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actorOid);
+        _ = cancellationToken;
+
+        if (!_byKey.TryGetValue((architectureId, actorOid.Trim()), out ArchitectureShareRecord? record))
+            return Task.FromResult<ArchitectureShareRecord?>(null);
+
+        return Task.FromResult<ArchitectureShareRecord?>(Clone(record));
+    }
+
+    public Task UpsertAsync(
+        ScopeContext scope,
+        ArchitectureShareRecord record,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(record);
+        _ = cancellationToken;
+
+        _byKey[(record.ArchitectureId, record.ActorOid.Trim())] = Clone(record);
+
+        return Task.CompletedTask;
+    }
+
+    public Task<bool> TryDeleteAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        string actorOid,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(actorOid);
+        _ = cancellationToken;
+
+        return Task.FromResult(_byKey.Remove((architectureId, actorOid.Trim())));
+    }
+
+    public Task<int> CountByArchitectureIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        _ = cancellationToken;
+
+        int count = _byKey.Values.Count(record => record.ArchitectureId == architectureId);
 
         return Task.FromResult(count);
     }
 
-    public Task<bool?> TryGetRestrictToSharesAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        if (!_restrictToSharesByArchitectureId.TryGetValue(architectureId, out bool value))
-            return Task.FromResult<bool?>(null);
-
-        return Task.FromResult<bool?>(value);
-    }
-
-    public Task<bool> TryEnableRestrictToSharesAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        Guid actorUserId,
-        string grantedBy,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-        ArgumentException.ThrowIfNullOrWhiteSpace(grantedBy);
-
-        int shareCount = _shares.Values.Count(share =>
-            share.ArchitectureId == architectureId
-            && share.TenantId == scope.TenantId
-            && share.WorkspaceId == scope.WorkspaceId
-            && share.ScopeProjectId == scope.ProjectId);
-
-        if (shareCount == 0)
+    private static ArchitectureShareRecord Clone(ArchitectureShareRecord record) =>
+        new()
         {
-            DateTime grantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-
-            _shares[(architectureId, actorUserId)] = new ArchitectureShareRecord
-            {
-                ArchitectureId = architectureId,
-                UserId = actorUserId,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ScopeProjectId = scope.ProjectId,
-                Role = ArchitectureShareRoles.Admin,
-                GrantedBy = grantedBy.Trim(),
-                GrantedUtc = grantedUtc,
-            };
-        }
-
-        _restrictToSharesByArchitectureId[architectureId] = true;
-
-        return Task.FromResult(true);
-    }
-
-    public Task<bool> TryDisableRestrictToSharesAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        _restrictToSharesByArchitectureId[architectureId] = false;
-
-        return Task.FromResult(true);
-    }
-
-    public Task<string?> TryGetShareRoleAsync(
-        ScopeContext scope,
-        Guid architectureId,
-        Guid userId,
-        CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        if (!_shares.TryGetValue((architectureId, userId), out ArchitectureShareRecord? share))
-            return Task.FromResult<string?>(null);
-
-        if (share.TenantId != scope.TenantId
-            || share.WorkspaceId != scope.WorkspaceId
-            || share.ScopeProjectId != scope.ProjectId)
-        {
-            return Task.FromResult<string?>(null);
-        }
-
-        return Task.FromResult<string?>(share.Role);
-    }
-
-    public void SeedArchitecture(Guid architectureId, bool restrictToShares = false) =>
-        _restrictToSharesByArchitectureId[architectureId] = restrictToShares;
-
-    public void SeedShare(ArchitectureShareRecord record) =>
-        _shares[(record.ArchitectureId, record.UserId)] = record;
+            ArchitectureId = record.ArchitectureId,
+            ActorOid = record.ActorOid,
+            Role = record.Role,
+            GrantedBy = record.GrantedBy,
+            GrantedUtc = record.GrantedUtc,
+            RowVersion = record.RowVersion,
+        };
 }

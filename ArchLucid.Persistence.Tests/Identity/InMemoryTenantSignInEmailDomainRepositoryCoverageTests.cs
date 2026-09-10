@@ -135,4 +135,34 @@ public sealed class InMemoryTenantSignInEmailDomainRepositoryCoverageTests
         (await sut.FindByNormalizedDomainAsync("corp.example", CancellationToken.None))!.TenantId.Should().Be(tenantA);
         (await sut.FindByNormalizedDomainAsync("corp.example", CancellationToken.None))!.CreatedUtc.Should().Be(now);
     }
+
+    [Fact]
+    public async Task InsertAsync_throws_when_soft_removed_row_still_occupies_normalized_domain_key()
+    {
+        InMemoryTenantSignInEmailDomainRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        sut.Seed(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = tenantId,
+                NormalizedDomain = "removed.example",
+                CreatedUtc = now,
+                RemovedUtc = now,
+            });
+
+        (await sut.FindByNormalizedDomainAsync("removed.example", CancellationToken.None)).Should().BeNull();
+
+        Func<Task> act = () => sut.InsertAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = tenantId,
+                NormalizedDomain = "removed.example",
+                CreatedUtc = now.AddMinutes(1),
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
 }

@@ -8,14 +8,15 @@
 
 ---
 
-## Two streams
+## Three streams
 
 | Stream | Written by | Sealed when |
 |--------|------------|-------------|
 | **Typed / deterministic** (`FindingsSnapshot`) | `FindingsOrchestrator` + built-in `IFindingEngine` implementations | Authority pipeline seals snapshot (`FindingsSnapshotSealed` audit); finalize gate reads this stream |
 | **Agent** (`AgentResult.Findings` on coordinator results) | Agent runtime / simulator path | Emission gated by `AgentArchitectureFindingEmissionGate` (requires `PolicyRuleId` + evidence refs when enabled); **not** the finalize gate's primary input |
+| **Operational / SecureNow architect** (`OperationalSecurityFinding` citing optional `SecurityEvidencePath`) | IE ingest + SA path engines | Not a sealed architecture review snapshot. Remediation factory / IE-13 verify on a later inventory snapshot. Must **not** register as `IFindingEngine`. |
 
-Both can appear on run detail. They are **not** interchangeable.
+The first two can appear on run detail. They are **not** interchangeable. The third is the SecureNow desk stream ([`SECURENOW_ARCHITECT_PLANE.md`](SECURENOW_ARCHITECT_PLANE.md); [`INFRA_EVIDENCE_PLANE.md`](INFRA_EVIDENCE_PLANE.md)).
 
 ---
 
@@ -60,3 +61,4 @@ Typed-engine and agent findings follow the same demotion predicate in `Determini
 - [`AGENT_OUTPUT_EVALUATION.md`](AGENT_OUTPUT_EVALUATION.md)
 - [`ARCHITECTURE_INVARIANTS_ONE_PAGE.md`](ARCHITECTURE_INVARIANTS_ONE_PAGE.md)
 - [`WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md`](../architecture/WEAKNESS_REMEDIATION_COMPOSER_PROMPTS.md) WK-10, WK-19
+- [`SECURENOW_ARCHITECT_PLANE.md`](SECURENOW_ARCHITECT_PLANE.md) — operational path findings cite `SecurityEvidencePath`; not the finalize-gate stream

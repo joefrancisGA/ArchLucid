@@ -785,7 +785,7 @@ public sealed class RunsControllerTests
                 auditService ?? Mock.Of<IAuditService>(),
                 NullLogger<FindingInstrumentationAuditSupport>.Instance),
             runRepository ?? Mock.Of<IRunRepository>(),
-            Mock.Of<IRunDetailQueryService>(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             SealedManifestHashTestSupport.CreateManifestHashService(),
             NullLogger<RunsController>.Instance)
         {

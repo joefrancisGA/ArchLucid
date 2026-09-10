@@ -176,7 +176,7 @@ public sealed partial class ManifestsController
         {
             return new LoadedManifestPair
             {
-                Error = this.ConflictProblem(ex.Message, ProblemTypes.Conflict),
+                Error = MapGoldenManifestReadSealedManifestConflict(ex),
             };
         }
 
@@ -211,21 +211,21 @@ public sealed partial class ManifestsController
             ManifestCompareLoadOutcome.TargetRunNotFound => this.NotFoundProblem(
                 $"Run '{result.RunId}' was not found.",
                 ProblemTypes.RunNotFound),
-            ManifestCompareLoadOutcome.BaseLifecycleIncomplete => this.ConflictProblem(
-                $"Run '{result.RunId}' authority lifecycle must be Complete before compare.",
-                ProblemTypes.Conflict),
-            ManifestCompareLoadOutcome.TargetLifecycleIncomplete => this.ConflictProblem(
-                $"Run '{result.RunId}' authority lifecycle must be Complete before compare.",
-                ProblemTypes.Conflict),
-            ManifestCompareLoadOutcome.PinFingerprintMismatch => this.ConflictProblem(
-                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
-                ProblemTypes.Conflict),
-            ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => this.ConflictProblem(
-                "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
-                ProblemTypes.CommittedArtifactInventoryMismatch),
-            ManifestCompareLoadOutcome.SealedManifestHashMismatch => this.ConflictProblem(
-                "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
-                ProblemTypes.Conflict),
+            ManifestCompareLoadOutcome.BaseLifecycleIncomplete => MapGoldenManifestReadSealedManifestConflict(
+                new ConflictException(
+                    $"Run '{result.RunId}' authority lifecycle must be Complete before compare.")),
+            ManifestCompareLoadOutcome.TargetLifecycleIncomplete => MapGoldenManifestReadSealedManifestConflict(
+                new ConflictException(
+                    $"Run '{result.RunId}' authority lifecycle must be Complete before compare.")),
+            ManifestCompareLoadOutcome.PinFingerprintMismatch => MapGoldenManifestReadSealedManifestConflict(
+                new ConflictException(
+                    "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
+            ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => MapGoldenManifestReadSealedManifestConflict(
+                new ConflictException(
+                    "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.")),
+            ManifestCompareLoadOutcome.SealedManifestHashMismatch => MapGoldenManifestReadSealedManifestConflict(
+                new ConflictException(
+                    "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
             _ => throw new InvalidOperationException($"Unexpected manifest compare outcome: {result.Outcome}."),
         };
 

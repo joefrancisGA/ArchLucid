@@ -3,6 +3,10 @@ import type {
   ArchitectureIdentityListPage,
 } from "@/types/architecture-identity";
 
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { architectureIdentityMutationBlockedReason } from "@/lib/architecture/architecture-identity-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPatchJson } from "./http";
 
@@ -56,8 +60,15 @@ export async function patchArchitectureIdentity(
   architectureId: string,
   body: PatchArchitectureIdentityBody,
 ): Promise<ArchitectureIdentityDetail> {
-  return apiPatchJson<ArchitectureIdentityDetail>(
-    `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
-    body,
-  );
+  try {
+    return await apiPatchJson<ArchitectureIdentityDetail>(
+      `${ARCHITECTURES_BASE}/${encodeURIComponent(architectureId.trim())}`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureIdentityMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

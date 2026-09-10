@@ -1620,6 +1620,22 @@ export interface components {
             /** Format: uuid */
             latestSealedReviewRunId?: null | string;
         };
+        ArchitectureShareListResponse: {
+            /** Format: uuid */
+            architectureId?: string;
+            restrictToShares?: boolean;
+            shares?: components["schemas"]["ArchitectureShareResponse"][];
+        };
+        ArchitectureShareResponse: {
+            actorOid?: string;
+            /** Format: uuid */
+            architectureId?: string;
+            grantedBy?: string;
+            /** Format: date-time */
+            grantedUtc?: string;
+            role?: string;
+            rowVersionBase64?: null | string;
+        };
         ArchitectureTraceTimelineEntry: {
             kind: string;
             label: string;
@@ -3786,6 +3802,8 @@ export interface components {
         /** @enum {string} */
         DraftRequestStatus: "Drafting" | "Admitted" | "Submitted" | "RunSpawned" | "Redirected" | "Abandoned";
         DraftRequestSummaryResponse: {
+            /** Format: uuid */
+            architectureId?: null | string;
             createdByUserId?: string;
             /** Format: date-time */
             createdUtc?: string;
@@ -6585,6 +6603,10 @@ export interface components {
             hasDescription?: boolean;
             hasDisplayName?: boolean;
         };
+        PatchArchitectureRestrictToSharesRequest: {
+            confirmRestrict?: boolean;
+            restrictToShares?: boolean;
+        };
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
             businessOutcome?: null | string;
@@ -7689,6 +7711,10 @@ export interface components {
         PublishPolicyPackVersionRequest: {
             contentJson: string;
             version?: string;
+        };
+        PutArchitectureShareRequest: {
+            actorOid?: string;
+            role?: string;
         };
         PutRunCoverageAcknowledgementRequest: {
             entries?: null | components["schemas"]["RunCoverageAcknowledgementEntryRequest"][];

@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
@@ -39,9 +38,8 @@ public sealed partial class ArchitecturesController(
     IArchitectureIdentityService architectureIdentityService,
     IArchitectureInventoryBindingService architectureInventoryBindingService,
     ArchitectureInventoryBindingAuditSupport architectureInventoryBindingAuditSupport,
-    IArchitectureRestrictToSharesService architectureRestrictToSharesService,
-    IArchitectureShareAccessService architectureShareAccessService,
-    IAuthenticatedPlatformUserResolver platformUserResolver,
+    IArchitectureShareService architectureShareService,
+    ArchitectureShareAuditSupport architectureShareAuditSupport,
     IArchitectureSealDeltaService architectureSealDeltaService,
     IAuditService auditService,
     IRunRepository runRepository,
@@ -80,14 +78,11 @@ public sealed partial class ArchitecturesController(
     private readonly ArchitectureInventoryBindingAuditSupport _architectureInventoryBindingAuditSupport =
         architectureInventoryBindingAuditSupport ?? throw new ArgumentNullException(nameof(architectureInventoryBindingAuditSupport));
 
-    private readonly IArchitectureRestrictToSharesService _architectureRestrictToSharesService =
-        architectureRestrictToSharesService ?? throw new ArgumentNullException(nameof(architectureRestrictToSharesService));
+    private readonly IArchitectureShareService _architectureShareService =
+        architectureShareService ?? throw new ArgumentNullException(nameof(architectureShareService));
 
-    private readonly IArchitectureShareAccessService _architectureShareAccessService =
-        architectureShareAccessService ?? throw new ArgumentNullException(nameof(architectureShareAccessService));
-
-    private readonly IAuthenticatedPlatformUserResolver _platformUserResolver =
-        platformUserResolver ?? throw new ArgumentNullException(nameof(platformUserResolver));
+    private readonly ArchitectureShareAuditSupport _architectureShareAuditSupport =
+        architectureShareAuditSupport ?? throw new ArgumentNullException(nameof(architectureShareAuditSupport));
 
     private readonly IArchitectureSealDeltaService _architectureSealDeltaService =
         architectureSealDeltaService ?? throw new ArgumentNullException(nameof(architectureSealDeltaService));
@@ -107,12 +102,14 @@ public sealed partial class ArchitecturesController(
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        string actorOid = _actorContext.GetActorId();
 
         ArchitectureIdentityListPage response = await _architectureIdentityService.ListIdentitiesAsync(
             scope,
             page,
             pageSize,
             includeArchived,
+            actorOid,
             cancellationToken);
 
         IActionResult? sealedGuardResult =
@@ -133,10 +130,12 @@ public sealed partial class ArchitecturesController(
     public async Task<IActionResult> GetArchitecture(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        string actorOid = _actorContext.GetActorId();
 
         ArchitectureIdentityDetail? detail = await _architectureIdentityService.GetIdentityAsync(
             scope,
             architectureId,
+            actorOid,
             cancellationToken);
 
         if (detail is null)
@@ -242,6 +241,7 @@ public sealed partial class ArchitecturesController(
             ArchitectureIdentityDetail? detail = await _architectureIdentityService.GetIdentityAsync(
                 scope,
                 architectureId,
+                _actorContext.GetActorId(),
                 cancellationToken);
 
             if (detail is null)
