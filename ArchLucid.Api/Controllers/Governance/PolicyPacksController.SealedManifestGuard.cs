@@ -31,7 +31,6 @@ public sealed partial class PolicyPacksController
         catch (ConflictException ex)
         {
             return MapPolicyPackSealedManifestConflict(ex);
-
         }
 
         return null;
@@ -64,7 +63,6 @@ public sealed partial class PolicyPacksController
         catch (ConflictException ex)
         {
             return MapPolicyPackSealedManifestConflict(ex);
-
         }
 
         return null;

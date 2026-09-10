@@ -47,7 +47,7 @@ public sealed class SponsorDigestPreferencesMapperTests
 
         SponsorDigestPreferencesResponse response = SponsorDigestPreferencesMapper.ToResponse(row);
 
-        response.IanaTimeZoneId.Should().Be("UTC");
+        response.IanaTimeZoneId.Should().Be("America/New_York");
     }
 
     [Fact]

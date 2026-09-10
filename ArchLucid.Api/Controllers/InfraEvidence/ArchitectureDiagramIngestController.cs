@@ -77,7 +77,6 @@ public sealed partial class ArchitectureDiagramIngestController(
         catch (ConflictException ex)
         {
             return MapDiagramIngestSealedManifestConflict(ex);
-
         }
     }
 

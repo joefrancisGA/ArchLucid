@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 export const PRODUCT_LINE_DISPLAY_NAME: Record<ProductLineId, string> = {
@@ -12,6 +14,27 @@ export function productLineDisplayName(productLineId: ProductLineId): string {
 /** SecureNow is text-only — do not render the ArchLucid SVG mark in that shell. */
 export function productLineShowsArchLucidMark(productLineId: ProductLineId): boolean {
   return productLineId !== "security";
+}
+
+/** Root layout favicon / touch icons — omitted on SecureNow (text-only branding). */
+export function productLineRootMetadataIcons(productLineId: ProductLineId): Metadata["icons"] | undefined {
+  if (!productLineShowsArchLucidMark(productLineId)) {
+    return undefined;
+  }
+
+  return {
+    icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],
+  };
+}
+
+/** PWA manifest path — SecureNow omits ArchLucid install icons. */
+export function productLineRootManifestPath(productLineId: ProductLineId): string | undefined {
+  if (!productLineShowsArchLucidMark(productLineId)) {
+    return undefined;
+  }
+
+  return "/manifest.webmanifest";
 }
 
 export function productLinePoweredByLine(productLineId: ProductLineId): string {

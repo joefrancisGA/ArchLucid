@@ -9,6 +9,8 @@ import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
 import {
   productLineDisplayName,
   productLineDocumentTitle,
+  productLineRootManifestPath,
+  productLineRootMetadataIcons,
   productLineTitleTemplate,
 } from "@/lib/product-line/product-line-display-name";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
@@ -38,11 +40,8 @@ export const metadata: Metadata = {
     template: productLineTitleTemplate(buildTimeProductLine),
   },
   description: MARKETING_ROOT_OG_DESCRIPTION,
-  manifest: "/manifest.webmanifest",
-  icons: {
-    icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],
-  },
+  manifest: productLineRootManifestPath(buildTimeProductLine),
+  icons: productLineRootMetadataIcons(buildTimeProductLine),
   openGraph: {
     type: "website",
     locale: "en_US",

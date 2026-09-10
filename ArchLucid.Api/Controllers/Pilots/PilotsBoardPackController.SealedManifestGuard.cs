@@ -29,9 +29,23 @@ public sealed partial class PilotsBoardPackController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPilotBoardPackSealedManifestConflict(ex);
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     Maps board-pack read/export <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapPilotBoardPackSealedManifestConflict(ConflictException ex)
+    {
+        string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
+            ? ProblemTypes.DecisionReceiptSealedHashMismatch
+            : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
+                ? ProblemTypes.DecisionReceiptSealedIncomplete
+                : ProblemTypes.Conflict;
+
+        return this.ConflictProblem(ex.Message, problemType);
     }
 }

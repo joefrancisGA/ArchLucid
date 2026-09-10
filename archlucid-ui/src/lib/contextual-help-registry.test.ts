@@ -269,7 +269,10 @@ describe("contextual-help-registry (TB-733)", () => {
       "Start a review",
     );
     expect(contextualHelpForPathname("/governance/infrastructure/extract-upload")?.whatIsThisPage).toContain(
-      "Extract and Upload",
+      "Extract and upload",
+    );
+    expect(contextualHelpForPathname("/governance/infrastructure/extract-upload")?.whatToDoNext).not.toContain(
+      "Start a review",
     );
   });
 
