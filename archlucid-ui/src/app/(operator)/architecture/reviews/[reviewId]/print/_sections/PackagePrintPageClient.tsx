@@ -24,6 +24,7 @@ import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count
 import {
   PACKAGE_PRINT_ERROR_FALLBACK,
   PACKAGE_PRINT_LOADING_LABEL,
+  buildPackagePrintBackHref,
   buildPackagePrintPresentation,
   PACKAGE_PRINT_BACK_LABEL,
   resolvePackagePrintSemanticSupportBandStampLine,
@@ -58,6 +59,8 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   const meetingCaptureQuery = usePackagePrintMeetingCaptureQuery(runId, {
     enabled: summaryQuery.isSuccess,
   });
+  const meetingCaptureBlockedReason = meetingCaptureQuery.blockedReason;
+
   const meetingCaptureBlockedReason = meetingCaptureQuery.blockedReason;
 
   useOidcSessionKeepalive(true);

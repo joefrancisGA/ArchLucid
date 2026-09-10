@@ -10,6 +10,7 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { Button } from "@/components/ui/button";
 import { useAuditEvidenceLineageQuery } from "@/hooks/use-audit-evidence-lineage-query";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -121,6 +122,24 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
     }
   }, [props.assessmentId, props.snapshotId]);
 
+  const onDownloadEvidencePackage = useCallback(async () => {
+    setPackageDownloadBusy(true);
+
+    try {
+      await downloadAuditEvidencePackageZip(props.assessmentId, props.snapshotId);
+    } catch (error: unknown) {
+      const failure = toApiLoadFailure(error);
+      const blocked = auditEvidencePackageBlockedReason(failure);
+
+      showError(
+        "Audit evidence package download failed",
+        blocked ?? (error instanceof Error ? error.message : String(error)),
+      );
+    } finally {
+      setPackageDownloadBusy(false);
+    }
+  }, [props.assessmentId, props.snapshotId]);
+
   return (
     <div className="space-y-6 p-4" data-testid="audit-evidence-control-lineage-page">
       <header className="space-y-2">
@@ -131,7 +150,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
         <p className={OPERATOR_TYPOGRAPHY.helper}>
           Chain of custody from control through requirements, evaluation, and collected evidence. Read-only.
         </p>
-        <p className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cnMonoIds}>
           assessmentId={props.assessmentId} · snapshotId={props.snapshotId} · controlId={props.controlId}
         </p>
         <div className="flex flex-wrap items-center gap-3">
@@ -149,6 +168,37 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
           </Button>
         </div>
       </header>
+
+      {lineageQuery.isPending ? (
+        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="audit-evidence-lineage-loading">Loading lineage…</p>
+      ) : null}
+
+      {lineageQuery.isError ? (
+        <div data-testid="audit-evidence-lineage-error">
+          <StatusTag kind="needs-attention" label="Lineage unavailable" />
+          <p className={OPERATOR_TYPOGRAPHY.helper}>
+            {lineageBlockedReason ?? "Could not load chain of custody for this control."}
+          </p>
+        </div>
+      ) : null}
+
+      {lineage ? (
+        <>
+          <section className="flex flex-wrap items-center gap-3" aria-label="Control support status">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded border border-border bg-card px-3 py-2"
+              data-testid="audit-evidence-positive-checkbox"
+              aria-expanded={chainExpanded}
+              onClick={() => setChainExpanded((value) => !value)}
+
+            >
+              {packageDownloadBusy ? "Preparing package…" : "Download evidence package (ZIP)"}
+            </Button>
+            <PageContextualHelpButton />
+          </div>
+        }
+      />
 
       <main
         id={buyerPolishedShell ? AUDIT_EVIDENCE_CONTROL_LINEAGE_PRIMARY_CONTENT_ID : undefined}
