@@ -151,21 +151,12 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   }
 
   const presentation = buildPackagePrintPresentation(summaryQuery.data, {
-coverageHonestyLine: workingDesk
-      ? formatCareerExportHonestyPlainText({
-          runId: summaryQuery.data.runId,
-          progressSummary: summaryQuery.data,
-          manifestSummary: null,
-          graphSnapshot: null,
-          enginesSucceeded: null,
-          workingDesk: true,
-        })
-      : null,
     meetingCaptureEntries:
       meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
     coverageHonestyLine:
       workingDesk && analysisStagesCompleteOnSummary(summaryQuery.data)
         ? coverageHonestyLine
+        : null,
     semanticSupportBandStampLine,
     transparencyTrail:
       workingDesk && coverageHonestyQuery.data !== undefined
@@ -193,9 +184,7 @@ coverageHonestyLine: workingDesk
           {sealedManifestBlockedReason}
         </p>
         <Button type="button" variant="secondary" asChild>
-<Link href={buildPackagePrintBackHref(runId)} data-testid="package-print-blocked-back">
-            Back to review package
-<Link href={printBackHref} data-testid="package-print-blocked-back">
+          <Link href={printBackHref} data-testid="package-print-blocked-back">
             {PACKAGE_PRINT_BACK_LABEL}
           </Link>
         </Button>
@@ -207,7 +196,7 @@ coverageHonestyLine: workingDesk
     <PackagePrintPageView
       presentation={presentation}
       listScopedRunId={listScopedRunId}
-parentArchitectureId={parentArchitectureId}
+      parentArchitectureId={parentArchitectureId}
       meetingCaptureBlockedReason={meetingCaptureBlockedReason}
     />
   );
