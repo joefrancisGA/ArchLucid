@@ -54,6 +54,17 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine();
     }
 
+    public static void AppendFindingsTrustHonestySection(StringBuilder sb)
+    {
+        ArgumentNullException.ThrowIfNull(sb);
+
+        sb.AppendLine("## Finding trust honesty");
+        sb.AppendLine();
+        sb.AppendLine(
+            "Severity counts may include heuristic or ungrounded findings. Open the architecture package in ArchLucid for per-finding trust labels before sponsor circulation — heuristic findings are labeled or excluded on Working exports.");
+        sb.AppendLine();
+    }
+
     public static void AppendElapsedSection(StringBuilder sb, PilotRunDeltas deltas)
     {
         ArgumentNullException.ThrowIfNull(sb);

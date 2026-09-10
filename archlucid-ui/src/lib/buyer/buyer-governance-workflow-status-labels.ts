@@ -1,4 +1,4 @@
-/** Maps governance workflow API status strings to buyer-facing labels (BDA-120). */
+/** Maps approval workflow API status strings to buyer-facing labels (BDA-120). */
 export function buyerGovernanceWorkflowStatusLabel(status: string): string {
   const normalized = status.trim().toLowerCase();
 

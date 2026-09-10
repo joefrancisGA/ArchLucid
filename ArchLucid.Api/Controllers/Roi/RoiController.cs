@@ -212,7 +212,8 @@ public sealed partial class RoiController(
     [HttpGet("cross-tenant-portfolio")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(CrossTenantPortfolioSummaryResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(CrossTenantPortfolioSummaryResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status403Forbidden)]
+
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetCrossTenantPortfolioSummaryAsync(CancellationToken cancellationToken)
     {

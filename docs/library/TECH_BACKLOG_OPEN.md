@@ -59,16 +59,16 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Slack notifications not-configured UX | **TB-1185**–**TB-1190** (open P1 **V1**) | Remove Teams cross-link; StatusTag + next step; PageContextualHelpButton; readiness link dedupe; operator density; Test→Save CTA hierarchy; owner review ~57/100 2026-07-25 |
 | Webhooks not-configured UX | **TB-1191**–**TB-1195** (open P1 **V1**) | Remove Jira/SN/Teams/Slack strip; StatusTag + next step; PageContextualHelpButton; operator density; suppress empty zero theater; owner screenshot ~56/100 2026-07-25 |
 | Administration settings hub (`/administration/settings`) | **TB-1200**–**TB-1203** (open; **TB-1198**/**TB-1199** Done) | Remove Recent changes theater; PageHeading + help icon; section-nav links; demote Scope/Source/Status meta; owner review ~52/100 2026-07-25 |
-| Users & roles (3 tabs) | **TB-1210**–**TB-1215** (open P1 **V1**) | Operator vs Architect honesty; tab-specific empty copy; breadcrumb/nav title; API keys empty + CTA; invite empty composition; PageContextualHelpButton; owner screenshots ~49/100 2026-07-25 |
+| Users & roles (3 tabs) | **TB-1210**–**TB-1215** (**Done** 2026-08-11) | Operator vs Architect honesty; tab-specific empty copy; breadcrumb/nav title; API keys empty + CTA; invite empty composition; PageContextualHelpButton; owner screenshots ~49/100 2026-07-25 |
 | Users API keys tab (`/administration/settings/users?tab=keys`) | **TB-1931**–**TB-1935** (open **V1**) | Job honesty; execute **TB-1213** CTA; keys empty/error; columns; Vitest; ~45/100; traffic **SEU**; pairs **TB-1210**–**TB-1215**; sibling **SSU** |
-| Users invitations tab (`/administration/settings/users?tab=users`) | **TB-1936**–**TB-1940** (open **V1**) | URL sync; execute **TB-1214**; principals purge; density; Vitest; ~46/100; traffic **SSU**; pairs **TB-1210**–**TB-1215**; sibling **SEU** |
+| Users invitations tab (`/administration/settings/users?tab=users`) | **TB-1936**–**TB-1940** (**Done** 2026-08-11) | URL sync; execute **TB-1214**; principals purge; density; Vitest; ~46/100; traffic **SSU**; pairs **TB-1210**–**TB-1215**; sibling **SEU** |
 | Sealed review records (`/signed-records`) | **TB-1941**–**TB-1942**, **TB-1944**–**TB-1945** (open **V1**) | Traffic section; empty projectId; CTA/pagination/enrich; Vitest; ~50/100; traffic **SI**; sibling **MAM** via **TB-1824**; **TB-1943** Done |
 | AI usage (`/administration/settings/ai-usage`) | **TB-1216**–**TB-1220** (open P1 **V1**) | Administration breadcrumb honesty; suppress zero-usage theater; PageHeading/help; budget CTA dedupe; hide Highest-cost when $0; owner screenshot ~51/100 2026-07-25 |
 | Security & Trust (`/administration/settings/security-trust`) | **TB-1223**–**TB-1227**, **TB-1285**–**TB-1286** (open; **TB-1284** Done) | Administration breadcrumb honesty; collapse triple intro; PageHeading/help; Available-now CTA; contact dedupe; StatusTag badges; density/legend; owner reviews ~53/100 2026-07-25/26; traffic **WSX** |
 | Account security (`/administration/settings/account-security`) | **TB-1881**–**TB-1885** (open **V1**) | Scope honesty; busy disables; in-page remove; empty/help; Vitest; ~52/100; traffic **SEA**; pairs **TB-1614** |
 | Sign-in domains (`/administration/settings/auth-domains`) | **TB-1891**–**TB-1895** (open **V1**) | Enum labels; busy disables; in-page confirms; checklist/help; Vitest; ~48/100; traffic **SAU**; pairs **TB-1614**/**TB-1883** |
 | Internal developer tools (`/administration/settings/developer`) | **TB-1896**–**TB-1900** (open **V1**) | Traffic gated honesty; catalog overclaim; CLI theater; authority/discovery; Vitest; ~42/100; traffic **SED**; pairs **TB-1357** |
-| Identity diagnostics (`/administration/settings/identity-providers/diagnostics`) | **TB-1906**–**TB-1910** (open **V1**) | Shell configure honesty; StatusTag; density; loading; Vitest; ~47/100; traffic **SEI**; pairs **TB-116**; siblings SOI/SSA/SEO |
+| Identity diagnostics (`/administration/settings/identity-providers/diagnostics`) | **TB-1906**–**TB-1910** (**Done** 2026-08-14) | Shell configure honesty; StatusTag; density; loading; Vitest; ~47/100; traffic **SEI**; pairs **TB-116**; siblings SOI/SSA/SEO |
 | OIDC/JWT identity (`/administration/settings/identity-providers/oidc`) | **TB-1911**–**TB-1915** (open **V1**) | Title honesty; shell with **TB-1906**; StatusTag; CTA/loading; Vitest; ~44/100; traffic **SOI**; siblings SEI/SSA/SEO |
 | Role mapping (`/administration/settings/identity-providers/role-mapping`) | **TB-1916**–**TB-1920** (open **V1**) | Status-hub honesty; shell/dedupe; StatusTag/examples; protocol CTAs; Vitest; ~43/100; traffic **SEO**; siblings SEI/SOI/SSA |
 | SAML identity (`/administration/settings/identity-providers/saml`) | **TB-1921**–**TB-1925** (open **V1**) | Metadata-fetch label; in-page confirm; shell density; Select/regex/health; Vitest; ~52/100; traffic **SSA**; siblings SEI/SOI/SEO |
@@ -107,8 +107,8 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | Architectures draft list (`/architectures`) | **TB-1446**–**TB-1450** (open P1 **V1**) | PageHeading H1 + primary Create; drafts vs packages title; browser-local registry honesty; first-viewport density; loading hydrate + row density; owner review ~53/100 2026-07-27; traffic **AR**; after Done **TB-766**; pairs **TB-1026** |
 | Architecture draft workspace (`/architectures/[id]`) | **TB-1451**–**TB-1455** (open P1 **V1**) | PageHeading H1 + metadata fix; StatusTag honesty; loading/error + list wayfinding; first-viewport density; Save vs autosave CTA honesty; owner review ~55/100 2026-07-27; traffic **ARA**; after Done **TB-766**/**TB-747**; pairs **TB-1446**–**TB-1450** |
 | Create architecture bootstrap (`/architectures/new`) | **TB-1458**–**TB-1462** (open P1 **V1**) | PageHeading H1 + help; browser-local recent-drafts honesty; autosave reassurance gating; Create vs Start new title hierarchy; resume-first when drafts exist; owner review ~58/100 2026-07-27; traffic **ARN**; after Done **TB-747**/**TB-766**; pairs **TB-1446**–**TB-1455** |
-| Post-auth bootstrap (`/auth/bootstrap`) | **TB-1465**–**TB-1469** (open P1 **V1**) | Brand + metadata + Suspense; loading skeleton; create-form design-system + dataRegion honesty; select/no-access CTA + denial sanitize; safe secondary exit; owner review ~52/100 2026-07-27; traffic **AUB**; pairs **TB-1313**–**TB-1316** |
-| Workspace invitation accept (`/auth/invite`) | **TB-1472**–**TB-1476** (open P1 **V1**) | Brand + metadata + Suspense; loading skeleton; invalid/expired recovery CTAs; valid panel + defer token store; safe secondary exit; owner review ~51/100 2026-07-27; traffic **AUI**; pairs **TB-1465**–**TB-1469** |
+| Post-auth bootstrap (`/auth/bootstrap`) | **TB-1465**–**TB-1469** (**Done** 2026-08-10; wave 3 mid-flow recovery 2026-09-07) | Brand + metadata + Suspense; loading skeleton; create-form design-system + dataRegion honesty; select/no-access CTA + denial sanitize; safe secondary exit + mid-flow Report Problem; owner review ~52/100 2026-07-27; traffic **AUB**; pairs **TB-1313**–**TB-1316** |
+| Workspace invitation accept (`/auth/invite`) | **TB-1472**–**TB-1476** (**Done** 2026-08-10) | Brand + metadata + Suspense; loading skeleton; invalid/expired recovery CTAs; valid panel + defer token store; safe secondary exit; owner review ~51/100 2026-07-27; traffic **AUI**; pairs **TB-1465**–**TB-1469** |
 | Empty form+rail / first-viewport whitespace | **TB-1477**–**TB-1482** (open P1/P2 **V1**) | Advisory schedules form+scope rail; Digests schedule readiness rail; Alert rules Rules empty two-col; Digests browse empty stack; Alert routing empty create+steps; shared Vitest inventory; owner Advisory schedules screenshot 2026-07-27; pairs Done **TB-1133** / empty **TB-1552**–**TB-1556** / side-rail **TB-1572**–**TB-1576** / **TB-1177**/**TB-1194** / **TB-1449**/**TB-1454** |
 | Operator empty-state standard | **TB-1556** (open P2 **V1**); **TB-1552**/**TB-1553**/**TB-1554**/**TB-1555** **Done** | Design-system empty kinds + Compact default + first-viewport ban; Reviews Compact **Done**; EmptyState→Compact inventory; kind presets **Done**; Vitest Compact/theater guard; owner empty-state convention pass 2026-07-27; pairs CTA **TB-1539**–**TB-1544** / whitespace **TB-1477**–**TB-1482** / Done **TB-1133** |
 | Operator side-rail standard | **TB-1572**–**TB-1576** (open P1/P2 **V1**) | Design-system rail kinds + single-column default; ban teaching/static rails; live preview/readiness empty-hide; hub/integration inventory; Vitest rail-kind guard; owner side-rail convention pass 2026-07-27; pairs empty **TB-1552**–**TB-1556** / whitespace **TB-1477**–**TB-1482** / CTA **TB-1539**–**TB-1544** / Done **TB-1133** |
@@ -354,16 +354,16 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1460 | Architecture creation bootstrap — autosave reassurance only when true | Trustworthiness P1 **V1** — with **TB-1458** |
 | TB-1461 | Architecture creation bootstrap — Create vs Start new / resume title hierarchy | Adoption friction P1 **V1** — with **TB-1458**; pairs **TB-1447** |
 | TB-1462 | Architecture creation bootstrap — resume-first viewport when drafts exist | Adoption friction P1 **V1** — with **TB-1458** |
-| TB-1465 | `/auth/bootstrap` — brand + document metadata + Suspense (session-expired parity) | Adoption friction P1 **V1** — owner AUB ~52/100; traffic **AUB**; pairs **TB-1313**/**TB-1314** |
-| TB-1466 | Post-auth bootstrap — loading skeleton (not prose-only Preparing…) | Adoption friction P1 **V1** — with **TB-1465** |
-| TB-1467 | Create workspace form — design-system fields + dataRegion honesty | Trustworthiness P1 **V1** — with **TB-1465** |
-| TB-1468 | Bootstrap select-workspace / no-access — CTA hierarchy + denialReason sanitize | Trustworthiness P1 **V1** — with **TB-1465**; pairs **TB-1316** |
-| TB-1469 | Bootstrap auth chrome — safe secondary exit / sign-in again path | Adoption friction P1 **V1** — with **TB-1465**; pairs **TB-1315** |
-| TB-1472 | `/auth/invite` — brand + document metadata + Suspense (auth parity) | Adoption friction P1 **V1** — owner AUI ~51/100; traffic **AUI**; pairs **TB-1465**/**TB-1313**/**TB-1314** |
-| TB-1473 | Invitation accept — loading skeleton (not prose-only Validating…) | Adoption friction P1 **V1** — with **TB-1472** |
-| TB-1474 | Invitation invalid/expired/revoked/accepted — recovery CTAs (not alert-only) | Adoption friction P1 **V1** — with **TB-1472** |
-| TB-1475 | Valid invitation panel — design-system chrome + role/SSO honesty + defer token store | Trustworthiness P1 **V1** — with **TB-1472** |
-| TB-1476 | Invite auth chrome — safe secondary exit / help when stuck | Adoption friction P1 **V1** — with **TB-1472**; pairs **TB-1469**/**TB-1315** |
+| ~~TB-1465~~ | ~~`/auth/bootstrap` — brand + document metadata + Suspense (session-expired parity)~~ **Done** 2026-08-10 (wave 3 mid-flow recovery 2026-09-07) | Adoption friction P1 **V1** — owner AUB ~52/100; traffic **AUB**; pairs **TB-1313**/**TB-1314** |
+| ~~TB-1466~~ | ~~Post-auth bootstrap — loading skeleton (not prose-only Preparing…)~~ **Done** 2026-08-10 | Adoption friction P1 **V1** — with **TB-1465** |
+| ~~TB-1467~~ | ~~Create workspace form — design-system fields + dataRegion honesty~~ **Done** 2026-08-10 | Trustworthiness P1 **V1** — with **TB-1465** |
+| ~~TB-1468~~ | ~~Bootstrap select-workspace / no-access — CTA hierarchy + denialReason sanitize~~ **Done** 2026-08-10 | Trustworthiness P1 **V1** — with **TB-1465**; pairs **TB-1316** |
+| ~~TB-1469~~ | ~~Bootstrap auth chrome — safe secondary exit / sign-in again path~~ **Done** 2026-08-10 (wave 3 mid-flow recovery 2026-09-07) | Adoption friction P1 **V1** — with **TB-1465**; pairs **TB-1315** |
+| ~~TB-1472~~ | ~~`/auth/invite` — brand + document metadata + Suspense (auth parity)~~ **Done** 2026-08-10 | Adoption friction P1 **V1** — owner AUI ~51/100; traffic **AUI**; pairs **TB-1465**/**TB-1313**/**TB-1314** |
+| ~~TB-1473~~ | ~~Invitation accept — loading skeleton (not prose-only Validating…)~~ **Done** 2026-08-10 | Adoption friction P1 **V1** — with **TB-1472** |
+| ~~TB-1474~~ | ~~Invitation invalid/expired/revoked/accepted — recovery CTAs (not alert-only)~~ **Done** 2026-08-10 | Adoption friction P1 **V1** — with **TB-1472** |
+| ~~TB-1475~~ | ~~Valid invitation panel — design-system chrome + role/SSO honesty + defer token store~~ **Done** 2026-08-10 | Trustworthiness P1 **V1** — with **TB-1472** |
+| ~~TB-1476~~ | ~~Invite auth chrome — safe secondary exit / help when stuck~~ **Done** 2026-08-10 | Adoption friction P1 **V1** — with **TB-1472**; pairs **TB-1469**/**TB-1315** |
 | TB-1479 | Alert rules Rules tab — empty `gap-8` list+create+preview two-col | Adoption friction P1 **V1** — with **TB-1477**; pairs **TB-936** |
 | TB-1570 | Paying-tenant / API-key LLM spend-storm + metering-vs-AOAI-billing dispute claim map | Cost-effectiveness P1 **V1** — PA spend-storm / dispute Q; GTM **M-294**/**M-295**; see `PAYING_TENANT_LLM_SPEND_STORM_AND_BILLING_DISPUTE_CLAIM_MAP.md` — **Done** 2026-08-11 |
 | TB-1571 | Anti-unbounded-key-spend / anti-product-meter-equals-Azure-invoice honesty CI | Testability P1 **V1** — after **TB-1570**; pairs **M-294** — **Done** 2026-08-11 |
@@ -523,11 +523,11 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1737 | Sponsor-summary help — title honesty (sponsor brief vs product overview) | Trustworthiness P1 **V1** — with **TB-1736** |
 | TB-1739 | Product-overview help — IA dual with sponsor-summary / path-chooser | Adoption friction P1 **V1** — with **TB-1736** |
 | TB-1740 | Product-overview help — elevator/M-18 outreach dump vs overview job | Adoption friction P1 **V1** — with **TB-1736** |
-| TB-1741 | `/help/report-a-problem` specialty support guide + Open Settings Support CTA | Adoption friction P1 **V1** — HRE ~55 |
-| TB-1742 | Report-a-problem help — dead-end when Report button absent | Adoption friction P1 **V1** — with **TB-1741** |
-| TB-1743 | Report-a-problem help — IA dual with troubleshooting | Adoption friction P1 **V1** — with **TB-1741** |
-| TB-1744 | Report-a-problem help — first-viewport where-it-appears before field dump | Adoption friction P1 **V1** — with **TB-1741** |
-| TB-1745 | Report-a-problem help — Related density + email fallback CTA | Adoption friction P1 **V1** — with **TB-1741** |
+| ~~TB-1741~~ | ~~`/help/report-a-problem` specialty support guide + Open Settings Support CTA~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — HRE ~55 |
+| ~~TB-1742~~ | ~~Report-a-problem help — dead-end when Report button absent~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — with **TB-1741** |
+| ~~TB-1743~~ | ~~Report-a-problem help — IA dual with troubleshooting~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — with **TB-1741** |
+| ~~TB-1744~~ | ~~Report-a-problem help — first-viewport where-it-appears before field dump~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — with **TB-1741** |
+| ~~TB-1745~~ | ~~Report-a-problem help — Related density + email fallback CTA~~ **Done** 2026-08-13 | Adoption friction P1 **V1** — with **TB-1741** |
 | TB-1751 | `/help/subprocessors` specialty buyer register + Trust CTA | Adoption friction P1 **V1** — HSU ~44 |
 | TB-1753 | Subprocessors help — IA dual with DPA / Trust | Adoption friction P1 **V1** — with **TB-1751** |
 | TB-1754 | Subprocessors help — title + Help Center discovery | Adoption friction P1 **V1** — with **TB-1751** |
@@ -665,11 +665,11 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 | TB-1933 | Users API keys tab — keys-specific error/empty (no principals / user-directory) | Trustworthiness P1 **V1** — with **TB-1931** |
 | TB-1934 | Users API keys tab — column headers for automation keys + Link/Button | Adoption friction P1 **V1** — with **TB-1931** |
 | TB-1935 | Users API keys tab — Vitest SEU deep-link + CTA + empty | Testability P2 **V1** — with **TB-1931** |
-| TB-1936 | Users tab — keep `?tab=users` URL sync (SSU deep-link) | Trustworthiness P1 **V1** — SSU ~46 |
-| TB-1937 | Users tab — execute empty composition with **TB-1214** | Adoption friction P1 **V1** — with **TB-1936** |
-| TB-1938 | Users tab — purge principals jargon from error/empty with **TB-1211** | Trustworthiness P1 **V1** — with **TB-1936** |
-| TB-1939 | Users tab — Invite primary + demote pending/users empty Cards | Adoption friction P1 **V1** — with **TB-1936** |
-| TB-1940 | Users tab — Vitest URL sync + empty composition | Testability P2 **V1** — with **TB-1936** |
+| ~~TB-1936~~ | ~~Users tab — keep `?tab=users` URL sync (SSU deep-link)~~ **Done** 2026-08-11 | Trustworthiness P1 **V1** — SSU ~46 |
+| ~~TB-1937~~ | ~~Users tab — execute empty composition with **TB-1214**~~ **Done** 2026-08-11 | Adoption friction P1 **V1** — with **TB-1936** |
+| ~~TB-1938~~ | ~~Users tab — purge principals jargon from error/empty with **TB-1211**~~ **Done** 2026-08-11 | Trustworthiness P1 **V1** — with **TB-1936** |
+| ~~TB-1939~~ | ~~Users tab — Invite primary + demote pending/users empty Cards~~ **Done** 2026-08-11 | Adoption friction P1 **V1** — with **TB-1936** |
+| ~~TB-1940~~ | ~~Users tab — Vitest URL sync + empty composition~~ **Done** 2026-08-11 | Testability P2 **V1** — with **TB-1936** |
 | TB-1941 | Sealed records list — traffic section honesty (not Marketing) | Trustworthiness P1 **V1** — SI ~50 |
 | TB-1942 | Sealed records list — empty Browse reviews drop `projectId=default` | Trustworthiness P1 **V1** — with **TB-1941** |
 | TB-1944 | Sealed records list — dedupe Open review CTAs + page-1/100 + N+1 enrich | Adoption friction P1 **V1** — with **TB-1941** |
@@ -859,7 +859,7 @@ Canonical: [`GTM_BACKLOG.md`](../go-to-market/GTM_BACKLOG.md) only (see wave-3 c
 | Workspace navigation (`/help/pilot-guide`; PIL→HP **Done**) | **TB-1721**–**TB-1725** (open P1 **V1**) | Specialty + Home CTA on pilot-guide; slug jargon; Help Center; vs COR IA; Related/exec copy |
 | Prior manifest retrieval (`/help/prior-manifest-retrieval`) | **TB-1731**–**TB-1735** (open P1 **V1**) | Specialty + Open Ask CTA; manifest jargon; config leakage; vs repeat/compare IA; Related/finalize copy; ~50/100; traffic **HEP** |
 | Product overview (`/help/sponsor-summary`; HPR redirect **Done**) | **TB-1736**–**TB-1740** (open P1 **V1**) | Specialty + Start CTA on EXE; title dual; eng/GTM leakage; vs path-chooser IA; M-18 pitch dump |
-| Report a problem (`/help/report-a-problem`) | **TB-1741**–**TB-1745** (open P1 **V1**) | Specialty + Support CTA; button-absent dead-end; vs troubleshooting IA; first-viewport; Related/email; ~55/100; traffic **HRE**; after Done **TB-790** |
+| Report a problem (`/help/report-a-problem`) | **TB-1741**–**TB-1745** (**Done** 2026-08-13) | Specialty + Support CTA; button-absent dead-end; vs troubleshooting IA; first-viewport; Related/email; ~55/100; traffic **HRE**; after Done **TB-790** |
 | SOC 2 self-assessment (`/help/soc2-self-assessment`) | **TB-1746**/**TB-1749**/**TB-1750** **Done** 2026-08-03; **TB-1747**/**TB-1748** retained | Specialty guide + Trust CTA; IA dual; Help Center; traffic **HES**; do not reopen **TB-135**/**TB-136** |
 | Subprocessors (`/help/subprocessors`) | **TB-1751**–**TB-1755** (open P1 **V1**) | Specialty + Trust CTA; repo leakage; vs DPA/Trust IA; title/Help Center; residency honesty; ~44/100; traffic **HSU** |
 | Azure Boards product (`/integrations/azure-boards`) | **TB-1756**–**TB-1760** (open P1 **V1** incremental) + ship open **TB-1151**–**TB-1153** first | Density; aside chips; skeleton; help canonical; Vitest guards; ~38/100; traffic **IAZ** |

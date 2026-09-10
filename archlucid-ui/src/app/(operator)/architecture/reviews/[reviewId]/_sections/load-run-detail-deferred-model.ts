@@ -169,7 +169,7 @@ async function loadProjectRunContext(
 
     canShowCompareReviewButton = projectRuns.length >= 2;
 
-    if (isBuyerPolishedOperatorShellEnv()) {
+    if (context.buyerPolishedArtifactTable) {
       canShowCompareReviewButton = false;
     }
 

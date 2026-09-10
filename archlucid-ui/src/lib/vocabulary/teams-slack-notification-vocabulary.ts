@@ -17,6 +17,8 @@ import {
   INTEGRATIONS_TEAMS_PATH,
 } from "@/lib/integrations-nav-paths";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+import { DEFAULT_PRODUCT_LINE_ID, type ProductLineId } from "@/lib/product-line/product-line-id";
 import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 
 export type TeamsSlackNotificationSurfaceId = "notifications-hub" | "teams" | "slack";
@@ -62,13 +64,20 @@ export const TEAMS_SLACK_NOTIFICATION_SLACK_LINK: TeamsSlackNotificationLink = {
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildTeamsSlackNotificationVocabulary(): TeamsSlackNotificationVocabularyModel {
+export function buildTeamsSlackNotificationVocabulary(
+  productLine: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
+): TeamsSlackNotificationVocabularyModel {
+  const teamsLink: TeamsSlackNotificationLink = {
+    ...TEAMS_SLACK_NOTIFICATION_TEAMS_LINK,
+    label: localizeProductCopy(productLine, TEAMS_SLACK_NOTIFICATION_TEAMS_LINK.label),
+  };
+
   return {
     heading: TEAMS_SLACK_NOTIFICATION_HEADING,
-    whyTwo: TEAMS_SLACK_NOTIFICATION_WHY_TWO,
+    whyTwo: localizeProductCopy(productLine, TEAMS_SLACK_NOTIFICATION_WHY_TWO),
     compactLine: TEAMS_SLACK_NOTIFICATION_COMPACT_LINE,
     hubHref: SETTINGS_NOTIFICATIONS_PATH,
-    teamsLink: TEAMS_SLACK_NOTIFICATION_TEAMS_LINK,
+    teamsLink,
     slackLink: TEAMS_SLACK_NOTIFICATION_SLACK_LINK,
   };
 }
@@ -79,11 +88,12 @@ export function buildTeamsSlackNotificationVocabulary(): TeamsSlackNotificationV
  */
 export function resolveTeamsSlackNotificationPeerLink(
   currentSurfaceId: Exclude<TeamsSlackNotificationSurfaceId, "notifications-hub">,
+  productLine: ProductLineId = DEFAULT_PRODUCT_LINE_ID,
 ): TeamsSlackNotificationLink {
   if (currentSurfaceId === "teams") {
     return TEAMS_SLACK_NOTIFICATION_SLACK_LINK;
   }
 
-  return TEAMS_SLACK_NOTIFICATION_TEAMS_LINK;
+  return buildTeamsSlackNotificationVocabulary(productLine).teamsLink;
 }
 

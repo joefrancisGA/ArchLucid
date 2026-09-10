@@ -3,6 +3,10 @@ export const AUTH_CALLBACK_PAGE_TITLE = "Completing sign-in";
 
 export const AUTH_CALLBACK_PRIMARY_CONTENT_ID = "auth-callback-primary-content" as const;
 
+export const AUTH_CALLBACK_FIRST_VIEWPORT_ID = "auth-callback-first-viewport" as const;
+
+export const AUTH_CALLBACK_SKIP_TARGET_ID = AUTH_CALLBACK_FIRST_VIEWPORT_ID;
+
 export const AUTH_CALLBACK_SKIP_LINK_LABEL = "Skip to sign-in completion content" as const;
 
 export const AUTH_CALLBACK_BREADCRUMB_HUB_LABEL = "Welcome" as const;

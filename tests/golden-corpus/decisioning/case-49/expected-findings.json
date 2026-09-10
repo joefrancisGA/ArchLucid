@@ -1,0 +1,50 @@
+[
+  {
+    "findingId": "0094c95f-8f24-d23f-1e79-17f5e38ed19a",
+    "findingType": "AzureInventorySecurityBaseline",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Azure inventory security baseline gap: Microsoft.Storage/storageAccounts",
+    "rationale": "Azure inventory resources.json cross-check flagged a security baseline gap grounded in measured inventory.",
+    "relatedNodeIds": [],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "azure-inventory-security-baseline-classifier"
+    ],
+    "decisionsTaken": [
+      "Mapped inventory row to control family \u0027data-protection\u0027 and emitted a typed security finding."
+    ]
+  },
+  {
+    "findingId": "6b7987ed-5d06-2c71-2274-9a8b5822b287",
+    "findingType": "InventoryReconciliationFinding",
+    "category": "Correctness",
+    "severity": "Warning",
+    "title": "Topology graph and Azure inventory are out of sync",
+    "rationale": "At least one topology resource identifier does not match the latest scoped Azure inventory snapshot.",
+    "relatedNodeIds": [],
+    "payloadType": "InventoryReconciliationFindingPayload",
+    "rulesApplied": [
+      "graph-azure-inventory-reconciliation"
+    ],
+    "decisionsTaken": [
+      "Compared topology resource ARM identifiers to scoped extractor resources.json rows."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

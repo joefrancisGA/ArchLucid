@@ -1,19 +1,17 @@
 #Requires -Version 7.0
-# Run: Invoke-Pester -Strict 'scripts/azure/tests/Get-ArchLucidAzurePackage.Tests.ps1'
-# Requires: Install-Module Pester -Scope CurrentUser (Pester 3.4+ or 5.x; use -Strict for legacy syntax).
+# Run: Invoke-Pester -EnableExit -Path 'scripts/azure/tests/Get-ArchLucidAzurePackage.Tests.ps1'
 Set-StrictMode -Version Latest
-
-# Stub targets for Pester Mock when Az.* modules are installed locally. Without these,
-# auto-imported module cmdlets bypass Mock and the test hits live Azure APIs.
-function Get-AzSubscription { }
-function Set-AzContext { }
-function Get-AzResource { }
-function Get-AzPolicyDefinition { }
-function Get-AzPolicyAssignment { }
 
 Describe 'Get-ArchLucidAzurePackage.ps1' {
 
     BeforeAll {
+        # Stub targets for Pester Mock when Az.* modules are installed locally.
+        function Get-AzSubscription { }
+        function Set-AzContext { }
+        function Get-AzResource { }
+        function Get-AzPolicyDefinition { }
+        function Get-AzPolicyAssignment { }
+
         # Pester 5 discovery can run before $PSScriptRoot is populated at script scope.
         [string]$script:scriptRoot = Split-Path -Parent $PSScriptRoot
         [string]$script:extractorScript = Join-Path $script:scriptRoot 'Get-ArchLucidAzurePackage.ps1'
@@ -58,14 +56,16 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
             return [PSCustomObject]@{
                 Id = "/subscriptions/$SubscriptionId"
                 SubscriptionId = $SubscriptionId
+                TenantId = '99999999-8888-7777-6666-555555555555'
             }
         }
 
         Mock Set-AzContext {
-            param([string] $SubscriptionId)
+            param([string] $SubscriptionId, [string] $Tenant)
 
             return [PSCustomObject]@{
-                Subscription = [PSCustomObject]@{ Id = "/subscriptions/$SubscriptionId" }
+                Subscription = [PSCustomObject]@{ Id = $SubscriptionId }
+                Tenant = [PSCustomObject]@{ Id = $Tenant }
             }
         }
 

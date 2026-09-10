@@ -104,6 +104,13 @@ public sealed class AgentResult
         set;
     } = [];
 
+    /// <summary>Agent findings stripped by the emission gate before persistence (DR-02).</summary>
+    public List<WithheldFindingSummary> WithheldFindings
+    {
+        get;
+        set;
+    } = [];
+
     /// <summary>Insight-density demotion vs retention counts when populated by the agent runtime gate (TB-385).</summary>
     public InsightDensityCurationSummary? InsightDensityCuration
     {

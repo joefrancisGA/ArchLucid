@@ -37,6 +37,9 @@ type OperatorHomeDisclosureSectionProps = {
   autoExpandOnHashMatch?: boolean;
   /** Optional hash matcher; defaults to `location.hash` id equals `titleId`. */
   deepLinkHashMatches?: (hash: string) => boolean;
+  /** When set with {@link onExpandedChange}, parent controls expansion (e.g. URL-synced). */
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
   children: ReactNode;
 };
 
@@ -59,8 +62,12 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     sectionDataAttributes,
     autoExpandOnHashMatch = false,
     deepLinkHashMatches,
+    expanded: controlledExpanded,
+    onExpandedChange,
     children,
   } = props;
+
+  const isControlled = controlledExpanded !== undefined && onExpandedChange !== undefined;
 
   const trimmedTitleHref = titleHref?.trim() ?? "";
   const hasTitleHref = trimmedTitleHref.length > 0;
@@ -90,6 +97,11 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
   }, [autoExpandOnHashMatch, titleIdProp]);
 
   useLayoutEffect(() => {
+    if (isControlled) {
+      setHydrated(true);
+      return;
+    }
+
     let nextExpanded = readOperatorHomeDisclosureExpanded(storageKey, defaultExpanded, legacyStorageKeys);
     let shouldScrollToHashTarget = false;
 
@@ -117,14 +129,20 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
     scrollToDeepLinkTarget,
     storageKey,
     titleIdProp,
+    isControlled,
   ]);
 
   const persistExpanded = useCallback(
     (nextExpanded: boolean) => {
+      if (isControlled) {
+        onExpandedChange?.(nextExpanded);
+        return;
+      }
+
       setExpanded(nextExpanded);
       writeOperatorHomeDisclosureExpanded(storageKey, nextExpanded);
     },
-    [storageKey],
+    [isControlled, onExpandedChange, storageKey],
   );
 
   useEffect(() => {
@@ -147,11 +165,13 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
   }, [autoExpandOnHashMatch, matchesDeepLinkHash, persistExpanded, scrollToDeepLinkTarget, titleIdProp]);
 
   const toggleExpanded = useCallback(() => {
-    persistExpanded(!expanded);
-  }, [expanded, persistExpanded]);
+    const currentExpanded = isControlled ? controlledExpanded : expanded;
+    persistExpanded(!currentExpanded);
+  }, [controlledExpanded, expanded, isControlled, persistExpanded]);
 
-  const showExpandedContent = hydrated ? expanded : defaultExpanded;
-  const toggleLabel = expanded ? collapseAriaLabel(title) : expandAriaLabel(title);
+  const resolvedExpanded = isControlled ? controlledExpanded : expanded;
+  const showExpandedContent = hydrated ? resolvedExpanded : defaultExpanded;
+  const toggleLabel = resolvedExpanded ? collapseAriaLabel(title) : expandAriaLabel(title);
   const slim = density === "slim";
 
   return (
@@ -162,7 +182,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
         sectionClassName,
       )}
       data-testid={sectionTestId}
-      data-disclosure-expanded={hydrated ? String(expanded) : undefined}
+      data-disclosure-expanded={hydrated ? String(resolvedExpanded) : undefined}
       {...sectionDataAttributes}
     >
       <div className={cn(OPERATOR_CARD.header, "pb-0")}>
@@ -186,7 +206,7 @@ export function OperatorHomeDisclosureSection(props: OperatorHomeDisclosureSecti
                 "shrink-0 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200",
                 slim ? "h-7 w-7" : "h-8 w-8",
               )}
-              aria-expanded={expanded}
+              aria-expanded={resolvedExpanded}
               aria-controls={`${titleId}-panel`}
               aria-label={toggleLabel}
               onClick={toggleExpanded}

@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.Application.Findings.HeldCheck;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Contracts.Agents;
@@ -29,8 +31,10 @@ public sealed class AzureExtractorPreparedZipPersistStage(
     IAzureInventorySnapshotMaterializer inventorySnapshotMaterializer,
     IAgentTaskRepository agentTaskRepository,
     IEvidenceBundleRepository evidenceBundleRepository,
-    ILogger<AzureExtractorPreparedZipPersistStage> logger) : IAzureExtractorPreparedZipPersistStage
+    ILogger<AzureExtractorPreparedZipPersistStage> logger,
+    IHeldCheckSecondPassService? heldCheckSecondPassService = null) : IAzureExtractorPreparedZipPersistStage
 {
+    private readonly IHeldCheckSecondPassService? _heldCheckSecondPassService = heldCheckSecondPassService;
     private readonly IAgentTaskRepository _agentTaskRepository = agentTaskRepository ?? throw new ArgumentNullException(nameof(agentTaskRepository));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IEvidenceBundleRepository _evidenceBundleRepository = evidenceBundleRepository ?? throw new ArgumentNullException(nameof(evidenceBundleRepository));
@@ -121,6 +125,14 @@ public sealed class AzureExtractorPreparedZipPersistStage(
                 DataJson = JsonSerializer.Serialize(new { packageId, citation = AzureExtractorCitationFormatter.FormatCostProofPoint(manifest), manifest.SchemaVersion, manifest.SubscriptionId }, AuditJsonSerializationOptions.Instance),
                 CorrelationId = context.CorrelationId,
             }, ct);
+            await HeldCheckSecondPassIngestCoordinator.TryRunAfterIngestAsync(
+                _heldCheckSecondPassService,
+                _logger,
+                scope,
+                runId,
+                HeldCheckInputCode.AzureInventoryZip,
+                packageId,
+                ct);
             return new AzureExtractorIngestResult { Succeeded = true, PackageId = packageId, IsSchemaRejection = false };
         }
     }

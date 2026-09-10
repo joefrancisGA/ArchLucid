@@ -168,7 +168,7 @@ export const OPERATOR_EMPTY_STATE_MIGRATION_INVENTORY: readonly OperatorEmptySta
     disposition: "migrated",
     testId: "governance-workflow-no-promotions",
     componentOrModule: "app/(operator)/governance/_sections/GovernanceWorkflowPromotionsActivationsSection.tsx",
-    notes: "Compact + GettingStartedSteps for governance releases (**TB-1556**).",
+    notes: "Compact + GettingStartedSteps for approval releases (**TB-1556**).",
   },
   {
     id: "governance-workflow-no-activations",

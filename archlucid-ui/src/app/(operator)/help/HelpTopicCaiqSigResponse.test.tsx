@@ -7,6 +7,8 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/caiq-sig-response",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({

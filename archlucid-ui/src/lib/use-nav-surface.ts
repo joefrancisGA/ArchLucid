@@ -47,7 +47,7 @@ export type NavSurfaceContextHints = {
   readonly auditLogRank: string;
   /** Alert-tooling family second line (rules, routing, simulation, tuning, composite). */
   readonly alertOperatorToolingRank: string;
-  /** Governance dashboard read-only-action cue — null when Execute+ (matches component). */
+  /** Approval dashboard read-only-action cue — null when Execute+ (matches component). */
   readonly governanceDashboardReaderAction: string | null;
 };
 

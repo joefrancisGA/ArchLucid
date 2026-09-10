@@ -333,65 +333,7 @@ describe("quick-decision-summary-derive", () => {
     expect(extracted[0]?.muteReason).toBe("noise");
   });
 
-  it("resolveQuickDecisionFindingsForRunDetail falls back to explanation trace rows when detail findings missing", () => {
-    const detail = {
-      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
-      results: [{ findings: [] }],
-    } as unknown as RunDetail;
-
-    const summary = {
-      explanation: {
-        summary: "",
-        keyDrivers: [],
-        riskImplications: [],
-        costImplications: [],
-        complianceImplications: [],
-        detailedNarrative: "",
-        rawText: "",
-        structured: null,
-        confidence: null,
-        provenance: null,
-      },
-      themeSummaries: [],
-      overallAssessment: "",
-      riskPosture: "",
-      findingCount: 1,
-      decisionCount: 0,
-      unresolvedIssueCount: 0,
-      complianceGapCount: 0,
-      findingTraceConfidences: [
-        {
-          findingId: "f-a",
-          traceCompletenessRatio: 1,
-          traceConfidenceLabel: "High",
-          findingTitle: "Title A",
-          confidenceLevel: "Medium",
-        },
-      ],
-    } as RunExplanationSummary;
-
-    const resolved = resolveQuickDecisionFindingsForRunDetail(detail, summary);
-
-    expect(resolved).toHaveLength(1);
-    expect(resolved[0]?.findingId).toBe("f-a");
-    expect(resolved[0]?.isMuted).toBe(false);
-    expect(resolved[0]?.confidenceLevel).toBe("Medium");
-    expect(resolved[0]?.traceConfidenceLabel).toBe("High");
-
-    const snaps = buildFindingWireSnapshotsForRunDetail(detail, summary);
-
-    expect(snaps["f-a"]).toBeDefined();
-    expect(snaps["f-a"]?.reasoningTrace).toBe("High");
-  });
-
-  it("isQuickDecisionDerivedFromExplanationTraces is true only when agent results are empty but traces exist", () => {
-    const detailWithResults = {
-      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
-      results: [{ findings: [{ findingId: "x", message: "m", reasoningTrace: "t", severity: 1 }] }],
-    } as unknown as RunDetail;
-
-    expect(isQuickDecisionDerivedFromExplanationTraces(detailWithResults, null)).toBe(false);
-
+  it("isQuickDecisionDerivedFromExplanationTraces is always false after LP-05 trace-synthesis removal", () => {
     const emptyResults = {
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
       results: [{ findings: [] }],
@@ -401,7 +343,7 @@ describe("quick-decision-summary-derive", () => {
       findingTraceConfidences: [{ findingId: "f-a", traceConfidenceLabel: "High" }],
     } as RunExplanationSummary;
 
-    expect(isQuickDecisionDerivedFromExplanationTraces(emptyResults, summary)).toBe(true);
+    expect(isQuickDecisionDerivedFromExplanationTraces(emptyResults, summary)).toBe(false);
     expect(isQuickDecisionDerivedFromExplanationTraces(emptyResults, null)).toBe(false);
   });
 

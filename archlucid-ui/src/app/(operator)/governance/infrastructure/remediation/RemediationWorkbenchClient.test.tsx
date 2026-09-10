@@ -7,6 +7,8 @@ import { fetchRemediationInstances } from "@/lib/infra-evidence/infra-evidence-r
 let searchParams = new URLSearchParams("");
 
 vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/governance/infrastructure/remediation",
   useSearchParams: () => searchParams,
 }));
 
@@ -132,6 +134,23 @@ describe("RemediationWorkbenchClient", () => {
     expect(await screen.findByTestId("infra-remediation-resource-scope-banner")).toHaveTextContent(
       "33333333-3333-3333-3333-333333333333",
     );
+    expect(screen.getByTestId("infra-remediation-open-primary-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=remediation&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByRole("link", { name: "View remediation in hub" })).toBeInTheDocument();
+    expect(screen.getByTestId("infra-remediation-open-findings-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=findings&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-remediation-open-drift-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=drift&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-remediation-open-terraform-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
     expect(vi.mocked(fetchRemediationInstances)).toHaveBeenCalledWith({
       cloudResourceId: "33333333-3333-3333-3333-333333333333",
       findingId: null,
@@ -157,7 +176,7 @@ describe("RemediationWorkbenchClient", () => {
 
   it("passes combined cloudResourceId and findingId filters from the URL", async () => {
     searchParams = new URLSearchParams(
-      "cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222",
+      "cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222&snapshotId=11111111-1111-1111-1111-111111111111",
     );
     render(<RemediationWorkbenchClient />);
 
@@ -167,6 +186,14 @@ describe("RemediationWorkbenchClient", () => {
         findingId: "22222222-2222-2222-2222-222222222222",
       });
     });
+    expect(screen.getByTestId("infra-remediation-finding-open-findings-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=findings&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-remediation-finding-open-terraform-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
   });
 
   it("shows create guidance when findingId has no remediation instance yet", async () => {
@@ -189,10 +216,18 @@ describe("RemediationWorkbenchClient", () => {
       "href",
       "/governance/infrastructure/diagram-reconcile?runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111&cloudResourceId=33333333-3333-3333-3333-333333333333&reconcileFilter=Conflict&correspondenceId=corr-1",
     );
+    expect(screen.getByTestId("infra-remediation-open-diagram-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=diagram&runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByTestId("infra-remediation-open-terraform-hub")).toHaveAttribute(
+      "href",
+      "/governance/infrastructure/resources/33333333-3333-3333-3333-333333333333?tab=terraform&runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111",
+    );
     await waitFor(() => {
       expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
         "href",
-        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&snapshotId=11111111-1111-1111-1111-111111111111&findingId=22222222-2222-2222-2222-222222222222&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&correspondenceId=corr-1&runId=run-1",
+        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&snapshotId=11111111-1111-1111-1111-111111111111&findingId=22222222-2222-2222-2222-222222222222&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&correspondenceId=corr-1&runId=run-1&tab=remediation",
       );
     });
   });
@@ -204,7 +239,7 @@ describe("RemediationWorkbenchClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
         "href",
-        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&tab=remediation",
       );
     });
   });

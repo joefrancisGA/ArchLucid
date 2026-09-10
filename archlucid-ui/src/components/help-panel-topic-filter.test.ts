@@ -6,7 +6,7 @@ import type { HelpTopic } from "@/lib/help/help-topics";
 const TOPIC: HelpTopic = {
   id: "mixed-case-keywords",
   title: "Architecture reviews",
-  keywords: ["RBAC", "Governance", "Signed Manifest"],
+  keywords: ["RBAC", "Approval", "Signed Manifest"],
   summary: "Review architecture submissions and evidence.",
   docPath: "docs/library/FIRST_RUN_WIZARD.md",
   routes: ["/architecture/reviews"],
@@ -15,7 +15,7 @@ const TOPIC: HelpTopic = {
 describe("topicMatchesQuery", () => {
   it("matches keywords case-insensitively", () => {
     expect(topicMatchesQuery(TOPIC, "rbac")).toBe(true);
-    expect(topicMatchesQuery(TOPIC, "govern")).toBe(true);
+    expect(topicMatchesQuery(TOPIC, "approv")).toBe(true);
     expect(topicMatchesQuery(TOPIC, "manifest")).toBe(true);
   });
 });

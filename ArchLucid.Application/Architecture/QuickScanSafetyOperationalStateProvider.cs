@@ -2,6 +2,7 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.QuickScan;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,7 @@ public sealed class QuickScanSafetyOperationalStateProvider(
     IQuickScanSafetyOperationalStateStore store,
     IMemoryCache memoryCache,
     IHostEnvironment hostEnvironment,
+    IConfiguration configuration,
     ILogger<QuickScanSafetyOperationalStateProvider> logger) : IQuickScanSafetyOperationalStateProvider
 {
     private const string CacheKey = "quick-scan-safety-operational-snapshot";
@@ -31,6 +33,9 @@ public sealed class QuickScanSafetyOperationalStateProvider(
 
     private readonly IHostEnvironment _hostEnvironment =
         hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     private readonly ILogger<QuickScanSafetyOperationalStateProvider> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -68,7 +73,7 @@ public sealed class QuickScanSafetyOperationalStateProvider(
         {
             _logger.LogError(ex, "Quick Scan operational override store is unavailable.");
 
-            if (IsProductionLike())
+            if (RequiresProductionLikeFailClosed())
             {
                 return QuickScanSafetyOperationalSnapshot.FailClosed(options.EmergencyDisabledMessage);
             }
@@ -135,7 +140,8 @@ public sealed class QuickScanSafetyOperationalStateProvider(
         };
     }
 
-    private bool IsProductionLike() =>
-        string.Equals(_hostEnvironment.EnvironmentName, Environments.Production, StringComparison.OrdinalIgnoreCase)
-        || string.Equals(_hostEnvironment.EnvironmentName, "Staging", StringComparison.OrdinalIgnoreCase);
+    private bool RequiresProductionLikeFailClosed() =>
+        QuickScanSafetyProductionLikeHostClassification.RequiresProductionLikeAnonymousGuardrails(
+            _hostEnvironment,
+            _configuration);
 }

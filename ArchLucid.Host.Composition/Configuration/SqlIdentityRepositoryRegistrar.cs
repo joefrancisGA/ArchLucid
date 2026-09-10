@@ -2,10 +2,12 @@ using ArchLucid.Core.Admin;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Persistence.ApplicationPorts.Interfaces;
 using ArchLucid.Core.Scim;
+using ArchLucid.Core.UserPreferences;
 using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Scim;
+using ArchLucid.Persistence.UserPreferences;
 
 namespace ArchLucid.Host.Composition.Configuration;
 
@@ -29,6 +31,7 @@ internal static class SqlIdentityRepositoryRegistrar
         services.AddScoped<IAuthenticationIdentityLinkProposalRepository, DapperAuthenticationIdentityLinkProposalRepository>();
         services.AddScoped<IScimGroupRepository, DapperScimGroupRepository>();
         services.AddScoped<IUserSettingsRepository, DapperUserSettingsRepository>();
+        services.AddScoped<IUserWorkspaceModeReader, UserWorkspaceModeReader>();
         services.AddScoped<IUserInvitationRepository, DapperUserInvitationRepository>();
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
     }

@@ -5,7 +5,8 @@ import {
 import { SIGNED_RECORDS_LIST_PAGE_TITLE } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-copy";
 import { getArtifactDisplayLabel } from "@/lib/artifact-review-helpers";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { listArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
+import { resolveWorkingRunReviewLocator } from "@/lib/architecture/resolve-working-run-review-locator";
 import { signedRecordDetailPath, SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export type GovernanceSealedRecordArtifactBreadcrumbProps = {
@@ -32,7 +33,13 @@ export function GovernanceSealedRecordArtifactBreadcrumb(
   ];
 
   if (props.runId !== null && props.runId.trim().length > 0) {
-    items.push({ label: "Open review", href: reviewDetailPath(props.runId) });
+    items.push({
+      label: "Open review",
+      href: resolveWorkingRunReviewLocator({
+        runId: props.runId,
+        draftRegistryEntries: listArchitectureDraftRegistryEntries(),
+      }).href,
+    });
   }
 
   items.push({ label: artifactLabel });

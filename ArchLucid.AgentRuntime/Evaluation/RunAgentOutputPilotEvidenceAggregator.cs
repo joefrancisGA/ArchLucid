@@ -23,7 +23,8 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
     IAgentOutputQualityGate qualityGate,
     IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     IAgentOutputFaithfulnessEvaluator llmFaithfulnessEvaluator,
-    IOptions<AgentOutputLlmFaithfulnessOptions> llmFaithfulnessOptions) : IRunAgentOutputPilotEvidenceAggregator
+    IOptions<AgentOutputLlmFaithfulnessOptions> llmFaithfulnessOptions,
+    IOptions<AgentExecutionOptions> agentExecutionOptions) : IRunAgentOutputPilotEvidenceAggregator
 {
     private readonly IAgentOutputQualityGateOptionsResolver _optionsResolver =
         optionsResolver ?? throw new ArgumentNullException(nameof(optionsResolver));
@@ -56,6 +57,9 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
     private readonly IOptions<AgentOutputLlmFaithfulnessOptions> _llmFaithfulnessOptions =
         llmFaithfulnessOptions ?? throw new ArgumentNullException(nameof(llmFaithfulnessOptions));
 
+    private readonly IOptions<AgentExecutionOptions> _agentExecutionOptions =
+        agentExecutionOptions ?? throw new ArgumentNullException(nameof(agentExecutionOptions));
+
     /// <inheritdoc />
     public async Task<bool> WouldPilotStrictBlockSponsorEvidenceAsync(
         IReadOnlyList<AgentExecutionTrace> traces,
@@ -86,8 +90,12 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
         IReadOnlyList<AgentExecutionTrace> tracesForEvaluation =
             AgentExecutionTraceLatestPerTaskSelector.Select(traces);
 
+        string hostAgentExecutionMode = _agentExecutionOptions.Value.Mode;
+
         foreach (AgentExecutionTrace trace in tracesForEvaluation)
         {
+            AgentResult? matchingResult = agentResults.FirstOrDefault(r => r.TaskId == trace.TaskId);
+
             AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
                 await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
                         trace,
@@ -100,7 +108,9 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
                         _agentResultEvidenceFaithfulnessChecker,
                         llmFaithfulnessEvaluator: _llmFaithfulnessEvaluator,
                         calibratedConfidenceByTaskId: calibratedConfidenceByTaskId,
-                        llmFaithfulnessOptions: _llmFaithfulnessOptions.Value)
+                        llmFaithfulnessOptions: _llmFaithfulnessOptions.Value,
+                        taskStructuralExecutionMode: matchingResult?.TaskStructuralExecutionMode,
+                        hostAgentExecutionMode: hostAgentExecutionMode)
                     .ConfigureAwait(false);
 
             if (evaluated is { GateOutcome: AgentOutputQualityGateOutcome.Rejected })

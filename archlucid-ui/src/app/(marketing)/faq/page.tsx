@@ -13,7 +13,7 @@ import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
 
 export const metadata: Metadata = {
   title: "Product FAQ · ArchLucid",
-  description: `Product FAQ for architects and sponsors evaluating ArchLucid (${BRAND_CATEGORY}) — evaluation, pricing, evidence, governance, and security.`,
+  description: `Product FAQ for architects and sponsors evaluating ArchLucid (${BRAND_CATEGORY}) — evaluation, pricing, evidence, approval, and security.`,
   ...buildMarketingSocialMetadata("Product FAQ", MARKETING_FAQ_OG_DESCRIPTION, "/faq"),
   robots: { index: true, follow: true },
 };

@@ -3,6 +3,13 @@ export const AZURE_PERMISSIONS_PAGE_TITLE = "Azure permissions for cloud connect
 export const AZURE_PERMISSIONS_PAGE_SUBTITLE =
   "Grant ArchLucid the minimum read-only access needed to collect architecture and, when enabled, cost evidence from Azure.";
 
+export const AZURE_PERMISSIONS_PAGE_SUBTITLE_BUYER =
+  "Guided mode: minimum read-only Azure roles before connection verify and assurance review." as const;
+
+export function azurePermissionsHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? AZURE_PERMISSIONS_PAGE_SUBTITLE_BUYER : AZURE_PERMISSIONS_PAGE_SUBTITLE;
+}
+
 export const AZURE_PERMISSIONS_BACK_TO_CONNECTIONS = "Back to cloud connections";
 
 export const AZURE_PERMISSIONS_READ_ONLY_HEADING = "Read-only by design";

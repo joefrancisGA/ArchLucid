@@ -98,8 +98,12 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
 
         if (snapshot is null)
         {
-            throw new InvalidOperationException(
-                $"Graph snapshot '{entry.GraphSnapshotId:D}' was not found in SQL for Cosmos replication.");
+            Logger.LogWarning(
+                "Skipping Cosmos graph snapshot replication for graph {GraphSnapshotId}: graph snapshot was not found in SQL.",
+                entry.GraphSnapshotId);
+            await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+
+            return;
         }
 
         await cosmosWriter.SaveAsync(snapshot, cancellationToken);
@@ -111,14 +115,22 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
     {
         ArgumentNullException.ThrowIfNull(configured);
 
-        int leaseDurationSeconds = configured.LeaseDurationSeconds < 60 ? 60 : configured.LeaseDurationSeconds;
+        (int leaseDurationSeconds, int maxAttempts, int retryBackoffBaseSeconds, int retryBackoffMaxSeconds, _) =
+            OutboxProcessorOptionsVerifier.NormalizeParallelLeaseRetry(
+                configured.LeaseDurationSeconds,
+                configured.MaxAttemptsBeforeDeadLetter,
+                configured.RetryBackoffBaseSeconds,
+                configured.RetryBackoffMaxSeconds,
+                maxConcurrentBatchEntries: 1,
+                MaxBatchSize,
+                minLeaseDurationSeconds: 60);
 
         return new CosmosGraphSnapshotOutboxProcessorOptions
         {
             LeaseDurationSeconds = leaseDurationSeconds,
-            MaxAttemptsBeforeDeadLetter = configured.MaxAttemptsBeforeDeadLetter,
-            RetryBackoffBaseSeconds = configured.RetryBackoffBaseSeconds,
-            RetryBackoffMaxSeconds = configured.RetryBackoffMaxSeconds,
+            MaxAttemptsBeforeDeadLetter = maxAttempts,
+            RetryBackoffBaseSeconds = retryBackoffBaseSeconds,
+            RetryBackoffMaxSeconds = retryBackoffMaxSeconds,
             PollIntervalSeconds = configured.PollIntervalSeconds,
         };
     }

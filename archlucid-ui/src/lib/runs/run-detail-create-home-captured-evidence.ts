@@ -4,6 +4,8 @@ export type RunDetailCreateHomeCapturedEvidenceItem = {
   readonly key: string;
   readonly fileName: string;
   readonly ingestedUtc: string;
+  readonly evidenceItemId?: string | null;
+  readonly contentType?: string;
 };
 
 const CAPTURED_EVIDENCE_STORAGE_PREFIX = "archlucid_create_home_captured_evidence_v1_";
@@ -82,12 +84,33 @@ export function deriveCapturedEvidenceFromArtifacts(
     .sort((left, right) => left.fileName.localeCompare(right.fileName, undefined, { sensitivity: "base" }));
 }
 
+export function deriveCapturedEvidenceFromCatalog(
+  catalog: readonly {
+    readonly evidenceItemId: string;
+    readonly originalFileName: string;
+    readonly createdUtc?: string;
+    readonly contentType?: string;
+  }[],
+): RunDetailCreateHomeCapturedEvidenceItem[] {
+  return catalog
+    .map((entry) => ({
+      key: entry.evidenceItemId,
+      fileName: entry.originalFileName,
+      ingestedUtc: entry.createdUtc ?? new Date().toISOString(),
+      evidenceItemId: entry.evidenceItemId,
+      contentType: entry.contentType,
+    }))
+    .sort((left, right) => left.fileName.localeCompare(right.fileName, undefined, { sensitivity: "base" }));
+}
+
 export function mergeCapturedEvidenceUploadOutcomes(
   existing: readonly RunDetailCreateHomeCapturedEvidenceItem[],
   outcomes: readonly BulkEvidenceFileOutcome[],
   ingestedUtc: string,
+  evidenceItemIds: readonly string[] = [],
 ): RunDetailCreateHomeCapturedEvidenceItem[] {
   const map = new Map(existing.map((item) => [item.fileName.toLowerCase(), item]));
+  let evidenceIdIndex = 0;
 
   for (const outcome of outcomes) {
     if (outcome.status !== "uploaded") {
@@ -95,12 +118,15 @@ export function mergeCapturedEvidenceUploadOutcomes(
     }
 
     const fileName = outcome.fileName.trim().length > 0 ? outcome.fileName.trim() : "upload";
-    const key = `upload:${fileName.toLowerCase()}`;
+    const evidenceItemId = evidenceItemIds[evidenceIdIndex] ?? null;
+
+    evidenceIdIndex += 1;
 
     map.set(fileName.toLowerCase(), {
-      key,
+      key: evidenceItemId ?? `upload:${fileName.toLowerCase()}`,
       fileName,
       ingestedUtc,
+      evidenceItemId,
     });
   }
 
@@ -112,13 +138,48 @@ export function mergeCapturedEvidenceUploadOutcomes(
 export function reconcileCapturedEvidenceInventory(
   serverItems: readonly RunDetailCreateHomeCapturedEvidenceItem[],
   sessionItems: readonly RunDetailCreateHomeCapturedEvidenceItem[],
+  options?: { readonly catalogAuthoritative?: boolean },
 ): RunDetailCreateHomeCapturedEvidenceItem[] {
+  const catalogAuthoritative = options?.catalogAuthoritative ?? false;
+
+  if (catalogAuthoritative && serverItems.length > 0) {
+    const map = new Map(serverItems.map((item) => [item.fileName.toLowerCase(), item]));
+
+    for (const item of sessionItems) {
+      if ((item.evidenceItemId ?? "").length === 0) {
+        continue;
+      }
+
+      const lookupKey = item.fileName.toLowerCase();
+      const existing = map.get(lookupKey);
+
+      if (existing === undefined) {
+        map.set(lookupKey, item);
+        continue;
+      }
+
+      if ((existing.evidenceItemId ?? "").length === 0 && (item.evidenceItemId ?? "").length > 0) {
+        map.set(lookupKey, item);
+      }
+    }
+
+    return [...map.values()].sort((left, right) =>
+      left.fileName.localeCompare(right.fileName, undefined, { sensitivity: "base" }),
+    );
+  }
+
   const map = new Map(serverItems.map((item) => [item.fileName.toLowerCase(), item]));
 
   for (const item of sessionItems) {
     const lookupKey = item.fileName.toLowerCase();
+    const existing = map.get(lookupKey);
 
-    if (!map.has(lookupKey)) {
+    if (existing === undefined) {
+      map.set(lookupKey, item);
+      continue;
+    }
+
+    if ((existing.evidenceItemId ?? "").length === 0 && (item.evidenceItemId ?? "").length > 0) {
       map.set(lookupKey, item);
     }
   }

@@ -1,11 +1,17 @@
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Runs;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -22,7 +28,13 @@ public sealed class ExportReplayService(
     IRunExportAuditService runExportAuditService,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IScopeContextProvider scopeContextProvider) : IExportReplayService
+    IScopeContextProvider scopeContextProvider,
+    IRunDetailQueryService runDetailQueryService,
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IConfiguration configuration,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : IExportReplayService
 {
     private readonly IRunExportRecordRepository _runExportRecordRepository =
         runExportRecordRepository ?? throw new ArgumentNullException(nameof(runExportRecordRepository));
@@ -46,6 +58,24 @@ public sealed class ExportReplayService(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
 
     private const string ExportTypeConsultingDocx = "analysis-report-consulting-docx";
 
@@ -91,6 +121,26 @@ public sealed class ExportReplayService(
                     AuthorityRunLifecyclePhaseListResolver.ResolveFromRunHeader(runDetail.Run),
                     record.RunId);
             }
+        }
+
+        ArchitectureRunDetail? architectureDetail =
+            await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken);
+
+        if (architectureDetail is not null)
+        {
+            CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
+                architectureDetail,
+                _authorityQueryService,
+                _graphSnapshotRepository,
+                _agentExecutionTraceRepository,
+                scope,
+                workingDesk: true,
+                _configuration,
+                cancellationToken,
+                _runRepository,
+                _architectureInventoryBindingRepository);
+
+            CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial(careerExportHonesty);
         }
 
         PersistedAnalysisExportRequest persistedRequest = AnalysisExportRequestRehydrator.Rehydrate(record) ??

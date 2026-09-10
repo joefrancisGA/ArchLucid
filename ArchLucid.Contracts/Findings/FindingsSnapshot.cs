@@ -75,6 +75,13 @@ public class FindingsSnapshot
         set;
     } = [];
 
+    /// <summary>Findings the kernel refused to persist or demoted during merge (DR-02).</summary>
+    public List<WithheldFindingSummary> WithheldFindings
+    {
+        get;
+        set;
+    } = [];
+
     /// <summary>Insight-density demotion vs retention counts for operator UI framing (TB-385).</summary>
     public InsightDensityCurationSummary? InsightDensityCuration
     {

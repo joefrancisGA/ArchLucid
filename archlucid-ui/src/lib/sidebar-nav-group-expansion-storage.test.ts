@@ -22,7 +22,10 @@ describe("sidebar-nav-group-expansion-storage", () => {
       "operate-analysis": true,
       "operate-governance": false,
       "operate-policy": false,
+      "operate-compliance": false,
       "operate-integrations": false,
+      "operate-security": false,
+      "operate-infrastructure": false,
       "operator-admin": true,
       "operator-system-admin": false,
     });
@@ -32,7 +35,10 @@ describe("sidebar-nav-group-expansion-storage", () => {
       "operate-analysis": true,
       "operate-governance": false,
       "operate-policy": false,
+      "operate-compliance": false,
       "operate-integrations": false,
+      "operate-security": false,
+      "operate-infrastructure": false,
       "operator-admin": true,
       "operator-system-admin": false,
     });
@@ -54,7 +60,9 @@ describe("sidebar-nav-group-expansion-storage", () => {
     expect(state["operate-analysis"]).toBe(true);
     expect(state["operate-governance"]).toBe(true);
     expect(state["operate-policy"]).toBe(true);
+    expect(state["operate-compliance"]).toBe(true);
     expect(state["operate-integrations"]).toBe(true);
+    expect(state["operate-security"]).toBe(true);
   });
 
   it("migrates retired operate-reports expansion into operate-analysis", () => {

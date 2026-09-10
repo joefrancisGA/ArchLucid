@@ -31,8 +31,9 @@ import {
   type SponsorEvidencePackPayload,
 } from "@/lib/api";
 
-import WhyArchLucidPage from "./page";
+import { WhyArchLucidPage } from "./_sections/WhyArchLucidPage";
 import { WHY_ARCHLUCID_MARKETING_WHY_HREF, WHY_ARCHLUCID_PAGE_TITLE } from "@/lib/why-archlucid-page-copy";
+import { renderWithOperatorQuery } from "@/testing/operator-query-test-helpers";
 
 const measuredRoiMock = vi.mocked(getTenantMeasuredRoi);
 const sponsorPackMock = vi.mocked(getSponsorEvidencePack);
@@ -132,13 +133,17 @@ const fixedExplanation = {
 };
 
 describe("WhyArchLucidPage (proof page snapshot)", () => {
+  function renderPage() {
+    return renderWithOperatorQuery(<WhyArchLucidPage />);
+  }
+
   it("matches the rendered layout snapshot for the demo tenant", async () => {
     measuredRoiMock.mockResolvedValue(fixedMeasuredRoi);
     sponsorPackMock.mockResolvedValue(fixedSponsorEvidencePack);
     reportMock.mockResolvedValue(fixedReport);
     explanationMock.mockResolvedValue(fixedExplanation);
 
-    const { container } = render(<WhyArchLucidPage />);
+    const { container } = renderPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
@@ -155,7 +160,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     reportMock.mockResolvedValue(fixedReport);
     explanationMock.mockResolvedValue(fixedExplanation);
 
-    render(<WhyArchLucidPage />);
+    renderPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("why-archlucid-universe-banner")).toHaveAttribute(
@@ -194,9 +199,10 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     reportMock.mockResolvedValue(fixedReport);
     explanationMock.mockResolvedValue(fixedExplanation);
 
-    render(<WhyArchLucidPage />);
+    renderPage();
 
     await waitFor(() => {
+      expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
       expect(screen.getByTestId("why-archlucid-universe-banner")).toHaveAttribute(
         "data-why-archlucid-universe",
         "unknown",
@@ -218,7 +224,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     reportMock.mockResolvedValue(fixedReport);
     explanationMock.mockResolvedValue(fixedExplanation);
 
-    render(<WhyArchLucidPage />);
+    renderPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
@@ -246,7 +252,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     reportMock.mockResolvedValue(fixedReport);
     explanationMock.mockResolvedValue(fixedExplanation);
 
-    render(<WhyArchLucidPage />);
+    renderPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
@@ -267,7 +273,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     reportMock.mockResolvedValue(fixedReport);
     explanationMock.mockResolvedValue(fixedExplanation);
 
-    render(<WhyArchLucidPage />);
+    renderPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("why-archlucid-primary-cta")).toBeInTheDocument();
@@ -298,7 +304,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     reportMock.mockResolvedValue(fixedReport);
     explanationMock.mockResolvedValue(fixedExplanation);
 
-    render(<WhyArchLucidPage />);
+    renderPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("why-archlucid-universe-banner")).toHaveAttribute(
@@ -316,15 +322,15 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     reportMock.mockResolvedValue(fixedReport);
     explanationMock.mockResolvedValue(fixedExplanation);
 
-    render(<WhyArchLucidPage />);
+    renderPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("why-archlucid-page-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByTestId("why-archlucid-page-heading-actions")).toBeInTheDocument();
-    expect(screen.getByTestId("why-archlucid-internal-pilot-badge")).toHaveTextContent(/Internal pilot proof/i);
+    expect(screen.getByRole("heading", { level: 1, name: WHY_ARCHLUCID_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.queryByTestId("why-archlucid-page-breadcrumb")).not.toBeInTheDocument();
     expect(document.querySelector('[data-nav-href="/why-archlucid"]')).toBeInTheDocument();
   });
 
@@ -334,7 +340,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     reportMock.mockRejectedValue(new Error("report failed"));
     explanationMock.mockRejectedValue(new Error("explain failed"));
 
-    render(<WhyArchLucidPage />);
+    renderPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("why-archlucid-page-load-failure")).toBeInTheDocument();

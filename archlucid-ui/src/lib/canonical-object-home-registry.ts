@@ -1,4 +1,4 @@
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { DECISION_REGISTER_CANONICAL_PATH } from "@/lib/decision-register-evidence-copy";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
@@ -39,7 +39,7 @@ export function secondaryAppearanceSurfaceLabel(surface: SecondaryAppearanceSurf
     case "reviewPackageFindingsTab":
       return "Architecture review findings";
     case "reviewPackageGovernanceTab":
-      return "Architecture review governance";
+      return "Architecture review policies";
     case "reviewPackageAuthorityChain":
       return "Architecture review authority chain";
     case "findingEvidenceTrace":
@@ -129,8 +129,8 @@ export function canonicalObjectHomeHref(
 }
 
 /** Review package spine — used when decision register links need package context. */
-export function reviewPackageHomeHref(runId: string): string {
-  return reviewDetailPath(runId);
+export function reviewPackageHomeHref(runId: string, architectureId?: string | null): string {
+  return resolveArchitectureReviewHref(runId, architectureId);
 }
 
 /** Builds strip copy + home link for a secondary governed-object appearance. */
