@@ -3,6 +3,11 @@ import {
   isDecisionGradeFinding,
 } from "@/lib/findings/review-detail-findings-classification-band";
 import { resolveDecisionGradeSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
+import {
+  shouldPresentSemanticSupportBandAsRehearsal,
+  SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_LABEL,
+} from "@/lib/governance/simulator-career-honesty";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 
 export type SemanticSupportBandStampCounts = {
   readonly supported: number;
@@ -62,6 +67,74 @@ export function stampSemanticSupportShowsAllClear(counts: SemanticSupportBandSta
 
 function formatBandCountSegment(label: string, count: number): string {
   return `${count} ${label}`;
+}
+
+export function countDecisionGradeSemanticSupportBandsForPresentation(
+  findings: readonly QuickDecisionFinding[],
+  structuralExecutionMode?: StructuralExecutionModeInput,
+): SemanticSupportBandStampCounts {
+  if (!shouldPresentSemanticSupportBandAsRehearsal(structuralExecutionMode)) {
+    return countDecisionGradeSemanticSupportBands(findings);
+  }
+
+  let decisionGradeTotal = 0;
+
+  for (const finding of findings) {
+    if (!isDecisionGradeFinding(finding)) {
+      continue;
+    }
+
+    decisionGradeTotal += 1;
+  }
+
+  return {
+    supported: 0,
+    unchecked: 0,
+    unsupported: 0,
+    notScored: decisionGradeTotal,
+    decisionGradeTotal,
+  };
+}
+
+export function formatStampSemanticSupportBandLineForPresentation(
+  counts: SemanticSupportBandStampCounts,
+  structuralExecutionMode?: StructuralExecutionModeInput,
+  options?: { readonly compact?: boolean },
+): string | null {
+  if (shouldPresentSemanticSupportBandAsRehearsal(structuralExecutionMode)) {
+    if (counts.decisionGradeTotal === 0) {
+      return null;
+    }
+
+    const prefix =
+      options?.compact === true ? "Semantic support:" : "Semantic support (decision-grade):";
+
+    return `${prefix} ${SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_LABEL}`;
+  }
+
+  return formatStampSemanticSupportBandLine(counts, options);
+}
+
+export function listUnsupportedDecisionGradeSemanticSupportFindingsForPresentation(
+  findings: readonly QuickDecisionFinding[],
+  structuralExecutionMode?: StructuralExecutionModeInput,
+): UnsupportedSemanticSupportStampEntry[] {
+  if (shouldPresentSemanticSupportBandAsRehearsal(structuralExecutionMode)) {
+    return [];
+  }
+
+  return listUnsupportedDecisionGradeSemanticSupportFindings(findings);
+}
+
+export function stampSemanticSupportShowsAllClearForPresentation(
+  counts: SemanticSupportBandStampCounts,
+  structuralExecutionMode?: StructuralExecutionModeInput,
+): boolean {
+  if (shouldPresentSemanticSupportBandAsRehearsal(structuralExecutionMode)) {
+    return false;
+  }
+
+  return stampSemanticSupportShowsAllClear(counts);
 }
 
 export function formatStampSemanticSupportBandLine(

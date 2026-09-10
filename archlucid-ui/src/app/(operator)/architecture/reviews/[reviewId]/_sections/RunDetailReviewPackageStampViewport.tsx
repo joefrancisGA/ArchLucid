@@ -107,7 +107,10 @@ export function RunDetailReviewPackageStampViewport(
           withheldFindingCount={props.withheldFindingCount}
           catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
         />
-        <RunDetailReviewPackageSemanticSupportBandSummary findings={props.quickDecisionFindings ?? []} />
+        <RunDetailReviewPackageSemanticSupportBandSummary
+          findings={props.quickDecisionFindings ?? []}
+          structuralExecutionMode={props.structuralExecutionMode}
+        />
         <RunDetailInsightDensityMeasurementDenominatorStrip
           enginesSucceeded={props.enginesSucceeded}
           actorNodeCount={measurementFloorOptions.actorNodeCount}
@@ -182,7 +185,10 @@ export function RunDetailReviewPackageStampViewport(
         withheldFindingCount={props.withheldFindingCount}
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
       />
-      <RunDetailReviewPackageSemanticSupportBandSummary findings={props.quickDecisionFindings ?? []} />
+      <RunDetailReviewPackageSemanticSupportBandSummary
+        findings={props.quickDecisionFindings ?? []}
+        structuralExecutionMode={props.structuralExecutionMode}
+      />
       <RunDetailInsightDensityMeasurementDenominatorStrip
         actorNodeCount={measurementFloorOptions.actorNodeCount}
         analysisStagesComplete={measurementFloorOptions.analysisStagesComplete}

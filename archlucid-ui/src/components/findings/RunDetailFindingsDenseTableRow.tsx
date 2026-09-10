@@ -27,12 +27,14 @@ import {
   severityKindFromNumericValue,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { cn } from "@/lib/utils";
 
 export type RunDetailFindingsDenseTableRowProps = {
   readonly runId: string;
   readonly finding: QuickDecisionFinding;
   readonly showDensityScore: boolean;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly isFocused?: boolean;
   readonly style?: CSSProperties;
   readonly onOpenRow?: () => void;
@@ -85,7 +87,11 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
             {showDecisionGradeHonesty ? (
               <div className="flex flex-wrap items-center gap-1">
                 <FindingTrustChip finding={finding} />
-                <FindingSemanticSupportBandChip finding={finding} showReason />
+                <FindingSemanticSupportBandChip
+                  finding={finding}
+                  showReason
+                  structuralExecutionMode={props.structuralExecutionMode}
+                />
               </div>
             ) : null}
             {showDecisionGradeHonesty ? (
