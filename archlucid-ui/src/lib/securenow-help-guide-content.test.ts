@@ -90,7 +90,7 @@ describe("SecureNow help guide content", () => {
       SECURENOW_FINDINGS_QUEUE_HUB.whatIsThisPage,
     );
     expect(
-      contextualHelpForPathname("/governance/findings/assigned-to-me", { productLineId: "security" })?.whatIsThisPage,
+      contextualHelpForPathname("/security/assigned-to-me", { productLineId: "security" })?.whatIsThisPage,
     ).toBe(SECURENOW_ASSIGNED_TO_ME_FINDINGS.whatIsThisPage);
     expect(contextualHelpForPathname("/help/getting-started", { productLineId: "security" })?.whatIsThisPage).toBe(
       SECURENOW_GETTING_STARTED_HELP.whatIsThisPage,
@@ -99,7 +99,7 @@ describe("SecureNow help guide content", () => {
       SECURENOW_TROUBLESHOOTING_HELP.whatIsThisPage,
     );
     expect(
-      contextualHelpForPathname("/governance/findings/assigned-to-me", { productLineId: "security" })?.whatIsThisPage,
+      contextualHelpForPathname("/security/assigned-to-me", { productLineId: "security" })?.whatIsThisPage,
     ).not.toContain("architecture risks");
   });
 
