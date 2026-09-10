@@ -11,6 +11,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { deriveAuditLineageCheckboxPresentation } from "@/lib/audit-evidence-lineage-presentation";
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import { auditEvidenceLineageBlockedReason } from "@/lib/governance/audit-evidence-lineage-blocked-reason";
+import { auditEvidencePackageBlockedReason } from "@/lib/governance/audit-evidence-package-blocked-reason";
 import { downloadAuditEvidencePackageZip } from "@/lib/governance/audit-evidence-package-api";
 import {
   auditEvidenceLineageChainHrefFromSearch,
@@ -77,9 +78,12 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
     try {
       await downloadAuditEvidencePackageZip(props.assessmentId, props.snapshotId);
     } catch (error: unknown) {
+      const failure = toApiLoadFailure(error);
+      const blocked = auditEvidencePackageBlockedReason(failure);
+
       showError(
         "Audit evidence package download failed",
-        error instanceof Error ? error.message : String(error),
+        blocked ?? (error instanceof Error ? error.message : String(error)),
       );
     } finally {
       setPackageDownloadBusy(false);

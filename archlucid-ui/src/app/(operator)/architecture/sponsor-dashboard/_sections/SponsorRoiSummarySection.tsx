@@ -32,6 +32,7 @@ import {
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import { showError } from "@/lib/toast";
+import { sponsorRoiSummaryBlockedReason } from "@/lib/roi/sponsor-roi-summary-blocked-reason";
 import { sponsorRoiBoardPackMutationBlockedReason } from "@/lib/pilots/sponsor-roi-board-pack-mutation-blocked-reason";
 import { sponsorRoiCsvExportMutationBlockedReason } from "@/lib/pilots/sponsor-roi-csv-export-mutation-blocked-reason";
 
@@ -181,13 +182,18 @@ export function SponsorRoiSummarySection({
   }
 
   if (failure) {
+    const summaryBlockedReason = sponsorRoiSummaryBlockedReason(failure);
+
     return (
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{sponsorRoiSummaryCardTitle()}</CardTitle>
         </CardHeader>
         <CardContent>
-          <OperatorApiProblem failure={failure} />
+          <OperatorApiProblem
+            failure={failure}
+            fallbackMessage={summaryBlockedReason ?? failure.message}
+          />
         </CardContent>
       </Card>
     );
