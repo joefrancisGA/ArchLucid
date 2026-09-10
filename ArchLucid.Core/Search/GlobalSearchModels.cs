@@ -25,11 +25,23 @@ public sealed class GlobalSearchRunHit
         get;
         init;
     }
+
+    public Guid? ArchitectureId
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class GlobalSearchFindingHit
 {
     public Guid RunId
+    {
+        get;
+        init;
+    }
+
+    public Guid? ArchitectureId
     {
         get;
         init;

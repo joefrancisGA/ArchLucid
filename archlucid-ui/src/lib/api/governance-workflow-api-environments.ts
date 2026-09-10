@@ -6,13 +6,14 @@ import { governanceWorkflowMutationBlockedReason } from "@/lib/governance/govern
 
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { GovernanceEnvironmentActivation } from "@/types/governance-workflow";
+import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPostJson, apiPutJson } from "./http";
+
 import type {
   GovernanceEnvironmentCatalog,
   ReplaceGovernanceEnvironmentCatalogRequest,
 } from "@/types/governance-environment-catalog";
-import { shouldSkipLiveAuthorityRunScopedApi } from "@/lib/operator-static-demo/run-scoped-live-api";
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
-import { apiGet, apiPostJson, apiPutJson } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
@@ -49,7 +50,7 @@ export async function listActivations(runId: string): Promise<GovernanceEnvironm
   }
 
   try {
-    return await apiGet<GovernanceEnvironmentActivation[]>(
+    return await apiGetSealedManifestAware<GovernanceEnvironmentActivation[]>(
       `${governanceBase()}/runs/${encodeURIComponent(runId)}/activations`,
     );
   } catch (error: unknown) {

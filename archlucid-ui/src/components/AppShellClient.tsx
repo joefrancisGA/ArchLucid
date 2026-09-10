@@ -37,6 +37,7 @@ import {
   SyncActiveRunFromPathnameDeferred,
   TrialLimitModalHostDeferred,
 } from "@/components/shell/app-shell-deferred-chunks";
+import { AppShellLivelihoodMutationResumeHost } from "@/components/shell/AppShellLivelihoodMutationResumeHost";
 import { AppShellSyncCommandPaletteHost } from "@/components/shell/AppShellSyncCommandPaletteHost";
 import { AppShellSyncKeyboardShortcutListener } from "@/components/shell/AppShellSyncKeyboardShortcutListener";
 import { AppShellSyncSessionIdleGuard } from "@/components/shell/AppShellSyncSessionIdleGuard";
@@ -240,6 +241,7 @@ function AppShellInner({ children }: AppShellClientProps) {
           {!deferChrome ? <OperatorShellAccessRedirectsHostDeferred /> : null}
           <AppShellTelemetryBundleDeferred />
           <AppShellSyncSessionIdleGuard />
+          <AppShellLivelihoodMutationResumeHost />
           <CommandPaletteWorkActionBridge />
           <AppShellSyncCommandPaletteHost />
           <AppShellSyncKeyboardShortcutListener onHelpRequested={openHelpSearch} />
@@ -348,6 +350,7 @@ function AppShellInner({ children }: AppShellClientProps) {
       <DevTestingShellShortcutsDeferred />
       <DevTestingQuickSwitchPanelDeferred />
       <AppShellSyncSessionIdleGuard />
+      <AppShellLivelihoodMutationResumeHost />
       <CommandPaletteWorkActionBridge />
       <AppShellSyncCommandPaletteHost />
       <AppShellSyncKeyboardShortcutListener onHelpRequested={openHelpSearch} />

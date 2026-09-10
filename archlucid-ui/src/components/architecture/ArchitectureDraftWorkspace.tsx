@@ -190,6 +190,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   const {
     saveState,
+    lastSavedUtc,
     conflictMessage,
     saveDraft,
     reloadDraft,
@@ -283,6 +284,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     saveState,
     conflictMessage,
     saveDraft,
+    lastSavedUtc,
     syncServerUpdatedUtc,
     scopeGateOpen,
     setScopeGateOpen,

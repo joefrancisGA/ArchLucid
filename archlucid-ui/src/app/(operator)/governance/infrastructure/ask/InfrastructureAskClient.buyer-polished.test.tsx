@@ -42,7 +42,7 @@ import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/gover
 import { InfrastructureAskClient } from "./InfrastructureAskClient";
 
 describe("InfrastructureAskClient buyer-polished chrome", () => {
-  it("renders skip link, unscoped panel, simulator disclosure, and sources strip", () => {
+  it("renders skip link, unscoped panel, and sources strip", () => {
     render(<InfrastructureAskClient />);
 
     expect(screen.getByRole("link", { name: GOVERNANCE_INFRASTRUCTURE_ASK_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -51,7 +51,8 @@ describe("InfrastructureAskClient buyer-polished chrome", () => {
     );
     expect(screen.getByTestId("infra-ask-claim-discipline")).toBeInTheDocument();
     expect(screen.getByTestId("infra-ask-unscoped-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("infra-ask-simulator-disclosure")).toBeInTheDocument();
+    expect(screen.queryByTestId("infra-ask-simulator-disclosure")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-ask-use-simulator")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-infrastructure-ask-sources")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.queryByText("ADVANCED OPERATIONS")).not.toBeInTheDocument();

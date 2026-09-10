@@ -2,6 +2,8 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+
+// IArchitectureShareAccessGate is used from partial classes.
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
@@ -49,8 +51,12 @@ public sealed partial class AuthorityQueryController(
     IRunDetailQueryService runDetailQueryService,
     IConfiguration configuration,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
+    IArchitectureShareAccessGate architectureShareAccessGate,
     ILogger<AuthorityQueryController> logger) : ControllerBase
 {
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
 

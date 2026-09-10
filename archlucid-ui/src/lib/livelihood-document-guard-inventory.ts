@@ -96,6 +96,11 @@ export const LIVELIHOOD_DOCUMENT_GUARD_SURFACES: readonly ErrorRecoveryContractG
     sourceRoots: ["components/governance/use-risk-exceptions-client.ts"],
     requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
   },
+  {
+    id: "architecture-identity-desk-share",
+    sourceRoots: ["components/architecture/ArchitectureIdentityDeskSharePanel.tsx"],
+    requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
+  },
 ] as const;
 
 /**
@@ -160,3 +165,24 @@ export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE = 5;
 
 /** Deferred surface ids allowed above the baseline count (must match a row in {@link LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES}). */
 export const LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_DOCUMENTED_EXCEPTIONS: readonly string[] = [] as const;
+
+export type LivelihoodDocumentGuardMissingSurface = {
+  readonly id: string;
+  readonly sourceRoots: readonly string[];
+  readonly reason: string;
+};
+
+/**
+ * Dirty livelihood text that is neither guarded nor deferred (LW-004). Shrink-only: wire a guard
+ * (LW-071) or move to deferred with a reason. Must not be empty of approval rationale until then.
+ */
+export const LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES: readonly LivelihoodDocumentGuardMissingSurface[] = [
+  {
+    id: "governance-approval-rationale",
+    sourceRoots: ["hooks/use-governance-workflow-mutations.ts"],
+    reason:
+      "reviewComment is typed livelihood text with no useLivelihoodDocumentGuards — wire in LW-071/072.",
+  },
+] as const;
+
+export const LIVELIHOOD_DOCUMENT_GUARD_MISSING_COUNT_BASELINE = 1;
