@@ -1551,10 +1551,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-07 — run-list exclude probe false-passed when hasMore true without nextCursor
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -1605,6 +1605,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Cross-tenant probe should exercise `GET /v1/architecture/runs/{runId}` detail instead of list exclusion — **invalid 2026-09-09 seed hunt #1480:** deny matrix and exclude-run-id probes already target scoped read surfaces; detail route shares `ReadAuthority` gate with list paths per #1437 cheap-disproof
 
 2026-09-09 seed hunt #1480 (seed-only): reseeded cli-tenant-isolation; cheap-disproved architecture run detail probe candidate; 27 scoped TenantIsolationNegativeTestRunner tests passed.
+
+- [x] (invalid) `TryFindRunIdInRunList` misses `RunSummaryResponse.RunId` when the API serializes list items with JSON Guid strings — **cheap-disproof 2026-09-10 seed hunt #1546:** `GetString()` on camelCase `runId` tokens matches dashed `--run-id` via `NormalizeRunIdForComparison`; regression `TryFindRunIdInRunList_DetectsForeignRunIdWhenListItemRunIdIsJsonGuid`
+- [x] (valid-no-repro) `EvaluateDenyStatus` maps HTTP 409 Conflict to FAIL not PASS for deny-status probes — **cheap-disproof 2026-09-10 seed hunt #1546:** sealed-manifest hash conflicts are not denied access; fail-closed rather than false-passing isolation; regression `EvaluateDenyStatus_Treats409AsFailNotPass`
+- [x] (valid-no-repro) `ProbePrimaryRunVisibilityAsync` maps HTTP 503 to FAIL not SKIP, skipping cross-tenant probes — **cheap-disproof 2026-09-10 seed hunt #1546:** primary scope must read `--run-id` before alternate probes run; infra errors block ship without claiming isolation passed; regression `RunLiveAsync_WhenPrimaryRunReturns503_SkipsCrossTenantProbesAndReportsFail`
+- [x] (valid-no-repro) `TryParseRunListContinuation` ignores `nextCursor` when `hasMore` is false — **cheap-disproof 2026-09-10 seed hunt #1546:** `AuthorityReadsController.ListRuns` only emits `nextCursor` when `HasMore && Items.Count > 0`; orphan cursors are not part of the product contract
+
+2026-09-10 seed hunt #1546 (seed-only): reseeded cli-tenant-isolation after #1480; cheap-disproof closed Guid wire-format list matching, HTTP 409 deny semantics, primary 503 gate, and orphan-cursor pagination; 30 scoped TenantIsolationNegativeTestRunner tests passed.
 
 ---
 

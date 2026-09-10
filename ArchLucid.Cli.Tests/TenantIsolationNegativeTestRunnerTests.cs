@@ -142,6 +142,36 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void TryFindRunIdInRunList_DetectsForeignRunIdWhenListItemRunIdIsJsonGuid()
+    {
+        Guid foreignRunId = Guid.Parse(RunId);
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                items = new[]
+                {
+                    new { runId = foreignRunId },
+                },
+            },
+            new JsonSerializerOptions(JsonSerializerDefaults.Web)
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            });
+
+        TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(json, RunId)
+            .Should()
+            .BeTrue("GET /v1/runs returns RunSummaryResponse.RunId as a JSON Guid string; probe must still match dashed --run-id input");
+    }
+
+    [Fact]
+    public void EvaluateDenyStatus_Treats409AsFailNotPass()
+    {
+        TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(409)
+            .Should()
+            .Be(TenantIsolationNegativeTestVerdict.Fail, "sealed-manifest hash conflicts are not treated as denied access; fail closed instead of false-passing isolation");
+    }
+
+    [Fact]
     public void TryParseRunListContinuation_ReturnsCursorWhenHasMore()
     {
         string json = """
@@ -745,6 +775,42 @@ public sealed class TenantIsolationNegativeTestRunnerTests
 
                 if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
                     return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { title = "Run not found" }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = RunId });
+
+        report.Probes.Should().ContainSingle(probe => probe.Name == "primary-scope-run-visible");
+        report.Probes[0].Verdict.Should().Be(TenantIsolationNegativeTestVerdict.Fail);
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Fail);
+    }
+
+    [Fact]
+    public async Task RunLiveAsync_WhenPrimaryRunReturns503_SkipsCrossTenantProbesAndReportsFail()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.ServiceUnavailable, new { title = "Unavailable" }));
 
                 return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
             },
