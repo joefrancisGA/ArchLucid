@@ -2061,4 +2061,106 @@ public sealed class FindingInspectReadRepositoryCoreTests
         parsed!.Value.ValueKind.Should().Be(JsonValueKind.Object);
         parsed!.Value.EnumerateObject().Should().BeEmpty();
     }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_defined_numeric_disposition_string_two_to_needs_evidence()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "2",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.NeedsEvidence);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_defined_numeric_disposition_string_three_to_remediated()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "3",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Remediated);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_defined_numeric_disposition_string_four_to_rejected_as_not_applicable()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "4",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.RejectedAsNotApplicable);
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_case_insensitive_needs_evidence_string()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "needsevidence",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.NeedsEvidence);
+    }
+
+    [Fact]
+    public void BuildInspectResponse_passes_through_run_real_mode_fell_back_to_simulator_false()
+    {
+        FindingInspectResponse response = FindingInspectReadRepositoryCore.BuildInspectResponse(
+            findingId: "finding-1",
+            severity: FindingSeverity.Info,
+            typedPayload: null,
+            ruleId: null,
+            ruleName: null,
+            evidence: [],
+            recommendedActions: [],
+            auditRowId: null,
+            runId: Guid.NewGuid(),
+            manifestVersion: null,
+            modelDeploymentName: null,
+            modelAlias: null,
+            promptTemplateVersion: null,
+            confidenceScore: null,
+            evaluationConfidenceScore: null,
+            confidenceLevel: null,
+            humanReviewStatus: FindingHumanReviewStatus.NotRequired,
+            isMuted: false,
+            muteReason: null,
+            reasoningTrace: null,
+            reasoningTraceDigestSha256: null,
+            latestDisposition: null,
+            latestDispositionOccurredAtUtc: null,
+            hasActiveWaiver: false,
+            assignedToUserId: null,
+            remediationDueUtc: null,
+            runStructuralExecutionMode: StructuralExecutionMode.Simulator,
+            runRealModeFellBackToSimulator: false);
+
+        response.RunRealModeFellBackToSimulator.Should().BeFalse();
+    }
+
+    [Fact]
+    public void NormalizeFindingId_preserves_internal_whitespace()
+    {
+        FindingInspectReadRepositoryCore.NormalizeFindingId("  finding  42  ").Should().Be("finding  42");
+    }
 }
