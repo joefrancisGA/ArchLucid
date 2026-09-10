@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1545,6 +1545,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MainInspect*` inner-joins `FindingsSnapshots` on tenant predicates and can pair another tenant's snapshot row — **cheap-disproof 2026-09-10 seed hunt #1652:** snapshot join keys `FindingsSnapshotId` while tenant scope is enforced on `FindingRecords` and `Runs`; regression `MainInspect_joins_findings_snapshot_by_id_and_scopes_tenant_on_finding_and_run_rows`.
 
 2026-09-10 seed hunt #1652 (seed-only): reseeded finding-inspect-sql after #1651; cheap-disproof closed in-memory null dependency guard, null disposition timestamp passthrough, JSON empty-string payload parse, boolean applied-rule JSON fallback, first-id rule selection, large waiver counts, and findings-snapshot tenant scoping; 239 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MapDispositionPointerProjection` substitutes a random `EventId` when the pointer row exists but SQL returns null — **cheap-disproof 2026-09-10 seed hunt #1653:** null event id passes through unchanged; regression `MapDispositionPointerProjection_preserves_null_event_id_when_pointer_row_exists`.
+- [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` throws when the source collection contains null entries — **cheap-disproof 2026-09-10 seed hunt #1653:** null entries are skipped by the whitespace guard; regression `FilterNonBlankTrimmedStrings_ignores_null_entries_without_throwing`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` emits PascalCase metadata property names — **cheap-disproof 2026-09-10 seed hunt #1653:** slim payload uses lowercase `title` / `rationale` / `whyThisMatters` keys; regression `BuildMetadataTypedPayload_emits_lowercase_metadata_property_names`.
+- [x] (valid-no-repro) `ResolveDecisionRuleName` falls back to `ruleId` when `ruleName` is empty string — **cheap-disproof 2026-09-10 seed hunt #1653:** null-coalescing keeps empty string and does not substitute `ruleId`; regression `ResolveDecisionRuleName_returns_empty_string_when_rule_name_is_empty_without_falling_back_to_rule_id`.
+- [x] (valid-no-repro) `ResolveDecisionRuleName` trims whitespace-only `ruleName` before falling back to `ruleId` — **cheap-disproof 2026-09-10 seed hunt #1653:** whitespace-only names are preserved as-is; regression `ResolveDecisionRuleName_preserves_whitespace_only_rule_name_without_falling_back_to_rule_id`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` builds metadata fallback when valid `PayloadJson` and title/rationale are both present — **cheap-disproof 2026-09-10 seed hunt #1653:** deserialized JSON wins over metadata fields; regression `ResolveTypedPayloadForInspect_prefers_deserialized_payload_over_metadata_when_both_present`.
+- [x] (valid-no-repro) `FollowUpBatch` active waiver count hardcodes `Status = 'Active'` instead of binding `@ActiveStatus` — **cheap-disproof 2026-09-10 seed hunt #1653:** waiver subquery uses the parameterized status filter; regression `FollowUpBatch_active_waiver_count_binds_status_parameter`.
+
+2026-09-10 seed hunt #1653 (seed-only): reseeded finding-inspect-sql after #1652; cheap-disproof closed null event-id passthrough, null collection filtering, metadata key casing, empty/whitespace rule-name fallback semantics, JSON-over-metadata precedence, and waiver status parameter binding; 246 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

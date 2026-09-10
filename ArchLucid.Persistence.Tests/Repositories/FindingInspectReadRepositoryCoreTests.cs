@@ -1283,4 +1283,66 @@ public sealed class FindingInspectReadRepositoryCoreTests
     {
         FindingInspectReadRepositoryCore.HasActiveWaiver(long.MaxValue).Should().BeTrue();
     }
+
+    [Fact]
+    public void MapDispositionPointerProjection_preserves_null_event_id_when_pointer_row_exists()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "Accepted",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: null,
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Accepted);
+        projection.LatestDispositionEventId.Should().BeNull();
+    }
+
+    [Fact]
+    public void FilterNonBlankTrimmedStrings_ignores_null_entries_without_throwing()
+    {
+        IReadOnlyList<string> filtered = FindingInspectReadRepositoryCore.FilterNonBlankTrimmedStrings(
+            [null!, "  node-a  ", null!, ""]);
+
+        filtered.Should().Equal("node-a");
+    }
+
+    [Fact]
+    public void BuildMetadataTypedPayload_emits_lowercase_metadata_property_names()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.BuildMetadataTypedPayload("Encrypt at rest", "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.EnumerateObject().Select(static property => property.Name)
+            .Should().Equal("title", "rationale", "whyThisMatters");
+    }
+
+    [Fact]
+    public void ResolveDecisionRuleName_returns_empty_string_when_rule_name_is_empty_without_falling_back_to_rule_id()
+    {
+        FindingInspectReadRepositoryCore.ResolveDecisionRuleName(string.Empty, "cost-guardrail")
+            .Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ResolveDecisionRuleName_preserves_whitespace_only_rule_name_without_falling_back_to_rule_id()
+    {
+        FindingInspectReadRepositoryCore.ResolveDecisionRuleName("   ", "cost-guardrail")
+            .Should().Be("   ");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_prefers_deserialized_payload_over_metadata_when_both_present()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            """{"resourceId":"vm-1"}""",
+            "Encrypt at rest",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("resourceId").GetString().Should().Be("vm-1");
+        typed!.Value.TryGetProperty("title", out _).Should().BeFalse();
+    }
 }

@@ -656,6 +656,15 @@ public sealed class FindingInspectReadSqlTests
     }
 
     [Fact]
+    public void FollowUpBatch_active_waiver_count_binds_status_parameter()
+    {
+        string waiverSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.RiskExceptions");
+
+        waiverSql.Should().Contain("Status = @ActiveStatus");
+        waiverSql.Should().NotContain("Status = 'Active'");
+    }
+
+    [Fact]
     public void MainInspect_scopes_runs_table_to_tenant_and_workspace()
     {
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.TenantId = @TenantId");
