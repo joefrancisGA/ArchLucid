@@ -1303,7 +1303,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1743,6 +1743,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains only empty-string entries returns the first empty id without trace text — **cheap-disproof 2026-09-10 seed hunt #1673:** whitespace-only elements are skipped and nulls are returned when trace text is absent; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_only_empty_string_entries_returns_nulls_without_trace_text`.
 
 2026-09-10 seed hunt #1673 (seed-only): reseeded finding-inspect-sql after #1671; cheap-disproof closed fractional numeric disposition parsing at mapper and pointer-projection layers, whitespace-padded numeric disposition trim, empty-string-only applied-rule-id arrays without trace fallback, and pointer metadata preservation for fractional disposition; 365 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` accepts negative numeric confidence strings — **cheap-disproof 2026-09-10 seed hunt #1676:** negative ordinals fail `Enum.TryParse`; regression `TryParseEvaluationConfidenceLevel_returns_null_for_negative_numeric_string`.
+- [x] (valid-no-repro) `TryParseEvaluationConfidenceLevel` mishandles whitespace-padded negative numeric strings — **cheap-disproof 2026-09-10 seed hunt #1676:** mapper trims before `Enum.TryParse`; regression `TryParseEvaluationConfidenceLevel_trims_whitespace_from_negative_numeric_string_before_rejecting`.
+- [x] (valid-no-repro) `ParseFindingSeverity` mishandles whitespace-padded negative numeric strings — **cheap-disproof 2026-09-10 seed hunt #1676:** mapper trims before `Enum.TryParse` and defaults to `Info`; regression `ParseFindingSeverity_trims_whitespace_from_negative_numeric_string_before_defaulting_to_info`.
+- [x] (valid-no-repro) `ParseHumanReview` mishandles whitespace-padded negative numeric strings — **cheap-disproof 2026-09-10 seed hunt #1676:** mapper trims before `Enum.TryParse` and defaults to `NotRequired`; regression `ParseHumanReview_trims_whitespace_from_negative_numeric_string_before_defaulting_to_not_required`.
+- [x] (valid-no-repro) `ParseDisposition` mishandles whitespace-padded negative numeric strings — **cheap-disproof 2026-09-10 seed hunt #1676:** mapper trims before `Enum.TryParse`; regression `ParseDisposition_trims_whitespace_from_negative_numeric_string_before_rejecting`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` accepts whitespace-padded negative numeric disposition strings — **cheap-disproof 2026-09-10 seed hunt #1676:** mapper trims before `Enum.TryParse` and returns null disposition; regression `MapDispositionPointerProjection_returns_null_disposition_for_whitespace_padded_negative_numeric_string`.
+
+2026-09-10 seed hunt #1676 (seed-only): reseeded finding-inspect-sql after #1673; cheap-disproof closed negative numeric confidence parsing, whitespace-padded negative numeric enum guards at mapper and pointer-projection layers; 371 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
