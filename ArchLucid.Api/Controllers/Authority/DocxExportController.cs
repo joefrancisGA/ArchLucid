@@ -77,6 +77,9 @@ public sealed partial class DocxExportController(
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     private readonly ILogger<DocxExportController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
