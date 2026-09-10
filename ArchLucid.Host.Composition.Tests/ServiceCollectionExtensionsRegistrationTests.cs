@@ -5,10 +5,13 @@ using ArchLucid.Application.Value;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Decisioning.Hosting;
 using ArchLucid.Host.Composition.Caching;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Services;
+using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
@@ -210,6 +213,78 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
 
         registered.Should().BeTrue(
             "each Api replica warms its own SQL connection pool independently at startup");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_audit_retry_drain_hosted_service()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AuditRetryDrainHostedService));
+
+        registered.Should().BeTrue(
+            "each Api replica drains its own InMemoryAuditRetryQueue after audit persistence retries enqueue locally");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_finding_engine_registration_distinctness_hosted_service()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(FindingEngineRegistrationDistinctnessHostedService));
+
+        registered.Should().BeTrue(
+            "every replica fail-fast validates finding-engine DI distinctness at startup");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_retrieval_embedding_drift_startup_validator()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(RetrievalEmbeddingDriftStartupValidator));
+
+        registered.Should().BeTrue(
+            "every replica fail-fast validates configured embedding model against vector index metadata at startup");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_registers_configuration_validation_startup_probe()
+    {
+        IConfiguration configuration = CreateSqlCompositionTestConfiguration(
+            ArchLucidHostingRole.Api,
+            graphSnapshotsEnabled: false);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ConfigurationValidationHostedService));
+
+        registered.Should().BeTrue(
+            "configuration validation startup probe runs on every hosting role before accepting traffic");
     }
 
     [Fact]

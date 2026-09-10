@@ -518,6 +518,25 @@ public sealed class ContainerJobsOffloadRegistrationTests
     }
 
     [Fact]
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_operational_error_retention_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasRetention = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(OperationalErrorRetentionHostedService));
+
+        hasRetention.Should().BeFalse(
+            "leader-elected operational-error retention purge is Worker+Combined only");
+    }
+
+    [Fact]
     public void AddArchLucidApplicationServices_Api_role_does_not_register_ServiceBus_integration_event_consumer()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();

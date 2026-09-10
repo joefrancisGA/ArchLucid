@@ -8791,7 +8791,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 21
+- **hunts:** 22
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8848,6 +8848,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `EvidenceAddedIncrementalReReviewHostedService` registered on Worker without role gate — `ServiceCollectionExtensions` (`ServiceCollectionExtensions.cs` line 223) pairs in-process `EvidenceAddedIncrementalReReviewQueue` with drain on every role; bulk upload enqueues on the accepting Api replica; regression `AddArchLucidApplicationServices_Api_role_registers_evidence_added_incremental_rereview_hosted_service` (2026-09-10 seed hunt #1564)
 - [x] (valid-no-repro) `OperationalErrorsCompositionRegistrar` registers `OperationalErrorCaptureDrainHostedService` on Api — `OperationalErrorsCompositionRegistrar.cs` line 34 has no hostingRole gate because `InMemoryOperationalErrorCaptureQueue` is per-process; regression `AddArchLucidApplicationServices_Api_role_registers_operational_error_capture_drain_hosted_service` (2026-09-10 seed hunt #1564)
 - [x] (valid-no-repro) `SqlOperationalSingletonsRegistrar` registers `SqlConnectionPoolWarmupHostedService` on Api without role gate — `SqlConnectionPoolWarmupHostedService` warms each replica's own SQL pool at startup; regression `AddArchLucidApplicationServices_Api_role_registers_sql_connection_pool_warmup_for_sql_storage` (2026-09-10 seed hunt #1564)
+- [x] (valid-no-repro) `audit-retry-drain` container offload / `AuditRetryDrainHostedService` missing on Api role — `AgentLlmSupportCompositionModule.PromptAndToken.cs` line 47 registers `InMemoryAuditRetryQueue` + drain on every role; #1560 covered Worker offload only; regression `AddArchLucidApplicationServices_Api_role_registers_audit_retry_drain_hosted_service` (2026-09-10 seed hunt #1565)
+- [x] (valid-no-repro) `FindingEngineRegistrationDistinctnessHostedService` registered on Api without `ArchLucidHostingRole` gate — `ServiceCollectionExtensions.Decisioning.cs` line 183 runs startup DI distinctness validation on every replica; regression `AddArchLucidApplicationServices_Api_role_registers_finding_engine_registration_distinctness_hosted_service` (2026-09-10 seed hunt #1565)
+- [x] (valid-no-repro) `RetrievalEmbeddingDriftStartupValidator` registered on Api without role gate — `RetrievalCompositionModule.Agents.cs` line 42 fail-fast validates embedding model vs index metadata per replica at startup; regression `AddArchLucidApplicationServices_Api_role_registers_retrieval_embedding_drift_startup_validator` (2026-09-10 seed hunt #1565)
+- [x] (valid-no-repro) `RegisterHostedStartupProbes` registers `ConfigurationValidationHostedService` on Worker without narrowing — `ServiceCollectionExtensions.HostedStartupProbes.cs` lines 16–18 run configuration validation on every hosting role before traffic; regression `AddArchLucidApplicationServices_Api_role_registers_configuration_validation_startup_probe` (2026-09-10 seed hunt #1565)
+- [x] (invalid) `OperationalErrorsCompositionRegistrar` registers `OperationalErrorRetentionHostedService` on Api — **cheap-disproof 2026-09-10 seed hunt #1565:** retention purge is Worker+Combined gated (`OperationalErrorsCompositionRegistrar.cs` line 36); regression `AddArchLucidApplicationServices_Api_role_does_not_register_operational_error_retention_hosted_service`
+
+2026-09-10 seed hunt #1565 (seed-only): reseeded host-composition after #1564; cheap-disproved Api audit-retry drain, finding-engine startup validator, retrieval embedding drift validator, configuration validation probe, and Api operational-error retention candidates; 355/357 scoped host-composition tests passed (2 pre-existing unrelated failures).
 
 2026-09-10 seed hunt #1564 (seed-only): reseeded host-composition after #1563; cheap-disproved Api-role wallet settlement, evidence re-review drain, operational-error capture drain, and SQL pool warmup candidates; 350/352 scoped host-composition tests passed (2 pre-existing unrelated failures).
 
