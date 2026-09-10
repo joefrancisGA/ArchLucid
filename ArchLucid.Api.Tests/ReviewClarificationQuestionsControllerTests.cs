@@ -142,8 +142,7 @@ public sealed class ReviewClarificationQuestionsControllerTests
             audit ?? Mock.Of<IAuditService>(),
             scopeProvider.Object,
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<ArchLucid.Decisioning.Interfaces.IManifestHashService>())
-            Mock.Of<IManifestHashService>())
+Mock.Of<IManifestHashService>())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
