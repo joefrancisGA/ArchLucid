@@ -46,7 +46,7 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
     public ArchitecturesControllerGrandfatherShareTests()
     {
         _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
-        _actorContext.Setup(static a => a.GetActorId()).Returns(ActorOid);
+        _actorContext.Setup(static s => s.GetActorId()).Returns(ActorOid);
     }
 
     [Fact]
@@ -81,7 +81,13 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
         };
 
         _service
-            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, false, ActorOid, It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListIdentitiesAsync(
+                Scope,
+                1,
+                50,
+                false,
+                ActorOid,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(page);
 
         ArchitecturesController sut = BuildSut();
@@ -103,7 +109,11 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
         };
 
         _service
-            .Setup(s => s.GetIdentityAsync(Scope, GrandfatheredArchitectureId, ActorOid, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetIdentityAsync(
+                Scope,
+                GrandfatheredArchitectureId,
+                ActorOid,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         ArchitecturesController sut = BuildSut();
@@ -125,5 +135,4 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
             _auditService,
             _runRepository,
             _goldenManifestRepository);
-
 }

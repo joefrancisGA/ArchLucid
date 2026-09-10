@@ -1,4 +1,7 @@
 import { apiDelete, apiGet, apiPostJson } from "@/lib/api/http";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { operatorSavedViewMutationBlockedReason } from "@/lib/operator/operator-saved-view-mutation-blocked-reason";
 import type {
   OperatorSavedView,
   OperatorSavedViewListResponse,
@@ -27,7 +30,14 @@ export async function listOperatorSavedViews(
 export async function createOperatorSavedView(
   request: CreateOperatorSavedViewRequest,
 ): Promise<OperatorSavedView> {
-  return apiPostJson<OperatorSavedView>("/v1/operator/saved-views", request);
+  try {
+    return await apiPostJson<OperatorSavedView>("/v1/operator/saved-views", request);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = operatorSavedViewMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function deleteOperatorSavedView(viewId: string): Promise<void> {

@@ -1,3 +1,7 @@
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { findingInsightSignalMutationBlockedReason } from "@/lib/findings/finding-insight-signal-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiGet, apiPostJson } from "./http";
 
 export type FindingInsightSignalKind = "DidNotThinkOfThat" | "Expected" | "DismissAsChecklist";
@@ -22,8 +26,15 @@ export async function postFindingInsightSignal(
   findingId: string,
   kind: FindingInsightSignalKind = "DidNotThinkOfThat",
 ): Promise<void> {
-  await apiPostJson(
-    `/v1/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/insight-signal`,
-    { kind },
-  );
+  try {
+    await apiPostJson(
+      `/v1/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/insight-signal`,
+      { kind },
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingInsightSignalMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
