@@ -6,6 +6,7 @@ import type {
 import type { RunComparison } from "@/types/authority";
 import type { components } from "@/lib/openapi-schemas";
 import {
+  apiGet,
   ensureOidcBearerReady,
   resolveRequest,
   withCorrelationHeaders,
@@ -53,7 +54,7 @@ export async function compareAgentResults(
   rightRunId: string,
 ): Promise<components["schemas"]["AgentResultCompareResponse"]> {
   try {
-    return await apiGetSealedManifestAware<components["schemas"]["AgentResultCompareResponse"]>(
+    return await apiGet<components["schemas"]["AgentResultCompareResponse"]>(
       `/v1/architecture/review/compare/agents?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
     );
   } catch (error: unknown) {
@@ -70,7 +71,7 @@ export async function compareAgentResultsSummary(
   rightRunId: string,
 ): Promise<components["schemas"]["AgentResultCompareSummaryResponse"]> {
   try {
-    return await apiGetSealedManifestAware<components["schemas"]["AgentResultCompareSummaryResponse"]>(
+    return await apiGet<components["schemas"]["AgentResultCompareSummaryResponse"]>(
       `/v1/architecture/review/compare/agents/summary?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
     );
   } catch (error: unknown) {

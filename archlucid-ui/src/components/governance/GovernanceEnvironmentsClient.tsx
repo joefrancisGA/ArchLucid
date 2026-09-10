@@ -225,10 +225,14 @@ export default function GovernanceEnvironmentsClient() {
     return (
       <OperatorPageContainer variant="dashboard" className="space-y-4" data-testid="governance-environments-page">
         <OperatorSectionLoadFailure
-          message="Could not load approval environments."
+          message={
+            catalogQuery.blockedReason ??
+            "Could not load approval environments."
+          }
           onRetry={() => {
             void catalogQuery.refetch();
           }}
+          testId="governance-environment-catalog-load-failure"
         />
       </OperatorPageContainer>
     );
