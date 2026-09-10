@@ -18,10 +18,17 @@ import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 const DRAFT_BASE = "/v1/architecture/draft";
 
 export async function admitDraftRequest(draftId: string): Promise<DraftAdmissionResponse> {
-  return apiPostJson<DraftAdmissionResponse>(
-    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/admit`,
-    {},
-  );
+  try {
+    return await apiPostJson<DraftAdmissionResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/admit`,
+      {},
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function submitDraftRequest(

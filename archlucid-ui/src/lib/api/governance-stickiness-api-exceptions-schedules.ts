@@ -50,10 +50,17 @@ export async function renewRiskException(
   riskExceptionId: string,
   body: { expiresAtUtc: string; rationale?: string; evidenceRef?: string },
 ): Promise<RiskExceptionRecord> {
-  return apiPostJson<RiskExceptionRecord>(
-    `${governanceStickinessBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/renew`,
-    body,
-  );
+  try {
+    return await apiPostJson<RiskExceptionRecord>(
+      `${governanceStickinessBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/renew`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = riskExceptionMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function createArchitectureReviewRecurrenceSchedule(body: {

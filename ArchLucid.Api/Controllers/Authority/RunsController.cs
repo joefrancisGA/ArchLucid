@@ -143,7 +143,7 @@ public sealed partial class RunsController(
             ApplicationServiceFailureKind.RunNotFound => this.NotFoundProblem(detail, ProblemTypes.RunNotFound),
             ApplicationServiceFailureKind.ResourceNotFound => this.NotFoundProblem(detail,
                 ProblemTypes.ResourceNotFound),
-            ApplicationServiceFailureKind.Conflict => this.ConflictProblem(detail, ProblemTypes.Conflict),
+            ApplicationServiceFailureKind.Conflict => MapRunsSealedManifestConflict(new ConflictException(detail)),
             _ => this.BadRequestProblem(detail)
         };
     }

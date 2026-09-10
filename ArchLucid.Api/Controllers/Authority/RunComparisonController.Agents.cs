@@ -129,9 +129,9 @@ public sealed partial class RunComparisonController
                 null,
                 null),
             ScopedRunPairLoadOutcome.PinFingerprintMismatch => (
-                this.ConflictProblem(
-                    "Compare blocked: create-time pin fingerprints differ between the selected runs.",
-                    ProblemTypes.Conflict),
+                MapRunComparisonSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
                 null,
                 null,
                 null),
@@ -143,9 +143,9 @@ public sealed partial class RunComparisonController
                 null,
                 null),
             ScopedRunPairLoadOutcome.SealedManifestHashMismatch => (
-                this.ConflictProblem(
-                    "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
-                    ProblemTypes.Conflict),
+                MapRunComparisonSealedManifestConflict(
+                    new ConflictException(
+                        "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
                 null,
                 null,
                 null),

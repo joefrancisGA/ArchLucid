@@ -83,7 +83,8 @@ public sealed partial class RunQueryController
         {
             RunFindingsQueryOutcome.ManifestNotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound),
             RunFindingsQueryOutcome.NotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound),
-            RunFindingsQueryOutcome.Conflict => this.ConflictProblem(result.ProblemDetail!, ProblemTypes.Conflict),
+            RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
+                new ConflictException(result.ProblemDetail!)),
             _ => await ExportFindingsCsvSuccessAsync(result, auditService, cancellationToken)
         };
     }
@@ -111,7 +112,8 @@ public sealed partial class RunQueryController
         return result.Outcome switch
         {
             RunFindingsQueryOutcome.Success => Ok(result.Chain),
-            RunFindingsQueryOutcome.Conflict => this.ConflictProblem(result.ProblemDetail!, ProblemTypes.Conflict),
+            RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
+                new ConflictException(result.ProblemDetail!)),
             _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
         };
     }
@@ -145,7 +147,8 @@ public sealed partial class RunQueryController
         {
             RunFindingsQueryOutcome.Success => Ok(result.Response),
             RunFindingsQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
-            RunFindingsQueryOutcome.Conflict => this.ConflictProblem(result.ProblemDetail!, ProblemTypes.Conflict),
+            RunFindingsQueryOutcome.Conflict => MapProductRunQuerySealedManifestConflict(
+                new ConflictException(result.ProblemDetail!)),
             _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound)
         };
     }

@@ -85,8 +85,15 @@ export async function setPlatformBundledPolicyPackActivation(
   bundleContentFile: string,
   isGloballyActive: boolean,
 ): Promise<PlatformBundledPolicyPackRegistryEntry> {
-  return apiPutJson(
-    `/v1/admin/platform-bundled-policy-packs/${encodeURIComponent(bundleContentFile)}/activation`,
-    { isGloballyActive },
-  );
+  try {
+    return await apiPutJson(
+      `/v1/admin/platform-bundled-policy-packs/${encodeURIComponent(bundleContentFile)}/activation`,
+      { isGloballyActive },
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = policyPackAssignMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
