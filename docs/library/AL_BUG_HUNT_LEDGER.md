@@ -1951,7 +1951,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1987,6 +1987,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Active text filter leaves the filter status line at the unfiltered page count — **cheap-disproof 2026-09-10 seed hunt #1590:** `runsListPageFilterStatusLine` shows narrowed counts; regression `updates the filter status line when the text filter narrows the page`.
 
 2026-09-10 seed hunt #1590 (seed-only): reseeded ui-runs-list after #1585; cheap-disproof closed orphan-candidates banner, empty-filter table message, sort href, pagination Next link, and filter status line; 30 scoped `RunsListClient` tests passed.
+
+- [x] (valid-no-repro) Buyer `scope=in_flight` deep link still renders finalized package rows — **cheap-disproof 2026-09-10 seed hunt #1631:** `useRunsList` filters `hasGoldenManifest !== true` when scope is `in_flight`; regression `buyer-polished: in_flight scope hides finalized package rows`.
+- [x] (valid-no-repro) Client text filter stays local and never syncs to `q=` — **cheap-disproof 2026-09-10 seed hunt #1631:** debounced `runsListSearchHrefFromSearch` writes `q=` via `router.replace`; regression `debounces text filter into the q= URL search param`.
+- [x] (valid-no-repro) Selecting a third compare checkbox drops the oldest id without surfacing replacement copy — **cheap-disproof 2026-09-10 seed hunt #1631:** `toggleCompareSelection` sets `compareSelectionNotice` and rotates to the newest pair; regression `shows a replacement notice when a third compare checkbox is selected`.
+- [x] (valid-no-repro) Active text filter leaves buyer package cards mounted instead of the work-queue table — **cheap-disproof 2026-09-10 seed hunt #1631:** `listNarrowingActive` clears `showBuyerPackageCards`; regression `buyer-polished: active text filter switches from card layout to the work-queue table`.
+- [x] (valid-no-repro) `inspectorRunId` deep link for a run not on the page opens a stale inspector — **cheap-disproof 2026-09-10 seed hunt #1631:** url-driven selection resolves from `safeRuns` only; regression `keeps the inspector empty when inspectorRunId does not match a row on the page`.
+
+2026-09-10 seed hunt #1631 (seed-only): reseeded ui-runs-list after #1590; cheap-disproof closed in_flight scope filtering, q= debounce sync, compare replacement notice, card-to-table narrowing, and invalid inspectorRunId deep link; 34 scoped `RunsListClient` tests passed.
 
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 
