@@ -61,13 +61,6 @@ public sealed partial class RunDetailQueryService
                 : Task.FromResult<IReadOnlyDictionary<string, FindingMuteFlag>>(
                     new Dictionary<string, FindingMuteFlag>(StringComparer.Ordinal));
 
-        Task<IReadOnlyDictionary<string, FindingSemanticSupportBandOverlayRecord>> supportBandOverlaysTask =
-            record.FindingsSnapshotId is { } snapshotIdForBand
-            && _semanticSupportBandOverlayRepository is not null
-                ? _semanticSupportBandOverlayRepository.GetBySnapshotAsync(snapshotIdForBand, scope, cancellationToken)
-                : Task.FromResult<IReadOnlyDictionary<string, FindingSemanticSupportBandOverlayRecord>>(
-                    new Dictionary<string, FindingSemanticSupportBandOverlayRecord>(StringComparer.Ordinal));
-
         Task<DecisionTraceDto?> authorityTraceTask = record.DecisionTraceId is { } authorityTraceId
             ? authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken)
             : Task.FromResult<DecisionTraceDto?>(null);
@@ -81,7 +74,6 @@ public sealed partial class RunDetailQueryService
                 manifestTask,
                 costSlicesTask,
                 muteFlagsTask,
-                supportBandOverlaysTask,
                 authorityTraceTask,
                 stageOutcomesTask)
             .ConfigureAwait(false);
@@ -97,11 +89,12 @@ public sealed partial class RunDetailQueryService
             FindingMuteFlagApplier.Apply(results, muteFlags);
         }
 
-        IReadOnlyDictionary<string, FindingSemanticSupportBandOverlayRecord> supportBandOverlays =
-            await supportBandOverlaysTask.ConfigureAwait(false);
-
-        if (supportBandOverlays.Count > 0)
-            FindingSemanticSupportBandOverlayApplier.ApplyToAgentResults(results, supportBandOverlays);
+        await ApplySemanticSupportBandOverlaysAndLaneBComposeAsync(
+            runId,
+            scope,
+            results,
+            record.FindingsSnapshotId,
+            cancellationToken).ConfigureAwait(false);
 
         FindingTrustLabelEnricher.Apply(run, results, _findingTrustLabelMapper);
 
