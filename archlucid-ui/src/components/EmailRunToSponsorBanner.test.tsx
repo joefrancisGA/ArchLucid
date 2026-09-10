@@ -584,6 +584,29 @@ describe("EmailRunToSponsorBanner", () => {
     expect(screen.getByTestId("email-run-to-sponsor-sent-badge")).toHaveTextContent("Sent to sponsor");
   });
 
+  it("surfaces sponsor pack-sent blocked reason when mark sent returns a sealed-hash conflict", async () => {
+    vi.mocked(markSponsorPackSent).mockRejectedValueOnce(
+      new Error("This review's sealed manifest hash no longer matches the stored golden record."),
+    );
+
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-mark-sent")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("email-run-to-sponsor-mark-sent"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-mark-sent-blocked-reason")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-mark-sent-blocked-reason")).toHaveTextContent(
+      /sealed manifest hash/i,
+    );
+    expect(screen.queryByTestId("email-run-to-sponsor-sent-badge")).toBeNull();
+  });
+
   it("demotes sponsor proof pack ZIP when Do this next owns the page primary", async () => {
     render(<EmailRunToSponsorBanner {...bannerProps} pagePrimaryOwnedElsewhere />);
 

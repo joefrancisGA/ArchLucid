@@ -77,4 +77,27 @@ public sealed class CommitRunTransientRetryPolicyTests
             .Should()
             .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.MaxAttempts));
     }
+    [Fact]
+    public void IsExhausted_returns_false_at_attempt_zero()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(0, TimeSpan.Zero).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ManifestReconcilePollDelay_at_max_poll_uses_linear_backoff_multiplier()
+    {
+        CommitRunTransientRetryPolicy.ManifestReconcilePollDelay(CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts));
+    }
+
+    [Fact]
+    public void IsExhausted_returns_true_when_attempt_and_elapsed_both_exceed_limits()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+            CommitRunTransientRetryPolicy.MaxAttempts + 1,
+            CommitRunTransientRetryPolicy.RetryBudget + TimeSpan.FromSeconds(1))
+            .Should()
+            .BeTrue();
+    }
 }

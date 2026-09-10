@@ -685,4 +685,124 @@ describe("RunsListClient inspector", () => {
     expect(filterInput).toHaveValue("");
     expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
   });
+
+  it("buyer-polished: in_flight scope hides finalized package rows", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const inFlight: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000dd",
+    };
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000ee",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[inFlight, committed]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      "scope=in_flight",
+    );
+
+    expect(screen.getByTestId(`runs-row-${inFlight.runId}`)).toBeInTheDocument();
+    expect(screen.queryByTestId(`runs-row-${committed.runId}`)).toBeNull();
+  });
+
+  it("debounces text filter into the q= URL search param", async () => {
+    vi.useFakeTimers();
+
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Filter reviews by name or description/i), {
+      target: { value: "Demo" },
+    });
+
+    expect(runsListSearchParamsHarness.state.query).not.toContain("q=Demo");
+
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(runsListSearchParamsHarness.state.query).toContain("q=Demo");
+
+    vi.useRealTimers();
+  });
+
+  it("shows a replacement notice when a third compare checkbox is selected", () => {
+    const runB: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+    const runC: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      description: "Third review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, runB, runC]} projectId="default" page={1} pageSize={20} totalCount={3} />,
+    );
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${runB.runId}`)).getByRole("checkbox"));
+    fireEvent.click(within(screen.getByTestId(`runs-row-${runC.runId}`)).getByRole("checkbox"));
+
+    expect(
+      screen.getByText(/only two reviews can be compared/i),
+    ).toBeInTheDocument();
+    expect(runsListSearchParamsHarness.state.query).toContain(`compareRuns=${runB.runId}`);
+    expect(runsListSearchParamsHarness.state.query).toContain(runC.runId);
+    expect(runsListSearchParamsHarness.state.query).not.toContain(sampleRun.runId);
+  });
+
+  it("buyer-polished: active text filter switches from card layout to the work-queue table", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      description: "Alpha package",
+    };
+    const committed2: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cf",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      description: "Beta package",
+    };
+
+    render(<RunsListClient runs={[committed, committed2]} projectId="default" page={1} pageSize={20} totalCount={2} />);
+
+    expect(screen.getByRole("heading", { name: /finalized architecture reviews/i })).toBeInTheDocument();
+    expect(screen.queryByTestId("runs-queue-committed")).toBeNull();
+
+    fireEvent.change(screen.getByLabelText(/Search reviews by title or description/i), {
+      target: { value: "Alpha" },
+    });
+
+    expect(screen.queryByRole("heading", { name: /finalized architecture reviews/i })).toBeNull();
+    expect(screen.getByTestId("runs-queue-committed")).toBeInTheDocument();
+  });
+
+  it("keeps the inspector empty when inspectorRunId does not match a row on the page", () => {
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      "inspectorRunId=00000000-0000-0000-0000-00000000009999",
+    );
+
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+  });
 });

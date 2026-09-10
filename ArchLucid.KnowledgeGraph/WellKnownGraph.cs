@@ -54,7 +54,7 @@ public static class GraphEdgeTypes
 
     public const string RoutesTo = "ROUTES_TO";
 
-    /// <summary>Reserved for SA-19 federated identity adapter; no edges until that prompt ships.</summary>
+    /// <summary>CI federated credential adapter edge (SA-19); emitted when optional ZIP sibling is present.</summary>
     public const string FederatesAs = "FEDERATES_AS";
 }
 

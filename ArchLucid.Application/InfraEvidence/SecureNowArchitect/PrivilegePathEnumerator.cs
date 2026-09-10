@@ -145,6 +145,7 @@ internal static class PrivilegePathEnumerator
                     scopeNodeId,
                     graph.ResourcesByArmId,
                     graph.TagsByResourceRowId),
+                IsFederatedDeploymentPath = IsFederatedDeploymentPath(hops),
             };
 
             return true;
@@ -189,6 +190,7 @@ internal static class PrivilegePathEnumerator
                 hasRoleHop.ToNodeId,
                 graph.ResourcesByArmId,
                 graph.TagsByResourceRowId),
+            IsFederatedDeploymentPath = IsFederatedDeploymentPath(hopsWithInsufficient),
         };
 
         return true;
@@ -233,6 +235,7 @@ internal static class PrivilegePathEnumerator
                 hasRoleHop.ToNodeId,
                 graph.ResourcesByArmId,
                 graph.TagsByResourceRowId),
+            IsFederatedDeploymentPath = IsFederatedDeploymentPath(hopsWithAction),
         };
 
         return true;
@@ -242,4 +245,7 @@ internal static class PrivilegePathEnumerator
         string.Join(
             ">",
             hops.Select(static hop => $"{hop.FromNodeId}|{hop.EdgeType}|{hop.ToNodeId}"));
+
+    private static bool IsFederatedDeploymentPath(IReadOnlyList<PrivilegePathEdge> hops) =>
+        hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.FederatesAs);
 }

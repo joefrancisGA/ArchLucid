@@ -453,4 +453,152 @@ describe("HelpDocsClient", () => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
   });
+  it("filters documentation entries case-insensitively", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "SECURITY" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("treats whitespace-only search input as no active filter", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Reviews list" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "   " } });
+
+    expect(screen.getByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Reviews list" })).toBeInTheDocument();
+    expect(screen.queryByText("No results")).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps internal documentation links in the same tab", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "Policy packs" });
+
+    expect(link).toHaveAttribute("href", "/governance/policy-packs");
+    expect(link).not.toHaveAttribute("target");
+    expect(link).not.toHaveAttribute("rel");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("dismisses the refreshing status after the doc-index fetch fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: false,
+          status: 500,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Policy packs" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByText("Refreshing documentation index…")).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("renders unknown categories after the fixed CATEGORY_ORDER sections", async () => {
+    const data = [
+      {
+        title: "Compliance guide",
+        summary: "Regulatory compliance overview.",
+        category: "Compliance",
+        url: "/help/compliance",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Compliance guide" })).toBeInTheDocument();
+
+    const headings = screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent);
+    const gettingStartedIndex = headings.indexOf("Getting Started");
+    const complianceIndex = headings.indexOf("Compliance");
+
+    expect(gettingStartedIndex).toBeGreaterThanOrEqual(0);
+    expect(complianceIndex).toBeGreaterThan(gettingStartedIndex);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not clear the URL when Escape is pressed on an empty search box", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => [],
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const searchbox = await screen.findByRole("searchbox");
+
+    fireEvent.keyDown(searchbox, { key: "Escape" });
+
+    expect(helpDocsNavigation.replace).not.toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
+  });
 });

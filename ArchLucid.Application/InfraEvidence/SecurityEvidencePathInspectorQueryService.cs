@@ -96,7 +96,7 @@ public sealed class SecurityEvidencePathInspectorQueryService(
             Hops = hops.Select(MapHop).ToList(),
             CitingFindingIds = citingFindingIds,
             WeakestHop = weakestHopRecord is null ? null : MapWeakestHop(weakestHopRecord, path.WeakestHopReason),
-            ExplanationTemplate = SecurityEvidencePathExplanationTemplateBuilder.Build(path, hops),
+            ExplanationTemplate = SecurityEvidencePathExplanationTemplateBuilder.Build(path, hops, relatedCutPoints),
             RelatedCutPoints = relatedCutPoints
                 .Select(SecurityEvidenceCutPointResponseMapper.MapSummary)
                 .ToList(),

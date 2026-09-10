@@ -63,7 +63,7 @@ public sealed class ArchitectureShareService(
         if (!ArchitectureShareActorValidation.TryValidateUserActorOid(request.ActorOid, out string targetActorOid, out string? actorValidationReason))
             return ArchitectureShareMutationResult.ValidationFailed(actorValidationReason!);
 
-        if (!ArchitectureShareRoles.IsKnownRole(request.Role))
+        if (!Contracts.Architecture.ArchitectureShareRoles.IsKnownRole(request.Role))
             return ArchitectureShareMutationResult.ValidationFailed("Role must be View, Decide, or Admin.");
 
         ArchitectureIdentityRecord? architecture = await _architectureIdentityRepository.GetByIdAsync(
@@ -83,7 +83,7 @@ public sealed class ArchitectureShareService(
         if (!ArchitectureShareAccessEvaluator.CanAdmin(architecture, actorShare))
             return ArchitectureShareMutationResult.NotAuthorized();
 
-        string normalizedRole = ArchitectureShareRoles.NormalizeRole(request.Role);
+        string normalizedRole = Contracts.Architecture.ArchitectureShareRoles.NormalizeRole(request.Role);
         DateTime grantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
 
         await _shareRepository.UpsertAsync(
@@ -192,7 +192,7 @@ public sealed class ArchitectureShareService(
                     {
                         ArchitectureId = architectureId,
                         ActorOid = actorOid.Trim(),
-                        Role = ArchitectureShareRoles.Admin,
+                        Role = Contracts.Architecture.ArchitectureShareRoles.Admin,
                         GrantedBy = actorDisplayName.Trim(),
                         GrantedUtc = grantedUtc,
                     },

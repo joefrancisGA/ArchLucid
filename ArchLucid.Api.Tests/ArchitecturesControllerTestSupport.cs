@@ -1,3 +1,4 @@
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Controllers.Architecture;
 using ArchLucid.Api.Support;
 using ArchLucid.Api.Tests.Support;
@@ -56,7 +57,10 @@ internal static class ArchitecturesControllerTestSupport
             goldenManifestRepository.Object,
             SealedManifestHashTestSupport.CreateManifestHashService(),
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
-            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun())
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            new Mock<IArchitectureShareAccessService>().Object,
+            new Mock<IAuthenticatedPlatformUserResolver>().Object,
+            new Mock<IArchitectureRestrictToSharesService>().Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

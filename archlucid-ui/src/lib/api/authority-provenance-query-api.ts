@@ -21,7 +21,9 @@ export async function getAuthorityProvenanceSnapshot(runId: string): Promise<unk
 /** Authority-route alias for the full provenance graph. */
 export async function getAuthorityProvenanceGraph(runId: string): Promise<GraphViewModel> {
   try {
-    return await apiGetSealedManifestAware<GraphViewModel>(`/v1/authority/runs/${encodeURIComponent(runId)}/graph`);
+    return await apiGetSealedManifestAware<GraphViewModel>(
+      `/v1/authority/runs/${encodeURIComponent(runId)}/graph`,
+    );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = authorityProvenanceAliasBlockedReason(failure);
