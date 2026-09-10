@@ -6,17 +6,19 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  countDecisionGradeSemanticSupportBands,
-  formatStampSemanticSupportBandLine,
+  countDecisionGradeSemanticSupportBandsForPresentation,
+  formatStampSemanticSupportBandLineForPresentation,
   formatStampUnsupportedSemanticSupportLabels,
-  listUnsupportedDecisionGradeSemanticSupportFindings,
-  stampSemanticSupportShowsAllClear,
+  listUnsupportedDecisionGradeSemanticSupportFindingsForPresentation,
+  stampSemanticSupportShowsAllClearForPresentation,
 } from "@/lib/findings/semantic-support-band-stamp";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import { cn } from "@/lib/utils";
 
 export type RunDetailReviewPackageSemanticSupportBandSummaryProps = {
   readonly findings: readonly QuickDecisionFinding[];
   readonly className?: string;
+  readonly structuralExecutionMode?: StructuralExecutionModeInput;
 };
 
 /** AS-062 / IS-06: decision-grade semantic support band counts on the stamp band. */
@@ -24,16 +26,29 @@ export function RunDetailReviewPackageSemanticSupportBandSummary(
   props: RunDetailReviewPackageSemanticSupportBandSummaryProps,
 ): ReactElement | null {
   const { isWorkingMode } = useWorkspaceMode();
-  const counts = countDecisionGradeSemanticSupportBands(props.findings);
-  const line = formatStampSemanticSupportBandLine(counts, { compact: !isWorkingMode });
-  const unsupportedEntries = listUnsupportedDecisionGradeSemanticSupportFindings(props.findings);
+  const counts = countDecisionGradeSemanticSupportBandsForPresentation(
+    props.findings,
+    props.structuralExecutionMode,
+  );
+  const line = formatStampSemanticSupportBandLineForPresentation(
+    counts,
+    props.structuralExecutionMode,
+    { compact: !isWorkingMode },
+  );
+  const unsupportedEntries = listUnsupportedDecisionGradeSemanticSupportFindingsForPresentation(
+    props.findings,
+    props.structuralExecutionMode,
+  );
   const unsupportedLabels = formatStampUnsupportedSemanticSupportLabels(unsupportedEntries);
 
   if (line === null) {
     return null;
   }
 
-  const showAllClearHonesty = stampSemanticSupportShowsAllClear(counts);
+  const showAllClearHonesty = stampSemanticSupportShowsAllClearForPresentation(
+    counts,
+    props.structuralExecutionMode,
+  );
 
   return (
     <div

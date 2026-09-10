@@ -3,6 +3,11 @@ import type { ReactElement } from "react";
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  ARCHITECT_RESTATEMENT_SEMANTIC_SUPPORT_BAND_CLAIM_LINE_COPY,
+  ARCHITECT_RESTATEMENT_SEMANTIC_SUPPORT_BAND_RESTATEMENT_LINE_COPY,
+  shouldShowArchitectRestatementSemanticSupportBandSplit,
+} from "@/lib/findings/finding-architect-restatement-semantic-support-band-honesty";
+import {
   normalizeFindingSemanticSupportBand,
   resolveDecisionGradeSemanticSupportBand,
   semanticSupportBandInspectDetail,
@@ -13,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 export type FindingSemanticSupportBandInspectSectionProps = {
   readonly finding: QuickDecisionFinding;
+  readonly trailBackedArchitectRestatement?: string | null;
 };
 
 export function findingSemanticSupportBandFromTypedPayload(
@@ -37,6 +43,9 @@ export function FindingSemanticSupportBandInspectSection(
   }
 
   const band = resolveDecisionGradeSemanticSupportBand(props.finding.semanticSupportBand);
+  const showRestatementSplit = shouldShowArchitectRestatementSemanticSupportBandSplit(
+    props.trailBackedArchitectRestatement,
+  );
 
   return (
     <div
@@ -49,9 +58,22 @@ export function FindingSemanticSupportBandInspectSection(
       <div className="mt-2">
         <FindingSemanticSupportBandChip finding={props.finding} />
       </div>
+      {showRestatementSplit ? (
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {ARCHITECT_RESTATEMENT_SEMANTIC_SUPPORT_BAND_CLAIM_LINE_COPY}
+        </p>
+      ) : null}
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {semanticSupportBandInspectDetail(band)}
       </p>
+      {showRestatementSplit ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="finding-architect-restatement-semantic-support-band-honesty"
+        >
+          {ARCHITECT_RESTATEMENT_SEMANTIC_SUPPORT_BAND_RESTATEMENT_LINE_COPY}
+        </p>
+      ) : null}
     </div>
   );
 }

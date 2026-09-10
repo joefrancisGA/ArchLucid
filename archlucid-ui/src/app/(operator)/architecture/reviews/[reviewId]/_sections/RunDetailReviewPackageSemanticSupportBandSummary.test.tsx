@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { RunDetailReviewPackageSemanticSupportBandSummary } from "./RunDetailReviewPackageSemanticSupportBandSummary";
+import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
@@ -65,6 +66,23 @@ describe("RunDetailReviewPackageSemanticSupportBandSummary (AS-062)", () => {
     );
 
     expect(screen.getByTestId("run-detail-stamp-semantic-support-all-clear")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-detail-stamp-semantic-support-unsupported-list")).toBeNull();
+  });
+
+  it("shows rehearsal stamp line on Simulator instead of Supported counts", () => {
+    workspaceModeMock.isWorkingMode = true;
+
+    render(
+      <RunDetailReviewPackageSemanticSupportBandSummary
+        findings={[sampleFinding({ semanticSupportBand: "Supported" })]}
+        structuralExecutionMode={StructuralExecutionModeWire.Simulator}
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-stamp-semantic-support-band-line")).toHaveTextContent(
+      "Semantic support (decision-grade): Rehearsal — not career support",
+    );
+    expect(screen.queryByTestId("run-detail-stamp-semantic-support-all-clear")).toBeNull();
     expect(screen.queryByTestId("run-detail-stamp-semantic-support-unsupported-list")).toBeNull();
   });
 

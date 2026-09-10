@@ -111,7 +111,10 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           {isDecisionGradeFinding(finding) ? (
             <>
               <FindingTrustChip finding={finding} />
-              <FindingSemanticSupportBandChip finding={finding} />
+              <FindingSemanticSupportBandChip
+                finding={finding}
+                structuralExecutionMode={props.context.structuralExecutionMode}
+              />
             </>
           ) : null}
         </div>
@@ -240,7 +243,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
       ) : null}
       {props.askPanelOpen ? (
         <div className="mt-3">
-          <FindingAskInlinePanel findingId={finding.findingId} defaultOpen />
+          <FindingAskInlinePanel
+            findingId={finding.findingId}
+            defaultOpen
+            semanticSupportBand={finding.semanticSupportBand ?? null}
+          />
         </div>
       ) : null}
       <QuickDecisionWorkspaceFindingSupportingDetails context={props.context} finding={finding} />

@@ -33,6 +33,7 @@ import {
 import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
 import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
 import { diagramReconcileLoadModelBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-load-model-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   buildDiagramReconcileOperationalFindingRequestItem,
   formatDiagramReconcileExplanation,

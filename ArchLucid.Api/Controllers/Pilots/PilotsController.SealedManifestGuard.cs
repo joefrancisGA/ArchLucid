@@ -34,10 +34,25 @@ public sealed partial class PilotsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPilotPackSealedManifestConflict(ex);
+
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     Maps pilot pack read/export <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    /// </summary>
+    private IActionResult MapPilotPackSealedManifestConflict(ConflictException ex)
+    {
+        string problemType = ex.Message.Contains("hash verification failed", StringComparison.OrdinalIgnoreCase)
+            ? ProblemTypes.DecisionReceiptSealedHashMismatch
+            : ex.Message.Contains("fields are incomplete", StringComparison.OrdinalIgnoreCase)
+                ? ProblemTypes.DecisionReceiptSealedIncomplete
+                : ProblemTypes.Conflict;
+
+        return this.ConflictProblem(ex.Message, problemType);
     }
 
     private async Task<IActionResult?> EnsurePilotRecentDeltasSealedManifestReadAllowedAsync(
@@ -58,7 +73,8 @@ public sealed partial class PilotsController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapPilotPackSealedManifestConflict(ex);
+
         }
 
         return null;

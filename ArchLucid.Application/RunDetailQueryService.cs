@@ -55,7 +55,8 @@ public sealed partial class RunDetailQueryService(
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IRunStateTransitionService runStateTransitionService,
     ILogger<RunDetailQueryService> logger,
-    IFindingSemanticSupportBandOverlayRepository? semanticSupportBandOverlayRepository = null) : IRunDetailQueryService
+    IFindingSemanticSupportBandOverlayRepository? semanticSupportBandOverlayRepository = null,
+    IFindingSemanticSupportBandLaneBComposeService? semanticSupportBandLaneBComposeService = null) : IRunDetailQueryService
 {
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
 
@@ -76,6 +77,9 @@ public sealed partial class RunDetailQueryService(
 
     private readonly IFindingSemanticSupportBandOverlayRepository? _semanticSupportBandOverlayRepository =
         semanticSupportBandOverlayRepository;
+
+    private readonly IFindingSemanticSupportBandLaneBComposeService? _semanticSupportBandLaneBComposeService =
+        semanticSupportBandLaneBComposeService;
 
     private readonly ILogger<RunDetailQueryService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));

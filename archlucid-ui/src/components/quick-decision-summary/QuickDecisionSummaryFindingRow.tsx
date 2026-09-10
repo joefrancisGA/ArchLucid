@@ -263,7 +263,11 @@ export function QuickDecisionSummaryFindingRow({
       ) : null}
       {askFindingId === finding.findingId ? (
         <div className="mt-3">
-          <FindingAskInlinePanel findingId={finding.findingId} defaultOpen />
+          <FindingAskInlinePanel
+            findingId={finding.findingId}
+            defaultOpen
+            semanticSupportBand={finding.semanticSupportBand ?? null}
+          />
         </div>
       ) : null}
     </>

@@ -43,6 +43,8 @@
 
 **Residual:** `FindingCitationCoverageRatio` is live on Working Real PilotStrict (LP-04); Simulator skips ratio evaluation.
 
+**AS-058 Working consumption:** When a Lane B row exists on an agent trace (`AgentOutputSemanticScore.FindingCitationCoverageRatio` or `AgentResultFaithfulnessSupportRatio`), `RunDetailQueryService` composes it into the finding semantic support band at read time via `IFindingSemanticSupportBandLaneBComposeService`. Missing row → **Unchecked**, not Supported. Execute/findings merge does not enqueue or await Lane B jobs.
+
 ---
 
 ## Lane C — Model / config promotion

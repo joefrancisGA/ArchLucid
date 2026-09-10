@@ -54,7 +54,8 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+
         }
     }
 
@@ -93,7 +94,8 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+
         }
     }
 
@@ -132,7 +134,8 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+
         }
     }
 
@@ -181,7 +184,8 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+
         }
     }
 
@@ -222,7 +226,8 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+
         }
     }
 
@@ -292,7 +297,8 @@ public sealed partial class GovernanceStickinessController
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapGovernanceStickinessSealedManifestConflict(ex);
+
         }
     }
 }

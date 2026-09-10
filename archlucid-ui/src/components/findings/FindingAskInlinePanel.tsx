@@ -12,7 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
+import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
+import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
 import { BUYER_ASK_GROUNDING_ONCE } from "@/lib/buyer/buyer-polish-copy";
 import { askAboutFinding } from "@/lib/api/finding-ask-api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -33,6 +35,7 @@ type FindingAskInlinePanelProps = {
   readonly findingId: string;
   readonly runId?: string;
   readonly defaultOpen?: boolean;
+  readonly semanticSupportBand?: FindingSemanticSupportBandValue | null;
 };
 
 type AskTurn = {
@@ -188,6 +191,14 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                     Answer
                   </p>
                   <AskAssistantMessageBody content={turn.answer} />
+                  <AskCitedFindingsSemanticSupportBandFootnote
+                    referencedFindingIds={[props.findingId]}
+                    findingBandIndex={
+                      props.semanticSupportBand !== undefined && props.semanticSupportBand !== null
+                        ? [{ findingId: props.findingId, band: props.semanticSupportBand }]
+                        : []
+                    }
+                  />
                 </li>
               ))}
             </ol>

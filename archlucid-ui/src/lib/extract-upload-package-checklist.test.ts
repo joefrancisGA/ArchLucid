@@ -45,13 +45,24 @@ describe("resolveExtractUploadHasInventoryOnFile", () => {
 });
 
 describe("resolveExtractUploadPackageSteps", () => {
-  it("emphasizes scenario before upload", () => {
+  it("emphasizes provider before upload", () => {
     expect(
       resolveExtractUploadPackageEmphasizedStepId({
-        scenarioSelected: false,
-        packageUploaded: false,
+        providerSelected: false,
+        packageAccepted: false,
         inventoryParsed: false,
       }),
-    ).toBe("scenario");
+    ).toBe("provider");
+  });
+
+  it("marks upload complete only after acceptance", () => {
+    const steps = resolveExtractUploadPackageSteps({
+      providerSelected: true,
+      packageAccepted: true,
+      inventoryParsed: false,
+    });
+
+    expect(steps.find((step) => step.id === "upload")?.complete).toBe(true);
+    expect(steps.find((step) => step.id === "parse")?.complete).toBe(false);
   });
 });
