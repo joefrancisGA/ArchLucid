@@ -109,10 +109,6 @@ public sealed partial class GovernanceController
         {
             return MapGovernanceSealedManifestConflict(ex);
         }
-        catch (ConflictException ex)
-        {
-            return MapGovernanceSealedManifestConflict(ex);
-        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(
@@ -213,10 +209,6 @@ public sealed partial class GovernanceController
                 "Reject conflict: approval request '{ApprovalRequestId}' already finalized by a concurrent request.",
                 approvalRequestId);
             return MapGovernanceSealedManifestConflict(new ConflictException(ex.Message, ex));
-        }
-        catch (ConflictException ex)
-        {
-            return MapGovernanceSealedManifestConflict(ex);
         }
         catch (ConflictException ex)
         {
