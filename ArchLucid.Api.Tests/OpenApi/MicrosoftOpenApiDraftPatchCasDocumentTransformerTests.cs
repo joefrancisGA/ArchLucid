@@ -44,6 +44,7 @@ public sealed class MicrosoftOpenApiDraftPatchCasDocumentTransformerTests
         OpenApiDocumentTransformerContext context = new()
         {
             DocumentName = "v1",
+            DescriptionGroups = [],
             ApplicationServices = new ServiceCollection().BuildServiceProvider(),
         };
 

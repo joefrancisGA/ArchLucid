@@ -27,6 +27,17 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-workspace-system-name-availability", () => ({
+  useWorkspaceSystemNameAvailability: () => ({
+    isAvailable: true,
+    conflictMessage: null,
+    validating: false,
+    validationReady: true,
+    validationUnavailable: false,
+    blocksSubmit: false,
+  }),
+}));
+
 vi.mock("@/lib/architecture/architecture-creation-init", () => ({
   initializeArchitectureCreation: (...args: unknown[]) => initializeArchitectureCreation(...args),
   applyArchitectureCreationDraftToFormState: () => ({
