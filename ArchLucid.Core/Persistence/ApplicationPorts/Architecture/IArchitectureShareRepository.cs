@@ -15,7 +15,10 @@ public interface IArchitectureShareRepository
         string actorOid,
         CancellationToken cancellationToken = default);
 
-    Task UpsertAsync(ArchitectureShareRecord record, CancellationToken cancellationToken = default);
+    Task UpsertAsync(
+        ScopeContext scope,
+        ArchitectureShareRecord record,
+        CancellationToken cancellationToken = default);
 
     Task<bool> TryDeleteAsync(
         ScopeContext scope,

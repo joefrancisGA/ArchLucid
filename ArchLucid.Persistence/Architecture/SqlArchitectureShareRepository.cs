@@ -92,8 +92,12 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
                 cancellationToken: cancellationToken));
     }
 
-    public async Task UpsertAsync(ArchitectureShareRecord record, CancellationToken cancellationToken = default)
+    public async Task UpsertAsync(
+        ScopeContext scope,
+        ArchitectureShareRecord record,
+        CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(record);
 
         const string sql = """
@@ -101,7 +105,12 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
             USING (
                 SELECT
                     @ArchitectureId AS ArchitectureId,
-                    @ActorOid AS ActorOid) AS source
+                    @ActorOid AS ActorOid
+                FROM dbo.Architectures a
+                WHERE a.ArchitectureId = @ArchitectureId
+                  AND a.TenantId = @TenantId
+                  AND a.WorkspaceId = @WorkspaceId
+                  AND a.ScopeProjectId = @ScopeProjectId) AS source
             ON target.ArchitectureId = source.ArchitectureId
                AND target.ActorOid = source.ActorOid
             WHEN MATCHED THEN
@@ -116,7 +125,21 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
 
         using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(sql, record, cancellationToken: cancellationToken));
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    record.ArchitectureId,
+                    ActorOid = record.ActorOid.Trim(),
+                    record.Role,
+                    record.GrantedBy,
+                    record.GrantedUtc,
+                },
+                cancellationToken: cancellationToken));
     }
 
     public async Task<bool> TryDeleteAsync(
