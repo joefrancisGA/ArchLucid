@@ -1,0 +1,25 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000055",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000055",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000055-0000-4000-8000-000000000055",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000055",
+    "runId": "20000000-0000-4000-8000-000000000055",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": {
+    "azurePackageId": "30000000-0000-4000-8000-000000000055",
+    "resourcesJson": "[]",
+    "extraZipEntries": [
+      {
+        "fileName": "advisor-cost.json",
+        "jsonBody": "{\n  \"recommendations\": [\n    {\n      \"id\": \"golden-advisor-rec-55\",\n      \"category\": \"Cost\",\n      \"description\": \"Resize underutilized App Service plan\",\n      \"annualSavingsAmount\": 360\n    }\n  ]\n}"
+      }
+    ]
+  }
+}

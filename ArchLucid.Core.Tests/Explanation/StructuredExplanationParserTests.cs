@@ -115,4 +115,110 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Confidence.Should().BeNull();
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_string_encoded_confidence()
+    {
+        const string json = """{"reasoning":"Main","confidence":"75"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_string_encoded_schema_version()
+    {
+        const string json = """{"schemaVersion":"2","reasoning":"Main"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void Parse_does_not_treat_json_with_string_encoded_confidence_as_plain_text()
+    {
+        const string json = """{"reasoning":"Main","confidence":"75"}""";
+
+        StructuredExplanation s = StructuredExplanationParser.Parse(json);
+
+        s.Reasoning.Should().Be("Main");
+        s.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_scalar_alternatives_considered_as_single_entry()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":"Keep monolith — rejected for scaling."}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith — rejected for scaling.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_scalar_evidence_ref_as_single_entry()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":"dec-1"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_scalar_caveats_as_single_entry()
+    {
+        const string json = """{"reasoning":"Main","caveats":"Limited manifest coverage."}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Limited manifest coverage.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[{"id":"dec-1"}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_string_array_reasoning()
+    {
+        const string json =
+            """{"reasoning":["First paragraph.","Second paragraph."],"evidenceRefs":["dec-1"],"alternativesConsidered":["Keep monolith"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("First paragraph.\n\nSecond paragraph.");
+        s.EvidenceRefs.Should().Equal("dec-1");
+        s.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_coerces_object_shaped_reasoning_text()
+    {
+        const string json =
+            """{"reasoning":{"text":"Object-wrapped reasoning."},"evidenceRefs":["dec-1"],"alternativesConsidered":["Keep monolith"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Object-wrapped reasoning.");
+        s.EvidenceRefs.Should().Equal("dec-1");
+        s.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
 }

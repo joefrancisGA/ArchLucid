@@ -227,6 +227,38 @@ public sealed class TenantOrProjectCapabilityAuthorizationHandlerTests
     }
 
     [Fact]
+    public async Task HandleRequirementAsync_project_admin_succeeds_policy_pack_mutation_without_tenant_admin_jwt()
+    {
+        Mock<IScimUserRepository> scimMock = new();
+        scimMock
+            .Setup(r => r.GetByExternalIdAsync(TenantId, DirectoryOid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ScimUserRecord
+            {
+                Id = ScimUserId,
+                TenantId = TenantId,
+                ExternalId = DirectoryOid,
+                UserName = "project-admin@example.com",
+                Active = true
+            });
+
+        Mock<IProjectRoleAssignmentRepository> projectMock = new();
+        projectMock
+            .Setup(r => r.GetHighestRoleAsync(TenantId, WorkspaceId, ProjectId, ScimUserId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ProjectScopedEffectiveRole.ProjectAdmin);
+
+        TenantOrProjectCapabilityAuthorizationHandler handler = CreateHandler(scimMock, projectMock);
+
+        ClaimsPrincipal user = AuthenticatedUser(new Claim("oid", DirectoryOid));
+
+        AuthorizationHandlerContext context = await InvokeAsync(
+            handler,
+            user,
+            new TenantOrProjectCapabilityRequirement(TenantOrProjectCapabilityMode.PolicyPackMutation));
+
+        context.HasSucceeded.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task HandleRequirementAsync_commit_run_permission_claim_succeeds_without_project_role()
     {
         TenantOrProjectCapabilityAuthorizationHandler handler = CreateHandler(

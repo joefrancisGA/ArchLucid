@@ -43,7 +43,7 @@ export function GovernanceFindingsQueueScopeSection(
           {"Showing findings for review "}
           <span className="font-mono text-al-text-primary">{props.scopedRunId}</span>
           {" · "}
-          <Link className={OPERATOR_LINK.inline} href={props.navHref}>
+          <Link className={OPERATOR_LINK.inline} href={props.clearReviewScopeHref}>
             Clear review scope
           </Link>
           {" · "}
@@ -103,7 +103,7 @@ export function GovernanceFindingsQueueScopeSection(
         />
       ) : null}
 
-      {!props.isAssignedToMe ? (
+      {!props.isAssignedToMe && !props.buyerPolishedShell ? (
         <ArchitecturePosturePillarOverview projectId={props.scopeRecordProjectId} enabled />
       ) : null}
     </>

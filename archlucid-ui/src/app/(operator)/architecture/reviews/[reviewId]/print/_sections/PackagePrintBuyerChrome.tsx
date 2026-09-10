@@ -8,11 +8,15 @@ export type PackagePrintBuyerChromeProps = {
   readonly runId: string;
 };
 
-/** Buyer default: mount claim discipline + Sources on package print (APR). */
+/** Buyer default: mount claim discipline + Sources above print summary inside first viewport (APR). */
 export function PackagePrintBuyerChrome(props: PackagePrintBuyerChromeProps): React.JSX.Element | null {
   if (!isBuyerPolishedOperatorShellEnv()) {
     return null;
   }
 
-  return <PackagePrintClaimOrientationStrip runId={props.runId} />;
+  return (
+    <div data-testid="package-print-orientation-top">
+      <PackagePrintClaimOrientationStrip runId={props.runId} />
+    </div>
+  );
 }

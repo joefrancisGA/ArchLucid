@@ -11,7 +11,7 @@ export function AlertsHubBuyerChrome(): React.JSX.Element | null {
   }
 
   return (
-    <div className="mb-4 text-left" data-testid="alerts-inbox-orientation-top">
+    <div className="mb-4 text-left" data-testid="alerts-inbox-orientation-bottom">
       <AlertsInboxClaimOrientationStrip />
     </div>
   );

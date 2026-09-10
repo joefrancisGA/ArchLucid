@@ -67,4 +67,27 @@ describe("FindingItsmExportPanel", () => {
       "/administration/connection-status",
     );
   });
+
+  it("blocks native create for checklist coverage findings", () => {
+    useItsmNativeCreateReadiness.mockReturnValue({
+      defaultPathReady: true,
+      deploymentEnabled: true,
+      health: null,
+    });
+
+    render(
+      <FindingItsmExportPanel
+        runId="run-001"
+        findingId="finding-001"
+        payload={{
+          ...payload,
+          typedPayload: { classification: "ChecklistCoverage", message: "Generic hygiene" },
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-itsm-checklist-coverage-blocked")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Create issue" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copy work item" })).toBeInTheDocument();
+  });
 });

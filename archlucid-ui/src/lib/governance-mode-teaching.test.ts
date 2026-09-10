@@ -7,7 +7,7 @@ import {
 } from "@/lib/governance-mode-teaching";
 
 describe("governance-mode-teaching (TB-2392)", () => {
-  it("references governance mode vocabulary in coach steps", () => {
+  it("references approval view mode vocabulary in coach steps", () => {
     const model = buildGovernanceModeTeaching();
 
     expect(model.heading).toBe(GOVERNANCE_MODE_TEACHING_HEADING);

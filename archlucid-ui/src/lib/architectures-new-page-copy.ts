@@ -2,6 +2,16 @@
 export const ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE =
   "Drafting workspace — creating or saving does not start a review.";
 
+export const ARCHITECTURES_NEW_PRIMARY_CONTENT_ID = "architectures-new-primary-content" as const;
+
+export const ARCHITECTURES_NEW_FIRST_VIEWPORT_ID = "architectures-new-first-viewport" as const;
+
+export const ARCHITECTURES_NEW_FIRST_VIEWPORT_TEST_ID = ARCHITECTURES_NEW_FIRST_VIEWPORT_ID;
+
+export const ARCHITECTURES_NEW_SKIP_TARGET_ID = ARCHITECTURES_NEW_FIRST_VIEWPORT_ID;
+
+export const ARCHITECTURES_NEW_SKIP_LINK_LABEL = "Skip to create architecture workspace" as const;
+
 export const ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER =
   `${ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE} Describe the system, outcome, and scope below. When you save, your draft is stored to your account and syncs across browsers where you sign in.`;
 

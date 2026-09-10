@@ -1,5 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   BUYER_ASK_REVIEW_ANCHORS_LINE,
@@ -14,6 +18,10 @@ import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { getShowcaseCompareHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  askReviewAnchorsDisclosureHrefFromSearch,
+  parseAskReviewAnchorsOpenFromSearch,
+} from "@/lib/insights/ask-review-anchors-disclosure-url";
 
 export type AskReviewScopeStripProps = {
   readonly runId: string;
@@ -23,7 +31,35 @@ export type AskReviewScopeStripProps = {
 
 /** Compact review context above the question input. */
 export function AskReviewScopeStrip(props: AskReviewScopeStripProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const askReviewAnchorsOpenParam = searchParams.get("askReviewAnchorsOpen");
+  const [anchorsOpen, setAnchorsOpenState] = useState(() =>
+    parseAskReviewAnchorsOpenFromSearch(askReviewAnchorsOpenParam),
+  );
   const trimmed = props.runId.trim();
+
+  const syncAnchorsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(askReviewAnchorsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setAnchorsOpen = useCallback(
+    (open: boolean) => {
+      setAnchorsOpenState(open);
+      syncAnchorsOpenToUrl(open);
+    },
+    [syncAnchorsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setAnchorsOpenState(parseAskReviewAnchorsOpenFromSearch(askReviewAnchorsOpenParam));
+  }, [askReviewAnchorsOpenParam]);
 
   if (!props.buyerPolishedShell || trimmed.length === 0) {
     return null;
@@ -63,7 +99,13 @@ export function AskReviewScopeStrip(props: AskReviewScopeStripProps) {
         ) : null}
       </p>
       {isShowcase ? (
-        <details className="rounded-md border border-neutral-200/80 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30">
+        <details
+          className="rounded-md border border-neutral-200/80 bg-neutral-50/60 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900/30"
+          open={anchorsOpen}
+          onToggle={(event) => {
+            setAnchorsOpen((event.currentTarget as HTMLDetailsElement).open);
+          }}
+        >
           <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
             {BUYER_ASK_REVIEW_ANCHORS_SUMMARY}
           </summary>

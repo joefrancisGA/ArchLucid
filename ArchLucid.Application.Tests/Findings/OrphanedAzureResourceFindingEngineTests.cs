@@ -55,6 +55,8 @@ public sealed class OrphanedAzureResourceFindingEngineTests
         findings[0].FindingType.Should().Be("OrphanedAzureResource");
         findings[0].EngineType.Should().Be("orphaned-azure-resource");
         findings[0].Severity.Should().Be(FindingSeverity.Warning);
+        findings[0].EvidenceRefs.Should().ContainSingle().Which.Should().Be(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk1");
         findings[0].Payload.Should().BeOfType<RequirementFindingPayload>();
         findings[0].Title.Should().Contain("Microsoft.Compute/disks");
         findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(3);

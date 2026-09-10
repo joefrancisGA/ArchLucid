@@ -12,7 +12,7 @@ public static class SponsorFirstValuePdfGate
         string? blockReason = ResolveBlockReason(built);
 
         if (blockReason is not null)
-            throw new SponsorFirstValuePdfBlockedException(blockReason);
+            throw new SponsorFirstValuePdfBlockedException(blockReason, ResolveBlockReasonCode(built));
     }
 
     public static string? ResolveBlockReason(FirstValueReportBuildResult built)
@@ -43,6 +43,23 @@ public static class SponsorFirstValuePdfGate
         if (built.SponsorProofReadiness == SponsorProofReadinessClassification.NeedsBaseline)
         {
             return "Sponsor PDF export is blocked until ROI baseline inputs are captured and sponsor-safe.";
+        }
+
+        if (!string.IsNullOrWhiteSpace(built.CareerArtifactBlockedReason))
+        {
+            return built.CareerArtifactBlockedReason;
+        }
+
+        return null;
+    }
+
+    public static string? ResolveBlockReasonCode(FirstValueReportBuildResult built)
+    {
+        ArgumentNullException.ThrowIfNull(built);
+
+        if (!string.IsNullOrWhiteSpace(built.CareerArtifactBlockedReason))
+        {
+            return built.CareerArtifactBlockedReasonCode;
         }
 
         return null;

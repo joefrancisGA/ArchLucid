@@ -5,7 +5,6 @@ import { infraEvidenceMermaidMutationBlockedReason } from "@/lib/infra-evidence/
 import { formatInfraEvidenceSealedManifestAwareApiError } from "@/lib/infra-evidence/infra-evidence-sealed-manifest-conflict";
 import {
   ensureOidcBearerReady,
-  getBearerToken,
   isBrowser,
   throwApiRequestError,
 } from "@/lib/api/http";
@@ -77,11 +76,6 @@ export async function downloadInfraEvidenceMermaidPng(
   const url = `${SNAPSHOTS_PATH}/${snapshotId}/mermaid/export.png${buildMermaidQuery(query)}`;
   const headers = new Headers();
   headers.set("Accept", "image/png, application/json");
-  const bearer = getBearerToken();
-
-  if (bearer) {
-    headers.set("Authorization", `Bearer ${bearer}`);
-  }
 
   const init = mergeRegistrationScopeForProxy({
     method: "GET",

@@ -44,6 +44,9 @@ export const CREATE_ARCHITECTURE_PAGE_HEADING_PATTERN = new RegExp(
   "i",
 );
 
+/** `/architecture/architectures` page H2 — {@link ARCHITECTURE_IDENTITY_LIST_PAGE_TITLE}. */
+export const ARCHITECTURES_LIST_PAGE_PRIMARY_HEADING_PATTERN = /^Architectures$/i;
+
 /** `/architecture/reviews/new` page H1 — {@link START_REVIEW_LABEL}. */
 export const START_REVIEW_PAGE_HEADING_PATTERN = new RegExp(
   `^${escapeRegExpLiteral(START_REVIEW_LABEL)}$`,

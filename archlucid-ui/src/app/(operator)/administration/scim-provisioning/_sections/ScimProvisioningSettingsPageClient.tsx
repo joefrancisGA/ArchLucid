@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ScimProvisioningSettingsBuyerChrome } from "@/app/(operator)/administration/scim-provisioning/_sections/ScimProvisioningSettingsBuyerChrome";
+import { AuthBetaReadinessInviteCallout } from "@/app/(operator)/administration/users/_sections/AuthBetaReadinessInviteCallout";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -400,6 +401,8 @@ export function ScimProvisioningSettingsPageClient() {
           claimDisciplineTestId={SCIM_PROVISIONING_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           actions={buyerPolishedShell ? null : <PageContextualHelpButton />}
         />
+
+        <AuthBetaReadinessInviteCallout diagnosticsHref="/administration/identity-providers/diagnostics" />
 
         <div
           id={SCIM_PROVISIONING_SKIP_TARGET_ID}

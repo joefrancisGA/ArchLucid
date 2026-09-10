@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const navAuth = vi.hoisted(() => ({
@@ -90,7 +90,9 @@ vi.mock("next/navigation", () => ({
 
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { SETTINGS_HUB_CLAIM_DISCIPLINE } from "@/lib/settings-hub-evidence-copy";
+import { SETTINGS_HUB_CLAIM_DISCIPLINE, SETTINGS_HUB_FOLLOW_UPS_TITLE, SETTINGS_HUB_SOURCES } from "@/lib/settings-hub-evidence-copy";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 import { SettingsPageView } from "./SettingsPageView";
 import {
@@ -110,7 +112,7 @@ describe("SettingsPageView buyer-polished shell (SET)", () => {
     internalShell.enabled = false;
   });
 
-  it("renders skip link, catalog before orientation, buyer description, and hides contextual help", () => {
+  it("renders skip link, header outside first viewport, catalog before orientation, and hides contextual help", () => {
     render(<SettingsPageView />);
 
     expect(screen.getByRole("link", { name: SETTINGS_MASTER_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -127,12 +129,27 @@ describe("SettingsPageView buyer-polished shell (SET)", () => {
       SETTINGS_HUB_CLAIM_DISCIPLINE,
     );
     expect(screen.queryByTestId("settings-hub-claim-discipline")).toBeNull();
+    expect(screen.getByRole("heading", { level: 2, name: SETTINGS_HUB_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
+    const primaryContent = screen.getByTestId("settings-master-primary-content");
+    const overviewHeader = screen.getByTestId("settings-master-overview-header");
     const firstViewport = screen.getByTestId(SETTINGS_MASTER_FIRST_VIEWPORT_ID);
     const searchField = screen.getByPlaceholderText("Search settings…");
     const orientationBottom = screen.getByTestId("settings-master-orientation-bottom");
+    const sourcesSection = screen.getByTestId("settings-hub-sources");
 
+    expect(primaryContent).toContainElement(overviewHeader);
+    expect(primaryContent).toContainElement(firstViewport);
+    expect(primaryContent).toContainElement(orientationBottom);
     expect(firstViewport).toContainElement(searchField);
+    expect(overviewHeader.compareDocumentPosition(firstViewport) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientationBottom).toContainElement(sourcesSection);
+
+    for (const source of filterWhereToGoNextFollowUpLinks(SETTINGS_HUB_SOURCES)) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
+
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(
       screen.getByRole("heading", { level: 1, name: OPERATOR_NAV_LINK_LABELS.settings }),

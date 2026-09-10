@@ -1,9 +1,9 @@
 import Link from "next/link";
 
+import { HelpReportAProblemDeferredDetailsDisclosure } from "@/app/(operator)/help/_sections/HelpReportAProblemDeferredDetailsDisclosure";
 import { HelpReportAProblemHeaderActions } from "@/app/(operator)/help/_sections/HelpReportAProblemHeaderActions";
 import { HelpReportAProblemSourcesOrientationStrip } from "@/app/(operator)/help/_sections/HelpReportAProblemSourcesOrientationStrip";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
-import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { ReportProblemAuditVocabularyRail } from "@/components/ReportProblemAuditVocabularyRail";
@@ -283,9 +283,9 @@ export function HelpReportAProblemGuideView(
             {REPORT_A_PROBLEM_HELP_OVERVIEW}
           </p>
 
-          <HelpLazyDetails
+          <HelpReportAProblemDeferredDetailsDisclosure
             summary={REPORT_A_PROBLEM_HELP_DEFERRED_DETAILS_SUMMARY}
-            data-testid={REPORT_A_PROBLEM_HELP_DEFERRED_DETAILS_TEST_ID}
+            detailsTestId={REPORT_A_PROBLEM_HELP_DEFERRED_DETAILS_TEST_ID}
             bodyTestId="help-report-a-problem-deferred-body"
             className={cn("rounded-md border border-neutral-200 p-4 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}
             summaryClassName="cursor-pointer font-medium text-al-text-primary"
@@ -298,7 +298,7 @@ export function HelpReportAProblemGuideView(
               sourceDocPath={sourceDocPath}
               helpTopicSlug={entry.slug}
             />
-          </HelpLazyDetails>
+          </HelpReportAProblemDeferredDetailsDisclosure>
 
           <section
             aria-labelledby="help-report-a-problem-related-heading"
@@ -328,11 +328,7 @@ export function HelpReportAProblemGuideView(
           {buyerPolishedShell ? null : <ReportProblemHelpEvidenceOrientationStrip />}
         </div>
 
-        {buyerPolishedShell ? (
-          <div data-testid="help-report-a-problem-orientation-bottom">
-            <HelpReportAProblemSourcesOrientationStrip />
-          </div>
-        ) : null}
+        {buyerPolishedShell ? <HelpReportAProblemSourcesOrientationStrip /> : null}
       </div>
     </article>
   );

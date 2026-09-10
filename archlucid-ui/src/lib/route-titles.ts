@@ -1,12 +1,25 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
+import { INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
+import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 /** Human-readable title for route announcements and accessibility copy. */
 export function getRouteTitle(pathname: string): string {
   const withoutQuery = pathname.split("?")[0] ?? pathname;
+  const withoutHash = withoutQuery.split("#")[0] ?? withoutQuery;
+  const normalized =
+    withoutHash.length > 1 && withoutHash.endsWith("/") ? withoutHash.slice(0, -1) : withoutHash;
+  const canonical = canonicalizeLegacyOperatorRoutePath(normalized);
+  const lookupPath = canonical.split("#")[0] ?? canonical;
+
+  if (lookupPath === INTEGRATIONS_TEAMS_PATH) {
+    return productLineMicrosoftTeamsLabel(resolveProductLineIdFromEnv());
+  }
+
   // Hash-preserving keys (e.g. #workspace-health) must win before stripping the fragment.
   const hashedCanonical = canonicalizeLegacyOperatorRoutePath(withoutQuery);
 
@@ -17,12 +30,6 @@ export function getRouteTitle(pathname: string): string {
   if (ROUTE_TITLES[withoutQuery] !== undefined) {
     return ROUTE_TITLES[withoutQuery];
   }
-
-  const withoutHash = withoutQuery.split("#")[0] ?? withoutQuery;
-  const normalized =
-    withoutHash.length > 1 && withoutHash.endsWith("/") ? withoutHash.slice(0, -1) : withoutHash;
-  const canonical = canonicalizeLegacyOperatorRoutePath(normalized);
-  const lookupPath = canonical.split("#")[0] ?? canonical;
 
   if (ROUTE_TITLES[lookupPath] !== undefined) {
     return ROUTE_TITLES[lookupPath];

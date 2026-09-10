@@ -5,8 +5,8 @@ import { describe, expect, it } from "vitest";
 
 const sectionsDir = join(import.meta.dirname);
 
-/** Buyer-visible governance workflow sections — no CI/CD promote/promotion verbs (TB-510). */
-describe("governance workflow buyer copy (TB-510)", () => {
+/** Buyer-visible approval workflow sections — no CI/CD promote/promotion verbs (TB-510). */
+describe("approval workflow buyer copy (TB-510)", () => {
   const sectionSources = readdirSync(sectionsDir)
     .filter((name) => name.endsWith(".tsx") && !name.includes(".test."))
     .map((name) => readFileSync(join(sectionsDir, name), "utf8"));

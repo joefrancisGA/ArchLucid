@@ -1,0 +1,42 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000036",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000036",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000036-0000-4000-8000-000000000036",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000036",
+    "runId": "20000000-0000-4000-8000-000000000036",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "external-actor-1",
+        "nodeType": "Actor",
+        "label": "anonymous_client",
+        "category": null,
+        "sourceType": "GuidedIntake",
+        "sourceId": "intake-external",
+        "properties": {
+          "kind": "Human",
+          "trustOrigin": "PublicAnonymous"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "intake-human-1",
+        "nodeType": "Actor",
+        "label": "architect",
+        "category": null,
+        "sourceType": "GuidedIntake",
+        "sourceId": "intake-1",
+        "properties": {
+          "kind": "Human",
+          "trustOrigin": "Internal"
+        },
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null
+}

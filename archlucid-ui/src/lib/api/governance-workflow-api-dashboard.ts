@@ -17,7 +17,7 @@ import { apiGet } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
-/** Governance setup guide: effective policy packs and alert routing subscriptions. */
+/** Approval setup guide: effective policy packs and alert routing subscriptions. */
 export async function fetchGovernanceSetupGuideBundle(): Promise<{
   effectivePolicyPacks: EffectivePolicyPackSet;
   alertRoutingSubscriptions: AlertRoutingSubscription[];
@@ -32,7 +32,7 @@ export async function fetchGovernanceSetupGuideBundle(): Promise<{
   }
 }
 
-/** Fetches the governance resolution result (merge decisions, conflicts, effective content). */
+/** Fetches the policy resolution result (merge decisions, conflicts, effective content). */
 export async function getGovernanceResolution(): Promise<EffectiveGovernanceResolutionResult> {
   try {
     return await apiGetSealedManifestAware<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
@@ -44,7 +44,7 @@ export async function getGovernanceResolution(): Promise<EffectiveGovernanceReso
   }
 }
 
-/** Cross-run governance dashboard: pending approvals, recent decisions, tenant policy change log. */
+/** Cross-run approval dashboard: pending approvals, recent decisions, tenant policy change log. */
 export async function getGovernanceDashboard(
   maxPending = 20,
   maxDecisions = 20,
@@ -59,7 +59,7 @@ export async function getGovernanceDashboard(
   return apiGetSealedManifestAware<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
 }
 
-/** Policy pack change activity buckets for the governance dashboard trend chart. */
+/** Policy pack change activity buckets for the approval dashboard trend chart. */
 export async function getComplianceDriftTrend(
   fromUtc: string,
   toUtc: string,

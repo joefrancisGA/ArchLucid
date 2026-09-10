@@ -1,0 +1,128 @@
+[
+  {
+    "findingId": "699398fe-009c-1664-c063-bb9759f253ad",
+    "findingType": "ComplianceFinding",
+    "category": "Compliance",
+    "severity": "Warning",
+    "title": "Compliance gap: Compute resources must be protected by security baseline controls",
+    "rationale": "Every compute resource should be protected by at least one security baseline control.",
+    "relatedNodeIds": [
+      "cmp-golden-62"
+    ],
+    "payloadType": "ComplianceFindingPayload",
+    "rulesApplied": [
+      "compute-must-have-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Detected uncovered resources against compliance rule requirements."
+    ]
+  },
+  {
+    "findingId": "451b886f-2adc-8853-9623-166cd7b5f801",
+    "findingType": "RequirementExpectationFinding",
+    "category": "Requirement",
+    "severity": "Warning",
+    "title": "Workload-conditioned requirement themes are incomplete",
+    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "relatedNodeIds": [
+      "cmp-golden-62"
+    ],
+    "payloadType": "RequirementExpectationFindingPayload",
+    "rulesApplied": [
+      "requirement-expectation-workload-scope"
+    ],
+    "decisionsTaken": [
+      "Compared workload-conditioned requirement themes to themes inferred from requirement nodes."
+    ]
+  },
+  {
+    "findingId": "cb05eb5d-5ff3-f079-b068-b62be3d2a2c5",
+    "findingType": "SecurityBaselineCompletenessFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Workload security baseline control-family coverage is incomplete",
+    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "relatedNodeIds": [
+      "cmp-golden-62"
+    ],
+    "payloadType": "SecurityBaselineCompletenessFindingPayload",
+    "rulesApplied": [
+      "security-baseline-completeness-matrix"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected control families to families inferred from active security baseline nodes."
+    ]
+  },
+  {
+    "findingId": "2bb2cf5c-46de-156e-ddf9-b588207ba7dc",
+    "findingType": "SecurityBaselineExpectationFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Category-scoped security baseline coverage is incomplete",
+    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "relatedNodeIds": [
+      "cmp-golden-62"
+    ],
+    "payloadType": "SecurityBaselineExpectationFindingPayload",
+    "rulesApplied": [
+      "security-baseline-category-expectation"
+    ],
+    "decisionsTaken": [
+      "Compared workload-expected topology categories to categories with protected resources."
+    ]
+  },
+  {
+    "findingId": "2ad4ef80-fd73-d7a8-6e73-5b7d886fc520",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [
+      "billing-api"
+    ],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "2fe59dc0-1031-d556-ac9f-3a7011a299d0",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "relatedNodeIds": [
+      "cmp-golden-62"
+    ],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  },
+  {
+    "findingId": "51985e48-b842-80d2-f26b-254a9ee7f3fa",
+    "findingType": "TopologyGap",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Compute resources lack a network anchor",
+    "rationale": "Compute topology resources exist but no network category resources are present.",
+    "relatedNodeIds": [
+      "cmp-golden-62"
+    ],
+    "payloadType": "TopologyGapFindingPayload",
+    "rulesApplied": [
+      "topology-gap-compute-without-network-anchor"
+    ],
+    "decisionsTaken": [
+      "Detected topology gap: At least one compute resource is declared without any network anchor in the graph."
+    ]
+  }
+]

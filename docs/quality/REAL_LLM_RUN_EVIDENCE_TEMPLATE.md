@@ -16,6 +16,11 @@
 | **Model or deployment id** | If policy allows |
 | **Brief / scenario id** | Internal id or short description (no customer PII) |
 | **Run id** | Authority run GUID |
+| **G-REAL-06 run slot** | Run 1 / Run 2 / Run 2b (overlay) / Run 3 — see [`THREE_REAL_MODE_PROOF_RUNS.md`](../runbooks/THREE_REAL_MODE_PROOF_RUNS.md) |
+| **Policy pack ids (Run 2+)** | e.g. `soc2`, `cis-azure-foundations` — same architecture as Run 1 |
+| **Compare base run id** | Run 1 GUID when Run 2/3 used `-CompareBaseRunId` |
+| **Overlay extras (Run 2b)** | `cost.requireBudgetCap` (FinOps) and/or `expectation.topologyCategories.add=identity` (CIS Azure) — blank if not used |
+| **Finding / gate delta captured?** | Yes / No — link `demo-policy-pack-delta` artifacts or offline packet |
 | **Outcome** | Commit succeeded / blocked / aborted — note |
 | **Quality gate outcome** | pass / accepted / rejected / unresolved |
 | **PilotStrict sponsor-evidence disposition** | `pilot-strict-sponsor-evidence-pass` / `pilot-strict-violates-sponsor-evidence` / `pilot-strict-signals-unresolved` |
@@ -35,6 +40,22 @@
 - [ ] Confirmed PilotStrict sponsor-evidence disposition is passing when the host is configured for PilotStrict.
 - [ ] Confirmed retrieval faithfulness / IR reports meet configured floors when retrieval-backed claims are part of the sponsor story.
 - [ ] Compared to simulator on a similar brief if feasible (optional).
+- [ ] For **Run 2**: recorded policy pack ids and finding/severity/gate delta (or linked offline `demo-policy-pack-delta` packet).
+- [ ] For **Run 2b**: recorded overlay pack and changed finding families (`cost-constraint` or topology `identity`).
+- [ ] G4 log row appended in [`CLAIM_READINESS_STATUS.md#proof-packet-run-log`](../go-to-market/CLAIM_READINESS_STATUS.md#proof-packet-run-log) with Mode = **Real** (owner only — not agent).
+
+## Policy-pack delta (Run 2 / Run 2b)
+
+| Field | Value |
+|-------|--------|
+| **Primary pack id** | |
+| **Secondary / overlay pack id** | |
+| **Declaration priority floor used** | P0 (shipped default) / P1 (declaration comparison) |
+| **Rule-key delta summary** | Brief note or path to `artifacts/policy-pack-delta-demo/` |
+| **Pre-finalize gate delta** | Severity / disposition change vs Run 1 |
+| **Offline packet path** | e.g. `artifacts/policy-pack-delta-demo/offline/finding-delta-offline.md` |
+
+**Scripts:** `.\scripts\demo-policy-pack-delta.ps1 -ShowFindingDelta` (live) · `-OfflineFindingDelta` (no spend) · `python3 scripts/ci/write_policy_pack_finding_delta_offline_packet.py`
 
 ## Green cohort bar (release planning)
 

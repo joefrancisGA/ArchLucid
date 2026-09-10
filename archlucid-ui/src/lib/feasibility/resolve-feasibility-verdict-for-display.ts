@@ -2,6 +2,7 @@ import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 import { feasibilityVerdictKindLabel, feasibilityVerdictTone } from "@/lib/feasibility-verdict-display";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
+import { hasHardInfeasibleCitation } from "@/lib/feasibility/feasibility-verdict-citation";
 
 export type FeasibilityVerdictDisplayResolution = {
   readonly verdict: ManifestFeasibilityVerdict;
@@ -10,18 +11,6 @@ export type FeasibilityVerdictDisplayResolution = {
   readonly missingHardCitationDefect: boolean;
   readonly leadsPackageSurfaces: boolean;
 };
-
-function hasHardInfeasibleCitation(verdict: ManifestFeasibilityVerdict): boolean {
-  const citations = verdict.hardCitations ?? [];
-
-  if (citations.some((citation) => (citation.reference ?? "").trim().length > 0)) {
-    return true;
-  }
-
-  const unsatCore = verdict.unsatCoreInvariantKeys ?? [];
-
-  return unsatCore.some((key) => key.trim().length > 0);
-}
 
 /** UI-safe feasibility verdict presentation — never labels Hard without a citation (ADR 0050). */
 export function resolveFeasibilityVerdictForDisplay(

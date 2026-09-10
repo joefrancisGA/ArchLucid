@@ -1,4 +1,9 @@
 import { getOperation } from "@/lib/api/operations-api";
+import { ApiRequestError } from "@/lib/api-request-error";
+import {
+  advisoryDraftOperationMissingMessage,
+  isAdvisoryDraftOperationMissingError,
+} from "@/lib/operations/advisory-draft-operation-missing";
 import {
   isTerminalOperationState,
   type OperationDetail,
@@ -43,7 +48,22 @@ export async function pollAdvisoryDraftOperationUntilTerminal(
   const pollIntervalMs = options?.pollIntervalMs ?? ADVISORY_DRAFT_OPERATION_POLL_INTERVAL_MS;
 
   while (true) {
-    const operation = await getOperation(operationId);
+    let operation: OperationDetail;
+
+    try {
+      operation = await getOperation(operationId);
+    } catch (error: unknown) {
+      if (isAdvisoryDraftOperationMissingError(error)) {
+        throw new ApiRequestError(advisoryDraftOperationMissingMessage(), {
+          problem: error instanceof ApiRequestError ? error.problem : null,
+          correlationId: error instanceof ApiRequestError ? error.correlationId : null,
+          httpStatus: 404,
+        });
+      }
+
+      throw error;
+    }
+
     options?.onUpdate?.(operation);
 
     if (isTerminalOperationState(operation.state)) {

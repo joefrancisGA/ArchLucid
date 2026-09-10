@@ -58,6 +58,18 @@ describe("AskMessageThreadPanel", () => {
     expect(screen.getByTestId("ask-review-artifact-status")).toHaveTextContent(/finalized architecture review/i);
   });
 
+  it("shows draft review artifact status when the package is not finalized", () => {
+    render(
+      <AskMessageThreadPanel
+        {...baseProps}
+        messages={[]}
+        isFinalizedReview={false}
+      />,
+    );
+
+    expect(screen.getByTestId("ask-review-artifact-status")).toHaveTextContent(/Draft review context/i);
+  });
+
   it("marks uncited assistant output", () => {
     render(
       <AskMessageThreadPanel

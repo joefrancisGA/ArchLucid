@@ -172,7 +172,7 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByText("Not recorded — rule set version missing")).toBeInTheDocument();
   });
 
-  it("hides finalization metadata when execution failed before review completes", () => {
+  it("shows record metadata disclosure when execution failed before review completes", () => {
     render(
       <RunDetailWorkspaceHeader
         runId="run-1"
@@ -189,26 +189,17 @@ describe("RunDetailWorkspaceHeader", () => {
       />,
     );
 
-    expect(screen.queryByTestId("run-detail-record-metadata-disclosure")).not.toBeInTheDocument();
-    expect(screen.queryByText("Finalization metadata (available after review completes)")).toBeNull();
-    expect(screen.queryByText(/fields not recorded/i)).toBeNull();
-    expect(
-      screen.queryByText("Not applicable — review template is recorded when the review finalizes"),
-    ).toBeNull();
-    expect(screen.queryByText("Not applicable — review has not been finalized")).toBeNull();
-    expect(
-      screen.queryByText("Not applicable — package version is recorded when the review finalizes"),
-    ).toBeNull();
-    expect(screen.queryByText("Not applicable — no finalized review record yet")).toBeNull();
-    expect(
-      screen.queryByText("Not applicable — no approval decision until the review is finalized"),
-    ).toBeNull();
+    expect(screen.getByTestId("run-detail-record-metadata-disclosure")).toBeInTheDocument();
+    expect(screen.getByText("Record metadata (pending finalization)")).toBeInTheDocument();
     expect(screen.getByTestId("review-header-share-menu")).toHaveAttribute("data-disabled", "true");
     expect(screen.getByTestId("review-ask-dock")).toHaveAttribute("data-disabled", "true");
     expect(screen.getByTestId("review-header-share-menu")).toHaveAttribute(
       "data-disabled-reason",
       "Unavailable until the review completes. Resolve the execution failure and re-run the review.",
     );
+    expect(screen.getByTestId("review-header-actions-disabled-hint")).toBeInTheDocument();
+    expect(screen.queryByTestId("review-header-share-disabled-hint")).toBeNull();
+    expect(screen.queryByTestId("review-header-ask-disabled-hint")).toBeNull();
   });
 
   it("clamps an oversized h1 title to one line without markdown", () => {

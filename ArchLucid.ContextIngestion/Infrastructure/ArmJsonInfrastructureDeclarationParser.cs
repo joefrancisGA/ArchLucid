@@ -12,6 +12,8 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 public sealed class ArmJsonInfrastructureDeclarationParser(
     ILogger<ArmJsonInfrastructureDeclarationParser> logger) : IInfrastructureDeclarationParser
 {
+    internal const int MaxLinkedTemplateRecursionDepth = 3;
+
     public bool CanParse(string format)
     {
         return string.Equals(format?.Trim(), "arm-json", StringComparison.OrdinalIgnoreCase);
@@ -21,6 +23,14 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
         InfrastructureDeclarationReference declaration,
         CancellationToken ct)
     {
+        return ParseAsync(declaration, batchByPath: null, ct);
+    }
+
+    internal Task<IReadOnlyList<CanonicalObject>> ParseAsync(
+        InfrastructureDeclarationReference declaration,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? batchByPath,
+        CancellationToken ct)
+    {
         _ = ct;
 
         if (string.IsNullOrWhiteSpace(declaration.Content))
@@ -28,17 +38,15 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
 
         try
         {
-            using JsonDocument document = JsonDocument.Parse(declaration.Content);
-            JsonElement root = document.RootElement;
-
-            if (!TryGetPropertyIgnoreCase(root, "resources", out JsonElement resources)
-                || resources.ValueKind is not JsonValueKind.Array)
-                return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
-
             List<CanonicalObject> results = [];
+            HashSet<string> visitedLinkedTemplateKeys = new(StringComparer.OrdinalIgnoreCase);
+            ArmJsonParseState state = new(
+                declaration,
+                batchByPath,
+                LinkedTemplateDepth: 0,
+                visitedLinkedTemplateKeys);
 
-            foreach (JsonElement resource in resources.EnumerateArray())
-                TryAddResource(resource, declaration, results);
+            ParseResourcesFromContent(declaration.Content, state, results);
 
             return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
         }
@@ -54,9 +62,25 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
         }
     }
 
+    private static void ParseResourcesFromContent(
+        string content,
+        ArmJsonParseState state,
+        List<CanonicalObject> results)
+    {
+        using JsonDocument document = JsonDocument.Parse(content);
+        JsonElement root = document.RootElement;
+
+        if (!TryGetPropertyIgnoreCase(root, "resources", out JsonElement resources)
+            || resources.ValueKind is not JsonValueKind.Array)
+            return;
+
+        foreach (JsonElement resource in resources.EnumerateArray())
+            TryAddResource(resource, state, results);
+    }
+
     private static void TryAddResource(
         JsonElement resource,
-        InfrastructureDeclarationReference declaration,
+        ArmJsonParseState state,
         List<CanonicalObject> results)
     {
         if (!TryGetPropertyIgnoreCase(resource, "type", out JsonElement typeElement) || typeElement.ValueKind is not JsonValueKind.String)
@@ -73,7 +97,22 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
                 && deploymentChildren.ValueKind is JsonValueKind.Array)
             {
                 foreach (JsonElement childResource in deploymentChildren.EnumerateArray())
-                    TryAddResource(childResource, declaration, results);
+                    TryAddResource(childResource, state, results);
+            }
+
+            if (TryGetPropertyIgnoreCase(resource, "properties", out JsonElement deploymentProperties)
+                && deploymentProperties.ValueKind is JsonValueKind.Object
+                && TryGetPropertyIgnoreCase(deploymentProperties, "template", out JsonElement template)
+                && template.ValueKind is JsonValueKind.Object
+                && TryGetPropertyIgnoreCase(template, "resources", out JsonElement templateResources)
+                && templateResources.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement templateResource in templateResources.EnumerateArray())
+                    TryAddResource(templateResource, state, results);
+            }
+            else
+            {
+                TryExpandLinkedTemplate(deploymentProperties, state, results);
             }
 
             return;
@@ -98,6 +137,8 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             && resourceProperties.ValueKind is JsonValueKind.Object)
             CopyBoundedProperties(resourceProperties, properties);
 
+        InfrastructureDeclarationSpecialPropertyMapper.Apply(properties, resourceType, name);
+
         string canonicalName = name.ToLowerInvariant();
         string canonicalResourceType = resourceType.ToLowerInvariant();
         string resourceIdentity = InfrastructureDeclarationResourceIdentity.AppendSubtypeRegionDisambiguators(
@@ -107,13 +148,13 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
         results.Add(new CanonicalObject
         {
             ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(
-                declaration.DeclarationId,
+                state.Declaration.DeclarationId,
                 objectType,
                 resourceIdentity),
             ObjectType = objectType,
             Name = canonicalName,
             SourceType = "InfrastructureDeclaration",
-            SourceId = declaration.DeclarationId,
+            SourceId = state.Declaration.DeclarationId,
             Properties = properties
         });
 
@@ -121,8 +162,67 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
             && nestedChildren.ValueKind is JsonValueKind.Array)
         {
             foreach (JsonElement childResource in nestedChildren.EnumerateArray())
-                TryAddResource(childResource, declaration, results);
+                TryAddResource(childResource, state, results);
         }
+    }
+
+    private static void TryExpandLinkedTemplate(
+        JsonElement deploymentProperties,
+        ArmJsonParseState state,
+        List<CanonicalObject> results)
+    {
+        if (state.BatchByPath is null
+            || state.LinkedTemplateDepth >= MaxLinkedTemplateRecursionDepth
+            || !TryGetPropertyIgnoreCase(deploymentProperties, "templateLink", out JsonElement templateLink)
+            || templateLink.ValueKind is not JsonValueKind.Object)
+            return;
+
+        string? templateLinkPath = ReadTemplateLinkPath(templateLink);
+
+        if (string.IsNullOrWhiteSpace(templateLinkPath)
+            || ArmJsonLinkedTemplateBatchIndex.IsRemoteUri(templateLinkPath))
+            return;
+
+        if (!InfrastructureDeclarationBatchPathIndex.TryResolve(
+                templateLinkPath,
+                state.Declaration.Name,
+                state.BatchByPath,
+                out InfrastructureDeclarationReference linkedDeclaration))
+            return;
+
+        string linkedKey = InfrastructureDeclarationBatchPathIndex.NormalizeLookupKey(linkedDeclaration.Name);
+
+        if (!state.VisitedLinkedTemplateKeys.Add(linkedKey))
+            return;
+
+        if (string.IsNullOrWhiteSpace(linkedDeclaration.Content))
+            return;
+
+        ArmJsonParseState linkedState = state.WithLinkedTemplate(
+            linkedDeclaration,
+            state.LinkedTemplateDepth + 1);
+
+        ParseResourcesFromContent(linkedDeclaration.Content, linkedState, results);
+    }
+
+    private static string? ReadTemplateLinkPath(JsonElement templateLink)
+    {
+        if (TryGetPropertyIgnoreCase(templateLink, "relativePath", out JsonElement relativePathElement)
+            && relativePathElement.ValueKind is JsonValueKind.String)
+        {
+            string relativePath = (relativePathElement.GetString() ?? string.Empty).Trim();
+
+            if (!string.IsNullOrWhiteSpace(relativePath))
+                return relativePath;
+        }
+
+        if (TryGetPropertyIgnoreCase(templateLink, "uri", out JsonElement uriElement)
+            && uriElement.ValueKind is JsonValueKind.String)
+        {
+            return (uriElement.GetString() ?? string.Empty).Trim();
+        }
+
+        return null;
     }
 
     private static string ReadName(JsonElement nameElement)
@@ -238,5 +338,23 @@ public sealed class ArmJsonInfrastructureDeclarationParser(
         value = default;
 
         return false;
+    }
+
+    private sealed record ArmJsonParseState(
+        InfrastructureDeclarationReference Declaration,
+        IReadOnlyDictionary<string, InfrastructureDeclarationReference>? BatchByPath,
+        int LinkedTemplateDepth,
+        HashSet<string> VisitedLinkedTemplateKeys)
+    {
+        internal ArmJsonParseState WithLinkedTemplate(
+            InfrastructureDeclarationReference linkedDeclaration,
+            int linkedTemplateDepth)
+        {
+            return new ArmJsonParseState(
+                linkedDeclaration,
+                BatchByPath,
+                linkedTemplateDepth,
+                VisitedLinkedTemplateKeys);
+        }
     }
 }

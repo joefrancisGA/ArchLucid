@@ -19,6 +19,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Findings;
+using ArchLucid.Application.Findings.FindingVerification;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Governance.PolicyPackDryRun.Stages;
 using ArchLucid.Application.Governance.FindingDisposition;
@@ -39,6 +40,7 @@ using ArchLucid.Application.Runs.Enrichment;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Findings.HeldCheck;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Application.Runs.Query.Stages;
 using ArchLucid.Application.Runs.Sample;
@@ -84,6 +86,7 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         // Scoped, not singleton: unlike pure correlation this reads the tenant's finding review trail (TB-2194).
         services.AddScoped<ICrossReviewFindingLifecycleService, CrossReviewFindingLifecycleService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.AddScoped<IFindingSemanticSupportBandLaneBComposeService, FindingSemanticSupportBandLaneBComposeService>();
         services.AddScoped<IFindingReviewTrailAppendService, FindingReviewTrailAppendService>();
         services.AddScoped<IFindingDispositionService, FindingDispositionService>();
         services.AddScoped<IRunOperatorGovernanceDispositionService, RunOperatorGovernanceDispositionService>();
@@ -91,5 +94,10 @@ partial class RunLifecycleOrchestrationCompositionRegistrar
         services.AddScoped<IArchitectureRiskRegisterService, ArchitectureRiskRegisterService>();
         services.AddScoped<IArchitectureDecisionRegisterService, ArchitectureDecisionRegisterService>();
         services.AddScoped<IFindingAnalysisContextBuilder, FindingAnalysisContextBuilder>();
+        services.AddScoped<IHeldCheckSecondPassService, HeldCheckSecondPassService>();
+        services.AddScoped<IFindingVerificationScorer, FindingVerificationDeterministicScorer>();
+        services.AddScoped<IFindingVerificationService, FindingVerificationService>();
+        services.AddScoped<IFindingVerificationReportQueryService, FindingVerificationReportQueryService>();
+        services.AddScoped<IFindingVerificationReportExportApplicationService, FindingVerificationReportExportApplicationService>();
     }
 }

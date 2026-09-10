@@ -55,6 +55,8 @@ type FirstPilotIntakeSessionState = {
   readonly focusedPilotModeEnabled: boolean;
   readonly l0Answers: Readonly<Record<string, string>>;
   readonly l0SkippedQuestionKeys: readonly string[];
+  readonly scopeGateOpen: boolean;
+  readonly scopeBullets: readonly ScopeUnderstandingBullet[];
 };
 
 export type FirstPilotIntakeWizardProps = {
@@ -139,16 +141,31 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       focusedPilotModeEnabled,
       l0Answers,
       l0SkippedQuestionKeys: [...l0SkippedQuestionKeys],
+      scopeGateOpen,
+      scopeBullets,
     }),
-    [briefText, focusedPilotModeEnabled, l0Answers, l0SkippedQuestionKeys, runTitle],
+    [
+      briefText,
+      focusedPilotModeEnabled,
+      l0Answers,
+      l0SkippedQuestionKeys,
+      runTitle,
+      scopeBullets,
+      scopeGateOpen,
+    ],
   );
-  const handleSessionRestore = useCallback((snapshot: { state: FirstPilotIntakeSessionState }) => {
-    setRunTitle(snapshot.state.runTitle);
-    setBriefText(snapshot.state.briefText);
-    setFocusedPilotModeEnabled(snapshot.state.focusedPilotModeEnabled);
-    setL0Answers(snapshot.state.l0Answers);
-    setL0SkippedQuestionKeys(new Set(snapshot.state.l0SkippedQuestionKeys));
-  }, []);
+  const handleSessionRestore = useCallback(
+    (snapshot: { state: FirstPilotIntakeSessionState }) => {
+      setRunTitle(snapshot.state.runTitle);
+      setBriefText(snapshot.state.briefText);
+      setFocusedPilotModeEnabled(snapshot.state.focusedPilotModeEnabled);
+      setL0Answers(snapshot.state.l0Answers);
+      setL0SkippedQuestionKeys(new Set(snapshot.state.l0SkippedQuestionKeys));
+      setScopeBullets([...(snapshot.state.scopeBullets ?? [])]);
+      setScopeGateOpen(snapshot.state.scopeGateOpen === true);
+    },
+    [setScopeGateOpen],
+  );
   const wizardSession = useWizardSessionPersistence({
     wizardId: WIZARD_SESSION_IDS.reviewsNewQuickStart,
     stepIndex: 0,

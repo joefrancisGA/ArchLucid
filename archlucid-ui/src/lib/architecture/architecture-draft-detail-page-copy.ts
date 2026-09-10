@@ -2,6 +2,16 @@
 export const ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE =
   "Drafting workspace — editing or saving does not start a review.";
 
+export const ARCHITECTURE_DRAFT_DETAIL_PRIMARY_CONTENT_ID = "architecture-draft-detail-primary-content" as const;
+
+export const ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_ID = "architecture-draft-detail-first-viewport" as const;
+
+export const ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_TEST_ID = ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_ID;
+
+export const ARCHITECTURE_DRAFT_DETAIL_SKIP_TARGET_ID = ARCHITECTURE_DRAFT_DETAIL_FIRST_VIEWPORT_ID;
+
+export const ARCHITECTURE_DRAFT_DETAIL_SKIP_LINK_LABEL = "Skip to architecture draft workspace" as const;
+
 /** Bold scan label for required refine guidance — pair with {@link ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_BODY}. */
 export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_LABEL = "Required before review" as const;
 
@@ -13,9 +23,13 @@ export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_BODY =
 export const ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_SENTENCE =
   `${ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_LABEL}: ${ARCHITECTURE_DRAFT_REFINE_REQUIRED_BEFORE_REVIEW_BODY}` as const;
 
-/** Buyer-polished draft detail lead — autosave behavior after refine guidance. */
+/** Pre-server-create typing — honest that localStorage is not account-backed (WS-15). */
 export const ARCHITECTURE_DRAFT_AUTOSAVE_LOCAL_ONLY_SENTENCE =
-  "Unsaved typing is kept on this browser until your first save.";
+  "Typing on this browser is not saved to your account until sync succeeds.";
+
+/** After local recovery hydrate, before server create succeeds (WS-15). */
+export const ARCHITECTURE_DRAFT_AUTOSAVE_RECOVERED_LOCALLY_SENTENCE =
+  "Recovered on this browser; not saved to your account until sync succeeds.";
 
 /** After a server draft id exists, typing syncs to the signed-in account. */
 export const ARCHITECTURE_DRAFT_AUTOSAVE_ACCOUNT_SENTENCE =
@@ -27,9 +41,16 @@ export const ARCHITECTURE_DRAFT_AUTOSAVE_ACCOUNT_SENTENCE =
 export const ARCHITECTURE_DRAFT_DETAIL_AUTOSAVE_SENTENCE =
   ARCHITECTURE_DRAFT_AUTOSAVE_LOCAL_ONLY_SENTENCE;
 
-export function resolveArchitectureDraftAutosaveSentence(hasServerDraftId: boolean): string {
+export function resolveArchitectureDraftAutosaveSentence(
+  hasServerDraftId: boolean,
+  recoveredLocally = false,
+): string {
   if (hasServerDraftId) {
     return ARCHITECTURE_DRAFT_AUTOSAVE_ACCOUNT_SENTENCE;
+  }
+
+  if (recoveredLocally) {
+    return ARCHITECTURE_DRAFT_AUTOSAVE_RECOVERED_LOCALLY_SENTENCE;
   }
 
   return ARCHITECTURE_DRAFT_AUTOSAVE_LOCAL_ONLY_SENTENCE;
@@ -58,8 +79,9 @@ export function resolveArchitectureDraftRefineGuidanceSentence(
 export function resolveArchitectureDraftDetailPageSubtitleBuyer(
   reviewReadinessValid: boolean,
   hasServerDraftId = false,
+  recoveredLocally = false,
 ): string {
-  return `${ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE} ${resolveArchitectureDraftRefineGuidanceSentence(reviewReadinessValid)} ${resolveArchitectureDraftAutosaveSentence(hasServerDraftId)}`;
+  return `${ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE} ${resolveArchitectureDraftRefineGuidanceSentence(reviewReadinessValid)} ${resolveArchitectureDraftAutosaveSentence(hasServerDraftId, recoveredLocally)}`;
 }
 
 /** @deprecated Prefer {@link resolveArchitectureDraftDetailPageSubtitleBuyer} for readiness-aware buyer copy. */
@@ -74,9 +96,14 @@ export function architectureDraftDetailPageSubtitle(
   buyerPolishedShell: boolean,
   reviewReadinessValid = false,
   hasServerDraftId = false,
+  recoveredLocally = false,
 ): string {
   if (buyerPolishedShell) {
-    return resolveArchitectureDraftDetailPageSubtitleBuyer(reviewReadinessValid, hasServerDraftId);
+    return resolveArchitectureDraftDetailPageSubtitleBuyer(
+      reviewReadinessValid,
+      hasServerDraftId,
+      recoveredLocally,
+    );
   }
 
   return ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR;

@@ -12,6 +12,8 @@ import {
   REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
   REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT,
   REVIEWS_HUB_SUMMARY_EMPTY_HINT,
+  WORKING_REVIEWS_HUB_PAGE_SUBTITLE,
+  WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY,
 } from "./reviews-hub-copy";
 
 const BANNED_PACKAGE_PHRASES = [
@@ -41,6 +43,11 @@ describe("reviews-hub-copy", () => {
     expect(REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY.toLowerCase()).not.toContain(
       "then start a review when ready",
     );
+  });
+
+  it("AO-26: frames Working inbox copy separately from Guided portfolio language", () => {
+    expect(WORKING_REVIEWS_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("cross-architecture");
+    expect(WORKING_REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("open architectures");
   });
 
   it("avoids retired package terminology in hub copy", () => {

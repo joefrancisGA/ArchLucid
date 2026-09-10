@@ -42,6 +42,11 @@ public sealed class TrialLifecycleTransitionEngine(
         if (tenant.OffboardedUtc is not null)
             return false;
 
+        DateTimeOffset utcNow = _timeProvider.GetUtcNow();
+
+        if (tenant.LegalHoldUntilUtc is { } legalHoldUntil && legalHoldUntil > utcNow)
+            return false;
+
         TrialLifecycleSchedulerOptions options = _lifecycleOptions.CurrentValue;
         if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
         {

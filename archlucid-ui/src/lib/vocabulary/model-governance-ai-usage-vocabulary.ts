@@ -1,8 +1,8 @@
 /**
- * TB-2286 — Model governance ≠ AI usage vocabulary rail.
+ * TB-2286 — Model policy ≠ AI usage vocabulary rail.
  *
  * Why two administration surfaces exist:
- * - AI and model governance (`/administration/model-governance`) sets workspace
+ * - AI and model policy (`/administration/model-governance`) sets workspace
  *   execution profiles and approved model aliases used on reviews.
  * - AI usage (`/administration/ai-usage`) shows *estimated* AI spend, budgets,
  *   and workflow cost drivers for this workspace.
@@ -34,17 +34,17 @@ export type ModelGovernanceAiUsageVocabularyModel = {
 };
 
 export const MODEL_GOVERNANCE_AI_USAGE_HEADING =
-  "Model governance and AI usage stay separate" as const;
+  "Model policy and AI usage stay separate" as const;
 
 export const MODEL_GOVERNANCE_AI_USAGE_WHY_TWO =
-  "AI and model governance sets workspace execution profiles and approved model aliases used on reviews. AI usage shows estimated spend, budgets, and workflow cost drivers. Choosing which profile runs is not reading usage estimates." as const;
+  "AI and model policy sets workspace execution profiles and approved model aliases used on reviews. AI usage shows estimated spend, budgets, and workflow cost drivers. Choosing which profile runs is not reading usage estimates." as const;
 
 export const MODEL_GOVERNANCE_AI_USAGE_COMPACT_LINE =
-  "Model governance sets execution profiles; AI usage shows cost estimates — open the other when you need both." as const;
+  "Model policy sets execution profiles; AI usage shows cost estimates — open the other when you need both." as const;
 
 export const MODEL_GOVERNANCE_AI_USAGE_GOVERNANCE_LINK: ModelGovernanceAiUsageLink = {
   id: "model-governance",
-  label: "AI and model governance",
+  label: "AI and model policy",
   href: MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH,
   whenToUse: "Manage workspace default execution profile and approved model aliases.",
 };
@@ -56,7 +56,7 @@ export const MODEL_GOVERNANCE_AI_USAGE_USAGE_LINK: ModelGovernanceAiUsageLink = 
   whenToUse: "Monitor estimated AI spend and budget utilization for this workspace.",
 };
 
-/** Pairwise model for Model governance ↔ AI usage (fixed routes). */
+/** Pairwise model for Model policy ↔ AI usage (fixed routes). */
 export function buildModelGovernanceAiUsagePairwiseRail(): PairwiseVocabularyRailModel<ModelGovernanceAiUsageSurfaceId> {
   return {
     heading: MODEL_GOVERNANCE_AI_USAGE_HEADING,
