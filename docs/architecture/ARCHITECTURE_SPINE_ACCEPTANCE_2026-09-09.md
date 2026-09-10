@@ -2,13 +2,13 @@
 
 # Architecture-spine wave close audit (AS-100)
 
-> **Date:** 2026-09-09 (wave 22 — AS-001–AS-100)  
+> **Date:** 2026-09-10 (wave 22 — AS-001–AS-100)  
 > **Owner decision:** Diagrams and bound inventory are **review decide inputs** (ADR **0084**); semantic support is a Working **career band** not a sync commit gate (ADR **0085**); Working **Career vs Rehearsal** doors without flipping host `AgentExecution:Mode` (ADR **0086**); optional **RestrictToShares** inside the tenant (ADR **0087**).  
-> **Spine:** [ADR 0084](adrs/0084-architecture-review-inputs-include-diagrams-and-bound-inventory.md) · [ADR 0085](adrs/0085-semantic-support-band-working-career-not-commit-gate.md) · [ADR 0086](adrs/0086-career-vs-rehearsal-doors.md) · [ADR 0087](adrs/0087-architecture-scoped-sharing-restrict-to-shares.md) · [`.cursor/prompts/architecture-spine-00-index.md`](../../.cursor/prompts/architecture-spine-00-index.md) · [ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md](ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md)
+> **Spine:** [ADR 0084](adrs/0084-architecture-review-inputs-include-diagrams-and-bound-inventory.md) · [ADR 0085](adrs/0085-semantic-support-band-working-career-not-commit-gate.md) · [ADR 0086](adrs/0086-career-vs-rehearsal-doors-no-host-mode-flip.md) · [ADR 0087](adrs/0087-architecture-share-acl-inside-tenant.md) · [`.cursor/prompts/architecture-spine-00-index.md`](../../.cursor/prompts/architecture-spine-00-index.md) · [ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md](ARCHITECTURE_SPINE_COMPOSER_PROMPTS.md)
 
 ## Verdict
 
-**Shipped** on this branch for Working production seats, subject to the residuals below. The authority pipeline accepts structured diagrams and optional inventory bind; pixel-only sources are **NotVerifiable** (not silent drops); Working shows semantic support bands; Career vs Rehearsal chrome blocks unlabeled Ready-to-finalize on Rehearsal; RestrictToShares is opt-in with IDOR enforcement; host `AgentExecution:Mode` default remains Simulator; bind wave did not fork a second Azure collector.
+**Shipped** on master (PRs #2799–#2842) for Working production seats, subject to the residuals below. The authority pipeline accepts structured diagrams and optional inventory bind; pixel-only sources are **NotVerifiable** (not silent drops); Working shows semantic support bands; Career vs Rehearsal chrome blocks unlabeled Ready-to-finalize on Rehearsal; RestrictToShares is opt-in with IDOR enforcement via `ArchitectureShareService`; host `AgentExecution:Mode` default remains Simulator; bind wave did not fork a second Azure collector.
 
 This audit does **not** claim the IE collector plane shipped, G-REAL-06 Real-mode default, CPA SOC 2, or third-party pen test.
 
@@ -38,7 +38,7 @@ This audit does **not** claim the IE collector plane shipped, G-REAL-06 Real-mod
 | Inventory bind | AS-046–AS-055 | Yes | SQL migration 378/380; attach API; `ArchitectureSpineAs054` | IE plane collection still separate — bind **consumes** snapshots |
 | Semantic support band | AS-056–AS-075 | Yes | ADR 0085; overlay persist; desk chip; export JSON band; LLM judge default off (AS-074) | PilotStrict hold on Unsupported optional (AS-065) |
 | Career vs Rehearsal | AS-076–AS-085 | Yes | Chooser + help; CLI `--rehearse`; host Mode ratchet | G-REAL-06 remains owner/GTM |
-| Architecture shares | AS-086–AS-099 | Yes | SQL shares; UI panel; IDOR; OpenAPI invariants; help boundary | SCIM groups not share targets (AS-096); no chat/presence |
+| Architecture shares | AS-086–AS-099 | Yes | SQL shares; `ArchitectureShareService`; UI panel; IDOR; OpenAPI invariants; help boundary; AS-094 hub/search share filter (`share-visible-architecture-inventory.ts`) | SCIM groups not share targets (AS-096); no chat/presence |
 | Close | AS-100 | Yes | This file; `architecture-spine-prompt-inventory.test.ts` | See residuals below |
 
 ## Prompt inventory
@@ -68,6 +68,7 @@ All **100** paste-ready files under `.cursor/prompts/architecture-spine-*.md` pl
 - **G-REAL-06** executed or host default moved to Real.
 - **Second tenant** or SQL RLS from architecture shares (help + ratchets AS-097/098).
 - CPA SOC 2 attestation or published third-party pen test.
+- Live presence or finding-comment chat.
 
 ## Verification commands (focused)
 

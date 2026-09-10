@@ -96,6 +96,11 @@ export const LIVELIHOOD_DOCUMENT_GUARD_SURFACES: readonly ErrorRecoveryContractG
     sourceRoots: ["components/governance/use-risk-exceptions-client.ts"],
     requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
   },
+  {
+    id: "architecture-identity-desk-share",
+    sourceRoots: ["components/architecture/ArchitectureIdentityDeskSharePanel.tsx"],
+    requiredMarkers: [LIVELIHOOD_DOCUMENT_GUARD_MARKER],
+  },
 ] as const;
 
 /**

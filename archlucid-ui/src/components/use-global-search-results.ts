@@ -14,6 +14,7 @@ import {
   type GlobalSearchArchitectureDraftHit,
   type GlobalSearchArchitectureIdentityHit,
 } from "@/lib/global-search-architecture-hits";
+import { filterDraftRegistryEntriesByShareVisibility } from "@/lib/architecture/share-visible-architecture-inventory";
 import {
   findReviewDetailSectionSearchMatches,
   type ReviewDetailSectionSearchMatch,
@@ -68,10 +69,20 @@ export function useGlobalSearchResults(
     architecturePackageScoped;
   const { mode } = useWorkspaceMode();
   const workingMode = isWorkingWorkspaceMode(mode);
-  const architectureIdentitiesQuery = useArchitectureIdentitiesListQuery(1, 50, {
+  const architectureIdentitiesQuery = useArchitectureIdentitiesListQuery(1, 200, {
     enabled: workingMode && workspaceScoped,
   });
   const architectureDraftEntries = useArchitectureDraftRegistryEntries();
+  const shareVisibleDraftEntries = useMemo(() => {
+    if (!architectureIdentitiesQuery.isFetched || architectureIdentitiesQuery.data === undefined) {
+      return architectureDraftEntries;
+    }
+
+    return filterDraftRegistryEntriesByShareVisibility(
+      architectureDraftEntries,
+      architectureIdentitiesQuery.data.items,
+    );
+  }, [architectureDraftEntries, architectureIdentitiesQuery.data, architectureIdentitiesQuery.isFetched]);
 
   const fetchResults = useCallback(async (q: string) => {
     const trimmed = q.trim();
@@ -207,13 +218,13 @@ export function useGlobalSearchResults(
     const draftIdToArchitectureId = buildDraftIdToArchitectureIdLookup(visibleIdentities);
 
     return filterGlobalSearchArchitectureDraftHits(
-      architectureDraftEntries,
+      shareVisibleDraftEntries,
       trimmedQuery,
       draftIdToArchitectureId,
       visibleArchitectureIds,
     );
   }, [
-    architectureDraftEntries,
+    shareVisibleDraftEntries,
     architectureIdentitiesQuery.data?.items,
     trimmedQuery,
     workingMode,

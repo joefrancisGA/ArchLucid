@@ -85,7 +85,7 @@ public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFact
         const string sql = """
                            SELECT ArchitectureId, TenantId, WorkspaceId, ScopeProjectId,
                                   DisplayName, Description, CurrentModelId, LatestSealedManifestId,
-                                  CreatedUtc, UpdatedUtc, ArchivedUtc
+                                  CreatedUtc, UpdatedUtc, ArchivedUtc, RestrictToShares
                            FROM dbo.Architectures
                            WHERE ArchitectureId = @ArchitectureId
                              AND TenantId = @TenantId
@@ -344,5 +344,43 @@ public sealed partial class SqlArchitectureIdentityRepository(ISqlConnectionFact
                     ScopeProjectId = scope.ProjectId,
                 },
                 cancellationToken: cancellationToken)).ConfigureAwait(false);
+    }
+
+    public async Task<bool> TrySetRestrictToSharesAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        bool restrictToShares,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           UPDATE dbo.Architectures
+                           SET RestrictToShares = @RestrictToShares,
+                               UpdatedUtc = @UpdatedUtc
+                           WHERE ArchitectureId = @ArchitectureId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId;
+                           """;
+
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        int rows = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ArchitectureId = architectureId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    RestrictToShares = restrictToShares,
+                    UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        return rows > 0;
     }
 }

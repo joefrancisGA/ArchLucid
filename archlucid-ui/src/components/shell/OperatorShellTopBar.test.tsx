@@ -284,6 +284,22 @@ describe("OperatorShellTopBar", () => {
     expect(screen.queryByTestId("operator-shell-demo-workspace-tag")).not.toBeInTheDocument();
   });
 
+  it("hides the Career / Rehearsal chooser in the Security product shell", async () => {
+    productLineMock.value = "security";
+    workspaceModeMock.mode = "working";
+    workspaceModeMock.isWorkingMode = true;
+
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    expect(screen.queryByTestId("working-career-rehearsal-chooser")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("working-career-rehearsal-door-career")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("working-career-rehearsal-door-rehearsal")).not.toBeInTheDocument();
+  });
+
   it("hides the AI budget pill when remaining budget is healthy", async () => {
     fetchBudgetStatus.mockResolvedValue({
       monthlyBudgetMonitoringActive: true,

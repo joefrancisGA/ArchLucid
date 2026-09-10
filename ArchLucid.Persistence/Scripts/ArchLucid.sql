@@ -12203,3 +12203,347 @@ BEGIN
         ON dbo.ArchitectureShares (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId);
 END;
 GO
+/*
+  381: SecureNow architect — security evidence paths and hops (SA-01).
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePaths
+    (
+        PathId                    UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePaths PRIMARY KEY CLUSTERED,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId               UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        PathKind                  INT               NOT NULL,
+        PathConfidenceBand        INT               NOT NULL,
+        CanonicalHopHashSha256    VARBINARY(32)     NOT NULL,
+        WeakestHopOrdinal         INT               NOT NULL,
+        WeakestHopReason          NVARCHAR(512)     NOT NULL,
+        CrownJewelAssertionId     UNIQUEIDENTIFIER NULL,
+        CreatedUtc                DATETIME2         NOT NULL,
+        UpdatedUtc                DATETIME2         NOT NULL,
+        CONSTRAINT FK_SecurityEvidencePaths_Snapshots
+            FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId),
+        CONSTRAINT UQ_SecurityEvidencePaths_Tenant_Snapshot_Hash
+            UNIQUE (TenantId, SnapshotId, CanonicalHopHashSha256)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Snapshot_Kind
+        ON dbo.SecurityEvidencePaths (TenantId, SnapshotId, PathKind);
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Path
+        ON dbo.SecurityEvidencePaths (TenantId, PathId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathHops', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathHops
+    (
+        HopRowId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathHops PRIMARY KEY CLUSTERED,
+        PathId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId            UNIQUEIDENTIFIER NOT NULL,
+        HopOrdinal          INT               NOT NULL,
+        FromNodeId          NVARCHAR(512)     NOT NULL,
+        ToNodeId            NVARCHAR(512)     NOT NULL,
+        EdgeType            NVARCHAR(128)     NOT NULL,
+        ProvenanceKind      INT               NOT NULL,
+        HopConfidenceBand   INT               NOT NULL,
+        InferenceSource     NVARCHAR(128)     NULL,
+        EvidenceReference   NVARCHAR(512)     NOT NULL,
+        CloudResourceId     UNIQUEIDENTIFIER NULL,
+        CONSTRAINT FK_SecurityEvidencePathHops_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId),
+        CONSTRAINT UQ_SecurityEvidencePathHops_Path_Ordinal
+            UNIQUE (TenantId, PathId, HopOrdinal)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathHops_Tenant_Path
+        ON dbo.SecurityEvidencePathHops (TenantId, PathId, HopOrdinal);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NULL
+BEGIN
+    ALTER TABLE dbo.OperationalSecurityFindings
+        ADD PathId UNIQUEIDENTIFIER NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NOT NULL
+   AND OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.foreign_keys
+       WHERE name = N'FK_OperationalSecurityFindings_SecurityEvidencePaths'
+         AND parent_object_id = OBJECT_ID(N'dbo.OperationalSecurityFindings'))
+BEGIN
+    ALTER TABLE dbo.OperationalSecurityFindings
+        ADD CONSTRAINT FK_OperationalSecurityFindings_SecurityEvidencePaths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_OperationalSecurityFindings_Tenant_PathId'
+         AND object_id = OBJECT_ID(N'dbo.OperationalSecurityFindings'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_OperationalSecurityFindings_Tenant_PathId
+        ON dbo.OperationalSecurityFindings (TenantId, PathId)
+        WHERE PathId IS NOT NULL;
+END;
+GO
+
+/*
+  381: SecureNow architect — security evidence paths and hops (SA-01).
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePaths
+    (
+        PathId                    UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePaths PRIMARY KEY CLUSTERED,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId               UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        PathKind                  INT               NOT NULL,
+        PathConfidenceBand        INT               NOT NULL,
+        CanonicalHopHashSha256    VARBINARY(32)     NOT NULL,
+        WeakestHopOrdinal         INT               NOT NULL,
+        WeakestHopReason          NVARCHAR(512)     NOT NULL,
+        CrownJewelAssertionId     UNIQUEIDENTIFIER NULL,
+        CreatedUtc                DATETIME2         NOT NULL,
+        UpdatedUtc                DATETIME2         NOT NULL,
+        CONSTRAINT FK_SecurityEvidencePaths_Snapshots
+            FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId),
+        CONSTRAINT UQ_SecurityEvidencePaths_Tenant_Snapshot_Hash
+            UNIQUE (TenantId, SnapshotId, CanonicalHopHashSha256)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Snapshot_Kind
+        ON dbo.SecurityEvidencePaths (TenantId, SnapshotId, PathKind);
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Path
+        ON dbo.SecurityEvidencePaths (TenantId, PathId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathHops', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathHops
+    (
+        HopRowId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathHops PRIMARY KEY CLUSTERED,
+        PathId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId            UNIQUEIDENTIFIER NOT NULL,
+        HopOrdinal          INT               NOT NULL,
+        FromNodeId          NVARCHAR(512)     NOT NULL,
+        ToNodeId            NVARCHAR(512)     NOT NULL,
+        EdgeType            NVARCHAR(128)     NOT NULL,
+        ProvenanceKind      INT               NOT NULL,
+        HopConfidenceBand   INT               NOT NULL,
+        InferenceSource     NVARCHAR(128)     NULL,
+        EvidenceReference   NVARCHAR(512)     NOT NULL,
+        CloudResourceId     UNIQUEIDENTIFIER NULL,
+        CONSTRAINT FK_SecurityEvidencePathHops_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId),
+        CONSTRAINT UQ_SecurityEvidencePathHops_Path_Ordinal
+            UNIQUE (TenantId, PathId, HopOrdinal)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathHops_Tenant_Path
+        ON dbo.SecurityEvidencePathHops (TenantId, PathId, HopOrdinal);
+END;
+GO
+
+IF COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NULL
+BEGIN
+    ALTER TABLE dbo.OperationalSecurityFindings
+        ADD PathId UNIQUEIDENTIFIER NULL;
+
+    IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
+    BEGIN
+        ALTER TABLE dbo.OperationalSecurityFindings
+            ADD CONSTRAINT FK_OperationalSecurityFindings_SecurityEvidencePaths
+                FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId);
+    END;
+
+    CREATE NONCLUSTERED INDEX IX_OperationalSecurityFindings_Tenant_PathId
+        ON dbo.OperationalSecurityFindings (TenantId, PathId)
+        WHERE PathId IS NOT NULL;
+END;
+GO
+
+/*
+  381: SecureNow architect — security evidence paths and hops (SA-01).
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePaths
+    (
+        PathId                    UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePaths PRIMARY KEY CLUSTERED,
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId               UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId                UNIQUEIDENTIFIER NOT NULL,
+        PathKind                  INT               NOT NULL,
+        PathConfidenceBand        INT               NOT NULL,
+        CanonicalHopHashSha256    VARBINARY(32)     NOT NULL,
+        WeakestHopOrdinal         INT               NOT NULL,
+        WeakestHopReason          NVARCHAR(512)     NOT NULL,
+        CrownJewelAssertionId     UNIQUEIDENTIFIER NULL,
+        CreatedUtc                DATETIME2         NOT NULL,
+        UpdatedUtc                DATETIME2         NOT NULL,
+        CONSTRAINT FK_SecurityEvidencePaths_Snapshots
+            FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId),
+        CONSTRAINT UQ_SecurityEvidencePaths_Tenant_Snapshot_Hash
+            UNIQUE (TenantId, SnapshotId, CanonicalHopHashSha256)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Snapshot_Kind
+        ON dbo.SecurityEvidencePaths (TenantId, SnapshotId, PathKind);
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Path
+        ON dbo.SecurityEvidencePaths (TenantId, PathId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathHops', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathHops
+    (
+        HopRowId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathHops PRIMARY KEY CLUSTERED,
+        PathId              UNIQUEIDENTIFIER NOT NULL,
+        TenantId            UNIQUEIDENTIFIER NOT NULL,
+        HopOrdinal          INT               NOT NULL,
+        FromNodeId          NVARCHAR(512)     NOT NULL,
+        ToNodeId            NVARCHAR(512)     NOT NULL,
+        EdgeType            NVARCHAR(128)     NOT NULL,
+        ProvenanceKind      INT               NOT NULL,
+        HopConfidenceBand   INT               NOT NULL,
+        InferenceSource     NVARCHAR(128)     NULL,
+        EvidenceReference   NVARCHAR(512)     NOT NULL,
+        CloudResourceId     UNIQUEIDENTIFIER NULL,
+        CONSTRAINT FK_SecurityEvidencePathHops_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId),
+        CONSTRAINT UQ_SecurityEvidencePathHops_Path_Ordinal
+            UNIQUE (TenantId, PathId, HopOrdinal)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathHops_Tenant_Path
+        ON dbo.SecurityEvidencePathHops (TenantId, PathId, HopOrdinal);
+END;
+GO
+
+IF COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NULL
+BEGIN
+    ALTER TABLE dbo.OperationalSecurityFindings
+        ADD PathId UNIQUEIDENTIFIER NULL;
+
+    IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
+    BEGIN
+        ALTER TABLE dbo.OperationalSecurityFindings
+            ADD CONSTRAINT FK_OperationalSecurityFindings_SecurityEvidencePaths
+                FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId);
+    END;
+
+    CREATE NONCLUSTERED INDEX IX_OperationalSecurityFindings_Tenant_PathId
+        ON dbo.OperationalSecurityFindings (TenantId, PathId)
+        WHERE PathId IS NOT NULL;
+END;
+GO
+
+/*
+  382: SecureNow architect — path ranking breakdown (SA-09).
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathRankWeights', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathRankWeights
+    (
+        TenantId            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathRankWeights PRIMARY KEY CLUSTERED,
+        WeightsJson         NVARCHAR(MAX)     NOT NULL,
+        UpdatedByActorKey   NVARCHAR(256)     NOT NULL,
+        UpdatedUtc          DATETIME2         NOT NULL
+    );
+END;
+GO
+
+IF OBJECT_ID(N'dbo.SecurityEvidencePathRanks', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathRanks
+    (
+        PathId                      UNIQUEIDENTIFIER NOT NULL,
+        TenantId                    UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId                  UNIQUEIDENTIFIER NOT NULL,
+        RuleVersion                 NVARCHAR(64)      NOT NULL,
+        TechnicalExposureScore      DECIMAL(4, 2)     NOT NULL,
+        PrivilegeDepthScore         DECIMAL(4, 2)     NOT NULL,
+        BlastRadiusScore            DECIMAL(4, 2)     NOT NULL,
+        BusinessConsequenceScore    DECIMAL(4, 2)     NULL,
+        ConfidenceBandScore         DECIMAL(4, 2)     NOT NULL,
+        CompositeSortScore          DECIMAL(6, 3)     NOT NULL,
+        RankOrder                   INT               NOT NULL,
+        ExplanationSummary          NVARCHAR(1024)    NOT NULL,
+        BreakdownJson                 NVARCHAR(MAX)     NOT NULL,
+        ComputedUtc                 DATETIME2         NOT NULL,
+        CONSTRAINT PK_SecurityEvidencePathRanks PRIMARY KEY CLUSTERED (TenantId, PathId),
+        CONSTRAINT FK_SecurityEvidencePathRanks_Paths
+            FOREIGN KEY (PathId) REFERENCES dbo.SecurityEvidencePaths (PathId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathRanks_Tenant_Snapshot_Order
+        ON dbo.SecurityEvidencePathRanks (TenantId, SnapshotId, RankOrder);
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathRanks_Tenant_Snapshot_Composite
+        ON dbo.SecurityEvidencePathRanks (TenantId, SnapshotId, CompositeSortScore DESC, RankOrder);
+END;
+GO
+
+/*
+  383: SecureNow architect — cut-point analysis (SA-10).
+*/
+
+IF OBJECT_ID(N'dbo.SecurityEvidenceCutPoints', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidenceCutPoints
+    (
+        CutPointId              UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidenceCutPoints PRIMARY KEY CLUSTERED,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId              UNIQUEIDENTIFIER NOT NULL,
+        RuleVersion             NVARCHAR(64)      NOT NULL,
+        CutKind                 INT               NOT NULL,
+        CutKey                  NVARCHAR(768)     NOT NULL,
+        FromNodeId              NVARCHAR(512)     NULL,
+        ToNodeId                NVARCHAR(512)     NULL,
+        EdgeType                NVARCHAR(128)     NULL,
+        PathsCollapsedCount     INT               NOT NULL,
+        OperationalCostClass    INT               NOT NULL,
+        LeverageScore           DECIMAL(8, 3)     NOT NULL,
+        CutOrder                INT               NOT NULL,
+        EvidenceReferencesJson  NVARCHAR(MAX)     NOT NULL,
+        CollapsedPathIdsJson    NVARCHAR(MAX)     NOT NULL,
+        SuggestedPatternKey     NVARCHAR(256)     NULL,
+        CloudResourceId         UNIQUEIDENTIFIER NULL,
+        ResourceType            NVARCHAR(256)     NULL,
+        ComputedUtc             DATETIME2         NOT NULL,
+        CONSTRAINT UQ_SecurityEvidenceCutPoints_Tenant_Snapshot_Key
+            UNIQUE (TenantId, SnapshotId, CutKey)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidenceCutPoints_Tenant_Snapshot_Order
+        ON dbo.SecurityEvidenceCutPoints (TenantId, SnapshotId, CutOrder);
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidenceCutPoints_Tenant_Snapshot_Leverage
+        ON dbo.SecurityEvidenceCutPoints (TenantId, SnapshotId, LeverageScore DESC, CutOrder);
+END;
+GO

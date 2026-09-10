@@ -116,7 +116,9 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
 
     // Confirmed scope is merged into the brief by the patch that precedes admission, so it has to be
     // settled before the wizard leaves this step — the draft is immutable once it is admitted.
-    if (!scopeGateOpen) {
+    const scopeConfirmed = scopeGateOpen && scopeBullets.length > 0;
+
+    if (!scopeConfirmed) {
       blockers.push(GUIDED_INTAKE_SCOPE_CONFIRMATION_BLOCKER);
     }
 
@@ -127,6 +129,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
     intentMeetsMinimum,
     isCreateArchitectureFlow,
     outcomeMeetsMinimum,
+    scopeBullets.length,
     scopeGateOpen,
     systemNameMeetsMinimum,
   ]);

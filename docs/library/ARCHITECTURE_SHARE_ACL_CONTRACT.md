@@ -1,6 +1,6 @@
 > **Scope:** Engineering contract for optional **restrict-to-shares** per architecture inside a tenant (architecture-spine AS-086–AS-099 / ADR 0087). **Contributor-reference** — internal only.
 
-> **Spine doc:** [`START_HERE.md`](../START_HERE.md) · **Kernel ADR:** [ADR 0087](../architecture/adrs/0087-architecture-scoped-sharing-restrict-to-shares.md) · **Inventory bind (intersection example):** [`ARCHITECTURE_INVENTORY_BINDING_CONTRACT.md`](ARCHITECTURE_INVENTORY_BINDING_CONTRACT.md)
+> **Spine doc:** [`START_HERE.md`](../START_HERE.md) · **Kernel ADR:** [ADR 0087](../architecture/adrs/0087-architecture-share-acl-inside-tenant.md) · **Inventory bind (intersection example):** [`ARCHITECTURE_INVENTORY_BINDING_CONTRACT.md`](ARCHITECTURE_INVENTORY_BINDING_CONTRACT.md)
 
 # Architecture share ACL contract
 
@@ -24,6 +24,15 @@ Consultancies need a **named user share list** per architecture without a second
 
 Roles are cumulative: **Admin** satisfies **Decide** and **View** minimums; **Decide** satisfies **View**.
 
+When `RestrictToShares = false` (grandfather default, AS-088), every workspace member with ReadAuthority can view the architecture. ExecuteAuthority gates decide actions as today.
+
+---
+
+## Actor keys (AS-096)
+
+- Share rows store `ActorOid` as the Entra user key from `IActorContext.GetActorId()` (`jwt:{tenantId}:{oid}`).
+- SCIM group ids (`group:` / `scim-group:`) are rejected with HTTP 400.
+
 ---
 
 ## Authority intersection (merge-blocking)
@@ -45,7 +54,55 @@ Share gates **add** checks on restricted architectures. They **do not** replace 
 | C | Yes | Decide | ExecuteAuthority | **Yes** — intersection |
 | D | No | *(n/a)* | ExecuteAuthority | **Yes** — grandfather workspace-visible |
 
-Server helper: `ArchitectureShareAccessEvaluator` (AS-090). Enforcement on HTTP handlers uses `IArchitectureShareAccessService` plus existing `[Authorize(Policy = …)]` attributes.
+Server helper: `ArchitectureShareAccessEvaluator` (AS-090). Enforcement on HTTP handlers uses `IArchitectureShareService` plus existing `[Authorize(Policy = …)]` attributes.
+
+---
+
+## Restrict-to-shares (AS-089)
+
+- Opt-in only. Default remains open.
+- Enabling restrict while the share list is empty **auto-inserts the current actor as Admin** so the operator cannot hide the package from everyone including themselves.
+- Operators must set `confirmRestrict = true` when enabling restrict.
+
+---
+
+## Visibility (AS-094 / AS-095)
+
+- Architecture list and get endpoints pass the caller oid into repository filters.
+- Restricted architectures without a matching share row are omitted from list results and return **404** on get (IDOR-safe; no existence leak).
+
+---
+
+## Audit (AS-093)
+
+Required durable audit events:
+
+- `ArchitectureIdentity.ShareGranted`
+- `ArchitectureIdentity.ShareRevoked`
+- `ArchitectureIdentity.RestrictToSharesEnabled`
+- `ArchitectureIdentity.RestrictToSharesDisabled`
+
+Writes use durable retry (`LogOrThrowAsync`) via `ArchitectureShareAuditSupport`.
+
+---
+
+## API surface (AS-099)
+
+| Method | Path | Authority |
+| --- | --- | --- |
+| GET | `/v1/architectures/{architectureId}/shares` | ReadAuthority |
+| PUT | `/v1/architectures/{architectureId}/shares` | ExecuteAuthority |
+| DELETE | `/v1/architectures/{architectureId}/shares/{targetActorOid}` | ExecuteAuthority |
+| PATCH | `/v1/architectures/{architectureId}/restrict-to-shares` | ExecuteAuthority |
+
+---
+
+## Security / scalability / reliability / cost
+
+- **Security:** Application-layer ACL only; tenant scope enforced on every repository query; hidden restricted rows return 404; no SQL RLS (AS-097).
+- **Scalability:** Share list is per architecture (small cardinality); list filter uses indexed `ArchitectureShares(ActorOid)` join.
+- **Reliability:** Restrict enable is fail-closed with auto-admin bootstrap; audit writes use durable retry (`LogOrThrowAsync`).
+- **Cost:** No extra services; one additional join on architecture list when actor filter is supplied.
 
 ---
 
@@ -70,6 +127,7 @@ Server helper: `ArchitectureShareAccessEvaluator` (AS-090). Enforcement on HTTP 
 | AS-090 | Role matrix + evaluator (this contract) |
 | AS-091 | IDOR tests |
 | AS-093 | Required durable audit co-commit |
+| AS-094 | Hub/search share filter |
 | AS-095 | 404 policy for unshared principals (`ArchitectureShareNotVisibleAsNotFoundResponsePolicy`) |
 | AS-096 | Users-only share targets; SCIM groups rejected with 400 |
 | AS-097 | No SQL RLS ratchet (`ArchitectureSpineAs097NoSqlRlsRatchetArchitectureTests`) |

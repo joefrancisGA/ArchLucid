@@ -2,6 +2,7 @@ using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Authority;
+using ArchLucid.Application;
 using ArchLucid.Application.Runs.Query;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Pagination;
@@ -26,34 +27,41 @@ public sealed partial class RunQueryController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(runId, out Guid runGuid))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-
-        IActionResult? shareGuardResult = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
-            this,
-            User,
-            scope,
-            runGuid,
-            cancellationToken);
-
-        if (shareGuardResult is not null)
-            return shareGuardResult;
-
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        RunGraphDetailQueryResult result = await runGraphQueryService.GetRunDetailAsync(runId, cancellationToken);
-
-        return result.Outcome switch
+        try
         {
-            RunGraphQueryOutcome.Success => this.OkWithConditionalEtag(result.Response!, result.Etag!),
-            RunGraphQueryOutcome.ManifestNotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound),
-            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
-        };
+            if (!Guid.TryParse(runId, out Guid runGuid))
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+
+            IActionResult? shareGuardResult = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+                this,
+                User,
+                scope,
+                runGuid,
+                cancellationToken);
+
+            if (shareGuardResult is not null)
+                return shareGuardResult;
+
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            RunGraphDetailQueryResult result = await runGraphQueryService.GetRunDetailAsync(runId, cancellationToken);
+
+            return result.Outcome switch
+            {
+                RunGraphQueryOutcome.Success => this.OkWithConditionalEtag(result.Response!, result.Etag!),
+                RunGraphQueryOutcome.ManifestNotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound),
+                _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Directional analyst-hour estimate for packaging work implied by this run (configured multipliers).</summary>
@@ -65,16 +73,23 @@ public sealed partial class RunQueryController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        RunRoiEstimateQueryResult result = await runGraphQueryService.GetRunRoiEstimateAsync(runId, cancellationToken);
+            RunRoiEstimateQueryResult result = await runGraphQueryService.GetRunRoiEstimateAsync(runId, cancellationToken);
 
-        return result.Outcome == RunGraphQueryOutcome.Success
-            ? Ok(result.Estimate)
-            : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound);
+            return result.Outcome == RunGraphQueryOutcome.Success
+                ? Ok(result.Estimate)
+                : this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Authority pipeline stage start/end outcomes for operator run investigation (TB-250).</summary>
@@ -86,20 +101,27 @@ public sealed partial class RunQueryController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        RunStageTimelineQueryResult result =
-            await runGraphQueryService.GetRunStageTimelineAsync(runId, cancellationToken);
-
-        return result.Outcome switch
+        try
         {
-            RunGraphQueryOutcome.Success => Ok(result.Timeline),
-            RunGraphQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
-            _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
-        };
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            RunStageTimelineQueryResult result =
+                await runGraphQueryService.GetRunStageTimelineAsync(runId, cancellationToken);
+
+            return result.Outcome switch
+            {
+                RunGraphQueryOutcome.Success => Ok(result.Timeline),
+                RunGraphQueryOutcome.BadRequest => this.BadRequestProblem(result.ProblemDetail!, ProblemTypes.ValidationFailed),
+                _ => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound)
+            };
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Aggregates ROI telemetry across all runs in the current scope.</summary>

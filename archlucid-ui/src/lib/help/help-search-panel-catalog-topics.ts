@@ -85,13 +85,6 @@ export const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     action: { kind: "route", href: "/help/career-rehearsal-doors", helpSlug: "career-rehearsal-doors" },
   },
   {
-    id: "architecture-sharing",
-    title: "Architecture sharing",
-    description: "Restrict-to-shares inside one tenant — share roles, grandfather default, not chat or live presence.",
-    keywords: ["architecture share", "restrict to shares", "view decide admin", "tenant", "acl", "identity desk"],
-    action: { kind: "route", href: "/help/architecture-sharing", helpSlug: "architecture-sharing" },
-  },
-  {
     id: "create-first-review",
     title: "Create your first review",
     description: "Start with a brief, diagram, IaC file, or evidence ZIP.",

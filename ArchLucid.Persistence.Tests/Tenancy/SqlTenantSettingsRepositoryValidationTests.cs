@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 
 using ArchLucid.Application.Roi;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
@@ -40,6 +41,80 @@ public sealed class SqlTenantSettingsRepositoryValidationTests
 
         act.Should().Throw<ArgumentException>()
             .WithMessage($"*at most {TenantSettingsSchemaLimits.SettingValueMaxLength}*");
+    }
+
+    [Fact]
+    public void EnsureSettingValueLength_accepts_value_at_exact_migration_nvarchar_512_limit()
+    {
+        string exactLimit = new('v', TenantSettingsSchemaLimits.SettingValueMaxLength);
+
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength(exactLimit);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureSettingValueLength_rejects_whitespace_only_value()
+    {
+        Action act = () => TenantSettingsWriteGuard.EnsureSettingValueLength("   ");
+
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Serialized_allowed_engine_set_with_twelve_aliases_fits_migration_setting_value_limit()
+    {
+        List<string> aliasIds = Enumerable
+            .Range(1, 12)
+            .Select(index => $"managed-azure-openai-alias-{index:D2}")
+            .ToList();
+
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                allowedAliasIds = aliasIds,
+                defaultAliasId = aliasIds[0],
+            });
+
+        json.Length.Should().BeLessThanOrEqualTo(TenantSettingsSchemaLimits.SettingValueMaxLength);
+    }
+
+    [Fact]
+    public void Serialized_allowed_engine_set_with_thirteen_aliases_fits_migration_setting_value_limit()
+    {
+        List<string> aliasIds = Enumerable
+            .Range(1, 13)
+            .Select(index => $"managed-azure-openai-alias-{index:D2}")
+            .ToList();
+
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                allowedAliasIds = aliasIds,
+                defaultAliasId = aliasIds[0],
+            });
+
+        json.Length.Should().BeLessThanOrEqualTo(TenantSettingsSchemaLimits.SettingValueMaxLength);
+    }
+
+    [Fact]
+    public void Serialized_default_catalog_allowed_engine_set_fits_migration_setting_value_limit()
+    {
+        IReadOnlyList<string> aliasIds =
+        [
+            AgentModelAliasIds.EconomyGeneral,
+            AgentModelAliasIds.StandardGeneral,
+            AgentModelAliasIds.PremiumAssurance,
+        ];
+
+        string json = JsonSerializer.Serialize(
+            new
+            {
+                allowedAliasIds = aliasIds,
+                defaultAliasId = AgentModelAliasIds.StandardGeneral,
+            });
+
+        json.Length.Should().BeLessThanOrEqualTo(TenantSettingsSchemaLimits.SettingValueMaxLength);
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
@@ -79,44 +80,51 @@ public sealed partial class FindingInspectController(
         if (findingId.Trim().Length > 64)
             return this.BadRequestProblem("Finding id exceeds maximum length (64).", ProblemTypes.ValidationFailed);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        FindingInspectReadOptions options = includeTypedPayload
-            ? FindingInspectReadOptions.Full
-            : FindingInspectReadOptions.MetadataOnly;
-        FindingInspectResponse? body = await _findingInspectReadRepository.GetInspectAsync(scope, findingId, ct, options);
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            FindingInspectReadOptions options = includeTypedPayload
+                ? FindingInspectReadOptions.Full
+                : FindingInspectReadOptions.MetadataOnly;
+            FindingInspectResponse? body = await _findingInspectReadRepository.GetInspectAsync(scope, findingId, ct, options);
 
-        if (body is null)
-            return this.NotFoundProblem(
-                $"Finding '{findingId.Trim()}' was not found in the current scope.",
-                ProblemTypes.ResourceNotFound);
+            if (body is null)
+                return this.NotFoundProblem(
+                    $"Finding '{findingId.Trim()}' was not found in the current scope.",
+                    ProblemTypes.ResourceNotFound);
 
-        IActionResult? sealedGuardResult =
-            await EnsureFindingInspectSealedManifestReadAllowedAsync(body.RunId, ct);
+            IActionResult? sealedGuardResult =
+                await EnsureFindingInspectSealedManifestReadAllowedAsync(body.RunId, ct);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        await FindingInspectPinnedEvidenceGuard.EnsureInspectEvidenceInventoryBoundOrThrowAsync(
-            body,
-            scope,
-            _authorityQueryService,
-            ct);
-
-        string trimmedFindingId = findingId.Trim();
-
-        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
-            await _runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
-                scope.TenantId,
-                findingsSnapshotId: null,
-                [trimmedFindingId],
+            await FindingInspectPinnedEvidenceGuard.EnsureInspectEvidenceInventoryBoundOrThrowAsync(
+                body,
+                scope,
+                _authorityQueryService,
                 ct);
 
-        trackingByFindingId.TryGetValue(trimmedFindingId, out RunFindingExternalTrackingProjection? tracking);
+            string trimmedFindingId = findingId.Trim();
 
-        return Ok(
-            FindingInspectTrustLabelEnricher.Enrich(
-                body.WithReasoningSummaryFromBuilder(_reasoningSummaryBuilder)
-                    .WithExternalTracking(tracking),
-                _findingTrustLabelMapper));
+            IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
+                await _runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
+                    scope.TenantId,
+                    findingsSnapshotId: null,
+                    [trimmedFindingId],
+                    ct);
+
+            trackingByFindingId.TryGetValue(trimmedFindingId, out RunFindingExternalTrackingProjection? tracking);
+
+            return Ok(
+                FindingInspectTrustLabelEnricher.Enrich(
+                    body.WithReasoningSummaryFromBuilder(_reasoningSummaryBuilder)
+                        .WithExternalTracking(tracking),
+                    _findingTrustLabelMapper));
+        }
+        catch (ConflictException ex)
+        {
+            return MapFindingInspectSealedManifestConflict(ex);
+        }
     }
 }

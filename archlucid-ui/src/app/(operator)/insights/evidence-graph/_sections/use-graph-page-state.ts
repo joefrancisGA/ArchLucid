@@ -179,7 +179,8 @@ export function useGraphPageState(options: UseGraphPageStateOptions = {}) {
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
-      const nextHref = graphRunIdHrefFromSearch(searchParams.toString(), runId, pathname);
+      const effectiveRunId = urlRunId.length === 0 ? "" : runId;
+      const nextHref = graphRunIdHrefFromSearch(searchParams.toString(), effectiveRunId, pathname);
 
       if (`${window.location.pathname}${window.location.search}` !== nextHref) {
         router.replace(nextHref, { scroll: false });
@@ -189,7 +190,7 @@ export function useGraphPageState(options: UseGraphPageStateOptions = {}) {
     return () => {
       window.clearTimeout(handle);
     };
-  }, [pathname, router, runId, searchParams]);
+  }, [pathname, router, runId, searchParams, urlRunId]);
 
   useLayoutEffect(() => {
     setGraph(null);

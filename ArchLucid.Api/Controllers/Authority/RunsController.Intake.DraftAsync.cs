@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Planning.AdvisoryDraft;
@@ -62,15 +63,13 @@ public sealed partial class RunsController
             AdvisoryDraftOperationOutcome.NotFound => this.NotFoundProblem(
                 "Advisory draft operation was not found for this workspace.",
                 ProblemTypes.ResourceNotFound),
-            AdvisoryDraftOperationOutcome.InProgress => this.ConflictProblem(
-                "Structured brief suggestions are still in progress.",
-                ProblemTypes.Conflict),
+            AdvisoryDraftOperationOutcome.InProgress => MapRunsSealedManifestConflict(
+                new ConflictException("Structured brief suggestions are still in progress.")),
             AdvisoryDraftOperationOutcome.Failed => this.UnprocessableEntityProblem(
                 result.ErrorMessage ?? "Structured brief suggestion failed.",
                 ProblemTypes.BusinessRuleViolation),
-            AdvisoryDraftOperationOutcome.Canceled => this.ConflictProblem(
-                "Structured brief suggestion was canceled.",
-                ProblemTypes.Conflict),
+            AdvisoryDraftOperationOutcome.Canceled => MapRunsSealedManifestConflict(
+                new ConflictException("Structured brief suggestion was canceled.")),
             AdvisoryDraftOperationOutcome.ResultUnavailable => this.NotFoundProblem(
                 "Structured brief suggestion result is not available.",
                 ProblemTypes.ResourceNotFound),
