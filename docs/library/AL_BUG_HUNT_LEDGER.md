@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1480,6 +1480,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `GetInspectAsync` accepts null scope or whitespace-only `findingId` — **cheap-disproof 2026-09-10 seed hunt #1645:** repository validates inputs before query; regressions `GetInspectAsync_throws_when_scope_is_null` and `GetInspectAsync_throws_when_finding_id_is_whitespace`.
 
 2026-09-10 seed hunt #1645 (seed-only): reseeded finding-inspect-sql after #1644; extracted shared related-node evidence builder; cheap-disproof closed evidence artifact/line-range contract, load-vs-map whitespace filtering, evidence ordering, governance field passthrough, and inspect input validation; 189 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `GetInspectAsync` defaults `includeTypedPayload` to false when `options` is null — **cheap-disproof 2026-09-10 seed hunt #1646:** `ResolveIncludeTypedPayload` defaults null options to true; regressions `ResolveIncludeTypedPayload_defaults_true_when_options_are_null` and `ResolveIncludeTypedPayload_honors_metadata_only_options`.
+- [x] (valid-no-repro) `LoadMainRowAsync` / `LoadDispositionJoinAsync` pass padded `findingId` values to SQL without trimming — **cheap-disproof 2026-09-10 seed hunt #1646:** both paths bind `NormalizeFindingId(findingId)`; regression `NormalizeFindingId_trims_surrounding_whitespace`.
+- [x] (valid-no-repro) Corrupt `PayloadJson` with title-only metadata falls back to null typed payload — **cheap-disproof 2026-09-10 seed hunt #1646:** corrupt non-empty payload still builds slim metadata when title is present; regression `ResolveTypedPayloadForInspect_falls_back_to_title_only_metadata_when_payload_is_corrupt`.
+- [x] (valid-no-repro) `BuildEvidenceFromRelatedNodes` returns a placeholder evidence row when all related nodes are blank — **cheap-disproof 2026-09-10 seed hunt #1646:** all-blank input yields empty evidence list; regression `BuildEvidenceFromRelatedNodes_returns_empty_when_all_nodes_are_blank`.
+- [x] (valid-no-repro) Disposition pointer subquery omits `c.FindingId = @FindingId` in the WHERE clause — **cheap-disproof 2026-09-10 seed hunt #1646:** pointer lookup filters by scoped finding id; regression `FollowUpBatch_disposition_pointer_where_clause_filters_by_scoped_finding_id`.
+- [x] (valid-no-repro) `GetInspectAsync` accepts empty-string `findingId` — **cheap-disproof 2026-09-10 seed hunt #1646:** whitespace guard rejects empty input; regression `GetInspectAsync_throws_when_finding_id_is_empty`.
+
+2026-09-10 seed hunt #1646 (seed-only): reseeded finding-inspect-sql after #1645; extracted includeTypedPayload and finding-id normalization helpers; cheap-disproof closed default typed-payload routing, SQL finding-id trim binding, title-only corrupt-payload fallback, blank evidence handling, disposition pointer finding-id filter, and empty finding-id validation; 196 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

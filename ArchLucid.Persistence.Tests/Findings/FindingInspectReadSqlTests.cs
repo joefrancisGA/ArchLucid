@@ -627,6 +627,14 @@ public sealed class FindingInspectReadSqlTests
         auditSql.Should().NotContain("FindingRecords");
     }
 
+    [Fact]
+    public void FollowUpBatch_disposition_pointer_where_clause_filters_by_scoped_finding_id()
+    {
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+
+        dispositionSql.Should().Contain("c.FindingId = @FindingId");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

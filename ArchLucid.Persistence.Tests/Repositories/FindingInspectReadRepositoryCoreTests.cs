@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Persistence.Findings;
+using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
 
@@ -672,6 +673,44 @@ public sealed class FindingInspectReadRepositoryCoreTests
     {
         FindingInspectReadRepositoryCore.HasActiveWaiver(0).Should().BeFalse();
         FindingInspectReadRepositoryCore.HasActiveWaiver(-1).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ResolveIncludeTypedPayload_defaults_true_when_options_are_null()
+    {
+        FindingInspectReadRepositoryCore.ResolveIncludeTypedPayload(null).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ResolveIncludeTypedPayload_honors_metadata_only_options()
+    {
+        FindingInspectReadRepositoryCore.ResolveIncludeTypedPayload(FindingInspectReadOptions.MetadataOnly).Should().BeFalse();
+        FindingInspectReadRepositoryCore.ResolveIncludeTypedPayload(FindingInspectReadOptions.Full).Should().BeTrue();
+    }
+
+    [Fact]
+    public void NormalizeFindingId_trims_surrounding_whitespace()
+    {
+        FindingInspectReadRepositoryCore.NormalizeFindingId("  finding-1  ").Should().Be("finding-1");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_falls_back_to_title_only_metadata_when_payload_is_corrupt()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "{ not json",
+            "Encrypt at rest",
+            null);
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
+    [Fact]
+    public void BuildEvidenceFromRelatedNodes_returns_empty_when_all_nodes_are_blank()
+    {
+        FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes(["", "   "]).Should().BeEmpty();
     }
 
     [Fact]

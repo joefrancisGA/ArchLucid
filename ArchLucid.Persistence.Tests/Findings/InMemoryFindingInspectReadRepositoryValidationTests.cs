@@ -37,4 +37,15 @@ public sealed class InMemoryFindingInspectReadRepositoryValidationTests
         exception.ParamName.Should().Be("findingId");
         exception.Message.Should().Contain("Finding id is required.");
     }
+
+    [Fact]
+    public async Task GetInspectAsync_throws_when_finding_id_is_empty()
+    {
+        InMemoryFindingInspectReadRepository repository = new(new Mock<IAuthorityQueryService>().Object);
+        ScopeContext scope = new();
+
+        Func<Task> act = async () => await repository.GetInspectAsync(scope, string.Empty, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
 }

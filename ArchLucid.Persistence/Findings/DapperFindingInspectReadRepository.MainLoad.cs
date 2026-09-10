@@ -23,7 +23,13 @@ public sealed partial class DapperFindingInspectReadRepository
         return await connection.QuerySingleOrDefaultAsync<MainRow>(
             new CommandDefinition(
                 sql,
-                new { FindingId = findingId.Trim(), scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
+                new
+                {
+                    FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(findingId),
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                },
                 cancellationToken: ct));
     }
 }

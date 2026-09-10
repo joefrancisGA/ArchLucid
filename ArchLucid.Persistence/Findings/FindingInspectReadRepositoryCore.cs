@@ -2,11 +2,16 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Persistence.Interfaces;
 
 namespace ArchLucid.Persistence.Findings;
 
 internal static class FindingInspectReadRepositoryCore
 {
+    public static bool ResolveIncludeTypedPayload(FindingInspectReadOptions? options) =>
+        options?.IncludeTypedPayload ?? true;
+
+    public static string NormalizeFindingId(string findingId) => findingId.Trim();
     public static IReadOnlyList<string> FilterNonBlankTrimmedStrings(IEnumerable<string> values) =>
         values
             .Where(static value => !string.IsNullOrWhiteSpace(value))

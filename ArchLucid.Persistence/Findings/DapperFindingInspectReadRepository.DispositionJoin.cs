@@ -58,7 +58,7 @@ public sealed partial class DapperFindingInspectReadRepository
     {
         object queryParams = new
         {
-            FindingId = findingId.Trim(),
+            FindingId = FindingInspectReadRepositoryCore.NormalizeFindingId(findingId),
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
