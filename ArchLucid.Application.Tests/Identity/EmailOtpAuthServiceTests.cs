@@ -1220,6 +1220,84 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task VerifyCodeAsync_returns_accept_invitation_when_user_has_one_membership_and_pending_invite_elsewhere()
+    {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out InMemoryWorkspaceMembershipRepository memberships,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _,
+            new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 },
+            clock);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid existingWorkspaceId = Guid.NewGuid();
+        Guid invitedWorkspaceId = Guid.NewGuid();
+        const string email = "member@example.com";
+
+        EmailOtpChallengeRequestResult bootstrap = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = email },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord bootstrapChallenge =
+            (await challenges.GetByIdAsync(bootstrap.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult bootstrapVerified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = bootstrapChallenge.Id,
+                Code = RecoverCodeForTests(bootstrapChallenge)
+            },
+            CancellationToken.None);
+
+        Guid userId = bootstrapVerified.PlatformUserId!.Value;
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = existingWorkspaceId,
+                Role = "Reader",
+                Status = WorkspaceMembershipStatus.Active
+            },
+            clock.GetUtcNow(),
+            CancellationToken.None);
+
+        await invitations.InsertAsync(
+            tenantId,
+            invitedWorkspaceId,
+            email,
+            ArchLucidRoles.WorkspaceAdmin,
+            "admin",
+            null,
+            EmailOtpInvitationTokenHasher.Hash("unused-token"),
+            clock.GetUtcNow().AddDays(7),
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = email },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest { ChallengeId = challenge.Id, Code = RecoverCodeForTests(challenge) },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(EmailOtpAuthNextStep.AcceptInvitation, verified.NextStep);
+        Assert.Equal(invitedWorkspaceId, verified.WorkspaceId);
+        Assert.Equal(ArchLucidRoles.WorkspaceAdmin, verified.Role);
+    }
+
+    [Fact]
     public async Task VerifyCodeAsync_returns_pending_invitation_app_role_for_accept_invitation_next_step()
     {
         EmailOtpAuthService sut = CreateSut(
