@@ -1,6 +1,9 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiRequestError } from "@/lib/api-request-error";
+import { LIVELIHOOD_PENDING_MUTATION_KINDS } from "@/lib/auth/livelihood-mutation-401-resume-kinds";
 import {
   clearLivelihoodPendingMutation,
   consumeLivelihoodPendingMutationForReturnPath,
@@ -178,6 +181,55 @@ describe("livelihood-mutation-401-resume (LP-19 / LW-051)", () => {
     expect(consumeLivelihoodPendingMutationForReturnPath("/architecture/reviews/run-3")).toBeNull();
     expect(readLivelihoodPendingMutation()).not.toBeNull();
     clearLivelihoodPendingMutation();
+  });
+
+  it("persists architecture_draft_patch with expectedUpdatedUtc on 401 (LW-055)", async () => {
+    const expectedUpdatedUtc = "2026-09-10T15:00:00.000Z";
+    const execute = vi.fn().mockRejectedValue(
+      new ApiRequestError("Unauthorized", {
+        problem: null,
+        correlationId: null,
+        httpStatus: 401,
+      }),
+    );
+
+    await expect(
+      withLivelihood401Resume({
+        kind: "architecture_draft_patch",
+        returnPath: "/architecture/drafts/draft-55",
+        idempotencyKey: "55555555-5555-4555-8555-555555555555",
+        payload: {
+          draftId: "draft-55",
+          body: {
+            freeTextIntent: "Resume after sign-in",
+            expectedUpdatedUtc,
+          },
+        },
+        execute,
+      }),
+    ).rejects.toBeInstanceOf(LivelihoodMutation401RedirectError);
+
+    const pending = readLivelihoodPendingMutation();
+
+    expect(pending?.kind).toBe("architecture_draft_patch");
+    expect(pending?.payload).toMatchObject({
+      draftId: "draft-55",
+      body: {
+        freeTextIntent: "Resume after sign-in",
+        expectedUpdatedUtc,
+      },
+    });
+  });
+
+  it("replay switch covers every livelihood pending mutation kind (LW-054)", () => {
+    const replaySource = readFileSync(
+      join(process.cwd(), "src/lib/auth/livelihood-mutation-401-resume-replay.ts"),
+      "utf8",
+    );
+
+    for (const kind of LIVELIHOOD_PENDING_MUTATION_KINDS) {
+      expect(replaySource).toContain(`case "${kind}"`);
+    }
   });
 
   it("withLivelihood401Resume delegates to executeIdempotentLivelihoodMutation", async () => {

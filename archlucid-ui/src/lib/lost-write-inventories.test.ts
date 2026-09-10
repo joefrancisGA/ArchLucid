@@ -59,29 +59,34 @@ describe("lost-write patch draft client inventory (LW-002)", () => {
   });
 });
 
-describe("lost-write 401 resume inventory (LW-003)", () => {
-  it("keeps LP-19 yes rows and seeds bulk, draft patch, and finalize gaps", () => {
+describe("lost-write 401 resume inventory (LW-003 / LW-054–062)", () => {
+  it("keeps all livelihood pending mutation kinds wrapped for 401 resume", () => {
     const byId = new Map(LOST_WRITE_401_RESUME_KIND_INVENTORY.map((row) => [row.id, row]));
+
+    expect(LOST_WRITE_401_RESUME_KIND_INVENTORY.length).toBe(LOST_WRITE_401_RESUME_YES_KIND_IDS.length);
 
     for (const id of LOST_WRITE_401_RESUME_YES_KIND_IDS) {
       expect(byId.get(id)?.resumeWrapperPresent).toBe("yes");
     }
 
-    expect(byId.get("finding_bulk_disposition")?.resumeWrapperPresent).toBe("no");
-    expect(byId.get("architecture_draft_patch")?.resumeWrapperPresent).toBe("no");
-    expect(byId.get("architecture_review_finalize")?.resumeWrapperPresent).toBe("no");
+    for (const row of LOST_WRITE_401_RESUME_KIND_INVENTORY) {
+      expect(row.resumeWrapperPresent).toBe("yes");
+    }
   });
 
   it("keeps yes-row wrappers in source", () => {
     const disposition = readRepoFile("lib/api/governance-stickiness-api-dispositions.ts");
     const correction = readRepoFile("lib/governance/governance-mutation-correction-api.ts");
     const resumeCore = readRepoFile("lib/auth/livelihood-mutation-401-resume.ts");
+    const wrappers = readRepoFile("lib/auth/livelihood-mutation-401-resume-wrappers.ts");
 
     expect(disposition).toContain("recordFindingDispositionWith401Resume");
     expect(correction).toContain("recordGovernanceMutationCorrectionWith401Resume");
     expect(disposition).toContain("withLivelihood401Resume");
     expect(correction).toContain("withLivelihood401Resume");
     expect(resumeCore).toContain("export async function withLivelihood401Resume");
+    expect(wrappers).toContain("patchDraftRequestWith401Resume");
+    expect(wrappers).toContain("saveItsmConnectorWith401Resume");
   });
 });
 
