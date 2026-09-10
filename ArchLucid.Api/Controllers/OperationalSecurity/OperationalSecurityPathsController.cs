@@ -24,6 +24,7 @@ namespace ArchLucid.Api.Controllers.OperationalSecurity;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class OperationalSecurityPathsController(
     ISecurityEvidencePathInspectorQueryService pathInspectorQueryService,
+    ISecurityEvidencePathRankQueryService pathRankQueryService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
     [HttpGet]
@@ -57,6 +58,62 @@ public sealed class OperationalSecurityPathsController(
             cancellationToken);
 
         return Ok(response);
+    }
+
+    [HttpGet("ranked")]
+    [ProducesResponseType(typeof(SecurityEvidencePathRankedPageResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListRankedPaths(
+        [FromQuery] Guid? snapshotId,
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        if (pageSize > PaginationDefaults.MaxPageSize)
+        {
+            return this.PayloadTooLargeProblem(
+                $"pageSize cannot exceed {PaginationDefaults.MaxPageSize}.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        SecurityEvidencePathRankedPageResponse response = await pathRankQueryService.ListRankedPathsAsync(
+            scope,
+            snapshotId,
+            page,
+            pageSize,
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("{pathId:guid}/rank")]
+    [ProducesResponseType(typeof(SecurityEvidencePathRankDetailResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPathRank(
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        if (pathId == Guid.Empty)
+        {
+            return this.BadRequestProblem("PathId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        SecurityEvidencePathRankDetailResponse? rank = await pathRankQueryService.TryGetPathRankAsync(
+            scope,
+            pathId,
+            cancellationToken);
+
+        if (rank is null)
+        {
+            return this.NotFoundProblem(
+                "Security evidence path rank was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(rank);
     }
 
     [HttpGet("{pathId:guid}")]

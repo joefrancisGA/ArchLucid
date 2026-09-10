@@ -118,6 +118,12 @@ public sealed class SecurityEvidencePathDetailResponse
         get;
         init;
     } = new();
+
+    public IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> RelatedCutPoints
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class SecurityEvidencePathHopResponse

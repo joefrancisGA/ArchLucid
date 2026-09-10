@@ -35,10 +35,15 @@ public sealed class OperationalSecurityPathsControllerTests
             .Setup(service => service.TryGetPathDetailAsync(Scope, pathId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((SecurityEvidencePathDetailResponse?)null);
 
+        Mock<ISecurityEvidencePathRankQueryService> rankQueryService = new();
+
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
 
-        OperationalSecurityPathsController controller = new(queryService.Object, scopeProvider.Object)
+        OperationalSecurityPathsController controller = new(
+            queryService.Object,
+            rankQueryService.Object,
+            scopeProvider.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
@@ -74,10 +79,15 @@ public sealed class OperationalSecurityPathsControllerTests
                 PageSize = 50,
             });
 
+        Mock<ISecurityEvidencePathRankQueryService> rankQueryService = new();
+
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
 
-        OperationalSecurityPathsController controller = new(queryService.Object, scopeProvider.Object)
+        OperationalSecurityPathsController controller = new(
+            queryService.Object,
+            rankQueryService.Object,
+            scopeProvider.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

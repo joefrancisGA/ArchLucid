@@ -277,6 +277,42 @@ public sealed class SqlSecurityEvidencePathRepository(ISqlConnectionFactory conn
         return (items, totalCount);
     }
 
+    public async Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT PathId, TenantId, WorkspaceId, ProjectId, SnapshotId, PathKind, PathConfidenceBand,
+                                  CanonicalHopHashSha256, WeakestHopOrdinal, WeakestHopReason, CrownJewelAssertionId,
+                                  CreatedUtc, UpdatedUtc
+                           FROM dbo.SecurityEvidencePaths
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND SnapshotId = @SnapshotId
+                           ORDER BY CreatedUtc, PathId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<PathRow> rows = await conn.QueryAsync<PathRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    SnapshotId = snapshotId,
+                },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapPath).ToList();
+    }
+
     private static SecurityEvidencePathRecord MapPath(PathRow row) =>
         new()
         {

@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Pagination;
@@ -8,7 +9,8 @@ namespace ArchLucid.Application.InfraEvidence;
 
 public sealed class SecurityEvidencePathInspectorQueryService(
     ISecurityEvidencePathRepository pathRepository,
-    IOperationalSecurityFindingRepository findingRepository) : ISecurityEvidencePathInspectorQueryService
+    IOperationalSecurityFindingRepository findingRepository,
+    ISecurityEvidenceCutPointRepository cutPointRepository) : ISecurityEvidencePathInspectorQueryService
 {
     public async Task<PagedResponse<SecurityEvidencePathSummaryResponse>> ListPathsAsync(
         ScopeContext scope,
@@ -75,6 +77,9 @@ public sealed class SecurityEvidencePathInspectorQueryService(
 
         SecurityEvidencePathHopRecord? weakestHopRecord = hops.FirstOrDefault(hop => hop.HopOrdinal == path.WeakestHopOrdinal);
 
+        IReadOnlyList<SecurityEvidenceCutPointRecord> relatedCutPoints =
+            await cutPointRepository.ListByPathIdAsync(scope.TenantId, pathId, cancellationToken);
+
         return new SecurityEvidencePathDetailResponse
         {
             PathId = path.PathId,
@@ -88,6 +93,9 @@ public sealed class SecurityEvidencePathInspectorQueryService(
             CitingFindingIds = citingFindingIds,
             WeakestHop = weakestHopRecord is null ? null : MapWeakestHop(weakestHopRecord, path.WeakestHopReason),
             ExplanationTemplate = SecurityEvidencePathExplanationTemplateBuilder.Build(path, hops),
+            RelatedCutPoints = relatedCutPoints
+                .Select(SecurityEvidenceCutPointResponseMapper.MapSummary)
+                .ToList(),
         };
     }
 

@@ -33,4 +33,11 @@ public interface ISecurityEvidencePathRepository
         int page,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
 }
