@@ -38,7 +38,7 @@ Owner-facing contract [`../library/SECURENOW_ARCHITECT_PLANE.md`](../library/SEC
 - Treat control-plane capability as observed data flow
 - Apply customer Azure
 
-Coverage-shaped review engines remain held. **SA-22** is the written hold.
+Coverage-shaped review engines remain held. Canonical hold: [`../library/SECURENOW_ARCHITECT_HOLD.md`](../library/SECURENOW_ARCHITECT_HOLD.md) (**SA-22**).
 
 ## Related
 
