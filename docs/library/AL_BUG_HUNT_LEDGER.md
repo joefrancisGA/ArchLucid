@@ -1309,10 +1309,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -1337,6 +1337,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-04 seed hunt #740: reseeded four recurrence-normalization candidates; cheap-disproved all with scoped regressions. No hunt-ready rows; seed-only.
 
 2026-09-09 seed hunt #1469 (seed-only): reseeded review-recurrence after prior normalization hits; cheap-disproof closed batch-preview enabled-flag and duplicate-cursor loop candidates; 17 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
+
+- [x] (valid-no-repro) `ComputeNextRunUtc` / `ComputeNextRunsUtc` — null or invalid cron returns a past instant instead of null — **cheap-disproof 2026-09-10 seed hunt #1567:** wrapper delegates to `SimpleScanScheduleCalculator`, which returns null for null/whitespace/invalid cron; regressions `ComputeNextRunUtc_returns_null_for_null_cron_expression`, `ComputeNextRunUtc_returns_null_for_invalid_cron_expression`, `ComputeNextRunsUtc_returns_empty_for_invalid_cron_expression`.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — leading/trailing whitespace in cron shifts next-run cadence — **cheap-disproof 2026-09-10 seed hunt #1567:** `SimpleScanScheduleCalculator` trims before parse; regression `ComputeNextRunUtc_accepts_padded_cron_expression`.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — single-run path omits `SpecifyUtc` when underlying returns `DateTimeKind.Unspecified` — **cheap-disproof 2026-09-10 seed hunt #1567:** `NormalizeNextRunUtc` stamps UTC on single-run path same as batch preview; regression `ComputeNextRunUtc_stamps_utc_kind_when_underlying_returns_unspecified_kind`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — batch preview loops forever when underlying returns null after first occurrence — **cheap-disproof 2026-09-10 seed hunt #1567:** loop breaks on null `ComputeNextRunUtc`; regression `ComputeNextRunsUtc_stops_when_underlying_returns_null_after_first_occurrence`.
+
+2026-09-10 seed hunt #1567 (seed-only): reseeded review-recurrence after #1469; cheap-disproof closed null/invalid/padded cron, single-run UTC kind, and partial-batch null-stop candidates; 23 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 ---
 
