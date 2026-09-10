@@ -6,10 +6,6 @@ public sealed class FindingUnmuteRequest
     public Guid RunId
     {
         get;
-<<<<<<< HEAD
-        set;
-=======
         init;
->>>>>>> origin/master
     }
 }
