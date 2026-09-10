@@ -54,6 +54,7 @@ public static class InfraEvidenceCompositionModule
         services.AddScoped<IOperationalSecurityFindingIngestService, OperationalSecurityFindingIngestService>();
         services.AddScoped<IPrivilegePathEngine, PrivilegePathEngine>();
         services.AddScoped<IIntendedReachabilityEngine, IntendedReachabilityEngine>();
+        services.AddScoped<IToxicCombinationEngine, ToxicCombinationEngine>();
         services.AddScoped<ISecurityEvidencePathInspectorQueryService, SecurityEvidencePathInspectorQueryService>();
         services.AddScoped<IOperationalSecurityExceptionService, OperationalSecurityExceptionService>();
         services.AddScoped<IRemediationPatternService, RemediationPatternService>();
