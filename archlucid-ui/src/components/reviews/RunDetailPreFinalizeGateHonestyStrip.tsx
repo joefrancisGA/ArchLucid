@@ -62,7 +62,6 @@ export function RunDetailPreFinalizeGateHonestyStrip(
   const unsupportedHoldApplies = shouldApplyUnsupportedSemanticSupportFinalizeHold({
     workingDesk: isWorkingMode,
     manifestFinalized,
-    findings,
     structuralExecutionMode: props.structuralExecutionMode,
     hostQualityGateMode,
     pilotStrictHoldOnUnsupportedSemanticSupport,
