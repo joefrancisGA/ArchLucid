@@ -627,11 +627,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 13
-- **bugs-found:** 11
+- **hunts:** 14
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — set-minus and additional slash-operator homoglyphs evaded `IsSlashHomoglyph`
+- **last-bug:** 2026-09-10 — box-diagonal and ideographic/Arabic dot homoglyphs evaded return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -862,6 +862,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Set-minus and additional slash-operator homoglyphs bypass `IsSlashHomoglyph` — **hit 2026-09-10 seed hunt #1531 (seed→hit):** SET MINUS (`∖`, `%E2%88%96`), REVERSE SOLIDUS WITH TICK (`⧷`, `%E2%A7%B7`), and DOUBLE SOLIDUS OPERATOR (`⫽`, `%E2%AB%BD`) evaded protocol-relative checks; fixed by extending `IsSlashHomoglyph`; regression in `TryNormalize_rejects_more_unicode_slash_homoglyph_protocol_relative_paths`
 
 2026-09-10 seed hunt #1531 (hit): reseeded auth-return-path; proved additional Unicode slash homoglyph bypass; 50 scoped AuthSignInReturnPathGuard tests passed.
+
+- [x] (proven) Box-diagonal and DOUBLE SOLIDUS OPERATOR (U+29FA) slash homoglyphs bypass `IsSlashHomoglyph` — **hit 2026-09-10 seed hunt #1541:** UPPER-LEFT-TO-LOWER-RIGHT diagonal (`╲`, `%E2%95%B2`) and `⧺` (`%E2%A7%BA`) evaded protocol-relative checks; fixed by extending `IsSlashHomoglyph`; regression `TryNormalize_rejects_remaining_unicode_slash_homoglyph_protocol_relative_paths`
+- [x] (proven) Ideographic and Arabic full-stop dot homoglyphs bypass `ContainsDotHomoglyph` — **hit 2026-09-10 seed hunt #1541:** `。` (`%E3%80%82`) and `۔` parent-segment pairs evaded ASCII `..` checks including before `#`; fixed by extending `IsDotHomoglyph`; regression `TryNormalize_rejects_additional_unicode_dot_homoglyph_path_traversal_segments`
+
+2026-09-10 seed hunt #1541 (seed→hit): reseeded auth-return-path after #1531; proved remaining slash and dot homoglyph bypasses; 58 scoped AuthSignInReturnPathGuard tests passed.
 
 ## Zone: tenant-erasure
 
