@@ -119,9 +119,13 @@ public sealed partial class RunDetailPageBundleController
                     new ConflictException(
                         "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
             ScopedRunPairLoadOutcome.LeftLifecycleIncomplete =>
-                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
+                MapRunDetailPageBundlePriorCompareSealedManifestBlockedReason(
+                    new ConflictException(
+                        $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
             ScopedRunPairLoadOutcome.RightLifecycleIncomplete =>
-                $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
+                MapRunDetailPageBundlePriorCompareSealedManifestBlockedReason(
+                    new ConflictException(
+                        $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
             _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
         };
 

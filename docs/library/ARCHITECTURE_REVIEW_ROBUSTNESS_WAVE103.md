@@ -23,4 +23,4 @@ Guard tests: `ArchLucid.Architecture.Tests/ArchitectureReviewRobustnessWave103Ar
 
 **Hasher baseline note:** wave 103 does not bump Hasher A schema version; export gates, compare fingerprints, and finding read/write sync remain on the existing **`v12`** baseline (`tests/manifest-hash/hasher-baseline-v12.json`).
 
-**Deferred:** workspace prior-compare lifecycle-incomplete blocked reasons (left/right) — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE104.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE104.md) (1233–1244).
+**Deferred:** none — see [`ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE104.md`](ARCHITECTURE_REVIEW_ROBUSTNESS_WAVE104.md) (1233–1244) when opened; workspace prior-compare lifecycle-incomplete blocked reasons shipped in wave 104 (1233–1234).

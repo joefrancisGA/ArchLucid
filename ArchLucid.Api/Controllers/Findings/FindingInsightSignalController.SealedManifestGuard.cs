@@ -9,15 +9,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Controllers.Findings;
 
-public sealed partial class FindingVerificationController
+public sealed partial class FindingInsightSignalController
 {
     private readonly IAuthorityQueryService _authorityQueryService =
-        authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
+        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
-    private async Task<IActionResult?> EnsureFindingVerificationRunSealedManifestAllowedAsync(
+    private async Task<IActionResult?> EnsureFindingInsightSignalRunSealedManifestAllowedAsync(
         Guid runId,
         CancellationToken cancellationToken)
     {
@@ -37,15 +37,15 @@ public sealed partial class FindingVerificationController
         }
         catch (ConflictException ex)
         {
-            return MapFindingVerificationSealedManifestConflict(ex);
+            return MapFindingInsightSignalSealedManifestConflict(ex);
         }
 
         return null;
     }
 
     /// <summary>
-    ///     Maps finding verification mutation <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
+    ///     Maps finding insight signal POST <see cref="ConflictException" /> raised via sealed-manifest guards to OpenAPI **409**.
     /// </summary>
-    private IActionResult MapFindingVerificationSealedManifestConflict(ConflictException ex) =>
+    private IActionResult MapFindingInsightSignalSealedManifestConflict(ConflictException ex) =>
         this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
 }

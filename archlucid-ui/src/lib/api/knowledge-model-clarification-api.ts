@@ -1,3 +1,7 @@
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { clarificationAnswersMutationBlockedReason } from "@/lib/runs/clarification-answers-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiPostJson } from "@/lib/api";
 
 export type ApplyKnowledgeModelClarificationAnswersResponse = {
@@ -12,8 +16,15 @@ export async function applyKnowledgeModelClarificationAnswers(
   runId: string,
   answers: Record<string, string>,
 ): Promise<ApplyKnowledgeModelClarificationAnswersResponse> {
-  return apiPostJson<ApplyKnowledgeModelClarificationAnswersResponse>(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/knowledge-model/clarification-answers`,
-    { answers },
-  );
+  try {
+    return await apiPostJson<ApplyKnowledgeModelClarificationAnswersResponse>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/knowledge-model/clarification-answers`,
+      { answers },
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = clarificationAnswersMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

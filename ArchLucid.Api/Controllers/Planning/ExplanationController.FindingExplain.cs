@@ -27,35 +27,42 @@ public sealed partial class ExplanationController
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
 
-        ScopeContext scope = scopeProvider.GetCurrentScope();
-        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
 
-        if (detail?.GoldenManifest is null)
-            return this.NotFoundProblem(
-                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
-                ProblemTypes.RunNotFound);
+            if (detail?.GoldenManifest is null)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                    ProblemTypes.RunNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        if (detail.FindingsSnapshot?.Findings is not { Count: > 0 } list)
-            return this.NotFoundProblem(
-                $"Run '{runId}' has no findings snapshot in the current scope.",
-                ProblemTypes.RunNotFound);
+            if (detail.FindingsSnapshot?.Findings is not { Count: > 0 } list)
+                return this.NotFoundProblem(
+                    $"Run '{runId}' has no findings snapshot in the current scope.",
+                    ProblemTypes.RunNotFound);
 
-        Finding? match = list.FirstOrDefault(f =>
-            string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
+            Finding? match = list.FirstOrDefault(f =>
+                string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
 
-        if (match is null)
-            return this.NotFoundProblem(
-                $"Finding '{findingId}' was not found on run '{runId}'.",
-                ProblemTypes.ResourceNotFound);
+            if (match is null)
+                return this.NotFoundProblem(
+                    $"Finding '{findingId}' was not found on run '{runId}'.",
+                    ProblemTypes.ResourceNotFound);
 
-        FindingExplainabilityResult body = findingExplainabilityComposer.Compose(match);
+            FindingExplainabilityResult body = findingExplainabilityComposer.Compose(match);
 
-        return Ok(body);
+            return Ok(body);
+        }
+        catch (ConflictException ex)
+        {
+            return MapExplanationSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
