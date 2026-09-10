@@ -25,23 +25,23 @@ import { ExtractUploadSettingsBreadcrumb } from "./ExtractUploadSettingsBreadcru
 
 export type ExtractUploadSettingsPageHeaderProps = {
   readonly baselineLoading: boolean;
-  readonly hasBaselineArtifacts: boolean | null;
+  readonly hasInventoryOnFile: boolean | null;
   readonly extractorScriptVersion: string | null;
 };
 
 function inventoryStatusPresentation(
   baselineLoading: boolean,
-  hasBaselineArtifacts: boolean | null,
+  hasInventoryOnFile: boolean | null,
 ): { kind: EnterpriseStatusKind; label: string } | null {
-  if (baselineLoading) {
+  if (baselineLoading && hasInventoryOnFile !== true) {
     return { kind: "in-progress", label: EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL };
   }
 
-  if (hasBaselineArtifacts === true) {
+  if (hasInventoryOnFile === true) {
     return { kind: "ready", label: EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL };
   }
 
-  if (hasBaselineArtifacts === false) {
+  if (hasInventoryOnFile === false) {
     return { kind: "needs-attention", label: EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL };
   }
 
@@ -52,7 +52,7 @@ export function ExtractUploadSettingsPageHeader(
   props: ExtractUploadSettingsPageHeaderProps,
 ): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasBaselineArtifacts);
+  const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasInventoryOnFile);
 
   return (
     <OperatorPageHeader

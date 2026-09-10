@@ -5,6 +5,8 @@ import { useState } from "react";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 export function useExtractUploadUpload(associateRunId?: string | null) {
   const [busy, setBusy] = useState(false);
@@ -52,7 +54,14 @@ export function useExtractUploadUpload(associateRunId?: string | null) {
 
       try {
         const payload = JSON.parse(bodyText) as { packageId?: string };
-        setPackageId(payload.packageId ?? null);
+        const acceptedPackageId = payload.packageId ?? null;
+        setPackageId(acceptedPackageId);
+
+        if (acceptedPackageId !== null) {
+          void getOperatorQueryClient().invalidateQueries({
+            queryKey: operatorQueryKeys.extractUploadBaselineArtifacts,
+          });
+        }
       } catch {
         setPackageId(null);
       }
