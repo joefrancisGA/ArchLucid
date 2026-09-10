@@ -79,7 +79,39 @@ describe("settings-master-catalog (TB-1198)", () => {
       href: "/administration/extract-upload",
       requiredAuthority: "ExecuteAuthority",
       tier: "common",
+      title: "Extract & upload",
     });
+  });
+
+  it("publishes health and access destinations for system health, API keys, and connection status", () => {
+    const destinations = SETTINGS_MASTER_SECTIONS.flatMap((section) => section.destinations);
+
+    expect(destinations.find((entry) => entry.id === "system-health")).toMatchObject({
+      href: "/administration/system-health",
+    });
+    expect(destinations.find((entry) => entry.id === "api-keys")).toMatchObject({
+      href: "/administration/api-keys",
+    });
+    expect(destinations.find((entry) => entry.id === "connection-status")).toMatchObject({
+      href: "/administration/connection-status",
+    });
+  });
+
+  it("uses distinct Jira and ServiceNow descriptions", () => {
+    const destinations = SETTINGS_MASTER_SECTIONS.flatMap((section) => section.destinations);
+    const jira = destinations.find((entry) => entry.id === "itsm-jira");
+    const servicenow = destinations.find((entry) => entry.id === "itsm-servicenow");
+
+    expect(jira?.description).toContain("Jira");
+    expect(servicenow?.description).toContain("ServiceNow");
+    expect(jira?.description).not.toBe(servicenow?.description);
+  });
+
+  it("marks at most one third of hub destinations as high impact", () => {
+    const destinations = SETTINGS_MASTER_SECTIONS.flatMap((section) => section.destinations);
+    const highImpactCount = destinations.filter((destination) => destination.highImpact === true).length;
+
+    expect(highImpactCount).toBeLessThanOrEqual(Math.ceil(destinations.length / 3));
   });
 
 });

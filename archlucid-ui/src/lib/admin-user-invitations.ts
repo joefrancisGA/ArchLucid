@@ -21,7 +21,32 @@ export type AdminUserInvitationRow = {
 
 export type SendAdminUserInvitationResult =
   | { ok: true; invitation: AdminUserInvitationRow }
-  | { ok: false; reason: "http_error" | "network_error" | "invalid_response" };
+  | {
+      ok: false;
+      reason: "http_error" | "network_error" | "invalid_response" | "directory_user_exists";
+      detail?: string;
+    };
+
+function parseProblemDetail(json: unknown): string | undefined {
+  if (json === null || typeof json !== "object") {
+    return undefined;
+  }
+
+  const record = json as Record<string, unknown>;
+  const detail = record.detail;
+
+  if (typeof detail === "string" && detail.trim().length > 0) {
+    return detail.trim();
+  }
+
+  const title = record.title;
+
+  if (typeof title === "string" && title.trim().length > 0) {
+    return title.trim();
+  }
+
+  return undefined;
+}
 
 export function parseAdminUserInvitation(json: unknown): AdminUserInvitationRow | null {
   if (json === null || typeof json !== "object") {
@@ -94,6 +119,16 @@ export async function sendAdminUserInvitation(
     );
 
     if (!res.ok) {
+      if (res.status === 409) {
+        const json: unknown = await res.json().catch(() => null);
+
+        return {
+          ok: false,
+          reason: "directory_user_exists",
+          detail: parseProblemDetail(json),
+        };
+      }
+
       return { ok: false, reason: "http_error" };
     }
 

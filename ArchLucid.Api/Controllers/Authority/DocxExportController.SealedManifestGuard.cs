@@ -39,6 +39,7 @@ public sealed partial class DocxExportController
         catch (ConflictException ex)
         {
             return MapDocxExportSealedManifestConflict(ex);
+
         }
 
         return null;
@@ -67,6 +68,7 @@ public sealed partial class DocxExportController
         catch (ConflictException ex)
         {
             return MapDocxExportSealedManifestConflict(ex);
+
         }
 
         return null;

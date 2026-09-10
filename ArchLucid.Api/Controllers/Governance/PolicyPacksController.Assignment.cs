@@ -67,6 +67,7 @@ public sealed partial class PolicyPacksController
         catch (ConflictException ex)
         {
             return MapPolicyPackSealedManifestConflict(ex);
+
         }
 
         return this.MapAssign(result);
@@ -101,6 +102,7 @@ public sealed partial class PolicyPacksController
         catch (ConflictException ex)
         {
             return MapPolicyPackSealedManifestConflict(ex);
+
         }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
@@ -164,6 +166,7 @@ public sealed partial class PolicyPacksController
         catch (ConflictException ex)
         {
             return MapPolicyPackSealedManifestConflict(ex);
+
         }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
@@ -178,12 +181,20 @@ public sealed partial class PolicyPacksController
                 $"Assignment '{assignmentId}' was not found or cannot be enabled in the current scope.");
         }
 
+        if (result.Outcome == PolicyPackHttpOutcome.Conflict)
+        {
+            return this.ConflictProblem(
+                result.Message
+                    ?? "Organization-required policy pack assignments cannot be disabled.",
+                ProblemTypes.Conflict);
+        }
+
         return NoContent();
     }
 
     /// <summary>Marks or clears organization-required lock on one policy pack assignment for the current scope.</summary>
     [HttpPut("assignments/{assignmentId:guid}/organization-required")]
-    [Authorize(Policy = ArchLucidPolicies.PolicyPackMutationAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [MutatingAuditExcluded("Audit: IPolicyPackHttpFacade.SetAssignmentOrganizationRequiredAsync logs PolicyPackAssignmentOrganizationRequiredChanged.")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -219,6 +230,7 @@ public sealed partial class PolicyPacksController
         catch (ConflictException ex)
         {
             return MapPolicyPackSealedManifestConflict(ex);
+
         }
 
         IActionResult? scopeProblem = this.MapScopeOrNull(result);
@@ -231,6 +243,14 @@ public sealed partial class PolicyPacksController
             return this.MapResourceNotFound(
                 result,
                 $"Assignment '{assignmentId}' was not found or cannot be updated in the current scope.");
+        }
+
+        if (result.Outcome == PolicyPackHttpOutcome.Conflict)
+        {
+            return this.ConflictProblem(
+                result.Message
+                    ?? "Organization-required policy pack assignments cannot be set while the platform pack is inactive.",
+                ProblemTypes.Conflict);
         }
 
         return NoContent();

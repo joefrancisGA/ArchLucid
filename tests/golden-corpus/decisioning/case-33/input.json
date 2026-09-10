@@ -17,7 +17,9 @@
         "sourceId": null,
         "properties": {
           "tf.public_network_access": "enabled",
-          "httpsOnly": "false"
+          "httpsOnly": "false",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000033/resourceGroups/rg-golden/providers/Microsoft.Web/sites/api",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000033/resourceGroups/rg-golden/providers/Microsoft.Web/sites/api"
         }
       }
     ],

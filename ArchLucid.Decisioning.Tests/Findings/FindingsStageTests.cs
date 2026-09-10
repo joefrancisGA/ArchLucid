@@ -98,7 +98,8 @@ public sealed class FindingsMergeAndGateStageTests
 
         FindingsMergeAndGateStage stage = new(
             Options.Create(new HumanReviewFindingOptions()),
-            DeterministicInsightDensityGate.CreateDefault());
+            Options.Create(new InsightDensityGateOptions()),
+            new FindingProvenanceValidator());
 
         await stage.ExecuteAsync(context, CancellationToken.None);
 
@@ -126,7 +127,8 @@ public sealed class FindingsMergeAndGateStageTests
 
         FindingsMergeAndGateStage stage = new(
             Options.Create(new HumanReviewFindingOptions()),
-            DeterministicInsightDensityGate.CreateDefault());
+            Options.Create(new InsightDensityGateOptions()),
+            new FindingProvenanceValidator());
 
         await stage.ExecuteAsync(context, CancellationToken.None);
 
@@ -137,6 +139,54 @@ public sealed class FindingsMergeAndGateStageTests
             .Should()
             .Contain(message => message.Contains("security-baseline", StringComparison.Ordinal))
             .And.Contain(message => message.Contains("declaration-security-baseline", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_scores_semantic_support_band_for_decision_grade_with_citations()
+    {
+        const string nsgArmId =
+            "/subscriptions/00000000-0000-4000-8000-000000000001/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/edge-nsg";
+
+        Finding finding = new()
+        {
+            FindingId = "f-unsupported",
+            FindingType = "IdentityBlastRadiusFinding",
+            Category = "Security",
+            EngineType = "identity-blast-radius",
+            Title = "Machine actor reaches sensitive datastore",
+            Rationale =
+                "PostgreSQL firewall rules allow unrestricted storage account access from the public internet.",
+            Severity = FindingSeverity.Error,
+            Classification = FindingClassification.DecisionGradeFinding,
+            RelatedNodeIds = ["sql-pay-prod"],
+            EvidenceRefs = [nsgArmId],
+            Trace = new ExplainabilityTrace
+            {
+                RulesApplied = ["identity-blast-radius"],
+                Notes = ["evidence:graph-node:sql-pay-prod"],
+            },
+        };
+
+        FindingsStageContext context = new()
+        {
+            RunId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshot = new GraphSnapshot { GraphSnapshotId = Guid.NewGuid() },
+        };
+        context.AllFindings.Add(finding);
+        context.SuccessfulEngineInvocations = 1;
+        context.SuccessfulEngineTypes.Add("identity-blast-radius");
+
+        FindingsMergeAndGateStage stage = new(
+            Options.Create(new HumanReviewFindingOptions()),
+            Options.Create(new InsightDensityGateOptions()),
+            new FindingProvenanceValidator());
+
+        await stage.ExecuteAsync(context, CancellationToken.None);
+
+        Finding emitted = context.Snapshot!.Findings.Should().ContainSingle().Subject;
+        emitted.Classification.Should().Be(FindingClassification.DecisionGradeFinding);
+        emitted.SemanticSupportBand.Should().Be(FindingSemanticSupportBand.Unsupported);
     }
 }
 

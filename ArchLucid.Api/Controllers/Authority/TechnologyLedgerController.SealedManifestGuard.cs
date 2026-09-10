@@ -35,6 +35,7 @@ public sealed partial class TechnologyLedgerController
         catch (ConflictException ex)
         {
             return MapTechnologyLedgerSealedManifestConflict(ex);
+
         }
 
         return null;

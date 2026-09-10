@@ -23,7 +23,7 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 }));
 
 import { HelpConnectAzureSecurelyGuideView } from "@/app/(operator)/help/_sections/HelpConnectAzureSecurelyGuideView";
-import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 import {
   CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE,
   CONNECT_AZURE_SECURELY_CONFIGURE_ACTION,
@@ -83,9 +83,7 @@ describe("HelpConnectAzureSecurelyGuideView buyer-polished shell (HC)", () => {
       CONNECT_AZURE_SECURELY_CONNECTION_STATUS_HREF,
     );
 
-    for (const source of CONNECT_AZURE_SECURELY_SOURCES) {
-      expectFollowUpLink(within(sourcesSection), source);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), CONNECT_AZURE_SECURELY_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

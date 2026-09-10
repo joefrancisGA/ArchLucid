@@ -4,6 +4,9 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   EVIDENCE_TRAIL_SEARCH,
   GLOBAL_FIND_PAGE_SEARCH,
+  evidenceTrailSearchQuickActionLabel,
+  askReviewQuestionsQuickActionLabel,
+  askReviewQuestionsQuickActionDetail,
 } from "@/lib/search-surface-disambiguation";
 import {
   GLOBAL_SEARCH_ARIA_LABEL,
@@ -51,5 +54,20 @@ describe("search-surface-disambiguation (TB-2196)", () => {
 
   it("keeps nav label parity with OPERATOR_NAV_LINK_LABELS.searchEvidence", () => {
     expect(OPERATOR_NAV_LINK_LABELS.searchEvidence).toBe(EVIDENCE_TRAIL_SEARCH.title);
+  });
+
+  it("uses Search evidence in SecureNow global search quick actions", () => {
+    expect(evidenceTrailSearchQuickActionLabel("security")).toBe("Search evidence");
+    expect(evidenceTrailSearchQuickActionLabel("architecture")).toBe("Search review evidence");
+  });
+
+  it("uses Ask questions in SecureNow global search quick actions", () => {
+    expect(askReviewQuestionsQuickActionLabel("security")).toBe("Ask questions");
+    expect(askReviewQuestionsQuickActionLabel("architecture")).toBe("Ask review questions");
+  });
+
+  it("uses Scoped Q&A helper copy in SecureNow global search quick actions", () => {
+    expect(askReviewQuestionsQuickActionDetail("security")).toBe("Scoped Q&A");
+    expect(askReviewQuestionsQuickActionDetail("architecture")).toBe("Scoped Q&A over review evidence");
   });
 });

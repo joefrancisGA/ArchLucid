@@ -49,7 +49,7 @@ export const RISK_REGISTER_QUICK_FILTERS: readonly RiskRegisterFilter[] = [
 
 const WAIVER_EXPIRING_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
-/** Reads an optional product-run scope from governance findings / advisory deep links. */
+/** Reads an optional product-run scope from policy findings / advisory deep links. */
 export function scopedRunIdFromQuery(raw: string | null | undefined): string | null {
   const trimmed = raw?.trim() ?? "";
 

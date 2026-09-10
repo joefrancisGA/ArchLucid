@@ -14,7 +14,7 @@ exports[`ArchitectureNarrativeMarkdownView > renders headings, paragraphs, lists
         id="sponsor-report"
       >
         <span>
-          Sponsor summary
+          Sponsor report
         </span>
       </h2>
       <p
@@ -136,7 +136,7 @@ exports[`ArchitectureNarrativeMarkdownView > renders headings, paragraphs, lists
       >
         <button
           aria-label="Copy code"
-          class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800 rounded-md absolute right-2 top-2 h-7 gap-1 px-2 dark:text-neutral-300 text-xs font-normal leading-[18px] text-al-text-secondary"
+          class="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-[11px] font-bold leading-[15px] border border-neutral-300 bg-white hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:hover:bg-neutral-800 rounded-md absolute right-2 top-2 h-7 gap-1 px-2 text-neutral-600 dark:text-neutral-300"
           type="button"
         >
           <svg
@@ -189,7 +189,7 @@ const endpoint = "https://claims.example.internal/v1/intake";
           See 
         </span>
         <a
-          class="font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
+          class="font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)] rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)]"
           href="/help/first-architecture-review"
         >
           <span>

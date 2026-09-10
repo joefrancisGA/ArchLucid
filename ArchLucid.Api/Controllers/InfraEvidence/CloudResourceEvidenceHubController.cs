@@ -132,6 +132,7 @@ public sealed partial class CloudResourceEvidenceHubController(
         catch (ConflictException ex)
         {
             return MapEvidenceHubSealedManifestConflict(ex);
+
         }
     }
 }

@@ -38,6 +38,7 @@ public sealed partial class ArchitectureDiagramVisionIngestController
         catch (ConflictException ex)
         {
             return MapDiagramVisionIngestSealedManifestConflict(ex);
+
         }
 
         return null;

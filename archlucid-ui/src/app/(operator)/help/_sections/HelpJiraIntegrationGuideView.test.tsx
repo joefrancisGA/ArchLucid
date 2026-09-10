@@ -95,5 +95,9 @@ describe("HelpJiraIntegrationGuideView", () => {
     )) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();
     }
+
+    expect(
+      screen.queryAllByRole("link", { name: JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING }),
+    ).toHaveLength(0);
   });
 });

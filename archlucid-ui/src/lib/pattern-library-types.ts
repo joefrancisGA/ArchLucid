@@ -73,7 +73,7 @@ export type PatternLibraryFiltersState = {
   readonly patternType: PatternTypeFilter;
   readonly risk: PatternRiskSignal | "All risks";
   readonly adoption: PatternAdoptionSignal | "All adoption";
-  readonly governance: PatternGovernanceSignal | "All governance";
+  readonly governance: PatternGovernanceSignal | "All policy areas";
   readonly dataSource: PatternDataSourceFilter;
   readonly timeRange: PatternTimeRangeFilter;
 };

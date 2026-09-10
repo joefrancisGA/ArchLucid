@@ -38,6 +38,7 @@ public sealed partial class ArchitectureDiagramReconciliationController
         catch (ConflictException ex)
         {
             return MapDiagramReconcileSealedManifestConflict(ex);
+
         }
 
         return null;

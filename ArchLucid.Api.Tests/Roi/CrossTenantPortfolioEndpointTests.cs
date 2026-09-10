@@ -1,15 +1,17 @@
 using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Roi;
+using ArchLucid.Api.Tests;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -33,11 +35,11 @@ public sealed class CrossTenantPortfolioEndpointTests
             Mock.Of<IAuditService>(),
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IComplianceDriftTrendService>(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             Mock.Of<ITenantRepository>(),
             Mock.Of<IScimUserRepository>(),
-            Mock.Of<SponsorRoiRunCollector>());
+            ArchLucid.Api.Tests.RoiControllerTestSupport.CreateRunCollector());
 
         DefaultHttpContext httpContext = new();
         httpContext.Request.Path = "/v1/roi/cross-tenant-portfolio";
@@ -47,10 +49,10 @@ public sealed class CrossTenantPortfolioEndpointTests
 
         sut.ControllerContext = new ControllerContext { HttpContext = httpContext };
 
-        ActionResult<CrossTenantPortfolioSummaryResponse> action =
+        IActionResult action =
             await sut.GetCrossTenantPortfolioSummaryAsync(CancellationToken.None);
 
-        ObjectResult result = action.Result.Should().BeOfType<ObjectResult>().Subject;
+        ObjectResult result = action.Should().BeOfType<ObjectResult>().Subject;
         result.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
 
         Microsoft.AspNetCore.Mvc.ProblemDetails problem =

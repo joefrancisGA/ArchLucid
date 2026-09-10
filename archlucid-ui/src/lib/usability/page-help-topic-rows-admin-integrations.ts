@@ -107,4 +107,8 @@ export const PAGE_HELP_TOPIC_ROWS_ADMIN_INTEGRATIONS: readonly { prefix: string;
     prefix: "/administration/extract-upload",
     topic: { slug: "evidence-intake", label: EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL },
   },
+  {
+    prefix: "/governance/infrastructure/extract-upload",
+    topic: { slug: "evidence-intake", label: EXTRACT_UPLOAD_SETTINGS_HELP_TOPIC_LABEL },
+  },
 ];

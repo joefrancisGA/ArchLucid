@@ -29,6 +29,7 @@ public sealed partial class DraftRequestsController
         catch (ConflictException ex)
         {
             return MapDraftRequestSealedManifestConflict(ex);
+
         }
 
         return null;

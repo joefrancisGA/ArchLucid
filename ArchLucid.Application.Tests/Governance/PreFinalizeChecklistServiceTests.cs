@@ -1,15 +1,28 @@
+using ArchLucid.Application;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Governance.Resolution;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Repositories;
+using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
 
@@ -203,13 +216,734 @@ public sealed class PreFinalizeChecklistServiceTests
             && item.Count == 1);
     }
 
+    [Fact]
+    public async Task BuildAsync_marks_provisional_synthesis_advisory_after_blocked_check_projection()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-1",
+            TenantId = TestScope.TenantId.ToString("D"),
+            RunId = runId,
+            IsProvisionalSynthesis = false,
+            Elements = [],
+        };
+
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(k => k.GetForRunAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(model);
+        knowledgeModelAccess
+            .Setup(k => k.SaveForRunAsync(TestScope, runKey, It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IPreCommitGovernanceGate> gate = new();
+        gate
+            .Setup(g => g.EvaluateAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = "Policy pack thresholds would block finalize.",
+                BlockingFindingIds = ["finding-blocked-1"],
+            });
+
+        BlockedReviewCheckProjector projector = new(knowledgeModelAccess.Object);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            gate: gate.Object,
+            knowledgeModelAccess: knowledgeModelAccess.Object,
+            blockedReviewCheckProjector: projector);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "provisional-synthesis"
+            && item.Status == PreFinalizeChecklistItemStatus.Advisory
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task BuildAsync_blocks_finalize_when_architecture_request_is_missing_with_execute_baseline()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        string requestId = "req-orphan-1";
+        ArchitectureRequest request = new()
+        {
+            CloudProvider = CloudProvider.Azure,
+            Description = "Design the order service.",
+            PolicyReferences = [],
+        };
+
+        string governanceScopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(
+            new ExecutedEffectiveGovernanceSnapshotDescriptor
+            {
+                GeneratedUtc = DateTime.UtcNow,
+                CloudProvider = request.CloudProvider.ToString(),
+                RequestFingerprintHex = Convert.ToHexString(
+                    ArchitectureRunIdempotencyHashing.FingerprintRequest(request)),
+            });
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runKey,
+                ArchitectureRequestId = requestId,
+                GovernanceScopeJson = governanceScopeJson,
+            });
+
+        Mock<IArchitectureRequestRepository> requests = new();
+        requests
+            .Setup(r => r.GetByIdAsync(requestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRequest?)null);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            architectureRequestRepository: requests.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.Items.Should().Contain(item =>
+            item.ItemId == "architecture-request-missing"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task BuildAsync_does_not_repersist_blocked_checks_on_second_read()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-1",
+            TenantId = TestScope.TenantId.ToString("D"),
+            RunId = runId,
+            IsProvisionalSynthesis = false,
+            Elements = [],
+        };
+
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(k => k.GetForRunAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(model);
+        knowledgeModelAccess
+            .Setup(k => k.SaveForRunAsync(TestScope, runKey, It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IPreCommitGovernanceGate> gate = new();
+        gate
+            .Setup(g => g.EvaluateAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PreCommitGateResult
+            {
+                Blocked = true,
+                Reason = "Policy pack thresholds would block finalize.",
+                BlockingFindingIds = ["finding-blocked-1"],
+            });
+
+        BlockedReviewCheckProjector projector = new(knowledgeModelAccess.Object);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            gate: gate.Object,
+            knowledgeModelAccess: knowledgeModelAccess.Object,
+            blockedReviewCheckProjector: projector);
+
+        PreFinalizeChecklistResult first = await sut.BuildAsync(runId, CancellationToken.None);
+        PreFinalizeChecklistResult second = await sut.BuildAsync(runId, CancellationToken.None);
+
+        first.ReadyToFinalize.Should().Be(second.ReadyToFinalize);
+        first.Items.Should().BeEquivalentTo(second.Items, options => options.WithStrictOrdering());
+
+        knowledgeModelAccess.Verify(
+            k => k.SaveForRunAsync(TestScope, runKey, It.IsAny<ArchitectureKnowledgeModel>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task BuildAsync_marks_critical_findings_clear_after_remediated_disposition()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        const string findingId = "finding-critical-remediated";
+
+        Finding criticalFinding = new()
+        {
+            FindingId = findingId,
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runKey,
+                FindingsSnapshotId = Guid.NewGuid(),
+            });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(s => s.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot { Findings = [criticalFinding] });
+
+        DateTimeOffset occurredAtUtc = DateTimeOffset.Parse("2026-09-07T12:00:00Z");
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
+                    FindingId = findingId,
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Remediated,
+                    OccurredAtUtc = occurredAtUtc,
+                },
+            ]);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            findingsSnapshotRepository: snapshots.Object,
+            findingReviewTrailRepository: trail.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "open-critical-findings"
+            && item.Status == PreFinalizeChecklistItemStatus.Clear
+            && item.Count == 0);
+    }
+
+    [Fact]
+    public async Task BuildAsync_does_not_clear_critical_findings_from_foreign_project_disposition()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        const string findingId = "finding-critical-shared-id";
+        Guid foreignProjectId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Finding criticalFinding = new()
+        {
+            FindingId = findingId,
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runKey,
+                FindingsSnapshotId = Guid.NewGuid(),
+            });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(s => s.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot { Findings = [criticalFinding] });
+
+        DateTimeOffset occurredAtUtc = DateTimeOffset.Parse("2026-09-07T12:00:00Z");
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = foreignProjectId,
+                    FindingId = findingId,
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Remediated,
+                    OccurredAtUtc = occurredAtUtc,
+                },
+            ]);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            findingsSnapshotRepository: snapshots.Object,
+            findingReviewTrailRepository: trail.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "open-critical-findings"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking
+            && item.Count == 1);
+    }
+
+    [Fact]
+    public async Task BuildAsync_marks_not_ready_when_pre_commit_gate_is_disabled()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runKey });
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            gateOptions: Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = false }));
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeFalse();
+        result.PreCommitGateEnabled.Should().BeFalse();
+        result.Items.Should().Contain(item =>
+            item.ItemId == "pre-commit-gate"
+            && item.Title == PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerTitle
+            && item.Detail == PreCommitGovernanceGateCareerHonestyPresenter.WorkingBannerMessage
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking);
+    }
+
+    [Fact]
+    public async Task BuildAsync_marks_critical_findings_clear_when_remediated_disposition_is_older_than_basis_lookback()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        const string findingId = "finding-critical-stale-remediation";
+        DateTimeOffset remediatedAt = DateTimeOffset.Parse("2024-01-01T12:00:00Z");
+
+        Finding criticalFinding = new()
+        {
+            FindingId = findingId,
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runKey,
+                FindingsSnapshotId = Guid.NewGuid(),
+            });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(s => s.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot { Findings = [criticalFinding] });
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((
+                Guid _,
+                IReadOnlyCollection<string> _,
+                DateTimeOffset since,
+                CancellationToken _) =>
+                remediatedAt >= since
+                    ?
+                    [
+                        new FindingReviewEventRecord
+                        {
+                            EventId = Guid.NewGuid(),
+                            TenantId = TestScope.TenantId,
+                            WorkspaceId = TestScope.WorkspaceId,
+                            ProjectId = TestScope.ProjectId,
+                            FindingId = findingId,
+                            Action = FindingReviewAction.RecordDisposition,
+                            Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Remediated,
+                            OccurredAtUtc = remediatedAt,
+                        },
+                    ]
+                    : []);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            findingsSnapshotRepository: snapshots.Object,
+            findingReviewTrailRepository: trail.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "open-critical-findings"
+            && item.Status == PreFinalizeChecklistItemStatus.Clear
+            && item.Count == 0);
+    }
+
+    [Fact]
+    public async Task BuildAsync_clears_evidence_linkage_advisory_when_critical_finding_is_remediated()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        const string findingId = "finding-critical-no-linkage-remediated";
+
+        Finding criticalFinding = new()
+        {
+            FindingId = findingId,
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runKey,
+                FindingsSnapshotId = Guid.NewGuid(),
+            });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(s => s.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot { Findings = [criticalFinding] });
+
+        DateTimeOffset occurredAtUtc = DateTimeOffset.Parse("2026-09-07T12:00:00Z");
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
+                    FindingId = findingId,
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Remediated,
+                    OccurredAtUtc = occurredAtUtc,
+                },
+            ]);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            findingsSnapshotRepository: snapshots.Object,
+            findingReviewTrailRepository: trail.Object,
+            linkageEngine: new FindingEvidenceLinkageFindingEngine());
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "evidence-linkage-gaps"
+            && item.Status == PreFinalizeChecklistItemStatus.Clear
+            && item.Count == 0);
+    }
+
+    [Fact]
+    public async Task BuildAsync_marks_error_findings_when_technology_consistency_supplemental_would_block_gate()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runKey,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-checklist-tech-consistency",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = "[]",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository snapshots = new();
+        await snapshots.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runKey,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings = [],
+            },
+            CancellationToken.None);
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Microsoft Azure",
+                ProviderFamily = CloudProvider.Azure,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = runId,
+                Role = TechnologyLedgerRole.PrimaryDatastore,
+                TechnologyName = "Amazon RDS",
+                ProviderFamily = CloudProvider.Aws,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        IFindingReviewTrailRepository trail =
+            PolicyPackGovernanceDryRunSealedManifestTestSupport.CreateEmptyFindingReviewTrailRepository();
+
+        PreCommitGovernanceGate gate = new(
+            Options.Create(new PreCommitGovernanceGateOptions
+            {
+                PreCommitGateEnabled = true,
+                PreCommitGateThreshold = "Error",
+            }),
+            scopeProvider.Object,
+            runs,
+            snapshots,
+            new InMemoryPolicyPackAssignmentRepository(),
+            new PassthroughSchemaValidationService(),
+            Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = false }),
+            ledgerRepository,
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions
+            {
+                Enabled = true,
+                Mode = TechnologyConsistencyFindingEngineMode.Enforcing,
+            }),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            trail);
+
+        PreFinalizeChecklistService sut = new(
+            scopeProvider.Object,
+            runs,
+            Mock.Of<IArchitectureRequestRepository>(),
+            snapshots,
+            ledgerRepository,
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions
+            {
+                Enabled = true,
+                Mode = TechnologyConsistencyFindingEngineMode.Enforcing,
+            }),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            gate,
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            new PreFinalizeExecuteBaselineDriftEvaluator(
+                Mock.Of<IEffectiveGovernanceResolver>(),
+                new EffectiveGovernanceSnapshotBuilder(),
+                Mock.Of<IPolicyPackAssignmentRepository>(),
+                Mock.Of<IPolicyPackRepository>(),
+                Mock.Of<IPolicyPackVersionRepository>()),
+            trail);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.Items.Should().Contain(item =>
+            item.ItemId == "open-error-findings"
+            && item.Status == PreFinalizeChecklistItemStatus.Advisory
+            && item.Count > 0,
+            "checklist severity counts must include supplemental findings like the live pre-commit gate");
+        result.Items.Should().Contain(item =>
+            item.ItemId == "pre-commit-gate"
+            && item.Status == PreFinalizeChecklistItemStatus.Blocking);
+    }
+
+    [Fact]
+    public async Task BuildAsync_allows_finalize_when_critical_finding_is_remediated_and_pre_commit_gate_matches()
+    {
+        Guid runKey = Guid.NewGuid();
+        string runId = runKey.ToString("D");
+        const string findingId = "finding-critical-remediated-gate-parity";
+        Guid snapshotId = Guid.NewGuid();
+        Guid policyPackId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Finding criticalFinding = new()
+        {
+            FindingId = findingId,
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+            EnforcementTier = FindingEnforcementTier.PolicyViolation,
+        };
+
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runKey,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                FindingsSnapshotId = snapshotId,
+                PinnedPolicyPackIdsJson = "[]",
+                CreatedUtc = DateTimeOffset.UtcNow.UtcDateTime,
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository snapshots = new();
+        await snapshots.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runKey,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = DateTimeOffset.UtcNow.UtcDateTime,
+                Findings = [criticalFinding],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+        await assignments.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                ScopeLevel = GovernanceScopeLevel.Project,
+                PolicyPackId = policyPackId,
+                PolicyPackVersion = "1.0.0",
+                IsEnabled = true,
+                BlockCommitOnCritical = true,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                TestScope.TenantId,
+                It.Is<IReadOnlyCollection<string>>(ids => ids.Contains(findingId)),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = TestScope.TenantId,
+                    WorkspaceId = TestScope.WorkspaceId,
+                    ProjectId = TestScope.ProjectId,
+                    FindingId = findingId,
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.Remediated,
+                    OccurredAtUtc = DateTimeOffset.Parse("2026-09-08T12:00:00Z"),
+                },
+            ]);
+
+        PreCommitGovernanceGate gate = new(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            runs,
+            snapshots,
+            assignments,
+            new PassthroughSchemaValidationService(),
+            Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = false }),
+            new InMemoryTechnologyLedgerRepository(),
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            trail.Object);
+
+        PreFinalizeChecklistService sut = new(
+            scopeProvider.Object,
+            runs,
+            Mock.Of<IArchitectureRequestRepository>(),
+            snapshots,
+            new InMemoryTechnologyLedgerRepository(),
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
+            new FindingEvidenceLinkageFindingEngine(),
+            Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }),
+            gate,
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            new PreFinalizeExecuteBaselineDriftEvaluator(
+                Mock.Of<IEffectiveGovernanceResolver>(),
+                new EffectiveGovernanceSnapshotBuilder(),
+                Mock.Of<IPolicyPackAssignmentRepository>(),
+                Mock.Of<IPolicyPackRepository>(),
+                Mock.Of<IPolicyPackVersionRepository>()),
+            trail.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        result.ReadyToFinalize.Should().BeTrue();
+        result.Items.Should().Contain(item =>
+            item.ItemId == "open-critical-findings"
+            && item.Status == PreFinalizeChecklistItemStatus.Clear
+            && item.Count == 0);
+        result.Items.Should().Contain(item =>
+            item.ItemId == "pre-commit-gate"
+            && item.Status == PreFinalizeChecklistItemStatus.Clear
+            && item.Count == 0);
+    }
+
     private static PreFinalizeChecklistService CreateSut(
         IRunRepository? runRepository = null,
+        IArchitectureRequestRepository? architectureRequestRepository = null,
         IFindingsSnapshotRepository? findingsSnapshotRepository = null,
         ITechnologyLedgerRepository? ledger = null,
         IFindingEvidenceLinkageFindingEngine? linkageEngine = null,
         IPreCommitGovernanceGate? gate = null,
-        IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null)
+        IOptions<PreCommitGovernanceGateOptions>? gateOptions = null,
+        IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
+        IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
@@ -235,21 +969,35 @@ public sealed class PreFinalizeChecklistServiceTests
             .Setup(e => e.Evaluate(It.IsAny<string>(), It.IsAny<IReadOnlyList<Finding>>()))
             .Returns([]);
 
+        Mock<IFindingReviewTrailRepository> trailMock = new();
+        trailMock
+            .Setup(t => t.ListForFindingIdsSinceUtcAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
         return new PreFinalizeChecklistService(
             scopeProvider.Object,
             runRepository ?? runMock.Object,
-            Mock.Of<IArchitectureRequestRepository>(),
+            architectureRequestRepository ?? Mock.Of<IArchitectureRequestRepository>(),
             findingsSnapshotRepository ?? Mock.Of<IFindingsSnapshotRepository>(),
             ledger ?? ledgerMock.Object,
+            new TechnologyConsistencyFindingEngine(),
+            Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
             linkageEngine ?? linkageMock.Object,
             Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = true }),
             gate ?? gateMock.Object,
+            gateOptions ?? Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             new PreFinalizeExecuteBaselineDriftEvaluator(
                 Mock.Of<IEffectiveGovernanceResolver>(),
                 new EffectiveGovernanceSnapshotBuilder(),
                 Mock.Of<IPolicyPackAssignmentRepository>(),
                 Mock.Of<IPolicyPackRepository>(),
                 Mock.Of<IPolicyPackVersionRepository>()),
-            knowledgeModelAccess);
+            findingReviewTrailRepository ?? trailMock.Object,
+            knowledgeModelAccess,
+            blockedReviewCheckProjector: blockedReviewCheckProjector);
     }
 }

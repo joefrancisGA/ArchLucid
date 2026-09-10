@@ -1,8 +1,13 @@
+using ArchLucid.AgentRuntime.PromptInjection;
+using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.AgentRuntime.Tokens;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Scoping;
-using ArchLucid.AgentRuntime.Tokens;
 
 using FluentAssertions;
 
@@ -214,6 +219,84 @@ public sealed class ContextLengthGuardAgentCompletionClientSummarizationTests
     }
 
     [Fact]
+    public async Task CompleteJsonAsync_truncation_preserves_customer_content_end_marker_in_topology_prompt()
+    {
+        SpyAgentCompletionClient inner = new("{\"ok\":true}");
+        Mock<IEvidenceSummarizationService> summarizer = new();
+        Mock<IAuditService> audit = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(new ScopeContext());
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-truncate-bounds",
+            SystemName = "Claims Intake",
+            Environment = "Production",
+            CloudProvider = CloudProvider.Azure,
+            Description = new string('x', 8_000),
+        };
+
+        AgentEvidencePackage evidence = new()
+        {
+            EvidencePackageId = "evidence-truncate-bounds",
+            CloudProvider = "Azure",
+        };
+
+        AgentTask task = new()
+        {
+            RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            TaskId = "task-truncate-bounds",
+            AgentType = AgentType.Topology,
+            Objective = "Produce topology output",
+            AllowedTools = ["manifest"],
+            AllowedSources = ["upload"],
+        };
+
+        string userPrompt = AgentUserPromptComposer.BuildTopologyUserPrompt(
+            task.RunId,
+            request,
+            evidence,
+            task,
+            CloudProvider.Azure);
+
+        ContextLengthGuardAgentCompletionClient guard = CreateGuard(
+            inner,
+            summarizer.Object,
+            summarizationEnabled: false,
+            audit.Object,
+            scopeProvider.Object,
+            contextOptions: new LlmContextWindowOptions
+            {
+                Enabled = true,
+                MaxContextTokens = 600,
+                ThresholdRatio = 0.90,
+                TruncateUserPromptOnExceeded = true,
+            });
+
+        _ = await guard.CompleteJsonAsync("sys", userPrompt);
+
+        string truncated = inner.LastUserPrompt!;
+
+        truncated.Length.Should().BeLessThan(userPrompt.Length);
+        truncated.Should().Contain(CustomerContentPromptDelimiters.BeginMarker);
+        truncated.Should().Contain(CustomerContentPromptDelimiters.EndMarker);
+
+        int firstBeginIndex = truncated.IndexOf(CustomerContentPromptDelimiters.BeginMarker, StringComparison.Ordinal);
+        int firstEndIndex = truncated.IndexOf(
+            CustomerContentPromptDelimiters.EndMarker,
+            firstBeginIndex,
+            StringComparison.Ordinal);
+
+        firstBeginIndex.Should().BeGreaterThanOrEqualTo(0);
+        firstEndIndex.Should().BeGreaterThan(firstBeginIndex);
+        audit.Verify(
+            static a => a.LogAsync(
+                It.Is<AuditEvent>(static e => e.EventType == AuditEventTypes.LlmContextTruncated),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task CompleteJsonAsync_fail_open_to_truncation_when_summarization_still_exceeds_budget()
     {
         SpyAgentCompletionClient inner = new("{\"ok\":true}");
@@ -254,9 +337,10 @@ public sealed class ContextLengthGuardAgentCompletionClientSummarizationTests
         IEvidenceSummarizationService summarizer,
         bool summarizationEnabled,
         IAuditService audit,
-        IScopeContextProvider scopeProvider)
+        IScopeContextProvider scopeProvider,
+        LlmContextWindowOptions? contextOptions = null)
     {
-        TestOptionsMonitor<LlmContextWindowOptions> contextOptions = new(new LlmContextWindowOptions
+        TestOptionsMonitor<LlmContextWindowOptions> contextOptionsMonitor = new(contextOptions ?? new LlmContextWindowOptions
         {
             Enabled = true,
             MaxContextTokens = 100,
@@ -270,7 +354,7 @@ public sealed class ContextLengthGuardAgentCompletionClientSummarizationTests
         return new ContextLengthGuardAgentCompletionClient(
             inner,
             new CharHeuristicTokenCounter(),
-            contextOptions,
+            contextOptionsMonitor,
             summarizationOptions,
             summarizer,
             audit,

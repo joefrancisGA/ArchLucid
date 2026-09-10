@@ -4,8 +4,8 @@
 
 # ADR 0062: Finding verification loop (proof-of-prediction)
 
-- **Status:** Proposed (target V1.1; no owner ratification yet)
-- **Date:** 2026-08-03
+- **Status:** Accepted (2026-09-07 — DX-19 slice 1: data model + linked artifact + operator API)
+- **Date:** 2026-08-03 (ratified 2026-09-07)
 - **Deciders:** Owner / platform engineering
 - **Related:** [ADR 0037](0037-tenant-isolation-without-rls-defense-in-depth.md) (tenant isolation), [ADR 0039](0039-commit-sealed-evidence-immutability.md) (sealed evidence immutability), [ADR 0040](0040-tamper-evident-lineage-without-worm-storage.md), [ADR 0045](0045-committed-run-header-immutability.md), [`POSITIONING.md §5 "What proof means here"`](../../go-to-market/POSITIONING.md#what-proof-means-here), [`PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary`](../../library/PUBLIC_CLAIM_BOUNDARY_GUIDE.md#proof-scope-boundary), **TB-2033**–**TB-2037**
 - **Amends:** *(none)*

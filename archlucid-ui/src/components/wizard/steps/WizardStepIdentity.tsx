@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { OPERATOR_FORM_FIELD_STACK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Controller, useFormContext } from "react-hook-form";
@@ -28,6 +28,10 @@ import {
 import { GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL } from "@/lib/guided-intake-copy";
 import { readPriorRunIdFromSearch } from "@/lib/second-review-prior-package";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import {
+  parseWizardStepIdentityAdvancedOpenFromSearch,
+  wizardStepIdentityAdvancedDisclosureHrefFromSearch,
+} from "@/lib/wizard/wizard-step-identity-advanced-disclosure-url";
 
 const ENVIRONMENT_OPTIONS = [
   { value: "staging", label: "Staging" },
@@ -44,7 +48,34 @@ const wizardSelectTriggerClassName =
  * Step 2: system name, environment, cloud target (None, Azure, Aws, or Gcp).
  */
 export function WizardStepIdentity() {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const wizardStepIdentityAdvancedOpenParam = searchParams.get("wizardStepIdentityAdvancedOpen");
+  const [identityAdvancedOpen, setIdentityAdvancedOpenState] = useState(() =>
+    parseWizardStepIdentityAdvancedOpenFromSearch(wizardStepIdentityAdvancedOpenParam),
+  );
+  const syncIdentityAdvancedOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        wizardStepIdentityAdvancedDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setIdentityAdvancedOpen = useCallback(
+    (open: boolean) => {
+      setIdentityAdvancedOpenState(open);
+      syncIdentityAdvancedOpenToUrl(open);
+    },
+    [syncIdentityAdvancedOpenToUrl],
+  );
+
+  useEffect(() => {
+    setIdentityAdvancedOpenState(parseWizardStepIdentityAdvancedOpenFromSearch(wizardStepIdentityAdvancedOpenParam));
+  }, [wizardStepIdentityAdvancedOpenParam]);
+
   const priorRunId = readPriorRunIdFromSearch(searchParams);
   const { register, control, formState, clearErrors, watch, setError } = useFormContext<WizardFormValues>();
   const { errors } = formState;
@@ -193,7 +224,7 @@ export function WizardStepIdentity() {
 
         <Separator />
 
-        <AdvancedOptionsAccordion>
+        <AdvancedOptionsAccordion open={identityAdvancedOpen} onOpenChange={setIdentityAdvancedOpen}>
           <div>
             <WizardFieldHint
               htmlFor="wizard-priorManifest"

@@ -6,6 +6,7 @@ namespace ArchLucid.Decisioning.Manifest;
 /// <summary>
 ///     Derives a coarse risk label from authority <see cref="ManifestDocument" /> unresolved issues (deterministic; no LLM).
 /// </summary>
+[Obsolete("Use TradeoffDetectionEngine (risk-03). TODO: derive posture from detected tradeoffs instead of unresolved issues.", error: false)]
 public static class AuthorityManifestRiskPosture
 {
     /// <summary>

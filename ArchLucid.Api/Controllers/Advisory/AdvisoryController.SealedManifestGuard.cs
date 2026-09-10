@@ -43,6 +43,7 @@ public sealed partial class AdvisoryController
         catch (ConflictException ex)
         {
             return MapAdvisorySealedManifestConflict(ex);
+
         }
 
         return null;
@@ -74,6 +75,7 @@ public sealed partial class AdvisoryController
         catch (ConflictException ex)
         {
             return MapAdvisorySealedManifestConflict(ex);
+
         }
 
         return null;

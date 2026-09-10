@@ -29,11 +29,11 @@
     "requiredInputs": [
       "Policy pack enabled on tenant/workspace/project scope",
       "Architecture request with Azure topology and identity evidence",
-      "Optional committed run for governance dry-run simulation"
+      "Optional committed run for policy dry-run simulation"
     ],
     "expectedOutputs": [
       "Advisory findings mapped to saas-ctrl-* compliance rules",
-      "Governance dry-run delta summary when simulated against a run"
+      "Policy dry-run delta summary when simulated against a run"
     ],
     "scopeLabel": "Product-ready",
     "doNotUseWhen": [

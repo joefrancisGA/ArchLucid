@@ -98,7 +98,7 @@ export function WorkspaceBudgetStatusCard(props: Props) {
                       <StatusTag kind="needs-attention" label="Not configured" data-testid="workspace-budget-provider-tag" />
                       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                         <Link href={MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH} className={OPERATOR_LINK.nav}>
-                          Configure provider in model governance
+                          Configure provider in model policy
                         </Link>
                       </p>
                     </>

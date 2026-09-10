@@ -5,15 +5,12 @@ import { OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY
 import Link from "next/link";
 
 import { InlineGuidance } from "@/components/InlineGuidance";
+import { FirstWeekRouteGuidanceHomeDisclosure } from "@/components/FirstWeekRouteGuidanceHomeDisclosure";
+import { FirstWeekRouteGuidanceReviewDetailDisclosure } from "@/components/FirstWeekRouteGuidanceReviewDetailDisclosure";
 import { Button } from "@/components/ui/button";
-import { OperatorHomeDisclosureSection } from "@/components/operator-home/OperatorHomeDisclosureSection";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
-import { OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS } from "@/lib/operator/operator-home-disclosure-storage";
 import {
   resolveFirstWeekRouteGuidanceForShell,
-  FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY,
-  FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY,
-  FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY,
   type FirstWeekRouteGuidanceVariant,
 } from "@/lib/first-week-route-guidance";
 import { useInviteeReviewerContext } from "@/hooks/use-invitee-reviewer-context";
@@ -98,14 +95,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
 
   if (props.variant === "home") {
     return (
-      <OperatorHomeDisclosureSection
-        title={FIRST_WEEK_ROUTE_GUIDANCE_HOME_SUMMARY}
-        titleId="first-week-guidance-home"
-        sectionTestId="first-week-route-guidance-home"
-        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.firstWeekGuidance}
-        defaultExpanded={false}
-        collapsedSummary={FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY}
-      >
+      <FirstWeekRouteGuidanceHomeDisclosure>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
         <GuidanceBody
           useWhen={config.useWhen}
@@ -114,20 +104,13 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
           primaryAction={config.primaryAction}
           pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
         />
-      </OperatorHomeDisclosureSection>
+      </FirstWeekRouteGuidanceHomeDisclosure>
     );
   }
 
   if (props.variant === "review-detail-committed") {
     return (
-      <OperatorHomeDisclosureSection
-        title="Review guidance"
-        titleId="first-week-guidance-review-detail-committed"
-        sectionTestId="first-week-route-guidance-review-detail-committed"
-        storageKey={OPERATOR_HOME_DISCLOSURE_STORAGE_KEYS.firstWeekGuidance}
-        defaultExpanded={false}
-        collapsedSummary={FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY}
-      >
+      <FirstWeekRouteGuidanceReviewDetailDisclosure>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{config.useWhen}</p>
         <GuidanceBody
           useWhen={config.useWhen}
@@ -136,7 +119,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
           primaryAction={config.primaryAction}
           pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
         />
-      </OperatorHomeDisclosureSection>
+      </FirstWeekRouteGuidanceReviewDetailDisclosure>
     );
   }
 

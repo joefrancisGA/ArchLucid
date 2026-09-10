@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Ban } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ItsmAtlassianOAuthCallbackLoadingView } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackLoadingView";
 import { ItsmAtlassianOAuthCallbackHeaderActions } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackHeaderActions";
@@ -52,6 +52,10 @@ import {
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
 import { cn } from "@/lib/utils";
 import { ensureCorrelationId } from "@/lib/usability/ensure-correlation-id";
+import {
+  itsmOAuthCallbackSupportDetailsDisclosureHrefFromSearch,
+  parseItsmOAuthCallbackSupportDetailsOpenFromSearch,
+} from "@/lib/integrations/itsm-oauth-callback-support-details-disclosure-url";
 
 type CallbackPhase = "loading" | "success" | "failure";
 
@@ -80,7 +84,13 @@ function resolvePageTitle(phase: CallbackPhase): string {
 }
 
 export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const itsmOAuthCallbackSupportDetailsOpenParam = searchParams.get("itsmOAuthCallbackSupportDetailsOpen");
+  const [supportDetailsOpen, setSupportDetailsOpenState] = useState(() =>
+    parseItsmOAuthCallbackSupportDetailsOpenFromSearch(itsmOAuthCallbackSupportDetailsOpenParam),
+  );
   const outcomeRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<CallbackPhase>("loading");
   const [message, setMessage] = useState("");
@@ -88,6 +98,30 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
   const [supportReferenceId, setSupportReferenceId] = useState<string | null>(null);
   const [supportTimestampUtc, setSupportTimestampUtc] = useState<string | null>(null);
   const [workspaceLabel, setWorkspaceLabel] = useState<string | null>(null);
+
+  const syncSupportDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        itsmOAuthCallbackSupportDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setSupportDetailsOpen = useCallback(
+    (open: boolean) => {
+      setSupportDetailsOpenState(open);
+      syncSupportDetailsOpenToUrl(open);
+    },
+    [syncSupportDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setSupportDetailsOpenState(
+      parseItsmOAuthCallbackSupportDetailsOpenFromSearch(itsmOAuthCallbackSupportDetailsOpenParam),
+    );
+  }, [itsmOAuthCallbackSupportDetailsOpenParam]);
 
   useEffect(() => {
     let canceled = false;
@@ -301,6 +335,10 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
                     <details
                       className={cn("text-left", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid="itsm-oauth-callback-support-details"
+                      open={supportDetailsOpen}
+                      onToggle={(event) => {
+                        setSupportDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+                      }}
                     >
                       <summary className="cursor-pointer select-none text-al-text-secondary hover:text-al-text-primary">
                         {ITSM_ATLASSIAN_OAUTH_CALLBACK_SUPPORT_DISCLOSURE_SUMMARY}

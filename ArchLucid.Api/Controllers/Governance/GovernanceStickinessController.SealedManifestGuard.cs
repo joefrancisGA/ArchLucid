@@ -37,6 +37,7 @@ public sealed partial class GovernanceStickinessController
         catch (ConflictException ex)
         {
             return MapGovernanceStickinessSealedManifestConflict(ex);
+
         }
 
         return null;
@@ -122,6 +123,7 @@ public sealed partial class GovernanceStickinessController
         catch (ConflictException ex)
         {
             return MapGovernanceStickinessSealedManifestConflict(ex);
+
         }
 
         return null;
@@ -163,6 +165,7 @@ public sealed partial class GovernanceStickinessController
         catch (ConflictException ex)
         {
             return MapGovernanceStickinessSealedManifestConflict(ex);
+
         }
 
         return null;

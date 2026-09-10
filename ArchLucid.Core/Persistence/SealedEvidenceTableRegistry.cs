@@ -8,6 +8,8 @@ public static class SealedEvidenceTableRegistry
 {
     public const string AgentResultEnrichmentsTableName = "dbo.AgentResultEnrichments";
 
+    public const string FindingSemanticSupportBandOverlaysTableName = "dbo.FindingSemanticSupportBandOverlays";
+
     /// <summary>Two-part names (<c>dbo.Table</c>) probed at startup and guarded in migration 247.</summary>
     public static IReadOnlyList<string> SealedTableNames { get; } =
     [

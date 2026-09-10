@@ -10,5 +10,9 @@ export function InviteReviewerBuyerChrome(): React.JSX.Element | null {
     return null;
   }
 
-  return <InviteReviewerClaimOrientationStrip />;
+  return (
+    <div data-testid="invite-reviewer-orientation-top">
+      <InviteReviewerClaimOrientationStrip />
+    </div>
+  );
 }

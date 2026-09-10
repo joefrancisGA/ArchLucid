@@ -17,7 +17,7 @@ Both paths can coexist. The monthly budget row remains authoritative for **inclu
 
 ### Behavior
 
-- Base cap: **`LlmMonthlyTenantDollarBudget:HardCutoffUsdPerUtcMonth`**.
+- Base cap: **`LlmMonthlyTenantDollarBudget:HardCutoffUsdPerUtcMonth`** (or the matching **`ByPlan`** overlay for Architect / Team / Professional).
 - **Effective hard cap** for a tenant and UTC month: `HardCutoffUsdPerUtcMonth + PurchasedCapBumpUsd` on row **`dbo.LlmMonthlyTenantBudgetState`** (migration **`155_LlmMonthlyTenantBudgetPurchasedCapBump.sql`**).
 - **Warn** thresholds still derive from **`IncludedUsdPerUtcMonth`** and **`WarnFraction`** (not inflated by the bump) unless product changes later.
 
@@ -54,6 +54,7 @@ Use **optimistic concurrency** in production tools if you extend this to an admi
 | Balance expiry | **Never** — unused balance carries forward indefinitely |
 | Card charge timing | **At each refill** (before consumption), not at UTC month end |
 | Card failure | No credit; next LLM call returns **402** / existing quota-exceeded path; in-product banner to update payment method |
+| Overage debit markup | **1.4×** estimated LLM USD (`LlmTenantWalletDefaults.OverageDebitMarkupMultiplier`) so wallet consumption is not sold at COGS |
 | Cancellation | Wallet balance is **non-refundable credit** — consumable only via ArchLucid LLM usage |
 
 ### Enforcement flow
@@ -61,7 +62,7 @@ Use **optimistic concurrency** in production tools if you extend this to an admi
 1. **`LlmCompletionAccountingClient`** evaluates spend against the **effective monthly cap** (`HardCutoffUsdPerUtcMonth + PurchasedCapBumpUsd`).
 2. If the call would exceed that cap:
    - Check **`LlmTenantWalletState.BalanceUsd`**.
-   - If balance ≥ estimated cost → allow call; debit wallet post-call via **`LlmTenantWalletService.ConsumeAsync`**.
+   - If balance ≥ **marked-up** estimated cost (1.4× raw USD) → allow call; debit wallet post-call via **`LlmTenantWalletService.ConsumeAsync`**.
    - If balance insufficient → reject (existing **`LlmTokenQuotaExceeded`** / execution-gate path).
 3. After each debit, if balance **< $10** and auto-replenish is enabled and the monthly cap allows another refill → **`TryAutoRefillAsync`** (Stripe PaymentIntent for **$50**).
 4. Monthly cap enforcement: `(AutoRefillsThisUtcMonthCount × RefillIncrementUsd) < MonthlyCapUsd`; counter resets when UTC year/month changes.

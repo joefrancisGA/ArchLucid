@@ -1,4 +1,5 @@
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { WORKING_REVIEWS_INBOX_NAV_LABEL } from "@/lib/operator/operator-nav-labels";
 import { WORKING_NEW_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -13,6 +14,10 @@ export const HELP_EVALUATING_ARCHITECTURE_SECTION_TITLE = "If you are evaluating
 export const HELP_FIRST_SESSION_LEAD_MARKERS =
   /open the sample|sample walkthrough|start with your first review|first review path|finish workspace setup/i;
 
+/** AO-42 — deny first-review-as-product narration on Working desk contextual help. */
+export const AO42_WORKING_HELP_DENYLIST =
+  /your first review is the product|start with your first review|first review path|sample walkthrough|first-session/i;
+
 export type HelpDeskPrimaryAction = {
   readonly href: string;
   readonly label: string;
@@ -22,7 +27,7 @@ export function resolveHelpWorkingDeskPrimaryActions(): readonly HelpDeskPrimary
   return [
     { href: ARCHITECTURES_NEW_PATH, label: WORKING_NEW_REVIEW_LABEL },
     { href: ARCHITECTURES_LIST_PATH, label: "Open architectures" },
-    { href: REVIEWS_LIST_PATH, label: "Open packages" },
+    { href: REVIEWS_LIST_PATH, label: WORKING_REVIEWS_INBOX_NAV_LABEL },
     { href: inAppHelpHref("troubleshoot"), label: "Report a problem" },
   ];
 }

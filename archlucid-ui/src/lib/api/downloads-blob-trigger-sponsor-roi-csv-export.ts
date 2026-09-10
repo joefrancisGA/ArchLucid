@@ -43,6 +43,7 @@ export async function downloadSponsorRoiCsvExport(): Promise<void> {
     const blockedReason = sponsorRoiCsvExportMutationBlockedReason(failure);
 
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+
   }
 
   const json = (await response.json()) as SponsorRoiExportPayload;

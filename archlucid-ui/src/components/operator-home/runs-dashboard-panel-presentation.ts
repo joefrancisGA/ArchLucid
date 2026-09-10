@@ -6,7 +6,13 @@ export const RUNS_DASHBOARD_PANEL_DEFAULT_PROJECT_ID = "default";
 export const OPERATOR_HOME_DASHBOARD_TAB_PARAM = "tab";
 export const OPERATOR_HOME_SHOW_ARCHIVED_PARAM = "archived";
 
-const RUNS_DASHBOARD_TAB_IDS = new Set<RunsDashboardTabId>(["all", "approved", "attention", "outcomes"]);
+const RUNS_DASHBOARD_TAB_IDS = new Set<RunsDashboardTabId>([
+  "all",
+  "approved",
+  "awaiting-approval",
+  "attention",
+  "outcomes",
+]);
 
 export function homeGovernanceWarningsQueryEnabled(searchParams: URLSearchParams | null): boolean {
   if (searchParams === null) {
@@ -104,8 +110,8 @@ export function resolveRunsDashboardOpenAllReviewsHref(projectId: string): strin
   return `/architecture/reviews?projectId=${encodeURIComponent(projectId)}`;
 }
 
-const BUYER_STATUS_TAB_IDS: readonly RunsDashboardTabId[] = ["all", "approved", "attention", "outcomes"];
-const OPERATOR_STATUS_TAB_IDS: readonly RunsDashboardTabId[] = ["all", "attention", "outcomes"];
+const BUYER_STATUS_TAB_IDS: readonly RunsDashboardTabId[] = ["all", "approved", "awaiting-approval", "attention", "outcomes"];
+const OPERATOR_STATUS_TAB_IDS: readonly RunsDashboardTabId[] = ["all", "awaiting-approval", "attention", "outcomes"];
 
 export function resolveRunsDashboardStatusTabIds(
   buyerPolishedShell: boolean,
@@ -125,6 +131,7 @@ export function resolveRunsDashboardRecentListTab(
   return (
     tab === "all" ||
     tab === "approved" ||
+    tab === "awaiting-approval" ||
     (buyerPolishedShell && (tab === "attention" || tab === "outcomes"))
   );
 }
@@ -138,6 +145,10 @@ export function runsDashboardDisabledTabReason(tab: RunsDashboardTabId, buyerPol
 
   if (tab === "approved") {
     return "No approved reviews in the current scope.";
+  }
+
+  if (tab === "awaiting-approval") {
+    return "No reviews awaiting approval in the current scope.";
   }
 
   if (tab === "attention") {

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,10 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  integrationEventsDlqAdvancedDisclosureHrefFromSearch,
+  parseIntegrationEventsDlqAdvancedKeyFromSearch,
+} from "@/lib/internal/integration-events-dlq-advanced-disclosure-url";
 import { truncateMiddle } from "@/lib/truncate-middle";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +54,28 @@ export function IntegrationEventsDlqTable(props: IntegrationEventsDlqTableProps)
     onSuppressRequest,
     onCopyCurl,
   } = props;
+
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const integrationEventsDlqAdvancedKeyParam = searchParams.get("integrationEventsDlqAdvancedKey");
+  const [openAdvancedKey, setOpenAdvancedKeyState] = useState(() =>
+    parseIntegrationEventsDlqAdvancedKeyFromSearch(integrationEventsDlqAdvancedKeyParam),
+  );
+
+  const syncOpenAdvancedToUrl = useCallback(
+    (outboxId: string | null) => {
+      router.replace(
+        integrationEventsDlqAdvancedDisclosureHrefFromSearch(searchParams.toString(), outboxId, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    setOpenAdvancedKeyState(parseIntegrationEventsDlqAdvancedKeyFromSearch(integrationEventsDlqAdvancedKeyParam));
+  }, [integrationEventsDlqAdvancedKeyParam]);
 
   return (
     <EnterpriseTable ariaLabel="Failed integration messages">
@@ -152,6 +180,12 @@ export function IntegrationEventsDlqTable(props: IntegrationEventsDlqTableProps)
                     summary="Advanced"
                     data-testid={`integration-events-dlq-advanced-${row.outboxId}`}
                     bodyTestId={`integration-events-dlq-advanced-body-${row.outboxId}`}
+                    open={openAdvancedKey === row.outboxId}
+                    onOpenChange={(detailsOpen) => {
+                      const nextOutboxId = detailsOpen ? row.outboxId ?? null : null;
+                      setOpenAdvancedKeyState(nextOutboxId ?? "");
+                      syncOpenAdvancedToUrl(nextOutboxId);
+                    }}
                   >
                     <Button
                       type="button"

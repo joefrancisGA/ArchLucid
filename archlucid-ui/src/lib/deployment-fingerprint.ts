@@ -54,6 +54,16 @@ export function formatCiBuildNumberLabel(ciBuildNumber: string): string | null {
 
 /** Full operator-footer line: CI number (when known), short SHA, timestamp, env, API host. */
 export function formatDeploymentBuildFingerprintLine(fingerprint: ClientDeploymentFingerprint): string {
+  const hasBuildIdentity =
+    isKnownFingerprintValue(fingerprint.ciBuildNumber)
+    || isKnownFingerprintValue(fingerprint.frontendCommitSha)
+    || isKnownFingerprintValue(fingerprint.buildTimestamp)
+    || isKnownFingerprintValue(fingerprint.apiUpstreamHost);
+
+  if (!hasBuildIdentity) {
+    return "Build identity unavailable in this environment";
+  }
+
   const parts: string[] = [];
   const ciLabel = formatCiBuildNumberLabel(fingerprint.ciBuildNumber);
 
@@ -61,10 +71,21 @@ export function formatDeploymentBuildFingerprintLine(fingerprint: ClientDeployme
     parts.push(ciLabel);
   }
 
-  parts.push(`UI build ${formatShortCommitSha(fingerprint.frontendCommitSha)}`);
-  parts.push(fingerprint.buildTimestamp);
-  parts.push(`env ${fingerprint.environment}`);
-  parts.push(`API ${fingerprint.apiUpstreamHost}`);
+  if (isKnownFingerprintValue(fingerprint.frontendCommitSha)) {
+    parts.push(`UI build ${formatShortCommitSha(fingerprint.frontendCommitSha)}`);
+  }
+
+  if (isKnownFingerprintValue(fingerprint.buildTimestamp)) {
+    parts.push(fingerprint.buildTimestamp);
+  }
+
+  if (isKnownFingerprintValue(fingerprint.environment)) {
+    parts.push(`env ${fingerprint.environment}`);
+  }
+
+  if (isKnownFingerprintValue(fingerprint.apiUpstreamHost)) {
+    parts.push(`API ${fingerprint.apiUpstreamHost}`);
+  }
 
   return parts.join(" · ");
 }

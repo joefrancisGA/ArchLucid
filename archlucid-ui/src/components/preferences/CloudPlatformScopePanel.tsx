@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { PreferenceAccountSyncStatus } from "@/components/preferences/PreferenceAccountSyncStatus";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { PreferenceCheckbox } from "@/components/preferences/PreferenceCheckbox";
 import {
   PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE,
@@ -15,6 +16,7 @@ import {
   type CloudPlatformScope,
   type CloudProviderId,
 } from "@/lib/cloud-platform-scope-storage";
+import { filterCloudProvidersForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { wouldLeaveNoVisibleCloudProviders } from "@/lib/cloud-platform-scope-validation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { CloudPlatformScopeAccountSyncState } from "@/lib/use-cloud-platform-scope";
@@ -39,7 +41,9 @@ export function CloudPlatformScopePanel({
   accountSyncState = "idle",
   labelledById,
 }: CloudPlatformScopePanelProps) {
+  const { productLine } = useProductLine();
   const [emptySelectionMessage, setEmptySelectionMessage] = useState<string | null>(null);
+  const visibleProviders = filterCloudProvidersForProductLine(CLOUD_PROVIDER_NEUTRAL_ORDER, productLine);
 
   const toggleProvider = (providerId: CloudProviderId) => {
     if (wouldLeaveNoVisibleCloudProviders(scope, providerId)) {
@@ -62,7 +66,7 @@ export function CloudPlatformScopePanel({
         {PREFERENCES_CLOUD_PLATFORMS_LEAD}
       </p>
       <div className="flex flex-wrap gap-x-6 gap-y-3" role="group" aria-labelledby={labelledById}>
-        {CLOUD_PROVIDER_NEUTRAL_ORDER.map((providerId) => {
+        {visibleProviders.map((providerId) => {
           const checkboxId = `cloud-platform-scope-${providerId}`;
 
           return (

@@ -17,6 +17,10 @@ import {
   parseSubmittedArchitectureOpenFromSearch,
   submittedArchitectureDisclosureHrefFromSearch,
 } from "@/lib/reviews/submitted-architecture-disclosure-url";
+import {
+  parseSubmittedArchitectureFullDescriptionOpenFromSearch,
+  submittedArchitectureFullDescriptionDisclosureHrefFromSearch,
+} from "@/lib/reviews/submitted-architecture-full-description-disclosure-url";
 
 const PREVIEW_LINE_COUNT = 4;
 
@@ -83,10 +87,14 @@ export function RunDetailSubmittedArchitectureSection(
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const submittedArchitectureOpenParam = searchParams.get("submittedArchitectureOpen");
+  const submittedArchitectureFullDescriptionOpenParam = searchParams.get("submittedArchitectureFullDescriptionOpen");
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [sectionOpen, setSectionOpenState] = useState(() =>
     parseSubmittedArchitectureOpenFromSearch(submittedArchitectureOpenParam),
+  );
+  const [fullDescriptionOpen, setFullDescriptionOpenState] = useState(() =>
+    parseSubmittedArchitectureFullDescriptionOpenFromSearch(submittedArchitectureFullDescriptionOpenParam),
   );
   const text = props.architectureText?.trim() ?? "";
   const sectionTitle = props.sectionTitle ?? "Architecture submitted for review";
@@ -118,6 +126,30 @@ export function RunDetailSubmittedArchitectureSection(
   useEffect(() => {
     setSectionOpenState(parseSubmittedArchitectureOpenFromSearch(submittedArchitectureOpenParam));
   }, [submittedArchitectureOpenParam]);
+
+  const syncFullDescriptionOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        submittedArchitectureFullDescriptionDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setFullDescriptionOpen = useCallback(
+    (open: boolean) => {
+      setFullDescriptionOpenState(open);
+      syncFullDescriptionOpenToUrl(open);
+    },
+    [syncFullDescriptionOpenToUrl],
+  );
+
+  useEffect(() => {
+    setFullDescriptionOpenState(
+      parseSubmittedArchitectureFullDescriptionOpenFromSearch(submittedArchitectureFullDescriptionOpenParam),
+    );
+  }, [submittedArchitectureFullDescriptionOpenParam]);
 
   const copyText = useCallback(async () => {
     const blockedReason = runCollateralSealedManifestCopyBlockedReason({
@@ -256,7 +288,13 @@ export function RunDetailSubmittedArchitectureSection(
               {copyError}
             </p>
           ) : null}
-          <details className="rounded-md border border-dashed border-neutral-200 p-3 dark:border-neutral-700">
+          <details
+            className="rounded-md border border-dashed border-neutral-200 p-3 dark:border-neutral-700"
+            open={fullDescriptionOpen}
+            onToggle={(event) => {
+              setFullDescriptionOpen((event.currentTarget as HTMLDetailsElement).open);
+            }}
+          >
             <summary className={cn("cursor-pointer font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Expand full description
             </summary>
