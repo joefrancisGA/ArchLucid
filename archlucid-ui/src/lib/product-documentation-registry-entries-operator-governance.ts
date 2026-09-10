@@ -99,6 +99,18 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "Working desk Career vs Rehearsal doors (AS-076+)",
   },
   {
+    "slug": "security-evidence-paths",
+    "title": "Security evidence paths",
+    "summary": "Read architect path summaries, confidence bands, weakest hops, and cut points in the remediation factory Path inspect panel.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/library/customer-facing/SECURITY_EVIDENCE_PATHS_OPERATOR_GUIDE.md",
+    ],
+    "lastReviewed": "2026-09-10",
+    "releaseApplicability": "SecureNow remediation factory path inspect (SA-16/SA-21)",
+    "pdfStatus": "customer",
+  },
+  {
     "slug": "architecture-sharing",
     "title": "Architecture sharing inside your tenant",
     "summary": "Optional restrict-to-shares hides a package from unshared workspace members — still one tenant, not chat or a second tenant.",

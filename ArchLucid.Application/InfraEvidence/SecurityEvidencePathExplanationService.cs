@@ -80,7 +80,7 @@ public sealed class SecurityEvidencePathExplanationService(
 
             HashSet<string> allowedArmIds = SecurityEvidencePathExplanationValidator.CollectAllowedArmIds(hops);
             SecurityEvidencePathExplanationTemplateResponse explanationTemplate =
-                SecurityEvidencePathExplanationTemplateBuilder.Build(path, hops);
+                SecurityEvidencePathExplanationTemplateBuilder.Build(path, hops, cutPoints);
 
             SecurityEvidencePathExplanationContent content;
             ProvenanceKind provenanceKind;
