@@ -81,7 +81,7 @@ public sealed partial class ArchitectureExportController(
         }
         catch (ConflictException conflict)
         {
-            return this.ConflictProblem(conflict.Message, ProblemTypes.Conflict);
+            return MapArchitectureExportSealedManifestConflict(conflict);
         }
     }
 }

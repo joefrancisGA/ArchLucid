@@ -36,4 +36,7 @@ public sealed partial class RunDetailPageBundleController
     /// </summary>
     private IActionResult MapRunDetailPageBundleSealedManifestConflict(ConflictException ex) =>
         this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+
+    private static string MapRunDetailPageBundlePriorCompareSealedManifestBlockedReason(ConflictException ex) =>
+        ex.Message;
 }

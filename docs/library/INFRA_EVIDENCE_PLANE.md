@@ -1,5 +1,5 @@
 > **Scope:** Engineering contract for the infrastructure-evidence plane: one Azure collection feeding architecture, drift, security remediation, ARC-AMPE audit evidence, diagrams, and tenant branding of those artifacts. **Contributor-reference** — internal only.
-> **Spine:** [`START_HERE.md`](../START_HERE.md) · **Prompts:** [`../architecture/INFRA_EVIDENCE_COMPOSER_PROMPTS.md`](../architecture/INFRA_EVIDENCE_COMPOSER_PROMPTS.md)
+> **Spine:** [`START_HERE.md`](../START_HERE.md) · **Prompts:** [`../architecture/INFRA_EVIDENCE_COMPOSER_PROMPTS.md`](../architecture/INFRA_EVIDENCE_COMPOSER_PROMPTS.md) · **Architect engines (consumer):** [`SECURENOW_ARCHITECT_PLANE.md`](SECURENOW_ARCHITECT_PLANE.md)
 
 # Infrastructure-evidence plane
 
@@ -16,6 +16,7 @@ Azure Collector (existing extractor ZIP + hosted Reader GET)
               ├── Temporal diff / drift
               ├── Architecture diagram reconciliation
               ├── Operational security findings + governed remediation
+              ├── SecureNow architect paths (privilege, reachability, capability-to-flow) — [`SECURENOW_ARCHITECT_PLANE.md`](SECURENOW_ARCHITECT_PLANE.md)
               └── Audit evidence selectors → ARC-AMPE evaluation
                         └── Evidence lineage (click a green checkbox)
 ```
@@ -60,6 +61,7 @@ That is strictly stronger than periodically dumping Azure config into an audit f
 | Collector (audit) | `AuditEvidenceSelector` (reads snapshot) | A second ARM client |
 | SecurityException | `OperationalSecurityException` | `RiskExceptionRecord` (architecture waivers) — share expiry semantics |
 | TenantBrandingProfile | `TenantBrandingProfile` | Extend `TenantFirstValueReportBranding*`, do not fork |
+| Attack / evidence path | `SecurityEvidencePath` (SA) | Sealed architecture `Finding`; graph node named `SecurityFinding` |
 
 Provenance kinds on every derived claim: **ObservedFact**, **DerivedFact**, **DeterministicInference**, **AiInference**, **HumanAssertion**.
 
@@ -146,4 +148,4 @@ Visual identity is tenant-scoped. Text may still say ArchLucid (powered-by, help
 
 ## 11. Out of scope
 
-ArchLucid ARM writes; replacing aztfexport; inventing ARC-AMPE control text; CMS conformity / SSPP authoring; merging Azure+AWS+GCP snapshots; new coverage engines; tab collapse; GTM cohorts M-90/M-44/M-91/M-92; SOC 2 CPA / third-party pen test as engineering work.
+ArchLucid ARM writes; replacing aztfexport; inventing ARC-AMPE control text; CMS conformity / SSPP authoring; merging Azure+AWS+GCP snapshots; new coverage engines; tab collapse; GTM cohorts M-90/M-44/M-91/M-92; SOC 2 CPA / third-party pen test as engineering work. SecureNow architect engines (**SA-01–SA-21**) consume this plane; they must not add a second collector or apply customer Azure — [`SECURENOW_ARCHITECT_PLANE.md`](SECURENOW_ARCHITECT_PLANE.md).

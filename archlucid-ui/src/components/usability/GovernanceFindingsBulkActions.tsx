@@ -1,6 +1,4 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useState, type SetStateAction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -12,8 +10,12 @@ import { DispositionExportImpactNotice } from "@/components/operator/Disposition
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
+import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
+import { recordBulkFindingDisposition } from "@/lib/api/governance-stickiness-api";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
-import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
+import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
+
 import {
   buildDispositionRestoreRevisitDueUtc,
   recordFindingDispositionRestoreSnapshot,
@@ -35,16 +37,15 @@ import {
   parseGovernanceFindingsBulkDispositionConfirmFromSearch,
   type GovernanceFindingsBulkDisposition,
 } from "@/lib/governance/governance-findings-bulk-disposition-confirm-url";
-import { recordBulkFindingDisposition } from "@/lib/api/governance-stickiness-api";
-import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bulk-disposition-blocked-reason";
 import { collectExpectedCurrentDispositionRowVersionByFindingId } from "@/lib/findings/finding-collect-expected-disposition-row-versions";
-import { FindingDispositionConflictPanel } from "@/components/governance/findings/FindingDispositionConflictPanel";
 import {
   formatFindingDispositionBulkConflictMessage,
   readFindingDispositionConflictFromError,
   type FindingDispositionConflictDetail,
 } from "@/lib/findings/finding-disposition-conflict";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { computeFindingDispositionRevisitDueUtc } from "@/lib/findings/finding-disposition-revisit-window";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 export type BulkDispositionSucceededPayload = {
   readonly message: string;
@@ -243,6 +244,7 @@ export function GovernanceFindingsBulkActions(props: GovernanceFindingsBulkActio
         setInlineErrorMessage(null);
         return;
       }
+
 
       const failure = toApiLoadFailure(err);
       const blockedReason = findingBulkDispositionBlockedReason(failure);

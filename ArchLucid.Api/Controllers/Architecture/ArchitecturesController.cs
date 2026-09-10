@@ -40,12 +40,9 @@ public sealed partial class ArchitecturesController(
     IArchitectureIdentityService architectureIdentityService,
     IArchitectureInventoryBindingService architectureInventoryBindingService,
     ArchitectureInventoryBindingAuditSupport architectureInventoryBindingAuditSupport,
+    IArchitectureShareService architectureShareService,
     ArchitectureShareAuditSupport architectureShareAuditSupport,
-    IArchitectureRestrictToSharesService architectureRestrictToSharesService,
-    IArchitectureShareManagementService architectureShareManagementService,
-    IArchitectureShareAccessService architectureShareAccessService,
     IArchitectureShareAccessGate architectureShareAccessGate,
-    IAuthenticatedPlatformUserResolver platformUserResolver,
     IArchitectureSealDeltaService architectureSealDeltaService,
     IAuditService auditService,
     IRunRepository runRepository,
@@ -84,23 +81,14 @@ public sealed partial class ArchitecturesController(
     private readonly ArchitectureInventoryBindingAuditSupport _architectureInventoryBindingAuditSupport =
         architectureInventoryBindingAuditSupport ?? throw new ArgumentNullException(nameof(architectureInventoryBindingAuditSupport));
 
+    private readonly IArchitectureShareService _architectureShareService =
+        architectureShareService ?? throw new ArgumentNullException(nameof(architectureShareService));
+
     private readonly ArchitectureShareAuditSupport _architectureShareAuditSupport =
         architectureShareAuditSupport ?? throw new ArgumentNullException(nameof(architectureShareAuditSupport));
 
-    private readonly IArchitectureRestrictToSharesService _architectureRestrictToSharesService =
-        architectureRestrictToSharesService ?? throw new ArgumentNullException(nameof(architectureRestrictToSharesService));
-
-    private readonly IArchitectureShareManagementService _architectureShareManagementService =
-        architectureShareManagementService ?? throw new ArgumentNullException(nameof(architectureShareManagementService));
-
-    private readonly IArchitectureShareAccessService _architectureShareAccessService =
-        architectureShareAccessService ?? throw new ArgumentNullException(nameof(architectureShareAccessService));
-
     private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
         architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
-
-    private readonly IAuthenticatedPlatformUserResolver _platformUserResolver =
-        platformUserResolver ?? throw new ArgumentNullException(nameof(platformUserResolver));
 
     private readonly IArchitectureSealDeltaService _architectureSealDeltaService =
         architectureSealDeltaService ?? throw new ArgumentNullException(nameof(architectureSealDeltaService));
@@ -120,12 +108,14 @@ public sealed partial class ArchitecturesController(
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        string actorOid = _actorContext.GetActorId();
 
         ArchitectureIdentityListPage response = await _architectureIdentityService.ListIdentitiesAsync(
             scope,
             page,
             pageSize,
             includeArchived,
+            actorOid,
             cancellationToken);
 
         response = await FilterArchitectureListByShareAccessAsync(scope, response, cancellationToken);
@@ -148,6 +138,7 @@ public sealed partial class ArchitecturesController(
     public async Task<IActionResult> GetArchitecture(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        string actorOid = _actorContext.GetActorId();
 
         IActionResult? shareGuardResult =
             await EnsureArchitectureShareReadAllowedAsync(scope, architectureId, cancellationToken);
@@ -158,6 +149,7 @@ public sealed partial class ArchitecturesController(
         ArchitectureIdentityDetail? detail = await _architectureIdentityService.GetIdentityAsync(
             scope,
             architectureId,
+            actorOid,
             cancellationToken);
 
         if (detail is null)
@@ -275,6 +267,7 @@ public sealed partial class ArchitecturesController(
             ArchitectureIdentityDetail? detail = await _architectureIdentityService.GetIdentityAsync(
                 scope,
                 architectureId,
+                _actorContext.GetActorId(),
                 cancellationToken);
 
             if (detail is null)

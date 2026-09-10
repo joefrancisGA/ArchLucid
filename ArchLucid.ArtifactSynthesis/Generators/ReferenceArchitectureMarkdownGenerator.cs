@@ -34,11 +34,13 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine("## Requirements");
         foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
 
-            sb.AppendLine($"- Covered: {item.RequirementName}");
+            sb.AppendLine(
+                $"- Covered: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})");
 
         foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
 
-            sb.AppendLine($"- Uncovered: {item.RequirementName}");
+            sb.AppendLine(
+                $"- Uncovered: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})");
 
         if (manifest.Requirements.Covered.Count == 0 && manifest.Requirements.Uncovered.Count == 0)
 

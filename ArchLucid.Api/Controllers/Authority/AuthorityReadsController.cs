@@ -124,17 +124,24 @@ public sealed partial class AuthorityReadsController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunDetail(Guid runId, CancellationToken ct = default)
     {
-        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+        try
+        {
+            RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        return Ok(detail);
+            return Ok(detail);
+        }
+        catch (ConflictException ex)
+        {
+            return MapReviewTrailSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Golden (sealed) review record JSON when the run is finalized.</summary>
@@ -144,28 +151,35 @@ public sealed partial class AuthorityReadsController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetRunManifest(Guid runId, CancellationToken ct = default)
     {
-        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+        try
+        {
+            RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        if (detail.GoldenManifest is null)
-            return this.NotFoundProblem(
-                $"Golden manifest for run '{runId}' was not found.",
-                ProblemTypes.ManifestNotFound);
+            if (detail.GoldenManifest is null)
+                return this.NotFoundProblem(
+                    $"Golden manifest for run '{runId}' was not found.",
+                    ProblemTypes.ManifestNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        await readHandlers.LogRunScopedAuditAsync(
-            AuditEventTypes.ManifestViewed,
-            runId,
-            detail.GoldenManifest.ManifestId,
-            ct);
+            await readHandlers.LogRunScopedAuditAsync(
+                AuditEventTypes.ManifestViewed,
+                runId,
+                detail.GoldenManifest.ManifestId,
+                ct);
 
-        return Ok(detail.GoldenManifest);
+            return Ok(detail.GoldenManifest);
+        }
+        catch (ConflictException ex)
+        {
+            return MapReviewTrailSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Audit events associated with this run, oldest-first (pipeline / lifecycle visibility).</summary>
@@ -175,25 +189,32 @@ public sealed partial class AuthorityReadsController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrail(Guid runId, CancellationToken ct = default)
     {
-        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+        try
+        {
+            RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        IReadOnlyList<RunPipelineTimelineItemResponse>? body =
-            await readHandlers.TryGetPipelineTimelineAsync(runId, ct);
+            IReadOnlyList<RunPipelineTimelineItemResponse>? body =
+                await readHandlers.TryGetPipelineTimelineAsync(runId, ct);
 
-        if (body is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (body is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        await readHandlers.LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, null, ct);
+            await readHandlers.LogRunScopedAuditAsync(AuditEventTypes.ReviewTrailAccessed, runId, null, ct);
 
-        return Ok(body);
+            return Ok(body);
+        }
+        catch (ConflictException ex)
+        {
+            return MapReviewTrailSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>Unified decision rationale (authority or coordinator) for operator triage.</summary>
@@ -203,21 +224,28 @@ public sealed partial class AuthorityReadsController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> GetReviewTrailRationale(Guid runId, CancellationToken ct = default)
     {
-        RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
+        try
+        {
+            RunDetailDto? detail = await readHandlers.GetRunDetailAsync(runId, ct);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            if (detail is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+            IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        RunRationale? rationale = await readHandlers.GetRunRationaleAsync(runId, ct);
+            RunRationale? rationale = await readHandlers.GetRunRationaleAsync(runId, ct);
 
-        return rationale is null
-            ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
-            : Ok(rationale);
+            return rationale is null
+                ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
+                : Ok(rationale);
+        }
+        catch (ConflictException ex)
+        {
+            return MapReviewTrailSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>

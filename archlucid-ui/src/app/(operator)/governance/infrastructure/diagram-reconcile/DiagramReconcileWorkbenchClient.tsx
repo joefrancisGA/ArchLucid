@@ -61,6 +61,7 @@ import {
   fetchInfraEvidenceSnapshots,
   formatInfraEvidenceApiError,
 } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { buildInfraEvidenceAuditControlOptions, buildInfraEvidenceAuditControlScopePatch } from "@/lib/infra-evidence/infra-evidence-audit-control-options";
 import { buildInfrastructureAskHref, resourceHubFilterHrefFromSearch } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
@@ -86,7 +87,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { useInfraEvidenceResourceHubAuditLineage } from "@/hooks/use-infra-evidence-resource-hub-audit-lineage";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_LOAD_ERROR_TITLE,
@@ -113,13 +113,6 @@ const MATCH_KIND_FILTERS: readonly { value: DiagramReconcileMatchKindFilter; lab
   { value: "Exact", label: "Exact" },
   { value: "Probable", label: "Probable" },
 ];
-
-function formatSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
-  const captured = snapshot.capturedUtc != null ? new Date(snapshot.capturedUtc).toLocaleString() : "unknown time";
-  const subscription = snapshot.subscriptionName ?? snapshot.subscriptionId ?? "subscription";
-
-  return `${subscription} · ${captured} · ${snapshot.resourceCount} resources`;
-}
 
 function buildDiagramReconcileCorrespondenceAskHref(
   row: DiagramInfrastructureCorrespondenceRow,
@@ -317,6 +310,23 @@ export function DiagramReconcileWorkbenchClient() {
       .querySelector(`[data-testid="infra-diagram-reconcile-row-${urlCorrespondenceId}"]`)
       ?.scrollIntoView({ block: "nearest" });
   }, [filteredRows.length, selectedCorrespondenceId, urlCorrespondenceId]);
+
+  useEffect(() => {
+    if (selectedCorrespondenceId === null || selectedCorrespondenceId.length === 0) {
+      return;
+    }
+
+    if (loadingReconciliation) {
+      return;
+    }
+
+    const stillVisible = filteredRows.some((row) => row.correspondenceId === selectedCorrespondenceId);
+
+    if (!stillVisible) {
+      setSelectedCorrespondenceId(null);
+      syncUrl({ correspondenceId: "" });
+    }
+  }, [filteredRows, loadingReconciliation, selectedCorrespondenceId, syncUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -833,7 +843,7 @@ export function DiagramReconcileWorkbenchClient() {
             ) : (
               snapshots.map((snapshot) => (
                 <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                  {formatSnapshotLabel(snapshot)}
+                  {formatInfraEvidenceSnapshotLabel(snapshot)}
                 </option>
               ))
             )}

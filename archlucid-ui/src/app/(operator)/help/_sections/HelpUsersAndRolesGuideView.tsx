@@ -16,14 +16,14 @@ import {
   USERS_AND_ROLES_CAPABILITY_MATRIX_CAPTION,
   USERS_AND_ROLES_CAPABILITY_MATRIX_HEADING,
   USERS_AND_ROLES_FAQ_HEADING,
-  USERS_AND_ROLES_HOW_ACCESS_WORKS_BODY,
   USERS_AND_ROLES_HOW_ACCESS_WORKS_HEADING,
   USERS_AND_ROLES_MANAGING_ACCESS_HEADING,
-  USERS_AND_ROLES_PAGE_INTRO,
   USERS_AND_ROLES_PAGE_TITLE,
-  USERS_AND_ROLES_REVIEW_PARTICIPATION_BODY,
-  USERS_AND_ROLES_REVIEW_PARTICIPATION_HEADING,
   USERS_AND_ROLES_ROLE_OVERVIEW_HEADING,
+  usersAndRolesHowAccessWorksBody,
+  usersAndRolesPageIntro,
+  usersAndRolesReviewParticipationBody,
+  usersAndRolesReviewParticipationHeading,
   USERS_AND_ROLES_SCOPE_GUIDE_LINK_LABEL,
   USERS_AND_ROLES_SECURITY_GUIDANCE_HEADING,
   USERS_AND_ROLES_SECURITY_GUIDANCE_ITEMS,
@@ -36,14 +36,17 @@ import {
   USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE,
 } from "@/lib/users-and-roles-help-evidence-copy";
 import {
-  USERS_AND_ROLES_CAPABILITY_ROWS,
-  USERS_AND_ROLES_FAQ,
-  USERS_AND_ROLES_GUIDE_HEADINGS,
   USERS_AND_ROLES_MANAGING_ACCESS_STEPS,
-  USERS_AND_ROLES_ROLE_OVERVIEW,
   USERS_AND_ROLES_SCOPE_GUIDE_HREF,
   USERS_AND_ROLES_SECURITY_TRUST_HREF,
+  usersAndRolesCapabilityRows,
+  usersAndRolesFaq,
+  usersAndRolesGuideHeadings,
+  usersAndRolesRoleOverview,
+  type UsersAndRolesCapabilityRow,
+  type UsersAndRolesRoleOverview,
 } from "@/lib/users-and-roles-help-manifest";
+import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   USERS_AND_ROLES_HELP_ACTION_PANEL_TITLE,
   USERS_AND_ROLES_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -69,7 +72,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
   );
 }
 
-function RoleOverviewTable(): React.ReactElement {
+function RoleOverviewTable(props: { readonly roles: readonly UsersAndRolesRoleOverview[] }): React.ReactElement {
   return (
     <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="users-and-roles-role-overview-table">
       <table className={HELP_PAGE_LAYOUT.table}>
@@ -91,7 +94,7 @@ function RoleOverviewTable(): React.ReactElement {
           </tr>
         </thead>
         <tbody>
-          {USERS_AND_ROLES_ROLE_OVERVIEW.map((role) => (
+          {props.roles.map((role) => (
             <tr key={role.id}>
               <th scope="row" className={HELP_PAGE_LAYOUT.tableHeadCell}>
                 {role.label}
@@ -107,7 +110,10 @@ function RoleOverviewTable(): React.ReactElement {
   );
 }
 
-function CapabilityMatrixTable(): React.ReactElement {
+function CapabilityMatrixTable(props: {
+  readonly roles: readonly UsersAndRolesRoleOverview[];
+  readonly capabilityRows: readonly UsersAndRolesCapabilityRow[];
+}): React.ReactElement {
   return (
     <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="users-and-roles-capability-matrix">
       <table className={HELP_PAGE_LAYOUT.table}>
@@ -117,7 +123,7 @@ function CapabilityMatrixTable(): React.ReactElement {
             <th scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
               Capability
             </th>
-            {USERS_AND_ROLES_ROLE_OVERVIEW.map((role) => (
+            {props.roles.map((role) => (
               <th key={role.id} scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
                 {role.label}
               </th>
@@ -125,12 +131,12 @@ function CapabilityMatrixTable(): React.ReactElement {
           </tr>
         </thead>
         <tbody>
-          {USERS_AND_ROLES_CAPABILITY_ROWS.map((row) => (
+          {props.capabilityRows.map((row) => (
             <tr key={row.id}>
               <th scope="row" className={HELP_PAGE_LAYOUT.tableHeadCell}>
                 {row.label}
               </th>
-              {USERS_AND_ROLES_ROLE_OVERVIEW.map((role) => (
+              {props.roles.map((role) => (
                 <td key={role.id} className={HELP_PAGE_LAYOUT.tableBodyCell}>
                   <span
                     className="inline-flex min-w-[2rem] justify-center font-semibold"
@@ -169,8 +175,13 @@ function UsersAndRolesActionPanel(): React.ReactElement {
 
 /** Customer-facing users and roles guide for `/help/users-and-roles`. */
 export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProps): React.ReactElement {
+  const productLineId = resolveProductLineIdFromEnv();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const contentGridClass = resolveHelpPageContentGridClass(USERS_AND_ROLES_GUIDE_HEADINGS.length);
+  const guideHeadings = usersAndRolesGuideHeadings(productLineId);
+  const roleOverview = usersAndRolesRoleOverview(productLineId);
+  const capabilityRows = usersAndRolesCapabilityRows(productLineId);
+  const faqItems = usersAndRolesFaq(productLineId);
+  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
 
   return (
     <article
@@ -192,7 +203,7 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
         <HelpTopicGuidePageHeader
           title={USERS_AND_ROLES_PAGE_TITLE}
           titleTestId="help-users-and-roles-page-title"
-          subtitle={USERS_AND_ROLES_PAGE_INTRO}
+          subtitle={usersAndRolesPageIntro(productLineId)}
           navHref={USERS_AND_ROLES_HELP_CANONICAL_PATH}
           headingLevel="h1"
           claimDiscipline={buyerPolishedShell ? USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE : undefined}
@@ -232,13 +243,13 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
                 id="users-and-roles-how-access-works-heading"
                 className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
               >
-                {USERS_AND_ROLES_HOW_ACCESS_WORKS_BODY}
+                {usersAndRolesHowAccessWorksBody(productLineId)}
               </p>
             </section>
 
             <section className="space-y-3" aria-labelledby="users-and-roles-role-overview-heading">
               <HelpSectionHeading id="role-overview">{USERS_AND_ROLES_ROLE_OVERVIEW_HEADING}</HelpSectionHeading>
-              <RoleOverviewTable />
+              <RoleOverviewTable roles={roleOverview} />
             </section>
 
             <section className="space-y-3" aria-labelledby="users-and-roles-capability-matrix-heading">
@@ -250,7 +261,7 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
               >
                 {USERS_AND_ROLES_CAPABILITY_MATRIX_CAPTION}
               </p>
-              <CapabilityMatrixTable />
+              <CapabilityMatrixTable roles={roleOverview} capabilityRows={capabilityRows} />
             </section>
 
             <section className="space-y-3" aria-labelledby="users-and-roles-workspace-access-heading">
@@ -268,12 +279,14 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
             </section>
 
             <section className="space-y-3" aria-labelledby="users-and-roles-review-participation-heading">
-              <HelpSectionHeading id="review-participation">{USERS_AND_ROLES_REVIEW_PARTICIPATION_HEADING}</HelpSectionHeading>
+              <HelpSectionHeading id="review-participation">
+                {usersAndRolesReviewParticipationHeading(productLineId)}
+              </HelpSectionHeading>
               <p
                 id="users-and-roles-review-participation-heading"
                 className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
               >
-                {USERS_AND_ROLES_REVIEW_PARTICIPATION_BODY}
+                {usersAndRolesReviewParticipationBody(productLineId)}
               </p>
             </section>
 
@@ -309,7 +322,7 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
             <section className="space-y-4" aria-labelledby="users-and-roles-faq-heading">
               <HelpSectionHeading id="common-questions">{USERS_AND_ROLES_FAQ_HEADING}</HelpSectionHeading>
               <div className="space-y-4">
-                {USERS_AND_ROLES_FAQ.map((item) => (
+                {faqItems.map((item) => (
                   <div key={item.id} data-testid={`users-and-roles-faq-${item.id}`}>
                     <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{item.question}</h3>
                     <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{item.answer}</p>
@@ -319,7 +332,7 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={USERS_AND_ROLES_GUIDE_HEADINGS} enableScrollSpy />
+          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
         </div>
 
         {buyerPolishedShell ? <HelpUsersAndRolesSourcesOrientationStrip /> : null}

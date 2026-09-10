@@ -253,8 +253,9 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       list = list.filter((run) => {
         const idMatch = run.runId.toLowerCase().includes(query);
         const desc = (run.description ?? "").toLowerCase();
+        const displayName = (run.displayName ?? "").toLowerCase();
 
-        return idMatch || desc.includes(query);
+        return idMatch || desc.includes(query) || displayName.includes(query);
       });
     }
 

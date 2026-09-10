@@ -1,5 +1,9 @@
 import type { AskResponse } from "@/types/conversation";
 
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { findingAskBlockedReason } from "@/lib/findings/finding-ask-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import { apiPostJson } from "./http";
 
 /** Body for POST /v1/architecture/finding/{findingId}/ask. */
@@ -33,5 +37,12 @@ export async function askAboutFinding(
     body.threadId = payload.threadId.trim();
   }
 
-  return apiPostJson<AskResponse>(`/v1/architecture/finding/${encodeURIComponent(routeId)}/ask`, body);
+  try {
+    return await apiPostJson<AskResponse>(`/v1/architecture/finding/${encodeURIComponent(routeId)}/ask`, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingAskBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

@@ -1,21 +1,27 @@
+import type { FindingInspectPayload } from "@/types/finding-inspect";
+import { mapFindingInspectApiPayload } from "@/lib/findings/finding-inspect-payload-map";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { findingFeedbackMutationBlockedReason } from "@/lib/findings/finding-feedback-mutation-blocked-reason";
+import { findingInspectBlockedReason } from "@/lib/findings/finding-inspect-blocked-reason";
+import { findingLlmAuditBlockedReason } from "@/lib/findings/finding-llm-audit-blocked-reason";
+import { findingMuteMutationBlockedReason } from "@/lib/findings/finding-mute-mutation-blocked-reason";
+import { runFindingsCsvExportBlockedReason } from "@/lib/findings/run-findings-csv-export-blocked-reason";
+import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-blocked-reason";
+import { findingEvidenceChainBlockedReason } from "@/lib/explain/finding-evidence-chain-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { applyCorrelationHeaders } from "@/lib/api/http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+
 ﻿import type {
   FindingEvidenceChain,
   FindingExplainability,
   FindingLlmAudit,
 } from "@/types/explanation";
-import type { FindingInspectPayload } from "@/types/finding-inspect";
-import { mapFindingInspectApiPayload } from "@/lib/findings/finding-inspect-payload-map";
-import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
-import { findingFeedbackMutationBlockedReason } from "@/lib/findings/finding-feedback-mutation-blocked-reason";
-import { runFindingsCsvExportBlockedReason } from "@/lib/findings/run-findings-csv-export-blocked-reason";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { buildApiRequestErrorFromParts } from "@/lib/api-error";
-import { applyCorrelationHeaders } from "@/lib/api/http";
 import {
   parseFilenameFromContentDisposition,
   triggerBrowserBlobDownload,
 } from "./downloads-blob-trigger-browser";
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import {
   apiGet,
   apiPostJson,
@@ -41,38 +47,66 @@ export async function getFindingInspect(
   const includeTypedPayload = options?.includeTypedPayload ?? true;
   const query = includeTypedPayload ? "" : "?includeTypedPayload=false";
 
-  return mapFindingInspectApiPayload(
-    await apiGetSealedManifestAware<Record<string, unknown>>(
+  try {
+    const payload = await apiGet<Record<string, unknown>>(
       `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect${query}`,
-    ),
-  );
+    );
+
+    return mapFindingInspectApiPayload(payload);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingInspectBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Persisted explainability trace + narrative for a single finding (no LLM). */
 export async function getFindingExplainability(runId: string, findingId: string): Promise<FindingExplainability> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  return apiGetSealedManifestAware<FindingExplainability>(
-    `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/explainability`,
-  );
+  try {
+    return await apiGet<FindingExplainability>(
+      `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/explainability`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingExplainBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Evidence-chain pointers for one finding (ReadAuthority; architecture query surface). */
 export async function getFindingEvidenceChain(runId: string, findingId: string): Promise<FindingEvidenceChain> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  return apiGetSealedManifestAware<FindingEvidenceChain>(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodedFinding}/evidence-chain`,
-  );
+  try {
+    return await apiGet<FindingEvidenceChain>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/findings/${encodedFinding}/evidence-chain`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingEvidenceChainBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Redacted LLM prompt/completion audit for one finding (ReadAuthority). */
 export async function getFindingLlmAudit(runId: string, findingId: string): Promise<FindingLlmAudit> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  return apiGetSealedManifestAware<FindingLlmAudit>(
-    `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/llm-audit`,
-  );
+  try {
+    return await apiGet<FindingLlmAudit>(
+      `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/llm-audit`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingLlmAuditBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Records thumbs feedback for a finding (ExecuteAuthority). */
@@ -157,10 +191,17 @@ export async function postFindingMute(
 ): Promise<void> {
   const encodedFinding = encodeURIComponent(findingId);
 
-  await apiPostJson(`/v1/findings/${encodedFinding}/mute`, {
-    runId,
-    reason,
-  });
+  try {
+    await apiPostJson(`/v1/findings/${encodedFinding}/mute`, {
+      runId,
+      reason,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = findingMuteMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export { deleteFindingMute } from "@/lib/findings/finding-unmute-client";

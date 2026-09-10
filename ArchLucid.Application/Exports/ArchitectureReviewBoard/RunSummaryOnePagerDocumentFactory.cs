@@ -19,6 +19,7 @@ public static class RunSummaryOnePagerDocumentFactory
         int sealedFindingCount = 0,
         string? careerExportHonestyPlainText = null,
         string? architectRestatementMarkdown = null)
+
     {
         ArgumentNullException.ThrowIfNull(detail);
         ArgumentNullException.ThrowIfNull(SponsorReport);
@@ -63,6 +64,7 @@ public static class RunSummaryOnePagerDocumentFactory
             ArchitectRestatementMarkdown = string.IsNullOrWhiteSpace(architectRestatementMarkdown)
                 ? null
                 : architectRestatementMarkdown.Trim(),
+
         };
     }
 

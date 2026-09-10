@@ -30,7 +30,7 @@ public sealed partial class ArchLucidApiClient
 
             Gen.SubmitAgentResultRequest req = new() { Result = genResult };
             Gen.Body75? body = MapToOpenApiRequestBody<Gen.Body75>(req, GenNumericEnumBridgeJson);
-            Gen.SubmitAgentResultResponse parsed = await _api.ResultPOSTAsync(runId, body, ct);
+            Gen.SubmitAgentResultResponse parsed = await _api.ResultPOSTAsync(runId, null, body, ct);
 
             return new SubmitResultResult(true, parsed.ResultId, null);
         }
@@ -109,7 +109,7 @@ public sealed partial class ArchLucidApiClient
         try
         {
             System.Collections.Generic.ICollection<Gen.ArtifactDescriptorResponse> artifacts =
-                await _api.ArtifactsAllAsync(runGuid, ct);
+                await _api.ArtifactsAllAsync(runGuid, null, ct);
 
             return artifacts
                 .Where(a => a.ArtifactId is not null)
@@ -131,7 +131,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.RunDetailsResponse details = await _api.ReviewAsync(runId, ct);
+            Gen.RunDetailsResponse details = await _api.ReviewAsync(runId, null, ct);
 
             return DeserializeRoundTrip<GetRunResult>(details);
         }
@@ -150,7 +150,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.GoldenManifest manifest = await _api.ManifestAsync(version, ct);
+            Gen.GoldenManifest manifest = await _api.ManifestAsync(version, null, ct);
 
             return JsonSerializer.SerializeToElement(manifest, _jsonOptions);
         }

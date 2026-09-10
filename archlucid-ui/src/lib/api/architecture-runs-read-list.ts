@@ -5,6 +5,11 @@ import type { StageTimelineSummary } from "@/types/stage-timeline";
 import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
 
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { runOperatorGovernanceDispositionMutationBlockedReason } from "@/lib/runs/run-operator-governance-disposition-mutation-blocked-reason";
+import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeline-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import {
   type ApiResponseWithTrace,
   apiPostJson,
@@ -52,22 +57,43 @@ export async function recordRunOperatorGovernanceDisposition(
   runId: string,
   body: RunOperatorGovernanceDispositionRequest,
 ): Promise<RunOperatorGovernanceDispositionResponse> {
-  return apiPostJson<RunOperatorGovernanceDispositionResponse>(
-    `/v1/authority/reviews/${encodeURIComponent(runId)}/disposition`,
-    body,
-  );
+  try {
+    return await apiPostJson<RunOperatorGovernanceDispositionResponse>(
+      `/v1/authority/reviews/${encodeURIComponent(runId)}/disposition`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runOperatorGovernanceDispositionMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Authority pipeline stage outcomes (`GET /v1/architecture/review/{runId}/stage-timeline`, TB-250). */
 export async function getRunStageTimeline(runId: string): Promise<StageTimelineSummary[]> {
-  return apiGetSealedManifestAware<StageTimelineSummary[]>(
-    `/v1/architecture/review/${encodeURIComponent(runId)}/stage-timeline`,
-  );
+  try {
+    return await apiGetSealedManifestAware<StageTimelineSummary[]>(
+      `/v1/architecture/review/${encodeURIComponent(runId)}/stage-timeline`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runPipelineTimelineBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Run-scoped audit events oldest-first (pipeline / lifecycle timeline for operators). */
 export async function getRunPipelineTimeline(runId: string): Promise<PipelineTimelineItem[]> {
-  return apiGetSealedManifestAware<PipelineTimelineItem[]>(
-    `/v1/authority/reviews/${runId}/pipeline-timeline`,
-  );
+  try {
+    return await apiGetSealedManifestAware<PipelineTimelineItem[]>(
+      `/v1/authority/reviews/${runId}/pipeline-timeline`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runPipelineTimelineBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }

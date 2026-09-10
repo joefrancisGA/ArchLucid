@@ -110,6 +110,7 @@ internal static partial class RunRepositorySql
                                                                  """;
 
     public const string SelectRepresentativeRunIdForArchitectureRequestInScope = $"""
+
                                                                                  SELECT TOP (1) RunId
                                                                                  FROM dbo.Runs
                                                                                  WHERE TenantId = @TenantId
@@ -118,6 +119,7 @@ internal static partial class RunRepositorySql
                                                                                    AND {CollapsedUpperArchitectureRequestId} = @NormalizedArchitectureRequestId
                                                                                    AND GoldenManifestId IS NOT NULL
                                                                                  ORDER BY CreatedUtc DESC, RunId DESC;
+
                                                                                  """;
 
     public const string ExistsActiveRunWithSystemNameInWorkspace = """

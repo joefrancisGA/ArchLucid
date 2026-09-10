@@ -1,17 +1,12 @@
-using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Controllers.Architecture;
-using ArchLucid.Api.Support;
-using ArchLucid.Api.Tests.Support;
 using ArchLucid.Application.Architecture;
-using Microsoft.Extensions.Logging.Abstractions;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Pagination;
-using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.TestSupport.SealedManifest;
+
+
 
 using FluentAssertions;
 
@@ -27,6 +22,8 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class ArchitecturesControllerTests
 {
+    private const string ActorOid = "operator@test";
+
     private static readonly ScopeContext Scope = new()
     {
         TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -39,18 +36,14 @@ public sealed class ArchitecturesControllerTests
     private readonly Mock<IAuditService> _auditService = new();
     private readonly Mock<IArchitectureIdentityService> _service = new();
     private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
-    private readonly Mock<IArchitectureRestrictToSharesService> _restrictToSharesService = new();
-    private readonly Mock<IArchitectureShareAccessService> _shareAccessService = new();
-    private readonly Mock<IArchitectureShareAccessGate> _shareAccessGate = ArchitectureShareAccessGateTestDefaults.CreatePermissiveGate();
-    private readonly Mock<IAuthenticatedPlatformUserResolver> _platformUserResolver = new();
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IGoldenManifestRepository> _goldenManifestRepository = new();
-    private readonly Mock<IManifestHashService> _manifestHashService = new();
 
     public ArchitecturesControllerTests()
     {
         _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
+        _actorContext.Setup(static s => s.GetActorId()).Returns(ActorOid);
     }
 
     [Fact]
@@ -72,7 +65,13 @@ public sealed class ArchitecturesControllerTests
         };
 
         _service
-            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, false, It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListIdentitiesAsync(
+                Scope,
+                1,
+                50,
+                false,
+                ActorOid,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(page);
 
         ArchitecturesController sut = BuildSut();
@@ -89,7 +88,11 @@ public sealed class ArchitecturesControllerTests
         Guid architectureId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
 
         _service
-            .Setup(s => s.GetIdentityAsync(Scope, architectureId, It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetIdentityAsync(
+                Scope,
+                architectureId,
+                ActorOid,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureIdentityDetail?)null);
 
         ArchitecturesController sut = BuildSut();
@@ -197,30 +200,13 @@ public sealed class ArchitecturesControllerTests
     }
 
     private ArchitecturesController BuildSut() =>
-        new(
-            _scopeProvider.Object,
-            _actorContext.Object,
-            _service.Object,
-            _bindingService.Object,
-            new ArchitectureInventoryBindingAuditSupport(
-                _auditService.Object,
-                NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
-            new ArchitectureShareAuditSupport(
-                _auditService.Object,
-                NullLogger<ArchitectureShareAuditSupport>.Instance),
-            _restrictToSharesService.Object,
-            ArchitectureShareManagementServiceTestDefaults.CreatePermissiveService().Object,
-            _shareAccessService.Object,
-            _shareAccessGate.Object,
-            _platformUserResolver.Object,
-            _sealDeltaService.Object,
-            _auditService.Object,
-            _runRepository.Object,
-            _goldenManifestRepository.Object,
-            _manifestHashService.Object,
-            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
-            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun())
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
-        };
+        ArchitecturesControllerTestSupport.BuildController(
+            _scopeProvider,
+            _actorContext,
+            _service,
+            _bindingService,
+            _sealDeltaService,
+            _auditService,
+            _runRepository,
+            _goldenManifestRepository);
 }
