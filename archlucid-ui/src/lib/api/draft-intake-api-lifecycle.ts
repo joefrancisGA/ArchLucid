@@ -101,16 +101,30 @@ export async function branchDraftRequest(
   draftId: string,
   body: BranchDraftRequest,
 ): Promise<BranchDraftResponse> {
-  return apiPostJson<BranchDraftResponse>(
-    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch`,
-    body,
-  );
+  try {
+    return await apiPostJson<BranchDraftResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/branch`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Clone a run-spawned draft into a new editable architecture id (WA-10). */
 export async function cloneDraftSnapshot(draftId: string): Promise<CloneSnapshotDraftResponse> {
-  return apiPostJson<CloneSnapshotDraftResponse>(
-    `${DRAFT_BASE}/${encodeURIComponent(draftId)}/clone-snapshot`,
-    {},
-  );
+  try {
+    return await apiPostJson<CloneSnapshotDraftResponse>(
+      `${DRAFT_BASE}/${encodeURIComponent(draftId)}/clone-snapshot`,
+      {},
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureDraftIntakeMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
