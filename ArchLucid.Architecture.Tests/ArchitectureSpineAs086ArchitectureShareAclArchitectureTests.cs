@@ -19,7 +19,7 @@ public sealed class ArchitectureSpineAs086ArchitectureShareAclArchitectureTests
 
         adr.Should().Contain("RestrictToShares");
         adr.Should().Contain("ADR 0037");
-        adr.Should().NotContain("finding-comment chat");
+        adr.Should().Contain("finding-comment chat");
         adr.Should().Contain("no SQL RLS");
     }
 

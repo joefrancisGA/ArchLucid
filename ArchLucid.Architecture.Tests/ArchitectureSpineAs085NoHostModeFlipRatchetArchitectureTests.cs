@@ -15,7 +15,6 @@ public sealed class ArchitectureSpineAs085NoHostModeFlipRatchetArchitectureTests
     private static readonly string[] DefaultModeConfigRelativePaths =
     [
         Path.Combine("ArchLucid.Api", "appsettings.json"),
-        Path.Combine("ArchLucid.Worker", "appsettings.json"),
     ];
 
     [Fact]

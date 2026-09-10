@@ -88,6 +88,17 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "policy alerts orientation",
   },
   {
+    "slug": "career-vs-rehearsal",
+    "title": "Career vs Rehearsal on the Working desk",
+    "summary": "Choose Career for sealed-record evidence or Rehearsal for labeled practice — Simulator output is not sponsor proof.",
+    "audience": "operator",
+    "sourcePaths": [
+      "docs/go-to-market/CAREER_VS_REHEARSAL_WORKING_DOORS.md",
+    ],
+    "lastReviewed": "2026-09-10",
+    "releaseApplicability": "Working desk Career vs Rehearsal doors (AS-076+)",
+  },
+  {
     "slug": "pilot-feedback",
     "title": "Pilot feedback (internal runbook)",
     "summary": "Admin/product-owner guide for human judgment signals on findings and architecture reviews — separate from recommendation learning. Not default buyer help.",

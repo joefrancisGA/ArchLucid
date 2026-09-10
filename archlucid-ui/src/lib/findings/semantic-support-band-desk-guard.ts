@@ -2,7 +2,6 @@ import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import {
-  SEMANTIC_SUPPORT_BAND_DECISION_GRADE_CONTEXT_MARKERS,
   SEMANTIC_SUPPORT_BAND_DESK_CHIP_MARKERS,
   SEMANTIC_SUPPORT_BAND_DESK_GUARDED_PATHS,
 } from "@/lib/findings/semantic-support-band-desk-inventory";
@@ -18,12 +17,6 @@ function readUiSource(uiRoot: string, relativePath: string): string {
 
 function sourceUsesBandChip(source: string): boolean {
   return SEMANTIC_SUPPORT_BAND_DESK_CHIP_MARKERS.some((marker) => source.includes(marker));
-}
-
-function sourceReferencesDecisionGrade(source: string): boolean {
-  return SEMANTIC_SUPPORT_BAND_DECISION_GRADE_CONTEXT_MARKERS.some((marker) =>
-    source.includes(marker),
-  );
 }
 
 export function findSemanticSupportBandDeskGuardViolations(

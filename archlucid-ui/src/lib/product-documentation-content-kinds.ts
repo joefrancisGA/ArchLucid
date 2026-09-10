@@ -80,6 +80,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "integration-readiness": "product-help",
   "azure-boards": "product-help",
   "users-and-roles": "product-help",
+  "career-vs-rehearsal": "product-help",
   "choose-your-next-step": "product-help",
   "pilot-feedback": "internal-runbook",
   "pilot-guide": "product-help",
