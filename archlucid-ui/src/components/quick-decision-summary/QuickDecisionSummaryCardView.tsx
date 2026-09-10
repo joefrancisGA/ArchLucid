@@ -4,6 +4,7 @@ import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExp
 import { ReviewDetailPolicyPackFindingsBreakdown } from "@/components/findings/ReviewDetailPolicyPackFindingsBreakdown";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE } from "@/lib/finding-stream-product-of-record-copy";
 import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -101,14 +102,13 @@ export function QuickDecisionSummaryCardView({
             unmappedFindingCount={derived.policyPackImpact.unmappedFindingCount}
           />
         ) : null}
-        {props.usingExplanationFallback === true ? (
+        {props.buyerSummaryOmitsAgentFindings === true ? (
           <p
-            className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="quick-decision-explanation-fallback-notice"
+            className={cn("m-0", DESIGN_TOKENS.callout.info, OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="quick-decision-buyer-summary-agent-findings-omission"
             role="status"
           >
-            Confidence rows are derived from the aggregate explanation trace because per-finding agent results were not on
-            this review payload. Re-run execute or refresh after commit if you need agent-result grounding.
+            {BUYER_SUMMARY_AGENT_FINDINGS_OMISSION_LINE}
           </p>
         ) : null}
         {!derived.hasSourceFindings ? (
@@ -129,8 +129,8 @@ export function QuickDecisionSummaryCardView({
           !interaction.showLowConfidence &&
           !derived.confidenceManagedExternally ? (
           <p className="m-0 text-neutral-600 dark:text-neutral-400" data-testid="quick-decision-low-confidence-only">
-            Low-confidence findings are hidden to reduce noise. Enable <strong>Show low-confidence findings</strong> to
-            review unverified items.
+            Low-confidence findings are hidden. Enable <strong>Show low-confidence findings</strong> to review
+            unverified items — on Working, low confidence stays visible so you can reject it.
           </p>
         ) : (
           <div className="space-y-4">
@@ -140,7 +140,7 @@ export function QuickDecisionSummaryCardView({
               </h3>
               {derived.policyViolations.length === 0 ? (
                 <p className="m-0 text-neutral-600 dark:text-neutral-400">
-                  No governance-blocking findings on this review. Baseline guidance may still appear under advisory
+                  No policy-blocking findings on this review. Baseline guidance may still appear under advisory
                   notes.
                 </p>
               ) : (

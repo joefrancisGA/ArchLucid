@@ -56,29 +56,63 @@ public sealed class GovernanceWorkflowPromotePersistStage(
         }
 
         await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
-        try
-        {
-            if (validated.ProdApprovalToMarkPromoted is not null)
-            {
-                validated.ProdApprovalToMarkPromoted.Status = GovernanceApprovalStatus.Promoted;
+        Guid? promotedRunId = Guid.TryParse(record.RunId, out Guid promotedRunGuid) ? promotedRunGuid : null;
+        AuditEvent governancePromoted = _auditSupport.CreateGovernanceManifestPromotedAuditEvent(record, validated.PromotedBy);
+        governancePromoted.RunId = promotedRunId;
+        string durableAuditOperationLabel =
+            $"GovernanceManifestPromoted:{LogSanitizer.Sanitize(record.PromotionRecordId)}";
 
-                if (uow.SupportsExternalTransaction)
-                    await _approvalRepo.UpdateAsync(validated.ProdApprovalToMarkPromoted, cancellationToken, uow.Connection, uow.Transaction);
-                else
+        if (uow.SupportsExternalTransaction)
+        {
+            try
+            {
+                if (validated.ProdApprovalToMarkPromoted is not null)
+                {
+                    validated.ProdApprovalToMarkPromoted.Status = GovernanceApprovalStatus.Promoted;
+                    await _approvalRepo.UpdateAsync(
+                        validated.ProdApprovalToMarkPromoted,
+                        cancellationToken,
+                        uow.Connection,
+                        uow.Transaction);
+                }
+
+                await _promotionRepo.CreateAsync(record, cancellationToken, uow.Connection, uow.Transaction);
+                await _auditSupport.LogGovernanceDurableWithRetryInUnitOfWorkAsync(
+                    governancePromoted,
+                    durableAuditOperationLabel,
+                    uow,
+                    cancellationToken);
+                await uow.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await uow.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
+        else
+        {
+            try
+            {
+                if (validated.ProdApprovalToMarkPromoted is not null)
+                {
+                    validated.ProdApprovalToMarkPromoted.Status = GovernanceApprovalStatus.Promoted;
                     await _approvalRepo.UpdateAsync(validated.ProdApprovalToMarkPromoted, cancellationToken);
+                }
+
+                await _promotionRepo.CreateAsync(record, cancellationToken);
+                await uow.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await uow.RollbackAsync(cancellationToken);
+                throw;
             }
 
-            if (uow.SupportsExternalTransaction)
-                await _promotionRepo.CreateAsync(record, cancellationToken, uow.Connection, uow.Transaction);
-            else
-                await _promotionRepo.CreateAsync(record, cancellationToken);
-
-            await uow.CommitAsync(cancellationToken);
-        }
-        catch
-        {
-            await uow.RollbackAsync(cancellationToken);
-            throw;
+            await _auditSupport.LogGovernanceDurableWithRetryAsync(
+                governancePromoted,
+                durableAuditOperationLabel,
+                cancellationToken);
         }
 
         await _baselineMutationAudit.RecordAsync(
@@ -86,14 +120,6 @@ public sealed class GovernanceWorkflowPromotePersistStage(
             validated.PromotedBy,
             record.PromotionRecordId,
             $"RunId={validated.PersistedRunId}; ManifestVersion={validated.ManifestVersion}; {validated.SourceEnvironment}->{validated.TargetEnvironment}",
-            cancellationToken);
-
-        Guid? promotedRunId = Guid.TryParse(record.RunId, out Guid promotedRunGuid) ? promotedRunGuid : null;
-        AuditEvent governancePromoted = _auditSupport.CreateGovernanceManifestPromotedAuditEvent(record, validated.PromotedBy);
-        governancePromoted.RunId = promotedRunId;
-        await _auditSupport.LogGovernanceDurableWithRetryAsync(
-            governancePromoted,
-            $"GovernanceManifestPromoted:{LogSanitizer.Sanitize(record.PromotionRecordId)}",
             cancellationToken);
 
         if (_logger.IsEnabled(LogLevel.Information))

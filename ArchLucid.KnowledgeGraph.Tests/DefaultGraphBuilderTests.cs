@@ -170,6 +170,8 @@ public sealed class DefaultGraphBuilderTests
         Mock<IGraphNodeFactory> nodeFactory,
         Mock<IGraphEdgeInferer> edgeInferer)
     {
-        return new DefaultGraphBuilder(nodeFactory.Object, edgeInferer.Object);
+        return GraphMaterializationTestHelpers.CreateDefaultGraphBuilder(
+            nodeFactory.Object,
+            edgeInferer.Object);
     }
 }

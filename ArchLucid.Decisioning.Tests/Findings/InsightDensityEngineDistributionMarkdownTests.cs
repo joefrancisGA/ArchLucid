@@ -19,8 +19,8 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
     [Fact]
     public void Constants_document_harness_and_catalog_sizes()
     {
-        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(16);
-        InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(39);
+        InsightDensityEngineDistributionMarkdown.GoldenCorpusHarnessEngineCount.Should().Be(43);
+        InsightDensityEngineDistributionMarkdown.BuiltInProductEngineCount.Should().Be(54);
     }
 
     [Fact]
@@ -35,14 +35,16 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-            The golden corpus harness registers **16** engines; **0** appear in this table (≥1 finding across case-01..case-35). **39** built-in product engines are absent from this corpus-derived slice.
-            `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
+            The golden corpus harness registers **43** engines; **0** appear in this table (≥1 finding across case-01..case-72). **54** built-in product engines are absent from this corpus-derived slice.
+            `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
+            `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
             Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.
+            Recorded scores on this corpus do not form a 60/65/75/80/85 ladder; inventory and line-anchored doc bonuses apply only where those anchors exist.
 
-            | Engine | Findings | Min | Median | Max | Would demote if unprotected |
-            | --- | --- | --- | --- | --- | --- |
+            | Engine | Findings | Min | Median | Max | Would demote if unprotected | Generic advice | No evidence | No anchor | Duplication | Would demote at 65 |
+            | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 
 
             """);
@@ -52,7 +54,7 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
     public void Build_single_row_matches_golden_body_and_data_row()
     {
         string markdown = InsightDensityEngineDistributionMarkdown.Build([
-            CreateRow("compliance", 1, 100, 100, 100, 0),
+            CreateRow("compliance", 1, 100, 100, 100, 0, 0, 0, 0, 0, 0),
         ]);
 
         markdown.Should().Be(
@@ -62,15 +64,17 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             claimBoundary: Production gate (ADR 0070) — scores demote typed-engine findings when the predicate fails.
             DeterministicInsightDensityGate applies the demotion predicate to agent and typed-engine findings
             (penalty reason `typed-engine-scored` for engine origin); checklist rows remain on the package snapshot.
-            The golden corpus harness registers **16** engines; **1** appear in this table (≥1 finding across case-01..case-35). **38** built-in product engines are absent from this corpus-derived slice.
-            `WouldDemoteIfUnprotectedCount` matches production demotion when the predicate applies (ADR 0070).
+            The golden corpus harness registers **43** engines; **1** appear in this table (≥1 finding across case-01..case-72). **53** built-in product engines are absent from this corpus-derived slice.
+            `WouldDemoteIfUnprotectedCount` matches production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59).
+            `WouldDemoteAt65Count` applies the same predicate at threshold 65; with production default 65 it should match `WouldDemoteIfUnprotectedCount`.
 
             Advisory scores from deterministic `DeterministicInsightDensityGate` over the decisioning golden corpus.
             Low medians on typed engines signal output quality — demotion to checklist is expected when anchors and evidence are absent.
+            Recorded scores on this corpus do not form a 60/65/75/80/85 ladder; inventory and line-anchored doc bonuses apply only where those anchors exist.
 
-            | Engine | Findings | Min | Median | Max | Would demote if unprotected |
-            | --- | --- | --- | --- | --- | --- |
-            | compliance | 1 | 100 | 100 | 100 | 0 |
+            | Engine | Findings | Min | Median | Max | Would demote if unprotected | Generic advice | No evidence | No anchor | Duplication | Would demote at 65 |
+            | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+            | compliance | 1 | 100 | 100 | 100 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 
             """);
@@ -80,29 +84,40 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
     public void Build_distinct_engine_types_are_case_insensitive()
     {
         string markdown = InsightDensityEngineDistributionMarkdown.Build([
-            CreateRow("topology", 2, 80, 85, 90, 0),
-            CreateRow("TOPOLOGY", 1, 70, 75, 80, 1),
+            CreateRow("topology", 2, 80, 85, 90, 0, 1, 2, 0, 0, 1),
+            CreateRow("TOPOLOGY", 1, 70, 75, 80, 1, 0, 1, 1, 0, 1),
         ]);
 
         markdown.Should().Contain("**1** appear in this table");
-        markdown.Should().Contain("**38** built-in product engines are absent");
-        markdown.Should().Contain("| topology | 2 | 80 | 85 | 90 | 0 |");
-        markdown.Should().Contain("| TOPOLOGY | 1 | 70 | 75 | 80 | 1 |");
+        markdown.Should().Contain("**53** built-in product engines are absent");
+        markdown.Should().Contain("| topology | 2 | 80 | 85 | 90 | 0 | 1 | 2 | 0 | 0 | 1 |");
+        markdown.Should().Contain("| TOPOLOGY | 1 | 70 | 75 | 80 | 1 | 0 | 1 | 1 | 0 | 1 |");
     }
 
     [Fact]
     public void Build_absent_count_never_negative_when_table_exceeds_catalog()
     {
         List<InsightDensityEngineDistributionRow> rows = Enumerable
-            .Range(0, 40)
-            .Select(index => CreateRow($"engine-{index:D2}", 1, 50, 50, 50, 0))
+            .Range(0, 54)
+            .Select(index => CreateRow($"engine-{index:D2}", 1, 50, 50, 50, 0, 0, 1, 1, 0, 1))
             .ToList();
 
         string markdown = InsightDensityEngineDistributionMarkdown.Build(rows);
 
-        markdown.Should().Contain("**40** appear in this table");
+        markdown.Should().Contain("**54** appear in this table");
         markdown.Should().Contain("**0** built-in product engines are absent");
         markdown.Should().NotContain("**-1**");
+    }
+
+    [Fact]
+    public void Build_includes_production_threshold_65_claim_boundary()
+    {
+        string markdown = InsightDensityEngineDistributionMarkdown.Build([
+            CreateRow("compliance", 1, 60, 60, 60, 1, 0, 1, 1, 0, 1),
+        ]);
+
+        markdown.Should().Contain("production demotion at default `DemotionThreshold` 65 (ADR 0070, DX-59)");
+        markdown.Should().Contain("| Would demote at 65 |");
     }
 
     [Fact]
@@ -147,7 +162,12 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
         int minScore,
         int medianScore,
         int maxScore,
-        int wouldDemoteCount)
+        int wouldDemoteCount,
+        int genericAdviceCount,
+        int noConcreteEvidenceCount,
+        int noArchitectureAnchorCount,
+        int duplicationCount,
+        int wouldDemoteAt65Count)
     {
         return new InsightDensityEngineDistributionRow
         {
@@ -157,6 +177,11 @@ public sealed class InsightDensityEngineDistributionMarkdownTests
             MedianScore = medianScore,
             MaxScore = maxScore,
             WouldDemoteIfUnprotectedCount = wouldDemoteCount,
+            GenericAdviceCount = genericAdviceCount,
+            NoConcreteEvidenceCount = noConcreteEvidenceCount,
+            NoArchitectureAnchorCount = noArchitectureAnchorCount,
+            DuplicationCount = duplicationCount,
+            WouldDemoteAt65Count = wouldDemoteAt65Count,
         };
     }
 }

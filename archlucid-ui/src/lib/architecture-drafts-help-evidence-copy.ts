@@ -1,4 +1,5 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import {
   ARCHITECTURE_DRAFTS_CANONICAL_PATH,
   ARCHITECTURE_DRAFTS_CLAIM_DISCIPLINE,
@@ -17,15 +18,24 @@ export const ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 export const ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO =
   "Use these follow-ups when you need to create a new architecture, start review intake, or get oriented.";
 
+export const ARCHITECTURE_DRAFTS_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "you need to create a new architecture, start review intake, or get oriented",
+);
+
 const ARCHITECTURE_DRAFTS_HELP_EXCLUDED_SOURCE_HREFS = new Set<string>([
   REVIEWS_NEW_PATH,
   ARCHITECTURES_NEW_PATH,
   ARCHITECTURE_DRAFTS_CANONICAL_PATH,
+  ARCHITECTURE_DRAFTS_HELP_CANONICAL_PATH,
 ]);
 
 /** Help Sources — excludes action-panel destinations already above the fold. */
 export const ARCHITECTURE_DRAFTS_HELP_SOURCES: readonly EvidenceSourceLink[] = ARCHITECTURE_DRAFTS_SOURCES.filter(
   (source) => !ARCHITECTURE_DRAFTS_HELP_EXCLUDED_SOURCE_HREFS.has(source.href),
 );
+
+/** Help orientation Sources — excludes self-href to `/help/architecture-drafts` (HAR). */
+export const ARCHITECTURE_DRAFTS_HELP_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
+  ARCHITECTURE_DRAFTS_HELP_SOURCES;
 
 export const ARCHITECTURE_DRAFTS_HELP_OPERATOR_CLAIM = ARCHITECTURE_DRAFTS_CLAIM_DISCIPLINE;

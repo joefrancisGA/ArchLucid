@@ -8,4 +8,6 @@ export const AUDIT_TRAIL_HELP_SKIP_LINK_LABEL = "Skip to audit trail workspace" 
 
 export const AUDIT_TRAIL_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID = "help-audit-trail-header-claim-discipline" as const;
 
+export const AUDIT_TRAIL_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-audit-trail-orientation-bottom" as const;
+
 export const AUDIT_TRAIL_HELP_START_HERE_CARD_TITLE = "Start here" as const;

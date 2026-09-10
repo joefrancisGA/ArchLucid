@@ -21,6 +21,7 @@ export function FindingEvidenceTraceClaimOrientationStrip(
     <EvidenceOrientationClaimAndSourcesStrip
       slug="finding-eru"
       stripTestId="finding-eru-orientation"
+      sourcesTestId="finding-eru-sources"
       sourcesIntro={EVIDENCE_TRACE_SOURCES_INTRO}
       sources={buildEvidenceTraceSources(props.runId, props.findingId)}
     />

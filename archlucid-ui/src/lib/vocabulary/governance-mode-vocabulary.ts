@@ -2,7 +2,7 @@ import { applyBuyerDemoVocabulary } from "@/lib/vocabulary/buyer-demo-vocabulary
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 
 /**
- * Presentation-layer labels toggled by governance mode — routes and API DTOs stay unchanged.
+ * Presentation-layer labels toggled by approval view mode — routes and API DTOs stay unchanged.
  */
 export const GOVERNANCE_MODE_COPY = {
   toggleLabel: "Enable approval view",

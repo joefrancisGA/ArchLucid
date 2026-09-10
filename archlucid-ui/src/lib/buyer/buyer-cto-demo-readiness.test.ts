@@ -21,8 +21,9 @@ vi.mock("@/lib/api", () => ({
   getRunSummary: vi.fn(),
 }));
 
-vi.mock("@/lib/api/http", () => ({
-  getBearerToken: vi.fn(() => "demo-token"),
+vi.mock("@/lib/oidc/session", () => ({
+  isLikelySignedIn: vi.fn(() => true),
+  getAccessTokenExpiresAtMs: vi.fn(() => Date.now() + 3_600_000),
 }));
 
 vi.mock("@/lib/llm-monthly-budget-status", () => ({
@@ -58,8 +59,8 @@ vi.mock("@/lib/operator/operator-static-demo", () => ({
 }));
 
 import { getRunSummary } from "@/lib/api";
-import { getBearerToken } from "@/lib/api/http";
 import { fetchHealthReadySummary } from "@/lib/fetch-health-ready";
+import { getAccessTokenExpiresAtMs, isLikelySignedIn } from "@/lib/oidc/session";
 import * as demoUiEnv from "@/lib/demo-ui-env";
 import { isCtoDemoOperatorToolingEnv } from "@/lib/cto-demo-presenter-pack";
 import {
@@ -76,17 +77,11 @@ import {
 
 const mockGetRunSummary = vi.mocked(getRunSummary);
 const mockFetchHealthReadySummary = vi.mocked(fetchHealthReadySummary);
-const mockGetBearerToken = vi.mocked(getBearerToken);
+const mockIsLikelySignedIn = vi.mocked(isLikelySignedIn);
+const mockGetAccessTokenExpiresAtMs = vi.mocked(getAccessTokenExpiresAtMs);
 const mockIsCtoDemoOperatorToolingEnv = vi.mocked(isCtoDemoOperatorToolingEnv);
 const mockIsShowcaseSpineStaticPayloadActiveForRun = vi.mocked(isShowcaseSpineStaticPayloadActiveForRun);
 const mockTryStaticDemoManifestSummary = vi.mocked(tryStaticDemoManifestSummary);
-
-function buildJwt(expSeconds: number): string {
-  const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
-  const payload = Buffer.from(JSON.stringify({ sub: "demo", exp: expSeconds })).toString("base64url");
-
-  return `${header}.${payload}.sig`;
-}
 
 describe("evaluateBuyerCtoDemoJourneyRoutesCheck", () => {
   it("passes when all five golden journey routes resolve", () => {
@@ -118,22 +113,23 @@ describe("evaluateBuyerCtoDemoAuthCheck", () => {
   beforeEach(() => {
     vi.mocked(demoUiEnv.isNextPublicDemoMode).mockReturnValue(false);
     vi.mocked(isStaticDemoPayloadFallbackEnabled).mockReturnValue(false);
+    mockIsLikelySignedIn.mockReturnValue(true);
   });
 
-  it("fails when bearer token is expired", () => {
-    mockGetBearerToken.mockReturnValue(buildJwt(Math.floor(Date.now() / 1000) - 60));
+  it("fails when session expiry is in the past", () => {
+    mockGetAccessTokenExpiresAtMs.mockReturnValue(Date.now() - 60_000);
 
     expect(evaluateBuyerCtoDemoAuthCheck().status).toBe("fail");
   });
 
-  it("warns when bearer token expires before demo minimum", () => {
-    mockGetBearerToken.mockReturnValue(buildJwt(Math.floor(Date.now() / 1000) + 20 * 60));
+  it("warns when session expires before demo minimum", () => {
+    mockGetAccessTokenExpiresAtMs.mockReturnValue(Date.now() + 20 * 60_000);
 
     expect(evaluateBuyerCtoDemoAuthCheck().status).toBe("warn");
   });
 
-  it("passes when bearer token has sufficient lifetime", () => {
-    mockGetBearerToken.mockReturnValue(buildJwt(Math.floor(Date.now() / 1000) + 60 * 60));
+  it("passes when session has sufficient lifetime", () => {
+    mockGetAccessTokenExpiresAtMs.mockReturnValue(Date.now() + 60 * 60_000);
 
     expect(evaluateBuyerCtoDemoAuthCheck().status).toBe("pass");
   });

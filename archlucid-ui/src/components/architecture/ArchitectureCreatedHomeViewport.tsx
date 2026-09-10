@@ -1,5 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -11,6 +15,11 @@ import {
   ARCHITECTURE_CREATED_OVERFLOW_LABEL,
   ARCHITECTURE_CREATED_SUMMARY_HEADING,
 } from "@/lib/architecture/architecture-created-home-copy";
+import {
+  ARCHITECTURE_CREATED_HOME_OVERFLOW_OPEN_PARAM,
+  architectureCreatedHomeOverflowDisclosureHrefFromSearch,
+  parseArchitectureCreatedHomeOverflowOpenFromSearch,
+} from "@/lib/architecture/architecture-created-home-overflow-disclosure-url";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -22,9 +31,38 @@ export type ArchitectureCreatedHomeViewportProps = {
 export function ArchitectureCreatedHomeViewport(
   props: ArchitectureCreatedHomeViewportProps,
 ): React.JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const architectureCreatedHomeOverflowParam = searchParams.get(ARCHITECTURE_CREATED_HOME_OVERFLOW_OPEN_PARAM);
+  const [architectureCreatedHomeOverflowOpen, setArchitectureCreatedHomeOverflowOpenState] = useState(() =>
+    parseArchitectureCreatedHomeOverflowOpenFromSearch(architectureCreatedHomeOverflowParam),
+  );
+  const syncArchitectureCreatedHomeOverflowOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        architectureCreatedHomeOverflowDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setArchitectureCreatedHomeOverflowOpen = useCallback(
+    (open: boolean) => {
+      setArchitectureCreatedHomeOverflowOpenState(open);
+      syncArchitectureCreatedHomeOverflowOpenToUrl(open);
+    },
+    [syncArchitectureCreatedHomeOverflowOpenToUrl],
+  );
   const { model } = props;
   const primaryAction = model.primaryActions.find((action) => action.primary) ?? model.primaryActions[0];
   const secondaryActions = model.primaryActions.filter((action) => action !== primaryAction);
+
+  useEffect(() => {
+    setArchitectureCreatedHomeOverflowOpenState(
+      parseArchitectureCreatedHomeOverflowOpenFromSearch(architectureCreatedHomeOverflowParam),
+    );
+  }, [architectureCreatedHomeOverflowParam]);
 
   return (
     <section
@@ -58,7 +96,11 @@ export function ArchitectureCreatedHomeViewport(
           </div>
         </div>
 
-        <details className="relative">
+        <details
+          className="relative"
+          open={architectureCreatedHomeOverflowOpen}
+          onToggle={(event) => setArchitectureCreatedHomeOverflowOpen(event.currentTarget.open)}
+        >
           <summary
             className={cn(
               "cursor-pointer list-none rounded-md border border-neutral-200 px-3 py-1.5 font-medium text-neutral-700 dark:border-neutral-700 dark:text-neutral-200",

@@ -6,12 +6,14 @@ import { cn } from "@/lib/utils";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperateExecutePageHint } from "@/components/OperateCapabilityHints";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { AlertRoutingBuyerChrome } from "@/components/alerts/AlertRoutingBuyerChrome";
 import { AlertRoutingPickReviewBeforeRoutingStrip } from "@/components/alerts/AlertRoutingPickReviewBeforeRoutingStrip";
 import { AlertRoutingNextReviewFooterClient } from "@/components/alerts/AlertRoutingNextReviewFooterClient";
 import { AlertRoutingCreateForm } from "@/components/alerts/AlertRoutingCreateForm";
 import { AlertRoutingSubscriptionsList } from "@/components/alerts/AlertRoutingSubscriptionsList";
 import { AlertRoutingSubscriptionDisableDialog } from "@/app/(operator)/integrations/_sections/AlertRoutingSubscriptionDisableDialog";
 import { StatusTag } from "@/components/ui/status-tag";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import {
   ALERT_RULES_SAMPLE_MODE_BANNER,
   ALERT_RULES_SAMPLE_MODE_CTA_HREF,
@@ -22,13 +24,38 @@ import {
   GOVERNANCE_AUDIT_PATH,
   governanceAlertRulesTabHref,
 } from "@/lib/governance/governance-route-paths";
+import {
+  ALERT_ROUTING_TAB_BUYER_START_HERE_HELPER,
+  ALERT_ROUTING_TAB_PAGE_LEAD,
+} from "@/lib/alert-routing-tab-copy";
 import { useAlertRoutingContent } from "@/components/alerts/use-alert-routing-content";
 
 export function AlertRoutingContent() {
+  const buyerPolishedShell = useProductionEvalChrome();
   const routing = useAlertRoutingContent();
 
   return (
     <div className={cn(routing.isEmptyComposition ? "max-w-4xl space-y-4" : "space-y-8")}>
+      {buyerPolishedShell ? (
+        <div
+          className="space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid="alert-routing-first-viewport"
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="alert-routing-intro"
+          >
+            {ALERT_ROUTING_TAB_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="alert-routing-buyer-start-here-helper"
+          >
+            {ALERT_ROUTING_TAB_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
+
       <header className="space-y-2">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Notification delivery</h2>
@@ -40,9 +67,11 @@ export function AlertRoutingContent() {
             />
           ) : null}
         </div>
-        <p className={cn("m-0 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          {routing.pageLead}
-        </p>
+        {!buyerPolishedShell ? (
+          <p className={cn("m-0 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            {routing.pageLead}
+          </p>
+        ) : null}
         {routing.sampleModeBlocked ? (
           <div
             role="status"
@@ -55,8 +84,10 @@ export function AlertRoutingContent() {
             </Link>
           </div>
         ) : null}
-        {!routing.canEditRouting && !routing.sampleModeBlocked ? <OperateExecutePageHint /> : null}
-        {routing.configProvenanceLabel !== null ? (
+        {!buyerPolishedShell && !routing.canEditRouting && !routing.sampleModeBlocked ? (
+          <OperateExecutePageHint />
+        ) : null}
+        {!buyerPolishedShell && routing.configProvenanceLabel !== null ? (
           <p
             className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="alert-routing-config-provenance"
@@ -67,7 +98,7 @@ export function AlertRoutingContent() {
             </Link>
           </p>
         ) : null}
-        <AlertOperatorToolingRankCue />
+        {!buyerPolishedShell ? <AlertOperatorToolingRankCue /> : null}
       </header>
 
       <div id={routing.statusRegionId} role="status" aria-live="polite" className="sr-only">
@@ -175,6 +206,7 @@ export function AlertRoutingContent() {
       {routing.scopedRunFilterActive ? (
         <AlertRoutingNextReviewFooterClient runId={routing.scopedRunId} />
       ) : null}
+      <AlertRoutingBuyerChrome />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { StatusTag } from "@/components/ui/status-tag";
 import { Button } from "@/components/ui/button";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   API_KEYS_HELP_ACTION_PANEL_ID,
   API_KEYS_HELP_ACTION_PANEL_INTRO,
@@ -33,9 +34,13 @@ import {
 import {
   API_KEYS_HELP_FIRST_VIEWPORT_TEST_ID,
   API_KEYS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID,
+  API_KEYS_HELP_ORIENTATION_BOTTOM_TEST_ID,
+  API_KEYS_HELP_PAGE_LEAD,
+  API_KEYS_HELP_PAGE_SUBTITLE_BUYER,
   API_KEYS_HELP_PRIMARY_CONTENT_ID,
   API_KEYS_HELP_SKIP_LINK_LABEL,
   API_KEYS_HELP_SKIP_TARGET_ID,
+  API_KEYS_HELP_START_HERE_HELPER,
 } from "@/lib/api-keys-help-page-copy";
 import {
   OPERATOR_LAYOUT,
@@ -72,15 +77,20 @@ function HelpApiKeysPrimaryActionButton(props: { readonly action: ApiKeysHelpPri
   );
 }
 
+function apiKeysHelpPageSubtitle(buyerPolishedShell: boolean): string {
+  return buyerPolishedShell ? API_KEYS_HELP_PAGE_SUBTITLE_BUYER : API_KEYS_HELP_PAGE_SUBTITLE;
+}
+
 /** Operator API keys orientation for `/help/api-keys`. */
 export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.ReactElement {
   const { entry } = props;
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "help-api-keys",
     API_KEYS_HELP_GUIDE_HEADINGS,
     API_KEYS_HELP_CLAIM_HEADING_ID,
   );
-  const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
+  const contentGridClass = resolveHelpPageContentGridClass(buyerPolishedShell ? 0 : guideHeadings.length);
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
@@ -98,7 +108,7 @@ export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.Re
         <HelpTopicGuidePageHeader
           title={API_KEYS_HELP_PAGE_TITLE}
           titleTestId="help-api-keys-page-title"
-          subtitle={API_KEYS_HELP_PAGE_SUBTITLE}
+          subtitle={apiKeysHelpPageSubtitle(buyerPolishedShell)}
           navHref={API_KEYS_HELP_CANONICAL_PATH}
           headingLevel="h1"
           claimDiscipline={API_KEYS_HELP_CLAIM_DISCIPLINE}
@@ -115,9 +125,26 @@ export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.Re
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
-          <p className={readingBodyClass} data-testid="help-api-keys-overview">
-            {API_KEYS_HELP_OVERVIEW}
-          </p>
+          {buyerPolishedShell ? (
+            <div className="space-y-4" data-testid="help-api-keys-buyer-intro">
+              <p
+                className={readingBodyClass}
+                data-testid="help-api-keys-intro"
+              >
+                {API_KEYS_HELP_PAGE_LEAD}
+              </p>
+              <p
+                className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="help-api-keys-start-here-helper"
+              >
+                {API_KEYS_HELP_START_HERE_HELPER}
+              </p>
+            </div>
+          ) : (
+            <p className={readingBodyClass} data-testid="help-api-keys-overview">
+              {API_KEYS_HELP_OVERVIEW}
+            </p>
+          )}
 
           <section
             id={API_KEYS_HELP_ACTION_PANEL_ID}
@@ -190,10 +217,12 @@ export function HelpApiKeysGuideView(props: HelpApiKeysGuideViewProps): React.Re
             </section>
           </div>
 
-          <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
+          {buyerPolishedShell ? null : (
+            <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
+          )}
         </div>
 
-        <div data-testid="help-api-keys-orientation-bottom">
+        <div data-testid={API_KEYS_HELP_ORIENTATION_BOTTOM_TEST_ID}>
           <HelpApiKeysClaimOrientationStrip />
         </div>
       </div>

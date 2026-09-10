@@ -33,7 +33,7 @@ describe("RunsDashboardFilters", () => {
     expect(screen.getByTestId("runs-dashboard-show-archived")).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("renders FilterChip filters and keeps disabled warnings hint screen-reader only", () => {
+  it("renders FilterChip filters and shows inline helper when warnings filter is unavailable", () => {
     render(
       <RunsDashboardFilters
         buyerPolishedShell={false}
@@ -45,12 +45,9 @@ describe("RunsDashboardFilters", () => {
       />,
     );
 
-    expect(screen.getByTestId("runs-dashboard-governance-warnings-only")).toHaveTextContent(
-      "Has approval warnings",
-    );
-    expect(screen.getByTestId("runs-dashboard-governance-warnings-only")).toBeDisabled();
-    expect(screen.getByText(/No reviews with governance approval warnings in this workspace yet/i)).toHaveClass(
-      "sr-only",
+    expect(screen.queryByTestId("runs-dashboard-governance-warnings-only")).not.toBeInTheDocument();
+    expect(screen.getByTestId("runs-dashboard-governance-warnings-filter-hint")).toHaveTextContent(
+      /No reviews with governance approval warnings in this workspace yet/i,
     );
   });
 

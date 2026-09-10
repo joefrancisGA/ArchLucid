@@ -278,6 +278,17 @@ describe("GlobalSearchBar", () => {
     expect(screen.getByRole("link", { name: "browse help topics" })).toHaveAttribute("href", "/help");
   });
 
+  it("shows review search scope chips on review detail routes in Guided mode", () => {
+    architectWorkspaceChromeMock.value = false;
+    workspaceModeMock.mode = "guided";
+    navigationTestState.pathname = "/architecture/reviews/run-abc";
+
+    render(<GlobalSearchBar />);
+
+    expect(screen.getByTestId("global-search-package-scope-toggle")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Search this review" })).toBeInTheDocument();
+  });
+
   it("keeps review search scope chips inline with the input on review detail routes", () => {
     architectWorkspaceChromeMock.value = true;
     navigationTestState.pathname = "/architecture/reviews/run-abc";

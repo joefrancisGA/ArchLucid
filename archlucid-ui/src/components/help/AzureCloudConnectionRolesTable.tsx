@@ -1,8 +1,18 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
 import {
   AZURE_CLOUD_CONNECTION_ROLE_ROWS,
   formatAzurePermissionRequirementLabel,
 } from "@/lib/azure-cloud-connection-permissions-manifest";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  HELP_AZURE_ROLE_DETAILS_KEY_PARAM,
+  helpAzureRoleDetailsDisclosureHrefFromSearch,
+  parseHelpAzureRoleDetailsKeyFromSearch,
+} from "@/lib/help/help-azure-role-details-disclosure-url";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +23,33 @@ type AzureCloudConnectionRolesTableProps = {
 
 /** Shared Azure role matrix for cloud-connection help topics. */
 export function AzureCloudConnectionRolesTable(props: AzureCloudConnectionRolesTableProps): React.ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const helpAzureRoleDetailsKeyParam = searchParams.get(HELP_AZURE_ROLE_DETAILS_KEY_PARAM);
+  const [openRoleKey, setOpenRoleKeyState] = useState(() =>
+    parseHelpAzureRoleDetailsKeyFromSearch(helpAzureRoleDetailsKeyParam),
+  );
+  const syncOpenRoleKeyToUrl = useCallback(
+    (roleKey: string | null) => {
+      router.replace(helpAzureRoleDetailsDisclosureHrefFromSearch(searchParams.toString(), roleKey, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+  const setOpenRoleKey = useCallback(
+    (roleKey: string | null) => {
+      setOpenRoleKeyState(roleKey ?? "");
+      syncOpenRoleKeyToUrl(roleKey);
+    },
+    [syncOpenRoleKeyToUrl],
+  );
+
+  useEffect(() => {
+    setOpenRoleKeyState(parseHelpAzureRoleDetailsKeyFromSearch(helpAzureRoleDetailsKeyParam));
+  }, [helpAzureRoleDetailsKeyParam]);
+
   return (
     <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid={props.testId}>
       <table className={HELP_PAGE_LAYOUT.table}>
@@ -58,7 +95,12 @@ export function AzureCloudConnectionRolesTable(props: AzureCloudConnectionRolesT
       {props.expandedDetails ? (
         <div className="space-y-3 border-t border-neutral-200 p-4 dark:border-neutral-800">
           {AZURE_CLOUD_CONNECTION_ROLE_ROWS.map((row) => (
-            <details key={`${row.azureRole}-details`} className={HELP_PAGE_LAYOUT.details}>
+            <details
+              key={`${row.azureRole}-details`}
+              className={HELP_PAGE_LAYOUT.details}
+              open={openRoleKey === row.azureRole}
+              onToggle={(event) => setOpenRoleKey(event.currentTarget.open ? row.azureRole : null)}
+            >
               <summary className="cursor-pointer font-medium">
                 {row.azureRole} — {formatAzurePermissionRequirementLabel(row.requirement)}
               </summary>

@@ -34,4 +34,22 @@ public sealed class CommitRunTransientRetryPolicyTests
         CommitRunTransientRetryPolicy.RetryDelay(3).Should().Be(TimeSpan.FromMilliseconds(450));
         CommitRunTransientRetryPolicy.ManifestReconcilePollDelay(2).Should().Be(TimeSpan.FromMilliseconds(300));
     }
+
+    [Fact]
+    public void IsExhausted_returns_false_when_attempt_and_elapsed_are_below_limits()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(1, TimeSpan.Zero).Should().BeFalse();
+        CommitRunTransientRetryPolicy.IsExhausted(11, TimeSpan.FromSeconds(19)).Should().BeFalse();
+    }
+
+    [Fact]
+    public void ManifestReconcilePollDelay_sum_for_inter_poll_waits_fits_inside_retry_budget()
+    {
+        TimeSpan interPollDelayTotal = Enumerable
+            .Range(1, CommitRunTransientRetryPolicy.ManifestReconcilePollAttempts - 1)
+            .Select(CommitRunTransientRetryPolicy.ManifestReconcilePollDelay)
+            .Aggregate(TimeSpan.Zero, static (sum, delay) => sum + delay);
+
+        interPollDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
+    }
 }

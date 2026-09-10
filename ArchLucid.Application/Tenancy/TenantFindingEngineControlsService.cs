@@ -1,4 +1,6 @@
+using ArchLucid.Application.Configuration;
 using ArchLucid.Application.Findings;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -12,7 +14,8 @@ public sealed class TenantFindingEngineControlsService(
     IOptions<InsightDensityGateOptions> insightDensityHostOptions,
     IOptions<PortfolioRecurrenceFindingOptions> portfolioRecurrenceHostOptions,
     IScopeContextProvider scopeContextProvider,
-    ITenantSettingsRepository tenantSettingsRepository) : ITenantFindingEngineControlsService
+    ITenantSettingsRepository tenantSettingsRepository,
+    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor) : ITenantFindingEngineControlsService
 {
     private readonly IOptions<InsightDensityGateOptions> _insightDensityHostOptions =
         insightDensityHostOptions ?? throw new ArgumentNullException(nameof(insightDensityHostOptions));
@@ -25,6 +28,10 @@ public sealed class TenantFindingEngineControlsService(
 
     private readonly ITenantSettingsRepository _tenantSettingsRepository =
         tenantSettingsRepository ?? throw new ArgumentNullException(nameof(tenantSettingsRepository));
+
+    private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
+        effectiveAgentExecutionModeAccessor
+        ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
 
     public async Task<TenantFindingEngineControlsSnapshot> GetAsync(CancellationToken cancellationToken)
     {
@@ -47,15 +54,28 @@ public sealed class TenantFindingEngineControlsService(
             .TryGetAsync(tenantId, TenantSettingKeys.FindingsPortfolioRecurrenceEnabled, cancellationToken)
             .ConfigureAwait(false);
 
-        bool llmJudgeOverridden = TenantSettingBooleanParser.TryParse(llmJudgeStored, out bool effectiveLlmJudge);
+        bool llmJudgeOverridden = TenantSettingBooleanParser.TryParse(llmJudgeStored, out bool tenantLlmJudge);
         bool engineJudgeOverridden =
-            TenantSettingBooleanParser.TryParse(engineJudgeStored, out bool effectiveEngineJudge);
+            TenantSettingBooleanParser.TryParse(engineJudgeStored, out bool tenantEngineJudge);
 
         bool portfolioOverridden = TenantSettingBooleanParser.TryParse(portfolioStored, out bool effectivePortfolio);
 
+        bool isRealExecutionMode = InsightDensityGateEffectiveOptionsMerger.IsRealExecutionMode(
+            _effectiveAgentExecutionModeAccessor.GetEffectiveMode());
+
+        bool effectiveLlmJudge = InsightDensityGateEffectiveOptionsMerger.ResolveEnableLlmJudge(
+            llmJudgeOverridden,
+            tenantLlmJudge,
+            isRealExecutionMode);
+
+        bool effectiveEngineJudge = InsightDensityGateEffectiveOptionsMerger.ResolveEnableLlmJudge(
+            engineJudgeOverridden,
+            tenantEngineJudge,
+            isRealExecutionMode);
+
         return new TenantFindingEngineControlsSnapshot(
-            llmJudgeOverridden ? effectiveLlmJudge : hostInsightDensity.EnableLlmJudge,
-            engineJudgeOverridden ? effectiveEngineJudge : hostInsightDensity.EnableLlmJudgeForEngineFindings,
+            effectiveLlmJudge,
+            effectiveEngineJudge,
             portfolioOverridden ? effectivePortfolio : hostPortfolio.Enabled,
             hostInsightDensity.EnableLlmJudge,
             hostInsightDensity.EnableLlmJudgeForEngineFindings,

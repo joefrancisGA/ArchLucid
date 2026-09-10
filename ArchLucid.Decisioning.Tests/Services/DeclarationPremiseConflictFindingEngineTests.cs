@@ -81,6 +81,107 @@ public sealed class DeclarationPremiseConflictFindingEngineTests
     }
 
     [Fact]
+    public async Task AnalyzeAsync_populates_EvidenceRefs_from_product_shaped_nodes()
+    {
+        const string storageArmResourceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-docs/providers/Microsoft.Storage/storageAccounts/docs";
+        const string baselineArmResourceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-docs/providers/Microsoft.Authorization/policyAssignments/Private only network access";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "baseline-private",
+                    NodeType = "SecurityBaseline",
+                    Label = "Private only network access",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["description"] = "Private only network access required",
+                        ["resourceId"] = baselineArmResourceId,
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "obj-storage",
+                    NodeType = "TopologyResource",
+                    Label = "docs",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["tf.public_network_access"] = "enabled",
+                        ["resourceId"] = storageArmResourceId,
+                    },
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    FromNodeId = "baseline-private",
+                    ToNodeId = "obj-storage",
+                    EdgeType = "PROTECTS",
+                    Weight = 0.9,
+                },
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.EvidenceRefs.Should().Contain(storageArmResourceId);
+        finding.EvidenceRefs.Should().Contain(baselineArmResourceId);
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_label_only_nodes_do_not_pass_concrete_citation_helper()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "baseline-private",
+                    NodeType = "SecurityBaseline",
+                    Label = "Private only network access",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["description"] = "Private only network access required",
+                    },
+                },
+                new GraphNode
+                {
+                    NodeId = "obj-storage",
+                    NodeType = "TopologyResource",
+                    Label = "docs",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["tf.public_network_access"] = "enabled",
+                    },
+                },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    FromNodeId = "baseline-private",
+                    ToNodeId = "obj-storage",
+                    EdgeType = "PROTECTS",
+                    Weight = 0.9,
+                },
+            ],
+        };
+
+        IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        GenericArchitectureAdvicePatterns.HasConcreteEvidenceCitation(finding.EvidenceRefs).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_warning_when_protects_edge_below_semantic_weight_threshold()
     {
         GraphSnapshot graph = new()

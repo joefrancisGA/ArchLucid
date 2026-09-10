@@ -53,6 +53,9 @@ const skipStandaloneOutput =
   process.env.ARCHLUCID_SKIP_STANDALONE_OUTPUT === "true";
 
 const nextConfig: NextConfig = {
+  // Next.js 16+ writes `.next/dev/lock` per distDir. Local dual-product dev (Architecture
+  // :3000 + Security :3001) sets NEXT_DIST_DIR on the Security shell so both can run.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   env: {
     /** Mirrors Vite-style naming — exposed to client/server bundles for opt-in API mocks (see `sandbox-api-mocks`). */
     VITE_USE_SANDBOX_MOCKS: process.env.VITE_USE_SANDBOX_MOCKS ?? "",

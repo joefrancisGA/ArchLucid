@@ -8,28 +8,37 @@ import {
   compareRunIdsAreSameAfterDemoCanonicalization,
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
+import { comparePageHrefOnBase } from "@/lib/resolve-working-desk-tool-href";
 
 export function useCompareFormUrlSync(options: {
   setLeftRunId: (runId: string) => void;
   setRightRunId: (runId: string) => void;
   runCompareForPair: (left: string, right: string) => Promise<void>;
+  readonly basePathname?: string;
 }): { syncSelectionToUrl: (priorRunId: string, laterRunId: string) => void } {
   const { setLeftRunId, setRightRunId, runCompareForPair } = options;
   const router = useRouter();
   const searchParams = useSearchParams();
   const lastAutoComparedPairKeyRef = useRef("");
 
+  const basePathname = options.basePathname;
+
   const syncSelectionToUrl = useCallback(
     (priorRunId: string, laterRunId: string) => {
-      router.replace(comparePageHrefAdaptive(priorRunId, laterRunId), { scroll: false });
+      const href =
+        basePathname !== undefined && basePathname.length > 0
+          ? comparePageHrefOnBase(basePathname, priorRunId, laterRunId)
+          : comparePageHrefAdaptive(priorRunId, laterRunId);
+
+      router.replace(href, { scroll: false });
     },
-    [router],
+    [basePathname, router],
   );
 
   useEffect(() => {
     const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);
-    if (left.length > 0) setLeftRunId(left);
-    if (right.length > 0) setRightRunId(right);
+    setLeftRunId(left);
+    setRightRunId(right);
   }, [searchParams, setLeftRunId, setRightRunId]);
 
   useEffect(() => {

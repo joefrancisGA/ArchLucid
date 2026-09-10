@@ -81,7 +81,7 @@ public sealed class LlmTenantWalletService(
         CancellationToken cancellationToken) =>
         _consumeStage.ReconcileOverageInternalAsync(tenantId, actualUsd, authorizedUsd, correlationId, cancellationToken);
 
-    private static LlmTenantWalletView MapView(LlmTenantWalletStateReadModel state) =>
+    private LlmTenantWalletView MapView(LlmTenantWalletStateReadModel state) =>
         new()
         {
             BalanceUsd = state.BalanceUsd,
@@ -89,7 +89,7 @@ public sealed class LlmTenantWalletService(
             MonthlyCapUsd = state.MonthlyCapUsd,
             RefillIncrementUsd = state.RefillIncrementUsd,
             RefillTriggerThresholdUsd = state.RefillTriggerThresholdUsd,
-            AutoRefillsThisUtcMonthCount = state.AutoRefillsThisUtcMonthCount,
+            AutoRefillsThisUtcMonthCount = _refillStage.VisibleAutoRefillsThisUtcMonth(state),
             LastRefillUtc = state.LastRefillUtc,
             HasPaymentMethod = !string.IsNullOrWhiteSpace(state.StripePaymentMethodId),
             RowVersion = state.RowVersion,

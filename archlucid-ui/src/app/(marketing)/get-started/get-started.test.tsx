@@ -4,7 +4,7 @@ import { join, resolve } from "node:path";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { GET_STARTED_SKIP_LINK_LABEL } from "@/lib/get-started-page-copy";
+import { GET_STARTED_SKIP_LINK_LABEL, GET_STARTED_SKIP_TARGET_ID } from "@/lib/get-started-page-copy";
 
 import { GetStartedPageClient } from "./GetStartedPageClient";
 import {
@@ -44,7 +44,7 @@ describe("GetStartedPageClient", () => {
     expect(screen.getByTestId("see-it-deliverable-preview")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: GET_STARTED_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
-      "#get-started-primary-content",
+      `#${GET_STARTED_SKIP_TARGET_ID}`,
     );
     expect(screen.getByTestId("get-started-page-meta")).toHaveTextContent(GET_STARTED_LAST_REVIEWED_LABEL);
     expect(screen.getByTestId("get-started-scope-disclosure")).toBeInTheDocument();

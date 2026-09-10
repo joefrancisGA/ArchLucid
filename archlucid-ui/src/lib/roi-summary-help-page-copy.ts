@@ -8,3 +8,5 @@ export const ROI_SUMMARY_HELP_SKIP_LINK_LABEL = "Skip to ROI summary guide" as c
 
 export const ROI_SUMMARY_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID =
   "help-roi-summary-header-claim-discipline" as const;
+
+export const ROI_SUMMARY_HELP_ORIENTATION_BOTTOM_TEST_ID = "help-roi-summary-orientation-bottom" as const;

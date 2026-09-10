@@ -5,8 +5,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { cloudInventoryPlatformLabel } from "@/lib/cloud-inventory-platform";
+import { extractUploadCloudInventoryCheckoutLead } from "@/lib/extract-upload-product-copy";
 import { buildGetArchLucidCloudPackageCommandLine } from "@/lib/get-archlucid-cloud-package-command";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { showError, showSuccess } from "@/lib/toast";
@@ -21,6 +23,7 @@ export type CloudInventoryExtractorCommandPanelProps = {
  * Copy-paste Tier-1 inventory script for Azure, AWS, or GCP (customer-controlled ZIP).
  */
 export function CloudInventoryExtractorCommandPanel(props: CloudInventoryExtractorCommandPanelProps) {
+  const { productLine } = useLocalizedProductCopy();
   const { platform, testIdPrefix = "cloud-inventory-extractor", className } = props;
   const [commandLine, setCommandLine] = useState("");
 
@@ -32,9 +35,10 @@ export function CloudInventoryExtractorCommandPanel(props: CloudInventoryExtract
         platform,
         scopeId,
         subscriptionId: scopeId,
+        productLineId: productLine,
       }),
     );
-  }, [platform]);
+  }, [platform, productLine]);
 
   const platformLabel = cloudInventoryPlatformLabel(platform);
 
@@ -53,8 +57,7 @@ export function CloudInventoryExtractorCommandPanel(props: CloudInventoryExtract
             {platformLabel} inventory script
           </p>
           <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Run from your ArchLucid checkout — no vendor credentials in your cloud account. Upload the resulting ZIP
-            below.
+            {extractUploadCloudInventoryCheckoutLead(productLine)}
           </p>
         </div>
         <Button

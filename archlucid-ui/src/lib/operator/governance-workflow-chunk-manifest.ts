@@ -1,6 +1,6 @@
 import type { DeferredChunkManifestEntry } from "@/lib/operator/deferred-chunk-manifest";
 
-/** TB-2371 — governance workflow deferred chunk catalog. */
+/** TB-2371 — approval workflow deferred chunk catalog. */
 export const GOVERNANCE_WORKFLOW_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
   {
     id: "governance-workflow-overview-panel",

@@ -54,6 +54,9 @@ public sealed partial class FindingInspectController(
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
     /// <summary>Returns persisted payload, rule linkage, evidence citations, and best-effort audit correlation.</summary>
     /// <param name="findingId">Finding identifier.</param>
     /// <param name="includeTypedPayload">

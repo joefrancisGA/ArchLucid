@@ -16,7 +16,7 @@ export const DEFAULT_PATTERN_LIBRARY_FILTERS: PatternLibraryFiltersState = {
   patternType: "All types",
   risk: "All risks",
   adoption: "All adoption",
-  governance: "All governance",
+  governance: "All policy areas",
   dataSource: "All sources",
   timeRange: "All time",
 };
@@ -72,7 +72,7 @@ export function filterPatternLibraryRecords(
       return false;
     }
 
-    if (filters.governance !== "All governance" && record.governance !== filters.governance) {
+    if (filters.governance !== "All policy areas" && record.governance !== filters.governance) {
       return false;
     }
 

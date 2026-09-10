@@ -105,10 +105,15 @@ public sealed class GovernanceWorkflowActivateStage(
         await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
         IntegrationEventsOptions integrationOpts = _integrationEventsOptions.CurrentValue;
         bool enqueuePromotionInSqlTx = integrationOpts.TransactionalOutboxEnabled && uow.SupportsExternalTransaction;
+        Guid? activationRunId = Guid.TryParse(activation.RunId, out Guid activationRunGuid) ? activationRunGuid : null;
+        AuditEvent governanceActivated = _auditSupport.CreateGovernanceEnvironmentActivatedAuditEvent(activation, activatedBy);
+        governanceActivated.RunId = activationRunId;
+        string durableAuditOperationLabel =
+            $"GovernanceEnvironmentActivated:{LogSanitizer.Sanitize(activation.ActivationId)}";
 
-        try
+        if (uow.SupportsExternalTransaction)
         {
-            if (uow.SupportsExternalTransaction)
+            try
             {
                 foreach (GovernanceEnvironmentActivation active in existing.Where(a => a.IsActive))
                 {
@@ -127,8 +132,23 @@ public sealed class GovernanceWorkflowActivateStage(
                         uow.Transaction,
                         cancellationToken);
                 }
+
+                await _auditSupport.LogGovernanceDurableWithRetryInUnitOfWorkAsync(
+                    governanceActivated,
+                    durableAuditOperationLabel,
+                    uow,
+                    cancellationToken);
+                await uow.CommitAsync(cancellationToken);
             }
-            else
+            catch
+            {
+                await uow.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
+        else
+        {
+            try
             {
                 foreach (GovernanceEnvironmentActivation active in existing.Where(a => a.IsActive))
                 {
@@ -137,14 +157,18 @@ public sealed class GovernanceWorkflowActivateStage(
                 }
 
                 await _activationRepo.CreateAsync(activation, cancellationToken);
+                await uow.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await uow.RollbackAsync(cancellationToken);
+                throw;
             }
 
-            await uow.CommitAsync(cancellationToken);
-        }
-        catch
-        {
-            await uow.RollbackAsync(cancellationToken);
-            throw;
+            await _auditSupport.LogGovernanceDurableWithRetryAsync(
+                governanceActivated,
+                durableAuditOperationLabel,
+                cancellationToken);
         }
 
         await _baselineMutationAudit.RecordAsync(
@@ -152,14 +176,6 @@ public sealed class GovernanceWorkflowActivateStage(
             activatedBy,
             activation.ActivationId,
             $"RunId={activation.RunId}; ManifestVersion={manifestVersion}; Environment={environment}",
-            cancellationToken);
-
-        Guid? activationRunId = Guid.TryParse(activation.RunId, out Guid activationRunGuid) ? activationRunGuid : null;
-        AuditEvent governanceActivated = _auditSupport.CreateGovernanceEnvironmentActivatedAuditEvent(activation, activatedBy);
-        governanceActivated.RunId = activationRunId;
-        await _auditSupport.LogGovernanceDurableWithRetryAsync(
-            governanceActivated,
-            $"GovernanceEnvironmentActivated:{LogSanitizer.Sanitize(activation.ActivationId)}",
             cancellationToken);
 
         if (_logger.IsEnabled(LogLevel.Information))

@@ -7,6 +7,12 @@ import { forwardRef } from "react";
 
 import { ArchLucidLogo, type ArchLucidLogoVariant } from "@/components/brand/ArchLucidLogo";
 import { ARCHLUCID_BRAND } from "@/components/brand/brand-colors";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import {
+  productLineDisplayName,
+  productLineShowsArchLucidMark,
+  PRODUCT_LINE_DISPLAY_NAME,
+} from "@/lib/product-line/product-line-display-name";
 
 export type ArchLucidWordmarkLinkProps = Omit<LinkProps, "children"> & {
   variant: "operator" | "marketing";
@@ -15,6 +21,8 @@ export type ArchLucidWordmarkLinkProps = Omit<LinkProps, "children"> & {
   className?: string;
   /** Override default logo layout (operator → compact, marketing → full). */
   logoVariant?: ArchLucidLogoVariant;
+  /** Override visible wordmark text. Operator chrome defaults from the active product line. */
+  wordmarkText?: string;
 };
 
 type ResolvedLogoLayout = {
@@ -84,10 +92,15 @@ function resolveExplicitLogoLayout(
  */
 export const ArchLucidWordmarkLink = forwardRef<HTMLAnchorElement, ArchLucidWordmarkLinkProps>(
   function ArchLucidWordmarkLink(
-    { variant, className, logoVariant, "aria-label": ariaLabel, ...linkProps },
+    { variant, className, logoVariant, wordmarkText, "aria-label": ariaLabel, ...linkProps },
     ref,
   ) {
+    const { productLine } = useProductLine();
     const layout = resolveLogoLayout(variant, logoVariant);
+    const resolvedWordmarkText =
+      wordmarkText
+      ?? (variant === "operator" ? productLineDisplayName(productLine) : PRODUCT_LINE_DISPLAY_NAME.architecture);
+    const showMark = productLineShowsArchLucidMark(productLine);
 
     return (
       <Link
@@ -105,6 +118,8 @@ export const ArchLucidWordmarkLink = forwardRef<HTMLAnchorElement, ArchLucidWord
           variant={layout.logoVariant}
           size={layout.size}
           wordmarkClassName={layout.wordmarkClassName}
+          wordmarkText={resolvedWordmarkText}
+          showMark={showMark}
           className="dark:hidden"
           tealColor={ARCHLUCID_BRAND.tealOnLightSurface}
         />
@@ -113,6 +128,8 @@ export const ArchLucidWordmarkLink = forwardRef<HTMLAnchorElement, ArchLucidWord
           variant={layout.logoVariant}
           size={layout.size}
           wordmarkClassName={layout.wordmarkClassName}
+          wordmarkText={resolvedWordmarkText}
+          showMark={showMark}
           className="hidden dark:inline-flex"
           navyColor={DARK_SURFACE_NAVY}
         />

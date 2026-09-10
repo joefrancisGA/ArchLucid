@@ -13,9 +13,13 @@ import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architect
 
 const mockUsePathname = vi.fn(() => "/architecture/architectures");
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => mockUsePathname(),
-}));
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => mockUsePathname(),
+  });
+});
 
 describe("ArchitectureDraftGuidanceDisclosure", () => {
   afterEach(() => {

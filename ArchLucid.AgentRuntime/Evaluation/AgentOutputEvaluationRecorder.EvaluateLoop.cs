@@ -73,6 +73,8 @@ public sealed partial class AgentOutputEvaluationRecorder
         string agentLabel = trace.AgentType.ToString();
         TagList tags = new() { { "agent_type", agentLabel } };
 
+        AgentResult? matchingResult = agentResults.FirstOrDefault(r => r.TaskId == trace.TaskId);
+
         AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
             await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
                 trace,
@@ -86,12 +88,12 @@ public sealed partial class AgentOutputEvaluationRecorder
                 _embeddingFaithfulnessScorer,
                 _llmFaithfulnessEvaluator,
                 calibratedLookup,
-                faithfulnessOptions).ConfigureAwait(false);
+                faithfulnessOptions,
+                matchingResult?.TaskStructuralExecutionMode,
+                _agentExecutionOptions.CurrentValue.Mode).ConfigureAwait(false);
 
         if (evaluated is null)
             return;
-
-        AgentResult? matchingResult = agentResults.FirstOrDefault(r => r.TaskId == trace.TaskId);
 
         await AppendCalibrationSampleIfEnabledAsync(trace, matchingResult, evaluated, cancellationToken)
             .ConfigureAwait(false);

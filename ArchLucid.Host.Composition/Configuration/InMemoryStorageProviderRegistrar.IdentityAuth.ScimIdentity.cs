@@ -4,11 +4,13 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Persistence.ApplicationPorts.Interfaces;
 using ArchLucid.Core.Scim;
+using ArchLucid.Core.UserPreferences;
 using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Authorization;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Scim;
+using ArchLucid.Persistence.UserPreferences;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Host.Composition.Configuration;
@@ -26,6 +28,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<ILegacyPlatformIdentityMigrationSource, InMemoryLegacyPlatformIdentityMigrationSource>();
         services.AddSingleton<IScimGroupRepository, InMemoryScimGroupRepository>();
         services.AddSingleton<IUserSettingsRepository, InMemoryUserSettingsRepository>();
+        services.AddSingleton<IUserWorkspaceModeReader, UserWorkspaceModeReader>();
         services.AddSingleton<IUserInvitationRepository, InMemoryUserInvitationRepository>();
         services.AddSingleton<ITenantTeamsIncomingWebhookConnectionRepository, InMemoryTenantTeamsIncomingWebhookConnectionRepository>();
         services.AddSingleton<ITenantAzureOpenAiConnectionRepository, InMemoryTenantAzureOpenAiConnectionRepository>();

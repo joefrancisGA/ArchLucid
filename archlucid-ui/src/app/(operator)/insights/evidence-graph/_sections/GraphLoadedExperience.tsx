@@ -15,6 +15,7 @@ import {
   BUYER_GRAPH_GOVERNANCE_NEXT_PENDING,
   BUYER_EVIDENCE_GRAPH_EXPORT_EVIDENCE_TRAIL_CTA,
   BUYER_EVIDENCE_TRAIL_OPEN_PACKAGE,
+  EVIDENCE_GRAPH_PNG_EXPORT_DISCLAIMER,
 } from "@/lib/buyer/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -222,6 +223,12 @@ export function GraphLoadedExperience(props: GraphLoadedExperienceProps) {
             Export PNG
           </Button>
         </div>
+        <p
+          className={cn("m-0 w-full text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="graph-png-export-disclaimer"
+        >
+          {EVIDENCE_GRAPH_PNG_EXPORT_DISCLAIMER}
+        </p>
         {exportError !== null ? (
           <p
             role="alert"

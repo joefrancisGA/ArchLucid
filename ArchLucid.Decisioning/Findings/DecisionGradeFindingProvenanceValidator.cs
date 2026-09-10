@@ -26,7 +26,7 @@ public static partial class DecisionGradeFindingProvenanceValidator
         return violations;
     }
 
-    private static string? GetViolation(Finding finding)
+    public static string? GetViolation(Finding finding)
     {
         if (InsightDensityFindingSourceClassifier.IsAgentArchitectureFinding(finding.FindingType))
             return HasAgentCitationProvenance(finding)

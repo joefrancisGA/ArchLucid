@@ -31,6 +31,9 @@ export type AdrGeneratorFindingSlice = {
   aiReasoningExcerpt: string;
   trustLabel?: string | null;
   trustLabelReason?: string | null;
+  provenanceKind?: "Asserted" | "Inferred" | "Unknown" | null;
+  semanticSupportBand?: string | null;
+  semanticSupportBandScorerVersion?: string | null;
 };
 
 export type AdrGeneratorRunInput = {
@@ -43,6 +46,9 @@ export type AdrGeneratorRunInput = {
   manifestCounts: AdrGeneratorManifestCounts | null;
   explanation: AdrGeneratorExplanationSlice | null;
   findings: readonly AdrGeneratorFindingSlice[];
+  structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
+  isSample?: boolean | null;
+  aggregateQualityGateOutcome?: number | null;
 };
 
 export const DEFAULT_MAX_FINDINGS = 20;

@@ -4,6 +4,8 @@ import {
   DEFAULT_FINDINGS_VISIBILITY_PREFERENCES,
   readFindingsVisibilityFromStorage,
   resetFindingsVisibilitySessionStateForTests,
+  resolveDefaultShowLowConfidenceEnabled,
+  resolveFindingsVisibilityDefaults,
   resolveFindingsVisibilityFlag,
   writeFindingsVisibilityToStorage,
 } from "@/lib/findings/findings-visibility-preference";
@@ -13,8 +15,13 @@ describe("findings-visibility-preference", () => {
     resetFindingsVisibilitySessionStateForTests();
   });
 
-  it("defaults visibility toggles to off", () => {
-    expect(readFindingsVisibilityFromStorage()).toEqual(DEFAULT_FINDINGS_VISIBILITY_PREFERENCES);
+  it("defaults visibility toggles to off except Working show-low-confidence", () => {
+    expect(readFindingsVisibilityFromStorage("guided")).toEqual(DEFAULT_FINDINGS_VISIBILITY_PREFERENCES);
+    expect(readFindingsVisibilityFromStorage("working")).toEqual(
+      resolveFindingsVisibilityDefaults("working"),
+    );
+    expect(resolveDefaultShowLowConfidenceEnabled("working")).toBe(true);
+    expect(resolveDefaultShowLowConfidenceEnabled("guided")).toBe(false);
   });
 
   it("persists visibility toggles to localStorage", () => {
@@ -51,6 +58,7 @@ describe("findings-visibility-preference", () => {
         findingsShowLowConfidenceEnabledIsExplicit: false,
         findingsShowAdvisoryEnabled: true,
         findingsShowAdvisoryEnabledIsExplicit: true,
+        workspaceMode: "guided",
       })),
     }));
 
@@ -62,6 +70,46 @@ describe("findings-visibility-preference", () => {
       showLowConfidenceEnabled: false,
       showAdvisoryEnabled: true,
     });
-    expect(readFindingsVisibilityFromStorage()).toEqual(synced);
+    expect(readFindingsVisibilityFromStorage("guided")).toEqual(synced);
+  });
+
+  it("applies Working default show-low-confidence when server pref is not explicit", async () => {
+    vi.doMock("@/lib/api/user-preferences", () => ({
+      getUserPreferences: vi.fn(async () => ({
+        findingsHideGenericEnabled: false,
+        findingsHideGenericEnabledIsExplicit: false,
+        findingsShowLowConfidenceEnabled: false,
+        findingsShowLowConfidenceEnabledIsExplicit: false,
+        findingsShowAdvisoryEnabled: false,
+        findingsShowAdvisoryEnabledIsExplicit: false,
+        workspaceMode: "working",
+      })),
+    }));
+
+    const { findingsVisibilityFromUserPreferencesResponse } = await import(
+      "@/lib/findings/findings-visibility-preference"
+    );
+
+    expect(
+      findingsVisibilityFromUserPreferencesResponse({
+        findingsHideGenericEnabled: false,
+        findingsHideGenericEnabledIsExplicit: false,
+        findingsShowLowConfidenceEnabled: false,
+        findingsShowLowConfidenceEnabledIsExplicit: false,
+        findingsShowAdvisoryEnabled: false,
+        findingsShowAdvisoryEnabledIsExplicit: false,
+        workspaceMode: "working",
+      }).showLowConfidenceEnabled,
+    ).toBe(true);
+  });
+
+  it("URL showLow=0 still hides low-confidence rows on Working", () => {
+    writeFindingsVisibilityToStorage({
+      hideGenericEnabled: false,
+      showLowConfidenceEnabled: true,
+      showAdvisoryEnabled: false,
+    });
+
+    expect(resolveFindingsVisibilityFlag(true, false, true)).toBe(false);
   });
 });
