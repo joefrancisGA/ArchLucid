@@ -1,7 +1,9 @@
 using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Architecture;
@@ -40,6 +42,7 @@ public sealed partial class ArchitecturesController(
     ArchitectureInventoryBindingAuditSupport architectureInventoryBindingAuditSupport,
     IArchitectureShareService architectureShareService,
     ArchitectureShareAuditSupport architectureShareAuditSupport,
+    IArchitectureShareAccessGate architectureShareAccessGate,
     IArchitectureSealDeltaService architectureSealDeltaService,
     IAuditService auditService,
     IRunRepository runRepository,
@@ -84,6 +87,9 @@ public sealed partial class ArchitecturesController(
     private readonly ArchitectureShareAuditSupport _architectureShareAuditSupport =
         architectureShareAuditSupport ?? throw new ArgumentNullException(nameof(architectureShareAuditSupport));
 
+    private readonly IArchitectureShareAccessGate _architectureShareAccessGate =
+        architectureShareAccessGate ?? throw new ArgumentNullException(nameof(architectureShareAccessGate));
+
     private readonly IArchitectureSealDeltaService _architectureSealDeltaService =
         architectureSealDeltaService ?? throw new ArgumentNullException(nameof(architectureSealDeltaService));
 
@@ -112,6 +118,8 @@ public sealed partial class ArchitecturesController(
             actorOid,
             cancellationToken);
 
+        response = await FilterArchitectureListByShareAccessAsync(scope, response, cancellationToken);
+
         IActionResult? sealedGuardResult =
             await EnsureArchitectureIdentityListSealedManifestReadAllowedAsync(scope, response, cancellationToken);
 
@@ -131,6 +139,12 @@ public sealed partial class ArchitecturesController(
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         string actorOid = _actorContext.GetActorId();
+
+        IActionResult? shareGuardResult =
+            await EnsureArchitectureShareReadAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (shareGuardResult is not null)
+            return shareGuardResult;
 
         ArchitectureIdentityDetail? detail = await _architectureIdentityService.GetIdentityAsync(
             scope,
@@ -168,6 +182,12 @@ public sealed partial class ArchitecturesController(
     public async Task<IActionResult> GetSealDelta(Guid architectureId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? shareGuardResult =
+            await EnsureArchitectureShareReadAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (shareGuardResult is not null)
+            return shareGuardResult;
 
         IActionResult? sealedGuardResult =
             await EnsureArchitectureSealDeltaSealedManifestReadAllowedAsync(scope, architectureId, cancellationToken);
@@ -216,6 +236,12 @@ public sealed partial class ArchitecturesController(
             return this.BadRequestProblem("At least one patch field is required.", ProblemTypes.ValidationFailed);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        IActionResult? shareGuardResult =
+            await EnsureArchitectureShareDecideAllowedAsync(scope, architectureId, cancellationToken);
+
+        if (shareGuardResult is not null)
+            return shareGuardResult;
 
         IActionResult? sealedGuardResult =
             await EnsureArchitectureIdentityMutationSealedManifestAllowedAsync(scope, cancellationToken);

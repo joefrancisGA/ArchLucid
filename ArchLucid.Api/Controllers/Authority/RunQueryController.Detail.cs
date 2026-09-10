@@ -7,6 +7,7 @@ using ArchLucid.Application.Runs.Query;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +29,21 @@ public sealed partial class RunQueryController
     {
         try
         {
+            if (!Guid.TryParse(runId, out Guid runGuid))
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+
+            IActionResult? shareGuardResult = await _architectureShareAccessGate.EnsureRunReadAllowedAsync(
+                this,
+                User,
+                scope,
+                runGuid,
+                cancellationToken);
+
+            if (shareGuardResult is not null)
+                return shareGuardResult;
+
             IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
             if (sealedGuardResult is not null)
