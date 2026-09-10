@@ -149,8 +149,8 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
       "/integrations/cloud-connections/gcp",
     );
     expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
-    expect(screen.queryByTestId("help-topic-print-button")).toBeNull();
-    expect(screen.queryByTestId("page-contextual-help-button")).toBeNull();
+    expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
   });
 
   it("shows roles table, forbidden-roles callout, WIF starter panel, and verification scope", () => {

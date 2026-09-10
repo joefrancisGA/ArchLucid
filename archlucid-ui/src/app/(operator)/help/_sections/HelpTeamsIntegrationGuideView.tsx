@@ -10,6 +10,7 @@ import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegi
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { Button } from "@/components/ui/button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   DESIGN_TOKENS,
@@ -61,6 +62,7 @@ function HelpSectionHeading(props: { readonly id: string; readonly children: str
 export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideViewProps): React.ReactElement {
   const { entry } = props;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const { localize } = useLocalizedProductCopy();
   const contentGridClass = resolveHelpPageContentGridClass(TEAMS_INTEGRATION_HELP_GUIDE_HEADINGS.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
@@ -80,7 +82,7 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
 
       <HelpTopicGuidePageHeader
         eyebrow={buyerPolishedShell ? undefined : TEAMS_INTEGRATION_HELP_PAGE_EYEBROW}
-        title={TEAMS_INTEGRATION_HELP_PAGE_TITLE}
+        title={localize(TEAMS_INTEGRATION_HELP_PAGE_TITLE)}
         titleTestId="help-teams-integration-page-title"
         subtitle={teamsIntegrationHelpPageSubtitle(buyerPolishedShell)}
         navHref={TEAMS_INTEGRATION_HELP_CANONICAL_PATH}
@@ -101,7 +103,7 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
           </div>
 
           <p className={readingBodyClass} data-testid="help-teams-integration-overview">
-            {TEAMS_INTEGRATION_HELP_OVERVIEW}
+            {localize(TEAMS_INTEGRATION_HELP_OVERVIEW)}
           </p>
 
           <section
@@ -140,7 +142,7 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
               {TEAMS_INTEGRATION_HELP_FEATURE_ITEMS.map((item) => (
                 <div key={item.label}>
                   <dt className="font-medium text-al-text-primary">{item.label}</dt>
-                  <dd className="m-0 mt-1 text-al-text-secondary">{item.detail}</dd>
+                  <dd className="m-0 mt-1 text-al-text-secondary">{localize(item.detail)}</dd>
                 </div>
               ))}
             </dl>

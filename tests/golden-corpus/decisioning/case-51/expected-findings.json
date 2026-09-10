@@ -1,0 +1,50 @@
+[
+  {
+    "findingId": "2c49f5e9-e344-4393-3fc6-fa579e6e753b",
+    "findingType": "InventoryReconciliationFinding",
+    "category": "Correctness",
+    "severity": "Warning",
+    "title": "Topology graph and AWS inventory are out of sync",
+    "rationale": "At least one topology resource identifier does not match the latest scoped AWS inventory snapshot.",
+    "relatedNodeIds": [],
+    "payloadType": "InventoryReconciliationFindingPayload",
+    "rulesApplied": [
+      "graph-aws-inventory-reconciliation"
+    ],
+    "decisionsTaken": [
+      "Compared topology resource ARNs to scoped AWS inventory resources.json rows."
+    ]
+  },
+  {
+    "findingId": "86b4bec8-9aee-4d43-7633-7e7215d18fbd",
+    "findingType": "OrphanedAwsResource",
+    "category": "CostOptimization",
+    "severity": "Warning",
+    "title": "Orphaned AWS resource: AWS::EC2::Volume",
+    "rationale": "Unattached EBS volume (no active attachment).",
+    "relatedNodeIds": [],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "orphaned-aws-resource-classifier"
+    ],
+    "decisionsTaken": [
+      "Flagged unattached EBS volume, Elastic IP, or ENI from AWS inventory."
+    ]
+  },
+  {
+    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

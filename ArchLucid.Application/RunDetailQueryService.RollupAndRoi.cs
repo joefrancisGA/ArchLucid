@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -20,9 +21,7 @@ public sealed partial class RunDetailQueryService
     /// <inheritdoc/>
     public async Task<ArchitectureRunDetail?> GetRunDetailForRollupAsync(string runId, CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
-
-        if (!TryParseRunGuid(runId, out Guid runGuid))
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
         {
             if (logger.IsEnabled(LogLevel.Debug))
                 logger.LogDebug("RunDetailQueryService: run '{RunId}' is not a valid run identifier.", LogSanitizer.Sanitize(runId));
@@ -84,6 +83,17 @@ public sealed partial class RunDetailQueryService
 
         if (muteFlags.Count > 0)
             FindingMuteFlagApplier.Apply(detail.Results, muteFlags);
+
+        if (_semanticSupportBandOverlayRepository is not null)
+        {
+            IReadOnlyDictionary<string, FindingSemanticSupportBandOverlayRecord> supportBandOverlays =
+                await _semanticSupportBandOverlayRepository
+                    .GetBySnapshotAsync(findingsSnapshotId, scope, cancellationToken)
+                    .ConfigureAwait(false);
+
+            if (supportBandOverlays.Count > 0)
+                FindingSemanticSupportBandOverlayApplier.ApplyToAgentResults(detail.Results, supportBandOverlays);
+        }
 
         return detail;
     }

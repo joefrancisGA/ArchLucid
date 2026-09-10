@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useExtractUploadBaselineQuery } from "@/hooks/use-extract-upload-baseline-query";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
@@ -21,7 +22,8 @@ import {
 } from "@/lib/extract-upload-package-checklist";
 
 export function useExtractUploadSettings() {
-  const baselineQuery = useExtractUploadBaselineQuery();
+  const { productLine } = useProductLine();
+  const baselineQuery = useExtractUploadBaselineQuery(productLine);
   const [busy, setBusy] = useState(false);
   const [selectedFileLabel, setSelectedFileLabel] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<{

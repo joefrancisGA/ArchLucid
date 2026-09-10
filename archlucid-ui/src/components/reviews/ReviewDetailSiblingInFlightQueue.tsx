@@ -5,7 +5,7 @@ import Link from "next/link";
 import { InFlightAnalysisDeskList } from "@/components/operations/InFlightAnalysisDeskList";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useShellInFlightOperations } from "@/hooks/use-shell-in-flight-operations";
-import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   mapInFlightOperationsToDeskRows,
@@ -51,10 +51,10 @@ export function ReviewDetailSiblingInFlightQueue(
         data-testid="review-detail-sibling-in-flight-empty"
       >
         No other packages are in flight.{" "}
-        <Link href={REVIEWS_LIST_PATH} className="text-al-link underline-offset-2 hover:underline">
-          Open the reviews hub
+        <Link href={ARCHITECTURES_LIST_PATH} className="text-al-link underline-offset-2 hover:underline">
+          Open architectures
         </Link>{" "}
-        to scan the full in-flight queue.
+        to pick a system desk and scan in-flight work there.
       </p>
     );
   }

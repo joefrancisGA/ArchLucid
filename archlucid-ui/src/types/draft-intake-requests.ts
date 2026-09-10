@@ -12,6 +12,7 @@ export type PatchDraftRequest = {
   businessOutcome?: string | null;
   focusedPilotModeEnabled?: boolean | null;
   freeTextIntent?: string | null;
+  openQuestions?: string | null;
   structuredBrief?: components["schemas"]["ArchitectureDraftStructuredBrief"] | null;
   systemName?: string | null;
   workflowIntent?: string | null;

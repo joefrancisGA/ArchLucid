@@ -7,11 +7,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { CompositeAlertRulesCreateForm } from "@/components/alerts/CompositeAlertRulesCreateForm";
+import { CompositeAlertRulesBuyerChrome } from "@/components/alerts/CompositeAlertRulesBuyerChrome";
 import { CompositeAlertRulesPickReviewBeforeCombiningStrip } from "@/components/alerts/CompositeAlertRulesPickReviewBeforeCombiningStrip";
 import { CompositeAlertRulesNextReviewFooterClient } from "@/components/alerts/CompositeAlertRulesNextReviewFooterClient";
 import { CompositeAlertRulesTable } from "@/components/alerts/CompositeAlertRulesTable";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { useCompositeAlertRulesListQuery } from "@/components/alerts/use-alert-rules-hub-queries";
 import { useOptionalAlertRulesHubRefresh } from "@/lib/alerts-hub-refresh-context";
 import { createCompositeAlertRule } from "@/lib/api";
@@ -28,6 +30,10 @@ import {
   resolveCompositeAlertRulesCreateEmphasizedStepId,
   resolveCompositeAlertRulesCreateSteps,
 } from "@/lib/composite-alert-rules-create-checklist";
+import {
+  COMPOSITE_ALERT_RULES_BUYER_START_HERE_HELPER,
+  COMPOSITE_ALERT_RULES_PAGE_LEAD,
+} from "@/lib/composite-alert-rules-copy";
 import {
   compositeRulesCreateButtonLabelOperator,
   compositeRulesPageLeadOperator,
@@ -54,6 +60,7 @@ import {
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 
 export function CompositeAlertRulesContent() {
+  const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const searchParams = useSearchParams();
   const scopedRunId = (searchParams.get("runId") ?? "").trim();
@@ -293,14 +300,36 @@ export function CompositeAlertRulesContent() {
 
   return (
     <div>
-      <p className={cn("mb-2 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-        {canMutateComposite
-          ? emptyIntroMode
-            ? compositeRulesPageLeadOperatorEmpty
-            : compositeRulesPageLeadOperator
-          : compositeRulesPageLeadReader}
-      </p>
-      <AlertOperatorToolingRankCue />
+      {buyerPolishedShell ? null : (
+        <p className={cn("mb-2 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+          {canMutateComposite
+            ? emptyIntroMode
+              ? compositeRulesPageLeadOperatorEmpty
+              : compositeRulesPageLeadOperator
+            : compositeRulesPageLeadReader}
+        </p>
+      )}
+      {buyerPolishedShell ? null : <AlertOperatorToolingRankCue />}
+
+      {buyerPolishedShell ? (
+        <div
+          className="mb-4 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800"
+          data-testid="composite-alert-rules-first-viewport"
+        >
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+            data-testid="composite-alert-rules-intro"
+          >
+            {COMPOSITE_ALERT_RULES_PAGE_LEAD}
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="composite-alert-rules-buyer-start-here-helper"
+          >
+            {COMPOSITE_ALERT_RULES_BUYER_START_HERE_HELPER}
+          </p>
+        </div>
+      ) : null}
 
       {failure !== null ? (
         <div role="alert">
@@ -344,6 +373,7 @@ export function CompositeAlertRulesContent() {
         data-empty-intro={emptyIntroMode ? "true" : "false"}
       >
         <CompositeAlertRulesTable
+          buyerPolishedShell={buyerPolishedShell}
           canMutateComposite={canMutateComposite}
           scopedRunFilterActive={scopedRunFilterActive}
           loading={loading}
@@ -411,6 +441,7 @@ export function CompositeAlertRulesContent() {
       />
 
       {scopedRunFilterActive ? <CompositeAlertRulesNextReviewFooterClient runId={scopedRunId} /> : null}
+      <CompositeAlertRulesBuyerChrome />
     </div>
   );
 }

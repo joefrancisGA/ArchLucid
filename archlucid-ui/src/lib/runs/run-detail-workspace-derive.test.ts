@@ -81,6 +81,25 @@ describe("run-detail-workspace-derive", () => {
     expect(inProgress.label).toBe("Analysis in progress");
   });
 
+  it("labels completed pre-finalize runs as review complete even when showProgressTracker is true", () => {
+    const status = deriveRunDetailWorkspaceStatus({
+      run: {
+        runId: "r1",
+        projectId: "p1",
+        createdUtc: "2026-01-01T00:00:00Z",
+        completedUtc: "2026-01-02T00:00:00Z",
+      } as RunSummary,
+      manifestId: null,
+      manifestStatus: null,
+      showProgressTracker: true,
+      operatorGovernanceDecision: null,
+      buyerPolishedArtifactTable: false,
+    });
+
+    expect(status.label).toBe("Review complete");
+    expect(status.kind).toBe("review-complete");
+  });
+
   it("distinguishes quality-gate reject from execution failed (TB-965)", () => {
     const quality = deriveRunDetailWorkspaceStatus({
       run: {
@@ -119,7 +138,7 @@ describe("run-detail-workspace-derive", () => {
     expect(failed).toMatchObject({
       label: "Execution failed",
       kind: "execution-failed",
-      statusTagKind: "needs-attention",
+      statusTagKind: "blocked",
     });
     expect(isReviewPipelineIncomplete(failed)).toBe(true);
     expect(deriveDecisionSnapshotSuppressedReason(failed)).toMatch(/re-run the review/i);
@@ -329,7 +348,7 @@ describe("run-detail-workspace-derive", () => {
       manifestId: "manifest-1",
     });
 
-    expect(presentation.h1Title).toBe("Healthcare baseline pack");
+    expect(presentation.h1Title).toBe("Healthcare baseline pack review");
     expect(presentation.h1Title).not.toBe("Architecture under review");
   });
 
@@ -340,7 +359,7 @@ describe("run-detail-workspace-derive", () => {
       runId: "run-abc-123",
     });
 
-    expect(presentation.h1Title).toBe("Payments platform");
+    expect(presentation.h1Title).toBe("Payments platform review");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });
 
@@ -351,11 +370,11 @@ describe("run-detail-workspace-derive", () => {
       runId: "run-abc-123",
     });
 
-    expect(presentation.h1Title).toBe("Architecture under review");
+    expect(presentation.h1Title).toBe("Architecture review");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });
 
-  it("falls back to Architecture under review when only document metadata exists", () => {
+  it("falls back to Architecture review when only document metadata exists", () => {
     const presentation = deriveReviewHeaderPresentation({
       reviewTitle: "> Reviewed: 2026-07-26",
       systemName: null,
@@ -364,7 +383,7 @@ describe("run-detail-workspace-derive", () => {
       manifestId: null,
     });
 
-    expect(presentation.h1Title).toBe("Architecture under review");
+    expect(presentation.h1Title).toBe("Architecture review");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });
 
@@ -386,14 +405,14 @@ describe("run-detail-workspace-derive", () => {
     expect(deriveSignedReviewRecordIdLabel("9026d565-0000-0000-0000-0000000099e8")).toBe("9026d565…99e8");
   });
 
-  it("uses ArchLucid as H1 when it is the system name and no other label exists", () => {
+  it("uses ArchLucid review when it is the review title and no other label exists", () => {
     const presentation = deriveReviewHeaderPresentation({
       reviewTitle: "ArchLucid",
       systemName: null,
       runId: "run-abc-123",
     });
 
-    expect(presentation.h1Title).toBe("ArchLucid");
+    expect(presentation.h1Title).toBe("ArchLucid review");
     expect(presentation.h1Title).not.toBe("Architecture under review");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });

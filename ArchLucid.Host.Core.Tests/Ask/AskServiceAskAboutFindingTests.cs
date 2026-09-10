@@ -1,6 +1,9 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Ask;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Findings;
 using ArchLucid.Core.Ask;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Ask;
@@ -11,6 +14,8 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -96,11 +101,25 @@ public sealed class AskServiceAskAboutFindingTests
                           }
                           """);
 
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        FindingInstrumentationAuditSupport findingAudit = new(
+            audit.Object,
+            NullLogger<FindingInstrumentationAuditSupport>.Instance);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("operator@test");
+
         AskService sut = AskServiceTestFactory.Create(
             llm: llm.Object,
             conversationService: conversationService.Object,
             findingInspectReadRepository: findingRepository.Object,
-            query: authority.Object);
+            query: authority.Object,
+            findingInstrumentationAudit: findingAudit,
+            actorContext: actor.Object);
 
         AskResponse response = await sut.AskAboutFindingAsync(
             new FindingAskRequest
@@ -114,5 +133,11 @@ public sealed class AskServiceAskAboutFindingTests
         response.ThreadId.Should().Be(thread.ThreadId);
         response.Answer.Should().Be("Use private endpoint.");
         response.ReferencedFindings.Should().Contain("finding-1");
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.FindingAskConversationPersisted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

@@ -13,6 +13,8 @@ using ArchLucid.Provenance;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+#pragma warning disable CS0618 // AuthorityManifestRiskPosture: migrate to TradeoffDetectionEngine (risk-03).
+
 namespace ArchLucid.AgentRuntime.Explanation;
 
 /// <inheritdoc cref="IRunExplanationSummaryService" />

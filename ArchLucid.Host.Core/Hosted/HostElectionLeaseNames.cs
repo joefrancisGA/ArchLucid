@@ -103,4 +103,8 @@ public static class HostElectionLeaseNames
         "hosted:llm-monthly-tenant-budget-reservation-reclaim";
 
     public const string WaiverExpiryNotification = "hosted:waiver-expiry-notification";
+
+    public const string OperationalErrorRetentionPurge = "hosted:operational-error-retention-purge";
+
+    public const string ScimTokenRotationReminder = "hosted:scim-token-rotation-reminder";
 }

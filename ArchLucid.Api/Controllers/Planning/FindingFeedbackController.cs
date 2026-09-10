@@ -1,6 +1,9 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Findings;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Scoping;
@@ -27,6 +30,8 @@ public sealed partial class FindingFeedbackController(
     IAuthorityQueryService authorityQuery,
     IFindingFeedbackRepository findingFeedbackRepository,
     IScopeContextProvider scopeProvider,
+    IActorContext actorContext,
+    FindingInstrumentationAuditSupport findingInstrumentationAudit,
     IManifestHashService manifestHashService,
     ILogger<FindingFeedbackController> logger) : ControllerBase
 {
@@ -41,6 +46,12 @@ public sealed partial class FindingFeedbackController(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly FindingInstrumentationAuditSupport _findingInstrumentationAudit =
+        findingInstrumentationAudit ?? throw new ArgumentNullException(nameof(findingInstrumentationAudit));
 
     /// <summary>Append-only thumbs vote for one finding on a run.</summary>
     // idempotency-posture: operator-documented-safe-retry
@@ -85,17 +96,31 @@ public sealed partial class FindingFeedbackController(
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
+        string trimmedFindingId = findingId.Trim();
+        Finding? matchedFinding = list.FirstOrDefault(
+            f => string.Equals(f.FindingId, trimmedFindingId, StringComparison.OrdinalIgnoreCase));
+
         FindingFeedbackSubmission submission = new()
         {
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             RunId = runId,
-            FindingId = findingId.Trim(),
+            FindingId = trimmedFindingId,
             Score = request.Score
         };
 
         await _findingFeedbackRepository.InsertAsync(submission, cancellationToken);
+
+        await _findingInstrumentationAudit.LogFeedbackRecordedAsync(
+            scope,
+            _actorContext.GetActor(),
+            runId,
+            trimmedFindingId,
+            request.Score,
+            matchedFinding?.Classification,
+            comment: null,
+            cancellationToken);
 
         _logger.LogInformation(
             "Finding feedback recorded for run {RunId} score {Score}.",

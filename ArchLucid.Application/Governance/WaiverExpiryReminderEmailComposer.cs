@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Net;
 
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
 
 namespace ArchLucid.Application.Governance;
@@ -18,10 +19,7 @@ public static class WaiverExpiryReminderEmailComposer
         ArgumentNullException.ThrowIfNull(notification);
         ArgumentNullException.ThrowIfNull(emailOptions);
 
-        string productName =
-            string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName)
-                ? "ArchLucid"
-                : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
         string? operatorBase =
             string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)

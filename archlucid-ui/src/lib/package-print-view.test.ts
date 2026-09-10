@@ -41,7 +41,7 @@ describe("package-print-view (TB-2205)", () => {
 
   it("builds print and back hrefs", () => {
     expect(buildPackagePrintPath("abc/def")).toBe("/architecture/reviews/abc%2Fdef/print");
-    expect(buildPackagePrintBackHref("abc")).toBe("/architecture/reviews/abc?tab=review-package");
+    expect(buildPackagePrintBackHref("abc")).toBe("/architecture/reviews/abc?reviewTab=review-package");
     expect(buildPackagePrintPath("  ")).toBe("/architecture/reviews/print");
   });
 

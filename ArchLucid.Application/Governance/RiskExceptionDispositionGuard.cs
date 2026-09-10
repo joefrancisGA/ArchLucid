@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
@@ -10,19 +11,25 @@ public static class RiskExceptionDispositionGuard
 {
     public static async Task EnsureWaiverAllowedForFindingAsync(
         IFindingReviewTrailRepository trailRepository,
-        Guid tenantId,
+        ScopeContext scope,
         string findingId,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(trailRepository);
+        ArgumentNullException.ThrowIfNull(scope);
 
         if (string.IsNullOrWhiteSpace(findingId))
             throw new ArgumentException("Finding id is required.", nameof(findingId));
 
         IReadOnlyList<FindingReviewEventRecord> events =
-            await trailRepository.ListByFindingAsync(tenantId, findingId.Trim(), cancellationToken);
+            await trailRepository.ListByFindingAsync(scope.TenantId, findingId.Trim(), cancellationToken);
 
-        Disposition? latest = ResolveLatestDisposition(events);
+        List<FindingReviewEventRecord> scopedEvents = events
+            .Where(reviewEvent =>
+                reviewEvent.WorkspaceId == scope.WorkspaceId && reviewEvent.ProjectId == scope.ProjectId)
+            .ToList();
+
+        Disposition? latest = ResolveLatestDisposition(scopedEvents);
 
         if (latest == Disposition.Remediated)
         {

@@ -1,4 +1,9 @@
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  RESOURCE_HUB_ASSESSMENT_ID_PARAM,
+  RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM,
+  RESOURCE_HUB_CONTROL_ID_PARAM,
+} from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import type { DiagramInfrastructureCorrespondenceRow } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 import type { DiagramReconcileMatchKindFilter } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
@@ -70,6 +75,9 @@ export function buildDiagramReconcileWorkbenchHref(context: {
   readonly cloudResourceId?: string | null;
   readonly reconcileFilter?: DiagramReconcileMatchKindFilter;
   readonly correspondenceId?: string | null;
+  readonly assessmentId?: string | null;
+  readonly auditEvidenceSnapshotId?: string | null;
+  readonly controlId?: string | null;
 }): string {
   const params = new URLSearchParams();
 
@@ -93,6 +101,18 @@ export function buildDiagramReconcileWorkbenchHref(context: {
     params.set(DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM, context.correspondenceId.trim());
   }
 
+  if (context.assessmentId != null && context.assessmentId.trim().length > 0) {
+    params.set(RESOURCE_HUB_ASSESSMENT_ID_PARAM, context.assessmentId.trim());
+  }
+
+  if (context.auditEvidenceSnapshotId != null && context.auditEvidenceSnapshotId.trim().length > 0) {
+    params.set(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM, context.auditEvidenceSnapshotId.trim());
+  }
+
+  if (context.controlId != null && context.controlId.trim().length > 0) {
+    params.set(RESOURCE_HUB_CONTROL_ID_PARAM, context.controlId.trim());
+  }
+
   const query = params.toString();
 
   return query.length === 0
@@ -106,6 +126,9 @@ export function buildDiagramReconcileRemediationHref(context: {
   readonly snapshotId: string;
   readonly scopedCloudResourceId?: string | null;
   readonly findingId?: string | null;
+  readonly assessmentId?: string | null;
+  readonly auditEvidenceSnapshotId?: string | null;
+  readonly controlId?: string | null;
 }): string | null {
   if (context.row.matchKind !== "Conflict") {
     return null;
@@ -126,6 +149,9 @@ export function buildDiagramReconcileRemediationHref(context: {
     findingId: context.findingId,
     runId: context.runId.length > 0 ? context.runId : null,
     snapshotId: context.snapshotId.length > 0 ? context.snapshotId : null,
+    assessmentId: context.assessmentId,
+    auditEvidenceSnapshotId: context.auditEvidenceSnapshotId,
+    controlId: context.controlId,
   });
 }
 
@@ -137,6 +163,9 @@ export function diagramReconcileFilterHrefFromSearch(
     readonly cloudResourceId?: string;
     readonly reconcileFilter?: DiagramReconcileMatchKindFilter;
     readonly correspondenceId?: string;
+    readonly assessmentId?: string;
+    readonly auditEvidenceSnapshotId?: string;
+    readonly controlId?: string;
   },
   pathname: string = GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
 ): string {
@@ -187,6 +216,36 @@ export function diagramReconcileFilterHrefFromSearch(
       params.delete(DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM);
     } else {
       params.set(DIAGRAM_RECONCILE_CORRESPONDENCE_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.assessmentId !== undefined) {
+    const trimmed = patch.assessmentId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RESOURCE_HUB_ASSESSMENT_ID_PARAM);
+    } else {
+      params.set(RESOURCE_HUB_ASSESSMENT_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.auditEvidenceSnapshotId !== undefined) {
+    const trimmed = patch.auditEvidenceSnapshotId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM);
+    } else {
+      params.set(RESOURCE_HUB_AUDIT_SNAPSHOT_ID_PARAM, trimmed);
+    }
+  }
+
+  if (patch.controlId !== undefined) {
+    const trimmed = patch.controlId.trim();
+
+    if (trimmed.length === 0) {
+      params.delete(RESOURCE_HUB_CONTROL_ID_PARAM);
+    } else {
+      params.set(RESOURCE_HUB_CONTROL_ID_PARAM, trimmed);
     }
   }
 

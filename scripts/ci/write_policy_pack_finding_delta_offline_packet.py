@@ -16,6 +16,7 @@ GOLDEN_TESTS = (
     "dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~BundledPolicyPackDeclarationThemeTests",
     "dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyFilteredGoldenCorpusTests",
     "dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyFilteredDeclarationGoldenCorpusTests",
+    "dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyPackP1ToggleGoldenCorpusTests",
     "dotnet test ArchLucid.Decisioning.Tests --filter FullyQualifiedName~PolicyExpectationCoverageGoldenCorpusTests",
 )
 

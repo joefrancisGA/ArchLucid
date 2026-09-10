@@ -47,6 +47,13 @@ public sealed class FindingDispositionEventDto
         init;
     }
 
+    /// <summary>Append-only architect wording captured on this disposition event (LP-15).</summary>
+    public string? ArchitectRestatement
+    {
+        get;
+        init;
+    }
+
     public DateTimeOffset OccurredAtUtc
     {
         get;
@@ -54,6 +61,13 @@ public sealed class FindingDispositionEventDto
     }
 
     public Guid? RunId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Row version of <c>dbo.FindingCurrentDispositions</c> after this event became current (ADR 0076).</summary>
+    public string? CurrentDispositionRowVersionBase64
     {
         get;
         init;

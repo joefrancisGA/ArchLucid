@@ -1,4 +1,9 @@
-﻿import { cn } from "@/lib/utils";
+﻿"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { cn } from "@/lib/utils";
 import type { BuyerAskGroundingLink } from "@/lib/ask-buyer-grounding-links";
 import type { AskCitationActionFollowUp } from "@/lib/ask-citation-action-follow-ups";
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
@@ -27,6 +32,10 @@ import {
   ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS,
 } from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-constants";
 import { ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS } from "@/lib/ask-assistant-answer-follow-ups";
+import {
+  askCannedPromptFollowUpsDisclosureHrefFromSearch,
+  parseAskCannedPromptFollowUpsOpenFromSearch,
+} from "@/lib/insights/ask-canned-prompt-follow-ups-disclosure-url";
 import type { ConversationMessage } from "@/types/conversation";
 
 export type AskMessageThreadPanelProps = {
@@ -69,6 +78,13 @@ function lastAssistantMessageId(messages: ConversationMessage[]): string | null 
 }
 
 export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/insights/ask-review-questions";
+  const searchParams = useSearchParams();
+  const askCannedPromptFollowUpsOpenParam = searchParams.get("askCannedPromptFollowUpsOpen");
+  const [followUpsOpen, setFollowUpsOpenState] = useState(() =>
+    parseAskCannedPromptFollowUpsOpenFromSearch(askCannedPromptFollowUpsOpenParam),
+  );
   const {
     buyerPolishedShell,
     messages,
@@ -92,6 +108,27 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
   const citationHostMessageId = lastAssistantMessageId(messages);
   const showCitationActionsOnAnswer =
     streamingAssistantContent === null && citationHostMessageId !== null;
+
+  const syncFollowUpsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(askCannedPromptFollowUpsDisclosureHrefFromSearch(searchParams.toString(), open, pathname), {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setFollowUpsOpen = useCallback(
+    (open: boolean) => {
+      setFollowUpsOpenState(open);
+      syncFollowUpsOpenToUrl(open);
+    },
+    [syncFollowUpsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setFollowUpsOpenState(parseAskCannedPromptFollowUpsOpenFromSearch(askCannedPromptFollowUpsOpenParam));
+  }, [askCannedPromptFollowUpsOpenParam]);
 
   return (
     <div className="space-y-3 pt-1">
@@ -255,7 +292,14 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         ) : null}
       </div>
       {showPostAssistantFollowUps ? (
-        <details className="space-y-2 pt-1" data-testid="ask-canned-prompt-follow-ups">
+        <details
+          className="space-y-2 pt-1"
+          data-testid="ask-canned-prompt-follow-ups"
+          open={followUpsOpen}
+          onToggle={(event) => {
+            setFollowUpsOpen(event.currentTarget.open);
+          }}
+        >
           <summary
             className={cn(
               "cursor-pointer select-none text-al-text-secondary",

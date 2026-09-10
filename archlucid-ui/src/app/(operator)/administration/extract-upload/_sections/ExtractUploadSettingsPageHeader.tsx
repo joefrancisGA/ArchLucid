@@ -9,6 +9,7 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
   EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX,
   EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL,
@@ -24,23 +25,23 @@ import { ExtractUploadSettingsBreadcrumb } from "./ExtractUploadSettingsBreadcru
 
 export type ExtractUploadSettingsPageHeaderProps = {
   readonly baselineLoading: boolean;
-  readonly hasBaselineArtifacts: boolean | null;
+  readonly hasInventoryOnFile: boolean | null;
   readonly extractorScriptVersion: string | null;
 };
 
 function inventoryStatusPresentation(
   baselineLoading: boolean,
-  hasBaselineArtifacts: boolean | null,
+  hasInventoryOnFile: boolean | null,
 ): { kind: EnterpriseStatusKind; label: string } | null {
-  if (baselineLoading) {
+  if (baselineLoading && hasInventoryOnFile !== true) {
     return { kind: "in-progress", label: EXTRACT_UPLOAD_INVENTORY_CHECKING_STATUS_LABEL };
   }
 
-  if (hasBaselineArtifacts === true) {
+  if (hasInventoryOnFile === true) {
     return { kind: "ready", label: EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL };
   }
 
-  if (hasBaselineArtifacts === false) {
+  if (hasInventoryOnFile === false) {
     return { kind: "needs-attention", label: EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL };
   }
 
@@ -51,7 +52,7 @@ export function ExtractUploadSettingsPageHeader(
   props: ExtractUploadSettingsPageHeaderProps,
 ): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
-  const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasBaselineArtifacts);
+  const inventoryStatus = inventoryStatusPresentation(props.baselineLoading, props.hasInventoryOnFile);
 
   return (
     <OperatorPageHeader
@@ -61,6 +62,7 @@ export function ExtractUploadSettingsPageHeader(
       headingLevel="h1"
       breadcrumb={buyerPolishedShell ? <ExtractUploadSettingsBreadcrumb /> : undefined}
       subtitle={extractUploadSettingsPageSubtitle(buyerPolishedShell)}
+      subtitleClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       statusBadge={
         inventoryStatus !== null ? (
           <StatusTag
@@ -71,7 +73,9 @@ export function ExtractUploadSettingsPageHeader(
         ) : null
       }
       actions={
-        <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+        buyerPolishedShell ? null : (
+          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
+        )
       }
       metadata={
         buyerPolishedShell || props.extractorScriptVersion === null ? null : (

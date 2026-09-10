@@ -1,3 +1,6 @@
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { localizeProductCopy } from "@/lib/product-line/product-line-display-name";
+
 /** Pure helpers for the operator audit page (Vitest-friendly). */
 
 import {
@@ -7,6 +10,17 @@ import {
 } from "@/lib/audit-event-presentation";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+/**
+ * Maps stored audit actor labels to the active product-line display name in the UI only.
+ * Does not change detection logic in {@link auditBuyerEventIsSystemRecordedActor}.
+ */
+export function formatAuditActorDisplayName(
+  actorUserName: string,
+  productLineId: ProductLineId = "architecture",
+): string {
+  return localizeProductCopy(productLineId, actorUserName);
+}
 
 /**
  * True when the buyer-polished audit row should treat the actor as system-recorded (aligned with card subtitles).
@@ -91,7 +105,7 @@ export const AUDIT_EVENT_LIFECYCLE_STAGE_ORDER: ReadonlyArray<string> = [
   "Graph created",
   "Findings generated",
   "Review finalized",
-  "Governance approval recorded",
+  "Approval recorded",
   "Artifacts bundled",
 ];
 
@@ -116,7 +130,7 @@ function lifecycleStageHeading(stage: ReviewAuditLifecycleStageValue): string | 
       return "Artifacts bundled";
 
     case ReviewAuditLifecycleStage.GovernanceHandoff:
-      return "Governance approval recorded";
+      return "Approval recorded";
 
     default:
       return null;
@@ -151,10 +165,10 @@ export function auditEventLifecycleStageLabel(eventType: string): string | null 
       return "Review finalized";
 
     case "GovernanceApprovalRequested":
-      return "Governance approval requested";
+      return "Approval requested";
 
     case "com.archlucid.governance.approval.recorded":
-      return "Governance approval recorded";
+      return "Approval recorded";
 
     case "artifact.bundle.created":
       return "Artifacts bundled";
@@ -222,7 +236,7 @@ export function formatBuyerAuditTrailSummaryLine(
     uniformRunId ?? (filterRunId.trim().length > 0 ? filterRunId.trim() : SHOWCASE_STATIC_DEMO_RUN_ID);
   const reviewTitle = buyerFacingReviewLinkLabelFromRunId(runKey);
 
-  return `This audit trail shows the lifecycle from review creation through governance approval and packaged deliverables for ${reviewTitle}, with named human actors and automatically recorded lifecycle events.`;
+  return `This audit trail shows the lifecycle from review creation through approval and packaged deliverables for ${reviewTitle}, with named human actors and automatically recorded lifecycle events.`;
 }
 
 /** Metric tiles for buyer-polished audit header — same actor classification as {@link formatBuyerAuditTrailSummaryLine}. */

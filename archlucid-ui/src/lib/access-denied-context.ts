@@ -1,20 +1,43 @@
 import type { CurrentPrincipal } from "@/lib/current-principal";
 import type { OperatorScopeRecord } from "@/lib/operator/operator-scope-storage";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import {
+  accessDeniedBody,
+  accessDeniedHeading,
+  accessDeniedMailtoSubject,
+  accessDeniedSupplementCopy,
+} from "@/lib/product-line/product-line-display-name";
 import { readLastRegistrationPayload } from "@/lib/registration-session";
 
 export type AccessDeniedSupplementMessage = "missing-role" | "wrong-tenant";
 
-export const ACCESS_DENIED_HEADING = "You don't have access to ArchLucid yet";
+/** Architecture-shell default for legacy imports and tests. */
+export const ACCESS_DENIED_HEADING = accessDeniedHeading("architecture");
 
-export const ACCESS_DENIED_BODY =
-  "You're signed in, but your account has not been assigned an ArchLucid app role for this tenant. Ask your administrator to assign access, then sign in again.";
+/** Architecture-shell default for legacy imports and tests. */
+export const ACCESS_DENIED_BODY = accessDeniedBody("architecture");
 
 export const ACCESS_DENIED_REQUIRED_ROLES = "Required roles: Admin, Operator, Reader, or Auditor.";
 
 export const ACCESS_DENIED_SUPPLEMENT_COPY: Readonly<Record<AccessDeniedSupplementMessage, string>> = {
-  "missing-role": "No ArchLucid app role was found for this account.",
-  "wrong-tenant": "This account is not authorized for the selected tenant.",
+  "missing-role": accessDeniedSupplementCopy("architecture", "missing-role"),
+  "wrong-tenant": accessDeniedSupplementCopy("architecture", "wrong-tenant"),
 };
+
+export function resolveAccessDeniedHeading(productLineId: ProductLineId): string {
+  return accessDeniedHeading(productLineId);
+}
+
+export function resolveAccessDeniedBody(productLineId: ProductLineId): string {
+  return accessDeniedBody(productLineId);
+}
+
+export function resolveAccessDeniedSupplementCopy(
+  productLineId: ProductLineId,
+  message: AccessDeniedSupplementMessage,
+): string {
+  return accessDeniedSupplementCopy(productLineId, message);
+}
 
 /**
  * True when the hydrated principal should be routed to `/403` (signed-in but no recognized ArchLucid app role).
@@ -107,7 +130,7 @@ export function formatAccessDeniedSupportTimestamp(date: Date, timeZone?: string
  * Returns a `mailto:` href when a tenant admin email was captured during self-service registration.
  * Omit the contact action when no configured administrator contact exists.
  */
-export function resolveAdministratorContactHref(): string | null {
+export function resolveAdministratorContactHref(productLineId: ProductLineId = "architecture"): string | null {
   if (typeof window === "undefined") {
     return null;
   }
@@ -118,7 +141,7 @@ export function resolveAdministratorContactHref(): string | null {
     return null;
   }
 
-  const subject = encodeURIComponent("ArchLucid access request");
+  const subject = encodeURIComponent(accessDeniedMailtoSubject(productLineId));
 
   return `mailto:${adminEmail}?subject=${subject}`;
 }

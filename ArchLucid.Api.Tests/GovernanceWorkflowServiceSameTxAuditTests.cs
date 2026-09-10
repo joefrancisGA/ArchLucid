@@ -22,7 +22,7 @@ using CoreAuditEventTypes = ArchLucid.Core.Audit.AuditEventTypes;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>TB-956: governance approve/reject co-commit Required audit with domain transition when SQL UoW is available.</summary>
+/// <summary>TB-956 / ADR 0083: governance approve/reject and submit/promote/activate co-commit Required audit when SQL UoW is available.</summary>
 [Trait("Category", "Unit")]
 public sealed class GovernanceWorkflowServiceSameTxAuditTests
 {
@@ -152,14 +152,261 @@ public sealed class GovernanceWorkflowServiceSameTxAuditTests
         rollbackCount.Should().BeGreaterThanOrEqualTo(1);
     }
 
+    [Fact]
+    public async Task Submit_WhenSqlUnitOfWorkAvailable_LogsRequiredAuditInsideTransactionBeforeCommit()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
+        Mock<IAuditService> durableAudit = new();
+        (Mock<IArchLucidUnitOfWork> uow, Mock<IDbConnection> connection, Mock<IDbTransaction> transaction, CommitCounter commitCounter) =
+            CreateSqlUnitOfWorkMocks();
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = CreateUnitOfWorkFactory(uow);
+
+        approvalRepo
+            .Setup(r => r.CreateAsync(
+                It.IsAny<GovernanceApprovalRequest>(),
+                It.IsAny<CancellationToken>(),
+                connection.Object,
+                transaction.Object))
+            .Returns(Task.CompletedTask);
+
+        durableAudit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), uow.Object, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunDetailQueryService> runDetailQueryService = new();
+        runDetailQueryService
+            .Setup(r => r.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest("run-1", "v1"));
+
+        GovernanceWorkflowService sut = BuildSut(approvalRepo, durableAudit, uowFactory, runDetailQueryService: runDetailQueryService);
+
+        GovernanceApprovalRequest result = await sut.SubmitApprovalRequestAsync(
+            "run-1",
+            "v1",
+            "dev",
+            "test",
+            "alice",
+            null,
+            null);
+
+        result.Status.Should().Be(GovernanceApprovalStatus.Submitted);
+        commitCounter.Value.Should().Be(1);
+        durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceApprovalSubmitted),
+                uow.Object,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Promote_WhenSqlUnitOfWorkAvailable_LogsRequiredAuditInsideTransactionBeforeCommit()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
+        Mock<IGovernancePromotionRecordRepository> promotionRepo = new();
+        Mock<IAuditService> durableAudit = new();
+        (Mock<IArchLucidUnitOfWork> uow, Mock<IDbConnection> connection, Mock<IDbTransaction> transaction, CommitCounter commitCounter) =
+            CreateSqlUnitOfWorkMocks();
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = CreateUnitOfWorkFactory(uow);
+
+        promotionRepo
+            .Setup(r => r.CreateAsync(
+                It.IsAny<GovernancePromotionRecord>(),
+                It.IsAny<CancellationToken>(),
+                connection.Object,
+                transaction.Object))
+            .Returns(Task.CompletedTask);
+
+        durableAudit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), uow.Object, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunDetailQueryService> runDetailQueryService = new();
+        runDetailQueryService
+            .Setup(r => r.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest("run-1", "v1"));
+
+        GovernanceWorkflowService sut = BuildSut(
+            approvalRepo,
+            durableAudit,
+            uowFactory,
+            promotionRepo: promotionRepo,
+            runDetailQueryService: runDetailQueryService);
+
+        GovernancePromotionRecord result = await sut.PromoteAsync(
+            "run-1",
+            "v1",
+            "dev",
+            "test",
+            "alice",
+            null,
+            null);
+
+        result.TargetEnvironment.Should().Be("test");
+        commitCounter.Value.Should().Be(1);
+        durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceManifestPromoted),
+                uow.Object,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Promote_WhenSqlUnitOfWorkAuditFails_RollsBackWithoutCommit()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
+        Mock<IGovernancePromotionRecordRepository> promotionRepo = new();
+        Mock<IAuditService> durableAudit = new();
+        (Mock<IArchLucidUnitOfWork> uow, Mock<IDbConnection> connection, Mock<IDbTransaction> transaction, CommitCounter commitCounter) =
+            CreateSqlUnitOfWorkMocks();
+        int rollbackCount = 0;
+        uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>()))
+            .Callback(() => rollbackCount++)
+            .Returns(Task.CompletedTask);
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = CreateUnitOfWorkFactory(uow);
+
+        promotionRepo
+            .Setup(r => r.CreateAsync(
+                It.IsAny<GovernancePromotionRecord>(),
+                It.IsAny<CancellationToken>(),
+                connection.Object,
+                transaction.Object))
+            .Returns(Task.CompletedTask);
+
+        durableAudit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), uow.Object, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit store unavailable"));
+
+        Mock<IRunDetailQueryService> runDetailQueryService = new();
+        runDetailQueryService
+            .Setup(r => r.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest("run-1", "v1"));
+
+        GovernanceWorkflowService sut = BuildSut(
+            approvalRepo,
+            durableAudit,
+            uowFactory,
+            promotionRepo: promotionRepo,
+            runDetailQueryService: runDetailQueryService);
+
+        Func<Task<GovernancePromotionRecord>> act = () => sut.PromoteAsync(
+            "run-1",
+            "v1",
+            "dev",
+            "test",
+            "alice",
+            null,
+            null);
+
+        (await act.Should().ThrowAsync<DurableAuditWriteFailedException>())
+            .Which.OperationLabel.Should().Contain("GovernanceManifestPromoted");
+        commitCounter.Value.Should().Be(0);
+        rollbackCount.Should().BeGreaterThanOrEqualTo(1);
+    }
+
+    [Fact]
+    public async Task Activate_WhenSqlUnitOfWorkAvailable_LogsRequiredAuditInsideTransactionBeforeCommit()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
+        Mock<IGovernanceEnvironmentActivationRepository> activationRepo = new();
+        Mock<IAuditService> durableAudit = new();
+        (Mock<IArchLucidUnitOfWork> uow, Mock<IDbConnection> connection, Mock<IDbTransaction> transaction, CommitCounter commitCounter) =
+            CreateSqlUnitOfWorkMocks();
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = CreateUnitOfWorkFactory(uow);
+
+        activationRepo
+            .Setup(r => r.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<GovernanceEnvironmentActivation>());
+        activationRepo
+            .Setup(r => r.CreateAsync(
+                It.IsAny<GovernanceEnvironmentActivation>(),
+                It.IsAny<CancellationToken>(),
+                connection.Object,
+                transaction.Object))
+            .Returns(Task.CompletedTask);
+
+        durableAudit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), uow.Object, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IRunDetailQueryService> runDetailQueryService = new();
+        runDetailQueryService
+            .Setup(r => r.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(GovernanceWorkflowTestComposition.CreateRunDetailWithManifest("run-1", "v1"));
+
+        GovernanceWorkflowService sut = BuildSut(
+            approvalRepo,
+            durableAudit,
+            uowFactory,
+            activationRepo: activationRepo,
+            runDetailQueryService: runDetailQueryService);
+
+        GovernanceEnvironmentActivation result = await sut.ActivateAsync("run-1", "v1", "test", "alice");
+
+        result.Environment.Should().Be("test");
+        commitCounter.Value.Should().Be(1);
+        durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceEnvironmentActivated),
+                uow.Object,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    private sealed class CommitCounter
+    {
+        public int Value { get; set; }
+    }
+
+    private static (Mock<IArchLucidUnitOfWork> Uow, Mock<IDbConnection> Connection, Mock<IDbTransaction> Transaction, CommitCounter CommitCounter)
+        CreateSqlUnitOfWorkMocks()
+    {
+        Mock<IArchLucidUnitOfWork> uow = new();
+        Mock<IDbConnection> connection = new();
+        Mock<IDbTransaction> transaction = new();
+        CommitCounter commitCounter = new();
+
+        uow.SetupGet(x => x.SupportsExternalTransaction).Returns(true);
+        uow.SetupGet(x => x.Connection).Returns(connection.Object);
+        uow.SetupGet(x => x.Transaction).Returns(transaction.Object);
+        uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
+            .Callback(() => commitCounter.Value++)
+            .Returns(Task.CompletedTask);
+        uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
+
+        return (uow, connection, transaction, commitCounter);
+    }
+
+    private static Mock<IArchLucidUnitOfWorkFactory> CreateUnitOfWorkFactory(Mock<IArchLucidUnitOfWork> uow)
+    {
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = new();
+        uowFactory.Setup(x => x.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
+
+        return uowFactory;
+    }
+
     private static GovernanceWorkflowService BuildSut(
         Mock<IGovernanceApprovalRequestRepository> approvalRepo,
         Mock<IAuditService> durableAudit,
-        Mock<IArchLucidUnitOfWorkFactory> uowFactory)
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory,
+        Mock<IGovernancePromotionRecordRepository>? promotionRepo = null,
+        Mock<IGovernanceEnvironmentActivationRepository>? activationRepo = null,
+        Mock<IRunDetailQueryService>? runDetailQueryService = null)
     {
-        Mock<IGovernancePromotionRecordRepository> promotionRepo = new();
-        Mock<IGovernanceEnvironmentActivationRepository> activationRepo = new();
-        Mock<IRunDetailQueryService> runDetailQueryService = new();
+        Mock<IGovernancePromotionRecordRepository> promotionRepoMock = promotionRepo ?? new Mock<IGovernancePromotionRecordRepository>();
+        Mock<IGovernanceEnvironmentActivationRepository> activationRepoMock = activationRepo ?? new Mock<IGovernanceEnvironmentActivationRepository>();
+        Mock<IRunDetailQueryService> runDetailQueryServiceMock = runDetailQueryService ?? new Mock<IRunDetailQueryService>();
         Mock<IBaselineMutationAuditService> baselineAudit = new();
         Mock<IScopeContextProvider> scopeContext = new();
         Mock<IIntegrationEventPublisher> integrationEvents = new();
@@ -179,9 +426,9 @@ public sealed class GovernanceWorkflowServiceSameTxAuditTests
 
         return GovernanceWorkflowTestComposition.CreateService(
             approvalRepo.Object,
-            promotionRepo.Object,
-            activationRepo.Object,
-            runDetailQueryService.Object,
+            promotionRepoMock.Object,
+            activationRepoMock.Object,
+            runDetailQueryServiceMock.Object,
             baselineAudit.Object,
             durableAudit.Object,
             scopeContext.Object,

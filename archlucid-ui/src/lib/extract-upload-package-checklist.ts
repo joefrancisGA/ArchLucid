@@ -34,3 +34,18 @@ export function resolveExtractUploadPackageEmphasizedStepId(input: {
 
   return incomplete?.id ?? "parse";
 }
+
+export function resolveExtractUploadHasInventoryOnFile(input: {
+  readonly hasBaselineArtifacts: boolean | null;
+  readonly packageId: string | null;
+}): boolean | null {
+  if (input.hasBaselineArtifacts === true || input.packageId !== null) {
+    return true;
+  }
+
+  if (input.hasBaselineArtifacts === false) {
+    return false;
+  }
+
+  return null;
+}

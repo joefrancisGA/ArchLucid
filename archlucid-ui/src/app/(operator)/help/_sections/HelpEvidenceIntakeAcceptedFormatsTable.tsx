@@ -1,3 +1,8 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
+
 import {
   EVIDENCE_INTAKE_HELP_ACCEPTED_FORMAT_GROUPS,
   EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_DISCLOSURE_LABEL,
@@ -8,11 +13,45 @@ import {
   EVIDENCE_UPLOAD_ACCEPTED_FORMAT_ROWS,
 } from "@/lib/evidence-upload-accepted-formats";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import {
+  helpEvidenceIntakeAcceptedFormatsDisclosureHrefFromSearch,
+  parseHelpEvidenceIntakeAcceptedFormatsOpenFromSearch,
+} from "@/lib/help/help-evidence-intake-accepted-formats-disclosure-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /** Authoritative accepted-format summary for `/help/evidence-intake` (wizard-aligned). */
-export function HelpEvidenceIntakeAcceptedFormatsTable(): React.ReactElement {
+export function HelpEvidenceIntakeAcceptedFormatsTable(): ReactElement {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/help/evidence-intake";
+  const searchParams = useSearchParams();
+  const helpEvidenceIntakeAcceptedFormatsOpenParam = searchParams.get("helpEvidenceIntakeAcceptedFormatsOpen");
+  const [formatsOpen, setFormatsOpenState] = useState(() =>
+    parseHelpEvidenceIntakeAcceptedFormatsOpenFromSearch(helpEvidenceIntakeAcceptedFormatsOpenParam),
+  );
+
+  const syncFormatsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        helpEvidenceIntakeAcceptedFormatsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setFormatsOpen = useCallback(
+    (open: boolean) => {
+      setFormatsOpenState(open);
+      syncFormatsOpenToUrl(open);
+    },
+    [syncFormatsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setFormatsOpenState(parseHelpEvidenceIntakeAcceptedFormatsOpenFromSearch(helpEvidenceIntakeAcceptedFormatsOpenParam));
+  }, [helpEvidenceIntakeAcceptedFormatsOpenParam]);
+
   return (
     <section
       aria-labelledby="help-evidence-intake-formats-heading"
@@ -35,7 +74,14 @@ export function HelpEvidenceIntakeAcceptedFormatsTable(): React.ReactElement {
           </li>
         ))}
       </ul>
-      <details className={cn("mt-3", HELP_PAGE_LAYOUT.details)} data-testid="help-evidence-intake-formats-disclosure">
+      <details
+        className={cn("mt-3", HELP_PAGE_LAYOUT.details)}
+        data-testid="help-evidence-intake-formats-disclosure"
+        open={formatsOpen}
+        onToggle={(event) => {
+          setFormatsOpen(event.currentTarget.open);
+        }}
+      >
         <summary className={cn("cursor-pointer font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {EVIDENCE_INTAKE_HELP_ACCEPTED_FORMATS_DISCLOSURE_LABEL}
         </summary>

@@ -30,6 +30,16 @@ def test_build_summary_lists_triage_steps() -> None:
     assert any(row["stepId"] == "api-log" for row in steps)
 
 
+def test_build_summary_smoke_branch_lane_artifact_names() -> None:
+    module = _load_module()
+    summary = module.build_summary(REPO_ROOT, lane="smoke-branch")
+    steps = summary["steps"]
+    api_log = next(row for row in steps if row["stepId"] == "api-log")
+
+    assert api_log["artifact"] == "ui-e2e-live-beta-access-smoke-branch-api-log"
+    assert summary["lane"] == "smoke-branch"
+
+
 def test_render_markdown_includes_runbook_path() -> None:
     module = _load_module()
     summary = module.build_summary(REPO_ROOT)
@@ -37,6 +47,7 @@ def test_render_markdown_includes_runbook_path() -> None:
 
     assert "PRIVATE_BETA_TRUNK_SMOKE.md" in markdown
     assert "live-api-private-beta-access.spec.ts" in markdown
+    assert "live-api-scim-invite-substitute-smoke.spec.ts" in markdown
 
 
 def test_main_writes_json_output(tmp_path: Path) -> None:
@@ -46,6 +57,8 @@ def test_main_writes_json_output(tmp_path: Path) -> None:
 
     sys.argv = [
         "report_private_beta_playwright_failure_triage.py",
+        "--lane",
+        "trunk",
         "--json-out",
         str(json_out),
     ]
@@ -55,4 +68,5 @@ def test_main_writes_json_output(tmp_path: Path) -> None:
         sys.argv = previous_argv
 
     payload = json.loads(json_out.read_text(encoding="utf-8"))
-    assert payload["stepCount"] == len(module.TRIAGE_STEPS)
+    assert payload["stepCount"] == len(module.build_triage_steps("trunk"))
+    assert payload["lane"] == "trunk"

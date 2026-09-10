@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -87,6 +88,9 @@ public sealed class OrphanedAwsResourceFindingEngine(
                 IReadOnlyList<string> alternativePaths =
                     OrphanedAwsResourceExplainabilityAlternatives.ResolveForResourceType(orphan.ResourceType);
 
+                List<string> evidenceRefs = [];
+                FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, orphan.ResourceId);
+
                 return new Finding
                 {
                     FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -97,6 +101,7 @@ public sealed class OrphanedAwsResourceFindingEngine(
                     Title = $"Orphaned AWS resource: {orphan.ResourceType}",
                     Rationale = orphan.Message,
                     RelatedNodeIds = topologyNodes.Resolve(orphan.ResourceId).ToList(),
+                    EvidenceRefs = evidenceRefs,
                     PayloadType = nameof(RequirementFindingPayload),
                     Payload = new RequirementFindingPayload
                     {

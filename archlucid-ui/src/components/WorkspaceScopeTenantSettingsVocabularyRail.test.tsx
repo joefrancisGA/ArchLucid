@@ -39,15 +39,15 @@ describe("WorkspaceScopeTenantSettingsVocabularyRail (TB-2317)", () => {
     render(
       <WorkspaceScopeTenantSettingsVocabularyRail
         currentSurfaceId="tenant-settings"
-        currentLabel="Workspace settings"
+        currentLabel="This workspace"
         variant="full"
       />,
     );
 
     expect(screen.getByTestId("workspace-scope-tenant-settings-vocabulary-current")).toHaveTextContent(
-      "Workspace settings",
+      "This workspace",
     );
-    expect(screen.queryByText(WORKSPACE_SCOPE_TENANT_SETTINGS_TENANT_LINK.label)).not.toBeInTheDocument();
+    expect(screen.queryByText("Tenant settings")).not.toBeInTheDocument();
   });
 
   it("renders full variant with why-two explanation", () => {

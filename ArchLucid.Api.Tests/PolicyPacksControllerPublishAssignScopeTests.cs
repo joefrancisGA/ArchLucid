@@ -129,4 +129,120 @@ public sealed class PolicyPacksControllerPublishAssignScopeTests
 
         result.Should().BeOfType<OkObjectResult>();
     }
+
+    [Fact]
+    public async Task Assign_returns_forbidden_when_organization_required_without_tenant_administrator()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.AssignAsync(
+                packId,
+                It.IsAny<PolicyPackAssignBody>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.Forbidden,
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        AssignPolicyPackRequest request = new()
+        {
+            Version = "1.0.0",
+            ScopeLevel = "Project",
+            IsPinned = false,
+            IsOrganizationRequired = true,
+        };
+
+        IActionResult result = await sut.Assign(packId, request, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.AssignAsync(
+                packId,
+                It.Is<PolicyPackAssignBody>(body => body.ScopeLevel == GovernanceScopeLevel.Tenant),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackAssignHttpResult
+            {
+                Outcome = PolicyPackHttpOutcome.Forbidden,
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        AssignPolicyPackRequest request = new()
+        {
+            Version = "1.0.0",
+            ScopeLevel = GovernanceScopeLevel.Tenant,
+            IsPinned = false,
+            IsOrganizationRequired = false,
+        };
+
+        IActionResult result = await sut.Assign(packId, request, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
+    public async Task PromoteCatalogEntry_returns_not_found_when_source_pack_is_out_of_scope()
+    {
+        Guid foreignSourcePackId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.PromoteCatalogEntryAsync(
+                It.Is<PolicyPackPromoteCatalogBody>(body => body.SourcePolicyPackId == foreignSourcePackId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackHttpResult<PolicyPackCatalogEntryDetail>
+            {
+                Outcome = PolicyPackHttpOutcome.ResourceNotFound,
+                Message = $"Policy pack '{foreignSourcePackId}' was not found in the current scope or has no content for the requested version.",
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        IActionResult result = await sut.PromoteCatalogEntry(
+            new PromotePolicyPackCatalogEntryRequest
+            {
+                SourcePolicyPackId = foreignSourcePackId,
+                Version = "1.0.0",
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task DemoteCatalogEntry_returns_not_found_when_catalog_entry_source_pack_is_out_of_scope()
+    {
+        Guid foreignCatalogEntryId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+
+        Mock<IPolicyPackHttpFacade> httpFacade = new(MockBehavior.Strict);
+        httpFacade
+            .Setup(f => f.DemoteCatalogEntryAsync(
+                It.Is<PolicyPackDemoteCatalogBody>(body => body.PolicyPackCatalogEntryId == foreignCatalogEntryId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PolicyPackHttpResult<bool>
+            {
+                Outcome = PolicyPackHttpOutcome.ResourceNotFound,
+                Message = $"Policy pack catalog entry '{foreignCatalogEntryId}' was not found.",
+            });
+
+        PolicyPacksController sut = PolicyPacksControllerTestSupport.CreateController(httpFacade);
+
+        IActionResult result = await sut.DemoteCatalogEntry(
+            new DemotePolicyPackCatalogEntryRequest { PolicyPackCatalogEntryId = foreignCatalogEntryId },
+            CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
 }

@@ -41,7 +41,7 @@
 
 **Trade-offs:** No commit safety by itself; lag vs package seal; needs honest labeling.
 
-**Residual:** `FindingCitationCoverageRatio` inert path — do not cite as live commit gate until **TB-1221** wires validators.
+**Residual:** `FindingCitationCoverageRatio` is live on Working Real PilotStrict (LP-04); Simulator skips ratio evaluation.
 
 ---
 

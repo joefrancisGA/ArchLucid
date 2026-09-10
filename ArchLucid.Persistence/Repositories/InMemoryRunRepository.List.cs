@@ -18,6 +18,7 @@ public sealed partial class InMemoryRunRepository
                 RunRepositoryCore.IsActiveInScope(r, scope) &&
                 RunRepositoryCore.MatchesProjectListFilter(r, projectId))
             .OrderByDescending(r => r.CreatedUtc)
+            .ThenByDescending(r => r.RunId)
             .Take(n)
             .ToList();
         return Task.FromResult<IReadOnlyList<RunRecord>>(list);
@@ -64,6 +65,7 @@ public sealed partial class InMemoryRunRepository
         List<RunRecord> list = _store.Values
             .Where(r => RunRepositoryCore.IsActiveInScope(r, scope))
             .OrderByDescending(r => r.CreatedUtc)
+            .ThenByDescending(r => r.RunId)
             .Take(n)
             .ToList();
 
@@ -117,6 +119,7 @@ public sealed partial class InMemoryRunRepository
         List<RunRecord> filtered = _store.Values
             .Where(r => RunRepositoryCore.IsActiveInScope(r, scope))
             .OrderByDescending(r => r.CreatedUtc)
+            .ThenByDescending(r => r.RunId)
             .Skip(safeOffset)
             .Take(fetch)
             .ToList();

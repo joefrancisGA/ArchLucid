@@ -57,9 +57,31 @@ GitHub cannot apply rulesets from files in the repo. As of 2026-08-31, the **int
 **Not in the five-check JSON** (do not pretend the live ruleset requires them):
 
 - `.NET: OpenAPI v1 contract snapshot (fail-fast)` — now a job on `.github/workflows/ui-typecheck-on-push.yml`. Owner may add the check after one green trunk run.
-- `Operator UI: private-beta access-path (JwtBearer)` — now also produced by `.github/workflows/private-beta-access-on-push.yml` on trunk push (invite-wave; does not wait on full `ci.yml` regression). **Do not** add as a sixth golden-cohort required check until the owner applies it after a green run.
+- `Operator UI: private-beta access-path (JwtBearer)` — produced by `.github/workflows/private-beta-access-on-push.yml` on trunk push. **Do not** add as a sixth golden-cohort required check until the owner applies it after a green run. After the first green private-beta smoke on `master`, apply [`.github/rulesets/golden-cohort-gate-private-beta-addon.json`](rulesets/golden-cohort-gate-private-beta-addon.json) via `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1 -PayloadPath .github/rulesets/golden-cohort-gate-private-beta-addon.json` (or merge into `golden-cohort-gate-required-check.json`) and re-run the script (or add the check in GitHub Rulesets UI).
 
 Owner apply: `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1` after one green `ui-typecheck-on-push.yml` run that includes the beta-readiness job.
+
+### Full `ci.yml` matrix triage (QR-13)
+
+Last completed **`workflow_dispatch`** on `master` failed on 2026-08-28 (run `33193938737`). Push corset and typecheck paths have moved since then. See [`docs/quality/ci-yml-matrix-triage-2026-09-09.md`](../docs/quality/ci-yml-matrix-triage-2026-09-09.md) for per-job pass/fail, fixes, and known-red backlog. **Do not** add required checks beyond [`golden-cohort-gate-required-check.json`](rulesets/golden-cohort-gate-required-check.json) when triaging.
+
+### Merge queue (owner apply — closes v8 §17 item 4)
+
+GitHub **merge queue** validates the **combined merge-result SHA** (`merge_group` workflow event) before landing on `master`/`main`. That closes the gap where two green PR branches still break when merged (path-skipped `.NET: fast core (corset)` on docs-only PRs is the exhibit).
+
+**Agent half (in-repo):**
+
+- `.github/workflows/ci.yml` triggers on `merge_group` and never path-skips the corset build on that event (`scripts/ci/detect_ci_path_lanes.py` reason `merge_group_semantic_conflict_guard`).
+- Draft ruleset JSON: [`.github/rulesets/golden-cohort-gate-merge-queue.json`](rulesets/golden-cohort-gate-merge-queue.json) — `merge_queue` parameters plus the **same five** required contexts as [`golden-cohort-gate-required-check.json`](rulesets/golden-cohort-gate-required-check.json). **Do not invent check names.**
+
+**Owner half (~2 minutes in GitHub UI or API):**
+
+1. Settings → Rules → Rulesets → edit **`Golden cohort real-LLM gate`** (or create from the draft JSON).
+2. Add rule type **Merge queue** with parameters from the draft JSON (`HEADGREEN` grouping recommended so only the combined head must pass).
+3. Keep the existing five required status checks unchanged (see live ruleset section above).
+4. Enable merge queue on the default branch. Confirm `.github/workflows/ci.yml` shows a green **`merge_group`** run before relying on the queue.
+
+Optional script apply (review diff first): `.\scripts\ci\apply-golden-cohort-gate-ruleset.ps1 -PayloadPath .github/rulesets/golden-cohort-gate-merge-queue.json`
 
 [`.github/rulesets/push-corset-codeql-required-check.json`](rulesets/push-corset-codeql-required-check.json) would also require `CodeQL (csharp)` and `CodeQL (javascript)`. **Do not apply that CodeQL-inclusive JSON** while CodeQL is off the PR hot path, or PRs will sit pending those checks forever.
 

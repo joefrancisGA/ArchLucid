@@ -4,14 +4,21 @@ import { cn } from "@/lib/utils";
 
 
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
-import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { findingWhyThisMattersText, typedPayloadLookupString } from "@/lib/findings/finding-display-from-inspect";
 import { buildFindingModelProvenanceRow } from "@/lib/findings/finding-model-provenance-display";
+import { resolveFindingInspectCitationExportBlockedReason } from "@/lib/findings/finding-inspect-citation-export-gate";
 import { buildFindingPolicyEvidenceCitationsFromInspect } from "@/lib/findings/finding-policy-evidence-citations";
+import {
+  FindingSemanticSupportBandInspectSection,
+  findingSemanticSupportBandFromTypedPayload,
+} from "@/components/findings/FindingSemanticSupportBandInspectSection";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
+import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FindingInspectAuditSection } from "./FindingInspectAuditSection";
 import { FindingInspectEvidenceSection } from "./FindingInspectEvidenceSection";
@@ -56,6 +63,7 @@ export function FindingInspectFindingBody({
       ? "Open risk review"
       : "Open review summary";
   const citationModel = buildFindingPolicyEvidenceCitationsFromInspect(runId, decodedFindingId, payload);
+  const citationExportBlockedReason = resolveFindingInspectCitationExportBlockedReason(payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);
 
   let insightDensityScore: number | null = null;
@@ -76,6 +84,35 @@ export function FindingInspectFindingBody({
 
   const whyThisIsNotGeneric = typedPayloadLookupString(payload, "whyThisIsNotGeneric");
 
+  const classificationRaw = payload.typedPayload !== null && typeof payload.typedPayload === "object"
+    ? (payload.typedPayload as Record<string, unknown>).classification
+    : null;
+
+  const classification =
+    classificationRaw === FINDING_CLASSIFICATION_DECISION_GRADE
+    || classificationRaw === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE
+      ? classificationRaw
+      : null;
+
+  const inspectFindingForSemanticBand = {
+    findingId: decodedFindingId,
+    title: decodedFindingId,
+    recommendation: payload.reasoningSummary ?? "",
+    severityValue: 0,
+    findingOrder: 0,
+    aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+    isMuted: false,
+    muteReason: null,
+    enforcementTier: "PolicyViolation" as const,
+    classification,
+    semanticSupportBand: findingSemanticSupportBandFromTypedPayload(
+      payload.typedPayload !== null && typeof payload.typedPayload === "object"
+        ? (payload.typedPayload as Record<string, unknown>)
+        : null,
+      classification,
+    ),
+  };
+
   const evidenceRefCount = payload.evidence?.length ?? 0;
   const modelProvenance = buildFindingModelProvenanceRow({
     trustLabel: payload.trustLabel ?? typedPayloadLookupString(payload, "trustLabel"),
@@ -88,6 +125,15 @@ export function FindingInspectFindingBody({
   const modelProvenanceBlock = (
     <div className="mt-4 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800" data-testid="finding-model-provenance-row">
       <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Model provenance</p>
+      {citationExportBlockedReason !== null ? (
+        <p
+          role="alert"
+          className={cn("m-0 mt-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="finding-inspect-citation-required-defect"
+        >
+          {citationExportBlockedReason}
+        </p>
+      ) : null}
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {modelProvenance.origin}
         {modelProvenance.grounding !== "Not applicable" ? ` · ${modelProvenance.grounding}` : ""}
@@ -118,13 +164,18 @@ export function FindingInspectFindingBody({
     ) : null;
 
   const evidenceBlock = (
-    <FindingInspectEvidenceSection
-      demoFillGaps={demoFillGaps}
-      reviewContextHref={reviewContextHref}
-      reviewContextLabel={reviewContextLabel}
-      evidence={payload.evidence}
-      citationModel={citationModel}
-    />
+        <FindingInspectEvidenceSection
+          runId={runId}
+          demoFillGaps={demoFillGaps}
+          reviewContextHref={reviewContextHref}
+          reviewContextLabel={reviewContextLabel}
+          evidence={payload.evidence}
+          citationModel={citationModel}
+        />
+  );
+
+  const semanticSupportBandBlock = (
+    <FindingSemanticSupportBandInspectSection finding={inspectFindingForSemanticBand} />
   );
 
   const insightDensityBlock = (
@@ -142,7 +193,7 @@ export function FindingInspectFindingBody({
       tone={tone}
       structuredActions={structuredActions}
       recommendedActionParagraph={recommendedActionParagraph}
-      showOwnerCadence={tone === "detail" && isBuyerPolishedOperatorShellEnv()}
+      showOwnerCadence={tone === "detail" && resolveProductionEvalChromeFromStorage()}
     />
   );
 
@@ -172,6 +223,7 @@ export function FindingInspectFindingBody({
       <>
         {whyBlock}
         {modelProvenanceBlock}
+        {semanticSupportBandBlock}
         <FindingInspectViewEvidenceCollapsible>{evidenceBlock}</FindingInspectViewEvidenceCollapsible>
         {insightDensityBlock}
         {recommendedBlock("detail")}
@@ -185,6 +237,7 @@ export function FindingInspectFindingBody({
     <>
       {whyBlock}
       {modelProvenanceBlock}
+      {semanticSupportBandBlock}
       {reasoningSummaryBlock}
       {evidenceBlock}
       {insightDensityBlock}

@@ -1,4 +1,4 @@
-﻿> **Reviewed:** 2026-07-29
+﻿> **Reviewed:** 2026-09-07
 
 > **Scope:** ArchLucid — Subscription order form (template) - full detail, tables, and links in the sections below.
 
@@ -9,7 +9,7 @@
 
 **Important — not legal advice:** This is a **working template** to reduce friction for SMB-midmarket deals (< $50K ARR). It **does not** constitute legal advice. **Qualified legal counsel** must review and adapt it before use.
 
-**Last reviewed:** 2026-07-29
+**Last reviewed:** 2026-09-07 (**M-305** profit re-rate — verify totals against [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) before signing)
 
 **What this form is:** SaaS **subscription** (Team / Professional / Enterprise). It is **not** the service SOW for a paid review package.
 
@@ -43,36 +43,46 @@
 | **Start date** | __________________ |
 | **Monthly platform fee** | See [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md). Fill in: $_______ / workspace / month |
 | **Monthly seat fee** | See [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md). Fill in: $_______ × _______ seats = $_______ / month |
-| **Run overage rate** | See [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md). Fill in: $_______ / run (applicable when monthly runs exceed tier allowance) |
-| **Total monthly** | $_______ (platform + seats; excluding run overage — see §3) |
+| **Architecture-package overage rate** | See [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md). Fill in: $_______ / architecture package (applicable when monthly packages exceed tier allowance) |
+| **Hosted LLM spend (Enterprise)** | ☐ N/A (Team / Professional use the published §3.3 band)  ☐ Schedule attached: included $_______ / UTC month; hard stop $_______ ; wallet ☐ on ☐ off |
+| **Total monthly** | $_______ (bundle or platform + seats; excluding package overage — see §3) |
 | **Renewal** | Auto-renew unless either party provides **30 days'** written notice before term end |
 
 ---
 
-## 3. Run overage
+## 3. Architecture-package overage
 
-Run overage is charged when the Customer's monthly run count exceeds the included allowance for the subscribed tier. Runs are counted per committed architecture run (a call to `POST /v1/architecture/review/{runId}/finalize`). Development and simulator runs that do not reach commit are not counted.
+Package overage is charged when the Customer's monthly committed architecture-package count exceeds the included allowance for the subscribed tier. Packages are counted per committed architecture run (a call to `POST /v1/architecture/review/{runId}/finalize`). Development and simulator runs that do not reach commit are not counted.
 
 | Field | Value |
 |-------|-------|
-| **Included runs / month** | Per tier — see [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) |
-| **Overage rate** | Per [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md): $10/run (Team) or $8/run (Professional) |
+| **Included packages / month** | Per tier — see [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) |
+| **Overage rate** | Per [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md): $25/package (Team) or $20/package (Professional). Architect is $30/package. |
 | **Billing cycle** | Monthly in arrears; Vendor invoices overage on the following month's invoice |
-| **Overage cap** | ☐ None (default)  ☐ Customer cap at: _______ runs/month (service paused above cap until next billing period) |
+| **Overage cap** | ☐ None (default)  ☐ Customer cap at: _______ packages/month (service paused above cap until next billing period) |
 | **Estimated monthly overage** | $_______ (if applicable) |
 
-### Run overage worked example — Professional at 150 % of included allowance
+### Package overage worked example — Professional at 150 % of included allowance
 
-Professional includes 100 runs per month (see [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)).
+Professional includes 100 architecture packages per month (see [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)).
 
 ```
-Actual runs this month    = 150
-Included runs             = 100
-Overage runs              = 50
-Overage charge            = 50 × $8 = $400
+Actual packages this month    = 150
+Included packages             = 100
+Overage packages              = 50
+Overage charge                = 50 × $20 = $1,000
 ```
 
-Monthly total for this period = regular monthly fee + $400 overage. The overage rate is drawn from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — confirm the current rate before quoting.
+Monthly total for this period = regular monthly fee + $1,000 overage. The overage rate is drawn from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — confirm the current rate before quoting.
+
+### Discount stacking and pilot credit (M-305)
+
+Quote-time discounts follow [PRICING_PHILOSOPHY.md §4.3](PRICING_PHILOSOPHY.md#43-discount-stacking-and-floors-m-305):
+
+- Design partner **or** published-reference 15% — never both.
+- Combined quote-time discounts must not take the effective monthly price below **50% of locked list**.
+- Guided-pilot $15,000 credit applies only when conversion is signed within **90 days** of pilot end.
+- Trust concession is already in Professional / Enterprise list; do not take a second 25% off those lists.
 
 ---
 
@@ -84,23 +94,22 @@ All prices are computed from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md).
 
 | Component | Calculation | Amount |
 |-----------|------------|--------|
-| Platform fee | 1 workspace × (from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | $199 / month |
-| Seat fee | 3 seats × (from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | $237 / month |
-| Included runs | 20 / month included | — |
-| **Monthly total** | | **$436 / month** |
-| **Annual total (monthly billing)** | $436 × 12 | $5,232 / year |
-| **Annual total (prepay, 2 months free)** | $436 × 10 | $4,360 / year |
+| Platform fee | 1 workspace × (from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | $339 / month |
+| Seat fee | 3 seats × (from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | $633 / month |
+| Included packages | 20 / month included | — |
+| **Monthly total** | | **$972 / month** |
+| **Annual total (monthly billing)** | $972 × 12 | $11,664 / year |
+| **Annual total (prepay, 2 months free)** | $972 × 10 | $9,720 / year |
 
 ### Example B — Professional tier, 8 seats, 1 workspace, monthly billing
 
 | Component | Calculation | Amount |
 |-----------|------------|--------|
-| Platform fee | 1 workspace × (from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | $899 / month |
-| Seat fee | 8 seats × (from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) | $1,432 / month |
-| Included runs | 100 / month included | — |
-| **Monthly total** | | **$2,331 / month** |
-| **Annual total (monthly billing)** | $2,331 × 12 | $27,972 / year |
-| **Annual total (prepay, 2 months free)** | $2,331 × 10 | $23,310 / year |
+| Public bundle | 10 seats + 1 workspace included (8-seat teams pay the bundle) | $2,299 / month |
+| Included packages | 100 / month included | — |
+| **Monthly total** | | **$2,299 / month** |
+| **Annual total (monthly billing)** | $2,299 × 12 | $27,588 / year |
+| **Annual total (prepay, 2 months free)** | $2,299 × 10 | $22,990 / year |
 
 ### Example C — Enterprise tier, 50 seats, 3 workspaces, custom audit retention, annual contract
 
@@ -112,13 +121,14 @@ Enterprise pricing is a custom annual contract with a floor and range defined in
 | Custom audit retention | Extended retention + cold-tier export per [`AUDIT_RETENTION_EXTENSION.md`](../library/AUDIT_RETENTION_EXTENSION.md) | TBD at contract |
 | Custom policy packs | Authoring engagement — see [Addendum C](#addendum-c--custom-policy-pack-authoring-professional-services) and [PRICING_PHILOSOPHY.md §4.2](PRICING_PHILOSOPHY.md#42-custom-policy-pack-authoring-professional-services) | Per selected SKU |
 | Dedicated CSM | Included in Enterprise tier | Included |
+| Hosted LLM spend schedule | Required attachment — fair-use package cap does not include unlimited AOAI ([PRICING_PHILOSOPHY.md §3.3](PRICING_PHILOSOPHY.md#33-hosted-llm-spend-schedule-tier-scaled)) | Fill included USD, hard stop, wallet rules |
 | **Representative annual range** | | $120,000–$180,000 / year |
 
 *Representative range above is illustrative for a 50-seat / 3-workspace deal within the Enterprise land range in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md). Final pricing is determined by commercial proposal.*
 
-### Run overage example at 150% of included allowance (Professional)
+### Architecture-package overage example at 150% of included allowance (Professional)
 
-See §3 above. At 150 runs in a month vs 100 included: 50 × $8 overage rate (from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) = $400 additional charge that month.
+See §3 above. At 150 architecture packages in a month vs 100 included: 50 × $20 overage rate (from [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)) = $1,000 additional charge that month.
 
 ---
 
@@ -206,7 +216,7 @@ A **chargeback** is a bank-initiated dispute after the card network’s rules-ba
 
 *(Complete only if Customer qualifies as a Design Partner — confirm slot availability with sales before signing; limited to first 3 customers)*
 
-**Design partner discount:** 50% off Professional list price for 12 months from contract start. Discount applies to platform fee and seat fee. Run overage is charged at standard Professional rate (see [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)).
+**Design partner discount:** 50% off Professional list price for 12 months from contract start. Discount applies to the public bundle, add-on seats, and add-on workspaces. Architecture-package overage is charged at the standard Professional rate (see [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md)). **Mutually exclusive** with the §4.1 published-reference 15% discount — do not stack. This 50% term sits on the §4.3 aggregate floor; do not add further percentage off.
 
 **Customer deliverables (both required for discount to apply):**
 
@@ -219,8 +229,8 @@ A **chargeback** is a bank-initiated dispute after the card network’s rules-ba
 
 | Tier | Standard monthly | Design partner monthly (50% off) |
 |------|-----------------|-----------------------------------|
-| Professional, 8 seats, 1 workspace | $2,331 | $1,166 |
-| Professional, 15 seats, 2 workspaces | $899 × 2 + $179 × 15 = $4,483 | $2,242 |
+| Professional, 8 seats, 1 workspace | $2,299 | $1,149.50 |
+| Professional, 15 seats, 2 workspaces | $2,299 + (5 × $215) + $1,079 = $4,453 | $2,226.50 |
 
 *These rows are computed from prices in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md). If prices have been re-rated, recompute before signing.*
 

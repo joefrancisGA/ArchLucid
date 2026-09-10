@@ -13,7 +13,7 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 export const SHOWCASE_ARCHLUCID_OUTPUT_BULLETS: readonly string[] = [
 
-  "Governed review finalized with decision and monitored-risk counts",
+  "Formal review finalized with decision and monitored-risk counts",
 
   "Findings and narrative explanation surfaced for review",
 

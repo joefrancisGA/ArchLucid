@@ -13,6 +13,7 @@ public static class IntegrationWebhookPayloadSamples
         IntegrationEventTypes.AuthorityRunFailedV1,
         IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
         IntegrationEventTypes.FindingsHighSeverityCapturedV1,
+        IntegrationEventTypes.FindingVerificationCompletedV1,
         IntegrationEventTypes.DataConsistencyCheckCompletedV1,
         IntegrationEventTypes.ManifestFinalizedV1,
         IntegrationEventTypes.GovernanceApprovalSubmittedV1,
@@ -49,6 +50,8 @@ public static class IntegrationWebhookPayloadSamples
                 IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
             "FindingsHighSeverityCaptured" or "findings-high-severity-captured" =>
                 IntegrationEventTypes.FindingsHighSeverityCapturedV1,
+            "FindingVerificationCompleted" or "finding-verification-completed" =>
+                IntegrationEventTypes.FindingVerificationCompletedV1,
             "GovernanceApprovalSubmitted" or "governance-approval-submitted" =>
                 IntegrationEventTypes.GovernanceApprovalSubmittedV1,
             "GovernanceApprovalApproved" or "governance-approval-approved" =>
@@ -111,6 +114,7 @@ public static class IntegrationWebhookPayloadSamples
             IntegrationEventTypes.AuthorityRunFailedV1 => CreateAuthorityRunFailed(),
             IntegrationEventTypes.AuthorityRunQualityGateRejectedV1 => CreateAuthorityRunQualityGateRejected(),
             IntegrationEventTypes.FindingsHighSeverityCapturedV1 => CreateFindingsHighSeverityCaptured(),
+            IntegrationEventTypes.FindingVerificationCompletedV1 => CreateFindingVerificationCompleted(),
             IntegrationEventTypes.ManifestFinalizedV1 => CreateManifestFinalized(),
             IntegrationEventTypes.GovernanceApprovalSubmittedV1 => CreateGovernanceApprovalSubmitted(),
             IntegrationEventTypes.GovernanceApprovalApprovedV1 => CreateGovernanceApprovalApproved(),
@@ -206,6 +210,27 @@ public static class IntegrationWebhookPayloadSamples
                     deepLinkUrl = $"https://archlucid.net/runs/{runId:D}/findings/finding-primary",
                 },
             },
+        };
+    }
+
+    private static object CreateFindingVerificationCompleted()
+    {
+        Guid runId = Guid.NewGuid();
+
+        return new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            runId,
+            reportId = Guid.NewGuid(),
+            reportHash = SyntheticManifestHash,
+            manifestHash = SyntheticManifestHash,
+            sourceFindingsSnapshotId = Guid.NewGuid(),
+            resultCount = 1,
+            statusCounts = new Dictionary<string, int> { ["NotVerifiable"] = 1 },
+            createdUtc = TimeProvider.System.UtcNowDateTime(),
         };
     }
 

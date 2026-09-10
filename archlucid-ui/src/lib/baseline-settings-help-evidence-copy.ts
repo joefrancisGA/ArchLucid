@@ -1,4 +1,5 @@
 import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { BASELINE_SETTINGS_SOURCES_INTRO } from "@/lib/baseline-settings-evidence-copy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
@@ -12,6 +13,10 @@ export const BASELINE_SETTINGS_HELP_CLAIM_DISCIPLINE =
 export const BASELINE_SETTINGS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const BASELINE_SETTINGS_HELP_SOURCES_INTRO = BASELINE_SETTINGS_SOURCES_INTRO;
+
+export const BASELINE_SETTINGS_HELP_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "measurement anchors need scorecard framing, ROI methodology, or sponsor-report follow-ups",
+);
 
 /** Help follow-ups — no self-href, no assurance status, no duplicate ROI destinations. */
 export const BASELINE_SETTINGS_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [

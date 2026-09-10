@@ -31,6 +31,6 @@ describe("graph-node-kind-presentation", () => {
   it("exposes buyer type captions for categorized nodes", () => {
     expect(resolveGraphNodeKindBuyerLabel("Finding")).toBe("Finding");
     expect(resolveGraphNodeKindBuyerLabel("GoldenManifest")).toBe("Review");
-    expect(resolveGraphNodeKindBuyerLabel("UnknownKind")).toBeNull();
+    expect(resolveGraphNodeKindBuyerLabel("UnknownKind")).toBe("Unknown");
   });
 });

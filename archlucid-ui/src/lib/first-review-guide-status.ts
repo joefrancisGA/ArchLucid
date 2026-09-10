@@ -2,6 +2,7 @@ import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import {
   REVIEWS_NEW_GUIDED_INTAKE_HREF,
   REVIEWS_NEW_PATH,
+  resolveArchitectureReviewHref,
   reviewDetailPath,
 } from "@/lib/architecture/architecture-routes";
 import { FIRST_REVIEW_GUIDE_STEPS, FIRST_REVIEW_GUIDE_STEP_COUNT } from "@/lib/first-review-guide-steps";
@@ -58,26 +59,62 @@ export type FirstReviewGuideStateInput = {
   readonly canExecute: boolean;
   readonly finishSetupContext: FinishSetupWizardContext | null;
   readonly finishSetupLoaded: boolean;
+  /** Working seat uses nested architecture URLs when architectureId is known (SY-18). */
+  readonly workingMode?: boolean;
+  readonly architectureId?: string | null;
 };
 
-function reviewDetailHref(runId: string): string {
-  return reviewDetailPath(runId);
+type FirstReviewGuideHrefScope = {
+  readonly workingMode: boolean;
+  readonly architectureId: string | null;
+};
+
+function resolveGuideHrefScope(
+  input: Pick<FirstReviewGuideStateInput, "workingMode" | "architectureId">,
+): FirstReviewGuideHrefScope {
+  const architectureId = input.architectureId?.trim() ?? "";
+
+  return {
+    workingMode: input.workingMode === true,
+    architectureId: architectureId.length > 0 ? architectureId : null,
+  };
 }
 
-function reviewFindingsHref(runId: string): string {
-  return `${reviewDetailPath(runId)}?reviewTab=findings`;
+function reviewDetailHref(runId: string, scope: FirstReviewGuideHrefScope): string {
+  const trimmedRunId = runId.trim();
+
+  if (trimmedRunId === SHOWCASE_STATIC_DEMO_RUN_ID) {
+    return reviewDetailPath(trimmedRunId);
+  }
+
+  if (scope.workingMode && scope.architectureId !== null) {
+    return resolveArchitectureReviewHref(trimmedRunId, scope.architectureId);
+  }
+
+  return reviewDetailPath(trimmedRunId);
 }
 
-function reviewDecisionsHref(runId: string): string {
-  return `${reviewDetailPath(runId)}?reviewTab=decisions-remediation`;
+function reviewFindingsHref(runId: string, scope: FirstReviewGuideHrefScope): string {
+  return `${reviewDetailHref(runId, scope)}?reviewTab=findings`;
 }
 
-function reviewFinalizeHref(runId: string): string {
-  return `${reviewDetailPath(runId)}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`;
+function reviewDecisionsHref(runId: string, scope: FirstReviewGuideHrefScope): string {
+  return `${reviewDetailHref(runId, scope)}?reviewTab=decisions-remediation`;
 }
 
-function reviewShareHref(runId: string): string {
-  return `${reviewDetailPath(runId)}?reviewTab=review-package`;
+function reviewFinalizeHref(runId: string, scope: FirstReviewGuideHrefScope): string {
+  return `${reviewDetailHref(runId, scope)}${BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR}`;
+}
+
+function reviewShareHref(runId: string, scope: FirstReviewGuideHrefScope): string {
+  return `${reviewDetailHref(runId, scope)}?reviewTab=review-package`;
+}
+
+export function resolveFirstReviewGuideRunHref(
+  runId: string,
+  input: Pick<FirstReviewGuideStateInput, "workingMode" | "architectureId">,
+): string {
+  return reviewDetailHref(runId, resolveGuideHrefScope(input));
 }
 
 function baseStepStatuses(commitContext: CorePilotCommitContext): FirstReviewGuideStepUiStatus[] {
@@ -118,13 +155,14 @@ function resolveStepAction(
   stepIndex: number,
   commitContext: CorePilotCommitContext,
   canExecute: boolean,
+  hrefScope: FirstReviewGuideHrefScope,
 ): { readonly label: string | null; readonly href: string | null } {
   if (hasSealedReviewRecord(commitContext)) {
     return { label: null, href: null };
   }
 
   const latestRunId = commitContext.latestRunId;
-  const latestRunHref = latestRunId !== null ? reviewDetailHref(latestRunId) : null;
+  const latestRunHref = latestRunId !== null ? reviewDetailHref(latestRunId, hrefScope) : null;
 
   switch (stepIndex) {
     case 0:
@@ -150,21 +188,21 @@ function resolveStepAction(
         return { label: null, href: null };
       }
 
-      return { label: "Open findings", href: reviewFindingsHref(latestRunId) };
+      return { label: "Open findings", href: reviewFindingsHref(latestRunId, hrefScope) };
     case 4:
       if (latestRunId === null) {
         return { label: null, href: null };
       }
 
-      return { label: "Record decisions", href: reviewDecisionsHref(latestRunId) };
+      return { label: "Record decisions", href: reviewDecisionsHref(latestRunId, hrefScope) };
     case 5:
       if (latestRunId === null) {
         return { label: null, href: null };
       }
 
-      return { label: "Seal review", href: reviewFinalizeHref(latestRunId) };
+      return { label: "Seal review", href: reviewFinalizeHref(latestRunId, hrefScope) };
     case 6:
-      return { label: "Explore sample review", href: reviewShareHref(SHOWCASE_STATIC_DEMO_RUN_ID) };
+      return { label: "Explore sample review", href: reviewShareHref(SHOWCASE_STATIC_DEMO_RUN_ID, hrefScope) };
     default:
       return { label: null, href: null };
   }
@@ -231,9 +269,10 @@ export function resolveFirstReviewGuideSteps(
 ): readonly FirstReviewGuideStepPresentation[] {
   const statuses = baseStepStatuses(input.commitContext);
   const currentIndex = resolveCurrentStepIndex(statuses);
+  const hrefScope = resolveGuideHrefScope(input);
 
   return FIRST_REVIEW_GUIDE_STEPS.map((step, index) => {
-    const action = resolveStepAction(index, input.commitContext, input.canExecute);
+    const action = resolveStepAction(index, input.commitContext, input.canExecute, hrefScope);
 
     return {
       index,
@@ -252,8 +291,9 @@ export function resolveFirstReviewGuideHeaderActions(
   input: FirstReviewGuideStateInput,
 ): FirstReviewGuideHeaderActions {
   const { commitContext, canExecute } = input;
+  const hrefScope = resolveGuideHrefScope(input);
   const liveShell = isLiveOperatorShellRecoveryContext();
-  const sampleHref = liveShell ? null : reviewDetailHref(SHOWCASE_STATIC_DEMO_RUN_ID);
+  const sampleHref = liveShell ? null : reviewDetailHref(SHOWCASE_STATIC_DEMO_RUN_ID, hrefScope);
   const sampleSecondary =
     sampleHref !== null
       ? { secondaryLabel: "Explore sample review" as const, secondaryHref: sampleHref }
@@ -262,7 +302,7 @@ export function resolveFirstReviewGuideHeaderActions(
   if (hasSealedReviewRecord(commitContext) && commitContext.firstCommittedRunId !== null) {
     return {
       primaryLabel: "Open sealed review record",
-      primaryHref: reviewDetailHref(commitContext.firstCommittedRunId),
+      primaryHref: reviewDetailHref(commitContext.firstCommittedRunId, hrefScope),
       primaryDisabled: false,
       primaryDisabledReason: null,
       secondaryLabel: "Start another review",
@@ -274,7 +314,7 @@ export function resolveFirstReviewGuideHeaderActions(
     if (commitContext.latestRunReadyToFinalize) {
       return {
         primaryLabel: "Seal review",
-        primaryHref: reviewDetailHref(commitContext.latestRunId),
+        primaryHref: reviewDetailHref(commitContext.latestRunId, hrefScope),
         primaryDisabled: false,
         primaryDisabledReason: null,
         ...sampleSecondary,
@@ -283,7 +323,7 @@ export function resolveFirstReviewGuideHeaderActions(
 
     return {
       primaryLabel: "Continue review",
-      primaryHref: reviewDetailHref(commitContext.latestRunId),
+      primaryHref: reviewDetailHref(commitContext.latestRunId, hrefScope),
       primaryDisabled: false,
       primaryDisabledReason: null,
       ...sampleSecondary,
@@ -313,13 +353,17 @@ export function resolveOptionalWorkspaceSetupComplete(
   return areFinishSetupRequiredStepsComplete(finishContext);
 }
 
-export function resolveFirstReviewGuideOutcomeLinks(runId: string): readonly FirstReviewGuideOutcomeLink[] {
-  const baseHref = reviewDetailHref(runId);
+export function resolveFirstReviewGuideOutcomeLinks(
+  runId: string,
+  input: Pick<FirstReviewGuideStateInput, "workingMode" | "architectureId"> = {},
+): readonly FirstReviewGuideOutcomeLink[] {
+  const hrefScope = resolveGuideHrefScope(input);
+  const baseHref = reviewDetailHref(runId, hrefScope);
 
   return [
     { label: "A sealed review record", href: baseHref },
-    { label: "Evidence-backed findings", href: reviewFindingsHref(runId) },
-    { label: "Recorded decisions and exceptions", href: reviewDecisionsHref(runId) },
-    { label: "A shareable architecture package", href: reviewShareHref(runId) },
+    { label: "Evidence-backed findings", href: reviewFindingsHref(runId, hrefScope) },
+    { label: "Recorded decisions and exceptions", href: reviewDecisionsHref(runId, hrefScope) },
+    { label: "A shareable architecture package", href: reviewShareHref(runId, hrefScope) },
   ];
 }

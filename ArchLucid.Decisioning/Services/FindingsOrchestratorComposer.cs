@@ -17,17 +17,18 @@ internal static class FindingsOrchestratorComposer
         IEnumerable<IFindingEngine> engines,
         IFindingPayloadValidator validator,
         IOptions<HumanReviewFindingOptions> humanReviewOptions,
-        IInsightDensityGate insightDensityGate,
+        IOptions<InsightDensityGateOptions> insightDensityGateOptions,
         TimeProvider? timeProvider = null,
         IEnumerable<IEffectfulFindingEngine>? effectfulEngines = null,
         IScopeContextProvider? scopeContextProvider = null,
         IEffectiveGovernanceLoader? effectiveGovernanceLoader = null,
-        IPortfolioRecurrenceCurrentReviewIdentitySource? portfolioRecurrenceCurrentReviewIdentitySource = null)
+        IPortfolioRecurrenceCurrentReviewIdentitySource? portfolioRecurrenceCurrentReviewIdentitySource = null,
+        IProseAssumptionFindingGenerator? proseAssumptionFindingGenerator = null)
     {
         ArgumentNullException.ThrowIfNull(engines);
         ArgumentNullException.ThrowIfNull(validator);
         ArgumentNullException.ThrowIfNull(humanReviewOptions);
-        ArgumentNullException.ThrowIfNull(insightDensityGate);
+        ArgumentNullException.ThrowIfNull(insightDensityGateOptions);
 
         IFindingsPolicyStampStage policyStampStage = new FindingsPolicyStampStage(
             scopeContextProvider,
@@ -42,10 +43,24 @@ internal static class FindingsOrchestratorComposer
             effectfulEngines,
             portfolioRecurrenceCurrentReviewIdentitySource);
 
+        IFindingsInsightGeneratorStage insightGeneratorStage = new FindingsInsightGeneratorStage(
+            NoOpInsightFindingGenerator.Instance,
+            NullLogger<FindingsInsightGeneratorStage>.Instance);
+
+        // Tests and manual wiring stay deterministic: prose extraction is a Real-mode Premium path, so the
+        // composed pipeline defaults to the no-op generator and the stage contributes nothing (DX-55).
+        IFindingsProseAssumptionStage proseAssumptionStage = new FindingsProseAssumptionStage(
+            proseAssumptionFindingGenerator ?? NoOpProseAssumptionFindingGenerator.Instance,
+            NullLogger<FindingsProseAssumptionStage>.Instance);
+
         IFindingsMergeAndGateStage mergeAndGateStage = new FindingsMergeAndGateStage(
             humanReviewOptions,
-            insightDensityGate,
+            insightDensityGateOptions,
+            new FindingProvenanceValidator(),
             timeProvider);
+
+        IFindingsChecklistClusterStage checklistClusterStage = new FindingsChecklistClusterStage();
+        IFindingsDecisionGradeFusionStage decisionGradeFusionStage = new FindingsDecisionGradeFusionStage();
 
         IFindingsSnapshotEmitStage snapshotEmitStage = new FindingsSnapshotEmitStage(
             NullLogger<FindingsSnapshotEmitStage>.Instance);
@@ -53,7 +68,38 @@ internal static class FindingsOrchestratorComposer
         return new FindingsOrchestrator(
             policyStampStage,
             engineInvokeStage,
+            insightGeneratorStage,
+            proseAssumptionStage,
             mergeAndGateStage,
+            checklistClusterStage,
+            decisionGradeFusionStage,
             snapshotEmitStage);
+    }
+
+    internal static FindingsOrchestrator Compose(
+        IEnumerable<IFindingEngine> engines,
+        IFindingPayloadValidator validator,
+        IOptions<HumanReviewFindingOptions> humanReviewOptions,
+        IInsightDensityGate insightDensityGate,
+        TimeProvider? timeProvider = null,
+        IEnumerable<IEffectfulFindingEngine>? effectfulEngines = null,
+        IScopeContextProvider? scopeContextProvider = null,
+        IEffectiveGovernanceLoader? effectiveGovernanceLoader = null,
+        IPortfolioRecurrenceCurrentReviewIdentitySource? portfolioRecurrenceCurrentReviewIdentitySource = null,
+        IProseAssumptionFindingGenerator? proseAssumptionFindingGenerator = null)
+    {
+        ArgumentNullException.ThrowIfNull(insightDensityGate);
+
+        return Compose(
+            engines,
+            validator,
+            humanReviewOptions,
+            Options.Create(new InsightDensityGateOptions()),
+            timeProvider,
+            effectfulEngines,
+            scopeContextProvider,
+            effectiveGovernanceLoader,
+            portfolioRecurrenceCurrentReviewIdentitySource,
+            proseAssumptionFindingGenerator);
     }
 }

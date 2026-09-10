@@ -18,16 +18,19 @@ export function ProvenanceNextReviewFooter(props: ProvenanceNextReviewFooterProp
         OPERATOR_TYPOGRAPHY.body,
       )}
       data-testid="provenance-next-review-footer"
-      aria-label="Next review provenance"
+      aria-label="Next package provenance"
     >
       <div className="min-w-0">
-        <p className="m-0 font-medium text-al-text-primary">Next review provenance</p>
-        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className="m-0 font-medium text-al-text-primary">Next package provenance</p>
+        <p
+          className={cn("m-0 mt-1 line-clamp-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          title={props.target.reviewTitle}
+        >
           Continue with <span className="font-medium text-al-text-primary">{props.target.reviewTitle}</span>.
         </p>
       </div>
       <Button type="button" variant="primary" size="sm" asChild data-testid="provenance-next-review-action">
-        <Link href={props.target.href}>Open next provenance</Link>
+        <Link href={props.target.href}>Open next package provenance</Link>
       </Button>
     </section>
   );

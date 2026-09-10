@@ -60,6 +60,7 @@ internal static class FindingsCoverageProjectionMapper
             Title = row.Title,
             Rationale = string.Empty,
             PolicyRuleId = string.IsNullOrWhiteSpace(row.PolicyRuleId) ? null : row.PolicyRuleId.Trim(),
+            IsMuted = row.IsMuted,
         };
 
     /// <summary>Unknown persisted severity names degrade to <see cref="FindingSeverity.Info" /> instead of throwing.</summary>

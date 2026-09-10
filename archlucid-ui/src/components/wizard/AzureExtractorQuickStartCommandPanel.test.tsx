@@ -14,6 +14,10 @@ vi.mock("@/lib/operator/operator-scope-storage", () => ({
   }),
 }));
 
+vi.mock("@/hooks/use-localized-product-copy", () => ({
+  useLocalizedProductCopy: () => ({ productLine: "security" }),
+}));
+
 describe("AzureExtractorQuickStartCommandPanel", () => {
   beforeEach(() => {
     Object.assign(navigator, {
@@ -43,5 +47,14 @@ describe("AzureExtractorQuickStartCommandPanel", () => {
 
     expect(commandText).not.toContain("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
     expect(commandText).not.toMatch(/-SubscriptionId/i);
+  });
+
+  it("bolds the SecureNow checkout lead in the quick-start description", () => {
+    render(<AzureExtractorQuickStartCommandPanel testIdPrefix="quick-start-test" />);
+
+    const checkoutLead = screen.getByText("From your SecureNow checkout:");
+
+    expect(checkoutLead.tagName).toBe("SPAN");
+    expect(checkoutLead).toHaveClass("font-semibold");
   });
 });
