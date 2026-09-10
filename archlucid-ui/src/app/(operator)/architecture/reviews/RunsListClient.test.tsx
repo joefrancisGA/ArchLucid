@@ -478,6 +478,98 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByTestId(`runs-row-${otherRun.runId}`)).toBeNull();
   });
 
+  it("clears inspectorRunId from the URL when text filter closes the inspector", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${sampleRun.runId}`,
+    );
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Second" } });
+
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(runsListSearchParamsHarness.state.query).not.toContain("inspectorRunId=");
+  });
+
+  it("buyer-polished: scope filter closes inspector when the selected run is hidden", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const inFlight: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000dd",
+    };
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000ee",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[inFlight, committed]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${inFlight.runId}&scope=finalized`,
+    );
+
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(runsListSearchParamsHarness.state.query).not.toContain("inspectorRunId=");
+  });
+
+  it("keeps compareRuns selection when text filter hides one selected row", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `compareRuns=${sampleRun.runId},${secondRun.runId}`,
+    );
+
+    expect(screen.getByTestId("runs-list-compare-selection-bar")).toBeInTheDocument();
+
+    const filterInput = screen.getByLabelText(/Filter reviews by name or description/i);
+    fireEvent.change(filterInput, { target: { value: "Second" } });
+
+    expect(screen.queryByTestId(`runs-row-${sampleRun.runId}`)).toBeNull();
+    expect(screen.getByTestId("runs-list-compare-selection-bar")).toBeInTheDocument();
+    expect(runsListSearchParamsHarness.state.query).toContain(`compareRuns=${sampleRun.runId}`);
+  });
+
+  it("buyer-polished: inspectorRunId deep link opens inspector on card layout", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+    const committed2: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cf",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[committed, committed2]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${committed.runId}`,
+    );
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+  });
+
   it("Escape in the filter field clears the query without closing an open inspector", () => {
     const secondRun: RunSummary = {
       ...sampleRun,
