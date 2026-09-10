@@ -1370,7 +1370,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `comparedToRunId` pointing at a foreign-tenant run still builds comparison context — **cheap-disproof 2026-09-10 seed hunt #1551:** `RunMatchesCallerScope` drops compare-to branch; primary plan only; regression `GetContextsAsync_when_compared_to_run_is_foreign_tenant_builds_primary_without_comparison`
 - [x] (valid-no-repro) explicit `runId` path with sealed-hash failure returns empty like recent-run batch — **cheap-disproof 2026-09-10 seed hunt #1551:** intentional wave-27 fail-closed: `skipOnSealedHashFailure: false` throws `InvalidOperationException` for controller `409 Conflict` mapping; regression `GetContextsAsync_when_explicit_run_has_sealed_hash_failure_throws`
 - [x] (valid-no-repro) `comparedToRunId` pointing at a foreign-workspace run still builds comparison context — **cheap-disproof 2026-09-10 seed hunt #1558:** `RunMatchesCallerScope` drops compare-to branch; regression `GetContextsAsync_when_compared_to_run_is_foreign_workspace_builds_primary_without_comparison`
-- [x] (valid-no-repro) explicit `comparedToRunId` with sealed-hash failure silently drops comparison and still simulates primary — **cheap-disproof 2026-09-10 seed hunt #1558:** explicit mode fail-closed applies to compare-to manifest verification too; throws before plan generation; regression `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`
+- [x] (valid-no-repro) explicit `comparedToRunId` with sealed-hash failure should drop comparison only — **cheap-disproof 2026-09-10 seed hunt #1558:** explicit mode fail-closed applies to compare-to manifest verification too; throws before plan generation; regression `GetContextsAsync_when_explicit_compare_to_run_has_sealed_hash_failure_throws`
 - [ ] (candidate) recent-run batch (`runId` null) forwards `comparedToRunId` into every `BuildContextAsync` call — historical-window simulation may attach the same baseline comparison to each swept run when API sets `ComparedToRunId` without `RunId` (`GetContextsAsync` lines 69–76)
 
 2026-09-10 seed hunt #1558 (seed-only): reseeded alert-simulation after #1551; cheap-disproof closed foreign-workspace compare-to drop and explicit compare-to sealed-hash throw semantics; seeded recent-run batch compare-to forwarding candidate; 16 scoped `AlertSimulationContextProviderTests` passed.
@@ -8783,11 +8783,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 17
-- **bugs-found:** 14
+- **hunts:** 18
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — data consistency readiness Unhealthy on leader-elected non-leader replicas
+- **last-bug:** 2026-09-10 — retrieval index freshness readiness Degraded on leader-elected non-leader replicas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8829,6 +8829,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `RetrievalCompositionModule.RegisterIndexing` — policy/platform/exemplar corpus startup indexers register on Api while `RetrievalIndexingOutboxHostedService` is Worker+Combined-only — **cheap-disproof 2026-09-09 seed hunt #1395:** startup indexers use `ILeaderElectionWorkRunner` one-shot leases (`hosted:policy-pack-corpus-startup-indexer`, etc.) cluster-wide; continuous outbox pumpers stay Worker+Combined; regression `AddArchLucidApplicationServices_Api_role_registers_leader_elected_retrieval_corpus_startup_indexers`
 
 - [x] (proven) `DataConsistencyHealthCheck` / `DataHealthJobsCompositionModule.RegisterArchLucidHealthChecks` — readiness returned Unhealthy when local `DataConsistencyReconciliationHealthState` never recorded a run while `DataConsistencyReconciliationHostedService` is leader-elected cluster-wide — **hit 2026-09-10 seed hunt #1528:** non-leader Worker/Combined replicas permanently failed `/health/ready`; aligned never-run with `DataArchivalHostHealthCheck` tolerance; regression `Healthy_when_reconciliation_not_run_yet_on_leader_elected_replica`
+- [x] (proven) `RetrievalIndexFreshnessHealthCheck` / `DataHealthJobsCompositionModule.RegisterArchLucidHealthChecks` — readiness returned Degraded on leader-elected non-leader replicas with startup corpus indexing enabled while `PolicyPackCorpusStartupIndexerHostedService` et al. use `ILeaderElectionWorkRunner` one-shot leases and `InMemoryRetrievalDocumentIndexCatalog` is process-local — **hit 2026-09-10 seed hunt #1559:** non-leader Api/Worker replicas permanently failed `/health/ready` with AzureSearch vector index; aligned empty-catalog tolerance with `DataConsistencyHealthCheck`; regressions `RetrievalIndexFreshnessHealthCheck_healthy_when_empty_catalog_on_leader_elected_replica` and `RetrievalIndexFreshnessHealthCheck_healthy_when_startup_indexing_disabled_and_empty_catalog`
+
+2026-09-10 seed hunt #1559 (hit): reseeded host-composition; proved retrieval index freshness readiness false-negative on leader-elected replicas; 3 scoped RetrievalIndexFreshnessHealthCheck tests passed; 340/342 scoped host-composition tests passed (2 pre-existing unrelated failures).
 
 2026-09-10 seed hunt #1528 (hit): reseeded host-composition; proved data consistency readiness false-negative on leader-elected replicas; 5 scoped DataConsistencyHealthCheck tests passed.
 2026-09-09 thorough hunt #1430 (dry): cheap-disproved RetrievalCompositionModule hostingRole plumbing candidate; systematic registration scan found no new hunt-ready gaps after #1366 audit change-feed fix; 336/338 scoped host-composition tests passed (2 pre-existing unrelated failures: `StorageProviderRegistrationParityTests`, `ExecDigestWeeklyArchLucidJobTests`).
