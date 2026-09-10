@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1643,6 +1643,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `TryParsePayloadJson` rejects negative JSON number primitives — **cheap-disproof 2026-09-10 seed hunt #1662:** negative numeric literals deserialize as `JsonValueKind.Number`; regression `TryParsePayloadJson_returns_deserialized_negative_number_for_json_minus_one`.
 
 2026-09-10 seed hunt #1662 (seed-only): reseeded finding-inspect-sql after #1661; cheap-disproof closed metadata-only SQL severity/title/rationale parity, metadata-only typed-payload whitespace edges, empty trace-text guard, invalid-disposition null row-version handling, and negative JSON number payload parse; 312 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` collapses internal whitespace in survivor values — **cheap-disproof 2026-09-10 seed hunt #1663:** helper trims surrounding whitespace only; regression `FilterNonBlankTrimmedStrings_preserves_internal_whitespace_when_trimming_survivors`.
+- [x] (valid-no-repro) `BuildEvidenceFromRelatedNodes` collapses internal whitespace in related-node excerpts — **cheap-disproof 2026-09-10 seed hunt #1663:** evidence excerpts preserve internal spacing after trim; regression `BuildEvidenceFromRelatedNodes_preserves_internal_whitespace_in_excerpt`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` rejects numeric disposition string `"0"` when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1663:** defined numeric ordinals parse via mapper; regression `MapDispositionPointerProjection_maps_defined_numeric_disposition_string_zero_to_accepted`.
+- [x] (valid-no-repro) `TryParsePayloadJson` treats empty JSON array `[]` as invalid payload — **cheap-disproof 2026-09-10 seed hunt #1663:** empty array roots deserialize to zero-length `JsonValueKind.Array`; regression `TryParsePayloadJson_returns_deserialized_empty_array_for_json_empty_array`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` builds metadata fallback when `PayloadJson` is whitespace-only — **cheap-disproof 2026-09-10 seed hunt #1663:** blank payload column returns null typed payload; regression `ResolveTypedPayloadForInspect_returns_null_when_payload_is_whitespace_only_even_with_valid_metadata`.
+- [x] (valid-no-repro) `ResolveTraceRuleFields` collapses internal whitespace in trace fallback text — **cheap-disproof 2026-09-10 seed hunt #1663:** helper trims surrounding whitespace only; regression `ResolveTraceRuleFields_preserves_internal_whitespace_after_trim`.
+- [x] (valid-no-repro) `BuildInspectResponse` forces `HasActiveWaiver` true when waiver count is zero — **cheap-disproof 2026-09-10 seed hunt #1663:** response builder passes through `hasActiveWaiver` unchanged; regression `BuildInspectResponse_passes_through_has_active_waiver_false`.
+
+2026-09-10 seed hunt #1663 (seed-only): reseeded finding-inspect-sql after #1662; cheap-disproof closed internal-whitespace trim parity, numeric disposition projection, empty JSON array payload parse, whitespace-only payload guard, trace-text internal spacing, and has-active-waiver passthrough; 319 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

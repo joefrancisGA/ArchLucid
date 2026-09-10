@@ -1854,4 +1854,102 @@ public sealed class FindingInspectReadRepositoryCoreTests
         parsed!.Value.ValueKind.Should().Be(JsonValueKind.Number);
         parsed!.Value.GetInt32().Should().Be(-1);
     }
+
+    [Fact]
+    public void FilterNonBlankTrimmedStrings_preserves_internal_whitespace_when_trimming_survivors()
+    {
+        IReadOnlyList<string> filtered = FindingInspectReadRepositoryCore.FilterNonBlankTrimmedStrings(
+            ["  node  a  "]);
+
+        filtered.Should().Equal("node  a");
+    }
+
+    [Fact]
+    public void BuildEvidenceFromRelatedNodes_preserves_internal_whitespace_in_excerpt()
+    {
+        IReadOnlyList<FindingInspectEvidenceItem> evidence = FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes(
+            ["  subnet  east  "]);
+
+        evidence.Should().ContainSingle();
+        evidence[0].Excerpt.Should().Be("subnet  east");
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_maps_defined_numeric_disposition_string_zero_to_accepted()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "0",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().Be(FindingDisposition.Accepted);
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_empty_array_for_json_empty_array()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("[]");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.ValueKind.Should().Be(JsonValueKind.Array);
+        parsed!.Value.GetArrayLength().Should().Be(0);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_null_when_payload_is_whitespace_only_even_with_valid_metadata()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "   ",
+            "Encrypt at rest",
+            "Missing TLS").Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveTraceRuleFields_preserves_internal_whitespace_after_trim()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveTraceRuleFields("  cost  guardrail  ");
+
+        ruleId.Should().Be("cost  guardrail");
+        ruleName.Should().Be("cost  guardrail");
+    }
+
+    [Fact]
+    public void BuildInspectResponse_passes_through_has_active_waiver_false()
+    {
+        FindingInspectResponse response = FindingInspectReadRepositoryCore.BuildInspectResponse(
+            findingId: "finding-1",
+            severity: FindingSeverity.Info,
+            typedPayload: null,
+            ruleId: null,
+            ruleName: null,
+            evidence: [],
+            recommendedActions: [],
+            auditRowId: null,
+            runId: Guid.NewGuid(),
+            manifestVersion: null,
+            modelDeploymentName: null,
+            modelAlias: null,
+            promptTemplateVersion: null,
+            confidenceScore: null,
+            evaluationConfidenceScore: null,
+            confidenceLevel: null,
+            humanReviewStatus: FindingHumanReviewStatus.NotRequired,
+            isMuted: false,
+            muteReason: null,
+            reasoningTrace: null,
+            reasoningTraceDigestSha256: null,
+            latestDisposition: null,
+            latestDispositionOccurredAtUtc: null,
+            hasActiveWaiver: false,
+            assignedToUserId: null,
+            remediationDueUtc: null,
+            runStructuralExecutionMode: StructuralExecutionMode.Simulator,
+            runRealModeFellBackToSimulator: false);
+
+        response.HasActiveWaiver.Should().BeFalse();
+    }
 }
