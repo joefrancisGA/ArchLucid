@@ -188,8 +188,9 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
           {sealedManifestBlockedReason}
         </p>
         <Button type="button" variant="secondary" asChild>
-          <Link href={printBackHref} data-testid="package-print-blocked-back">
-            {PACKAGE_PRINT_BACK_LABEL}
+          <Link href={buildPackagePrintBackHref(runId)} data-testid="package-print-blocked-back">
+            Back to review package
+
           </Link>
         </Button>
       </div>
@@ -201,6 +202,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
       presentation={presentation}
       listScopedRunId={listScopedRunId}
       parentArchitectureId={parentArchitectureId}
+
       meetingCaptureBlockedReason={meetingCaptureBlockedReason}
     />
   );

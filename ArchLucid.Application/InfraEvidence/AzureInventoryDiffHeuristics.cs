@@ -87,6 +87,21 @@ public static class AzureInventoryDiffHeuristics
         return string.Equals(relationshipType, "privateEndpoint", StringComparison.OrdinalIgnoreCase);
     }
 
+    public static bool IsPrivateEndpointRelationship(
+        string fromAzureResourceId,
+        string toAzureResourceId,
+        string relationshipType)
+    {
+        if (string.Equals(relationshipType, "privateEndpoint", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (fromAzureResourceId.Contains("/privateEndpoints/", StringComparison.OrdinalIgnoreCase)
+            || toAzureResourceId.Contains("/privateEndpoints/", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
     public static string? BuildRiskClassification(AzureInventoryChangeType changeType) =>
         changeType switch
         {

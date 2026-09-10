@@ -5,6 +5,9 @@ import type { StageTimelineSummary } from "@/types/stage-timeline";
 import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
 
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { runOperatorGovernanceDispositionMutationBlockedReason } from "@/lib/runs/run-operator-governance-disposition-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   type ApiResponseWithTrace,
   apiPostJson,
@@ -52,10 +55,17 @@ export async function recordRunOperatorGovernanceDisposition(
   runId: string,
   body: RunOperatorGovernanceDispositionRequest,
 ): Promise<RunOperatorGovernanceDispositionResponse> {
-  return apiPostJson<RunOperatorGovernanceDispositionResponse>(
-    `/v1/authority/reviews/${encodeURIComponent(runId)}/disposition`,
-    body,
-  );
+  try {
+    return await apiPostJson<RunOperatorGovernanceDispositionResponse>(
+      `/v1/authority/reviews/${encodeURIComponent(runId)}/disposition`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = runOperatorGovernanceDispositionMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Authority pipeline stage outcomes (`GET /v1/architecture/review/{runId}/stage-timeline`, TB-250). */

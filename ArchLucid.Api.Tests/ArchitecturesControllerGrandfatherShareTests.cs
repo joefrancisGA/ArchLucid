@@ -5,9 +5,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
-using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -24,6 +22,8 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class ArchitecturesControllerGrandfatherShareTests
 {
+    private const string ActorOid = "operator@test";
+
     private static readonly ScopeContext Scope = new()
     {
         TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -46,7 +46,7 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
     public ArchitecturesControllerGrandfatherShareTests()
     {
         _scopeProvider.Setup(static s => s.GetCurrentScope()).Returns(Scope);
-        _actorContext.Setup(static a => a.GetActorId()).Returns("actor-oid");
+        _actorContext.Setup(static s => s.GetActorId()).Returns(ActorOid);
     }
 
     [Fact]
@@ -81,7 +81,13 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
         };
 
         _service
-            .Setup(s => s.ListIdentitiesAsync(Scope, 1, 50, false, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListIdentitiesAsync(
+                Scope,
+                1,
+                50,
+                false,
+                ActorOid,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(page);
 
         ArchitecturesController sut = BuildSut();
@@ -103,7 +109,11 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
         };
 
         _service
-            .Setup(s => s.GetIdentityAsync(Scope, GrandfatheredArchitectureId, It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetIdentityAsync(
+                Scope,
+                GrandfatheredArchitectureId,
+                ActorOid,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
 
         ArchitecturesController sut = BuildSut();

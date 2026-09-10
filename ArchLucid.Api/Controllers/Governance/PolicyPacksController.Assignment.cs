@@ -180,10 +180,10 @@ public sealed partial class PolicyPacksController
 
         if (result.Outcome == PolicyPackHttpOutcome.Conflict)
         {
-            return this.ConflictProblem(
-                result.Message
-                    ?? "Organization-required policy pack assignments cannot be disabled.",
-                ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(
+                new ConflictException(
+                    result.Message
+                        ?? "Organization-required policy pack assignments cannot be disabled."));
         }
 
         return NoContent();
@@ -243,10 +243,10 @@ public sealed partial class PolicyPacksController
 
         if (result.Outcome == PolicyPackHttpOutcome.Conflict)
         {
-            return this.ConflictProblem(
-                result.Message
-                    ?? "Organization-required policy pack assignments cannot be set while the platform pack is inactive.",
-                ProblemTypes.Conflict);
+            return MapPolicyPackSealedManifestConflict(
+                new ConflictException(
+                    result.Message
+                        ?? "Organization-required policy pack assignments cannot be set while the platform pack is inactive."));
         }
 
         return NoContent();
