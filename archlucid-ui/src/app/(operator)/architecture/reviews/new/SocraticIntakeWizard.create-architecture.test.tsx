@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const admitDraftRequest = vi.fn();
 const createDraftRequest = vi.fn();
 const getDraftQuestions = vi.fn();
+const getDraftRequest = vi.fn();
 const patchDraftRequest = vi.fn();
 const initializeArchitectureCreation = vi.fn();
 const searchParamsGet = vi.hoisted(() => vi.fn(() => null as string | null));
@@ -38,6 +39,7 @@ vi.mock("@/lib/architecture/architecture-creation-init", () => ({
 vi.mock("@/lib/api/draft-intake-api", () => ({
   admitDraftRequest: (...args: unknown[]) => admitDraftRequest(...args),
   createDraftRequest: (...args: unknown[]) => createDraftRequest(...args),
+  getDraftRequest: (...args: unknown[]) => getDraftRequest(...args),
   patchDraftRequest: (...args: unknown[]) => patchDraftRequest(...args),
   getDraftQuestions: (...args: unknown[]) => getDraftQuestions(...args),
   answerDraftQuestion: vi.fn(),
@@ -126,6 +128,12 @@ describe("SocraticIntakeWizard create-architecture intent", () => {
     admitDraftRequest.mockReset();
     createDraftRequest.mockReset();
     getDraftQuestions.mockReset();
+    getDraftRequest.mockReset();
+    getDraftRequest.mockResolvedValue({
+      draftId: "draft-session",
+      updatedUtc: "2026-08-05T12:00:00Z",
+      status: "Drafting",
+    });
     patchDraftRequest.mockReset();
     initializeArchitectureCreation.mockReset();
     searchParamsGet.mockImplementation((key: string) => (key === "intent" ? CREATE_ARCHITECTURE_INTENT : null));

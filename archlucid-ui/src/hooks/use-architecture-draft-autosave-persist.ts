@@ -14,10 +14,16 @@ import {
 } from "@/lib/architecture/architecture-draft-readiness";
 import { actorSetFromDraftDocument } from "@/lib/architecture/architecture-creation-init";
 import {
-  dequeueArchitectureDraftOfflinePatch,
   enqueueArchitectureDraftOfflinePatch,
-  listArchitectureDraftOfflineQueue,
+  ARCHITECTURE_DRAFT_OFFLINE_QUEUE_SCHEMA_VERSION,
 } from "@/lib/architecture/architecture-draft-offline-queue";
+import { replayArchitectureDraftOfflineQueue } from "@/lib/architecture/architecture-draft-offline-queue-replay";
+import {
+  architectureDraftCasConflictMessage,
+  DRAFT_CAS_STALE_CODE,
+  readDraftCasConflictCode,
+  withDraftPatchCas,
+} from "@/lib/architecture/architecture-draft-patch-cas";
 import {
   clearArchitectureNewDraftRecovery,
   readArchitectureNewDraftRecovery,
@@ -101,6 +107,8 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
             ),
           ),
           queuedAtUtc: new Date().toISOString(),
+          expectedUpdatedUtc: args.serverUpdatedUtcRef.current,
+          schemaVersion: ARCHITECTURE_DRAFT_OFFLINE_QUEUE_SCHEMA_VERSION,
         });
       } else if (
         deferCreateUntilFirstSave &&
@@ -166,6 +174,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
 
           void invalidateArchitectureDraftListQueries();
           clearArchitectureNewDraftRecovery();
+          args.serverUpdatedUtcRef.current = created.updatedUtc;
         }
 
         const latestServer = await getDraftRequest(draftId);
@@ -182,9 +191,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           args.serverUpdatedUtcRef.current !== null &&
           latestServer.updatedUtc !== args.serverUpdatedUtcRef.current
         ) {
-          args.setConflictMessage(
-            "This architecture was updated in another session. Keep your edits or load the server copy before saving again.",
-          );
+          args.setConflictMessage(architectureDraftCasConflictMessage(DRAFT_CAS_STALE_CODE));
           args.setSaveState("error");
           patchFailedNonRetryable = true;
           return false;
@@ -196,14 +203,14 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
           args.scopeGateOpenRef.current ? args.scopeBulletsRef.current : undefined,
         );
 
-        const patched = await patchDraftRequest(draftId, {
-          ...patchPayload,
-          ...(forceOverwrite
-            ? { forceOverwrite: true }
-            : args.serverUpdatedUtcRef.current !== null
-              ? { expectedUpdatedUtc: args.serverUpdatedUtcRef.current }
-              : {}),
-        });
+        const patched = await patchDraftRequest(
+          draftId,
+          forceOverwrite
+            ? withDraftPatchCas(patchPayload, { forceOverwrite: true })
+            : withDraftPatchCas(patchPayload, {
+                expectedUpdatedUtc: args.serverUpdatedUtcRef.current ?? latestServer.updatedUtc,
+              }),
+        );
 
         if (sequence !== saveSequenceRef.current) return false;
 
@@ -223,7 +230,7 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
             args.setConflictMessage(
               architectureDraftCreateMutationBlockedReason(failure)
                 ?? architectureDraftAutosavePatchBlockedReason(failure)
-                ?? "This architecture was updated in another session. Keep your edits or load the server copy before saving again.",
+                ?? architectureDraftCasConflictMessage(readDraftCasConflictCode(error)),
             );
           }
         }
@@ -267,17 +274,11 @@ export function useArchitectureDraftAutosavePersist(args: UseArchitectureDraftAu
 
   useEffect(() => {
     async function replayOfflineQueue(): Promise<void> {
-      const queued = listArchitectureDraftOfflineQueue();
+      const result = await replayArchitectureDraftOfflineQueue();
 
-      for (const entry of queued) {
-        try {
-          const body = JSON.parse(entry.payloadJson) as Parameters<typeof patchDraftRequest>[1];
-          await patchDraftRequest(entry.draftId, body);
-          dequeueArchitectureDraftOfflinePatch(entry.draftId);
-        }
-        catch {
-          break;
-        }
+      if (result.conflict !== null) {
+        args.setConflictMessage(result.conflict.message);
+        args.setSaveState("error");
       }
 
       if (args.hasUnsavedChanges && hasArchitectureDraftSaveableContent(args.fields)) {

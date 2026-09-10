@@ -71,7 +71,7 @@ public sealed class DraftRequestCrudServiceWorkspaceNameCollisionTests
         await sut.PatchAsync(
             Scope,
             created.DraftId,
-            new PatchDraftRequest { SystemName = "ArchLucid" },
+            new PatchDraftRequest { SystemName = "ArchLucid", ExpectedUpdatedUtc = created.UpdatedUtc },
             CancellationToken.None);
 
         guard.Verify(
