@@ -47,7 +47,7 @@ export type UseWebhooksSettingsMutationsOptions = {
   readonly handleSubmit: UseFormHandleSubmit<WebhookSettingsFormValues>;
   readonly webhookRows: AlertRoutingSubscription[];
   readonly scopeGenerationRef: React.RefObject<number>;
-  readonly load: () => Promise<void>;
+  readonly load: () => Promise<boolean>;
   readonly setFailure: React.Dispatch<React.SetStateAction<ApiLoadFailureState | null>>;
 };
 
@@ -361,7 +361,13 @@ export function useWebhooksSettingsMutations(
       }
 
       options.reset({ ...webhookSettingsDefaultValues });
-      await options.load();
+
+      const refreshed = await options.load();
+
+      if (!refreshed) {
+        return;
+      }
+
       setSaveSuccessMessage(WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE);
     } catch (error: unknown) {
       if (options.scopeGenerationRef.current !== generation) {

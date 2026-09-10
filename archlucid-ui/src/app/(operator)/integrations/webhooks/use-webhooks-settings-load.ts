@@ -21,7 +21,7 @@ export type UseWebhooksSettingsLoadResult = {
   readonly loading: boolean;
   readonly failure: ApiLoadFailureState | null;
   readonly setFailure: React.Dispatch<React.SetStateAction<ApiLoadFailureState | null>>;
-  readonly load: () => Promise<void>;
+  readonly load: () => Promise<boolean>;
   readonly webhookRows: AlertRoutingSubscription[];
   readonly activeSubscriptionCount: number;
   readonly scopeGenerationRef: React.RefObject<number>;
@@ -50,7 +50,7 @@ export function useWebhooksSettingsLoad(
     [webhookRows],
   );
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (): Promise<boolean> => {
     const generation = scopeGenerationRef.current;
     setLoading(true);
     setFailure(null);
@@ -59,16 +59,20 @@ export function useWebhooksSettingsLoad(
       const data = await listAlertRoutingSubscriptions();
 
       if (scopeGenerationRef.current !== generation) {
-        return;
+        return false;
       }
 
       setItems(data);
+
+      return true;
     } catch (error: unknown) {
       if (scopeGenerationRef.current !== generation) {
-        return;
+        return false;
       }
 
       setFailure(toApiLoadFailure(error));
+
+      return false;
     } finally {
       if (scopeGenerationRef.current === generation) {
         setLoading(false);

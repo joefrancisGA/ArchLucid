@@ -507,6 +507,39 @@ describe("WebhooksIntegrationPage", () => {
     });
   });
 
+  it("does not show save success when list refresh fails after create", async () => {
+    let listCallCount = 0;
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([]);
+      }
+
+      return Promise.reject(new Error("list refresh failed"));
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    await waitFor(() => {
+      expect(apiMocks.create).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    expect(screen.queryByTestId("webhook-save-success-callout")).toBeNull();
+    expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/list refresh failed/i);
+  });
+
   it("shows save failure feedback without raw internal errors", async () => {
     apiMocks.create.mockRejectedValue(new Error("routingSubscriptionId conflict in dbo.AlertRouting"));
 
