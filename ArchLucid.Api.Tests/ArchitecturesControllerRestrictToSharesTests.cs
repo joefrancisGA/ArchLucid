@@ -164,7 +164,7 @@ public sealed class ArchitecturesControllerRestrictToSharesTests
             {
                 ArchitectureFound = true,
                 RestrictToShares = true,
-                ShareRole = Core.Persistence.ApplicationPorts.Architecture.ArchitectureShareRoles.Decide,
+                ShareRole = Contracts.Architecture.ArchitectureShareRoles.Decide,
                 CanRead = true,
                 CanDecide = true,
                 CanAdmin = false,

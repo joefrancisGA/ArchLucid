@@ -375,9 +375,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 26
+- **hunts:** 28
 - **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-10 — selector treated null RecordedQualityGateOutcome as Accepted rank on duplicate rows
 - **related-pd-tb:** TB-2226
@@ -445,6 +445,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) single unevaluated trace on Real PilotStrict — **cheap-disproof 2026-09-10 seed hunt #1623:** missing recorded rejection is non-blocking (`GetBlockingReasons_when_single_unevaluated_trace_does_not_block`)
 - [x] (valid-no-repro) multiple `Warned` latest-per-task traces — **cheap-disproof 2026-09-10 seed hunt #1623:** Warned outcomes do not accumulate blocking reasons (`GetBlockingReasons_when_multiple_warned_tasks_do_not_block`)
 - [x] (valid-no-repro) distinct tasks with unevaluated and `Rejected` winners — **cheap-disproof 2026-09-10 seed hunt #1623:** gate blocks only rejected latest-per-task (`GetBlockingReasons_when_distinct_tasks_unevaluated_and_rejected_only_blocks_rejected`)
+- [x] (valid-no-repro) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` null `run`/`options`/`traces` — **cheap-disproof 2026-09-10 seed hunt #1624:** `ArgumentNullException` on null inputs (`GetBlockingReasons_throws_when_run_null`, `GetBlockingReasons_throws_when_options_null`, `GetBlockingReasons_throws_when_traces_null`)
+- [x] (valid-no-repro) distinct tasks where every latest-per-task winner is unevaluated — **cheap-disproof 2026-09-10 seed hunt #1624:** TB-2226 blocks only recorded rejections (`GetBlockingReasons_when_distinct_tasks_all_unevaluated_does_not_block`)
+- [x] (valid-no-repro) same-attempt duplicate with `QualityRejected=true` + `Accepted` vs clean `Accepted` sibling — **cheap-disproof 2026-09-10 seed hunt #1624:** rank ladder prefers clean Accepted (rank 3) over QR+Accepted drift row (rank 1); regressions `Select_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted`, `GetBlockingReasons_when_same_attempt_quality_rejected_accepted_duplicate_loses_to_clean_accepted_does_not_block`
+- [x] (valid-no-repro) same-attempt duplicate with `QualityRejected=true` + `RecordedQualityGateOutcome.Rejected` vs sibling `Warned` — rank ladder may prefer Warned and suppress blocking on the reject duplicate — **cheap-disproof 2026-09-10 thorough hunt #1626:** intentional Warned-over-blocking-duplicate policy extends #1549/#1615 (`Select_when_same_attempt_quality_rejected_rejected_outcome_and_warned_prefers_warned_trace`, `GetBlockingReasons_when_same_attempt_quality_rejected_rejected_outcome_and_warned_duplicates_does_not_block`)
+- [x] (invalid) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — non-`Real` `StructuralExecutionMode` returns before trace fetch so persisted rejections are never evaluated at the integrity layer — **cheap-disproof 2026-09-10 thorough hunt #1626:** `EnsurePassOrThrowAsync` fetches traces before calling `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` (`CommitOutputIntegrityService.cs` lines 109–119); non-`Real` bypass is intentional in the evaluator (`GetBlockingReasons_when_simulator_mode_returns_empty`, `GetBlockingReasons_when_simulator_mode_receives_rejected_traces_without_blocking`)
+- [ ] (candidate) same-attempt duplicate with `QualityRejected=true` + `RecordedQualityGateOutcome.Rejected` vs sibling `Accepted` — rank ladder may prefer Accepted and clear blocking on the QR+Rejected drift row
+- [ ] (candidate) `CommitOutputIntegrityService.EnsurePassOrThrowAsync` — `StructuralExecutionMode.Mixed`/`Fallback` structural guard throws before quality-gate evaluation, so persisted rejections on otherwise-complete runs are never surfaced
+
+2026-09-10 thorough hunt #1626 (dry): cheap-disproof closed QR+Rejected vs Warned duplicate policy and invalid trace-fetch-order candidate; 85 scoped commit-output-integrity tests passed; reseeded QR+Rejected vs Accepted duplicate and structural-mode pre-gate candidates.
+
+2026-09-10 seed hunt #1624 (seed-only): reseeded commit-output-integrity after #1623; cheap-disproof on null evaluator guards, all-unevaluated multi-task non-blocking, and QR+Accepted vs clean Accepted duplicate rank; 82 scoped commit-output-integrity tests passed; removed duplicate Core `ArchitectureShareRoles` and stale `ArchitectureShareManagementService` merge fallout blocking compile.
 
 2026-09-10 seed hunt #1623 (seed-only): reseeded commit-output-integrity after #1622; cheap-disproof on null selector input, Accepted-over-Rejected CreatedUtc skew, lone unevaluated trace, multi-Warned tasks, and mixed unevaluated/Rejected per-task blocking; 76 scoped commit-output-integrity tests passed.
 
@@ -685,7 +696,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 18
+- **hunts:** 19
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-09-10
@@ -759,6 +770,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `EmailOtpRequestFlow.ResolveInvitationIdAsync` links invitation tokens when invitee email differs from sign-in email — **cheap-disproof 2026-09-10 seed hunt #1573:** normalized email equality guard returns null; regression `RequestCodeAsync_omits_invitation_link_when_token_email_mismatches_sign_in_email`.
 
 2026-09-10 seed hunt #1573 (seed-only): reseeded email-otp-auth; restored per-email verify rate-limit regression and cheap-disproof closed invitation-token linkage candidates; 36 scoped EmailOtp tests passed.
+
+- [x] (valid-no-repro) `TryAcceptInvitationAsync` — verify omits `InvitationToken` so challenge-linked invitation is not accepted — **cheap-disproof 2026-09-10 seed hunt #1630:** `challenge.InvitationId` is consulted before token hash lookup; regression `VerifyCodeAsync_accepts_challenge_linked_invitation_without_verify_invitation_token`.
+- [x] (valid-no-repro) `ResolveNextStepAsync` — multi-workspace users receive elevated membership role before workspace selection — **cheap-disproof 2026-09-10 seed hunt #1630:** `SelectWorkspace` returns `ArchLucidRoles.Reader` placeholder until explicit pick; regression `VerifyCodeAsync_select_workspace_returns_reader_placeholder_role`.
+- [x] (valid-no-repro) `ResolveNextStepAsync` — suspended/revoked memberships count toward `SelectWorkspace` routing — **cheap-disproof 2026-09-10 seed hunt #1630:** only `WorkspaceMembershipStatus.Active` rows are counted; regression `VerifyCodeAsync_completes_when_user_has_one_active_and_one_inactive_membership`.
+- [x] (valid-no-repro) `ResolveNextStepAsync` — expired challenge-linked invitation still routes to `AcceptInvitation` after OTP verify — **cheap-disproof 2026-09-10 seed hunt #1630:** `GetPendingByIdAsync` filters `ExpiresUtc`; regression `VerifyCodeAsync_routes_past_expired_challenge_linked_invitation_to_create_workspace`.
+- [x] (valid-no-repro) `IsEmailOtpVerificationRateLimitedAsync` — rate-limited verify emits duplicate `EmailOtpVerificationFailed` audits — **cheap-disproof 2026-09-10 seed hunt #1630:** second failure logs `EmailOtpRateLimitTriggered` only; first wrong code still emits one `EmailOtpVerificationFailed`; regression `VerifyCodeAsync_rate_limit_emits_rate_limit_audit_not_verification_failed`.
+
+- [ ] (candidate) `InMemoryUserInvitationRepository.GetPendingByIdAsync` — uses `TimeProvider.System` while `EmailOtpVerifyFlow` uses injected `TimeProvider`, so fake-clock tests can observe `AcceptInvitation` after invitation expiry until repository clock alignment is fixed (test-infra reachability only)
+
+2026-09-10 seed hunt #1630 (seed-only): reseeded email-otp-auth after #1573; cheap-disproof closed challenge-linked accept without verify token, SelectWorkspace placeholder role, inactive membership filtering, expired linked-invitation routing, and verify rate-limit audit pairing; 41 scoped EmailOtp tests passed.
 
 ---
 
@@ -1259,9 +1280,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 14
+- **hunts:** 32
 - **bugs-found:** 13
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-08 — inspect `TryParseEvaluationConfidenceLevel` accepted undefined numeric confidence strings
 - **related-pd-tb:** none
@@ -1310,6 +1331,199 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `MainInspect*` `DecisioningTraces` join without tenant/workspace/project predicates leaks sibling-tenant `AppliedRuleIdsJson` — **cheap-disproof 2026-09-10 seed hunt #1572:** `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` already bind `dt.TenantId`/`WorkspaceId`/`ProjectId` to the run scope; regression `MainInspect_scopes_decisioning_trace_join_to_request_scope`.
 
 2026-09-10 seed hunt #1572 (seed-only): reseeded finding-inspect-sql; cheap-disproof closed empty `AppliedRuleIdsJson` array, JSON-null payload, and unscoped DecisioningTraces join candidates; 52 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ResolveRuleFields` when the first `AppliedRuleIdsJson` element is whitespace-only drops later rule ids — **cheap-disproof 2026-09-10 seed hunt #1633:** `Where(!string.IsNullOrWhiteSpace)` selects the first non-blank id; regression `ResolveRuleFields_when_first_applied_rule_id_is_whitespace_uses_next_non_blank_id`.
+- [x] (valid-no-repro) Malformed non-empty `AppliedRuleIdsJson` throws instead of falling back to trace text — **cheap-disproof 2026-09-10 seed hunt #1633:** `JsonException` catch falls through to `firstRuleText`; regression `ResolveRuleFields_when_applied_rule_ids_json_is_malformed_falls_back_to_trace_text`.
+- [x] (valid-no-repro) Whitespace-only `AppliedRuleIdsJson` column is treated as present JSON instead of missing — **cheap-disproof 2026-09-10 seed hunt #1633:** `string.IsNullOrWhiteSpace` short-circuit matches null/blank; regression `ResolveRuleFields_when_applied_rule_ids_json_is_blank_uses_trace_text`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` returns null when only `Title` is populated — **cheap-disproof 2026-09-10 seed hunt #1633:** slim metadata payload is built when either title or rationale is non-empty; regression `BuildMetadataTypedPayload_returns_slim_payload_when_only_title_is_present`.
+- [x] (valid-no-repro) `MainInspect*` can select archived reruns when a newer active run exists — **cheap-disproof 2026-09-10 seed hunt #1633:** both main inspect queries filter `(r.ArchivedUtc IS NULL)`; regression `MainInspect_excludes_archived_runs_from_active_inspect_selection`.
+- [x] (valid-no-repro) `MainInspectWithoutTypedPayload` still reads `fr.PayloadJson` — **cheap-disproof 2026-09-10 seed hunt #1633:** metadata-only path projects `CAST(NULL AS nvarchar(max)) AS PayloadJson`; regression `MainInspectWithoutTypedPayload_omits_payload_json_column`.
+- [x] (valid-no-repro) `FollowUpBatch` related-node evidence returns in arbitrary order — **cheap-disproof 2026-09-10 seed hunt #1633:** related-node subquery orders by `frn.SortOrder`; regression `FollowUpBatch_orders_related_nodes_by_sort_order`.
+
+2026-09-10 seed hunt #1633 (seed-only): reseeded finding-inspect-sql after #1572; cheap-disproof closed whitespace rule-id array elements, malformed JSON fallback, blank AppliedRuleIdsJson, title-only metadata payload, archived-run exclusion, metadata-only payload projection, and related-node ordering; 59 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `FollowUpBatch` audit-event subquery omits `ae.RunId = @RunId` and can surface another run's commit audit row — **cheap-disproof 2026-09-10 seed hunt #1634:** audit lookup binds `ae.RunId = @RunId`; regression `FollowUpBatch_scopes_audit_event_to_main_inspect_run`.
+- [x] (valid-no-repro) Trace-rule text and recommended actions return in arbitrary order — **cheap-disproof 2026-09-10 seed hunt #1634:** subqueries order by `tra.SortOrder` and `fra.SortOrder`; regressions `FollowUpBatch_orders_trace_rules_by_sort_order` and `FollowUpBatch_orders_recommended_actions_by_sort_order`.
+- [x] (valid-no-repro) Active waiver count includes expired `RiskExceptions` rows — **cheap-disproof 2026-09-10 seed hunt #1634:** waiver count filters `Status = @ActiveStatus` and `ExpiresAtUtc > SYSUTCDATETIME()`; regression `FollowUpBatch_active_waiver_count_requires_active_non_expired_exceptions`.
+- [x] (valid-no-repro) Disposition pointer join surfaces rows with null `Disposition` — **cheap-disproof 2026-09-10 seed hunt #1634:** disposition subquery requires `e.Disposition IS NOT NULL`; regression `FollowUpBatch_disposition_subquery_excludes_null_disposition_rows`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` returns null when only `Rationale` is populated — **cheap-disproof 2026-09-10 seed hunt #1634:** slim metadata payload is built when either title or rationale is non-empty; regression `BuildMetadataTypedPayload_returns_slim_payload_when_only_rationale_is_present`.
+- [x] (valid-no-repro) Valid empty JSON object `{}` in `PayloadJson` falls back to metadata — **cheap-disproof 2026-09-10 seed hunt #1634:** `ResolveTypedPayloadForInspect` returns deserialized object elements; regression `ResolveTypedPayloadForInspect_returns_deserialized_object_when_payload_is_empty_json_object`.
+- [x] (valid-no-repro) `ParseFindingSeverity` is sensitive to surrounding whitespace in the DB column — **cheap-disproof 2026-09-10 seed hunt #1634:** mapper trims before `Enum.TryParse`; regression `ParseFindingSeverity_maps_or_defaults` for `"  critical  "`.
+
+2026-09-10 seed hunt #1634 (seed-only): reseeded finding-inspect-sql after #1633; cheap-disproof closed audit run scoping, trace/action ordering, waiver expiry filter, null disposition exclusion, rationale-only metadata payload, empty-object payload handling, and severity trim; 68 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MainInspect*` omits `TOP 1` and can return an arbitrary rerun when `FindingId` collides — **cheap-disproof 2026-09-10 seed hunt #1635:** both main inspect queries use `SELECT TOP 1` with `ORDER BY r.CreatedUtc DESC, r.RunId DESC`; regression `MainInspect_uses_top_one_for_deterministic_run_selection`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule subquery concatenates all `RuleText` rows instead of the first — **cheap-disproof 2026-09-10 seed hunt #1635:** trace subquery selects `TOP 1 tra.RuleText` ordered by `tra.SortOrder`; regression `FollowUpBatch_trace_rules_subquery_uses_top_one_for_first_rule_text`.
+- [x] (valid-no-repro) Audit-event lookup ignores `EventType` and can return unrelated audit rows — **cheap-disproof 2026-09-10 seed hunt #1635:** audit subquery filters `ae.EventType = @EventType` (`AuthorityCommittedChainPersisted`); regression `FollowUpBatch_audit_event_filters_authority_committed_event_type`.
+- [x] (valid-no-repro) Audit-event lookup returns the oldest commit row — **cheap-disproof 2026-09-10 seed hunt #1635:** audit subquery orders `ae.OccurredUtc DESC, ae.EventId DESC`; regression `FollowUpBatch_audit_event_orders_by_latest_occurrence`.
+- [x] (valid-no-repro) `MainInspect*` joins `Runs` directly without `FindingsSnapshots` — **cheap-disproof 2026-09-10 seed hunt #1635:** main inspect path joins `FindingRecords` → `FindingsSnapshots` → `Runs`; regression `MainInspect_joins_run_through_findings_snapshot`.
+- [x] (valid-no-repro) `ResolveRuleFields` preserves surrounding whitespace in `AppliedRuleIdsJson` elements — **cheap-disproof 2026-09-10 seed hunt #1635:** first valid id is `.Trim()` before return; regression `ResolveRuleFields_trims_whitespace_from_applied_rule_ids`.
+- [x] (valid-no-repro) `ParseHumanReview` / `ParseDisposition` / `TryParseEvaluationConfidenceLevel` are whitespace-sensitive — **cheap-disproof 2026-09-10 seed hunt #1635:** mappers trim before `Enum.TryParse`; regressions `ParseHumanReview_maps_or_defaults` for `"  Pending  "`, `ParseDisposition_trims_surrounding_whitespace`, and `TryParseEvaluationConfidenceLevel_trims_surrounding_whitespace`.
+
+2026-09-10 seed hunt #1635 (seed-only): reseeded finding-inspect-sql after #1634; cheap-disproof closed TOP 1 run selection, trace-rule TOP 1, audit event type/order filters, snapshot join path, applied-rule-id trim, and enum trim parity; 77 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MainInspect*` omits `JSON_VALUE` model alias resolution from `AgentExecutionTraces` — **cheap-disproof 2026-09-10 seed hunt #1636:** both main inspect queries project `JSON_VALUE(aet.TraceJson, '$.modelAlias')`; regression `MainInspect_resolves_model_alias_from_agent_execution_trace_json`.
+- [x] (valid-no-repro) `MainInspect*` can return another finding's row when only tenant/workspace/project match — **cheap-disproof 2026-09-10 seed hunt #1636:** main inspect filters `fr.FindingId = @FindingId`; regression `MainInspect_filters_by_scoped_finding_id`.
+- [x] (valid-no-repro) Disposition pointer join omits `EventId` / `ReviewerUserId` / `RowVersionStamp` — **cheap-disproof 2026-09-10 seed hunt #1636:** disposition subquery projects pointer metadata columns; regression `FollowUpBatch_disposition_subquery_projects_pointer_metadata_fields`.
+- [x] (valid-no-repro) Active waiver count uses `COUNT(1)` and overflows large tenants — **cheap-disproof 2026-09-10 seed hunt #1636:** waiver subquery uses `COUNT_BIG(1)`; regression `FollowUpBatch_active_waiver_count_uses_count_big`.
+- [x] (valid-no-repro) Audit-event lookup tie-breaks only on `OccurredUtc` — **cheap-disproof 2026-09-10 seed hunt #1636:** audit subquery orders `ae.EventId DESC` after occurred time; regression `FollowUpBatch_audit_event_tiebreaks_on_event_id`.
+- [x] (valid-no-repro) `ResolveRuleFields` preserves surrounding whitespace in trace fallback text — **cheap-disproof 2026-09-10 seed hunt #1636:** missing JSON path trims `firstRuleText`; regression `ResolveRuleFields_trims_trace_text_when_applied_rule_ids_json_missing`.
+- [x] (valid-no-repro) Valid JSON array `PayloadJson` falls back to metadata — **cheap-disproof 2026-09-10 seed hunt #1636:** `ResolveTypedPayloadForInspect` returns deserialized array elements; regression `ResolveTypedPayloadForInspect_returns_deserialized_array_when_payload_is_json_array`.
+- [x] (valid-no-repro) `ParseDisposition` treats whitespace-only strings as valid dispositions — **cheap-disproof 2026-09-10 seed hunt #1636:** blank guard uses `IsNullOrWhiteSpace`; regression `ParseDisposition_returns_null_for_blank` for `"   "`.
+
+2026-09-10 seed hunt #1636 (seed-only): reseeded finding-inspect-sql after #1635; cheap-disproof closed model-alias JSON projection, finding-id filter, disposition pointer metadata, COUNT_BIG waiver guard, audit event-id tiebreak, trace-text trim, JSON-array payload handling, and whitespace-only disposition; 85 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `AgentExecutionTraces` join omits `TraceId` match and can reuse another finding's trace row — **cheap-disproof 2026-09-10 seed hunt #1637:** main inspect binds `aet.TraceId = fr.AgentExecutionTraceId` and `aet.RunId = r.RunId`; regression `MainInspect_scopes_agent_execution_trace_to_finding_trace_id`.
+- [x] (valid-no-repro) `DecisioningTraces` join omits `DecisionTraceId` and can pair the wrong applied-rule JSON — **cheap-disproof 2026-09-10 seed hunt #1637:** main inspect binds `dt.DecisionTraceId = r.DecisionTraceId`; regression `MainInspect_joins_decisioning_trace_on_decision_trace_id`.
+- [x] (valid-no-repro) `Runs` scope predicate uses `ProjectId` instead of `ScopeProjectId` — **cheap-disproof 2026-09-10 seed hunt #1637:** main inspect filters `r.ScopeProjectId = @ScopeProjectId`; regression `MainInspect_scopes_run_to_scope_project_id`.
+- [x] (valid-no-repro) Disposition pointer join omits `OccurredAtUtc` — **cheap-disproof 2026-09-10 seed hunt #1637:** disposition subquery projects `e.OccurredAtUtc`; regression `FollowUpBatch_disposition_subquery_projects_occurred_at_utc`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` treats whitespace-only title/rationale as populated — **cheap-disproof 2026-09-10 seed hunt #1637:** both fields blank after trim returns null; regression `BuildMetadataTypedPayload_returns_null_when_only_whitespace_fields_are_present`.
+- [x] (valid-no-repro) Numeric JSON `PayloadJson` falls back to metadata — **cheap-disproof 2026-09-10 seed hunt #1637:** `ResolveTypedPayloadForInspect` returns deserialized number elements; regression `ResolveTypedPayloadForInspect_returns_deserialized_number_when_payload_is_json_number`.
+- [x] (valid-no-repro) `ParseHumanReview` / `TryParseEvaluationConfidenceLevel` treat whitespace-only strings as valid values — **cheap-disproof 2026-09-10 seed hunt #1637:** mappers use `IsNullOrWhiteSpace` guards; regressions `ParseHumanReview_maps_or_defaults` for `"   "` and `TryParseEvaluationConfidenceLevel_returns_null_for_missing_or_invalid` for `"   "`.
+
+2026-09-10 seed hunt #1637 (seed-only): reseeded finding-inspect-sql after #1636; cheap-disproof closed agent-trace id join, decision-trace id join, run scope-project filter, disposition occurred-at projection, whitespace-only metadata payload, numeric JSON payload handling, and whitespace-only enum parsing; 93 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` mishandles boolean JSON literals in `PayloadJson` — **cheap-disproof 2026-09-10 seed hunt #1638:** `TryParsePayloadJson` deserializes `true`/`false` primitives; regression `ResolveTypedPayloadForInspect_returns_deserialized_boolean_when_payload_is_json_true`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` treats JSON string primitives as corrupt and falls back to metadata — **cheap-disproof 2026-09-10 seed hunt #1638:** string roots deserialize to `JsonValueKind.String`; regression `ResolveTypedPayloadForInspect_returns_deserialized_string_when_payload_is_json_string`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` array contains only whitespace entries returns null instead of trace text — **cheap-disproof 2026-09-10 seed hunt #1638:** whitespace-only elements are skipped and fallback uses trimmed trace text; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_only_whitespace_entries_falls_back_to_trace_text`.
+- [x] (valid-no-repro) `BuildInspectResponse` leaves `DecisionRuleName` null when `ruleName` is absent — **cheap-disproof 2026-09-10 seed hunt #1638:** `DecisionRuleName = ruleName ?? ruleId`; regression `BuildInspectResponse_uses_rule_id_when_rule_name_is_null`.
+- [x] (valid-no-repro) `MainInspect*` omits `GoldenManifestId` from the inspect projection — **cheap-disproof 2026-09-10 seed hunt #1638:** both main inspect queries project `r.GoldenManifestId`; regression `MainInspect_projects_golden_manifest_id`.
+- [x] (valid-no-repro) `MainInspect*` omits run structural execution mode fields — **cheap-disproof 2026-09-10 seed hunt #1638:** both main inspect queries project `r.StructuralExecutionMode` and `r.RealModeFellBackToSimulator`; regression `MainInspect_projects_run_structural_execution_mode_fields`.
+- [x] (valid-no-repro) `MainInspectWithTypedPayload` omits `fr.PayloadJson` and always builds metadata-only typed payload — **cheap-disproof 2026-09-10 seed hunt #1638:** typed-payload query selects `fr.PayloadJson`; regression `MainInspectWithTypedPayload_selects_payload_json_column`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule subquery omits child-table tenant/workspace/project predicates — **cheap-disproof 2026-09-10 seed hunt #1638:** `FindingTraceRulesApplied` binds `tra.TenantId`/`WorkspaceId`/`ProjectId`; regression `FollowUpBatch_scopes_trace_rules_child_table_to_request_scope`.
+- [x] (valid-no-repro) `FollowUpBatch` recommended-actions subquery omits child-table tenant/workspace/project predicates — **cheap-disproof 2026-09-10 seed hunt #1638:** `FindingRecommendedActions` binds `fra.TenantId`/`WorkspaceId`/`ProjectId`; regression `FollowUpBatch_scopes_recommended_actions_child_table_to_request_scope`.
+- [x] (valid-no-repro) `ParseDisposition` / `ParseHumanReview` are case-sensitive on DB enum strings — **cheap-disproof 2026-09-10 seed hunt #1638:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseDisposition_parses_case_insensitive_enum_value` and `ParseHumanReview_parses_case_insensitive_enum_value`.
+
+2026-09-10 seed hunt #1638 (seed-only): reseeded finding-inspect-sql after #1637; cheap-disproof closed boolean/string JSON payloads, whitespace-only rule-id arrays, rule-name fallback, golden-manifest projection, structural execution mode fields, payload column selection, child-table tenant scoping, and case-insensitive enum parsing; 104 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MapInspectResponse` includes whitespace-only related-node rows as evidence excerpts — **cheap-disproof 2026-09-10 seed hunt #1639:** `FilterNonBlankTrimmedStrings` drops blank entries and trims survivors before evidence mapping; regression `FilterNonBlankTrimmedStrings_drops_whitespace_entries_and_trims_survivors`.
+- [x] (valid-no-repro) `LoadDispositionJoinAsync` returns whitespace-only recommended actions — **cheap-disproof 2026-09-10 seed hunt #1639:** same non-blank trim filter applied to recommended actions; regression `FilterNonBlankTrimmedStrings_drops_whitespace_entries_and_trims_survivors`.
+- [x] (valid-no-repro) `HasActiveWaiver` is true when waiver count is zero — **cheap-disproof 2026-09-10 seed hunt #1639:** `HasActiveWaiver` requires `activeWaiverCount > 0`; regression `HasActiveWaiver_returns_true_only_when_count_is_positive`.
+- [x] (valid-no-repro) `LatestDispositionRowVersionBase64` encodes empty stamp as empty string instead of null — **cheap-disproof 2026-09-10 seed hunt #1639:** null stamp returns null; non-null bytes base64-encode; regressions `EncodeRowVersionStampBase64_returns_null_for_missing_stamp` and `EncodeRowVersionStampBase64_encodes_stamp_bytes`.
+- [x] (valid-no-repro) `RevisitDueUtc` / `RemediationDueUtc` preserve local offset from unspecified SQL timestamps — **cheap-disproof 2026-09-10 seed hunt #1639:** `ToUtcDateTimeOffset` uses `DateTimeKind.Utc`; regression `ToUtcDateTimeOffset_specifies_utc_kind_for_unspecified_database_timestamps`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspect` mishandles JSON `false` literals — **cheap-disproof 2026-09-10 seed hunt #1639:** boolean false deserializes to `JsonValueKind.False`; regression `ResolveTypedPayloadForInspect_returns_deserialized_boolean_false_when_payload_is_json_false`.
+- [x] (valid-no-repro) `TryParsePayloadJson` treats whitespace-only `PayloadJson` as valid empty object — **cheap-disproof 2026-09-10 seed hunt #1639:** whitespace-only input returns null; regression `TryParsePayloadJson_returns_null_for_whitespace_only_payload`.
+- [x] (valid-no-repro) `ResolveRuleFields` returns whitespace trace text when applied-rule JSON is absent — **cheap-disproof 2026-09-10 seed hunt #1639:** whitespace-only trace text yields null rule fields; regression `ResolveRuleFields_when_trace_text_is_whitespace_only_returns_nulls`.
+- [x] (valid-no-repro) `MainInspect*` omits severity/title/rationale/reasoning/confidence/mute/assignment projections — **cheap-disproof 2026-09-10 seed hunt #1639:** main inspect selects core finding and run metadata columns; regressions `MainInspect_projects_finding_severity_title_and_rationale`, `MainInspect_projects_reasoning_trace_fields`, `MainInspect_projects_confidence_review_and_mute_fields`, and `MainInspect_projects_assignment_and_remediation_fields`.
+- [x] (valid-no-repro) `MainInspect*` omits `AppliedRuleIdsJson`, `RunId`, and manifest version — **cheap-disproof 2026-09-10 seed hunt #1639:** main inspect projects `dt.AppliedRuleIdsJson`, `r.RunId`, and `r.CurrentManifestVersion`; regressions `MainInspect_projects_applied_rule_ids_json_from_decisioning_trace` and `MainInspect_projects_run_id_and_manifest_version`.
+- [x] (valid-no-repro) `FollowUpBatch` related-node and audit subqueries omit `NodeId` / `EventId` projections — **cheap-disproof 2026-09-10 seed hunt #1639:** follow-up batch selects `frn.NodeId` and `ae.EventId`; regressions `FollowUpBatch_related_nodes_selects_node_id` and `FollowUpBatch_audit_event_selects_event_id`.
+- [x] (valid-no-repro) `ParseFindingSeverity` is case-sensitive for `Warning` — **cheap-disproof 2026-09-10 seed hunt #1639:** mapper trims and uses `Enum.TryParse(..., ignoreCase: true)`; regression `ParseFindingSeverity_parses_case_insensitive_warning_value`.
+
+2026-09-10 seed hunt #1639 (seed-only): reseeded finding-inspect-sql after #1638; extracted shared inspect mapping helpers; cheap-disproof closed evidence/action whitespace filtering, waiver/row-version/UTC mapping, false JSON payload, whitespace trace fallback, SQL metadata projections, and case-insensitive severity parsing; 121 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `includeTypedPayload=false` still deserializes relational `PayloadJson` instead of metadata-only typed payload — **cheap-disproof 2026-09-10 seed hunt #1640:** `ResolveTypedPayloadForInspectRead` routes to `BuildMetadataTypedPayload` when metadata-only; regression `ResolveTypedPayloadForInspectRead_when_metadata_only_ignores_payload_json`.
+- [x] (valid-no-repro) `MainInspect*` omits model deployment and prompt-template version columns — **cheap-disproof 2026-09-10 seed hunt #1640:** both main inspect queries project `fr.ModelDeploymentName` and `fr.PromptTemplateVersion`; regression `MainInspect_projects_model_deployment_and_prompt_template_version`.
+- [x] (valid-no-repro) `MainInspectWithoutTypedPayload` omits `FindingsSnapshots` join path — **cheap-disproof 2026-09-10 seed hunt #1640:** metadata-only query joins snapshot and run tables; regression `MainInspectWithoutTypedPayload_joins_run_through_findings_snapshot`.
+- [x] (valid-no-repro) `MainInspect*` omits `fr.FindingId` from the select list — **cheap-disproof 2026-09-10 seed hunt #1640:** both queries select `fr.FindingId`; regression `MainInspect_selects_finding_id_column`.
+- [x] (valid-no-repro) `FollowUpBatch` recommended-actions subquery omits `ActionText` projection — **cheap-disproof 2026-09-10 seed hunt #1640:** actions subquery selects `fra.ActionText`; regression `FollowUpBatch_recommended_actions_selects_action_text`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rules subquery omits `RuleText` projection — **cheap-disproof 2026-09-10 seed hunt #1640:** trace subquery selects `TOP 1 tra.RuleText`; regression `FollowUpBatch_trace_rules_selects_rule_text`.
+- [x] (valid-no-repro) Active waiver count ignores `FindingId` and counts tenant-wide exceptions — **cheap-disproof 2026-09-10 seed hunt #1640:** waiver subquery filters `FindingId = @FindingId`; regression `FollowUpBatch_waiver_count_filters_by_finding_id`.
+- [x] (valid-no-repro) `MainInspect*` inner-joins `AgentExecutionTraces` and drops inspect rows without trace rows — **cheap-disproof 2026-09-10 seed hunt #1640:** agent trace join is `LEFT JOIN`; regression `MainInspect_uses_left_join_for_agent_execution_traces`.
+- [x] (valid-no-repro) `ToUtcDateTimeOffset` throws on null database timestamps — **cheap-disproof 2026-09-10 seed hunt #1640:** null input returns null; regression `ToUtcDateTimeOffset_returns_null_for_null_input`.
+- [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` returns whitespace entries when all values are blank — **cheap-disproof 2026-09-10 seed hunt #1640:** all-blank input yields empty list; regression `FilterNonBlankTrimmedStrings_returns_empty_when_all_values_are_blank`.
+- [x] (valid-no-repro) `EncodeRowVersionStampBase64` returns null for empty row-version stamp bytes — **cheap-disproof 2026-09-10 seed hunt #1640:** empty byte array encodes to empty string; regression `EncodeRowVersionStampBase64_returns_empty_string_for_empty_stamp`.
+- [x] (valid-no-repro) `ParseFindingSeverity` / `TryParseEvaluationConfidenceLevel` / `ParseDisposition` are case-sensitive for `Error` / `Low` / `Deferred` — **cheap-disproof 2026-09-10 seed hunt #1640:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseFindingSeverity_parses_case_insensitive_error_value`, `TryParseEvaluationConfidenceLevel_parses_case_insensitive_low_value`, and `ParseDisposition_parses_case_insensitive_deferred_value`.
+
+2026-09-10 seed hunt #1640 (seed-only): reseeded finding-inspect-sql after #1639; extracted metadata-only typed-payload resolver; cheap-disproof closed includeTypedPayload routing, model/prompt SQL projections, snapshot join parity, follow-up text projections, waiver finding-id filter, agent-trace left join, UTC/null mapping edges, and additional case-insensitive enum parsing; 135 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MapInspectResponse` parses disposition when pointer row is absent — **cheap-disproof 2026-09-10 seed hunt #1641:** `MapLatestDisposition` returns null without a disposition row; regressions `MapLatestDisposition_returns_null_when_disposition_row_is_absent` and `MapLatestDisposition_parses_disposition_when_row_is_present`.
+- [x] (valid-no-repro) Corrupt `PayloadJson` with blank title/rationale still returns metadata fallback object — **cheap-disproof 2026-09-10 seed hunt #1641:** blank metadata after trim yields null typed payload; regression `ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_blank_title_rationale`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` omits `whyThisMatters` when both title and rationale are present — **cheap-disproof 2026-09-10 seed hunt #1641:** slim payload mirrors rationale into `whyThisMatters`; regression `BuildMetadataTypedPayload_returns_payload_when_both_title_and_rationale_are_present`.
+- [x] (valid-no-repro) `ResolveRuleFields` returns empty strings when both applied-rule JSON and trace text are absent — **cheap-disproof 2026-09-10 seed hunt #1641:** missing both sources yields `(null, null)`; regression `ResolveRuleFields_when_both_sources_are_missing_returns_nulls`.
+- [x] (valid-no-repro) `ToUtcDateTimeOffset` re-specifies offset for timestamps already marked UTC — **cheap-disproof 2026-09-10 seed hunt #1641:** UTC-kind values round-trip unchanged; regression `ToUtcDateTimeOffset_preserves_utc_timestamps`.
+- [x] (valid-no-repro) `MainInspect*` inner-joins `DecisioningTraces` and drops inspect rows without decision traces — **cheap-disproof 2026-09-10 seed hunt #1641:** decision trace join is `LEFT JOIN`; regression `MainInspect_uses_left_join_for_decisioning_traces`.
+- [x] (valid-no-repro) `FollowUpBatch` related-node subquery omits `FindingRecordId` join and can merge sibling records — **cheap-disproof 2026-09-10 seed hunt #1641:** related nodes join `fr.FindingRecordId = frn.FindingRecordId`; regression `FollowUpBatch_related_nodes_joins_finding_record_by_id`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule and recommended-action subqueries omit `fr.FindingId` filter — **cheap-disproof 2026-09-10 seed hunt #1641:** both subqueries bind `fr.FindingId = @FindingId`; regressions `FollowUpBatch_trace_rules_filters_by_finding_id` and `FollowUpBatch_recommended_actions_filters_by_finding_id`.
+- [x] (valid-no-repro) Disposition pointer join omits composite tenant/workspace/project/finding/event keys — **cheap-disproof 2026-09-10 seed hunt #1641:** disposition subquery joins review events on pointer columns; regression `FollowUpBatch_disposition_joins_review_events_on_pointer_columns`.
+- [x] (valid-no-repro) `ParseFindingSeverity` / `TryParseEvaluationConfidenceLevel` / `ParseDisposition` are case-sensitive for `Info` / `Medium` / `NeedsEvidence` / `Remediated` — **cheap-disproof 2026-09-10 seed hunt #1641:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseFindingSeverity_parses_case_insensitive_info_value`, `TryParseEvaluationConfidenceLevel_parses_case_insensitive_medium_value`, `ParseDisposition_parses_case_insensitive_needs_evidence_value`, and `ParseDisposition_parses_case_insensitive_remediated_value`.
+
+2026-09-10 seed hunt #1641 (seed-only): reseeded finding-inspect-sql after #1640; extracted disposition mapping helper; cheap-disproof closed disposition-null routing, corrupt-payload metadata edges, dual-field metadata payload, missing rule sources, UTC preservation, decision-trace left join, follow-up finding-id filters, disposition pointer join keys, and remaining case-insensitive enum parsing; 150 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `includeTypedPayload=true` still builds metadata-only typed payload instead of deserializing `PayloadJson` — **cheap-disproof 2026-09-10 seed hunt #1642:** `ResolveTypedPayloadForInspectRead` routes to `ResolveTypedPayloadForInspect` when typed payload is included; regression `ResolveTypedPayloadForInspectRead_when_include_typed_payload_true_deserializes_payload_json`.
+- [x] (valid-no-repro) `TryParsePayloadJson` throws on null `PayloadJson` — **cheap-disproof 2026-09-10 seed hunt #1642:** null input returns null; regression `TryParsePayloadJson_returns_null_for_null_input`.
+- [x] (valid-no-repro) `MapLatestDisposition` returns invalid enum values when disposition row is present — **cheap-disproof 2026-09-10 seed hunt #1642:** unrecognized disposition strings parse to null; regression `MapLatestDisposition_returns_null_for_invalid_disposition_when_row_is_present`.
+- [x] (valid-no-repro) `ParseDisposition` / `ParseHumanReview` are case-sensitive for `RejectedAsNotApplicable` / `NotRequired` / `Approved` — **cheap-disproof 2026-09-10 seed hunt #1642:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseDisposition_parses_case_insensitive_rejected_as_not_applicable_value`, `ParseHumanReview_parses_case_insensitive_not_required_value`, and `ParseHumanReview_parses_case_insensitive_approved_value`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule and recommended-action subqueries omit `FindingRecordId` joins — **cheap-disproof 2026-09-10 seed hunt #1642:** both child tables join `dbo.FindingRecords` on `FindingRecordId`; regressions `FollowUpBatch_trace_rules_joins_finding_record_by_id` and `FollowUpBatch_recommended_actions_joins_finding_record_by_id`.
+- [x] (valid-no-repro) Disposition pointer subquery returns multiple rows without `TOP 1` — **cheap-disproof 2026-09-10 seed hunt #1642:** disposition subquery selects `TOP 1 e.Disposition`; regression `FollowUpBatch_disposition_subquery_uses_top_one`.
+- [x] (valid-no-repro) `MainInspect*` queries a view instead of `dbo.FindingRecords` — **cheap-disproof 2026-09-10 seed hunt #1642:** both main inspect queries read `FROM dbo.FindingRecords fr`; regression `MainInspect_queries_finding_records_table`.
+- [x] (valid-no-repro) `FollowUpBatch` related-node subquery omits `fr.FindingId` filter — **cheap-disproof 2026-09-10 seed hunt #1642:** related-node batch binds `fr.FindingId = @FindingId`; regression `FollowUpBatch_related_nodes_filters_by_finding_id`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule subquery omits `FindingsSnapshots` join and can pair another run's rule text — **cheap-disproof 2026-09-10 seed hunt #1642:** trace-rule batch joins snapshot before run scoping; regression `FollowUpBatch_trace_rules_joins_findings_snapshot`.
+
+2026-09-10 seed hunt #1642 (seed-only): reseeded finding-inspect-sql after #1641; cheap-disproof closed typed-payload include routing, null payload parse guard, invalid disposition mapping, remaining case-insensitive enum parsing, follow-up FindingRecordId joins, disposition TOP 1, FindingRecords source table, related-node finding-id filter, and trace-rule snapshot join; 162 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `FilterNonBlankTrimmedStrings` reorders related-node excerpts alphabetically — **cheap-disproof 2026-09-10 seed hunt #1643:** filter preserves source order; regression `FilterNonBlankTrimmedStrings_preserves_input_order`.
+- [x] (valid-no-repro) `BuildInspectResponse` drops evidence and recommended actions lists — **cheap-disproof 2026-09-10 seed hunt #1643:** response builder passes collections through unchanged; regression `BuildInspectResponse_preserves_evidence_and_recommended_actions`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspectRead` builds metadata when typed payload is included but `PayloadJson` is null — **cheap-disproof 2026-09-10 seed hunt #1643:** include-typed path with absent payload/metadata returns null; regression `ResolveTypedPayloadForInspectRead_returns_null_when_payload_and_metadata_are_absent`.
+- [x] (valid-no-repro) `TryParsePayloadJson` treats empty string as valid empty JSON object — **cheap-disproof 2026-09-10 seed hunt #1643:** empty string is treated as missing payload; regression `TryParsePayloadJson_returns_null_for_empty_string`.
+- [x] (valid-no-repro) `ParseHumanReview` / `TryParseEvaluationConfidenceLevel` are case-sensitive for `Rejected` / `Overridden` / `High` — **cheap-disproof 2026-09-10 seed hunt #1643:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseHumanReview_parses_case_insensitive_rejected_value`, `ParseHumanReview_parses_case_insensitive_overridden_value`, and `TryParseEvaluationConfidenceLevel_parses_case_insensitive_high_value`.
+- [x] (valid-no-repro) `FollowUpBatch` recommended-action and related-node subqueries omit `FindingsSnapshots` join — **cheap-disproof 2026-09-10 seed hunt #1643:** both batches join snapshot before run scoping; regressions `FollowUpBatch_recommended_actions_joins_findings_snapshot` and `FollowUpBatch_related_nodes_joins_findings_snapshot`.
+- [x] (valid-no-repro) `FollowUpBatch` related-node subquery omits `Runs` join and can surface another snapshot's nodes — **cheap-disproof 2026-09-10 seed hunt #1643:** related-node batch joins `dbo.Runs r`; regression `FollowUpBatch_related_nodes_joins_runs_table`.
+- [x] (valid-no-repro) `MainInspect*` omits `Runs` inner join and can return orphan finding rows — **cheap-disproof 2026-09-10 seed hunt #1643:** both main inspect queries inner join runs through snapshots; regression `MainInspect_inner_joins_runs_table`.
+
+2026-09-10 seed hunt #1643 (seed-only): reseeded finding-inspect-sql after #1642; cheap-disproof closed evidence ordering, response collection passthrough, absent typed-payload routing, empty-string payload guard, remaining case-insensitive enum parsing, follow-up snapshot joins, related-node run join, and main inspect run join; 173 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `BuildInspectResponse` drops run structural execution mode fields — **cheap-disproof 2026-09-10 seed hunt #1644:** response builder passes through `RunStructuralExecutionMode` and `RunRealModeFellBackToSimulator`; regression `BuildInspectResponse_preserves_run_structural_execution_mode_fields`.
+- [x] (valid-no-repro) `includeTypedPayload=false` still builds metadata typed payload when title/rationale are whitespace-only — **cheap-disproof 2026-09-10 seed hunt #1644:** metadata-only path with blank fields returns null; regression `ResolveTypedPayloadForInspectRead_metadata_only_returns_null_when_metadata_is_blank`.
+- [x] (valid-no-repro) `MapLatestDisposition` returns whitespace disposition values when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1644:** whitespace disposition strings parse to null; regression `MapLatestDisposition_returns_null_when_disposition_raw_is_whitespace_with_row_present`.
+- [x] (valid-no-repro) `HasActiveWaiver` is true for zero or negative waiver counts — **cheap-disproof 2026-09-10 seed hunt #1644:** non-positive counts return false; regression `HasActiveWaiver_returns_false_for_non_positive_counts`.
+- [x] (valid-no-repro) `ParseFindingSeverity` is case-sensitive for `Critical` — **cheap-disproof 2026-09-10 seed hunt #1644:** mapper trims and uses `Enum.TryParse(..., ignoreCase: true)`; regression `ParseFindingSeverity_parses_case_insensitive_critical_value`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule and recommended-action subqueries omit `Runs` join — **cheap-disproof 2026-09-10 seed hunt #1644:** both batches join `dbo.Runs r`; regressions `FollowUpBatch_trace_rules_joins_runs_table` and `FollowUpBatch_recommended_actions_joins_runs_table`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule and recommended-action subqueries omit `r.ScopeProjectId` filter — **cheap-disproof 2026-09-10 seed hunt #1644:** both batches bind `r.ScopeProjectId = @ScopeProjectId`; regressions `FollowUpBatch_trace_rules_scopes_run_to_scope_project_id` and `FollowUpBatch_recommended_actions_scopes_run_to_scope_project_id`.
+- [x] (valid-no-repro) Audit-event lookup joins `FindingRecords` and can return another finding's commit row — **cheap-disproof 2026-09-10 seed hunt #1644:** audit subquery is run-scoped only; regression `FollowUpBatch_audit_event_scoped_by_run_without_finding_records_join`.
+
+2026-09-10 seed hunt #1644 (seed-only): reseeded finding-inspect-sql after #1643; cheap-disproof closed structural execution mode passthrough, blank metadata-only payload, whitespace disposition mapping, non-positive waiver counts, critical severity parsing, follow-up run joins/scoping, and run-only audit lookup; 183 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `BuildEvidenceFromRelatedNodes` populates `ArtifactId` / `LineRange` from related-node ids — **cheap-disproof 2026-09-10 seed hunt #1645:** inspect evidence excerpts are node labels only; helper always sets both fields null; regression `BuildEvidenceFromRelatedNodes_sets_null_artifact_and_line_range_with_trimmed_excerpt`.
+- [x] (valid-no-repro) `LoadDispositionJoinAsync` filters whitespace related nodes before `MapInspectResponse` — **cheap-disproof 2026-09-10 seed hunt #1645:** SQL batch returns raw `NodeId` rows; whitespace filtering happens in `BuildEvidenceFromRelatedNodes` during map; regression `BuildEvidenceFromRelatedNodes_drops_whitespace_related_nodes`.
+- [x] (valid-no-repro) `BuildEvidenceFromRelatedNodes` reorders related-node excerpts alphabetically — **cheap-disproof 2026-09-10 seed hunt #1645:** helper preserves source order after trim filter; regression `BuildEvidenceFromRelatedNodes_preserves_related_node_order`.
+- [x] (valid-no-repro) `BuildInspectResponse` drops governance/disposition passthrough fields (`HasActiveWaiver`, `LatestDispositionOccurredAtUtc`, assignment/remediation/mute) — **cheap-disproof 2026-09-10 seed hunt #1645:** response builder copies governance fields through unchanged; regression `BuildInspectResponse_preserves_governance_and_disposition_fields`.
+- [x] (valid-no-repro) `GetInspectAsync` accepts null scope or whitespace-only `findingId` — **cheap-disproof 2026-09-10 seed hunt #1645:** repository validates inputs before query; regressions `GetInspectAsync_throws_when_scope_is_null` and `GetInspectAsync_throws_when_finding_id_is_whitespace`.
+
+2026-09-10 seed hunt #1645 (seed-only): reseeded finding-inspect-sql after #1644; extracted shared related-node evidence builder; cheap-disproof closed evidence artifact/line-range contract, load-vs-map whitespace filtering, evidence ordering, governance field passthrough, and inspect input validation; 189 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `GetInspectAsync` defaults `includeTypedPayload` to false when `options` is null — **cheap-disproof 2026-09-10 seed hunt #1646:** `ResolveIncludeTypedPayload` defaults null options to true; regressions `ResolveIncludeTypedPayload_defaults_true_when_options_are_null` and `ResolveIncludeTypedPayload_honors_metadata_only_options`.
+- [x] (valid-no-repro) `LoadMainRowAsync` / `LoadDispositionJoinAsync` pass padded `findingId` values to SQL without trimming — **cheap-disproof 2026-09-10 seed hunt #1646:** both paths bind `NormalizeFindingId(findingId)`; regression `NormalizeFindingId_trims_surrounding_whitespace`.
+- [x] (valid-no-repro) Corrupt `PayloadJson` with title-only metadata falls back to null typed payload — **cheap-disproof 2026-09-10 seed hunt #1646:** corrupt non-empty payload still builds slim metadata when title is present; regression `ResolveTypedPayloadForInspect_falls_back_to_title_only_metadata_when_payload_is_corrupt`.
+- [x] (valid-no-repro) `BuildEvidenceFromRelatedNodes` returns a placeholder evidence row when all related nodes are blank — **cheap-disproof 2026-09-10 seed hunt #1646:** all-blank input yields empty evidence list; regression `BuildEvidenceFromRelatedNodes_returns_empty_when_all_nodes_are_blank`.
+- [x] (valid-no-repro) Disposition pointer subquery omits `c.FindingId = @FindingId` in the WHERE clause — **cheap-disproof 2026-09-10 seed hunt #1646:** pointer lookup filters by scoped finding id; regression `FollowUpBatch_disposition_pointer_where_clause_filters_by_scoped_finding_id`.
+- [x] (valid-no-repro) `GetInspectAsync` accepts empty-string `findingId` — **cheap-disproof 2026-09-10 seed hunt #1646:** whitespace guard rejects empty input; regression `GetInspectAsync_throws_when_finding_id_is_empty`.
+
+2026-09-10 seed hunt #1646 (seed-only): reseeded finding-inspect-sql after #1645; extracted includeTypedPayload and finding-id normalization helpers; cheap-disproof closed default typed-payload routing, SQL finding-id trim binding, title-only corrupt-payload fallback, blank evidence handling, disposition pointer finding-id filter, and empty finding-id validation; 196 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `LoadMainRowAsync` uses metadata-only SQL when `includeTypedPayload` is true — **cheap-disproof 2026-09-10 seed hunt #1647:** `ResolveMainInspectSql` routes to `MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload`; regression `ResolveMainInspectSql_routes_to_payload_and_metadata_only_queries`.
+- [x] (valid-no-repro) `MapInspectResponse` parses disposition pointer fields when pointer row is absent — **cheap-disproof 2026-09-10 seed hunt #1647:** `MapDispositionPointerProjection` returns null defaults without a row; regression `MapDispositionPointerProjection_returns_defaults_when_pointer_row_is_absent`.
+- [x] (valid-no-repro) `MapInspectResponse` omits `LatestDispositionEventId` / row-version / reviewer / revisit fields when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1647:** projection maps all pointer metadata; regression `MapDispositionPointerProjection_maps_pointer_metadata_when_row_is_present`.
+- [x] (valid-no-repro) Corrupt `PayloadJson` with rationale-only metadata falls back to null typed payload — **cheap-disproof 2026-09-10 seed hunt #1647:** corrupt non-empty payload still builds slim metadata when rationale is present; regression `ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_payload_is_corrupt`.
+
+2026-09-10 seed hunt #1647 (seed-only): reseeded finding-inspect-sql after #1646; extracted main-inspect SQL routing and disposition pointer projection; cheap-disproof closed typed-payload SQL selection, absent/present pointer metadata mapping, and rationale-only corrupt-payload fallback; 200 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `LoadDispositionJoinAsync` returns whitespace-only recommended actions — **cheap-disproof 2026-09-10 seed hunt #1648:** follow-up batch filters through `FilterRecommendedActions`; regression `FilterRecommendedActions_drops_whitespace_entries_and_trims_survivors`.
+- [x] (valid-no-repro) `TryParsePayloadJson` throws on valid JSON object payloads — **cheap-disproof 2026-09-10 seed hunt #1648:** valid JSON deserializes to `JsonElement`; regression `TryParsePayloadJson_returns_deserialized_object_for_valid_json`.
+- [x] (valid-no-repro) `includeTypedPayload=false` still attempts corrupt `PayloadJson` metadata fallback — **cheap-disproof 2026-09-10 seed hunt #1648:** metadata-only path ignores relational payload and uses title/rationale; regression `ResolveTypedPayloadForInspectRead_metadata_only_ignores_corrupt_payload_json`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` surfaces invalid disposition enums when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1648:** invalid raw strings parse to null disposition while other pointer metadata survives; regression `MapDispositionPointerProjection_returns_null_disposition_for_invalid_raw_when_row_present`.
+- [x] (valid-no-repro) `BuildInspectResponse` drops model/confidence/reasoning passthrough fields — **cheap-disproof 2026-09-10 seed hunt #1648:** response builder copies manifest/model/confidence/reasoning fields through unchanged; extended regression `BuildInspectResponse_preserves_governance_and_disposition_fields`.
+- [x] (valid-no-repro) `MainInspect*` omits tenant/workspace predicates on the `Runs` join — **cheap-disproof 2026-09-10 seed hunt #1648:** both main inspect queries bind `r.TenantId` / `r.WorkspaceId`; regression `MainInspect_scopes_runs_table_to_tenant_and_workspace`.
+
+2026-09-10 seed hunt #1648 (seed-only): reseeded finding-inspect-sql after #1647; extracted recommended-action filter helper; cheap-disproof closed action whitespace filtering, valid payload parse guard, metadata-only corrupt-payload routing, invalid disposition pointer mapping, model/confidence passthrough, and runs-table tenant scoping; 205 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MapInspectResponse` leaves `DecisionRuleName` null when `ruleName` is absent even if `ruleId` exists — **cheap-disproof 2026-09-10 seed hunt #1649:** `ResolveDecisionRuleName` falls back to `ruleId`; regression `ResolveDecisionRuleName_falls_back_to_rule_id_when_name_is_null`.
+- [x] (valid-no-repro) `BuildInspectResponse` / `MapInspectResponse` emit empty-string decision rule fields when both sources are absent — **cheap-disproof 2026-09-10 seed hunt #1649:** null rule sources stay null; regressions `ResolveDecisionRuleName_returns_null_when_both_rule_fields_are_null` and `BuildInspectResponse_sets_null_decision_rule_fields_when_both_sources_missing`.
+- [x] (valid-no-repro) `TryParsePayloadJson` rejects JSON array roots — **cheap-disproof 2026-09-10 seed hunt #1649:** array roots deserialize to `JsonValueKind.Array`; regression `TryParsePayloadJson_returns_deserialized_array_for_valid_json_array`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` encodes empty base64 when `RowVersionStamp` is null — **cheap-disproof 2026-09-10 seed hunt #1649:** missing stamp bytes return null base64; regression `MapDispositionPointerProjection_maps_null_row_version_when_stamp_missing`.
+- [x] (valid-no-repro) `FilterRecommendedActions` returns a placeholder action when all action text is blank — **cheap-disproof 2026-09-10 seed hunt #1649:** all-blank input yields empty list; regression `FilterRecommendedActions_returns_empty_when_all_actions_are_blank`.
+- [x] (valid-no-repro) `ToUtcDateTimeOffset` preserves local offset from `DateTimeKind.Local` SQL timestamps — **cheap-disproof 2026-09-10 seed hunt #1649:** helper labels database timestamps as UTC without shifting clock values; regression `ToUtcDateTimeOffset_converts_local_kind_timestamps_to_utc_offset`.
+- [x] (valid-no-repro) Disposition pointer subquery omits `e.Disposition` / `e.OccurredAtUtc` / `e.RevisitDueUtc` projections — **cheap-disproof 2026-09-10 seed hunt #1649:** disposition batch selects pointer columns; regression `FollowUpBatch_disposition_subquery_selects_disposition_column`.
+
+2026-09-10 seed hunt #1649 (seed-only): reseeded finding-inspect-sql after #1648; extracted decision-rule name fallback helper; cheap-disproof closed rule-name fallback, absent rule fields, JSON array parse guard, null row-version mapping, blank recommended actions, local timestamp labeling, and disposition column projections; 213 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ResolveDecisionRuleName` overwrites explicit `ruleName` with `ruleId` when both are present — **cheap-disproof 2026-09-10 seed hunt #1650:** helper prefers `ruleName`; regression `ResolveDecisionRuleName_prefers_rule_name_when_both_fields_are_present`.
+- [x] (valid-no-repro) `LoadDispositionJoinAsync` passes whitespace-only `FirstRuleText` through without trimming — **cheap-disproof 2026-09-10 seed hunt #1650:** trace fallback trims and aligns id/name via `ResolveTraceRuleFields`; regressions `ResolveTraceRuleFields_trims_trace_text_and_aligns_rule_id_and_name` and `ResolveTraceRuleFields_returns_nulls_for_whitespace_only_trace_text`.
+- [x] (valid-no-repro) `TryParsePayloadJson` rejects boolean/string/number JSON primitives — **cheap-disproof 2026-09-10 seed hunt #1650:** primitives deserialize to `JsonElement`; regressions `TryParsePayloadJson_returns_deserialized_boolean_for_valid_json_true`, `TryParsePayloadJson_returns_deserialized_string_for_valid_json_string`, and `TryParsePayloadJson_returns_deserialized_number_for_valid_json_number`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` substitutes a placeholder reviewer id when SQL returns null — **cheap-disproof 2026-09-10 seed hunt #1650:** null reviewer user id passes through unchanged; regression `MapDispositionPointerProjection_preserves_null_reviewer_user_id_when_pointer_row_exists`.
+- [x] (valid-no-repro) `BuildInspectResponse` drops `FindingId` / `Severity` / `TypedPayload` passthrough — **cheap-disproof 2026-09-10 seed hunt #1650:** response builder copies core identity fields through unchanged; regression `BuildInspectResponse_preserves_finding_id_severity_and_typed_payload`.
+- [x] (valid-no-repro) Corrupt `PayloadJson` with both title and rationale present still returns null typed payload — **cheap-disproof 2026-09-10 seed hunt #1650:** corrupt non-empty payload builds full slim metadata object; regression `ResolveTypedPayloadForInspect_builds_full_metadata_when_corrupt_payload_and_both_fields_present`.
+
+2026-09-10 seed hunt #1650 (seed-only): reseeded finding-inspect-sql after #1649; extracted trace-rule fallback helper; cheap-disproof closed decision-rule name preference, trace-text trim fallback, JSON primitive parse guards, null reviewer passthrough, core identity passthrough, and dual-field corrupt-payload metadata; 222 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
@@ -1430,7 +1644,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 7
+- **hunts:** 8
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1473,6 +1687,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Constructor accepts null `IScanScheduleCalculator` — **cheap-disproof 2026-09-10 seed hunt #1586:** `ArgumentNullException` on null dependency; regression `Constructor_throws_when_schedule_calculator_is_null`.
 
 2026-09-10 seed hunt #1586 (seed-only): reseeded review-recurrence after #1567; cheap-disproof closed empty/whitespace batch cron, Local reference normalization in batch path, duplicate-instant loop, and null-constructor guard; 30 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
+
+- [x] (valid-no-repro) `IsSupportedCronExpression` — null cron may throw instead of rejecting — **cheap-disproof 2026-09-10 seed hunt #1628:** delegates to `SimpleScanScheduleCalculator` `IsNullOrWhiteSpace`; regression `IsSupportedCronExpression_rejects_null_cron`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — null cron still invokes underlying calculator — **cheap-disproof 2026-09-10 seed hunt #1628:** first loop iteration returns null; regression `ComputeNextRunsUtc_returns_empty_for_null_cron_expression`.
+- [x] (valid-no-repro) `ComputeNextRunUtc` — disabled schedule still invokes underlying calculator for valid cron — **cheap-disproof 2026-09-10 seed hunt #1628:** `isScheduleEnabled: false` short-circuits before delegate; regression `ComputeNextRunUtc_when_schedule_disabled_does_not_invoke_underlying_calculator`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `count == 1` batch preview diverges from single `ComputeNextRunUtc` — **cheap-disproof 2026-09-10 seed hunt #1628:** batch delegates to single-run path; regression `ComputeNextRunsUtc_with_count_one_matches_single_compute_next_run`.
+- [x] (valid-no-repro) `NormalizeNextRunUtc` — underlying needs two advances before clearing `fromUtc` still returns next run — **cheap-disproof 2026-09-10 seed hunt #1628:** wrapper performs one retry then null; `SimpleScanScheduleCalculator` never needs a second skip; regression `ComputeNextRunUtc_returns_null_when_underlying_needs_more_than_one_advance_past_reference`.
+- [x] (valid-no-repro) `ComputeNextRunsUtc` — `@hourly` alias batch with `count > 1` emits non-monotonic instants — **cheap-disproof 2026-09-10 seed hunt #1628:** cursor advances one hour per iteration; regression `ComputeNextRunsUtc_hourly_alias_batch_stays_strictly_increasing`.
+
+- [ ] (candidate) `NormalizeNextRunUtc` — single-retry ceiling returns null when a custom `IScanScheduleCalculator` would need two advances before `candidate > fromUtc` (reachability: only stub calculators; production `SimpleScanScheduleCalculator` + Cronos never exhibit)
+
+2026-09-10 seed hunt #1628 (seed-only): reseeded review-recurrence after #1586; cheap-disproof closed null-cron support, disabled short-circuit, batch/single parity, single-retry ceiling, and hourly batch monotonicity; 36 scoped `ArchitectureReviewRecurrenceNextRunCalculatorTests` passed.
 
 ---
 
@@ -1919,7 +2144,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1955,6 +2180,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Active text filter leaves the filter status line at the unfiltered page count — **cheap-disproof 2026-09-10 seed hunt #1590:** `runsListPageFilterStatusLine` shows narrowed counts; regression `updates the filter status line when the text filter narrows the page`.
 
 2026-09-10 seed hunt #1590 (seed-only): reseeded ui-runs-list after #1585; cheap-disproof closed orphan-candidates banner, empty-filter table message, sort href, pagination Next link, and filter status line; 30 scoped `RunsListClient` tests passed.
+
+- [x] (valid-no-repro) Buyer `scope=in_flight` deep link still renders finalized package rows — **cheap-disproof 2026-09-10 seed hunt #1631:** `useRunsList` filters `hasGoldenManifest !== true` when scope is `in_flight`; regression `buyer-polished: in_flight scope hides finalized package rows`.
+- [x] (valid-no-repro) Client text filter stays local and never syncs to `q=` — **cheap-disproof 2026-09-10 seed hunt #1631:** debounced `runsListSearchHrefFromSearch` writes `q=` via `router.replace`; regression `debounces text filter into the q= URL search param`.
+- [x] (valid-no-repro) Selecting a third compare checkbox drops the oldest id without surfacing replacement copy — **cheap-disproof 2026-09-10 seed hunt #1631:** `toggleCompareSelection` sets `compareSelectionNotice` and rotates to the newest pair; regression `shows a replacement notice when a third compare checkbox is selected`.
+- [x] (valid-no-repro) Active text filter leaves buyer package cards mounted instead of the work-queue table — **cheap-disproof 2026-09-10 seed hunt #1631:** `listNarrowingActive` clears `showBuyerPackageCards`; regression `buyer-polished: active text filter switches from card layout to the work-queue table`.
+- [x] (valid-no-repro) `inspectorRunId` deep link for a run not on the page opens a stale inspector — **cheap-disproof 2026-09-10 seed hunt #1631:** url-driven selection resolves from `safeRuns` only; regression `keeps the inspector empty when inspectorRunId does not match a row on the page`.
+
+2026-09-10 seed hunt #1631 (seed-only): reseeded ui-runs-list after #1590; cheap-disproof closed in_flight scope filtering, q= debounce sync, compare replacement notice, card-to-table narrowing, and invalid inspectorRunId deep link; 34 scoped `RunsListClient` tests passed.
 
 2026-09-10 thorough hunt #1580 (hit): proved stale compareRuns persistence under buyer package cards; 20 scoped `RunsListClient` tests passed.
 
@@ -2011,7 +2244,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -2053,6 +2286,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Search input changes do not debounce `router.replace` for `?q=` — **cheap-disproof 2026-09-10 seed hunt #1589:** 250ms timeout writes `helpHubSearchHrefFromSearch`; regression `debounces router replace when the search query changes`.
 
 2026-09-10 seed hunt #1589 (seed-only): reseeded ui-help-docs after #1474; cheap-disproof closed external-link safety, fetch-failure/pending static fallback, Escape clear, URL init, and debounced search sync; 15 scoped `HelpDocsClient` tests passed.
+
+- [x] (valid-no-repro) Help hub search is case-sensitive and misses uppercase queries — **cheap-disproof 2026-09-10 seed hunt #1632:** filter lowercases query and haystack; regression `filters documentation entries case-insensitively`.
+- [x] (valid-no-repro) Whitespace-only search input hides all rows — **cheap-disproof 2026-09-10 seed hunt #1632:** `query.trim().length === 0` returns full `mergedEntries`; regression `treats whitespace-only search input as no active filter`.
+- [x] (valid-no-repro) Internal `/help/` and operator routes open in a new tab — **cheap-disproof 2026-09-10 seed hunt #1632:** `linkProps` only sets `target="_blank"` for `https?://`; regression `keeps internal documentation links in the same tab`.
+- [x] (valid-no-repro) Doc-index fetch failure leaves the refreshing status line visible — **cheap-disproof 2026-09-10 seed hunt #1632:** `entries` resolves to static merge when fetch errors; regression `dismisses the refreshing status after the doc-index fetch fails`.
+- [x] (valid-no-repro) Unknown doc-index categories render before fixed `CATEGORY_ORDER` sections — **cheap-disproof 2026-09-10 seed hunt #1632:** `helpDocCategoriesForDisplay` appends sorted extras after `CATEGORY_ORDER`; regression `renders unknown categories after the fixed CATEGORY_ORDER sections`.
+- [x] (valid-no-repro) Escape on an empty search box clears the URL — **cheap-disproof 2026-09-10 seed hunt #1632:** Escape handler requires `query.trim().length > 0`; regression `does not clear the URL when Escape is pressed on an empty search box`.
+
+2026-09-10 seed hunt #1632 (seed-only): reseeded ui-help-docs after #1589; cheap-disproof closed case sensitivity, whitespace filter, internal link target, post-error refresh status, unknown category ordering, and empty Escape URL clear; 21 scoped `HelpDocsClient` tests passed.
 
 ## Zone: ui-webhooks-settings
 
@@ -3052,10 +3294,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 8
+- **hunts:** 9
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-04
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-04 — confidence enrichment ignored recorded composite quality-gate rejection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3078,6 +3320,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ComputeQualityGateAcceptedForConfidenceAsync` ignored `RecordedQualityGateOutcome` / `QualityRejected` on traces — **hit 2026-09-04 (#668):** heuristic-only re-evaluation could set `schemaPassed=true` after composite recorder rejected the same trace (e.g. PilotStrict semantic floor); fixed with fail-closed recorded-outcome short-circuit aligned to `RealCommitAgentOutputQualityGateEvaluator`; regression in `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_recorded_quality_gate_rejected`.
 
 2026-09-04 thorough hunt #668: proved confidence enrichment recorded-gate parity gap; cheap-disproved heuristic-only vs composite candidate.
+
+- [x] (valid-no-repro) `ComputeQualityGateAcceptedForConfidenceAsync` — `QualityRejected=true` without `RecordedQualityGateOutcome` may re-accept via heuristic re-evaluation — **cheap-disproof 2026-09-10 seed hunt #1629:** fail-closed short-circuit before `TryEvaluateTraceAsync`; regression `ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_quality_rejected_flag_set`.
+- [x] (valid-no-repro) `ComputeQualityGateAcceptedForConfidenceAsync` — `Warned` gate outcome treated as confidence rejection — **cheap-disproof 2026-09-10 seed hunt #1629:** only `Rejected` blocks `schemaPassed`; regression `ComputeQualityGateAcceptedForConfidenceAsync_returns_true_when_gate_outcome_is_warned`.
+- [x] (valid-no-repro) `AgentEvaluationConfidencePipeline.TraceIdsLikelyMatch` — 32-character prefix match may bind unrelated finding trace keys — **cheap-disproof 2026-09-10 seed hunt #1629:** prefix compare is intentional for truncated persisted ids; regressions `TraceIdsLikelyMatch_returns_true_for_matching_32_character_prefix`, `ResolveTraceForSnapshotFinding_uses_prefix_trace_id_match_before_engine_type_fallback`.
+- [x] (valid-no-repro) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — disabled gate or empty traces still evaluate traces — **cheap-disproof 2026-09-10 seed hunt #1629:** early return when gate disabled or `traces.Count == 0`; regressions `WouldPilotStrictBlockSponsorEvidenceAsync_returns_false_when_gate_disabled`, `WouldPilotStrictBlockSponsorEvidenceAsync_returns_false_for_empty_traces`.
+- [x] (valid-no-repro) `RunAgentOutputPilotEvidenceAggregator` — run-level `PilotStrictMinFaithfulnessSupportRatio` ignored after per-trace pass — **cheap-disproof 2026-09-10 seed hunt #1629:** post-loop summary floor blocks sponsor evidence; regression `WouldPilotStrictBlockSponsorEvidenceAsync_blocks_on_explanation_summary_faithfulness_floor`.
+
+- [ ] (candidate) `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` — `Warned` latest-per-task traces may block sponsor evidence like `Rejected` (reachability: code checks only `GateOutcome.Rejected` at line 116)
+- [ ] (candidate) `AgentEvaluationConfidencePipeline.TraceIdsLikelyMatch` — unrelated trace ids sharing the first 32 characters may bind the wrong finding to a superseded trace (reachability: needs colliding persisted/finding trace id prefixes in production data)
+
+2026-09-10 seed hunt #1629 (seed-only): reseeded agent-runtime-evaluation after #668; cheap-disproof closed QualityRejected short-circuit, Warned confidence policy, trace-id prefix resolution, sponsor gate early exits, and explanation-summary faithfulness floor; 181 scoped `Evaluation` tests passed.
 
 ---
 
@@ -8509,10 +8762,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** private network guard; SSRF; split from archlucid-core
 - **paths:** ArchLucid.Core/Safety/; ArchLucid.Core/Http/
 - **test-filter:** FullyQualifiedName~PrivateNetwork
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-09-07
+- **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-07 — alert-routing webhook destinations skipped post-DNS private-network guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8524,6 +8777,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (proven) `AlertRoutingWebhookDestinationPolicy` — sync-only literal guard omits `OutboundHttpsUrlDnsResolutionGuard` on subscription create — **hit 2026-09-07 (#1215):** `DigestSubscriptionFacade.Create` and `AlertRoutingSubscriptionsController.Create` accepted public hostnames without DNS re-validation; hostname rebinding could reach private networks at delivery; fixed with `TryGetRejectionReasonAfterDnsResolveAsync` parity to webhook probe policy (`TryGetRejectionReasonAfterDnsResolveAsync_WhenHostnameDoesNotResolve_RewritesUrlPrefixToWebhookUrl`)
 - [x] (valid-no-repro) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — non-dotted IPv4 encodings (octal/hex) may bypass literal guard when `IPAddress.TryParse` rejects host token — **2026-09-07 (#1216):** .NET `IPAddress.TryParse` accepts octal/hex/shorthand private forms (`0177.0.0.1`, `0x7f000001`, `127.1`, `192.168.001.001`); octal `010.*` correctly maps to public `8.0.0.1` and stays allowed (`PrivateNetworkAddressGuardEncodingTests`)
 - [x] (invalid) `IContentSafetyGuard` — Safety zone has interface-only surface; outbound URL SSRF guards live under `ArchLucid.Core/Security/` — **2026-09-07 (#1216):** not a defect row; document URL / webhook / export / alert-routing policies already expose `TryGetRejectionReasonAfterDnsResolveAsync` and orchestrators wire post-DNS checks (see `ArchitectureRunCreateOrchestrator`, `FluentArchitectureRequestImportValidator`)
+- [x] (valid-no-repro) `PrivateNetworkAddressGuard` — RFC6598 CGNAT `100.64.0.0/10` and RFC2544 benchmark `198.18.0.0/15` may bypass literal guard — **2026-09-10 seed hunt #1627:** TB-274 scope is RFC1918 / link-local / loopback / IPv6 ULA only; `100.64.0.1` and `198.18.0.1` stay allowed (`IsForbiddenHostLiteral_allows_out_of_scope_shared_and_benchmark_ipv4`)
+- [x] (valid-no-repro) `PrivateNetworkAddressGuard.IsForbiddenHostLiteral` — unspecified `0.0.0.0` may be treated as public — **2026-09-10 seed hunt #1627:** `IPAddress.Any` is forbidden (`IsForbiddenHostLiteral_blocks_unspecified_ipv4_zero_address`)
+- [x] (valid-no-repro) `OutboundSocketsHttpHandlerSettings` — pool profiles may omit connect-time SSRF guard — **2026-09-10 seed hunt #1627:** profiles tune transport only; `ConnectCallback` stays null (`Apply_does_not_configure_connect_callback`)
+- [x] (valid-no-repro) `ConfigureArchLucidOutboundSocketsHandler` — default `rejectPrivateNetworkConnectEndpoints: false` leaves integration clients without connect callback — **2026-09-10 seed hunt #1627:** opt-in wires `OutboundHttpsConnectGuard.RejectPrivateNetworkAndConnectAsync`; webhook dry-run is the only integration client that enables it today (`ConfigureArchLucidOutboundSocketsHandler_opt_in_wires_private_network_connect_callback`)
+
+- [ ] (candidate) `ServiceCollectionExtensions.IntegrationsOutboundHttpClients` — Jira/ServiceNow/AzureBoards `ExternalIntegration` clients register without `rejectPrivateNetworkConnectEndpoints: true`; DNS rebinding between connector URL save and outbound delivery may bypass pre-save literal guard if Integrations layer lacks post-DNS policy parity
+- [ ] (candidate) `PrivateNetworkAddressGuard` — IANA reserved/documentation IPv4 (`192.0.0.0/24`, `192.0.2.0/24`) outside TB-274 RFC1918/link-local scope may be reachable when URL policies accept public hostnames that resolve there
+
+2026-09-10 seed hunt #1627 (seed-only): reseeded core-safety-network after #1216; cheap-disproof on CGNAT/benchmark out-of-scope ranges, `0.0.0.0` blocking, pool-only handler settings, and opt-in connect guard wiring; 28 scoped PrivateNetwork + 7 OutboundSockets tests passed.
 
 2026-09-07 seed hunt #1215 (hit): reseeded private-network/SSRF guard paths; proved alert-routing webhook destination policy lacked post-DNS resolution guard on create paths.
 2026-09-07 thorough hunt #1216 (dry): cheap-disproved octal/hex IPv4 bypass and Safety-interface DNS-parity meta hypothesis; added encoding regression tests.
@@ -11685,9 +11947,9 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence composition; host composition module
 - **paths:** ArchLucid.Host.Composition/Startup/Modules/InfraEvidenceCompositionModule.cs
 - **test-filter:** FullyQualifiedName~InfraEvidenceComposition
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 1
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-09-10
 - **last-bug:** 2026-09-07 — InMemory identity directory dropped upserted cloud resources so hub/explorer always 404
 - **related-pd-tb:** none
