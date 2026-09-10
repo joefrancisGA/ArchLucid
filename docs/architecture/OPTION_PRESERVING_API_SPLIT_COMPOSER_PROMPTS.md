@@ -11,6 +11,12 @@ Owner decision: two products may become two hosts and two catalogs **later**. Th
 
 Paste **one** `.cursor/prompts/option-preserving-api-NN-*.md` file per Composer session. **Do not implement from this document’s tables.**
 
+**Canonical contract (OP-01):** `docs/architecture/data/product-capability-map.json` — regenerate with `python3 scripts/ci/build_product_capability_map.py`; coverage enforced by `ProductCapabilityMapCoverageTests`.
+
+**Namespace ratchet (OP-02):** `docs/architecture/data/product-capability-namespace-allowlist.json` — refresh with `ARCHLUCID_REFRESH_CAPABILITY_ALLOWLIST=1 dotnet test ArchLucid.Architecture.Tests --filter Refresh_namespace_allowlist_snapshot` or `scripts/ci/refresh_product_capability_namespace_allowlist.sh`; enforced by `ProductCapabilityNamespaceRatchetTests`.
+
+**Product-line signal (OP-03):** `ProductLine:Deployment` (default `both`) plus optional `X-ArchLucid-Product-Line`; resolved by `IProductLineRequestAccessor`. SecureNow UI forwards the header on BFF proxy; OpenAPI documents it as optional on `/openapi/v1.json`.
+
 Related (do not mix into an OP session): Security **display name** SecureNow is **SN-01–SN-08**. UI shells are **PL-01–PL-04**. Help job-match is **SH-01–SH-26**.
 
 ## Diagnosis → prompt

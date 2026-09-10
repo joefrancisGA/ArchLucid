@@ -4,7 +4,9 @@ import { findingBulkDispositionBlockedReason } from "@/lib/governance/finding-bu
 import { findingDispositionMutationBlockedReason } from "@/lib/findings/finding-disposition-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { createGovernanceMutationIdempotencyKey } from "@/lib/governance/governance-mutation-idempotency-key";
-import { executeIdempotentLivelihoodMutation } from "@/lib/auth/livelihood-mutation-401-resume";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { apiPostJson } from "./http";
+
 import {
   type FindingDispositionEvent,
   type FindingDispositionKind,

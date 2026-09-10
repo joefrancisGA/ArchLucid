@@ -103,6 +103,7 @@ internal static class MvcExtensions
             options.AddSchemaTransformer<MicrosoftOpenApiRequiredRequestPropertiesSchemaTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiStandardProblemDetailsOperationTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiCareerArtifactExportOperationTransformer>();
+            options.AddOperationTransformer<MicrosoftOpenApiProductLineHeaderOperationTransformer>();
         });
         services.AddEndpointsApiExplorer();
         services.AddArchLucidSwagger();
