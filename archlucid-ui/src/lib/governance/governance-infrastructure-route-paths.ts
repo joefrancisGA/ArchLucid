@@ -6,6 +6,9 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH = "/governance/infrastructure/
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH = "/governance/infrastructure/diagrams";
 
+/** SecureNow shell — inventory diagrams (same page, Infrastructure URL namespace). */
+export const SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH = "/infrastructure/diagrams" as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH =
   "/governance/infrastructure/diagram-reconcile";
 
