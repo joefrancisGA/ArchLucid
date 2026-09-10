@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Ask;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Findings;
 using ArchLucid.AgentRuntime;
@@ -43,6 +44,8 @@ public sealed class AskService(
         "Be precise and technical. Reference decisions by Title and SelectedOption (and DecisionId when helpful). " +
         "Do not invent services, findings, artifacts, or costs not present in the supplied materials. " +
         "If something is unknown from the supplied data, say so. " +
+        "When you quote or rely on findings, inherit the weakest semantic support band among cited findings and do not sound more certain than that band (AS-069 / ADR 0085). " +
+        "Ask is advisory working context — not the sealed review record (TB-1003). " +
         "Prefer retrieved evidence when answering specifics that are not in the structured context. " +
         "Use prior conversation only when it helps interpret follow-up questions (e.g. \"that decision\", \"the storage choice\"). " +
         "When the answer is more than a brief sentence, structure the answer field as plain text: use section headers " +
@@ -56,6 +59,8 @@ public sealed class AskService(
         "You are an enterprise architect. Explain this specific architecture finding clearly: " +
         "why it matters, what evidence supports it, and what the smallest concrete fix is. " +
         "Use only the supplied finding data and conversation history. " +
+        "Inherit the finding's semantic support band and do not sound more certain than that band (AS-069 / ADR 0085). " +
+        "Ask is advisory working context — not the sealed review record (TB-1003). " +
         "Respond with a single JSON object only (no markdown fences), keys: " +
         "answer (string), referencedDecisions (array of strings), referencedFindings (array of strings), referencedArtifacts (array of strings).";
 
@@ -228,10 +233,14 @@ public sealed class AskService(
             _authorityQueryService,
             ct);
 
+        FindingSemanticSupportBand? semanticSupportBand =
+            AskCitedFindingsSemanticSupportBandHonesty.TryReadBandFromFindingInspect(finding);
+
         object findingContext = new
         {
             findingId = finding.FindingId,
             severity = finding.Severity.ToString(),
+            semanticSupportBand = semanticSupportBand?.ToString(),
             typedPayload = finding.TypedPayload,
             evidenceRefs = finding.Evidence.Select(e => e.Excerpt).Where(static e => !string.IsNullOrWhiteSpace(e)).ToArray(),
             recommendedActions = finding.RecommendedActions,
@@ -239,11 +248,19 @@ public sealed class AskService(
         };
 
         string contextJson = JsonSerializer.Serialize(findingContext, ContractJson.CamelCaseIgnoreNullCompact);
+        string semanticSupportConstraint = semanticSupportBand is null
+            ? string.Empty
+            : AskCitedFindingsSemanticSupportBandHonesty.BuildPromptConstraintSection(
+                [new AskCitedFindingsSemanticSupportBandHonesty.FindingBandIndexEntry(
+                    finding.FindingId,
+                    finding.FindingId,
+                    semanticSupportBand.Value)]);
         string userPrompt =
             "Conversation History:\n" +
             (string.IsNullOrWhiteSpace(historyText) ? "(none)\n" : historyText + "\n") +
             "\nFinding Context:\n" +
             contextJson +
+            (semanticSupportConstraint.Length > 0 ? "\n\n" + semanticSupportConstraint : string.Empty) +
             "\n\nUser Question:\n" +
             question;
 
@@ -299,5 +316,6 @@ public sealed class AskService(
             prepared.RetrievalContext,
             prepared.RetrievalDegraded,
             prepared.HistoryText,
-            prepared.Question);
+            prepared.Question,
+            prepared.FindingBandIndex);
 }
