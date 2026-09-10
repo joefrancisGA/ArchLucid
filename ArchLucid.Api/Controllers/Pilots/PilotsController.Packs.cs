@@ -261,6 +261,7 @@ public sealed partial class PilotsController
 
             return MapPilotPackSealedManifestConflict(new ConflictException(ex.Message, ex));
         }
+
         catch (ConflictException ex)
         {
             return MapPilotPackSealedManifestConflict(ex);

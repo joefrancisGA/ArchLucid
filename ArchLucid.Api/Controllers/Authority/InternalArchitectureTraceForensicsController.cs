@@ -66,39 +66,46 @@ public sealed partial class InternalArchitectureTraceForensicsController(
         if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        IActionResult? sealedGuardResult =
-            await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        if (!await RunExistsInScopeAsync(runId, cancellationToken))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        PagingParameters paging = new()
+        try
         {
-            PageNumber = pageNumber,
-            PageSize = pageSize
-        };
-        (int skip, int take) = paging.Normalize();
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
-        (IReadOnlyList<AgentExecutionTraceSummary> summaries, int totalCount) =
-            await agentExecutionTraceRepository.GetPagedSummariesByRunIdAsync(
-                scope,
-                runId,
-                skip,
-                take,
-                cancellationToken);
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken);
 
-        return Ok(new AgentExecutionTraceForensicsPageResponse
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            if (!await RunExistsInScopeAsync(runId, cancellationToken))
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            PagingParameters paging = new()
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+            (int skip, int take) = paging.Normalize();
+
+            (IReadOnlyList<AgentExecutionTraceSummary> summaries, int totalCount) =
+                await agentExecutionTraceRepository.GetPagedSummariesByRunIdAsync(
+                    scope,
+                    runId,
+                    skip,
+                    take,
+                    cancellationToken);
+
+            return Ok(new AgentExecutionTraceForensicsPageResponse
+            {
+                Traces = summaries.ToList(),
+                TotalCount = totalCount,
+                PageNumber = paging.PageNumber,
+                PageSize = paging.PageSize
+            });
+        }
+        catch (ConflictException ex)
         {
-            Traces = summaries.ToList(),
-            TotalCount = totalCount,
-            PageNumber = paging.PageNumber,
-            PageSize = paging.PageSize
-        });
+            return MapTraceForensicsSealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
@@ -124,18 +131,25 @@ public sealed partial class InternalArchitectureTraceForensicsController(
         if (!await RunExistsInScopeAsync(trace.RunId, cancellationToken))
             return this.NotFoundProblem($"Trace '{traceId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        if (!TryParseRunId(trace.RunId, out Guid runGuid))
+        try
+        {
+            if (!TryParseRunId(trace.RunId, out Guid runGuid))
+                return Ok(trace);
+
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             return Ok(trace);
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        IActionResult? sealedGuardResult =
-            await EnsureSealedManifestReadAllowedAsync(scope, runGuid, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
-        return Ok(trace);
+        }
+        catch (ConflictException ex)
+        {
+            return MapTraceForensicsSealedManifestConflict(ex);
+        }
     }
 
     private async Task<bool> RunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
