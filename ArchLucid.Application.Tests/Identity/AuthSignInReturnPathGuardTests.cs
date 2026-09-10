@@ -146,4 +146,16 @@ public sealed class AuthSignInReturnPathGuardTests
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().Be(path);
     }
+
+    [Theory]
+    [InlineData("/\u2216\u2216evil.example")]
+    [InlineData("/%E2%88%96%E2%88%96evil.example")]
+    [InlineData("/\u29F7\u29F7evil.example")]
+    [InlineData("/%E2%A7%B7%E2%A7%B7evil.example")]
+    [InlineData("/\u2AFD\u2AFDevil.example")]
+    [InlineData("/%E2%AB%BD%E2%AB%BDevil.example")]
+    public void TryNormalize_rejects_more_unicode_slash_homoglyph_protocol_relative_paths(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
 }

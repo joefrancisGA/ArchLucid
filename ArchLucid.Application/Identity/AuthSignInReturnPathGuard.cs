@@ -229,11 +229,14 @@ public static class AuthSignInReturnPathGuard
         ch == '\uFF0F' // ／ FULLWIDTH SOLIDUS
         || ch == '\uFF3C' // ＼ FULLWIDTH REVERSE SOLIDUS
         || ch == '\u2215' // ∕ DIVISION SLASH
+        || ch == '\u2216' // ∖ SET MINUS
         || ch == '\u2044' // ⁄ FRACTION SLASH
         || ch == '\uFE68' // ﹨ SMALL REVERSE SOLIDUS
         || ch == '\u2571' // ╱ BOX DRAWINGS LIGHT DIAGONAL UPPER RIGHT TO LOWER LEFT
         || ch == '\u29F6' // ⧶ SOLIDUS WITH OVERLAY
-        || ch == '\u29F8'; // ⧸ BIG SOLIDUS
+        || ch == '\u29F7' // ⧷ REVERSE SOLIDUS WITH TICK
+        || ch == '\u29F8' // ⧸ BIG SOLIDUS
+        || ch == '\u2AFD'; // ⫽ DOUBLE SOLIDUS OPERATOR
 
     // Browsers may normalize these to "." and treat homoglyph ".." segments like parent traversal.
     private static bool IsDotHomoglyph(char ch) =>
