@@ -24,6 +24,7 @@ function isStaleActionGeneration(
   return actionGenerationRef.current !== generation;
 }
 
+
 export type UseArchitectureIntelligenceActionsResult = {
   isBusy: boolean;
   analyzeThisReview: () => Promise<void>;
@@ -102,6 +103,7 @@ export function useArchitectureIntelligenceActions(
           return;
         }
 
+
         const failure = toApiLoadFailure(cause);
         const blocked = architectureIntelligenceRunMutationBlockedReason(failure);
 
@@ -177,6 +179,7 @@ export function useArchitectureIntelligenceActions(
         return;
       }
 
+
       const failure = toApiLoadFailure(cause);
       const blocked = architectureIntelligenceRunMutationBlockedReason(failure);
 
@@ -233,6 +236,7 @@ export function useArchitectureIntelligenceActions(
       if (isStaleActionGeneration(actionGenerationRef, generation)) {
         return;
       }
+
 
       const failure = toApiLoadFailure(cause);
       const blocked = architectureIntelligenceRunMutationBlockedReason(failure);

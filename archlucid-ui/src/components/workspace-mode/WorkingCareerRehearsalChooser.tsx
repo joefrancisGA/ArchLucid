@@ -121,7 +121,7 @@ export function WorkingCareerRehearsalChooser(props: WorkingCareerRehearsalChoos
         />
         {gate.isCareerExecuteBlocked ? (
           <StatusTag
-            kind="warning"
+            kind="blocked"
             label="Blocked"
             className="shrink-0"
             data-testid="working-career-door-blocked-tag"

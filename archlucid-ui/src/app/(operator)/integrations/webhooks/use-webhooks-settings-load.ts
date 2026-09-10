@@ -21,7 +21,8 @@ export type UseWebhooksSettingsLoadResult = {
   readonly loading: boolean;
   readonly failure: ApiLoadFailureState | null;
   readonly setFailure: React.Dispatch<React.SetStateAction<ApiLoadFailureState | null>>;
-  readonly load: () => Promise<void>;
+  readonly load: () => Promise<boolean>;
+  readonly getLastLoadFailure: () => ApiLoadFailureState | null;
   readonly webhookRows: AlertRoutingSubscription[];
   readonly activeSubscriptionCount: number;
   readonly scopeGenerationRef: React.RefObject<number>;
@@ -39,6 +40,7 @@ export function useWebhooksSettingsLoad(
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
   const previousScopeKeyRef = useRef(scopeKey);
   const scopeGenerationRef = useRef(0);
+  const lastLoadFailureRef = useRef<ApiLoadFailureState | null>(null);
 
   const webhookRows = useMemo(
     () => items.filter((subscription) => isGenericOutboundWebhookChannel(subscription.channelType)),
@@ -50,7 +52,7 @@ export function useWebhooksSettingsLoad(
     [webhookRows],
   );
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (): Promise<boolean> => {
     const generation = scopeGenerationRef.current;
     setLoading(true);
     setFailure(null);
@@ -59,16 +61,23 @@ export function useWebhooksSettingsLoad(
       const data = await listAlertRoutingSubscriptions();
 
       if (scopeGenerationRef.current !== generation) {
-        return;
+        return false;
       }
 
       setItems(data);
+      lastLoadFailureRef.current = null;
+
+      return true;
     } catch (error: unknown) {
       if (scopeGenerationRef.current !== generation) {
-        return;
+        return false;
       }
 
-      setFailure(toApiLoadFailure(error));
+      const apiFailure = toApiLoadFailure(error);
+      lastLoadFailureRef.current = apiFailure;
+      setFailure(apiFailure);
+
+      return false;
     } finally {
       if (scopeGenerationRef.current === generation) {
         setLoading(false);
@@ -79,6 +88,11 @@ export function useWebhooksSettingsLoad(
   const resetScopeState = useCallback(() => {
     setItems([]);
     setFailure(null);
+    lastLoadFailureRef.current = null;
+  }, []);
+
+  const getLastLoadFailure = useCallback((): ApiLoadFailureState | null => {
+    return lastLoadFailureRef.current;
   }, []);
 
   useEffect(() => {
@@ -103,6 +117,7 @@ export function useWebhooksSettingsLoad(
     failure,
     setFailure,
     load,
+    getLastLoadFailure,
     webhookRows,
     activeSubscriptionCount,
     scopeGenerationRef,

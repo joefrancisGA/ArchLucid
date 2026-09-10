@@ -106,6 +106,8 @@ export const operatorQueryKeys = {
     ["operator", "architecture", "desk-diagram-sources", latestReviewId] as const,
   architectureInventoryBinding: (architectureId: string) =>
     ["operator", "architecture", "inventory-binding", architectureId] as const,
+  architectureShares: (architectureId: string) =>
+    ["operator", "architecture", "shares", architectureId] as const,
   infraEvidenceSnapshotsList: (page: number, pageSize: number) =>
     ["operator", "infra-evidence", "snapshots", { page, pageSize }] as const,
   architectureIdentityList: (

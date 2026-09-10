@@ -1,5 +1,8 @@
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./http";
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { components } from "@/lib/openapi-schemas";
 import {
   type ArchitectureReviewRecurrenceSchedule,
@@ -20,7 +23,14 @@ export async function createRiskException(body: {
   manifestId?: string;
   evidenceRef?: string;
 }): Promise<RiskExceptionRecord> {
-  return apiPostJson<RiskExceptionRecord>(`${governanceStickinessBase()}/risk-exceptions`, body);
+  try {
+    return await apiPostJson<RiskExceptionRecord>(`${governanceStickinessBase()}/risk-exceptions`, body);
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = riskExceptionMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function listRiskExceptions(projectId?: string): Promise<RiskExceptionRecord[]> {
