@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1634,6 +1634,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `MainInspectWithoutTypedPayload` omits reasoning-trace and assignment/remediation columns — **cheap-disproof 2026-09-10 seed hunt #1661:** metadata-only SQL projects the same governance columns as typed-payload SQL; regressions `MainInspect_projects_reasoning_trace_fields`, `MainInspect_projects_assignment_and_remediation_fields`, and `MainInspectWithoutTypedPayload_projects_run_id_and_manifest_version`.
 
 2026-09-10 seed hunt #1661 (seed-only): reseeded finding-inspect-sql after #1660; cheap-disproof closed corrupt-payload title-only metadata fallback, empty-string payload guard, empty recommended-action/evidence inputs, invalid-disposition pointer metadata preservation, and metadata-only SQL column parity; 307 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MainInspectWithoutTypedPayload` omits severity/title/rationale columns needed for metadata-only typed payload — **cheap-disproof 2026-09-10 seed hunt #1662:** metadata-only SQL projects the same finding metadata columns as typed-payload SQL; regression `MainInspect_projects_finding_severity_title_and_rationale`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspectRead` metadata-only path drops title when rationale is whitespace-only — **cheap-disproof 2026-09-10 seed hunt #1662:** whitespace rationale is ignored and title-only slim metadata is built; regression `ResolveTypedPayloadForInspectRead_metadata_only_builds_title_only_payload_when_rationale_is_whitespace`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspectRead` metadata-only path drops rationale when title is whitespace-only — **cheap-disproof 2026-09-10 seed hunt #1662:** whitespace title is ignored and rationale-only slim metadata is built; regression `ResolveTypedPayloadForInspectRead_metadata_only_builds_rationale_only_payload_when_title_is_whitespace`.
+- [x] (valid-no-repro) `ResolveTraceRuleFields` treats empty-string trace text as a valid rule id — **cheap-disproof 2026-09-10 seed hunt #1662:** empty trace text returns `(null, null)`; regression `ResolveTraceRuleFields_returns_nulls_for_empty_string_trace_text`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` encodes empty base64 when disposition raw is invalid and stamp is null — **cheap-disproof 2026-09-10 seed hunt #1662:** invalid disposition still returns null row-version base64 when stamp bytes are missing; regression `MapDispositionPointerProjection_preserves_null_row_version_when_disposition_raw_is_invalid`.
+- [x] (valid-no-repro) `TryParsePayloadJson` rejects negative JSON number primitives — **cheap-disproof 2026-09-10 seed hunt #1662:** negative numeric literals deserialize as `JsonValueKind.Number`; regression `TryParsePayloadJson_returns_deserialized_negative_number_for_json_minus_one`.
+
+2026-09-10 seed hunt #1662 (seed-only): reseeded finding-inspect-sql after #1661; cheap-disproof closed metadata-only SQL severity/title/rationale parity, metadata-only typed-payload whitespace edges, empty trace-text guard, invalid-disposition null row-version handling, and negative JSON number payload parse; 312 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

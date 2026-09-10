@@ -1789,4 +1789,69 @@ public sealed class FindingInspectReadRepositoryCoreTests
         projection.LatestDispositionReviewerUserId.Should().Be("reviewer-1");
         projection.RevisitDueUtc.Should().NotBeNull();
     }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_metadata_only_builds_title_only_payload_when_rationale_is_whitespace()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: false,
+            payloadJson: """{"resourceId":"vm-1"}""",
+            title: "Encrypt at rest",
+            rationale: "   ");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("whyThisMatters").ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_metadata_only_builds_rationale_only_payload_when_title_is_whitespace()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: false,
+            payloadJson: """{"resourceId":"vm-1"}""",
+            title: "   ",
+            rationale: "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").ValueKind.Should().Be(JsonValueKind.Null);
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void ResolveTraceRuleFields_returns_nulls_for_empty_string_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveTraceRuleFields(string.Empty);
+
+        ruleId.Should().BeNull();
+        ruleName.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_preserves_null_row_version_when_disposition_raw_is_invalid()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "bogus",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: null);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionRowVersionBase64.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_negative_number_for_json_minus_one()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("-1");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.ValueKind.Should().Be(JsonValueKind.Number);
+        parsed!.Value.GetInt32().Should().Be(-1);
+    }
 }

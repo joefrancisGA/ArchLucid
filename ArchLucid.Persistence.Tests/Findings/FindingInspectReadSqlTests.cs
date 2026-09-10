@@ -354,6 +354,9 @@ public sealed class FindingInspectReadSqlTests
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.Severity");
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.Title");
         FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("fr.Rationale");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.Severity");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.Title");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("fr.Rationale");
     }
 
     [Fact]
