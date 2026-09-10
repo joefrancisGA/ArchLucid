@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1682,6 +1682,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ResolveTypedPayloadForInspectRead` metadata-only path still deserializes `PayloadJson` when title and rationale are present — **cheap-disproof 2026-09-10 seed hunt #1666:** metadata-only mode ignores payload column and builds slim metadata; regression `ResolveTypedPayloadForInspectRead_metadata_only_builds_full_metadata_when_both_title_and_rationale_present`.
 
 2026-09-10 seed hunt #1666 (seed-only): reseeded finding-inspect-sql after #1665; cheap-disproof closed remaining case-insensitive disposition pointer projection, undefined/negative numeric disposition guards, and metadata-only full title+rationale payload; 339 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspectRead` typed-payload path drops corrupt `PayloadJson` without metadata fallback — **cheap-disproof 2026-09-10 seed hunt #1667:** corrupt payload falls back to title/rationale slim metadata; regression `ResolveTypedPayloadForInspectRead_when_include_typed_payload_true_falls_back_to_metadata_for_corrupt_payload`.
+- [x] (valid-no-repro) `ResolveTypedPayloadForInspectRead` typed-payload path builds metadata when corrupt `PayloadJson` and metadata are both blank — **cheap-disproof 2026-09-10 seed hunt #1667:** blank metadata after corrupt payload returns null typed payload; regression `ResolveTypedPayloadForInspectRead_when_include_typed_payload_true_returns_null_for_corrupt_payload_and_blank_metadata`.
+- [x] (valid-no-repro) `MapLatestDisposition` accepts numeric disposition string `"5"` when row is present — **cheap-disproof 2026-09-10 seed hunt #1667:** undefined ordinals return null via `Enum.IsDefined` guard; regression `MapLatestDisposition_returns_null_for_undefined_numeric_string_five`.
+- [x] (valid-no-repro) `MapLatestDisposition` accepts negative numeric disposition strings — **cheap-disproof 2026-09-10 seed hunt #1667:** negative ordinals fail `Enum.TryParse`; regression `MapLatestDisposition_returns_null_for_negative_numeric_string`.
+- [x] (valid-no-repro) `TryParsePayloadJson` rejects fractional JSON number primitives — **cheap-disproof 2026-09-10 seed hunt #1667:** fractional numeric literals deserialize as `JsonValueKind.Number`; regression `TryParsePayloadJson_returns_deserialized_decimal_for_json_number_with_fraction`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` drops pointer metadata when disposition raw is undefined numeric `"5"` — **cheap-disproof 2026-09-10 seed hunt #1667:** invalid disposition parses to null while occurred-at, event id, reviewer, and revisit-due survive; regression `MapDispositionPointerProjection_preserves_pointer_metadata_when_disposition_is_undefined_numeric_five`.
+
+2026-09-10 seed hunt #1667 (seed-only): reseeded finding-inspect-sql after #1666; cheap-disproof closed typed-payload corrupt-json metadata fallback, blank-metadata guard, `MapLatestDisposition` undefined/negative numeric guards, fractional JSON number parse, and undefined-numeric pointer metadata preservation; 345 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
