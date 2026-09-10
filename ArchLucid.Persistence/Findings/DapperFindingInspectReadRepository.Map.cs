@@ -55,9 +55,9 @@ public sealed partial class DapperFindingInspectReadRepository
             MuteReason = row.MuteReason,
             ReasoningTrace = row.ReasoningTrace,
             ReasoningTraceDigestSha256 = row.ReasoningTraceDigestSha256,
-            LatestDisposition = joinResult.DispositionRow is null
-                ? null
-                : FindingInspectReadModelMapper.ParseDisposition(joinResult.DispositionRow.Disposition),
+            LatestDisposition = FindingInspectReadRepositoryCore.MapLatestDisposition(
+                joinResult.DispositionRow?.Disposition,
+                joinResult.DispositionRow is not null),
             LatestDispositionOccurredAtUtc = joinResult.DispositionRow?.OccurredAtUtc,
             LatestDispositionEventId = joinResult.DispositionRow?.EventId,
             LatestDispositionRowVersionBase64 = FindingInspectReadRepositoryCore.EncodeRowVersionStampBase64(

@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1425,6 +1425,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ParseFindingSeverity` / `TryParseEvaluationConfidenceLevel` / `ParseDisposition` are case-sensitive for `Error` / `Low` / `Deferred` — **cheap-disproof 2026-09-10 seed hunt #1640:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseFindingSeverity_parses_case_insensitive_error_value`, `TryParseEvaluationConfidenceLevel_parses_case_insensitive_low_value`, and `ParseDisposition_parses_case_insensitive_deferred_value`.
 
 2026-09-10 seed hunt #1640 (seed-only): reseeded finding-inspect-sql after #1639; extracted metadata-only typed-payload resolver; cheap-disproof closed includeTypedPayload routing, model/prompt SQL projections, snapshot join parity, follow-up text projections, waiver finding-id filter, agent-trace left join, UTC/null mapping edges, and additional case-insensitive enum parsing; 135 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MapInspectResponse` parses disposition when pointer row is absent — **cheap-disproof 2026-09-10 seed hunt #1641:** `MapLatestDisposition` returns null without a disposition row; regressions `MapLatestDisposition_returns_null_when_disposition_row_is_absent` and `MapLatestDisposition_parses_disposition_when_row_is_present`.
+- [x] (valid-no-repro) Corrupt `PayloadJson` with blank title/rationale still returns metadata fallback object — **cheap-disproof 2026-09-10 seed hunt #1641:** blank metadata after trim yields null typed payload; regression `ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_blank_title_rationale`.
+- [x] (valid-no-repro) `BuildMetadataTypedPayload` omits `whyThisMatters` when both title and rationale are present — **cheap-disproof 2026-09-10 seed hunt #1641:** slim payload mirrors rationale into `whyThisMatters`; regression `BuildMetadataTypedPayload_returns_payload_when_both_title_and_rationale_are_present`.
+- [x] (valid-no-repro) `ResolveRuleFields` returns empty strings when both applied-rule JSON and trace text are absent — **cheap-disproof 2026-09-10 seed hunt #1641:** missing both sources yields `(null, null)`; regression `ResolveRuleFields_when_both_sources_are_missing_returns_nulls`.
+- [x] (valid-no-repro) `ToUtcDateTimeOffset` re-specifies offset for timestamps already marked UTC — **cheap-disproof 2026-09-10 seed hunt #1641:** UTC-kind values round-trip unchanged; regression `ToUtcDateTimeOffset_preserves_utc_timestamps`.
+- [x] (valid-no-repro) `MainInspect*` inner-joins `DecisioningTraces` and drops inspect rows without decision traces — **cheap-disproof 2026-09-10 seed hunt #1641:** decision trace join is `LEFT JOIN`; regression `MainInspect_uses_left_join_for_decisioning_traces`.
+- [x] (valid-no-repro) `FollowUpBatch` related-node subquery omits `FindingRecordId` join and can merge sibling records — **cheap-disproof 2026-09-10 seed hunt #1641:** related nodes join `fr.FindingRecordId = frn.FindingRecordId`; regression `FollowUpBatch_related_nodes_joins_finding_record_by_id`.
+- [x] (valid-no-repro) `FollowUpBatch` trace-rule and recommended-action subqueries omit `fr.FindingId` filter — **cheap-disproof 2026-09-10 seed hunt #1641:** both subqueries bind `fr.FindingId = @FindingId`; regressions `FollowUpBatch_trace_rules_filters_by_finding_id` and `FollowUpBatch_recommended_actions_filters_by_finding_id`.
+- [x] (valid-no-repro) Disposition pointer join omits composite tenant/workspace/project/finding/event keys — **cheap-disproof 2026-09-10 seed hunt #1641:** disposition subquery joins review events on pointer columns; regression `FollowUpBatch_disposition_joins_review_events_on_pointer_columns`.
+- [x] (valid-no-repro) `ParseFindingSeverity` / `TryParseEvaluationConfidenceLevel` / `ParseDisposition` are case-sensitive for `Info` / `Medium` / `NeedsEvidence` / `Remediated` — **cheap-disproof 2026-09-10 seed hunt #1641:** mappers use `Enum.TryParse(..., ignoreCase: true)`; regressions `ParseFindingSeverity_parses_case_insensitive_info_value`, `TryParseEvaluationConfidenceLevel_parses_case_insensitive_medium_value`, `ParseDisposition_parses_case_insensitive_needs_evidence_value`, and `ParseDisposition_parses_case_insensitive_remediated_value`.
+
+2026-09-10 seed hunt #1641 (seed-only): reseeded finding-inspect-sql after #1640; extracted disposition mapping helper; cheap-disproof closed disposition-null routing, corrupt-payload metadata edges, dual-field metadata payload, missing rule sources, UTC preservation, decision-trace left join, follow-up finding-id filters, disposition pointer join keys, and remaining case-insensitive enum parsing; 150 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

@@ -465,6 +465,49 @@ public sealed class FindingInspectReadSqlTests
         FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("LEFT JOIN dbo.AgentExecutionTraces aet");
     }
 
+    [Fact]
+    public void MainInspect_uses_left_join_for_decisioning_traces()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("LEFT JOIN dbo.DecisioningTraces dt");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("LEFT JOIN dbo.DecisioningTraces dt");
+    }
+
+    [Fact]
+    public void FollowUpBatch_related_nodes_joins_finding_record_by_id()
+    {
+        string relatedNodesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRelatedNodes");
+
+        relatedNodesSql.Should().Contain("INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = frn.FindingRecordId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_trace_rules_filters_by_finding_id()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().Contain("fr.FindingId = @FindingId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_recommended_actions_filters_by_finding_id()
+    {
+        string actionsSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRecommendedActions");
+
+        actionsSql.Should().Contain("fr.FindingId = @FindingId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_disposition_joins_review_events_on_pointer_columns()
+    {
+        string dispositionSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingCurrentDispositions");
+
+        dispositionSql.Should().Contain("c.TenantId = e.TenantId");
+        dispositionSql.Should().Contain("c.WorkspaceId = e.WorkspaceId");
+        dispositionSql.Should().Contain("c.ProjectId = e.ProjectId");
+        dispositionSql.Should().Contain("c.FindingId = e.FindingId");
+        dispositionSql.Should().Contain("c.CurrentEventId = e.EventId");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

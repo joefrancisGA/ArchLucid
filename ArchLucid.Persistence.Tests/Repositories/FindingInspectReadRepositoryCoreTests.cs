@@ -472,4 +472,53 @@ public sealed class FindingInspectReadRepositoryCoreTests
     {
         FindingInspectReadRepositoryCore.EncodeRowVersionStampBase64([]).Should().BeEmpty();
     }
+
+    [Fact]
+    public void MapLatestDisposition_returns_null_when_disposition_row_is_absent()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition("Accepted", hasDispositionRow: false).Should().BeNull();
+    }
+
+    [Fact]
+    public void MapLatestDisposition_parses_disposition_when_row_is_present()
+    {
+        FindingInspectReadRepositoryCore.MapLatestDisposition("Accepted", hasDispositionRow: true)
+            .Should().Be(FindingDisposition.Accepted);
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_null_metadata_when_corrupt_payload_and_blank_title_rationale()
+    {
+        FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect("{ not json", "   ", "   ").Should().BeNull();
+    }
+
+    [Fact]
+    public void BuildMetadataTypedPayload_returns_payload_when_both_title_and_rationale_are_present()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.BuildMetadataTypedPayload("Encrypt at rest", "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+        typed!.Value.GetProperty("whyThisMatters").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_both_sources_are_missing_returns_nulls()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(null, null);
+
+        ruleId.Should().BeNull();
+        ruleName.Should().BeNull();
+    }
+
+    [Fact]
+    public void ToUtcDateTimeOffset_preserves_utc_timestamps()
+    {
+        DateTime utc = new(2026, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        DateTimeOffset? actual = FindingInspectReadRepositoryCore.ToUtcDateTimeOffset(utc);
+
+        actual.Should().Be(new DateTimeOffset(utc));
+    }
 }

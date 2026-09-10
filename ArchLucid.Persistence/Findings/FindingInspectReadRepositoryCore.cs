@@ -21,6 +21,9 @@ internal static class FindingInspectReadRepositoryCore
     public static DateTimeOffset? ToUtcDateTimeOffset(DateTime? value) =>
         value is null ? null : new DateTimeOffset(DateTime.SpecifyKind(value.Value, DateTimeKind.Utc));
 
+    public static FindingDisposition? MapLatestDisposition(string? dispositionRaw, bool hasDispositionRow) =>
+        hasDispositionRow ? FindingInspectReadModelMapper.ParseDisposition(dispositionRaw) : null;
+
     public static (string? RuleId, string? RuleName) ResolveRuleFields(string? appliedRuleIdsJson, string? firstRuleText)
     {
         if (string.IsNullOrWhiteSpace(appliedRuleIdsJson))
