@@ -738,4 +738,38 @@ public sealed class DeterministicInsightDensityGateTests
         result.InsightDensityScore.Should().BeLessThanOrEqualTo(100);
         result.Treatment.Should().Be(FindingTreatment.Promote);
     }
+
+    [Fact]
+    public void Score_ignores_finding_semantic_support_band_when_scoring_from_finding()
+    {
+        Finding supportedFinding = CreateFindingForSupportBandIsolation(FindingSemanticSupportBand.Supported);
+        Finding unsupportedFinding = CreateFindingForSupportBandIsolation(FindingSemanticSupportBand.Unsupported);
+
+        InsightDensityGateCandidate supportedCandidate = InsightDensityGateCandidate.FromFinding(supportedFinding);
+        InsightDensityGateCandidate unsupportedCandidate = InsightDensityGateCandidate.FromFinding(unsupportedFinding);
+
+        InsightDensityGateResult supportedResult = Gate.Score(supportedCandidate, [supportedCandidate]);
+        InsightDensityGateResult unsupportedResult = Gate.Score(unsupportedCandidate, [unsupportedCandidate]);
+
+        unsupportedResult.InsightDensityScore.Should().Be(supportedResult.InsightDensityScore);
+        unsupportedResult.Treatment.Should().Be(supportedResult.Treatment);
+        unsupportedResult.Classification.Should().Be(supportedResult.Classification);
+        unsupportedResult.PenaltyReasons.Should().BeEquivalentTo(supportedResult.PenaltyReasons);
+    }
+
+    private static Finding CreateFindingForSupportBandIsolation(FindingSemanticSupportBand band)
+    {
+        return new Finding
+        {
+            FindingId = "engine-support-band-isolation",
+            Title = "SecretManagementUnderSpecified",
+            Rationale = "SecretManagementUnderSpecified",
+            Severity = FindingSeverity.Warning,
+            Category = "Security",
+            FindingType = "typed-engine",
+            EngineType = "security-baseline",
+            EvidenceRefs = ["doc:manifest.json#L10"],
+            SemanticSupportBand = band,
+        };
+    }
 }
