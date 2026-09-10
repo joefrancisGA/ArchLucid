@@ -72,4 +72,8 @@ public static class ProductionLikeHostingMisconfigurationAdvisorRuleNames
     /// <summary>Graph-RAG enabled without Azure AI Search vector index posture.</summary>
     public const string GraphRagEnabledWithoutAzureSearchPosture =
         "graph_rag_enabled_without_azure_search_posture";
+
+    /// <summary><c>ArchLucid:Governance:PreCommitGateEnabled=false</c> on production-like hosting (DR-04).</summary>
+    public const string PreCommitGovernanceGateDisabledProductionLike =
+        "pre_commit_governance_gate_disabled_production_like";
 }

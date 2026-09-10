@@ -2,6 +2,10 @@ export const COMPLIANCE_JOURNEY_PAGE_TITLE = "Compliance journey" as const;
 
 export const COMPLIANCE_JOURNEY_PRIMARY_CONTENT_ID = "compliance-journey-primary-content" as const;
 
+export const COMPLIANCE_JOURNEY_FIRST_VIEWPORT_ID = "compliance-journey-first-viewport" as const;
+
+export const COMPLIANCE_JOURNEY_SKIP_TARGET_ID = COMPLIANCE_JOURNEY_FIRST_VIEWPORT_ID;
+
 export const COMPLIANCE_JOURNEY_SKIP_LINK_LABEL = "Skip to compliance journey content" as const;
 
 export const COMPLIANCE_JOURNEY_BREADCRUMB_HUB_LABEL = "Welcome" as const;

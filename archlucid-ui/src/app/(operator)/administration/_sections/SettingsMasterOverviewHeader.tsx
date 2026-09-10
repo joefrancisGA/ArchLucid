@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { PageHeading } from "@/components/PageHeading";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 import { SETTINGS_HUB_CLAIM_DISCIPLINE } from "@/lib/settings-hub-evidence-copy";
@@ -37,6 +38,7 @@ export function SettingsMasterOverviewHeader(props: SettingsMasterOverviewHeader
       navHref={SETTINGS_ROOT_PATH}
       title={OPERATOR_NAV_LINK_LABELS.settings}
       description={settingsMasterPageDescription(buyerPolishedShell)}
+      descriptionClassName={buyerPolishedShell ? HELP_PAGE_LAYOUT.readingBody : undefined}
       claimDiscipline={SETTINGS_HUB_CLAIM_DISCIPLINE}
       claimDisciplineTestId={SETTINGS_MASTER_HEADER_CLAIM_DISCIPLINE_TEST_ID}
       data-testid="settings-master-overview-header"

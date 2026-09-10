@@ -42,4 +42,19 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered((string?)null).Should().BeFalse();
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered("plain text").Should().BeFalse();
     }
+
+    [Fact]
+    public void Serialize_emits_string_failure_class_not_array()
+    {
+        AgentExecutionFailureSummary summary = new()
+        {
+            FailureClass = AgentExecutionFailureClasses.PipelineDeadLetter,
+            ReasonCode = "authorityPipelineWorkDeadLettered",
+        };
+
+        string json = AgentExecutionFailureSummaryJson.Serialize(summary);
+
+        json.Should().NotContain("\"failureClass\":[");
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
 }

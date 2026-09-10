@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, type JSX } from "react";
+import { Fragment, useCallback, useEffect, useState, type JSX } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { ReasoningTraceReadMore } from "@/components/ReasoningTraceReadMore";
@@ -27,6 +28,10 @@ import {
   graphBuyerTrailRecordTypeLine,
   visibleBuyerTrailTechnicalAppendixLines,
 } from "@/lib/graph-buyer-node-detail";
+import {
+  graphNodeTechnicalAppendixDisclosureHrefFromSearch,
+  parseGraphNodeTechnicalAppendixOpenFromSearch,
+} from "@/lib/insights/graph-node-technical-appendix-disclosure-url";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import {
   OPERATOR_CALLOUT_WARN_CLASS,
@@ -61,6 +66,36 @@ export function GraphViewerNodeDetailPanel({
   explainAggregateHref,
   onExplainAggregateHrefChange,
 }: GraphViewerNodeDetailPanelProps): JSX.Element {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const graphNodeTechnicalAppendixOpenParam = searchParams.get("graphNodeTechnicalAppendixOpen");
+  const [technicalAppendixOpen, setTechnicalAppendixOpenState] = useState(() =>
+    parseGraphNodeTechnicalAppendixOpenFromSearch(graphNodeTechnicalAppendixOpenParam),
+  );
+
+  const syncTechnicalAppendixOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        graphNodeTechnicalAppendixDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalAppendixOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalAppendixOpenState(open);
+      syncTechnicalAppendixOpenToUrl(open);
+    },
+    [syncTechnicalAppendixOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalAppendixOpenState(parseGraphNodeTechnicalAppendixOpenFromSearch(graphNodeTechnicalAppendixOpenParam));
+  }, [graphNodeTechnicalAppendixOpenParam]);
+
   return (
     <>
       {buyerTrailPanel ? (
@@ -225,7 +260,13 @@ export function GraphViewerNodeDetailPanel({
                 </div>
               ) : null}
               {appendixLines.length > 0 ? (
-                <details className="mt-2 rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/50">
+                <details
+                  className="mt-2 rounded-md border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/50"
+                  open={technicalAppendixOpen}
+                  onToggle={(event) => {
+                    setTechnicalAppendixOpen((event.currentTarget as HTMLDetailsElement).open);
+                  }}
+                >
                   <summary className={cn(
                     "cursor-pointer select-none px-3 py-2 font-semibold text-neutral-800 dark:text-neutral-200",
                     OPERATOR_DISCLOSURE_TRIGGER_CLASS,

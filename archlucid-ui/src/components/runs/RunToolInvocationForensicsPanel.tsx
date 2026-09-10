@@ -134,6 +134,7 @@ export function RunToolInvocationForensicsPanel(props: RunToolInvocationForensic
                 <EnterpriseTableCell className="align-top">{formatDuration(row.durationMs)}</EnterpriseTableCell>
                 <EnterpriseTableCell className="align-top">
                   <RunToolInvocationForensicsRawCell
+                    traceId={row.traceId}
                     snapshot={row.traceId ? props.traceRawByTraceId[row.traceId] : undefined}
                   />
                 </EnterpriseTableCell>

@@ -130,4 +130,15 @@ public sealed class DraftRequestDocument
         get;
         set;
     }
+
+    /// <summary>
+    ///     Expert working notes for BA follow-ups — unsealed draft document only (ADR 0080 / WS-19).
+    ///     Not part of the sealed review unless later mapped through transparency with user confirm.
+    /// </summary>
+    [JsonPropertyName("openQuestions")]
+    public string? OpenQuestions
+    {
+        get;
+        set;
+    }
 }

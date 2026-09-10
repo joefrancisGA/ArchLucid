@@ -28,7 +28,7 @@ export const ARCHITECTURE_RISK_REGISTER_GLOSSARY = [
   {
     term: "Finding",
     definition:
-      "A policy or architecture issue surfaced during review that can be accepted, waived, or remediated through governance.",
+      "A policy or architecture issue surfaced during review that can be accepted, waived, or remediated through approval.",
   },
   {
     term: "Risk",

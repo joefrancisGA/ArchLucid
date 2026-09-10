@@ -87,9 +87,9 @@ describe("AwsCloudConnectionDetailClient", () => {
     );
     expect(screen.getByTestId("cloud-connections-aws-sources")).toBeInTheDocument();
     const sources = screen.getByTestId("cloud-connections-aws-sources");
-    expect(within(sources).getByRole("link", { name: "Open Connection status" })).toHaveAttribute(
+    expect(within(sources).getByRole("link", { name: "Open Cloud connections" })).toHaveAttribute(
       "href",
-      "/administration/connection-status",
+      "/integrations/cloud-connections",
     );
     expect(within(sources).queryByRole("link", { name: /Configure AWS/i })).not.toBeInTheDocument();
     expect(

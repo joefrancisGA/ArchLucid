@@ -9,7 +9,11 @@ import { useCompareFormRunSelection } from "@/app/(operator)/insights/compare-tw
 import { useCompareFormDiffSubmit } from "@/app/(operator)/insights/compare-two-reviews/_sections/use-compare-form-diff-submit";
 import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageIntro";
 
-export function useCompareForm() {
+export type UseCompareFormOptions = {
+  readonly basePathname?: string;
+};
+
+export function useCompareForm(options: UseCompareFormOptions = {}) {
   const runCompareForPairRef = useRef<(left: string, right: string) => Promise<void>>(async () => {});
   const syncSelectionToUrlRef = useRef<(priorRunId: string, laterRunId: string) => void>(() => {});
 
@@ -32,12 +36,13 @@ export function useCompareForm() {
     setLeftRunId: selection.setLeftRunId,
     setRightRunId: selection.setRightRunId,
     runCompareForPair: (left, right) => runCompareForPairRef.current(left, right),
+    basePathname: options.basePathname,
   });
 
   syncSelectionToUrlRef.current = urlSync.syncSelectionToUrl;
 
   return {
-    comparePagePath: COMPARE_TWO_REVIEWS_PATH,
+    comparePagePath: options.basePathname ?? COMPARE_TWO_REVIEWS_PATH,
     comparePageSubtitle: COMPARE_PAGE_SUBTITLE,
     buyerComparePageTitle: BUYER_COMPARE_PAGE_TITLE,
     buyerComparePrimaryActionLabel: BUYER_COMPARE_PRIMARY_ACTION_LABEL,

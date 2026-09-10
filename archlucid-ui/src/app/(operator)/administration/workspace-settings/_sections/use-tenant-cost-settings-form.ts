@@ -1,9 +1,13 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
 import { useTenantCostSettingsQuery } from "@/hooks/use-tenant-cost-settings-query";
+import {
+  LivelihoodDocumentGuardDialog,
+  useLivelihoodDocumentGuards,
+} from "@/hooks/use-livelihood-document-guards";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -50,6 +54,11 @@ export function useTenantCostSettingsForm({ canEdit }: UseTenantCostSettingsForm
   const [eaDiscountPercentage, setEaDiscountPercentage] = useState("0");
   const [saveConfirmation, setSaveConfirmation] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const loadedSnapshotRef = useRef({
+    hourlyRate: "",
+    incidentCost: "",
+    eaDiscountPercentage: "0",
+  });
 
   const fieldValidation = useMemo(
     () => validateTenantCostSettingsFields(hourlyRate, incidentCost, eaDiscountPercentage),
@@ -68,7 +77,25 @@ export function useTenantCostSettingsForm({ canEdit }: UseTenantCostSettingsForm
       setIncidentCost,
       setEaDiscountPercentage,
     });
+
+    loadedSnapshotRef.current = {
+      hourlyRate: String(costSettingsQuery.data.architectHourlyRateUsd),
+      incidentCost: String(costSettingsQuery.data.averageIncidentCostUsd),
+      eaDiscountPercentage: String(costSettingsQuery.data.eaDiscountPercentage ?? 0),
+    };
   }, [costSettingsQuery.data]);
+
+  const onHourlyRateChange = useCallback((next: string) => {
+    setHourlyRate(next);
+  }, []);
+
+  const onIncidentCostChange = useCallback((next: string) => {
+    setIncidentCost(next);
+  }, []);
+
+  const onEaDiscountPercentageChange = useCallback((next: string) => {
+    setEaDiscountPercentage(next);
+  }, []);
 
   const saveMutation = useMutation({
     mutationFn: saveTenantCostSettings,
@@ -80,6 +107,11 @@ export function useTenantCostSettingsForm({ canEdit }: UseTenantCostSettingsForm
         setIncidentCost,
         setEaDiscountPercentage,
       });
+      loadedSnapshotRef.current = {
+        hourlyRate: String(saved.architectHourlyRateUsd),
+        incidentCost: String(saved.averageIncidentCostUsd),
+        eaDiscountPercentage: String(saved.eaDiscountPercentage ?? 0),
+      };
       setSaveConfirmation("Cost settings saved.");
       setSaveError(null);
       await queryClient.setQueryData(operatorQueryKeys.tenantCostSettings, saved);
@@ -127,7 +159,27 @@ export function useTenantCostSettingsForm({ canEdit }: UseTenantCostSettingsForm
     ? "These values are used to estimate review savings and sponsor ROI when actual cost evidence is unavailable."
     : "These values are used to estimate review savings and sponsor ROI when actual cost evidence is unavailable. Showing platform defaults until you save.";
 
+  const dirty = useMemo(() => {
+    if (costSettingsQuery.data === undefined) {
+      return false;
+    }
+
+    return (
+      hourlyRate.trim() !== loadedSnapshotRef.current.hourlyRate.trim()
+      || incidentCost.trim() !== loadedSnapshotRef.current.incidentCost.trim()
+      || eaDiscountPercentage.trim() !== loadedSnapshotRef.current.eaDiscountPercentage.trim()
+    );
+  }, [costSettingsQuery.data, eaDiscountPercentage, hourlyRate, incidentCost]);
+
+  const documentGuards = useLivelihoodDocumentGuards({ when: dirty });
+
+  const ratesValid = fieldValidation.hourlyError === null && fieldValidation.incidentError === null;
+  const eaDiscountValid = fieldValidation.eaError === null;
+
   const saveChecklistInput = {
+    isTenantConfigured,
+    ratesValid,
+    eaDiscountValid,
     fieldsValid: fieldValidation.valid,
     saveComplete: saveConfirmation !== null,
   };
@@ -142,11 +194,11 @@ export function useTenantCostSettingsForm({ canEdit }: UseTenantCostSettingsForm
     isTenantConfigured,
     updatedUtc,
     hourlyRate,
-    setHourlyRate,
+    setHourlyRate: onHourlyRateChange,
     incidentCost,
-    setIncidentCost,
+    setIncidentCost: onIncidentCostChange,
     eaDiscountPercentage,
-    setEaDiscountPercentage,
+    setEaDiscountPercentage: onEaDiscountPercentageChange,
     saveConfirmation,
     setSaveConfirmation,
     saveError,
@@ -157,6 +209,8 @@ export function useTenantCostSettingsForm({ canEdit }: UseTenantCostSettingsForm
     helperCopy,
     saveSteps,
     saveEmphasizedStepId,
+    dirty,
+    documentGuards,
   };
 }
 

@@ -148,9 +148,13 @@ public static class AgentUserPromptBuilder
     /// <summary>Task objective, allowed tools, and allowed sources.</summary>
     public static void AppendTaskObjectiveToolsAndSources(StringBuilder sb, AgentTask task)
     {
-        sb.AppendLine("Task Objective:");
-        sb.AppendLine(PromptFieldRedactor.RedactForPrompt(task.Objective));
-        sb.AppendLine();
+        CustomerContentPromptDelimiters.AppendQuarantinedSection(
+            sb,
+            body =>
+            {
+                body.AppendLine("Task Objective:");
+                body.AppendLine(RedactAndEscape(task.Objective));
+            });
 
         sb.AppendLine("Allowed Tools:");
         foreach (string tool in task.AllowedTools)

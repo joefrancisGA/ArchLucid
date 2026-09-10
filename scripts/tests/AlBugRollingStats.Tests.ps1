@@ -1,13 +1,12 @@
 #Requires -Version 5.1
 # Run: Invoke-Pester -Path 'scripts/tests/AlBugRollingStats.Tests.ps1'
-# Pester 3.4 syntax (Windows PowerShell 5.1). Do not use Pester 5 -Be / BeforeAll.
+# Pester 5 syntax to match the version pinned by .github/workflows/ci.yml.
 Set-StrictMode -Version Latest
 
-[string]$script:testsDir = $PSScriptRoot
-[string]$script:scriptsDir = Split-Path -Parent $script:testsDir
-[string]$script:statsScript = Join-Path $script:scriptsDir 'agent\al-bug-rolling-stats.ps1'
-
-Describe 'al-bug-rolling-stats.ps1' {
+BeforeAll {
+    [string]$script:testsDir = $PSScriptRoot
+    [string]$script:scriptsDir = Split-Path -Parent $script:testsDir
+    [string]$script:statsScript = Join-Path (Join-Path $script:scriptsDir 'agent') 'al-bug-rolling-stats.ps1'
 
     function Invoke-RollingStats {
         param(
@@ -16,28 +15,34 @@ Describe 'al-bug-rolling-stats.ps1' {
             [string] $HuntZoneId,
             [string] $HuntOutcome,
             [switch] $Rolling24h,
-            [string] $AtUtc
+            [string] $AtUtc,
+            [string] $DefectClass
         )
 
-        $args = @{
+        # Splatted so each optional switch stays absent rather than passing $false.
+        [hashtable] $scriptArgs = @{
             RunLogPath = $LogPath
         }
 
         if ($RecordHunt) {
-            $args.RecordHunt = $true
-            $args.HuntZoneId = $HuntZoneId
-            $args.HuntOutcome = $HuntOutcome
+            $scriptArgs.RecordHunt = $true
+            $scriptArgs.HuntZoneId = $HuntZoneId
+            $scriptArgs.HuntOutcome = $HuntOutcome
         }
 
         if ($Rolling24h) {
-            $args.Rolling24h = $true
+            $scriptArgs.Rolling24h = $true
         }
 
         if (-not [string]::IsNullOrWhiteSpace($AtUtc)) {
-            $args.AtUtc = $AtUtc
+            $scriptArgs.AtUtc = $AtUtc
         }
 
-        return @(& $script:statsScript @args)
+        if (-not [string]::IsNullOrWhiteSpace($DefectClass)) {
+            $scriptArgs.DefectClass = $DefectClass
+        }
+
+        return @(& $script:statsScript @scriptArgs)
     }
 
     function Get-StatsJsonFromOutput {
@@ -51,6 +56,9 @@ Describe 'al-bug-rolling-stats.ps1' {
 
         return ($jsonLine | ConvertFrom-Json)
     }
+}
+
+Describe 'al-bug-rolling-stats.ps1' {
 
     It 'records a hit and reports rolling 24h stats' {
         $log = Join-Path $TestDrive 'hit-only.jsonl'
@@ -60,8 +68,9 @@ Describe 'al-bug-rolling-stats.ps1' {
         $output = Invoke-RollingStats -LogPath $log -Rolling24h -AtUtc $at
         $stats = Get-StatsJsonFromOutput -Output $output
 
-        $stats.bugsFound24h | Should Be 1
-        $stats.dryRuns24h | Should Be 0
+        $stats.bugsFound24h | Should -Be 1
+        $stats.dryRuns24h | Should -Be 0
+        $stats.hitRate24h | Should -Be 1
     }
 
     It 'counts dry runs inside the 24h window and excludes older events' {
@@ -76,15 +85,44 @@ Describe 'al-bug-rolling-stats.ps1' {
         $output = Invoke-RollingStats -LogPath $log -Rolling24h -AtUtc $now
         $stats = Get-StatsJsonFromOutput -Output $output
 
-        $stats.bugsFound24h | Should Be 1
-        $stats.dryRuns24h | Should Be 1
-        $stats.seedOnly24h | Should Be 1
+        $stats.bugsFound24h | Should -Be 1
+        $stats.dryRuns24h | Should -Be 1
+        $stats.seedOnly24h | Should -Be 1
+    }
+
+    It 'warns on implausible 24h hit rate' {
+        $log = Join-Path $TestDrive 'high-hit-rate.jsonl'
+        $now = '2026-08-19T18:00:00Z'
+
+        for ($i = 0; $i -lt 6; $i++) {
+            Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId ('zone-{0}' -f $i) -HuntOutcome hit -AtUtc ('2026-08-19T1{0}:00:00Z' -f $i) | Out-Null
+        }
+
+        Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId 'zone-dry' -HuntOutcome dry -AtUtc '2026-08-19T11:00:00Z' | Out-Null
+        Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId 'zone-dry2' -HuntOutcome dry -AtUtc '2026-08-19T12:00:00Z' | Out-Null
+
+        $output = Invoke-RollingStats -LogPath $log -Rolling24h -AtUtc $now
+        $stats = Get-StatsJsonFromOutput -Output $output
+
+        $stats.hitRate24h | Should -BeGreaterThan 0.6
+        $stats.warning24h | Should -Not -BeNullOrEmpty
     }
 
     It 'requires HuntZoneId and HuntOutcome when recording' {
         $log = Join-Path $TestDrive 'validation.jsonl'
 
-        { & $script:statsScript -RunLogPath $log -RecordHunt -HuntOutcome dry } | Should Throw 'HuntZoneId'
-        { & $script:statsScript -RunLogPath $log -RecordHunt -HuntZoneId 'zone-a' } | Should Throw 'HuntOutcome'
+        { & $script:statsScript -RunLogPath $log -RecordHunt -HuntOutcome dry } | Should -Throw -ExpectedMessage '*HuntZoneId*'
+        { & $script:statsScript -RunLogPath $log -RecordHunt -HuntZoneId 'zone-a' } | Should -Throw -ExpectedMessage '*HuntOutcome*'
+    }
+
+    It 'records optional defectClass on hunt hits' {
+        $log = Join-Path $TestDrive 'defect-class.jsonl'
+        $at = '2026-08-19T12:00:00Z'
+
+        Invoke-RollingStats -LogPath $log -RecordHunt -HuntZoneId 'zone-a' -HuntOutcome hit -AtUtc $at -DefectClass 'boolean-coercion' | Out-Null
+        $line = Get-Content -LiteralPath $log -Encoding UTF8 | Select-Object -Last 1
+        $parsed = $line | ConvertFrom-Json
+
+        $parsed.defectClass | Should -Be 'boolean-coercion'
     }
 }

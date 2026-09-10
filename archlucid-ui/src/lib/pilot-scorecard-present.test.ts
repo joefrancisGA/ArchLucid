@@ -8,7 +8,9 @@ import {
   buildReviewScorecardScopeCue,
   buildReviewScorecardSummaryRow,
   hasCommittedReviews,
+  resolveReviewScorecardFinalizedHref,
 } from "@/lib/pilot-scorecard-present";
+import { ARCHITECTURES_LIST_PATH, REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
 const baseScorecard: PilotScorecardJson = {
@@ -88,6 +90,27 @@ describe("pilot-scorecard-present", () => {
     expect(emptyCommitted?.metricState).toBe("unavailable");
     expect(emptyCommitted?.value).toBe(" — ");
     expect(emptyCommitted?.detail).toContain("Start an architecture review");
+  });
+
+  it("SY-70: Working scorecard finalized drill-down opens the architecture desk when known", () => {
+    expect(
+      resolveReviewScorecardFinalizedHref({
+        workingMode: true,
+        lastOpenArchitectureId: "architecture-identity-001",
+      }),
+    ).toBe("/architecture/architectures/architecture-identity-001");
+    expect(
+      resolveReviewScorecardFinalizedHref({
+        workingMode: true,
+        lastOpenArchitectureId: null,
+      }),
+    ).toBe(ARCHITECTURES_LIST_PATH);
+    expect(
+      resolveReviewScorecardFinalizedHref({
+        workingMode: false,
+        lastOpenArchitectureId: "architecture-identity-001",
+      }),
+    ).toBe(REVIEWS_LIST_PATH);
   });
 
   it("uses complementary operational metrics with deep links", () => {

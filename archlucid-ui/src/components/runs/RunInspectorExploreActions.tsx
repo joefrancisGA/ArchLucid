@@ -1,5 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
@@ -10,6 +14,16 @@ import {
   OPERATOR_NAV_GROUP_LABEL,
 } from "@/lib/design-tokens";
 import { getShowcaseSponsorHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import {
+  RUN_INSPECTOR_OPEN_ARTIFACT_OPEN_PARAM,
+  parseRunInspectorOpenArtifactOpenFromSearch,
+  runInspectorOpenArtifactDisclosureHrefFromSearch,
+} from "@/lib/runs/run-inspector-open-artifact-disclosure-url";
+import {
+  RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM,
+  parseRunInspectorRelatedActionsOpenFromSearch,
+  runInspectorRelatedActionsDisclosureHrefFromSearch,
+} from "@/lib/runs/run-inspector-related-actions-disclosure-url";
 import type { RunSummary } from "@/types/authority";
 
 export type RunInspectorExploreActionsProps = {
@@ -65,6 +79,60 @@ export function RunInspectorExploreActions({
   moreOpen,
   onToggleMoreOpen,
 }: RunInspectorExploreActionsProps) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname() ?? "/";
+  const router = useRouter();
+  const runInspectorRelatedActionsParam = searchParams.get(RUN_INSPECTOR_RELATED_ACTIONS_OPEN_PARAM);
+  const [runInspectorRelatedActionsOpen, setRunInspectorRelatedActionsOpenState] = useState(() =>
+    parseRunInspectorRelatedActionsOpenFromSearch(runInspectorRelatedActionsParam),
+  );
+  const syncRunInspectorRelatedActionsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runInspectorRelatedActionsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setRunInspectorRelatedActionsOpen = useCallback(
+    (open: boolean) => {
+      setRunInspectorRelatedActionsOpenState(open);
+      syncRunInspectorRelatedActionsOpenToUrl(open);
+    },
+    [syncRunInspectorRelatedActionsOpenToUrl],
+  );
+  useEffect(() => {
+    setRunInspectorRelatedActionsOpenState(
+      parseRunInspectorRelatedActionsOpenFromSearch(runInspectorRelatedActionsParam),
+    );
+  }, [runInspectorRelatedActionsParam]);
+  const runInspectorOpenArtifactParam = searchParams.get(RUN_INSPECTOR_OPEN_ARTIFACT_OPEN_PARAM);
+  const [runInspectorOpenArtifactOpen, setRunInspectorOpenArtifactOpenState] = useState(() =>
+    parseRunInspectorOpenArtifactOpenFromSearch(runInspectorOpenArtifactParam),
+  );
+  const syncRunInspectorOpenArtifactOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        runInspectorOpenArtifactDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+  const setRunInspectorOpenArtifactOpen = useCallback(
+    (open: boolean) => {
+      setRunInspectorOpenArtifactOpenState(open);
+      syncRunInspectorOpenArtifactOpenToUrl(open);
+    },
+    [syncRunInspectorOpenArtifactOpenToUrl],
+  );
+  useEffect(() => {
+    setRunInspectorOpenArtifactOpenState(
+      parseRunInspectorOpenArtifactOpenFromSearch(runInspectorOpenArtifactParam),
+    );
+  }, [runInspectorOpenArtifactParam]);
+
   return (
     <>
       {/* Primary exploration — buyer shell leads with the full package; secondary links stay one click away under collapsible groups. */}
@@ -76,7 +144,11 @@ export function RunInspectorExploreActions({
                 <Link href={primaryExplore.href}>{primaryExplore.label}</Link>
               </Button>
             ) : null}
-            <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
+            <details
+              className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20"
+              open={runInspectorRelatedActionsOpen}
+              onToggle={(event) => setRunInspectorRelatedActionsOpen(event.currentTarget.open)}
+            >
               <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                 Related actions
               </summary>
@@ -90,7 +162,7 @@ export function RunInspectorExploreActions({
                   </Button>
                 ) : null}
                 <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View governance approval</Link>
+                  <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View approval</Link>
                 </Button>
                 <Button variant="outline" size="sm" className="w-full" asChild>
                   <Link href={auditTrailNavHref(run.runId)}>View audit trail</Link>
@@ -100,7 +172,11 @@ export function RunInspectorExploreActions({
                 </Button>
               </div>
             </details>
-            <details className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20">
+            <details
+              className="rounded-md border border-neutral-200 bg-neutral-50/40 dark:border-neutral-700 dark:bg-neutral-950/20"
+              open={runInspectorOpenArtifactOpen}
+              onToggle={(event) => setRunInspectorOpenArtifactOpen(event.currentTarget.open)}
+            >
               <summary className={cn("cursor-pointer select-none px-3 py-2", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
                 Open specific artifact
               </summary>

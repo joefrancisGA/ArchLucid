@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Retrieval;
@@ -64,6 +65,10 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         query
             .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(
+            query,
+            runId,
+            CoordinationOutboxSealedManifestHashGuardTestSupport.CreateGoldenManifest(runId));
 
         ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
@@ -71,6 +76,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         services.AddScoped(_ => Mock.Of<IArtifactQueryService>());
         services.AddScoped(_ => Mock.Of<IRetrievalRunCompletionIndexer>());
         services.AddScoped(_ => Mock.Of<IProvenanceBuilder>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory factory = provider.GetRequiredService<IServiceScopeFactory>();
 
@@ -159,6 +165,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         query
             .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(detail);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.SetupManifestCompareForGuard(query, runId, manifest);
 
         Mock<IArtifactQueryService> artifactQuery = new();
         artifactQuery
@@ -191,6 +198,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         services.AddScoped(_ => artifactQuery.Object);
         services.AddScoped(_ => indexer.Object);
         services.AddScoped(_ => provenanceBuilder.Object);
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services, manifest.ManifestHash!);
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory factory = provider.GetRequiredService<IServiceScopeFactory>();
 

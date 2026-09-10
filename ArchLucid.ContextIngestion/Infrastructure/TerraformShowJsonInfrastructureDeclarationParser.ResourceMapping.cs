@@ -187,6 +187,8 @@ public sealed partial class TerraformShowJsonInfrastructureDeclarationParser
             }
         }
 
+        InfrastructureDeclarationSpecialPropertyMapper.Apply(properties, tfType, name);
+
         results.Add(new CanonicalObject
         {
             ObjectId = InfrastructureDeclarationStableObjectIds.ForDeclaredResource(

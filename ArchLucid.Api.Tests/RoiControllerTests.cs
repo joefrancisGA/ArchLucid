@@ -2,14 +2,17 @@ using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Roi;
+using ArchLucid.Api.Tests.Roi;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -52,7 +55,7 @@ public sealed class RoiControllerTests
     public async Task GetSponsorReportBoardPackAsync_returns_bad_request_for_invalid_format()
     {
         RoiController controller = CreateController(
-            Mock.Of<ISponsorRoiSummaryService>(),
+            RoiControllerTestSupport.CreateEmptySummaryService(),
             Mock.Of<ISponsorRoiBoardPackExporter>());
 
         IActionResult action = await controller.GetSponsorReportBoardPackAsync(
@@ -86,7 +89,7 @@ public sealed class RoiControllerTests
         Mock<IAuditService> audit = new();
 
         RoiController controller = CreateController(
-            Mock.Of<ISponsorRoiSummaryService>(),
+            RoiControllerTestSupport.CreateEmptySummaryService(),
             exporter.Object,
             audit.Object);
 
@@ -134,7 +137,7 @@ public sealed class RoiControllerTests
         Mock<IAuditService> audit = new();
 
         RoiController controller = CreateController(
-            Mock.Of<ISponsorRoiSummaryService>(),
+            RoiControllerTestSupport.CreateEmptySummaryService(),
             exporter.Object,
             audit.Object);
 
@@ -166,10 +169,10 @@ public sealed class RoiControllerTests
             Mock.Of<ISponsorRoiSummaryService>(),
             Mock.Of<ISponsorRoiBoardPackExporter>());
 
-        ActionResult<CrossTenantPortfolioSummaryResponse> action =
+        IActionResult action =
             await controller.GetCrossTenantPortfolioSummaryAsync(CancellationToken.None);
 
-        ObjectResult forbidden = action.Result.Should().BeOfType<ObjectResult>().Subject;
+        ObjectResult forbidden = action.Should().BeOfType<ObjectResult>().Subject;
         forbidden.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 
@@ -193,11 +196,11 @@ public sealed class RoiControllerTests
                 audit ?? Mock.Of<IAuditService>(),
                 scopeProvider.Object,
                 complianceDriftTrendService ?? Mock.Of<IComplianceDriftTrendService>(),
-                Mock.Of<IAuthorityQueryService>(),
-                Mock.Of<IManifestHashService>(),
+                SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+                SealedManifestHashTestSupport.CreateManifestHashService(),
                 Mock.Of<ITenantRepository>(),
                 Mock.Of<IScimUserRepository>(),
-                Mock.Of<SponsorRoiRunCollector>())
+                RoiControllerTestSupport.CreateRunCollector(Scope))
             {
                 ControllerContext = new ControllerContext { HttpContext = httpContext }
             };

@@ -18,6 +18,12 @@ public static class AuthorityRunLifecyclePhaseListResolver
         if (IsCommittedWithGoldenManifest(header))
             return AuthorityRunLifecyclePhase.Complete;
 
+        if (TryResolveTerminalFailurePhase(header.LegacyRunStatus, out AuthorityRunLifecyclePhase terminalPhase))
+            return terminalPhase;
+
+        if (TryResolveInProgressLegacyStatus(header.LegacyRunStatus))
+            return AuthorityRunLifecyclePhase.InProgress;
+
         if (header.ContextSnapshotId is Guid contextId && contextId != Guid.Empty)
             return AuthorityRunLifecyclePhase.InProgress;
 
@@ -34,4 +40,37 @@ public static class AuthorityRunLifecyclePhaseListResolver
             header.LegacyRunStatus,
             nameof(ArchitectureRunStatus.Committed),
             StringComparison.OrdinalIgnoreCase);
+
+    private static bool TryResolveTerminalFailurePhase(
+        string? legacyRunStatus,
+        out AuthorityRunLifecyclePhase phase)
+    {
+        phase = default;
+
+        if (!ArchitectureRunStatusTransitionTable.TryParseStatus(legacyRunStatus, out ArchitectureRunStatus status))
+            return false;
+
+        if (status is not ArchitectureRunStatus.Failed
+            and not ArchitectureRunStatus.FailedPartial
+            and not ArchitectureRunStatus.PartiallyCompleted
+            and not ArchitectureRunStatus.ExecutionCompletedQualityRejected)
+        {
+            return false;
+        }
+
+        phase = AuthorityRunLifecyclePhase.Failed;
+
+        return true;
+    }
+
+    private static bool TryResolveInProgressLegacyStatus(string? legacyRunStatus)
+    {
+        if (!ArchitectureRunStatusTransitionTable.TryParseStatus(legacyRunStatus, out ArchitectureRunStatus status))
+            return false;
+
+        return status is ArchitectureRunStatus.TasksGenerated
+            or ArchitectureRunStatus.WaitingForResults
+            or ArchitectureRunStatus.ReadyForCommit
+            or ArchitectureRunStatus.Retrying;
+    }
 }

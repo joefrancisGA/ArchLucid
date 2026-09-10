@@ -1,4 +1,6 @@
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isHelpSearchTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { helpPageSituationTopicIds, type HelpPageSituation } from "@/lib/help/help-page-situation";
 import { WORKING_HOME_HELP_SEARCH_EXCLUDED_TOPIC_IDS } from "@/lib/help/help-workspace-mode-copy";
 import { collectHelpSearchPanelTopics } from "@/lib/help/help-search-panel-catalog-topics";
@@ -156,6 +158,7 @@ export function recommendedHelpSearchPanelTopics(
   isAdmin: boolean,
   situation: HelpPageSituation | null = null,
   workingMode: boolean = false,
+  productLineId: ProductLineId = "architecture",
 ): HelpSearchPanelTopic[] {
   const byId = new Map(collectHelpSearchPanelTopics(isAdmin).map((topic) => [topic.id, topic]));
   const ids = recommendedHelpSearchPanelTopicIds(pathname, situation, workingMode);
@@ -163,6 +166,7 @@ export function recommendedHelpSearchPanelTopics(
   return ids
     .map((id) => byId.get(id))
     .filter((topic): topic is HelpSearchPanelTopic => topic !== undefined)
+    .filter((topic) => !isHelpSearchTopicExcludedForProductLine(topic.id, productLineId))
     .filter((topic) => !helpSearchPanelTopicTargetsCurrentPage(topic, pathname))
     .slice(0, HELP_SEARCH_PANEL_MAX_RECOMMENDED);
 }

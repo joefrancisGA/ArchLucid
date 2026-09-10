@@ -2,6 +2,8 @@
 
 # /al-bug sequential run log
 
+Low-severity hits recorded via `al-bug-sequential-run.ps1 -Severity low` are stored as `held-for-triage` and must not auto-push (ABQ-07).
+
 | Attempt | Zone | Outcome | Bugs found (24h) | Dry runs (24h) |
 | --- | --- | --- | --- | --- |
 | 1 | cli-draft-new | hit | 109 | 2 |

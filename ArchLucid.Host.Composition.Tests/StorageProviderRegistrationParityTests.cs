@@ -75,6 +75,7 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(InMemoryRetrievalGroundingTraceWriter),
         typeof(RunRepositoryCommittedArchitectureReviewFlagReader),
         typeof(InMemoryTenantBrandingProfileRepository),
+        typeof(InMemoryCloudResourceIdentityDirectory),
         // NoOp registered on InMemory storage; Sql path wires TenantMigrationRetrievalOutboxDrainer in host composition.
         typeof(ITenantMigrationRetrievalOutboxDrainer),
     ];

@@ -8,6 +8,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { ReviewsNewWizardResumeStrip } from "@/components/usability/ReviewsNewWizardResumeStrip";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
   resolveReviewsNewPathModeFromQuery,
@@ -35,11 +36,12 @@ function reviewsNewBuyerChromeRendersInShell(pathQuery: string): boolean {
 /** Shared `/architecture/reviews/new` layout — skip link, header, and intake workspace (RNX / REN / REQ / ENE). */
 export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.Element {
   const evalChrome = useProductionEvalChrome();
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const searchParams = useSearchParams();
   const pathQuery = searchParams?.get("path")?.trim() ?? "";
   const activePath = resolveReviewsNewPathModeFromQuery(pathQuery);
-  const onPathTab = reviewsNewShowsPathTabChrome(evalChrome, activePath);
-  const showBuyerChromeInShell = evalChrome && reviewsNewBuyerChromeRendersInShell(pathQuery);
+  const onPathTab = reviewsNewShowsPathTabChrome(buyerPolishedShell, activePath);
+  const showBuyerChromeInShell = buyerPolishedShell && reviewsNewBuyerChromeRendersInShell(pathQuery);
 
   return (
     <OperatorPageContainer variant="workflow" withContextRail={evalChrome}>
@@ -55,7 +57,7 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
         className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
         data-testid="reviews-new-primary-content"
       >
-        <ReviewsNewPageChrome buyerPolishedShell={evalChrome} activePath={activePath} />
+        <ReviewsNewPageChrome buyerPolishedShell={buyerPolishedShell} activePath={activePath} />
 
         <div
           id={REVIEWS_NEW_FIRST_VIEWPORT_ID}
@@ -65,16 +67,15 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
             OPERATOR_LAYOUT.sectionStack,
           )}
         >
+          {showBuyerChromeInShell ? <ReviewsNewBuyerChrome /> : null}
           {!onPathTab ? <ReviewsNewWizardResumeStrip /> : null}
           {props.children}
           {!onPathTab ? <ReviewsNewStarterTemplateGallery /> : null}
         </div>
 
-        {evalChrome || onPathTab ? null : (
+        {buyerPolishedShell || onPathTab ? null : (
           <PathChooserCreateObjectVocabularyRail currentSurfaceId="reviews-new" />
         )}
-
-        {showBuyerChromeInShell ? <ReviewsNewBuyerChrome /> : null}
       </div>
     </OperatorPageContainer>
   );

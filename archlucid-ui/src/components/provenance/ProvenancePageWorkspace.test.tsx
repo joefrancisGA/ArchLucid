@@ -5,6 +5,11 @@ import { ProvenancePageWorkspace } from "@/components/provenance/ProvenancePageW
 import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
+vi.mock("@/hooks/useProductionDeskChrome", () => ({
+  useProductionEvalChrome: (): boolean => false,
+  useProductionDeskChrome: (): boolean => true,
+}));
+
 vi.mock("next/navigation", () => ({
   usePathname: () => "/reviews/demo-run/provenance",
   useSearchParams: () => new URLSearchParams(),
@@ -106,13 +111,15 @@ describe("ProvenancePageWorkspace", () => {
     expect(screen.getByTestId("provenance-wayfinding")).toBeInTheDocument();
     expect(screen.queryByTestId("provenance-sources")).toBeNull(); // TB-2092
     expectClaimDisciplineBand(screen, "provenance", "provenance-claim-discipline");
-    expect(screen.getByTestId("provenance-pick-review-before-inspecting-strip")).toBeInTheDocument();
+    expect(screen.queryByTestId("provenance-pick-review-before-inspecting-strip")).toBeNull();
+    expect(screen.getByTestId("provenance-run-scope-banner")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Review provenance" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Provenance graph" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open Evidence graph" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Search review evidence" })).toHaveAttribute(
       "href",
-      "/insights/evidence-graph?runId=demo-run",
+      "/insights/search-review-evidence",
     );
+    expect(screen.queryByText("Â")).not.toBeInTheDocument();
   });
 
   it("synchronizes graph selection with the nodes table", async () => {

@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { KeyboardShortcutsHelpContent } from "@/components/KeyboardShortcutsHelpContent";
+import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { useShortcutNavigation } from "@/hooks/useShortcutNavigation";
 import {
   keyboardShortcutsDialogHrefFromSearch,
@@ -33,6 +34,7 @@ export function KeyboardShortcutProvider({ children, onHelpRequested }: Keyboard
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const shortcutsOpenParam = searchParams.get("shortcutsOpen");
+  const { isWorkingMode } = useWorkspaceMode();
   const [helpOpen, setHelpOpenState] = useState(() => parseKeyboardShortcutsOpenFromSearch(shortcutsOpenParam));
   const showBuiltInHelpDialog = onHelpRequested === undefined;
 
@@ -71,7 +73,9 @@ export function KeyboardShortcutProvider({ children, onHelpRequested }: Keyboard
             <DialogHeader>
               <DialogTitle>Keyboard shortcuts</DialogTitle>
               <DialogDescription>
-                Press Alt + key to navigate. Works anywhere except inside text inputs.
+                {isWorkingMode
+                  ? "Desk work shortcuts are listed first. Press Alt + key to navigate when focus is not in a text field."
+                  : "Press Alt + key to navigate. Works anywhere except inside text inputs."}
               </DialogDescription>
             </DialogHeader>
             <KeyboardShortcutsHelpContent />

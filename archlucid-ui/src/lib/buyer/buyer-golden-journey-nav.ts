@@ -51,7 +51,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
     // Canonical TB-405 path; legacy `/audit` permanently redirects here.
     href: auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID),
     chipTooltip:
-      "Chronological audit trail of review events — including recorded governance approval decisions for this sample.",
+      "Chronological audit trail of review events — including recorded approval decisions for this sample.",
   },
 ] as const;
 

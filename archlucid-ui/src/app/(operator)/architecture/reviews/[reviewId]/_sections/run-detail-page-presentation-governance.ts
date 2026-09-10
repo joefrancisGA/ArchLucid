@@ -6,6 +6,7 @@ import { resolveAuthorityLifecycleCommitBlock } from "@/lib/runs/authority-lifec
 import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governance-cta-visibility";
 import { evaluateFinalizeQualityScorecard } from "@/lib/review-quality/finalize-quality-scorecard";
 import { deriveFinalizeQualityScorecardInput } from "@/lib/review-quality/finalize-quality-scorecard-from-findings";
+import { formatDegradedFindingCoverageBlockedReason } from "@/lib/review-quality/degraded-finding-coverage-blocked-reason";
 import { tryLoadRequestAssumptionsForRun } from "@/lib/try-load-request-assumptions-for-run";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF } from "@/lib/showcase-static-demo";
@@ -50,6 +51,15 @@ export function resolveCommitBlockedReason(
       : "one or more required finding engines";
 
     return `Finding coverage is commit-blocking. Failed engines: ${failedEngines}.`;
+  }
+
+  if (
+    model.buyerPolishedArtifactTable !== true
+    && model.resolvedDetail.degradedFindingCoverage === true
+  ) {
+    return formatDegradedFindingCoverageBlockedReason(
+      findingCoverageSummary?.failedEngineLabels ?? [],
+    );
   }
 
   const partialRunCommitBlock = resolvePartialRunCommitBlockPresentation({

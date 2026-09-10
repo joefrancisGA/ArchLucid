@@ -27,6 +27,7 @@ export function useArchitectureDraftAutosave(
   const [lastSavedUtc, setLastSavedUtc] = useState<string | null>(null);
   const [conflictMessage, setConflictMessage] = useState<string | null>(null);
   const [hasPersistedDraft, setHasPersistedDraft] = useState(!deferCreateUntilFirstSave);
+  const [recoveredLocally, setRecoveredLocally] = useState(false);
 
   const fieldsRef = useRef(args.fields);
   const actorSetRef = useRef(args.actorSet);
@@ -70,6 +71,7 @@ export function useArchitectureDraftAutosave(
     }
 
     recoveryHydratedRef.current = true;
+    setRecoveredLocally(true);
     args.onNewDraftRecoveryHydrated?.({
       fields: recovery.fields,
       actorSet: recovery.actorSet,
@@ -117,6 +119,24 @@ export function useArchitectureDraftAutosave(
     markDirty,
   });
 
+  useEffect(() => {
+    if (!deferCreateUntilFirstSave || !recoveredLocally || !isOnline) {
+      return;
+    }
+
+    if (hydrate.resolvedDraftIdRef.current !== null) {
+      return;
+    }
+
+    void persistDraftBundle.persistDraft();
+  }, [deferCreateUntilFirstSave, hydrate.resolvedDraftIdRef, isOnline, persistDraftBundle.persistDraft, recoveredLocally]);
+
+  useEffect(() => {
+    if (hasPersistedDraft && recoveredLocally) {
+      setRecoveredLocally(false);
+    }
+  }, [hasPersistedDraft, recoveredLocally]);
+
   return {
     saveState,
     lastSavedUtc,
@@ -127,6 +147,7 @@ export function useArchitectureDraftAutosave(
     acceptServerBaseline: hydrate.acceptServerBaseline,
     syncServerUpdatedUtc: hydrate.syncServerUpdatedUtc,
     hasPersistedDraft,
+    recoveredLocally,
     keepLocalDraftOnConflict: persistDraftBundle.keepLocalDraftOnConflict,
   };
 }

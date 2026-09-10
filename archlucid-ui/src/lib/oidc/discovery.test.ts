@@ -111,6 +111,24 @@ describe("loadDiscoveryDocument", () => {
     expect(doc.end_session_endpoint).toBeUndefined();
   });
 
+  it("omits end_session_endpoint that does not use http or https", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        ...discoveryDoc,
+        end_session_endpoint: "javascript:alert(1)",
+      }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    const doc = await loadDiscoveryDocument("https://login.microsoftonline.com/tenant/v2.0");
+
+    expect(doc.end_session_endpoint).toBeUndefined();
+  });
+
   it("keeps a valid end_session_endpoint", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

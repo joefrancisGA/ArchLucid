@@ -4,11 +4,19 @@ import { describe, expect, it, vi } from "vitest";
 const usePathnameMock = vi.hoisted(() => vi.fn(() => "/administration/api-keys"));
 
 vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => usePathnameMock(),
+  });
+});
+
+vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
   return {
     ...actual,
-    usePathname: () => usePathnameMock(),
+    isBuyerPolishedOperatorShellEnv: (): boolean => false,
   };
 });
 

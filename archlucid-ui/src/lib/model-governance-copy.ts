@@ -1,8 +1,8 @@
 export const MODEL_GOVERNANCE_ADMIN_REQUIRED_COPY =
-  "Sign in with a workspace administrator account to manage AI and model governance.";
+  "Sign in with a workspace administrator account to manage AI and model policy.";
 
 export const MODEL_GOVERNANCE_LOAD_UNAVAILABLE_COPY =
-  "Model governance settings are temporarily unavailable. Try again in a few minutes or contact support if this continues.";
+  "Model policy settings are temporarily unavailable. Try again in a few minutes or contact support if this continues.";
 
 export const MODEL_GOVERNANCE_UPDATE_FAILED_COPY =
   "Could not update the workspace profile. Try again in a few minutes.";
@@ -11,10 +11,10 @@ export const MODEL_GOVERNANCE_CLEAR_OVERRIDE_FAILED_COPY =
   "Could not clear the workspace profile override. Try again in a few minutes.";
 
 export const MODEL_GOVERNANCE_UNEXPECTED_RESPONSE_COPY =
-  "Unexpected model governance response from the API.";
+  "Unexpected model policy response from the API.";
 
 export const MODEL_GOVERNANCE_UNEXPECTED_ERROR_COPY =
-  "Could not load model governance settings. Try again in a few minutes.";
+  "Could not load model policy settings. Try again in a few minutes.";
 
 export const MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY =
   "Approved alias catalog is temporarily unavailable. You can still change the workspace execution profile below.";

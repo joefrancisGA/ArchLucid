@@ -129,6 +129,18 @@ Add a row to the [run log table](#proof-packet-run-log) above. Keep the `_exampl
 
 **Key flags:** `-SponsorHandoff` emits sponsor handoff bundle; `-FailOnHold` exits non-zero when disposition is HOLD. **Simulator** packets are format reference only — do not count toward G4.
 
+##### G4 fill-in template (copy one row per qualifying Real run — WK-14)
+
+Replace placeholders after `collect-first-pilot-proof.ps1` exits 0. Do **not** copy the `_example_` Simulator row.
+
+| Run date (UTC) | Tenant | Run ID | Mode (Real/Simulator) | Proof packet generated? | Clean (no manual surgery)? | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| `2026-09-07` | `<tenant-label-from-proof-index>` | `<committed-run-guid>` | **Real** | **Yes** | **Yes** | Run 1 Core Pilot; execution mode from `go-no-go-summary.json` |
+| `2026-09-07` | `<tenant-label>` | `<run-2-guid>` | **Real** | **Yes** | **Yes** | Run 2 pack delta: `soc2` vs `cis-azure-foundations`; compare base `<run-1-guid>`; optional Run 2b overlay `cost.requireBudgetCap` or `identity` |
+| `2026-09-07` | `<tenant-label>` | `<run-3-guid>` | **Real** | **Yes** | **Yes** | Run 3 compare vs `<run-1-guid>`; disposition SEND from sponsor handoff |
+
+**Owner-manual columns:** **Clean** requires operator attestation (no hand-edits to findings/ROI). **Notes** carries policy-toggle pack ids, overlay extras, and compare base run id when used.
+
 ##### 5. Update G4 gate
 
 In the [gate table](#gate-table): 0–2 qualifying rows → **HOLD**; ≥3 → **PASS** (link three run IDs). Update **Last reviewed** when G4 changes.

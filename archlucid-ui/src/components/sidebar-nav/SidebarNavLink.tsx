@@ -93,7 +93,7 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
           {...(pilotNavTestId !== undefined ? { "data-testid": pilotNavTestId } : {})}
           className={cn(sharedClassName, "cursor-not-allowed text-neutral-500 dark:text-neutral-400")}
           aria-disabled="true"
-          aria-describedby={hintId}
+          {...(hintId !== undefined ? { "aria-describedby": hintId } : {})}
         >
           {labelContent}
         </span>

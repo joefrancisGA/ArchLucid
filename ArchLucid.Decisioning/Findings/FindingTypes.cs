@@ -15,6 +15,8 @@ public static class FindingTypes
     public const string CostConstraintFinding = "CostConstraintFinding";
     public const string CostBreachFinding = "CostBreachFinding";
     public const string InventoryReconciliationFinding = "InventoryReconciliationFinding";
+    public const string DeclarationInventoryContradictionFinding = "DeclarationInventoryContradictionFinding";
+    public const string PolicyDeclarationInventoryContradictionFinding = "PolicyDeclarationInventoryContradictionFinding";
     public const string PolicyApplicabilityFinding = "PolicyApplicabilityFinding";
     public const string TopologyCoverageFinding = "TopologyCoverageFinding";
     public const string SecurityCoverageFinding = "SecurityCoverageFinding";

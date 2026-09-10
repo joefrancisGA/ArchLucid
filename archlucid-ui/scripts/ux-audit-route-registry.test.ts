@@ -11,9 +11,9 @@ import {
 
 describe("ux-audit-route-registry", () => {
   it("keeps persona route counts aligned with run-ux-audit.ps1 validation", () => {
-    expect(UX_AUDIT_OPERATOR_BUYER_ROUTE_COUNT).toBe(14);
+    expect(UX_AUDIT_OPERATOR_BUYER_ROUTE_COUNT).toBe(16);
     expect(UX_AUDIT_MARKETING_ROUTE_COUNT).toBe(2);
-    expect(UX_AUDIT_EXPECTED_PNG_TOTAL).toBe(30);
+    expect(UX_AUDIT_EXPECTED_PNG_TOTAL).toBe(34);
   });
 
   it("uses unique slugs within each capture mode", () => {

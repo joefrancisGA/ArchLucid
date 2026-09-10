@@ -62,7 +62,7 @@ export type DecisionsNeededSummaryCardProps = {
   summary: GovernanceDecisionsNeededSummary;
 };
 
-/** Six-tile KPI strip for governance decisions-needed summary (TB-223). */
+/** Six-tile KPI strip for approval decisions-needed summary (TB-223). */
 export function DecisionsNeededSummaryCard(props: DecisionsNeededSummaryCardProps) {
   const { summary } = props;
   const tiles = buildDecisionsNeededTiles(summary);
@@ -81,7 +81,7 @@ export function DecisionsNeededSummaryCard(props: DecisionsNeededSummaryCardProp
         <div className="space-y-1">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Decisions needed</h2>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>
-            Open governance approval actions in the current workspace scope — refreshed every 30 seconds.
+            Open approval actions in the current workspace scope — refreshed every 30 seconds.
           </p>
         </div>
 

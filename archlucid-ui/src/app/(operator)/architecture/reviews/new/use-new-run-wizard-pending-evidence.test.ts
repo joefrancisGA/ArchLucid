@@ -9,9 +9,15 @@ vi.mock("@/lib/wizard-pending-evidence-upload", () => ({
   uploadWizardPendingDocumentEvidence: vi.fn(),
 }));
 
+vi.mock("@/lib/read-tier1-inventory-package-zip", () => ({
+  detectTier1InventoryPlatformFromFile: vi.fn(),
+}));
+
 import {
+  uploadWizardPendingDocumentEvidence,
   uploadWizardPendingInventoryEvidence,
 } from "@/lib/wizard-pending-evidence-upload";
+import { detectTier1InventoryPlatformFromFile } from "@/lib/read-tier1-inventory-package-zip";
 
 function buildAwsInventoryZipFile(): File {
   const bytes = zipSync({
@@ -32,6 +38,7 @@ function buildAwsInventoryZipFile(): File {
 
 describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
   it("detects Aws inventory ZIPs and notifies the wizard with the Aws platform", async () => {
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
     const onInventoryFileSelected = vi.fn();
 
     const { result } = renderHook(() =>
@@ -54,6 +61,7 @@ describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
   });
 
   it("uploads pending inventory with the detected platform", async () => {
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
     vi.mocked(uploadWizardPendingInventoryEvidence).mockResolvedValue({ ok: true });
 
     const onInventoryFileSelected = vi.fn();
@@ -85,5 +93,83 @@ describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
       file,
       expect.objectContaining({ onUploadProgress: expect.any(Function) }),
     );
+  });
+
+  it("waits for inventory platform detection before auto-uploading pending evidence", async () => {
+    let resolvePlatform!: (platform: "aws" | null) => void;
+    const platformPromise = new Promise<"aws" | null>((resolve) => {
+      resolvePlatform = resolve;
+    });
+
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockReturnValue(platformPromise);
+    vi.mocked(uploadWizardPendingInventoryEvidence).mockResolvedValue({ ok: true });
+    vi.mocked(uploadWizardPendingDocumentEvidence).mockResolvedValue({ ok: true });
+
+    const inventoryFile = buildAwsInventoryZipFile();
+    const documentFile = new File(["notes"], "notes.pdf", { type: "application/pdf" });
+
+    const { result } = renderHook(() =>
+      useNewRunWizardPendingEvidence({
+        runId: "run-mixed",
+        autoUploadOnCreate: true,
+        onInventoryFileSelected: vi.fn(),
+      }),
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(inventoryFile);
+      result.current.setPendingDocumentFiles([documentFile]);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(uploadWizardPendingDocumentEvidence).not.toHaveBeenCalled();
+    expect(uploadWizardPendingInventoryEvidence).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolvePlatform("aws");
+      await platformPromise;
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(uploadWizardPendingInventoryEvidence).toHaveBeenCalledWith(
+        "run-mixed",
+        "aws",
+        inventoryFile,
+        expect.objectContaining({ onUploadProgress: expect.any(Function) }),
+      );
+      expect(uploadWizardPendingDocumentEvidence).toHaveBeenCalledWith("run-mixed", [documentFile]);
+    });
+  });
+
+  it("auto-uploads pending documents when inventory file is not a tier-1 package", async () => {
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue(null);
+    vi.mocked(uploadWizardPendingDocumentEvidence).mockResolvedValue({ ok: true });
+
+    const invalidInventoryFile = new File(["not-inventory"], "notes.txt", { type: "text/plain" });
+    const documentFile = new File(["notes"], "notes.pdf", { type: "application/pdf" });
+
+    const { result } = renderHook(() =>
+      useNewRunWizardPendingEvidence({
+        runId: "run-documents-only",
+        autoUploadOnCreate: true,
+        onInventoryFileSelected: vi.fn(),
+      }),
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(invalidInventoryFile);
+      result.current.setPendingDocumentFiles([documentFile]);
+    });
+
+    await waitFor(() => {
+      expect(uploadWizardPendingDocumentEvidence).toHaveBeenCalledWith("run-documents-only", [documentFile]);
+    });
+
+    expect(uploadWizardPendingInventoryEvidence).not.toHaveBeenCalled();
+    expect(result.current.evidenceUploadState).toBe("success");
   });
 });
