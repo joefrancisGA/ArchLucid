@@ -8,7 +8,7 @@
 
 **Local verification:** `origin/master` @ `1528a33e89` (2026-09-09) plus QR-13 fixes on branch `cursor/qr-13-ci-yml-matrix-triage-97a4`.
 
-**claimBoundary:** Required contexts remain the five checks in [`.github/rulesets/golden-cohort-gate-required-check.json`](../.github/rulesets/golden-cohort-gate-required-check.json). This document does **not** expand branch protection. Jobs marked warn-only in `ci.yml` may show red without blocking merge.
+**claimBoundary:** Required contexts remain the five checks in [`.github/rulesets/golden-cohort-gate-required-check.json`](../../.github/rulesets/golden-cohort-gate-required-check.json). This document does **not** expand branch protection. Jobs marked warn-only in `ci.yml` may show red without blocking merge.
 
 ## Required checks (golden cohort)
 
@@ -17,7 +17,7 @@
 | `Security: gitleaks (secret scan)` | success | pass (script present) | — |
 | `.NET: fast core (corset)` | failure | **pass** (`Suite=Core`, 416 tests, excludes Slow/Integration/Record) | Aug-28 failed because `dotnet-fast-core-build` was **skipped** after upstream red jobs |
 | `Operator UI: typecheck (blocking)` | failure | **pass** after duplicate-import fix | Was blocked by duplicate `useProductionEvalChrome` import in `PackagePrintPageView.tsx` |
-| `CI: beta-readiness wiring guards` | not in Aug-28 run name list | on `ui-typecheck-on-push.yml` push path | Live ruleset may still lag JSON — see [BRANCH_PROTECTION.md](../.github/BRANCH_PROTECTION.md) |
+| `CI: beta-readiness wiring guards` | not in Aug-28 run name list | on `ui-typecheck-on-push.yml` push path | Live ruleset may still lag JSON — see [BRANCH_PROTECTION.md](../../.github/BRANCH_PROTECTION.md) |
 | `cohort-real-llm-gate` | not exercised | repo var gated | — |
 
 ## Fixes in QR-13 branch

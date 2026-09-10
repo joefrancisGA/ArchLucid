@@ -42,7 +42,7 @@ public sealed partial class ManifestsController
         }
         catch (ConflictException ex)
         {
-            return GoldenManifestReadConflictProblem(ex);
+            return MapGoldenManifestReadSealedManifestConflict(ex);
         }
     }
 
@@ -83,7 +83,7 @@ public sealed partial class ManifestsController
         }
         catch (ConflictException ex)
         {
-            return GoldenManifestReadConflictProblem(ex);
+            return MapGoldenManifestReadSealedManifestConflict(ex);
         }
     }
 

@@ -34,7 +34,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-public sealed class GovernancePreCommitSimulationController(
+public sealed partial class GovernancePreCommitSimulationController(
     IPreCommitGovernanceGate gate,
     IPreFinalizeChecklistService preFinalizeChecklistService,
     IAuditService auditService,
@@ -110,19 +110,11 @@ public sealed class GovernancePreCommitSimulationController(
                 ProblemTypes.RunNotFound);
         }
 
-        try
-        {
-            await PreCommitSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                runGuid,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        IActionResult? sealedGuardResult =
+            await EnsurePreCommitSimulationSealedManifestAllowedAsync(runGuid, scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PreFinalizeChecklistResult checklist =
             await preFinalizeChecklistService.BuildAsync(runIdNormalized, cancellationToken);
@@ -193,19 +185,11 @@ public sealed class GovernancePreCommitSimulationController(
                 ProblemTypes.RunNotFound);
         }
 
-        try
-        {
-            await PreCommitSimulationSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                runGuid,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        IActionResult? sealedGuardResult =
+            await EnsurePreCommitSimulationSealedManifestAllowedAsync(runGuid, scope, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         PreCommitGateResult outcome = await gate.SimulateSyntheticFindingsAsync(
             runIdNormalized,

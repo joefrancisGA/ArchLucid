@@ -11,6 +11,8 @@ public sealed class FindingsMergeAndGateStage(
     IOptions<HumanReviewFindingOptions> humanReviewOptions,
     IOptions<InsightDensityGateOptions> insightDensityGateOptions,
     IFindingProvenanceValidator provenanceValidator,
+    IOptions<FindingSemanticSupportBandOptions> semanticSupportBandOptions,
+    IFindingSemanticSupportBandLlmJudge semanticSupportBandLlmJudge,
     TimeProvider? timeProvider = null) : IFindingsMergeAndGateStage
 {
     private readonly IOptions<HumanReviewFindingOptions> _humanReviewOptions =
@@ -21,6 +23,12 @@ public sealed class FindingsMergeAndGateStage(
 
     private readonly IFindingProvenanceValidator _provenanceValidator =
         provenanceValidator ?? throw new ArgumentNullException(nameof(provenanceValidator));
+
+    private readonly IOptions<FindingSemanticSupportBandOptions> _semanticSupportBandOptions =
+        semanticSupportBandOptions ?? throw new ArgumentNullException(nameof(semanticSupportBandOptions));
+
+    private readonly IFindingSemanticSupportBandLlmJudge _semanticSupportBandLlmJudge =
+        semanticSupportBandLlmJudge ?? throw new ArgumentNullException(nameof(semanticSupportBandLlmJudge));
 
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
@@ -112,6 +120,13 @@ public sealed class FindingsMergeAndGateStage(
         FindingInsightDensityGateApplicator.ApplyToFindings(snapshot.Findings, scoringGate);
 
         FindingProvenanceEmissionApplicator.Apply(snapshot.Findings, _provenanceValidator);
+
+        FindingSemanticSupportBandDefaultsApplicator.Apply(snapshot.Findings);
+
+        FindingSemanticSupportBandEmissionApplicator.Apply(
+            snapshot.Findings,
+            _semanticSupportBandOptions.Value,
+            _semanticSupportBandLlmJudge);
 
         snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
 

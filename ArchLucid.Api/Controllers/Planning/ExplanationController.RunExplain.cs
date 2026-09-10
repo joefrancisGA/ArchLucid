@@ -36,17 +36,10 @@ public sealed partial class ExplanationController
                 $"Run '{runId}' was not found or has no committed manifest in the current scope.",
                 ProblemTypes.RunNotFound);
 
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         DecisionProvenanceGraph? graph = null;
         ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot? snapshot =
@@ -96,17 +89,10 @@ public sealed partial class ExplanationController
                 $"Run '{runId}' was not found or has no committed manifest in the current scope.",
                 ProblemTypes.RunNotFound);
 
-        try
-        {
-            SealedManifestReadGuard.EnsureSealedManifestHashMatchesOrThrow(
-                detail.GoldenManifest,
-                runId.ToString("D"),
-                manifestHashService);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        IActionResult? sealedGuardResult = EnsureGoldenManifestSealedReadAllowed(detail, runId);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         RunExplanationSummary? summary = await runExplanationSummary.GetSummaryAsync(scope, runId, ct);
         if (summary is null)

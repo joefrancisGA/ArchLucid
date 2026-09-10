@@ -9,6 +9,8 @@ import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
 import {
   productLineDisplayName,
   productLineDocumentTitle,
+  productLineRootManifestPath,
+  productLineRootMetadataIcons,
   productLineTitleTemplate,
 } from "@/lib/product-line/product-line-display-name";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
@@ -20,6 +22,7 @@ import { ColorModePreferenceProvider } from "@/components/ColorModePreferencePro
 import { SampleReviewsOnOverviewPreferenceProvider } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
 import { WorkspaceModeProvider } from "@/components/WorkspaceModeProvider";
+import { WorkingCareerRehearsalIntentProvider } from "@/components/governance/WorkingCareerRehearsalIntentProvider";
 
 import "./globals.css";
 
@@ -37,11 +40,8 @@ export const metadata: Metadata = {
     template: productLineTitleTemplate(buildTimeProductLine),
   },
   description: MARKETING_ROOT_OG_DESCRIPTION,
-  manifest: "/manifest.webmanifest",
-  icons: {
-    icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],
-  },
+  manifest: productLineRootManifestPath(buildTimeProductLine),
+  icons: productLineRootMetadataIcons(buildTimeProductLine),
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -84,9 +84,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen font-sans">
         <ColorModePreferenceProvider>
           <WorkspaceModeProvider>
+            <WorkingCareerRehearsalIntentProvider>
             <WhereToGoNextPreferenceProvider>
               <SampleReviewsOnOverviewPreferenceProvider>{children}</SampleReviewsOnOverviewPreferenceProvider>
             </WhereToGoNextPreferenceProvider>
+            </WorkingCareerRehearsalIntentProvider>
           </WorkspaceModeProvider>
         </ColorModePreferenceProvider>
       </body>

@@ -131,7 +131,7 @@ public sealed partial class CloudResourceEvidenceHubController(
         }
         catch (ConflictException ex)
         {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+            return MapEvidenceHubSealedManifestConflict(ex);
         }
     }
 }

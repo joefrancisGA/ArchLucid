@@ -1,3 +1,4 @@
+using ArchLucid.Application.Ask;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
@@ -18,4 +19,5 @@ public sealed record AskPreparedContext(
     string ContextJson,
     string RetrievalContext,
     bool RetrievalDegraded,
-    ScopeContext Scope);
+    ScopeContext Scope,
+    IReadOnlyList<AskCitedFindingsSemanticSupportBandHonesty.FindingBandIndexEntry> FindingBandIndex);

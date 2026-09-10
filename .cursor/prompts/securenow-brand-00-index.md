@@ -64,3 +64,7 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_CONSUMER_BRAND_COMPOSER_PRO
 ## After each prompt
 
 Summarize: files changed, tests run, residual `ArchLucid` consumer strings in the Security shell, Architecture unchanged, and whether the identifier hold (SN-08) still holds.
+
+## Follow-on (not this set)
+
+**SN-04** is brand tokens in help, not job match. Security drawers and `/help/{slug}` that still describe Architecture review / Approval pages are **SH-01–SH-26**: [`.cursor/prompts/securenow-help-00-index.md`](securenow-help-00-index.md).

@@ -1,9 +1,11 @@
 using ArchLucid.Api.Controllers.Architecture;
 using ArchLucid.Application.Architecture;
+using Microsoft.Extensions.Logging.Abstractions;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.TestSupport.SealedManifest;
@@ -37,6 +39,7 @@ public sealed class ArchitecturesControllerTests
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
     private readonly Mock<IGoldenManifestRepository> _goldenManifestRepository = new();
+    private readonly Mock<IManifestHashService> _manifestHashService = new();
 
     public ArchitecturesControllerTests()
     {
@@ -192,11 +195,14 @@ public sealed class ArchitecturesControllerTests
             _actorContext.Object,
             _service.Object,
             _bindingService.Object,
+            new ArchitectureInventoryBindingAuditSupport(
+                _auditService.Object,
+                NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
             _sealDeltaService.Object,
             _auditService.Object,
             _runRepository.Object,
             _goldenManifestRepository.Object,
-            SealedManifestHashTestSupport.CreateManifestHashService(),
+            _manifestHashService.Object,
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun())
         {

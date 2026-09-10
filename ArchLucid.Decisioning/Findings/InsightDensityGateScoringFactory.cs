@@ -61,6 +61,7 @@ public static class InsightDensityGateScoringFactory
             VerificationPriorMinSample = source.VerificationPriorMinSample,
             VerificationPriorWindowDays = source.VerificationPriorWindowDays,
             PreferHighHumanAcceptResidual = source.PreferHighHumanAcceptResidual,
+            EnableSemanticSupportBandLlmJudge = source.EnableSemanticSupportBandLlmJudge,
         };
     }
 }

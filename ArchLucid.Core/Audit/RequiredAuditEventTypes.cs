@@ -55,6 +55,8 @@ public static class RequiredAuditEventTypes
         AuditEventTypes.FindingFeedbackRecorded,
         AuditEventTypes.FindingAskConversationPersisted,
         AuditEventTypes.AuthorityCommittedChainPersisted,
+        AuditEventTypes.ArchitectureInventorySnapshotBound,
+        AuditEventTypes.ArchitectureInventorySnapshotDetached,
     ];
 
     /// <summary>
@@ -84,6 +86,8 @@ public static class RequiredAuditEventTypes
         nameof(AuditEventTypes.FindingFeedbackRecorded),
         nameof(AuditEventTypes.FindingAskConversationPersisted),
         nameof(AuditEventTypes.AuthorityCommittedChainPersisted),
+        nameof(AuditEventTypes.ArchitectureInventorySnapshotBound),
+        nameof(AuditEventTypes.ArchitectureInventorySnapshotDetached),
     ];
 
     public static bool IsRequired(string? eventType)

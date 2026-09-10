@@ -12,6 +12,7 @@ import {
 } from "./http";
 import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { compareRunsLoadBlockedReason } from "@/lib/api/compare-runs-load-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
@@ -57,9 +58,16 @@ export async function compareAgentResultsSummary(
 
 /** Legacy flat-diff comparison between two runs (run-level + optional manifest diffs). */
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
-  return apiGetSealedManifestAware<RunComparison>(
-    `/v1/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
-  );
+  try {
+    return await apiGetSealedManifestAware<RunComparison>(
+      `/v1/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = compareRunsLoadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Structured golden manifest comparison (decision/requirement/security/topology/cost deltas). */
@@ -104,7 +112,9 @@ export async function getFirstValueReportMarkdown(runId: string): Promise<string
 
   if (!response.ok) {
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, text, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason = compareRunsLoadBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   return text;

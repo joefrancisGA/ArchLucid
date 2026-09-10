@@ -40,6 +40,7 @@ export type QuickDecisionWorkspaceCardContext = {
   readonly packageCommitted?: boolean;
   readonly providerNeutralWorkItems?: boolean;
   readonly architectureWorkItemContext?: QuickDecisionWorkItemContext | null;
+  readonly structuralExecutionMode?: import("@/lib/structural-execution-mode").StructuralExecutionModeInput;
 };
 
 export type QuickDecisionWorkspaceFindingSupportingDetailsProps = {

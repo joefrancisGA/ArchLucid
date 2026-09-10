@@ -26,7 +26,9 @@
         "sourceType": null,
         "sourceId": null,
         "properties": {
-          "terraformType": "azurerm_mssql_database"
+          "terraformType": "azurerm_mssql_database",
+          "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000064/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/prod-sql",
+          "resourceId": "/subscriptions/00000000-0000-4000-8000-000000000064/resourceGroups/rg-golden/providers/Microsoft.Sql/servers/prod-sql"
         },
         "reasoningTrace": null
       }
@@ -65,7 +67,8 @@
           "sourceId": null,
           "properties": {
             "terraformType": "azurerm_mssql_database",
-            "geo_redundant": "enabled"
+            "geo_redundant": "enabled",
+            "armResourceId": "/subscriptions/00000000-0000-4000-8000-000000000064/resourceGroups/rg-pay/providers/Microsoft.Sql/servers/prod-sql"
           },
           "reasoningTrace": null
         }

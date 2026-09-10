@@ -120,7 +120,9 @@ public sealed class ExportReplayServiceCareerGateTests
             runDetails.Object,
             Mock.Of<IGraphSnapshotRepository>(),
             SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
-            configuration);
+            configuration,
+            Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
+            Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
 
         Func<Task> act = async () =>
             await sut.ReplayAsync(new ReplayExportRequest { ExportRecordId = record.ExportRecordId });

@@ -31,7 +31,7 @@ namespace ArchLucid.Api.Controllers.Findings;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-public sealed class FindingRemediationAssignmentController(
+public sealed partial class FindingRemediationAssignmentController(
     IFindingRecordRemediationAssignmentRepository remediationAssignmentRepository,
     IScopeContextProvider scopeContextProvider,
     IAuthorityQueryService authorityQueryService,
@@ -92,19 +92,11 @@ public sealed class FindingRemediationAssignmentController(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        try
-        {
-            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                request.RunId,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                ct);
-        }
-        catch (ConflictException ex)
-        {
-            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
-        }
+        IActionResult? sealedGuardResult =
+            await EnsureFindingRemediationAssignmentSealedManifestAllowedAsync(request.RunId, scope, ct);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
 
         bool updated = await _remediationAssignmentRepository.TryUpdateAssignmentAsync(
             request.RunId,

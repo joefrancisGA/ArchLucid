@@ -33,7 +33,9 @@ import {
 import { triggerGoldenManifestMarkdownDownload } from "@/lib/export-markdown";
 import { formatSponsorReviewCoverageHonestyMarkdown } from "@/lib/sponsor/sponsor-review-coverage-honesty";
 import { showError } from "@/lib/toast";
+import { sponsorRoiSummaryBlockedReason } from "@/lib/roi/sponsor-roi-summary-blocked-reason";
 import { sponsorRoiBoardPackMutationBlockedReason } from "@/lib/pilots/sponsor-roi-board-pack-mutation-blocked-reason";
+import { sponsorRoiCsvExportMutationBlockedReason } from "@/lib/pilots/sponsor-roi-csv-export-mutation-blocked-reason";
 import { verifyBoardPackRunLineage } from "@/lib/exports/traceability-bundle-download";
 import type { ErrorRecoveryContractPresentation } from "@/lib/error-recovery-contract-copy";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
@@ -187,7 +189,10 @@ export function SponsorRoiSummarySection({
     try {
       await downloadSponsorRoiCsvExport();
     } catch (e: unknown) {
-      showError("CSV export failed", e instanceof Error ? e.message : String(e));
+      const failure = toApiLoadFailure(e);
+      const blocked = sponsorRoiCsvExportMutationBlockedReason(failure);
+
+      showError("CSV export failed", blocked ?? failure.message);
     }
   }, [scopedReviewExportBlockedReason]);
 
@@ -207,13 +212,18 @@ export function SponsorRoiSummarySection({
   }
 
   if (failure) {
+    const summaryBlockedReason = sponsorRoiSummaryBlockedReason(failure);
+
     return (
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{sponsorRoiSummaryCardTitle(evalChromeShell)}</CardTitle>
         </CardHeader>
         <CardContent>
-          <OperatorApiProblem failure={failure} />
+          <OperatorApiProblem
+            failure={failure}
+            fallbackMessage={summaryBlockedReason ?? failure.message}
+          />
         </CardContent>
       </Card>
     );

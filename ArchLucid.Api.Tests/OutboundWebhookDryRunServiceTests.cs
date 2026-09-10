@@ -234,7 +234,7 @@ public sealed class OutboundWebhookDryRunServiceTests
 
         private async ValueTask<int> ReadAsyncCore(Memory<byte> buffer, CancellationToken cancellationToken)
         {
-            int read = await base.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
+            int read = await base.ReadAsync(buffer, cancellationToken);
             onBytesRead(Position);
 
             return read;
