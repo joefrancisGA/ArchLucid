@@ -338,7 +338,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -364,6 +364,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `SignupForm` sends whitespace-only `architectureTeamSize` as zero/NaN in register payload — **cheap-disproof 2026-09-10 seed hunt #1592:** trim + length gate omits key; regression `omits whitespace-only optional architecture team size from the register payload`.
 
 2026-09-10 seed hunt #1592 (seed-only): reseeded ui-form-validation; cheap-disproof closed async toast paths, optional-field gating, and payload trim shaping; 10 scoped SignupForm tests passed.
+
+- [x] (valid-no-repro) `SignupForm` whitespace-only required fields keep submit enabled — **cheap-disproof 2026-09-10 seed hunt #1670:** zod `.trim().min(1)` on email, name, and org; regression `keeps submit disabled when required fields are whitespace-only`
+- [x] (valid-no-repro) `SignupForm` organization name over 200 characters keeps submit enabled — **cheap-disproof 2026-09-10 seed hunt #1670:** zod `.max(200)` inline error; regression `keeps submit disabled when organization name exceeds 200 characters`
+- [x] (valid-no-repro) `SignupForm` full name over 200 characters keeps submit enabled — **cheap-disproof 2026-09-10 seed hunt #1670:** zod `.max(200)` inline error; regression `keeps submit disabled when full name exceeds 200 characters`
+- [x] (valid-no-repro) `SignupForm` optional architecture team size above 10,000 keeps submit enabled — **cheap-disproof 2026-09-10 seed hunt #1670:** `signupFormSchema.superRefine` upper bound; regression `keeps submit disabled when optional architecture team size exceeds 10000`
+- [x] (valid-no-repro) `SignupForm` industry Other with whitespace-only specification keeps submit enabled — **cheap-disproof 2026-09-10 seed hunt #1670:** superRefine `trim().length === 0`; regression `keeps submit disabled when industry Other has whitespace-only specification`
+- [x] (valid-no-repro) `SignupForm` double-submit during in-flight register — **cheap-disproof 2026-09-10 seed hunt #1670:** `submitting` disables primary and shows `Creating…`; regression `disables submit and shows Creating while register request is in flight`
+- [x] (valid-no-repro) `SignupForm` keyboard submit on invalid email calls fetch or toast — **cheap-disproof 2026-09-10 seed hunt #1670:** `handleSubmit` blocks invalid submit with inline `role="alert"`; regression `shows inline validation on keyboard submit without calling fetch`
+- [x] (valid-no-repro) `SignupForm` successful register omits success toast — **cheap-disproof 2026-09-10 seed hunt #1670:** `showSuccess` on 2xx before verify redirect; regression `submits valid payload to the same-origin proxy`
+
+2026-09-10 seed hunt #1670 (seed-only): reseeded ui-form-validation after #1592; cheap-disproof closed whitespace-only required fields, max-length guards, team-size upper bound, whitespace-only industry Other, in-flight submit lock, keyboard-submit inline validation, and success toast on 2xx; 17 scoped SignupForm tests passed.
 
 ---
 
