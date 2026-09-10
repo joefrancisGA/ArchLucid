@@ -1842,3 +1842,4 @@
 {"at":"2026-09-10T20:17:25.9622526Z","zoneId":"host-infra-evidence-composition","outcome":"dry"}
 {"at":"2026-09-10T20:22:19.6329128Z","zoneId":"commit-output-integrity","outcome":"dry"}
 {"at":"2026-09-10T20:28:11.1302453Z","zoneId":"core-safety-network","outcome":"seed-only"}
+{"at":"2026-09-10T20:32:26.0071018Z","zoneId":"review-recurrence","outcome":"seed-only"}
