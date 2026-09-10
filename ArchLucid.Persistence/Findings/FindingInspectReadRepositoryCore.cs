@@ -39,11 +39,15 @@ internal static class FindingInspectReadRepositoryCore
             reviewerUserId,
             ToUtcDateTimeOffset(revisitDueUtc));
     }
+
     public static IReadOnlyList<string> FilterNonBlankTrimmedStrings(IEnumerable<string> values) =>
         values
             .Where(static value => !string.IsNullOrWhiteSpace(value))
             .Select(static value => value.Trim())
             .ToList();
+
+    public static IReadOnlyList<string> FilterRecommendedActions(IEnumerable<string> values) =>
+        FilterNonBlankTrimmedStrings(values);
 
     public static IReadOnlyList<FindingInspectEvidenceItem> BuildEvidenceFromRelatedNodes(IEnumerable<string> relatedNodes) =>
         FilterNonBlankTrimmedStrings(relatedNodes)

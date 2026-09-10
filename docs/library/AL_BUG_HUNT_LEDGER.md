@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1496,6 +1496,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Corrupt `PayloadJson` with rationale-only metadata falls back to null typed payload — **cheap-disproof 2026-09-10 seed hunt #1647:** corrupt non-empty payload still builds slim metadata when rationale is present; regression `ResolveTypedPayloadForInspect_falls_back_to_rationale_only_metadata_when_payload_is_corrupt`.
 
 2026-09-10 seed hunt #1647 (seed-only): reseeded finding-inspect-sql after #1646; extracted main-inspect SQL routing and disposition pointer projection; cheap-disproof closed typed-payload SQL selection, absent/present pointer metadata mapping, and rationale-only corrupt-payload fallback; 200 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `LoadDispositionJoinAsync` returns whitespace-only recommended actions — **cheap-disproof 2026-09-10 seed hunt #1648:** follow-up batch filters through `FilterRecommendedActions`; regression `FilterRecommendedActions_drops_whitespace_entries_and_trims_survivors`.
+- [x] (valid-no-repro) `TryParsePayloadJson` throws on valid JSON object payloads — **cheap-disproof 2026-09-10 seed hunt #1648:** valid JSON deserializes to `JsonElement`; regression `TryParsePayloadJson_returns_deserialized_object_for_valid_json`.
+- [x] (valid-no-repro) `includeTypedPayload=false` still attempts corrupt `PayloadJson` metadata fallback — **cheap-disproof 2026-09-10 seed hunt #1648:** metadata-only path ignores relational payload and uses title/rationale; regression `ResolveTypedPayloadForInspectRead_metadata_only_ignores_corrupt_payload_json`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` surfaces invalid disposition enums when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1648:** invalid raw strings parse to null disposition while other pointer metadata survives; regression `MapDispositionPointerProjection_returns_null_disposition_for_invalid_raw_when_row_present`.
+- [x] (valid-no-repro) `BuildInspectResponse` drops model/confidence/reasoning passthrough fields — **cheap-disproof 2026-09-10 seed hunt #1648:** response builder copies manifest/model/confidence/reasoning fields through unchanged; extended regression `BuildInspectResponse_preserves_governance_and_disposition_fields`.
+- [x] (valid-no-repro) `MainInspect*` omits tenant/workspace predicates on the `Runs` join — **cheap-disproof 2026-09-10 seed hunt #1648:** both main inspect queries bind `r.TenantId` / `r.WorkspaceId`; regression `MainInspect_scopes_runs_table_to_tenant_and_workspace`.
+
+2026-09-10 seed hunt #1648 (seed-only): reseeded finding-inspect-sql after #1647; extracted recommended-action filter helper; cheap-disproof closed action whitespace filtering, valid payload parse guard, metadata-only corrupt-payload routing, invalid disposition pointer mapping, model/confidence passthrough, and runs-table tenant scoping; 205 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 

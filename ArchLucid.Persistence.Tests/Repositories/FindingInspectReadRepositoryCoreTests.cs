@@ -859,5 +859,63 @@ public sealed class FindingInspectReadRepositoryCoreTests
         response.IsMuted.Should().BeTrue();
         response.MuteReason.Should().Be("noise");
         response.RunId.Should().Be(runId);
+        response.ManifestVersion.Should().Be("1.0");
+        response.ModelDeploymentName.Should().Be("gpt-4");
+        response.ModelAlias.Should().Be("primary");
+        response.PromptTemplateVersion.Should().Be("v2");
+        response.ConfidenceScore.Should().Be(0.91);
+        response.EvaluationConfidenceScore.Should().Be(4);
+        response.ConfidenceLevel.Should().Be(FindingConfidenceLevel.High);
+        response.HumanReviewStatus.Should().Be(FindingHumanReviewStatus.Pending);
+        response.ReasoningTrace.Should().Be("trace");
+        response.ReasoningTraceDigestSha256.Should().Be("digest");
+    }
+
+    [Fact]
+    public void FilterRecommendedActions_drops_whitespace_entries_and_trims_survivors()
+    {
+        IReadOnlyList<string> filtered = FindingInspectReadRepositoryCore.FilterRecommendedActions(
+            ["  Rotate keys  ", "   ", "Enable MFA"]);
+
+        filtered.Should().Equal("Rotate keys", "Enable MFA");
+    }
+
+    [Fact]
+    public void TryParsePayloadJson_returns_deserialized_object_for_valid_json()
+    {
+        JsonElement? parsed = FindingInspectReadRepositoryCore.TryParsePayloadJson("""{"resourceId":"vm-1"}""");
+
+        parsed.Should().NotBeNull();
+        parsed!.Value.GetProperty("resourceId").GetString().Should().Be("vm-1");
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspectRead_metadata_only_ignores_corrupt_payload_json()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspectRead(
+            includeTypedPayload: false,
+            payloadJson: "{ not json",
+            title: "Encrypt at rest",
+            rationale: "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.GetProperty("title").GetString().Should().Be("Encrypt at rest");
+        typed!.Value.GetProperty("rationale").GetString().Should().Be("Missing TLS");
+    }
+
+    [Fact]
+    public void MapDispositionPointerProjection_returns_null_disposition_for_invalid_raw_when_row_present()
+    {
+        DispositionPointerProjection projection = FindingInspectReadRepositoryCore.MapDispositionPointerProjection(
+            dispositionRaw: "bogus",
+            hasDispositionRow: true,
+            occurredAtUtc: DateTimeOffset.UtcNow,
+            revisitDueUtc: null,
+            eventId: Guid.NewGuid(),
+            reviewerUserId: "reviewer",
+            rowVersionStamp: [0x01]);
+
+        projection.LatestDisposition.Should().BeNull();
+        projection.LatestDispositionEventId.Should().NotBeNull();
     }
 }

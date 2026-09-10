@@ -635,6 +635,15 @@ public sealed class FindingInspectReadSqlTests
         dispositionSql.Should().Contain("c.FindingId = @FindingId");
     }
 
+    [Fact]
+    public void MainInspect_scopes_runs_table_to_tenant_and_workspace()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.TenantId = @TenantId");
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("r.WorkspaceId = @WorkspaceId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.TenantId = @TenantId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("r.WorkspaceId = @WorkspaceId");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
