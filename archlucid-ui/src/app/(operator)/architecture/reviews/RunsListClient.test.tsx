@@ -80,6 +80,10 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) =>
   extendBuyerPolishedShellVitestMock(importOriginal),
 );
 
+vi.mock("@/components/runs/RunStatusBadge", () => ({
+  RunStatusBadge: () => null,
+}));
+
 import { RunsListClient } from "./RunsListClient";
 
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -263,6 +267,32 @@ describe("RunsListClient inspector", () => {
 
     expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
     expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+  });
+
+  it("buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    runsListWorkspaceModeHarness.mode = "guided";
+
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cc",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+    const committed2: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000cf",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[committed, committed2]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `compareRuns=${committed.runId},${committed2.runId}`,
+    );
+
+    expect(screen.queryByTestId("runs-list-compare-selection-bar")).toBeNull();
+    expect(runsListSearchParamsHarness.state.query).not.toContain("compareRuns=");
   });
 
   it("buyer-polished: uses finalized section heading and scope chips", () => {
