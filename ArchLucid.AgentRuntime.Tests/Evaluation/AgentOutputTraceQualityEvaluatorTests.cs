@@ -734,6 +734,89 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     }
 
     [Fact]
+    public async Task ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_quality_rejected_flag_set()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+            PilotStrictMinStructuralCompleteness = 0,
+            PilotStrictMinSemanticScore = 0,
+            PilotStrictMinEvidenceRefCount = 0,
+            PilotStrictMinAgentResultFaithfulnessSupportRatio = 0,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = MinimalValidTopologyAgentResultJson(),
+            QualityRejected = true,
+        };
+
+        DelegatingSemanticEvaluator optimisticHeuristic = new((_, _, _) => new AgentOutputSemanticScore
+        {
+            OverallSemanticScore = 0.95,
+        });
+
+        bool accepted =
+            await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                optimisticHeuristic,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None);
+
+        accepted.Should().BeFalse(
+            because: "confidence enrichment must honor persisted QualityRejected before heuristic re-evaluation");
+    }
+
+    [Fact]
+    public async Task ComputeQualityGateAcceptedForConfidenceAsync_returns_true_when_gate_outcome_is_warned()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.WarnOnly,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                """
+                {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[],"confidence":0.5,"findings":[{"severity":"High","description":"Long enough description text","recommendation":"Fix it"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+                """,
+        };
+
+        bool accepted =
+            await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None);
+
+        accepted.Should().BeTrue(
+            because: "Warned traces remain confidence-eligible; only Rejected blocks schemaPassed");
+    }
+
+    [Fact]
     public async Task ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_recorded_quality_gate_rejected()
     {
         AgentOutputQualityGateOptions options = new()
