@@ -22,6 +22,7 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     IToxicCombinationEngine toxicCombinationEngine,
     ICapabilityToFlowEngine capabilityToFlowEngine,
     ISharedControlBlastRadiusEngine sharedControlBlastRadiusEngine,
+    IFourRealityDriftEngine fourRealityDriftEngine,
     IPathRankingEngine pathRankingEngine,
     ICutPointAnalysisEngine cutPointAnalysisEngine) : IAzureInventorySnapshotPostMaterializeCoordinator
 {
@@ -76,6 +77,12 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             cancellationToken);
 
         await sharedControlBlastRadiusEngine.RunAsync(
+            scope,
+            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
+            cancellationToken);
+
+        await fourRealityDriftEngine.RunAsync(
             scope,
             snapshotId,
             SecureNowArchitectConstants.SystemActorId,

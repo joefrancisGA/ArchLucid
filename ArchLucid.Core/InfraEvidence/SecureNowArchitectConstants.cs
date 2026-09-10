@@ -16,6 +16,12 @@ public static class SecureNowArchitectConstants
 
     public const string SharedControlBlastRadiusControlId = "securenow.shared-control-blast-radius";
 
+    public const string FourRealityDriftControlId = "securenow.four-reality-drift";
+
+    public const string FourRealityDriftHopEdgeType = "four-reality-drift";
+
+    public const string FourRealityDriftTerminalNodeId = "reality-drift://public-access-widened";
+
     public const string SharedControlFanOutHopEdgeType = "shared-control-fan-out";
 
     /// <summary>Synthetic hop for possible information movement (SA-07) — never ObservedFact.</summary>
