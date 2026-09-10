@@ -1,7 +1,7 @@
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_PANEL_TITLE = "Architecture shares";
 
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_PANEL_HELPER =
-  "Restrict this architecture to named people or keep it visible to everyone with workspace read access.";
+  "Restrict this architecture to named people or keep it visible to everyone with workspace read access. Shares are per person only — SCIM groups are not supported in this release.";
 
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_RESTRICT_LABEL = "Restrict to share list";
 
@@ -11,7 +11,10 @@ export const ARCHITECTURE_IDENTITY_DESK_SHARE_SAVE_RESTRICT_LABEL = "Save restri
 
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_GRANT_LABEL = "Grant share";
 
-export const ARCHITECTURE_IDENTITY_DESK_SHARE_USER_PICKER_LABEL = "Person";
+export const ARCHITECTURE_IDENTITY_DESK_SHARE_USER_PICKER_LABEL = "Workspace user";
+
+export const ARCHITECTURE_IDENTITY_DESK_SHARE_USERS_ONLY_HELPER =
+  "The picker lists workspace users only. Group-based shares are not available yet.";
 
 export const ARCHITECTURE_IDENTITY_DESK_SHARE_ROLE_LABEL = "Share role";
 

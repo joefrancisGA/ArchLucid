@@ -47,7 +47,10 @@ public sealed class ArchitectureShareManagementServiceTests
                 },
             ]);
 
-        ArchitectureShareManagementService sut = new(identities.Object, shares.Object);
+        ArchitectureShareManagementService sut = new(
+            identities.Object,
+            shares.Object,
+            CreateValidGrantTargetValidator().Object);
 
         ArchitectureShareListResult result = await sut.GetSharesAsync(Scope, ArchitectureId, CancellationToken.None);
 
@@ -63,7 +66,10 @@ public sealed class ArchitectureShareManagementServiceTests
         Mock<IArchitectureIdentityRepository> identities = CreateIdentityMock();
         Mock<IArchitectureShareRepository> shares = new();
 
-        ArchitectureShareManagementService sut = new(identities.Object, shares.Object);
+        ArchitectureShareManagementService sut = new(
+            identities.Object,
+            shares.Object,
+            CreateValidGrantTargetValidator().Object);
 
         ArchitectureShareUpsertResult result = await sut.UpsertShareAsync(
             Scope,
@@ -90,7 +96,10 @@ public sealed class ArchitectureShareManagementServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        ArchitectureShareManagementService sut = new(identities.Object, shares.Object);
+        ArchitectureShareManagementService sut = new(
+            identities.Object,
+            shares.Object,
+            CreateValidGrantTargetValidator().Object);
 
         ArchitectureShareDeleteResult result = await sut.DeleteShareAsync(
             Scope,
@@ -99,6 +108,47 @@ public sealed class ArchitectureShareManagementServiceTests
             CancellationToken.None);
 
         result.Status.Should().Be(ArchitectureShareDeleteStatus.ShareNotFound);
+    }
+
+    [Fact]
+    public async Task UpsertShareAsync_rejects_scim_group_principal()
+    {
+        Mock<IArchitectureIdentityRepository> identities = CreateIdentityMock();
+        Mock<IArchitectureShareRepository> shares = new();
+        Mock<IArchitectureShareGrantTargetValidator> grantTargets = new();
+
+        grantTargets
+            .Setup(validator => validator.ValidateUserTargetAsync(
+                Scope,
+                ShareUserId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureShareGrantTargetValidationResult.ScimGroupNotSupported());
+
+        ArchitectureShareManagementService sut = new(identities.Object, shares.Object, grantTargets.Object);
+
+        ArchitectureShareUpsertResult result = await sut.UpsertShareAsync(
+            Scope,
+            ArchitectureId,
+            ShareUserId,
+            ArchitectureShareRoles.View,
+            "jwt:actor",
+            CancellationToken.None);
+
+        result.Status.Should().Be(ArchitectureShareUpsertStatus.ScimGroupNotSupported);
+    }
+
+    private static Mock<IArchitectureShareGrantTargetValidator> CreateValidGrantTargetValidator()
+    {
+        Mock<IArchitectureShareGrantTargetValidator> validator = new();
+
+        validator
+            .Setup(service => service.ValidateUserTargetAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureShareGrantTargetValidationResult.Valid());
+
+        return validator;
     }
 
     private static Mock<IArchitectureIdentityRepository> CreateIdentityMock()

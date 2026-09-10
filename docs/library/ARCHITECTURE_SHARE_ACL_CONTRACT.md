@@ -10,6 +10,8 @@ Consultancies need a **named user share list** per architecture without a second
 
 **Default (grandfather):** `RestrictToShares = 0` — workspace-visible; behavior unchanged until opt-in (AS-088).
 
+**V1 share principals (AS-096):** Grants target **workspace users** (`PlatformUsers.Id` / Entra `oid`). SCIM groups are **not** share targets in this wave — group membership still drives workspace roles via `GroupToRoleMapper` (ADR 0032), not architecture share rows. API returns **400** when a SCIM group id is submitted.
+
 ---
 
 ## Role definitions (ADR 0087)
@@ -69,3 +71,4 @@ Server helper: `ArchitectureShareAccessEvaluator` (AS-090). Enforcement on HTTP 
 | AS-091 | IDOR tests |
 | AS-093 | Required durable audit co-commit |
 | AS-095 | 404 policy for unshared principals (`ArchitectureShareNotVisibleAsNotFoundResponsePolicy`) |
+| AS-096 | Users-only share targets; SCIM groups rejected with 400 |

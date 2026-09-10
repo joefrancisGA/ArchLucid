@@ -7,13 +7,17 @@ namespace ArchLucid.Application.Architecture;
 
 public sealed class ArchitectureShareManagementService(
     IArchitectureIdentityRepository architectureIdentityRepository,
-    IArchitectureShareRepository shareRepository) : IArchitectureShareManagementService
+    IArchitectureShareRepository shareRepository,
+    IArchitectureShareGrantTargetValidator grantTargetValidator) : IArchitectureShareManagementService
 {
     private readonly IArchitectureIdentityRepository _architectureIdentityRepository =
         architectureIdentityRepository ?? throw new ArgumentNullException(nameof(architectureIdentityRepository));
 
     private readonly IArchitectureShareRepository _shareRepository =
         shareRepository ?? throw new ArgumentNullException(nameof(shareRepository));
+
+    private readonly IArchitectureShareGrantTargetValidator _grantTargetValidator =
+        grantTargetValidator ?? throw new ArgumentNullException(nameof(grantTargetValidator));
 
     public async Task<ArchitectureShareListResult> GetSharesAsync(
         ScopeContext scope,
@@ -71,6 +75,15 @@ public sealed class ArchitectureShareManagementService(
 
         if (!await ArchitectureExistsAsync(scope, architectureId, cancellationToken))
             return ArchitectureShareUpsertResult.ArchitectureNotFound();
+
+        ArchitectureShareGrantTargetValidationResult grantTarget =
+            await _grantTargetValidator.ValidateUserTargetAsync(scope, userId, cancellationToken);
+
+        if (grantTarget.Status == ArchitectureShareGrantTargetValidationStatus.ScimGroupNotSupported)
+            return ArchitectureShareUpsertResult.ScimGroupNotSupported();
+
+        if (grantTarget.Status == ArchitectureShareGrantTargetValidationStatus.UserNotFound)
+            return ArchitectureShareUpsertResult.UserNotFound();
 
         bool upserted = await _shareRepository.UpsertShareAsync(
             scope,

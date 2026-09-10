@@ -162,6 +162,33 @@ public sealed class ArchitecturesControllerSharesTests
     }
 
     [Fact]
+    public async Task UpsertShare_WithScimGroupId_Returns400()
+    {
+        Guid scimGroupId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        _shareManagementService
+            .Setup(service => service.UpsertShareAsync(
+                Scope,
+                ArchitectureId,
+                scimGroupId,
+                ArchitectureShareRoles.View,
+                "jwt:actor",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ArchitectureShareUpsertResult.ScimGroupNotSupported());
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.UpsertShare(
+            ArchitectureId,
+            scimGroupId,
+            new UpsertArchitectureShareRequest { Role = ArchitectureShareRoles.View },
+            CancellationToken.None);
+
+        ObjectResult badRequest = result.Should().BeOfType<ObjectResult>().Subject;
+        badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task UpsertShare_WithAdmin_Returns204()
     {
         _shareManagementService

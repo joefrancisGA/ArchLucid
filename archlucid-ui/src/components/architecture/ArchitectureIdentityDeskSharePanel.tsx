@@ -42,6 +42,7 @@ import {
   ARCHITECTURE_IDENTITY_DESK_SHARE_SAVE_ROLES_LABEL,
   ARCHITECTURE_IDENTITY_DESK_SHARE_SELECT_USER_REASON,
   ARCHITECTURE_IDENTITY_DESK_SHARE_USER_PICKER_LABEL,
+  ARCHITECTURE_IDENTITY_DESK_SHARE_USERS_ONLY_HELPER,
 } from "@/lib/architecture/architecture-share-copy";
 import {
   ARCHITECTURE_SHARE_ROLES,
@@ -508,6 +509,9 @@ export function ArchitectureIdentityDeskSharePanel(
           <Label htmlFor="architecture-identity-share-user-picker">
             {ARCHITECTURE_IDENTITY_DESK_SHARE_USER_PICKER_LABEL}
           </Label>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+            {ARCHITECTURE_IDENTITY_DESK_SHARE_USERS_ONLY_HELPER}
+          </p>
           <select
             id="architecture-identity-share-user-picker"
             className={cnField}

@@ -164,6 +164,22 @@ describe("ArchitectureIdentityDeskSharePanel (AS-092)", () => {
     });
   });
 
+  it("states that the picker lists workspace users only (AS-096)", async () => {
+    useArchitectureSharesQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: { architectureId, restrictToShares: false, shares: [] },
+      refetch: vi.fn(),
+      blockedReason: null,
+    });
+
+    renderPanel();
+
+    await waitFor(() => {
+      expect(screen.getByText(/picker lists workspace users only/i)).toBeInTheDocument();
+    });
+  });
+
   it("grants a share and shows last saved", async () => {
     useArchitectureSharesQueryMock.mockReturnValue({
       isLoading: false,
