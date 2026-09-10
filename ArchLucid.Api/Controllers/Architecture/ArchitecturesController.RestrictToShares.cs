@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.ProblemDetails;
 
@@ -25,7 +26,7 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
-    [MutatingAuditExcluded("Audit: AS-093 will co-commit Required durable audit for share mutations.")]
+    [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs restrict-to-shares toggles via LogOrThrowAsync.")]
     public async Task<IActionResult> SetRestrictToShares(
         Guid architectureId,
         [FromBody] SetArchitectureRestrictToSharesRequest? body,
@@ -104,6 +105,36 @@ public sealed partial class ArchitecturesController
             return this.BadRequestProblem(
                 "A signed-in platform user is required to restrict an architecture to shares.",
                 ProblemTypes.ValidationFailed);
+        }
+
+        string actor = _actorContext.GetActor();
+
+        if (result.Response!.RestrictToShares)
+        {
+            await _architectureShareAuditSupport.LogRestrictToSharesEnabledAsync(
+                scope,
+                actor,
+                architectureId,
+                cancellationToken);
+
+            if (result.Response.ActorAdminShareInserted && actorUserId is not null)
+            {
+                await _architectureShareAuditSupport.LogShareGrantedAsync(
+                    scope,
+                    actor,
+                    architectureId,
+                    actorUserId.Value,
+                    ArchitectureShareRoles.Admin,
+                    cancellationToken);
+            }
+        }
+        else
+        {
+            await _architectureShareAuditSupport.LogRestrictToSharesDisabledAsync(
+                scope,
+                actor,
+                architectureId,
+                cancellationToken);
         }
 
         return Ok(result.Response);

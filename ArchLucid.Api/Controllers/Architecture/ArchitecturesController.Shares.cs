@@ -52,7 +52,7 @@ public sealed partial class ArchitecturesController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [MutatingAuditExcluded("Audit: AS-093 will co-commit Required durable audit for share mutations.")]
+    [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs ArchitectureShareGranted via LogOrThrowAsync.")]
     public async Task<IActionResult> UpsertShare(
         Guid architectureId,
         Guid userId,
@@ -94,6 +94,14 @@ public sealed partial class ArchitecturesController
                 ProblemTypes.ValidationFailed);
         }
 
+        await _architectureShareAuditSupport.LogShareGrantedAsync(
+            scope,
+            _actorContext.GetActor(),
+            architectureId,
+            userId,
+            body.Role,
+            cancellationToken);
+
         return NoContent();
     }
 
@@ -102,7 +110,7 @@ public sealed partial class ArchitecturesController
     [HttpDelete("{architectureId:guid}/shares/{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [MutatingAuditExcluded("Audit: AS-093 will co-commit Required durable audit for share mutations.")]
+    [MutatingAuditExcluded("Audit: ArchitectureShareAuditSupport logs ArchitectureShareRevoked via LogOrThrowAsync.")]
     public async Task<IActionResult> DeleteShare(
         Guid architectureId,
         Guid userId,
@@ -137,6 +145,13 @@ public sealed partial class ArchitecturesController
                 $"Share for user '{userId:D}' was not found.",
                 ProblemTypes.ResourceNotFound);
         }
+
+        await _architectureShareAuditSupport.LogShareRevokedAsync(
+            scope,
+            _actorContext.GetActor(),
+            architectureId,
+            userId,
+            cancellationToken);
 
         return NoContent();
     }

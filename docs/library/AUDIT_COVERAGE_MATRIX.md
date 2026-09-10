@@ -598,6 +598,10 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ArchitectureIdentityRestored` | `ArchitectureIdentity.Restored` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}` — `archived: false`) |
 | `ArchitectureInventorySnapshotBound` | `ArchitectureIdentity.InventorySnapshotBound` | `ArchitecturesController` (`POST /v1/architectures/{architectureId}/inventory-binding`) — **Required** (`LogOrThrowAsync`) |
 | `ArchitectureInventorySnapshotDetached` | `ArchitectureIdentity.InventorySnapshotDetached` | `ArchitecturesController` (`DELETE /v1/architectures/{architectureId}/inventory-binding`) — **Required** (`LogOrThrowAsync`) |
+| `ArchitectureShareGranted` | `ArchitectureIdentity.ShareGranted` | `ArchitecturesController` (`PUT /v1/architectures/{architectureId}/shares/{userId}`) and restrict opt-in actor Admin bootstrap — **Required** (`LogOrThrowAsync`) |
+| `ArchitectureShareRevoked` | `ArchitectureIdentity.ShareRevoked` | `ArchitecturesController` (`DELETE /v1/architectures/{architectureId}/shares/{userId}`) — **Required** (`LogOrThrowAsync`) |
+| `ArchitectureRestrictToSharesEnabled` | `ArchitectureIdentity.RestrictToSharesEnabled` | `ArchitecturesController` (`PUT /v1/architectures/{architectureId}/restrict-to-shares` enable) — **Required** (`LogOrThrowAsync`) |
+| `ArchitectureRestrictToSharesDisabled` | `ArchitectureIdentity.RestrictToSharesDisabled` | `ArchitecturesController` (`PUT /v1/architectures/{architectureId}/restrict-to-shares` disable) — **Required** (`LogOrThrowAsync`) |
 | `DraftIntakeQuestionAnswered` | `DraftIntake.QuestionAnswered` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/answer`) |
 | `DraftIntakeQuestionSkipped` | `DraftIntake.QuestionSkipped` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/skip`) |
 | `DraftIntakeReasoned` | `DraftIntake.Reasoned` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/reason`) |

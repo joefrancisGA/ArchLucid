@@ -39,6 +39,7 @@ public sealed class ArchitecturesControllerInventoryBindingTests
     private readonly Mock<IActorContext> _actorContext = new();
     private readonly Mock<IAuditService> _auditService = new();
     private readonly ArchitectureInventoryBindingAuditSupport _bindingAuditSupport;
+    private readonly ArchitectureShareAuditSupport _shareAuditSupport;
     private readonly Mock<IArchitectureIdentityService> _identityService = new();
     private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
     private readonly Mock<IArchitectureRestrictToSharesService> _restrictToSharesService = new();
@@ -56,6 +57,9 @@ public sealed class ArchitecturesControllerInventoryBindingTests
         _bindingAuditSupport = new ArchitectureInventoryBindingAuditSupport(
             _auditService.Object,
             NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance);
+        _shareAuditSupport = new ArchitectureShareAuditSupport(
+            _auditService.Object,
+            NullLogger<ArchitectureShareAuditSupport>.Instance);
     }
 
     [Fact]
@@ -262,6 +266,7 @@ public sealed class ArchitecturesControllerInventoryBindingTests
             _identityService.Object,
             _bindingService.Object,
             _bindingAuditSupport,
+            _shareAuditSupport,
             _restrictToSharesService.Object,
             ArchitectureShareManagementServiceTestDefaults.CreatePermissiveService().Object,
             _shareAccessService.Object,

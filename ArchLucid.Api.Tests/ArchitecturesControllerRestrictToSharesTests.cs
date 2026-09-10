@@ -56,6 +56,10 @@ public sealed class ArchitecturesControllerRestrictToSharesTests
     {
         _scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(Scope);
         _actorContext.Setup(static context => context.GetActorId()).Returns("jwt:actor");
+        _actorContext.Setup(static context => context.GetActor()).Returns("jwt:actor");
+        _auditService
+            .Setup(service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
         _shareAccessService
             .Setup(service => service.EvaluateAsync(
                 Scope,
@@ -146,6 +150,19 @@ public sealed class ArchitecturesControllerRestrictToSharesTests
             ok.Value.Should().BeOfType<ArchitectureRestrictToSharesResponse>().Subject;
         response.RestrictToShares.Should().BeTrue();
         response.ActorAdminShareInserted.Should().BeTrue();
+
+        _auditService.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(eventRecord =>
+                    eventRecord.EventType == AuditEventTypes.ArchitectureRestrictToSharesEnabled),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        _auditService.Verify(
+            service => service.LogAsync(
+                It.Is<AuditEvent>(eventRecord =>
+                    eventRecord.EventType == AuditEventTypes.ArchitectureShareGranted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -198,6 +215,9 @@ public sealed class ArchitecturesControllerRestrictToSharesTests
             new ArchitectureInventoryBindingAuditSupport(
                 _auditService.Object,
                 Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
+            new ArchitectureShareAuditSupport(
+                _auditService.Object,
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureShareAuditSupport>.Instance),
             _restrictToSharesService.Object,
             ArchitectureShareManagementServiceTestDefaults.CreatePermissiveService().Object,
             _shareAccessService.Object,

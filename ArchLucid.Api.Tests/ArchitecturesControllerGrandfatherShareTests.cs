@@ -131,6 +131,9 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
             new ArchitectureInventoryBindingAuditSupport(
                 _auditService.Object,
                 Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
+            new ArchitectureShareAuditSupport(
+                _auditService.Object,
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureShareAuditSupport>.Instance),
             _restrictToSharesService.Object,
             ArchitectureShareManagementServiceTestDefaults.CreatePermissiveService().Object,
             _shareAccessService.Object,
