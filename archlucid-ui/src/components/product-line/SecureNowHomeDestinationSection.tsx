@@ -52,46 +52,45 @@ export function SecureNowHomeDestinationSection({
       <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {lead}
       </p>
-      <EnterpriseTable
-        ariaLabel={tableAriaLabel}
-        className={buyerPolishedShell ? "mt-3" : "mt-4"}
-      >
-        <EnterpriseTableHead>
-          <EnterpriseTableRow>
-            <EnterpriseTableHeaderCell>Destination</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
-            {buyerPolishedShell ? <EnterpriseTableHeaderCell>Open</EnterpriseTableHeaderCell> : null}
-          </EnterpriseTableRow>
-        </EnterpriseTableHead>
-        <EnterpriseTableBody>
-          {rows.map((row) => (
-            <EnterpriseTableRow key={row.href}>
-              <EnterpriseTableCell>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Link
-                    className={cn("font-medium", OPERATOR_LINK.inline)}
-                    href={row.href}
-                    data-testid={`${linkTestIdPrefix}-${row.href}`}
-                  >
-                    {row.label}
-                  </Link>
-                  {buyerPolishedShell && row.recommendedFirst === true ? (
-                    <StatusTag kind="neutral" label={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE} />
-                  ) : null}
-                </div>
-              </EnterpriseTableCell>
-              <EnterpriseTableCell>{row.summary}</EnterpriseTableCell>
-              {buyerPolishedShell ? (
-                <EnterpriseTableCell>
-                  <Link className={OPERATOR_LINK.inline} href={row.href}>
-                    Open
-                  </Link>
-                </EnterpriseTableCell>
-              ) : null}
+      <div className={buyerPolishedShell ? "mt-4" : "mt-5"}>
+        <EnterpriseTable ariaLabel={tableAriaLabel}>
+          <EnterpriseTableHead>
+            <EnterpriseTableRow>
+              <EnterpriseTableHeaderCell>Destination</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
+              {buyerPolishedShell ? <EnterpriseTableHeaderCell>Open</EnterpriseTableHeaderCell> : null}
             </EnterpriseTableRow>
-          ))}
-        </EnterpriseTableBody>
-      </EnterpriseTable>
+          </EnterpriseTableHead>
+          <EnterpriseTableBody>
+            {rows.map((row) => (
+              <EnterpriseTableRow key={row.href}>
+                <EnterpriseTableCell>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      className={cn("font-medium", OPERATOR_LINK.inline)}
+                      href={row.href}
+                      data-testid={`${linkTestIdPrefix}-${row.href}`}
+                    >
+                      {row.label}
+                    </Link>
+                    {buyerPolishedShell && row.recommendedFirst === true ? (
+                      <StatusTag kind="neutral" label={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE} />
+                    ) : null}
+                  </div>
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>{row.summary}</EnterpriseTableCell>
+                {buyerPolishedShell ? (
+                  <EnterpriseTableCell>
+                    <Link className={OPERATOR_LINK.inline} href={row.href}>
+                      Open
+                    </Link>
+                  </EnterpriseTableCell>
+                ) : null}
+              </EnterpriseTableRow>
+            ))}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
+      </div>
     </section>
   );
 }
