@@ -2,6 +2,7 @@ using ArchLucid.Api.Contracts;
 using ArchLucid.Api.Models.Runs;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Runs;
@@ -106,11 +107,17 @@ public sealed partial class RunDetailPageBundleController
             ScopedRunPairLoadOutcome.LeftManifestNotFound => null,
             ScopedRunPairLoadOutcome.RightManifestNotFound => null,
             ScopedRunPairLoadOutcome.PinFingerprintMismatch =>
-                "Compare blocked: create-time pin fingerprints differ between the selected runs.",
+                MapRunDetailPageBundlePriorCompareSealedManifestBlockedReason(
+                    new ConflictException(
+                        "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
             ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch =>
-                "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.",
+                MapRunDetailPageBundlePriorCompareSealedManifestBlockedReason(
+                    new ConflictException(
+                        "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.")),
             ScopedRunPairLoadOutcome.SealedManifestHashMismatch =>
-                "Compare blocked: sealed manifest hash verification failed for one or both selected runs.",
+                MapRunDetailPageBundlePriorCompareSealedManifestBlockedReason(
+                    new ConflictException(
+                        "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
             ScopedRunPairLoadOutcome.LeftLifecycleIncomplete =>
                 $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.",
             ScopedRunPairLoadOutcome.RightLifecycleIncomplete =>
