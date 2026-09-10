@@ -3,6 +3,7 @@ import { apiPostJson, apiPostNoContent, apiPutJson, apiPutNoContent } from "./ht
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { riskExceptionMutationBlockedReason } from "@/lib/governance/risk-exception-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+
 import type { components } from "@/lib/openapi-schemas";
 import {
   type ArchitectureReviewRecurrenceSchedule,
@@ -50,10 +51,17 @@ export async function renewRiskException(
   riskExceptionId: string,
   body: { expiresAtUtc: string; rationale?: string; evidenceRef?: string },
 ): Promise<RiskExceptionRecord> {
-  return apiPostJson<RiskExceptionRecord>(
-    `${governanceStickinessBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/renew`,
-    body,
-  );
+  try {
+    return await apiPostJson<RiskExceptionRecord>(
+      `${governanceStickinessBase()}/risk-exceptions/${encodeURIComponent(riskExceptionId)}/renew`,
+      body,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = riskExceptionMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export async function createArchitectureReviewRecurrenceSchedule(body: {
