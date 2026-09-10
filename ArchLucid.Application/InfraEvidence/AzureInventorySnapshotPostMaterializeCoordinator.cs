@@ -28,7 +28,8 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     ISharedControlBlastRadiusEngine sharedControlBlastRadiusEngine,
     IFourRealityDriftEngine fourRealityDriftEngine,
     IPathRankingEngine pathRankingEngine,
-    ICutPointAnalysisEngine cutPointAnalysisEngine) : IAzureInventorySnapshotPostMaterializeCoordinator
+    ICutPointAnalysisEngine cutPointAnalysisEngine,
+    ISecurityEvidencePathRoutingSyncService pathRoutingSyncService) : IAzureInventorySnapshotPostMaterializeCoordinator
 {
     public async Task OnSnapshotMaterializedAsync(
         ScopeContext scope,
@@ -132,6 +133,8 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
             snapshotId,
             SecureNowArchitectConstants.SystemActorId,
             cancellationToken);
+
+        await pathRoutingSyncService.SyncSnapshotAsync(scope, snapshotId, cancellationToken);
     }
 
     private async Task RunDownstreamSecureNowPipelineAsync(
@@ -139,6 +142,8 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
         Guid snapshotId,
         CancellationToken cancellationToken)
     {
+        await pathRoutingSyncService.SyncSnapshotAsync(scope, snapshotId, cancellationToken);
+
         await fourRealityDriftEngine.RunAsync(
             scope,
             snapshotId,
