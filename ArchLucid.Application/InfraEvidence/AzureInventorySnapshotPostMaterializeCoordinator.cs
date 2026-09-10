@@ -1,3 +1,5 @@
+using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
@@ -14,7 +16,8 @@ public interface IAzureInventorySnapshotPostMaterializeCoordinator
 
 public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     IAzureInventorySnapshotRepository snapshotRepository,
-    IAzureInventoryDiffService diffService) : IAzureInventorySnapshotPostMaterializeCoordinator
+    IAzureInventoryDiffService diffService,
+    IPrivilegePathEngine privilegePathEngine) : IAzureInventorySnapshotPostMaterializeCoordinator
 {
     public async Task OnSnapshotMaterializedAsync(
         ScopeContext scope,
@@ -24,22 +27,28 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        if (string.IsNullOrWhiteSpace(subscriptionId))
-            return;
+        if (!string.IsNullOrWhiteSpace(subscriptionId))
+        {
+            Guid? priorSnapshotId = await snapshotRepository.TryGetPriorMaterializedSnapshotIdAsync(
+                scope,
+                subscriptionId,
+                snapshotId,
+                cancellationToken);
 
-        Guid? priorSnapshotId = await snapshotRepository.TryGetPriorMaterializedSnapshotIdAsync(
+            if (priorSnapshotId is not null && priorSnapshotId != Guid.Empty)
+            {
+                await diffService.ComputeAndPersistDiffAsync(
+                    scope,
+                    priorSnapshotId.Value,
+                    snapshotId,
+                    cancellationToken);
+            }
+        }
+
+        await privilegePathEngine.RunAsync(
             scope,
-            subscriptionId,
             snapshotId,
-            cancellationToken);
-
-        if (priorSnapshotId is null || priorSnapshotId == Guid.Empty)
-            return;
-
-        await diffService.ComputeAndPersistDiffAsync(
-            scope,
-            priorSnapshotId.Value,
-            snapshotId,
+            SecureNowArchitectConstants.SystemActorId,
             cancellationToken);
     }
 }
