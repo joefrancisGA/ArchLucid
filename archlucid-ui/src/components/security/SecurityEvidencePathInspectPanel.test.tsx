@@ -100,6 +100,17 @@ describe("SecurityEvidencePathInspectPanel", () => {
           provenanceKind: "DerivedFact",
           reason: "Role assignment inferred from tag metadata.",
         },
+        explanationTemplate: {
+          actor: "Internet",
+          identity: "principal:aaaaaaaa",
+          network: null,
+          asset: "sa1",
+          weakControl: "Role assignment inferred from tag metadata.",
+          proposedChange: "network restrict public",
+          verify: "snapshot:verify-public-closure",
+          architectSentence:
+            "This configuration creates a path from Internet through identity principal:aaaaaaaa to asset sa1. The path exists because role assignment inferred from tag metadata. Change network restrict public will break the path with minimal operational risk. Verify using snapshot:verify-public-closure.",
+        },
         relatedCutPoints: [
           {
             cutPointId: "cut-1",
@@ -130,6 +141,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
     renderPanel("finding-1");
 
     expect(screen.getByText(SECURENOW_PATH_INSPECT_PANEL_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("security-evidence-path-architect-sentence")).toHaveTextContent(
+      "This configuration creates a path from Internet through identity principal:aaaaaaaa to asset sa1.",
+    );
     expect(screen.getByTestId("security-evidence-path-weakest-hop-callout")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-weakest-hop-row")).toBeInTheDocument();
     expect(screen.getAllByTestId("security-evidence-path-hop-provenance")[0]).toHaveTextContent("Observed fact");

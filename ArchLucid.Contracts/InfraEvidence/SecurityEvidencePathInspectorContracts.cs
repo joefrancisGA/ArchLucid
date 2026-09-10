@@ -296,4 +296,19 @@ public sealed class SecurityEvidencePathExplanationTemplateResponse
         get;
         init;
     }
+
+    public string? ProposedChange
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     Deterministic architect sentence assembled from the slots above (SA-21).
+    /// </summary>
+    public string? ArchitectSentence
+    {
+        get;
+        init;
+    }
 }
