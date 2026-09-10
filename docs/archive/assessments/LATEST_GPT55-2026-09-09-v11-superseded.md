@@ -1,4 +1,6 @@
-﻿# ArchLucid Strategic Release and Market Readiness Assessment (v11)
+﻿> **Scope:** Contributor-reference — archived v11 rolling assessment (superseded 2026-09-10 by v13). Historical scoring desk output only.
+
+# ArchLucid Strategic Release and Market Readiness Assessment (v11)
 
 **Pass date:** 2026-09-09, **22:40–23:10 UTC (v11)**. **Computed fresh** — no carry-forward, no score deltas, no rescore ratchet. The v10 pass is superseded by this document and is **not** canonical. v10 is archived at [`../archive/assessments/LATEST_GPT55-2026-09-09-v10-superseded.md`](../archive/assessments/LATEST_GPT55-2026-09-09-v10-superseded.md).
 
