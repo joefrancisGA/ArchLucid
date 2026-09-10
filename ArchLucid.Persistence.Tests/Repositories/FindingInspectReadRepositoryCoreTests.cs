@@ -89,6 +89,26 @@ public sealed class FindingInspectReadRepositoryCoreTests
     }
 
     [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_is_empty_array_falls_back_to_trace_text()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields(
+            "[]",
+            firstRuleText: "Encrypt data at rest");
+
+        ruleId.Should().Be("Encrypt data at rest");
+        ruleName.Should().Be("Encrypt data at rest");
+    }
+
+    [Fact]
+    public void ResolveRuleFields_when_applied_rule_ids_json_is_empty_array_and_trace_missing_returns_nulls()
+    {
+        (string? ruleId, string? ruleName) = FindingInspectReadRepositoryCore.ResolveRuleFields("[]", firstRuleText: null);
+
+        ruleId.Should().BeNull();
+        ruleName.Should().BeNull();
+    }
+
+    [Fact]
     public void BuildMetadataTypedPayload_returns_null_when_empty()
     {
         FindingInspectReadRepositoryCore.BuildMetadataTypedPayload(null, null).Should().BeNull();
@@ -130,5 +150,17 @@ public sealed class FindingInspectReadRepositoryCoreTests
     public void TryParsePayloadJson_returns_null_for_corrupt_json_without_metadata_fallback()
     {
         FindingInspectReadRepositoryCore.TryParsePayloadJson("{ not json").Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveTypedPayloadForInspect_returns_json_null_element_when_payload_is_null_literal()
+    {
+        JsonElement? typed = FindingInspectReadRepositoryCore.ResolveTypedPayloadForInspect(
+            "null",
+            "Encrypt at rest",
+            "Missing TLS");
+
+        typed.Should().NotBeNull();
+        typed!.Value.ValueKind.Should().Be(JsonValueKind.Null);
     }
 }

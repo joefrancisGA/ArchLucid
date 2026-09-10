@@ -52,4 +52,29 @@ public sealed class CommitRunTransientRetryPolicyTests
 
         interPollDelayTotal.Should().BeLessThan(CommitRunTransientRetryPolicy.RetryBudget);
     }
+
+    [Fact]
+    public void RetryDelay_and_manifest_poll_delay_reject_non_positive_poll_or_attempt()
+    {
+        CommitRunTransientRetryPolicy.RetryDelay(0).Should().Be(TimeSpan.Zero);
+        CommitRunTransientRetryPolicy.ManifestReconcilePollDelay(0).Should().Be(TimeSpan.Zero);
+    }
+
+    [Fact]
+    public void IsExhausted_returns_false_when_elapsed_is_just_below_retry_budget()
+    {
+        CommitRunTransientRetryPolicy.IsExhausted(
+            11,
+            CommitRunTransientRetryPolicy.RetryBudget - TimeSpan.FromMilliseconds(1))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void RetryDelay_at_max_attempt_uses_linear_backoff_multiplier()
+    {
+        CommitRunTransientRetryPolicy.RetryDelay(CommitRunTransientRetryPolicy.MaxAttempts)
+            .Should()
+            .Be(TimeSpan.FromMilliseconds(150 * CommitRunTransientRetryPolicy.MaxAttempts));
+    }
 }

@@ -24,7 +24,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                                   ControlId, ControlFramework, Title, Description, Severity, RiskScore,
                                   Exploitability, Exposure, BusinessCriticality, BlastRadius,
                                   FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
-                                  AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId,
+                                  AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId, PathId,
                                   PayloadHashSha256, CreatedUtc, UpdatedUtc
                            FROM dbo.OperationalSecurityFindings
                            WHERE TenantId = @TenantId
@@ -61,7 +61,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                                   ControlId, ControlFramework, Title, Description, Severity, RiskScore,
                                   Exploitability, Exposure, BusinessCriticality, BlastRadius,
                                   FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
-                                  AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId,
+                                  AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId, PathId,
                                   PayloadHashSha256, CreatedUtc, UpdatedUtc
                            FROM dbo.OperationalSecurityFindings
                            WHERE TenantId = @TenantId AND FindingId = @FindingId;
@@ -89,7 +89,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                                   ControlId, ControlFramework, Title, Description, Severity, RiskScore,
                                   Exploitability, Exposure, BusinessCriticality, BlastRadius,
                                   FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
-                                  AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId,
+                                  AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId, PathId,
                                   PayloadHashSha256, CreatedUtc, UpdatedUtc
                            FROM dbo.OperationalSecurityFindings
                            WHERE TenantId = @TenantId
@@ -135,7 +135,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                                       ControlId, ControlFramework, Title, Description, Severity, RiskScore,
                                       Exploitability, Exposure, BusinessCriticality, BlastRadius,
                                       FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
-                                      AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId,
+                                      AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId, PathId,
                                       PayloadHashSha256, CreatedUtc, UpdatedUtc
                                FROM dbo.OperationalSecurityFindings
                                WHERE TenantId = @TenantId
@@ -161,6 +161,30 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
             new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));
 
         return (rows.Select(MapFinding).ToList(), totalCount);
+    }
+
+    public async Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
+        Guid tenantId,
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT FindingId
+                           FROM dbo.OperationalSecurityFindings
+                           WHERE TenantId = @TenantId
+                             AND PathId = @PathId
+                           ORDER BY LastObservedUtc DESC, FindingId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<Guid> rows = await conn.QueryAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, PathId = pathId },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
     }
 
     public async Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
@@ -278,7 +302,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                                ControlId, ControlFramework, Title, Description, Severity, RiskScore,
                                Exploitability, Exposure, BusinessCriticality, BlastRadius,
                                FirstObservedUtc, LastObservedUtc, Status, RawEvidenceReference,
-                               AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId,
+                               AssessmentId, InventoryDiffId, AuditEvidenceSnapshotId, PathId,
                                PayloadHashSha256, CreatedUtc, UpdatedUtc
                            )
                            VALUES
@@ -288,7 +312,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                                @ControlId, @ControlFramework, @Title, @Description, @Severity, @RiskScore,
                                @Exploitability, @Exposure, @BusinessCriticality, @BlastRadius,
                                @FirstObservedUtc, @LastObservedUtc, @Status, @RawEvidenceReference,
-                               @AssessmentId, @InventoryDiffId, @AuditEvidenceSnapshotId,
+                               @AssessmentId, @InventoryDiffId, @AuditEvidenceSnapshotId, @PathId,
                                @PayloadHashSha256, @CreatedUtc, @UpdatedUtc
                            );
                            """;
@@ -329,6 +353,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
                                AssessmentId = @AssessmentId,
                                InventoryDiffId = @InventoryDiffId,
                                AuditEvidenceSnapshotId = @AuditEvidenceSnapshotId,
+                               PathId = @PathId,
                                PayloadHashSha256 = @PayloadHashSha256,
                                UpdatedUtc = @UpdatedUtc
                            WHERE TenantId = @TenantId AND FindingId = @FindingId;
@@ -446,6 +471,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
             finding.AssessmentId,
             finding.InventoryDiffId,
             finding.AuditEvidenceSnapshotId,
+            finding.PathId,
             finding.PayloadHashSha256,
             finding.CreatedUtc,
             finding.UpdatedUtc,
@@ -482,6 +508,7 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
             AssessmentId = row.AssessmentId,
             InventoryDiffId = row.InventoryDiffId,
             AuditEvidenceSnapshotId = row.AuditEvidenceSnapshotId,
+            PathId = row.PathId,
             PayloadHashSha256 = row.PayloadHashSha256,
             CreatedUtc = row.CreatedUtc,
             UpdatedUtc = row.UpdatedUtc,
@@ -677,6 +704,12 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
         }
 
         public Guid? AuditEvidenceSnapshotId
+        {
+            get;
+            init;
+        }
+
+        public Guid? PathId
         {
             get;
             init;

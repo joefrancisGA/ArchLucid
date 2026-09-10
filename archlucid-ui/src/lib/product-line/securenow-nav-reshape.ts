@@ -2,9 +2,15 @@ import { Home } from "lucide-react";
 
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  GOVERNANCE_REMEDIATION_FACTORY_PATH,
+  GOVERNANCE_REMEDIATION_PATTERNS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_REMEDIATION_FACTORY_PATH,
+  SECURENOW_REMEDIATION_PATTERNS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_JIRA_PATH, INTEGRATIONS_SERVICENOW_PATH, INTEGRATIONS_TEAMS_PATH } from "@/lib/integrations-nav-paths";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -46,9 +52,9 @@ export const SECURENOW_COMPLIANCE_NAV_HREFS: readonly string[] = [
 
 /** SecureNow sidebar — operational security destinations in display order. */
 export const SECURENOW_SECURITY_NAV_HREFS: readonly string[] = [
-  "/governance/findings/assigned-to-me",
-  "/governance/remediation-factory",
-  "/governance/remediation-patterns",
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_REMEDIATION_FACTORY_PATH,
+  GOVERNANCE_REMEDIATION_PATTERNS_PATH,
 ];
 
 /** SecureNow sidebar — Azure inventory and outbound ticketing integrations in display order. */
@@ -102,6 +108,25 @@ function applySecureNowIntegrationNavLinkLabels(links: readonly NavLinkItem[]): 
   });
 }
 
+const SECURENOW_SECURITY_NAV_HREF_BY_GOVERNANCE_HREF: Readonly<Record<string, string>> = {
+  [GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH]: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  [GOVERNANCE_REMEDIATION_FACTORY_PATH]: SECURENOW_REMEDIATION_FACTORY_PATH,
+  [GOVERNANCE_REMEDIATION_PATTERNS_PATH]: SECURENOW_REMEDIATION_PATTERNS_PATH,
+};
+
+function remapSecureNowSecurityNavLink(link: NavLinkItem): NavLinkItem {
+  const remappedHref = SECURENOW_SECURITY_NAV_HREF_BY_GOVERNANCE_HREF[link.href];
+
+  if (remappedHref === undefined) {
+    return link;
+  }
+
+  return {
+    ...link,
+    href: remappedHref,
+  };
+}
+
 function buildSecureNowNavGroup(
   id:
     | typeof SECURENOW_COMPLIANCE_NAV_GROUP_ID
@@ -143,7 +168,10 @@ export function reshapeNavGroupsForSecureNow(
   }
 
   const complianceLinks = pickNavLinks(linksByHref, SECURENOW_COMPLIANCE_NAV_HREFS);
-  const securityLinks = [SECURENOW_SECURITY_HOME_LINK, ...pickNavLinks(linksByHref, SECURENOW_SECURITY_NAV_HREFS)];
+  const securityLinks = [
+    SECURENOW_SECURITY_HOME_LINK,
+    ...pickNavLinks(linksByHref, SECURENOW_SECURITY_NAV_HREFS).map(remapSecureNowSecurityNavLink),
+  ];
   const integrationLinks = applySecureNowIntegrationNavLinkLabels(
     pickNavLinks(linksByHref, SECURENOW_INTEGRATION_NAV_HREFS),
   );
