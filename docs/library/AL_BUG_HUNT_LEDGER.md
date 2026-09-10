@@ -599,7 +599,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -653,6 +653,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `EmailOtpVerifyFlow.ResolveNextStepAsync` — single active membership returned `Complete` before checking pending invitations to other workspaces, routing users past bootstrap invitation acceptance — **hit 2026-09-10 seed hunt #1545:** consult `TryGetPendingInvitationForNonMemberWorkspaceAsync` before the one-membership `Complete` shortcut; regression in `VerifyCodeAsync_returns_accept_invitation_when_user_has_one_membership_and_pending_invite_elsewhere`.
 
 2026-09-10 seed hunt #1545 (seed→hit): proved verify next-step skipped pending invitation when user already had one workspace membership; 25 scoped EmailOtp tests passed.
+
+- [x] (valid-no-repro) `EmailOtpVerifyFlow.ExecuteAsync` leaves disabled `EmailOneTimeCode` identity disabled after successful verify — **cheap-disproof 2026-09-10 seed hunt #1568:** `ReEnableAsync` path reactivates reserved disabled identity and records authentication; regression `VerifyCodeAsync_reenables_disabled_email_otp_identity`
+- [x] (invalid) `EmailOtpRequestFlow` resend cooldown returns neutral while invalidating the prior active challenge — **cheap-disproof 2026-09-10 seed hunt #1568:** cooldown suppresses duplicate send but prior challenge remains verifiable; regression `RequestCodeAsync_resend_cooldown_preserves_active_challenge_for_verify`
+- [x] (valid-no-repro) `VerifyCodeAsync` with `Enabled=false` still audits verification failure for unknown challenges — **cheap-disproof 2026-09-10 seed hunt #1568:** disabled guard returns failure before challenge lookup without `EmailOtpVerificationFailed` audit (no email correlation); regression `VerifyCodeAsync_returns_failure_when_otp_auth_disabled`
+
+2026-09-10 seed hunt #1568 (seed-only): reseeded email-otp-auth; cheap-disproof closed disabled-identity re-enable, resend-cooldown invalidation, and disabled-verify audit candidates; 28 scoped EmailOtp tests passed.
 
 ---
 
