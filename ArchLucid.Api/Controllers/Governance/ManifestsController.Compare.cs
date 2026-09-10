@@ -213,11 +213,14 @@ public sealed partial class ManifestsController
                 ProblemTypes.RunNotFound),
             ManifestCompareLoadOutcome.BaseLifecycleIncomplete => MapGoldenManifestReadSealedManifestConflict(
                 new ConflictException(
-                    $"Run '{result.RunId}' authority lifecycle must be Complete before compare.")),            ManifestCompareLoadOutcome.TargetLifecycleIncomplete => MapGoldenManifestReadSealedManifestConflict(
+                    $"Run '{result.RunId}' authority lifecycle must be Complete before compare.")),
+            ManifestCompareLoadOutcome.TargetLifecycleIncomplete => MapGoldenManifestReadSealedManifestConflict(
                 new ConflictException(
-                    $"Run '{result.RunId}' authority lifecycle must be Complete before compare.")),            ManifestCompareLoadOutcome.PinFingerprintMismatch => MapGoldenManifestReadSealedManifestConflict(
+                    $"Run '{result.RunId}' authority lifecycle must be Complete before compare.")),
+            ManifestCompareLoadOutcome.PinFingerprintMismatch => MapGoldenManifestReadSealedManifestConflict(
                 new ConflictException(
-                    "Compare blocked: create-time pin fingerprints differ between the selected runs.")),            ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => MapGoldenManifestReadSealedManifestConflict(
+                    "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
+            ManifestCompareLoadOutcome.CommittedArtifactInventoryMismatch => MapGoldenManifestReadSealedManifestConflict(
                 new ConflictException(
                     "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.")),
             ManifestCompareLoadOutcome.SealedManifestHashMismatch => MapGoldenManifestReadSealedManifestConflict(
