@@ -1,5 +1,6 @@
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { comparisonReplayMutationBlockedReason } from "@/lib/compare/comparison-replay-mutation-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import {
@@ -43,7 +44,9 @@ export async function downloadComparisonReplayPdf(comparisonRecordId: string): P
   if (!response.ok) {
     const errText = await response.text();
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason = comparisonReplayMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   const fileName =
@@ -81,7 +84,9 @@ export async function createAndDownloadComparisonPdf(leftRunId: string, rightRun
   if (!response.ok) {
     const errText = await response.text();
     const failure = toApiLoadFailure(buildApiRequestErrorFromParts(response, errText, correlationId));
-    throw new Error(formatExportSealedManifestAwareApiError(failure));
+    const blockedReason = comparisonReplayMutationBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
 
   const comparisonRecordId = response.headers.get("x-archlucid-comparison-record-id");
