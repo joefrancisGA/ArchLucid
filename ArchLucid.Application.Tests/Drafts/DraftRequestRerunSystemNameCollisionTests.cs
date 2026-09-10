@@ -99,7 +99,7 @@ public sealed class DraftRequestRerunSystemNameCollisionTests
         await _service.PatchAsync(
             _scope,
             draftId,
-            new PatchDraftRequest { SystemName = "ArchLucid" },
+            new PatchDraftRequest { SystemName = "ArchLucid", ExpectedUpdatedUtc = created.UpdatedUtc },
             CancellationToken.None);
 
         _collisionGuard.Verify(
@@ -153,6 +153,7 @@ public sealed class DraftRequestRerunSystemNameCollisionTests
             {
                 BusinessOutcome = "Faster audit prep",
                 SystemName = "ArchLucid",
+                ExpectedUpdatedUtc = created.UpdatedUtc,
                 ActorSet = new ActorSet
                 {
                     Actors =

@@ -14,6 +14,8 @@ export {
   formatArchitectureIntelligenceSpendSummary,
 } from "@/lib/architecture/architecture-intelligence-api-closed-loop";
 
+export { architectureIntelligenceSourceContextBlockedReason } from "@/lib/architecture/architecture-intelligence-source-context-blocked-reason";
+
 export {
   primaryDescriptionFromSources,
   buildArchitectureIntelligenceSourcesFromDraftFields,

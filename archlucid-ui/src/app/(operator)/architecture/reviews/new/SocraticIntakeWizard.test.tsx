@@ -315,6 +315,12 @@ describe("SocraticIntakeWizard", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);
     getDraftRequest.mockReset();
+    getDraftRequest.mockResolvedValue({
+      draftId: "draft-1",
+      updatedUtc: "2026-08-05T12:00:00Z",
+      status: "Drafting",
+      document: {},
+    });
     routerPush.mockReset();
     routerReplace.mockReset();
     suggestAnswersFromEvidence.mockReset();

@@ -17,7 +17,8 @@ public sealed class IntendedReachabilityEngine(
         ScopeContext scope,
         Guid snapshotId,
         string actorId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        SecureNowArchitectEngineRunScope? runScope = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -42,6 +43,19 @@ public sealed class IntendedReachabilityEngine(
         InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
         IReadOnlyList<ReachabilityPathCandidate> candidates =
             IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        if (runScope is { IsFullEstate: false })
+        {
+            IReadOnlyDictionary<string, Guid> cloudResourceIdByArmId =
+                SecureNowArchitectNeighborhoodFilter.BuildCloudResourceIdByArmId(snapshot);
+
+            candidates = candidates
+                .Where(candidate => SecureNowArchitectNeighborhoodFilter.CandidateTouchesSeeds(
+                    candidate,
+                    runScope.SeedCloudResourceIds,
+                    cloudResourceIdByArmId))
+                .ToList();
+        }
 
         if (candidates.Count == 0)
         {

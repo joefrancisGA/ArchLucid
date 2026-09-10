@@ -10,6 +10,6 @@ public interface IArchitectureRestrictToSharesService
         bool restrictToShares,
         bool confirmOptIn,
         Guid actorUserId,
-        string actorOid,
+        string grantedBy,
         CancellationToken cancellationToken = default);
 }

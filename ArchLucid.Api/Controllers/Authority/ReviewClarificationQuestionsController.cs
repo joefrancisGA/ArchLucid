@@ -121,66 +121,73 @@ public sealed partial class ReviewClarificationQuestionsController(
                     ProblemTypes.ValidationFailed);
         }
 
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        IActionResult? sealedGuardResult =
-            await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
         try
         {
-            await clarificationQuestionService.GetQuestionsAsync(
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            IActionResult? sealedGuardResult =
+                await EnsureSealedManifestReadAllowedAsync(scope, runId, cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
+            try
+            {
+                await clarificationQuestionService.GetQuestionsAsync(
+                    scope,
+                    runId,
+                    priorRunId: null,
+                    cancellationToken);
+            }
+            catch (RunNotFoundException ex)
+            {
+                return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+            }
+
+            KnowledgeModelClarificationApplyResult applyResult = await clarificationAnswerApplicator.ApplyAnswersAsync(
                 scope,
                 runId,
-                priorRunId: null,
+                request.Answers,
+                cancellationToken).ConfigureAwait(false);
+
+            int mutedResolvedFindings = await clarificationResolvedFindingMuter
+                .MuteResolvedAsync(scope, runId, applyResult.AppliedAnswers, cancellationToken)
+                .ConfigureAwait(false);
+
+            IncrementalReReviewResult? reReview = await clarificationAnswerReReviewCoordinator
+                .TryRunAfterApplyAsync(scope, runId, applyResult.AppliedCount, applyResult.AppliedAnswers, cancellationToken)
+                .ConfigureAwait(false);
+
+            int mergedFindingCount = reReview?.MergedFindingIds.Count ?? 0;
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.KnowledgeModelClarificationAnswersApplied,
+                    RunId = runId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            appliedCount = applyResult.AppliedCount,
+                            mutedResolvedFindingCount = mutedResolvedFindings,
+                            answerCount = request.Answers.Count,
+                        },
+                        AuditJsonSerializationOptions.Instance),
+                },
                 cancellationToken);
-        }
-        catch (RunNotFoundException ex)
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
 
-        KnowledgeModelClarificationApplyResult applyResult = await clarificationAnswerApplicator.ApplyAnswersAsync(
-            scope,
-            runId,
-            request.Answers,
-            cancellationToken).ConfigureAwait(false);
-
-        int mutedResolvedFindings = await clarificationResolvedFindingMuter
-            .MuteResolvedAsync(scope, runId, applyResult.AppliedAnswers, cancellationToken)
-            .ConfigureAwait(false);
-
-        IncrementalReReviewResult? reReview = await clarificationAnswerReReviewCoordinator
-            .TryRunAfterApplyAsync(scope, runId, applyResult.AppliedCount, applyResult.AppliedAnswers, cancellationToken)
-            .ConfigureAwait(false);
-
-        int mergedFindingCount = reReview?.MergedFindingIds.Count ?? 0;
-
-        await auditService.LogAsync(
-            new AuditEvent
+            return Ok(new ApplyKnowledgeModelClarificationAnswersResponse
             {
-                EventType = AuditEventTypes.KnowledgeModelClarificationAnswersApplied,
-                RunId = runId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        appliedCount = applyResult.AppliedCount,
-                        mutedResolvedFindingCount = mutedResolvedFindings,
-                        answerCount = request.Answers.Count,
-                    },
-                    AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken);
-
-        return Ok(new ApplyKnowledgeModelClarificationAnswersResponse
+                AppliedCount = applyResult.AppliedCount,
+                ReReviewTriggered = reReview is not null,
+                MergedFindingCount = mergedFindingCount,
+                PartialScopeDisclaimer = reReview?.PartialScopeDisclaimer,
+            });
+        }
+        catch (ConflictException ex)
         {
-            AppliedCount = applyResult.AppliedCount,
-            ReReviewTriggered = reReview is not null,
-            MergedFindingCount = mergedFindingCount,
-            PartialScopeDisclaimer = reReview?.PartialScopeDisclaimer,
-        });
+            return MapClarificationQuestionsSealedManifestConflict(ex);
+        }
     }
 
 }

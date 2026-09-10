@@ -92,9 +92,12 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<ISecurityCrosswalkRepository, NoOpSecurityCrosswalkRepository>();
         services.AddSingleton<IOperationalSecurityFindingRepository, NoOpOperationalSecurityFindingRepository>();
         services.AddSingleton<ISecurityEvidencePathRepository, NoOpSecurityEvidencePathRepository>();
+        services.AddSingleton<ISecurityEvidencePathExplanationRepository, NoOpSecurityEvidencePathExplanationRepository>();
         services.AddSingleton<ISecurityEvidencePathRankRepository, NoOpSecurityEvidencePathRankRepository>();
         services.AddSingleton<ISecurityEvidenceCutPointRepository, NoOpSecurityEvidenceCutPointRepository>();
+        services.AddSingleton<ISecurityEvidencePathRoutingRepository, NoOpSecurityEvidencePathRoutingRepository>();
         services.AddSingleton<IOperationalSecurityExceptionRepository, NoOpOperationalSecurityExceptionRepository>();
+        services.AddSingleton<ISecurityAssetAssertionRepository, NoOpSecurityAssetAssertionRepository>();
         services.AddSingleton<IRemediationPatternRepository, NoOpRemediationPatternRepository>();
         services.AddSingleton<IRemediationPatternMatchRepository, NoOpRemediationPatternMatchRepository>();
         services.AddSingleton<IRemediationInstanceRepository, NoOpRemediationInstanceRepository>();

@@ -10,7 +10,8 @@ namespace ArchLucid.Application.InfraEvidence;
 public sealed class SecurityEvidencePathInspectorQueryService(
     ISecurityEvidencePathRepository pathRepository,
     IOperationalSecurityFindingRepository findingRepository,
-    ISecurityEvidenceCutPointRepository cutPointRepository) : ISecurityEvidencePathInspectorQueryService
+    ISecurityEvidenceCutPointRepository cutPointRepository,
+    ISecurityEvidencePathRoutingRepository routingRepository) : ISecurityEvidencePathInspectorQueryService
 {
     public async Task<PagedResponse<SecurityEvidencePathSummaryResponse>> ListPathsAsync(
         ScopeContext scope,
@@ -80,6 +81,9 @@ public sealed class SecurityEvidencePathInspectorQueryService(
         IReadOnlyList<SecurityEvidenceCutPointRecord> relatedCutPoints =
             await cutPointRepository.ListByPathIdAsync(scope.TenantId, pathId, cancellationToken);
 
+        IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows =
+            await routingRepository.ListByPathIdAsync(scope.TenantId, pathId, cancellationToken);
+
         return new SecurityEvidencePathDetailResponse
         {
             PathId = path.PathId,
@@ -92,12 +96,23 @@ public sealed class SecurityEvidencePathInspectorQueryService(
             Hops = hops.Select(MapHop).ToList(),
             CitingFindingIds = citingFindingIds,
             WeakestHop = weakestHopRecord is null ? null : MapWeakestHop(weakestHopRecord, path.WeakestHopReason),
-            ExplanationTemplate = SecurityEvidencePathExplanationTemplateBuilder.Build(path, hops),
+            ExplanationTemplate = SecurityEvidencePathExplanationTemplateBuilder.Build(path, hops, relatedCutPoints),
             RelatedCutPoints = relatedCutPoints
                 .Select(SecurityEvidenceCutPointResponseMapper.MapSummary)
                 .ToList(),
+            Routing = routingRows.Select(MapRouting).ToList(),
         };
     }
+
+    private static SecurityEvidencePathRoutingResponse MapRouting(SecurityEvidencePathRoutingRecord row) =>
+        new()
+        {
+            Role = row.Role.ToString(),
+            PrincipalId = row.PrincipalId,
+            DisplayName = row.DisplayName,
+            ProvenanceKind = row.ProvenanceKind.ToString(),
+            SourceReference = row.SourceReference,
+        };
 
     private static SecurityEvidencePathSummaryResponse MapSummary(SecurityEvidencePathRecord path) =>
         new()

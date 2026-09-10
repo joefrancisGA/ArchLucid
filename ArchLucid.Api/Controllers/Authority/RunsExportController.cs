@@ -63,23 +63,23 @@ public sealed partial class RunsExportController(
         [FromRoute] string format,
         CancellationToken cancellationToken)
     {
-        if (!AuthorityRunIdentifier.TryParse(runId, out _))
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        if (!TryParseFormat(format, out ExportFormat exportFormat))
-        {
-            return this.BadRequestProblem(
-                "format must be one of: docx, pdf, html.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId.Trim(), cancellationToken);
-
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
-
         try
         {
+            if (!AuthorityRunIdentifier.TryParse(runId, out _))
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            if (!TryParseFormat(format, out ExportFormat exportFormat))
+            {
+                return this.BadRequestProblem(
+                    "format must be one of: docx, pdf, html.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId.Trim(), cancellationToken);
+
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
+
             ExportResult result = await _exportService.GenerateReportAsync(
                 runId.Trim(),
                 exportFormat,

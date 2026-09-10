@@ -1,6 +1,7 @@
 using ArchLucid.Application.Authorization;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Drafts.Stages;
 using ArchLucid.Application.Drafts.QuestionSelection;
@@ -9,6 +10,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Feasibility;
@@ -20,6 +22,7 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Queries;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using FluentValidation;
@@ -73,7 +76,8 @@ internal static class DraftRequestServiceTestFactory
                 questionSelectionEngine,
                 workspaceSystemNameCollisionGuard,
                 architectureIdentityService,
-                presenterIntakeTrailSyncService),
+                presenterIntakeTrailSyncService,
+                CreateSilentForceOverwriteAudit()),
             new DraftRequestDeleteStage(repository, Mock.Of<IWorkOwnershipDeleteAuthorizationService>()));
 
         DraftAdmissionService admissionService = new(
@@ -162,5 +166,17 @@ internal static class DraftRequestServiceTestFactory
             new PassThroughDraftSemanticAdmissionEvaluator(),
             runRepository,
             architectureRequestRepository);
+    }
+
+    internal static DraftForceOverwriteAuditSupport CreateSilentForceOverwriteAudit()
+    {
+        Mock<IActorContext> actor = new();
+        actor.Setup(context => context.GetActor()).Returns("operator@test");
+        actor.Setup(context => context.GetActorId()).Returns("jwt:test:operator");
+
+        return new DraftForceOverwriteAuditSupport(
+            Mock.Of<IAuditService>(),
+            actor.Object,
+            NullLogger<DraftForceOverwriteAuditSupport>.Instance);
     }
 }

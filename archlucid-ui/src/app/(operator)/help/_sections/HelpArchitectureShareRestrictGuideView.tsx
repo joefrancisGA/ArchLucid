@@ -33,7 +33,7 @@ import {
   ARCHITECTURE_SHARE_RESTRICT_HELP_GUIDE_TEST_ID,
   ARCHITECTURE_SHARE_RESTRICT_HELP_PRIMARY_CONTENT_ID,
 } from "@/lib/architecture/architecture-share-restrict-help-page-copy";
-import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+import { HELP_PAGE_LAYOUT, HELP_PAGE_TOC, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -143,7 +143,7 @@ export function HelpArchitectureShareRestrictGuideView(
           </section>
         </div>
 
-        <aside className={HELP_PAGE_LAYOUT.tocColumn}>
+        <aside className={HELP_PAGE_TOC.nav}>
           <HelpTopicTableOfContents headings={ARCHITECTURE_SHARE_RESTRICT_HELP_GUIDE_HEADINGS} />
           <p className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Topic: {ARCHITECTURE_SHARE_RESTRICT_HELP_TOPIC_LABEL}

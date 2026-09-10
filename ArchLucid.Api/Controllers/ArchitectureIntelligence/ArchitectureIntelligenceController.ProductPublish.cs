@@ -26,37 +26,44 @@ public sealed partial class ArchitectureIntelligenceController
         [FromRoute] string runId,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId))
+        try
         {
-            return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
-        }
+            if (string.IsNullOrWhiteSpace(runId))
+            {
+                return this.BadRequestProblem("RunId is required.", ProblemTypes.ValidationFailed);
+            }
 
-        if (Guid.TryParse(runId, out Guid runGuid))
+            if (Guid.TryParse(runId, out Guid runGuid))
+            {
+                IActionResult? sealedGuardResult =
+                    await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
+
+                if (sealedGuardResult is not null)
+                    return sealedGuardResult;
+            }
+
+            ArchitectureIntelligenceProductRunSourceContextLoadResult loaded =
+                await _productRunSourceContextLoader.LoadAsync(runId, cancellationToken);
+
+            if (!loaded.Found)
+            {
+                return this.NotFoundProblem(
+                    loaded.Error ?? "Product run was not found.",
+                    ProblemTypes.RunNotFound);
+            }
+
+            if (!loaded.HasContent || loaded.Request is null)
+            {
+                return this.BadRequestProblem(
+                    loaded.Error ?? "Product run has no loadable architecture content.",
+                    ProblemTypes.ValidationFailed);
+            }
+
+            return Ok(loaded.Request);
+        }
+        catch (ConflictException ex)
         {
-            IActionResult? sealedGuardResult =
-                await EnsureRunSealedManifestReadAllowedAsync(runId, cancellationToken);
-
-            if (sealedGuardResult is not null)
-                return sealedGuardResult;
+            return MapArchitectureIntelligenceSealedManifestConflict(ex);
         }
-
-        ArchitectureIntelligenceProductRunSourceContextLoadResult loaded =
-            await _productRunSourceContextLoader.LoadAsync(runId, cancellationToken);
-
-        if (!loaded.Found)
-        {
-            return this.NotFoundProblem(
-                loaded.Error ?? "Product run was not found.",
-                ProblemTypes.RunNotFound);
-        }
-
-        if (!loaded.HasContent || loaded.Request is null)
-        {
-            return this.BadRequestProblem(
-                loaded.Error ?? "Product run has no loadable architecture content.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        return Ok(loaded.Request);
     }
 }

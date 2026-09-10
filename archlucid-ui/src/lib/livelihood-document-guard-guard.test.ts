@@ -8,6 +8,8 @@ import {
 import {
   LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_COUNT_BASELINE,
   LIVELIHOOD_DOCUMENT_GUARD_DEFERRED_SURFACES,
+  LIVELIHOOD_DOCUMENT_GUARD_MISSING_COUNT_BASELINE,
+  LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES,
   LIVELIHOOD_DOCUMENT_GUARD_PRIMITIVE_SURFACES,
   LIVELIHOOD_DOCUMENT_GUARD_SURFACES,
 } from "@/lib/livelihood-document-guard-inventory";
@@ -58,5 +60,21 @@ describe("livelihood-document-guard shrink ratchet (LP-11)", () => {
 
   it("keeps the deferred inventory at or below the LP-11 baseline count", () => {
     expect(findLivelihoodDocumentGuardDeferredShrinkViolations()).toEqual([]);
+  });
+
+  it("inventories governance approval rationale as missing until LW-071 (LW-004)", () => {
+    const missingIds = LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES.map((surface) => surface.id);
+
+    expect(missingIds).toContain("governance-approval-rationale");
+    expect(LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES.length).toBeLessThanOrEqual(
+      LIVELIHOOD_DOCUMENT_GUARD_MISSING_COUNT_BASELINE,
+    );
+
+    const approval = LIVELIHOOD_DOCUMENT_GUARD_MISSING_SURFACES.find(
+      (surface) => surface.id === "governance-approval-rationale",
+    );
+
+    expect(approval?.sourceRoots.join(" ")).toMatch(/use-governance-workflow-mutations/);
+    expect(approval?.reason.trim().length).toBeGreaterThan(0);
   });
 });

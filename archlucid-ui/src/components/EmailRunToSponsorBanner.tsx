@@ -289,7 +289,11 @@ export function EmailRunToSponsorBanner({
       </div>
 
       {banner.markSentError !== null ? (
-        <p className={cn("m-0 mt-2 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+        <p
+          className={cn("m-0 mt-2 font-medium text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+          role="alert"
+          data-testid="email-run-to-sponsor-mark-sent-blocked-reason"
+        >
           {banner.markSentError}
         </p>
       ) : null}

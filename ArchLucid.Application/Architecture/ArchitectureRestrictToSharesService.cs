@@ -21,67 +21,89 @@ public sealed class ArchitectureRestrictToSharesService(
         bool restrictToShares,
         bool confirmOptIn,
         Guid actorUserId,
-        string actorOid,
+        string grantedBy,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        ArgumentException.ThrowIfNullOrWhiteSpace(actorOid);
+        ArgumentException.ThrowIfNullOrWhiteSpace(grantedBy);
 
-        ArchitectureIdentityRecord? architecture = await _architectureIdentityRepository.GetByIdAsync(
-            scope,
-            architectureId,
-            cancellationToken);
-
-        if (architecture is null)
+        if (!await ArchitectureExistsAsync(scope, architectureId, cancellationToken))
             return ArchitectureRestrictToSharesSetResult.ArchitectureNotFound();
 
-        if (restrictToShares && actorUserId == Guid.Empty)
-            return ArchitectureRestrictToSharesSetResult.ActorUserRequired();
-
-        if (restrictToShares && !confirmOptIn)
-            return ArchitectureRestrictToSharesSetResult.ConfirmationRequired();
-
-        bool actorAdminShareInserted = false;
-
-        if (restrictToShares)
+        if (!restrictToShares)
         {
-            int shareCount = await _shareRepository.CountByArchitectureIdAsync(scope, architectureId, cancellationToken);
+            bool disabled = await _architectureIdentityRepository.TrySetRestrictToSharesAsync(
+                scope,
+                architectureId,
+                restrictToShares: false,
+                cancellationToken);
 
-            if (shareCount == 0)
-            {
-                DateTime grantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+            if (!disabled)
+                return ArchitectureRestrictToSharesSetResult.ArchitectureNotFound();
 
-                await _shareRepository.UpsertAsync(
-                    scope,
-                    new ArchitectureShareRecord
-                    {
-                        ArchitectureId = architectureId,
-                        ActorOid = actorOid.Trim(),
-                        Role = ArchitectureShareRoles.Admin,
-                        GrantedBy = actorOid.Trim(),
-                        GrantedUtc = grantedUtc,
-                    },
-                    cancellationToken);
-
-                actorAdminShareInserted = true;
-            }
+            return ArchitectureRestrictToSharesSetResult.Success(
+                new ArchitectureRestrictToSharesResponse
+                {
+                    ArchitectureId = architectureId,
+                    RestrictToShares = false,
+                    ActorAdminShareInserted = false,
+                });
         }
 
-        bool updated = await _architectureIdentityRepository.TrySetRestrictToSharesAsync(
+        if (!confirmOptIn)
+            return ArchitectureRestrictToSharesSetResult.ConfirmationRequired();
+
+        if (actorUserId == Guid.Empty)
+            return ArchitectureRestrictToSharesSetResult.ActorUserRequired();
+
+        int shareCount = await _shareRepository.CountByArchitectureIdAsync(scope, architectureId, cancellationToken);
+        bool actorAdminShareInserted = shareCount == 0;
+
+        if (actorAdminShareInserted)
+        {
+            DateTime grantedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+
+            await _shareRepository.UpsertAsync(
+                scope,
+                new ArchitectureShareRecord
+                {
+                    ArchitectureId = architectureId,
+                    ActorOid = ArchitectureSharePlatformUserActorOid.FromUserId(actorUserId),
+                    Role = ArchitectureShareRoles.Admin,
+                    GrantedBy = grantedBy.Trim(),
+                    GrantedUtc = grantedUtc,
+                },
+                cancellationToken);
+        }
+
+        bool enabled = await _architectureIdentityRepository.TrySetRestrictToSharesAsync(
             scope,
             architectureId,
-            restrictToShares,
+            restrictToShares: true,
             cancellationToken);
 
-        if (!updated)
+        if (!enabled)
             return ArchitectureRestrictToSharesSetResult.ArchitectureNotFound();
 
         return ArchitectureRestrictToSharesSetResult.Success(
             new ArchitectureRestrictToSharesResponse
             {
                 ArchitectureId = architectureId,
-                RestrictToShares = restrictToShares,
+                RestrictToShares = true,
                 ActorAdminShareInserted = actorAdminShareInserted,
             });
+    }
+
+    private async Task<bool> ArchitectureExistsAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureIdentityRecord? identity = await _architectureIdentityRepository.GetByIdAsync(
+            scope,
+            architectureId,
+            cancellationToken);
+
+        return identity is not null;
     }
 }

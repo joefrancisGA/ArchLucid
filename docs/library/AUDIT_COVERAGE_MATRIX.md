@@ -593,6 +593,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `DraftIntakeBranched` | `DraftIntake.Branched` | `DraftRequestsController` (`POST /v1/architecture/draft/{draftId}/branch`) |
 | `DraftIntakeCreated` | `DraftIntake.Created` | `DraftRequestsController` (`POST /v1/architecture/draft`) |
 | `DraftIntakePatched` | `DraftIntake.Patched` | `DraftRequestsController` (`PATCH /v1/architecture/draft/{draftId}`) |
+| `DraftIntakeForceOverwriteApplied` | `DraftIntake.ForceOverwriteApplied` | `DraftForceOverwriteAuditSupport` / `DraftRequestMutateStage` (`PATCH /v1/architecture/draft/{draftId}` with `forceOverwrite: true`) — **Required** (`LogOrThrowAsync`) |
 | `ArchitectureIdentityPatched` | `ArchitectureIdentity.Patched` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}`) |
 | `ArchitectureIdentityArchived` | `ArchitectureIdentity.Archived` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}` — `archived: true`) |
 | `ArchitectureIdentityRestored` | `ArchitectureIdentity.Restored` | `ArchitecturesController` (`PATCH /v1/architectures/{architectureId}` — `archived: false`) |

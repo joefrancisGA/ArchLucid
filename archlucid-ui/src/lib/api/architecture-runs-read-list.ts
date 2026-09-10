@@ -4,17 +4,18 @@ import type { StageTimelineSummary } from "@/types/stage-timeline";
 
 import { isLiveAuthorityRunId } from "@/lib/operator-static-demo/run-scoped-live-api";
 
-import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+import { architectureRequestBlockedReason } from "@/lib/runs/architecture-request-blocked-reason";
 import { buyerRunDetailSummaryBlockedReason } from "@/lib/runs/buyer-run-detail-summary-blocked-reason";
 import { runOperatorGovernanceDispositionMutationBlockedReason } from "@/lib/runs/run-operator-governance-disposition-mutation-blocked-reason";
 import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeline-blocked-reason";
 import { runReviewTrailBlockedReason } from "@/lib/runs/run-review-trail-blocked-reason";
 import { runSummaryBlockedReason } from "@/lib/runs/run-summary-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-
 import {
   type ApiResponseWithTrace,
+  apiGet,
   apiPostJson,
 } from "./http";
 import type {
@@ -27,10 +28,17 @@ export async function getArchitectureRequest(
   requestId: string,
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<components["schemas"]["ArchitectureRequest"]> {
-  return apiGetSealedManifestAware<components["schemas"]["ArchitectureRequest"]>(
-    `/v1/architecture/request/${encodeURIComponent(requestId)}`,
-    options,
-  );
+  try {
+    return await apiGetSealedManifestAware<components["schemas"]["ArchitectureRequest"]>(
+      `/v1/architecture/request/${encodeURIComponent(requestId)}`,
+      options,
+    );
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = architectureRequestBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 /** Fetches the lightweight summary for a single run. */
@@ -43,7 +51,7 @@ export async function getRunSummary(
   }
 
   try {
-    return await apiGetSealedManifestAware<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
+    return await apiGet<RunSummary>(`/v1/authority/reviews/${runId}/summary`, options);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = runSummaryBlockedReason(failure);
@@ -58,10 +66,7 @@ export async function getBuyerRunDetailSummary(
   options?: { readonly scopeHeaders?: Record<string, string> },
 ): Promise<ApiResponseWithTrace<RunDetail>> {
   try {
-    const data = await apiGetSealedManifestAware<RunDetail>(
-      `/v1/authority/reviews/${runId}/buyer-summary`,
-      options,
-    );
+    const data = await apiGet<RunDetail>(`/v1/authority/reviews/${runId}/buyer-summary`, options);
 
     return { data, traceId: null };
   } catch (error: unknown) {

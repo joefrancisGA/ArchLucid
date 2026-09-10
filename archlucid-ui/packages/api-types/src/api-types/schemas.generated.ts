@@ -1477,13 +1477,6 @@ export interface components {
             id: string;
             name: string;
         };
-        ArchitectureRestrictToSharesResponse: {
-            actorAdminShareInserted?: boolean;
-            /** Format: uuid */
-            architectureId?: string;
-            confirmationCopy?: string;
-            restrictToShares?: boolean;
-        };
         ArchitectureReviewRecurrenceSchedule: {
             /** Format: uuid */
             architectureId?: null | string;
@@ -2225,6 +2218,10 @@ export interface components {
             /** Format: int64 */
             processUptimeSeconds?: number;
             runtimeFramework?: string;
+        };
+        BuildSecurityEvidencePathExplanationRequest: {
+            allowInsufficientEvidence?: boolean;
+            useSimulator?: boolean;
         };
         BuyerFindingSummaryDto: {
             category?: string;
@@ -6596,6 +6593,16 @@ export interface components {
             /** Format: int32 */
             totalCount?: number;
         };
+        PagedResponseOfSecurityEvidencePathSummaryResponse: {
+            hasMore?: boolean;
+            items?: components["schemas"]["SecurityEvidencePathSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            /** Format: int32 */
+            totalCount?: number;
+        };
         PatchArchitectureIdentityRequest: {
             archived?: null | boolean;
             description?: null | string;
@@ -6612,9 +6619,13 @@ export interface components {
         PatchDraftRequest: {
             actorSet?: null | components["schemas"]["ActorSet"];
             businessOutcome?: null | string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Required unless forceOverwrite is true. Must match the current draft updatedUtc. Omit returns HTTP 409 with code draft_cas_token_missing, not last-write-wins (ADR 0088).
+             */
             expectedUpdatedUtc?: null | string;
             focusedPilotModeEnabled?: null | boolean;
+            /** @description When true, skips CAS and overwrites the server draft (Keep mine). Never defaults to true. Writes a Required audit event. JSON Schema cannot express required-unless-forceOverwrite. */
             forceOverwrite?: null | boolean;
             freeTextIntent?: null | string;
             openQuestions?: null | string;
@@ -6636,6 +6647,8 @@ export interface components {
         PatchTechnologyLedgerEntryResponse: {
             entry?: components["schemas"]["TechnologyLedgerEntryResponse"];
         };
+        PathConfidenceBand: number;
+        PathKind: number;
         PatternEvidence: {
             applicableCapabilities?: string[];
             name?: string;
@@ -8249,6 +8262,9 @@ export interface components {
             findingId?: string;
             /** Format: uuid */
             instanceId?: string;
+            /** Format: uuid */
+            pathId?: null | string;
+            pathNarrative?: null | components["schemas"]["RemediationPathNarrative"];
             patternKey?: string;
             /** Format: uuid */
             preflightSnapshotId?: null | string;
@@ -8268,6 +8284,25 @@ export interface components {
             /** Format: int32 */
             count?: number;
             key?: string;
+        };
+        RemediationPathNarrative: {
+            affectedDependencyCloudResourceIds?: string[];
+            aiInferenceSummary?: null | string;
+            blastRadiusWarning?: string;
+            canonicalHopHashHex?: string;
+            exposureSummary?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            preconditions?: string[];
+            problemStatement?: string;
+            recommendedChange?: string;
+            recommendedChangeSource?: string;
+            safeRolloutSteps?: string[];
+            verificationQueries?: string[];
+            weakestHopReason?: string;
+            whyItMatters?: string;
         };
         RemediationPatternBulkImportRequest: {
             items?: components["schemas"]["RemediationPatternDraftApiRequest"][];
@@ -9593,6 +9628,32 @@ export interface components {
             /** Format: uuid */
             workspaceId?: string;
         };
+        SecureNowArchitectOutcomeMetricsResponse: {
+            /** Format: int32 */
+            assertedCrownJewelExposurePathsRemoved?: number;
+            /** Format: int32 */
+            criticalOrHighConfidencePathsRemoved?: number;
+            /** Format: int32 */
+            exceptionsExpired?: number;
+            /** Format: uuid */
+            fromSnapshotId?: string;
+            /** Format: int32 */
+            privilegedIdentityNodesOnPathsReduced?: number;
+            /** Format: int32 */
+            remediationRecurrenceCount?: number;
+            ruleVersion?: string;
+            /** Format: int32 */
+            sharedControlBlastRadiusPathsRemoved?: number;
+            supportingOperationalMetrics?: null | components["schemas"]["SecureNowArchitectSupportingOperationalMetricsResponse"];
+            /** Format: uuid */
+            toSnapshotId?: string;
+            /** Format: int32 */
+            unrestrictedEgressCapabilityPathsReduced?: number;
+        };
+        SecureNowArchitectSupportingOperationalMetricsResponse: {
+            /** Format: int32 */
+            openFindings?: number;
+        };
         SecurityAssessmentPublicationRequest: {
             assessmentCode?: string;
             assessorDisplayName?: null | string;
@@ -9603,6 +9664,194 @@ export interface components {
             baseStatus?: null | string;
             controlName?: string;
             targetStatus?: null | string;
+        };
+        SecurityEvidenceCutPointSummaryResponse: {
+            collapsedPathIds?: string[];
+            cutKind?: string;
+            /** Format: int32 */
+            cutOrder?: number;
+            /** Format: uuid */
+            cutPointId?: string;
+            edgeType?: null | string;
+            evidenceReferences?: string[];
+            explanationSummary?: string;
+            fromNodeLabel?: null | string;
+            /** Format: double */
+            leverageScore?: number | string;
+            operationalCostClass?: string;
+            /** Format: int32 */
+            pathsCollapsedCount?: number;
+            suggestedPatternKey?: null | string;
+            toNodeLabel?: null | string;
+        };
+        SecurityEvidencePathDetailResponse: {
+            citingFindingIds?: string[];
+            /** Format: uuid */
+            crownJewelAssertionId?: null | string;
+            explanationTemplate?: components["schemas"]["SecurityEvidencePathExplanationTemplateResponse"];
+            hops?: components["schemas"]["SecurityEvidencePathHopResponse"][];
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            relatedCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
+            routing?: components["schemas"]["SecurityEvidencePathRoutingResponse"][];
+            /** Format: uuid */
+            snapshotId?: string;
+            weakestHop?: null | components["schemas"]["SecurityEvidencePathWeakestHopResponse"];
+            /** Format: int32 */
+            weakestHopOrdinal?: number;
+            weakestHopReason?: string;
+        };
+        SecurityEvidencePathExplanationResponse: {
+            businessImpactHypotheses?: string[];
+            citedEvidenceRefs?: string[];
+            /** Format: date-time */
+            createdUtc?: string;
+            executiveSummary?: string;
+            /** Format: uuid */
+            explanationId?: string;
+            /** Format: uuid */
+            pathId?: string;
+            proposedRemediation?: components["schemas"]["SecurityEvidencePathProposedRemediationResponse"];
+            provenanceKind?: string;
+            simulatorLabel?: null | string;
+        };
+        SecurityEvidencePathExplanationResultResponse: {
+            errorMessage?: null | string;
+            explanation?: null | components["schemas"]["SecurityEvidencePathExplanationResponse"];
+            succeeded?: boolean;
+        };
+        SecurityEvidencePathExplanationTemplateResponse: {
+            actor?: null | string;
+            asset?: null | string;
+            identity?: null | string;
+            network?: null | string;
+            verify?: null | string;
+            weakControl?: null | string;
+        };
+        SecurityEvidencePathHopResponse: {
+            /** Format: uuid */
+            cloudResourceId?: null | string;
+            edgeType?: string;
+            evidenceReference?: string;
+            fromNodeLabel?: string;
+            hopConfidenceBand?: string;
+            /** Format: int32 */
+            hopOrdinal?: number;
+            inferenceSource?: null | string;
+            provenanceKind?: string;
+            toNodeLabel?: string;
+        };
+        SecurityEvidencePathProposedRemediationResponse: {
+            preconditions?: string[];
+            recommendedChange?: string;
+            recommendedChangeSource?: string;
+            suggestedPatternKey?: null | string;
+            verificationQueries?: string[];
+        };
+        SecurityEvidencePathRankDetailResponse: {
+            /** Format: double */
+            blastRadiusScore?: number | string;
+            breakdownJson?: string;
+            /** Format: double */
+            businessConsequenceScore?: null | number | string;
+            /** Format: double */
+            compositeSortScore?: number | string;
+            /** Format: date-time */
+            computedUtc?: string;
+            /** Format: double */
+            confidenceBandScore?: number | string;
+            dimensionProse?: components["schemas"]["SecurityEvidencePathRankDimensionProseResponse"];
+            explanationSummary?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            /** Format: double */
+            privilegeDepthScore?: number | string;
+            /** Format: int32 */
+            rankOrder?: number;
+            ruleVersion?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: double */
+            technicalExposureScore?: number | string;
+        };
+        SecurityEvidencePathRankDimensionProseResponse: {
+            blastRadius?: string;
+            businessConsequence?: string;
+            confidenceBand?: string;
+            overall?: string;
+            privilegeDepth?: string;
+            technicalExposure?: string;
+        };
+        SecurityEvidencePathRankSummaryResponse: {
+            /** Format: double */
+            blastRadiusScore?: number | string;
+            /** Format: double */
+            businessConsequenceScore?: null | number | string;
+            /** Format: double */
+            compositeSortScore?: number | string;
+            /** Format: date-time */
+            computedUtc?: string;
+            /** Format: double */
+            confidenceBandScore?: number | string;
+            explanationSummary?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            /** Format: double */
+            privilegeDepthScore?: number | string;
+            /** Format: int32 */
+            rankOrder?: number;
+            relatedCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
+            ruleVersion?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: double */
+            technicalExposureScore?: number | string;
+        };
+        SecurityEvidencePathRankedPageResponse: {
+            items?: components["schemas"]["SecurityEvidencePathRankSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            pageSize?: number;
+            topCutPoints?: components["schemas"]["SecurityEvidenceCutPointSummaryResponse"][];
+            /** Format: int32 */
+            totalCount?: number;
+        };
+        SecurityEvidencePathRoutingResponse: {
+            displayName?: null | string;
+            principalId?: null | string;
+            provenanceKind?: string;
+            role?: string;
+            sourceReference?: string;
+        };
+        SecurityEvidencePathSummaryResponse: {
+            /** Format: date-time */
+            createdUtc?: string;
+            pathConfidenceBand?: string;
+            /** Format: uuid */
+            pathId?: string;
+            pathKind?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: int32 */
+            weakestHopOrdinal?: number;
+            weakestHopReason?: string;
+        };
+        SecurityEvidencePathWeakestHopResponse: {
+            edgeType?: string;
+            hopConfidenceBand?: string;
+            /** Format: int32 */
+            hopOrdinal?: number;
+            provenanceKind?: string;
+            reason?: string;
         };
         SecurityPostureItem: {
             controlId?: string;
@@ -9637,10 +9886,6 @@ export interface components {
         ServiceType: "Unknown" | "Api" | "Worker" | "Ui" | "Integration" | "DataService" | "SearchService" | "AiService";
         SetAppearancePreferenceRequest: {
             value?: string;
-        };
-        SetArchitectureRestrictToSharesRequest: {
-            confirmOptIn?: boolean;
-            restrictToShares?: boolean;
         };
         SetCloudPlatformScopeRequest: {
             scope?: components["schemas"]["CloudPlatformScopeDto"];
