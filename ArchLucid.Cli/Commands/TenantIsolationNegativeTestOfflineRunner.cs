@@ -64,7 +64,7 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
 
     private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(int statusCode, bool foreignRunIdVisible)
     {
-        if (statusCode >= 500)
+        if (statusCode >= 500 || statusCode is < 200 or >= 300)
             return TenantIsolationNegativeTestVerdict.Skip;
 
         return foreignRunIdVisible

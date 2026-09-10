@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type SetStateAction } from "react";
 
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   parseProvenanceSectionNavOpenFromSearch,
   provenanceSectionNavHrefFromSearch,
@@ -83,10 +83,11 @@ function ProvenanceSectionLinks(props: {
             <a
               href={`#${section.id}`}
               className={cn(
-                "block rounded-md px-2 py-1 underline decoration-1 underline-offset-2",
+                OPERATOR_LINK.nav,
+                "block min-h-6 rounded-md px-2 py-1",
                 active
                   ? "bg-[var(--al-layer-hover)] font-semibold text-al-text-primary decoration-[var(--al-accent-interactive)] decoration-2 dark:bg-neutral-800/80"
-                  : "text-neutral-600 decoration-neutral-300 hover:text-al-text-primary dark:text-neutral-400 dark:decoration-neutral-600 dark:hover:text-neutral-200",
+                  : "text-neutral-700 decoration-neutral-400 hover:text-al-text-primary dark:text-neutral-300 dark:decoration-neutral-600 dark:hover:text-neutral-200",
               )}
               aria-current={active ? "location" : undefined}
               onClick={(event) => {

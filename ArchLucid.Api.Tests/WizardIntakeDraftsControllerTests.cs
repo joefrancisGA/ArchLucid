@@ -1,7 +1,11 @@
 using ArchLucid.Api.Controllers.Architecture;
 using ArchLucid.Application.Intake;
 using ArchLucid.Contracts.Intake;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -46,7 +50,10 @@ public sealed class WizardIntakeDraftsControllerTests
         return new WizardIntakeDraftsController(
             scopeProvider.Object,
             tenants.Object,
-            (service ?? new Mock<IWizardIntakeDraftService>()).Object)
+            (service ?? new Mock<IWizardIntakeDraftService>()).Object,
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns())
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -86,7 +93,8 @@ public sealed class WizardIntakeDraftsControllerTests
 
         IActionResult action = await sut.GetDraft("wizard-missing", CancellationToken.None);
 
-        action.Should().BeOfType<NotFoundResult>();
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
     [Fact]

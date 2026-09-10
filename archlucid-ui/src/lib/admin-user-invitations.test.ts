@@ -100,4 +100,30 @@ describe("admin-user-invitations (TB-794)", () => {
 
     expect(revoked).toBe(true);
   });
+
+  it("surfaces directory-user conflict on 409 without treating it as success", async () => {
+    const fetchFn = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            type: "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+            title: "Conflict",
+            status: 409,
+            detail: "A directory user already exists for 'existing@example.com'.",
+          }),
+          { status: 409, headers: { "Content-Type": "application/json" } },
+        ),
+    );
+
+    const result = await sendAdminUserInvitation("existing@example.com", "Reader", "", fetchFn);
+
+    expect(result.ok).toBe(false);
+
+    if (result.ok) {
+      throw new Error("expected failure");
+    }
+
+    expect(result.reason).toBe("directory_user_exists");
+    expect(result.detail).toContain("directory user already exists");
+  });
 });

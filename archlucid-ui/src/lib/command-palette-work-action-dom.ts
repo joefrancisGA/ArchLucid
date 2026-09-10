@@ -13,6 +13,19 @@ export function queryVisibleArchitectureDraftSaveControl(): HTMLButtonElement | 
   return document.querySelector<HTMLButtonElement>('[data-testid="architecture-save-and-exit"]:not([disabled])');
 }
 
+/** Visible tenant cost settings save control on workspace settings. */
+export function queryVisibleTenantCostSettingsSaveControl(): HTMLButtonElement | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return document.querySelector<HTMLButtonElement>('[data-testid="tenant-cost-settings-save"]:not([disabled])');
+}
+
+export function isCommandPaletteTenantCostSettingsSaveAvailable(): boolean {
+  return queryVisibleTenantCostSettingsSaveControl() !== null;
+}
+
 /** Visible review-detail save controls for guarded livelihood fields (LD-09). */
 export function queryVisibleReviewDetailSaveControl(): HTMLButtonElement | null {
   if (typeof document === "undefined") {
@@ -47,4 +60,52 @@ export function isCommandPaletteReviewSaveAvailable(): boolean {
 
 export function isCommandPaletteFinalizeReviewAvailable(): boolean {
   return queryVisibleFinalizeReviewControl() !== null;
+}
+
+/** Room elicitation command-bar control when review pipeline is complete (DR-16). */
+export function queryVisibleReviewRoomEnterControl(): HTMLButtonElement | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return document.querySelector<HTMLButtonElement>('[data-testid="review-room-enter"]:not([disabled])');
+}
+
+export function isCommandPaletteRoomElicitationAvailable(): boolean {
+  return queryVisibleReviewRoomEnterControl() !== null;
+}
+
+/** Extract & upload replace/focus control when accepted or drop zone is visible. */
+export function queryVisibleExtractUploadFocusControl(): HTMLElement | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const replace = document.querySelector<HTMLElement>(
+    '[data-testid="extract-upload-accepted-replace"]:not([disabled])',
+  );
+
+  if (replace !== null) {
+    return replace;
+  }
+
+  return document.querySelector<HTMLElement>('[data-testid="extract-upload-drop-zone-surface"]');
+}
+
+export function queryVisibleExtractUploadCopyQuickStartControl(): HTMLButtonElement | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return document.querySelector<HTMLButtonElement>(
+    '[data-testid="extract-upload-quick-start-copy"]:not([disabled])',
+  );
+}
+
+export function isCommandPaletteExtractUploadFocusAvailable(): boolean {
+  return queryVisibleExtractUploadFocusControl() !== null;
+}
+
+export function isCommandPaletteExtractUploadCopyQuickStartAvailable(): boolean {
+  return queryVisibleExtractUploadCopyQuickStartControl() !== null;
 }

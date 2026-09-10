@@ -3,7 +3,10 @@
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import {
+  resolveArchitectureReviewHref,
+  reviewDetailPath,
+} from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_ALREADY_SUBMITTED_BODY,
@@ -15,6 +18,8 @@ import { cn } from "@/lib/utils";
 
 type GuidedIntakeAlreadySubmittedCalloutProps = {
   readonly linkedSpawnedRunId: string | null;
+  readonly architectureId?: string | null;
+  readonly workingMode?: boolean;
 };
 
 export function GuidedIntakeAlreadySubmittedCallout(
@@ -22,6 +27,10 @@ export function GuidedIntakeAlreadySubmittedCallout(
 ): React.JSX.Element {
   const linkedReviewId = props.linkedSpawnedRunId?.trim() ?? "";
   const hasLinkedReview = linkedReviewId.length > 0;
+  const linkedReviewHref =
+    props.workingMode === true
+      ? resolveArchitectureReviewHref(linkedReviewId, props.architectureId)
+      : reviewDetailPath(linkedReviewId);
 
   return (
     <div
@@ -38,7 +47,7 @@ export function GuidedIntakeAlreadySubmittedCallout(
       </p>
       {hasLinkedReview ? (
         <Button type="button" variant="primary" size="sm" className="w-fit" asChild>
-          <Link href={reviewDetailPath(linkedReviewId)} data-testid="guided-intake-open-linked-review">
+          <Link href={linkedReviewHref} data-testid="guided-intake-open-linked-review">
             {GUIDED_INTAKE_ALREADY_SUBMITTED_OPEN_REVIEW_CTA}
           </Link>
         </Button>

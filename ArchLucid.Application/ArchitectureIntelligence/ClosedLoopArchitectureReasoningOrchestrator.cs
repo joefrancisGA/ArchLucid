@@ -88,8 +88,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
                         baselineLedgerEntries))
                 : _reviewResultCache.PinScope(cacheManifest);
 
-            if (pinScope.IsPinned
-                && !effectiveRequest.PublishToProduct
+            if (!effectiveRequest.PublishToProduct
                 && _reviewResultCache.TryGet(cacheManifest, out ClosedLoopReasoningResult? cached)
                 && cached is not null)
             {

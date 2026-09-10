@@ -1,0 +1,39 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000063",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000063",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000063-0000-4000-8000-000000000063",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000063",
+    "runId": "20000000-0000-4000-8000-000000000063",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "ctx-golden-63",
+        "nodeType": "ContextSnapshot",
+        "label": "scope",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "requiredCapabilities": "encryption-at-rest"
+        },
+        "reasoningTrace": null
+      },
+      {
+        "nodeId": "cmp-golden-63",
+        "nodeType": "TopologyResource",
+        "label": "checkout-api",
+        "category": "compute",
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {},
+        "reasoningTrace": null
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null,
+  "inventoryFixture": null
+}

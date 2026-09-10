@@ -27,11 +27,13 @@ import {
 } from "./GcpConnectionDisconnectDialog";
 import { useGcpConnectionData } from "./GcpConnectionDataContext";
 import { GcpConnectionWizard } from "./GcpConnectionWizard";
+import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 
 const GCP_MUTATION_DISABLED_HINT_ID = "gcp-connection-mutation-disabled-hint";
 
 export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
   const embedded = props.embedded === true;
+  const { localize } = useLocalizedProductCopy();
   const {
     connections,
     isLoading,
@@ -231,8 +233,9 @@ export function GcpConnectionSection(props: { readonly embedded?: boolean }) {
       <CardHeader>
         <CardTitle>Connect GCP</CardTitle>
         <p className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}>
-          Use Workload Identity Federation to impersonate a read-only service account. ArchLucid stores connection
-          metadata only; no service-account JSON keys are stored.
+          {localize(
+            "Use Workload Identity Federation to impersonate a read-only service account. ArchLucid stores connection metadata only; no service-account JSON keys are stored.",
+          )}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">{body}</CardContent>

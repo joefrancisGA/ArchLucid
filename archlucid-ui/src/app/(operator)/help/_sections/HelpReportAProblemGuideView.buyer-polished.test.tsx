@@ -23,8 +23,6 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 import { HelpReportAProblemGuideView } from "@/app/(operator)/help/_sections/HelpReportAProblemGuideView";
-import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import {
   REPORT_A_PROBLEM_HELP_CLAIM_DISCIPLINE,
   REPORT_A_PROBLEM_HELP_FOLLOW_UPS_TITLE,
@@ -38,6 +36,7 @@ import {
   REPORT_A_PROBLEM_HELP_SKIP_TARGET_ID,
 } from "@/lib/report-a-problem-help-page-copy";
 import { tryLoadProductDocumentation } from "@/lib/load-product-documentation";
+import { expectWhereToGoNextFollowUpLinks } from "@/lib/claim-discipline-test-helpers";
 
 describe("HelpReportAProblemGuideView buyer-polished shell (HRE)", () => {
   const loaded = tryLoadProductDocumentation("report-a-problem");
@@ -79,10 +78,7 @@ describe("HelpReportAProblemGuideView buyer-polished shell (HRE)", () => {
       REPORT_A_PROBLEM_HELP_PRIMARY_ACTIONS.openSupport.href,
     );
 
-    for (const source of filterWhereToGoNextFollowUpLinks(REPORT_A_PROBLEM_HELP_SOURCES)) {
-      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
-      expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
-    }
+    expectWhereToGoNextFollowUpLinks(within(sourcesSection), REPORT_A_PROBLEM_HELP_SOURCES, "/");
 
     expect(firstViewport.compareDocumentPosition(orientationBottom) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

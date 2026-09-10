@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
@@ -10,12 +11,16 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm;
+using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Exports;
@@ -28,7 +33,12 @@ public sealed class RunSummaryOnePagerExportService(
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
-    IGraphSnapshotRepository graphSnapshotRepository) : IRunSummaryOnePagerExportService
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IFindingReviewTrailRepository findingReviewTrailRepository,
+    IConfiguration configuration,
+    IRunRepository runRepository,
+    IArchitectureInventoryBindingRepository architectureInventoryBindingRepository) : IRunSummaryOnePagerExportService
 {
     private const string SponsorReportPrompt =
         "You are an enterprise architect writing a board-ready brief. "
@@ -59,6 +69,21 @@ public sealed class RunSummaryOnePagerExportService(
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
 
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IArchitectureInventoryBindingRepository _architectureInventoryBindingRepository =
+        architectureInventoryBindingRepository ?? throw new ArgumentNullException(nameof(architectureInventoryBindingRepository));
+
     public async Task<RunSummaryOnePagerExportResult> GenerateMarkdownAsync(string runId, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -80,6 +105,8 @@ public sealed class RunSummaryOnePagerExportService(
 
         AuthorityLifecycleCompareExportGuard.EnsureCompleteOrThrow(detail, runId.Trim());
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         if (Guid.TryParse(runId.Trim(), out Guid runGuid))
         {
             await ManifestDecisionReceiptExportBinder.EnsureSealedExportReceiptVerifiedOrThrowAsync(
@@ -87,9 +114,30 @@ public sealed class RunSummaryOnePagerExportService(
                 runId.Trim(),
                 _authorityQueryService,
                 _manifestHashService,
-                _scopeContextProvider.GetCurrentScope(),
+                scope,
+                cancellationToken);
+
+            await RunExportSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId.Trim(),
+                scope,
+                _authorityQueryService,
+                _manifestHashService,
                 cancellationToken);
         }
+
+        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
+            detail,
+            _authorityQueryService,
+            _graphSnapshotRepository,
+            _agentExecutionTraceRepository,
+            scope,
+            workingDesk: true,
+            _configuration,
+            cancellationToken,
+            _runRepository,
+            _architectureInventoryBindingRepository);
+
+        CareerArtifactExportCompletenessGate.EnsureCanExportFromHonestyMaterial(careerExportHonesty);
 
         IReadOnlyList<ArchitectureFinding> topFindings =
             ArchitectureReviewBoardExportDocumentFactory.SelectRunSummaryTopFindings(detail, maxCount: 5);
@@ -99,18 +147,23 @@ public sealed class RunSummaryOnePagerExportService(
             .Select(static f => string.IsNullOrWhiteSpace(f.Message) ? f.Category : f.Message.Trim())
             .ToArray();
 
+        IReadOnlyList<FindingArchitectRestatementExportRow> architectRestatements =
+            await FindingArchitectRestatementExportMaterialLoader.LoadForRunAsync(
+                detail,
+                _findingReviewTrailRepository,
+                scope,
+                cancellationToken);
+
+        StringBuilder architectRestatementMarkdown = new();
+        FindingArchitectRestatementExportComposer.AppendMarkdownSection(architectRestatementMarkdown, architectRestatements);
+        string? architectRestatementMarkdownText = architectRestatementMarkdown.Length == 0
+            ? null
+            : architectRestatementMarkdown.ToString().Trim();
+
         string? activeTrialExportNotice = await ActiveTrialExportNoticeResolver
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
             .ConfigureAwait(false);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        CareerExportCoverageHonestyInput careerExportHonesty = await CareerExportCoverageHonestyMaterialLoader.LoadAsync(
-            detail,
-            _authorityQueryService,
-            _graphSnapshotRepository,
-            scope,
-            workingDesk: true,
-            cancellationToken);
 
         RunSummaryOnePagerDocumentModel model =
             ArchitectureReviewBoardExportDocumentFactory.CreateRunSummaryOnePager(
@@ -118,7 +171,8 @@ public sealed class RunSummaryOnePagerExportService(
                 SponsorReport,
                 topTitles,
                 activeTrialExportNotice,
-                careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty));
+                careerExportHonestyPlainText: CareerExportCoverageHonestyComposer.FormatPlainText(careerExportHonesty),
+                architectRestatementMarkdown: architectRestatementMarkdownText);
 
         string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
         string safeStem = SanitizeRunIdForFileName(model.RunId);

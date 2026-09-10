@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { JiraIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
 import {
   JIRA_INTEGRATION_CANONICAL_PATH,
   JIRA_INTEGRATION_FOLLOW_UPS_TITLE,
@@ -23,7 +24,7 @@ describe("jira-integration-evidence-copy", () => {
 
     const sources = screen.getByTestId("jira-integration-sources");
 
-    for (const link of JIRA_INTEGRATION_SOURCES) {
+    for (const link of filterWhereToGoNextFollowUpLinks(JIRA_INTEGRATION_SOURCES)) {
       expectFollowUpLink(within(sources), link);
     }
 

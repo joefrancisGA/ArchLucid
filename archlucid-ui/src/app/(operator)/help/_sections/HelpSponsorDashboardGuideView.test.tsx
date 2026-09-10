@@ -63,16 +63,17 @@ describe("HelpSponsorDashboardGuideView", () => {
     expect(screen.getByTestId("help-sponsor-dashboard-overview").textContent?.toLowerCase()).not.toContain(
       "sources package",
     );
-    expect(screen.getByTestId("help-sponsor-dashboard-claim-discipline").textContent?.toLowerCase()).not.toContain(
+    expect(screen.getByTestId("help-sponsor-dashboard-claim-discipline-strip").textContent?.toLowerCase()).not.toContain(
       "sources package",
     );
-    expect(screen.getByTestId("help-sponsor-dashboard-claim-discipline").textContent).toContain(
+    expect(screen.getByTestId("help-sponsor-dashboard-claim-discipline-strip")).toHaveTextContent(
       SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByRole("heading", { name: SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
       "id",
       SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID,
     );
+    expect(screen.queryByTestId("help-sponsor-dashboard-claim-discipline")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION.label })).toHaveAttribute(
       "href",
       SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION.href,

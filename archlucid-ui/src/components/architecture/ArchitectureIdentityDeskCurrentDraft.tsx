@@ -7,12 +7,13 @@ import {
   ARCHITECTURE_DRAFT_HANDOFF_LOCK_SENTENCE,
 } from "@/components/architecture/ArchitectureDraftHandoffPanel";
 import {
+  ARCHITECTURE_IDENTITY_DESK_CONTINUE_ARCHITECTURE_LABEL,
   ARCHITECTURE_IDENTITY_DESK_CURRENT_DRAFT_LABEL,
   ARCHITECTURE_IDENTITY_DESK_NEW_VERSION_LABEL,
   ARCHITECTURE_IDENTITY_DESK_NO_OPEN_DRAFT,
 } from "@/lib/architecture/architecture-identity-desk-copy";
 import { resolveArchitectureIdentityCurrentDraftState } from "@/lib/architecture/architecture-identity-current-draft";
-import { architectureIdentityDraftHref, reviewDetailPath } from "@/lib/architecture/architecture-routes";
+import { architectureIdentityDraftHref, resolveArchitectureReviewHref } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ArchitectureIdentityChildDraftSummary } from "@/types/architecture-identity";
 
@@ -46,12 +47,17 @@ export function ArchitectureIdentityDeskCurrentDraft(
       {state.kind === "drafting" ? (
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <StatusTag kind="in-progress" label="Open draft" />
+          <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-identity-continue-architecture">
+            <Link href={architectureIdentityDraftHref(props.architectureId, state.draftId)}>
+              {ARCHITECTURE_IDENTITY_DESK_CONTINUE_ARCHITECTURE_LABEL}
+            </Link>
+          </Button>
           <Link
             href={architectureIdentityDraftHref(props.architectureId, state.draftId)}
             className={OPERATOR_LINK.nav}
             data-testid="architecture-identity-open-current-draft"
           >
-            Continue draft
+            Open draft editor
           </Link>
         </div>
       ) : null}
@@ -62,7 +68,7 @@ export function ArchitectureIdentityDeskCurrentDraft(
           <div className="flex flex-wrap items-center gap-2">
             {state.linkedReviewId !== null ? (
               <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-identity-open-review">
-                <Link href={reviewDetailPath(state.linkedReviewId)}>Open review</Link>
+                <Link href={resolveArchitectureReviewHref(state.linkedReviewId, props.architectureId)}>Open review</Link>
               </Button>
             ) : null}
             <ArchitectureDraftCloneSnapshotControl

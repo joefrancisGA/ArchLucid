@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/finding-verification-completed.v1.schema.json",
+  "title": "com.archlucid.findings.verification.completed.v1",
+  "description": "Emitted when an append-only finding verification report is created for a sealed package and snapshot pair (ADR 0062).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "runId",
+    "reportId",
+    "reportHash",
+    "manifestHash",
+    "sourceFindingsSnapshotId",
+    "resultCount",
+    "statusCounts",
+    "createdUtc"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "runId": { "type": "string", "format": "uuid" },
+    "reportId": { "type": "string", "format": "uuid" },
+    "reportHash": { "type": "string", "minLength": 1 },
+    "manifestHash": { "type": "string", "minLength": 1 },
+    "sourceFindingsSnapshotId": { "type": "string", "format": "uuid" },
+    "verificationFindingsSnapshotId": { "type": "string", "format": "uuid" },
+    "resultCount": { "type": "integer", "minimum": 0 },
+    "statusCounts": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "createdUtc": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}

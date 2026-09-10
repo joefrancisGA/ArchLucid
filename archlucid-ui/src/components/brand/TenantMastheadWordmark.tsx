@@ -4,8 +4,10 @@ import Image from "next/image";
 import Link, { type LinkProps } from "next/link";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { useTenantBrandingPresentationQuery } from "@/hooks/use-tenant-branding-presentation-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { productLinePoweredByLine } from "@/lib/product-line/product-line-display-name";
 import { resolveTenantLogoProxyUrl } from "@/lib/tenant-branding-client";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +23,8 @@ type TenantMastheadWordmarkProps = Omit<LinkProps, "children"> & {
  */
 export function TenantMastheadWordmark(props: TenantMastheadWordmarkProps): React.JSX.Element {
   const { variant, className, "aria-label": ariaLabel, ...linkProps } = props;
+  const { productLine } = useProductLine();
+  const poweredByLine = productLinePoweredByLine(productLine);
 
   if (variant === "marketing") {
     return (
@@ -84,7 +88,7 @@ export function TenantMastheadWordmark(props: TenantMastheadWordmarkProps): Reac
       ) : null}
       {presentation.showPoweredByArchLucid ? (
         <span className="hidden text-xs text-al-text-secondary lg:inline" data-testid="tenant-masthead-powered-by">
-          Powered by ArchLucid
+          {poweredByLine}
         </span>
       ) : null}
     </Link>

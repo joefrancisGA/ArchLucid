@@ -164,6 +164,7 @@ export function DigestSubscriptionList(props: DigestSubscriptionListProps): Reac
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
                       <OperatorInventoryRowMoreActions
+                        overflowRowId={item.subscriptionId}
                         testId={`digest-subscription-more-${item.subscriptionId}`}
                         primaryActions={
                           <Button

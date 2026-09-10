@@ -11,8 +11,11 @@ import {
   buildPackagePrintPresentation,
   buildPackagePrintSponsorSynopsis,
   printPackagePage,
+  resolvePackagePrintSemanticSupportBandStampLine,
   resolvePackagePrintStatusLabel,
 } from "@/lib/package-print-view";
+import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { RunSummary } from "@/types/authority";
 
 function summary(overrides: Partial<RunSummary> = {}): RunSummary {
@@ -41,7 +44,7 @@ describe("package-print-view (TB-2205)", () => {
 
   it("builds print and back hrefs", () => {
     expect(buildPackagePrintPath("abc/def")).toBe("/architecture/reviews/abc%2Fdef/print");
-    expect(buildPackagePrintBackHref("abc")).toBe("/architecture/reviews/abc?tab=review-package");
+    expect(buildPackagePrintBackHref("abc")).toBe("/architecture/reviews/abc?reviewTab=review-package");
     expect(buildPackagePrintPath("  ")).toBe("/architecture/reviews/print");
   });
 
@@ -83,5 +86,35 @@ describe("package-print-view (TB-2205)", () => {
 
     expect(presentation.findingsSummary).toContain("Showing 20 of 25");
     expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("not a signed export");
+  });
+
+  it("resolvePackagePrintSemanticSupportBandStampLine matches stamp counts (AS-071)", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        findingId: "f-1",
+        title: "Gateway posture",
+        recommendation: "Review gateway TLS.",
+        severityValue: 3,
+        findingOrder: 1,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        classification: FINDING_CLASSIFICATION_DECISION_GRADE,
+        semanticSupportBand: "Supported",
+      },
+    ];
+
+    const line = resolvePackagePrintSemanticSupportBandStampLine(findings);
+
+    expect(line).toContain("1 Supported");
+  });
+
+  it("buildPackagePrintPresentation carries semantic support stamp line", () => {
+    const presentation = buildPackagePrintPresentation(summary(), {
+      semanticSupportBandStampLine: "Semantic support (decision-grade): 1 Supported",
+    });
+
+    expect(presentation.semanticSupportBandStampLine).toContain("1 Supported");
   });
 });

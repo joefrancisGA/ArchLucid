@@ -26,7 +26,7 @@ export function DemoPreviewGuidedCallouts() {
           committed finalized review record. Open <span className="font-medium">Full audit trail</span> for the vertical sequence.
         </li>
         <li data-callout="governance">
-          <strong>Governance approval</strong> — review record summary captures policy pack, decisions, and monitored risks for
+          <strong>Approval</strong> — review record summary captures policy pack, decisions, and monitored risks for
           this architecture review.
         </li>
         <li data-callout="manifest">

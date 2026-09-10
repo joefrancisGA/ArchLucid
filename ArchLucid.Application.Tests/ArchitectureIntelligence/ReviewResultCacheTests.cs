@@ -552,6 +552,32 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void Set_inserts_when_cache_at_max_entries_because_all_pinned_state_is_unreachable()
+    {
+        ReviewResultCache cache = new();
+
+        for (int index = 0; index < 64; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"pin-cap-{index}" };
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+            cache.PinStorageKey(ReviewCacheKeyBuilder.Build(manifest));
+        }
+
+        for (int index = 0; index < 64; index++)
+        {
+            cache.Set(
+                new ReviewCacheDependencyManifest { ContentHash = $"unpinned-at-cap-{index}" },
+                new ClosedLoopReasoningResult { RunId = $"unpinned-{index}" });
+        }
+
+        ReviewCacheDependencyManifest overflowManifest = new() { ContentHash = "all-pinned-unreachable-overflow" };
+        cache.Set(overflowManifest, new ClosedLoopReasoningResult { RunId = "overflow-at-cap" });
+
+        cache.TryGet(overflowManifest, out ClosedLoopReasoningResult? overflow).Should().BeTrue();
+        overflow!.RunId.Should().Be("overflowatcap");
+    }
+
+    [Fact]
     public void Set_overwrites_existing_key_when_cache_is_full()
     {
         ReviewResultCache cache = new();

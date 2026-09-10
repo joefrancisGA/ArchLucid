@@ -9,20 +9,31 @@ import {
   type InventoryDemoScenarioId,
 } from "@/lib/arch-lucid-inventory-demo-scenarios";
 
+export type InventoryDemoScenarioPickerLayout = "grid" | "stack";
+
 export type InventoryDemoScenarioPickerProps = {
   platform: CloudInventoryPlatform;
   selectedScenarioId: InventoryDemoScenarioId;
   onSelectScenario: (scenarioId: InventoryDemoScenarioId) => void;
+  /** Use `stack` inside narrow setup asides (~17.5rem); default `grid` for full-width surfaces. */
+  layout?: InventoryDemoScenarioPickerLayout;
   testIdPrefix?: string;
 };
 
 export function InventoryDemoScenarioPicker(props: InventoryDemoScenarioPickerProps) {
-  const { platform, selectedScenarioId, onSelectScenario, testIdPrefix = "inventory-demo" } = props;
+  const {
+    platform,
+    selectedScenarioId,
+    onSelectScenario,
+    layout = "grid",
+    testIdPrefix = "inventory-demo",
+  } = props;
   const scenarios = listInventoryDemoScenarios(platform);
+  const layoutClassName = layout === "stack" ? "grid grid-cols-1 gap-2" : "grid gap-2 sm:grid-cols-3";
 
   return (
     <div
-      className="grid gap-2 sm:grid-cols-3"
+      className={layoutClassName}
       role="radiogroup"
       aria-label={inventoryDemoScenarioPickerAriaLabel(platform)}
       data-testid={`${testIdPrefix}-scenario-picker`}
@@ -37,7 +48,7 @@ export function InventoryDemoScenarioPicker(props: InventoryDemoScenarioPickerPr
             role="radio"
             aria-checked={selected}
             className={cn(
-              "rounded-md border p-3 text-left transition-colors",
+              "min-w-0 rounded-md border p-3 text-left transition-colors",
               selected
                 ? OPERATOR_SELECTION.tile
                 : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700",
@@ -47,10 +58,10 @@ export function InventoryDemoScenarioPicker(props: InventoryDemoScenarioPickerPr
               onSelectScenario(scenario.id);
             }}
           >
-            <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+            <p className={cn("m-0 min-w-0 break-words font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {scenario.title}
             </p>
-            <p className={cn("m-0 mt-1 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            <p className={cn("m-0 mt-1 min-w-0 break-words leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {scenario.subtitle}
             </p>
             <p className={cn("m-0 mt-2 font-medium text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

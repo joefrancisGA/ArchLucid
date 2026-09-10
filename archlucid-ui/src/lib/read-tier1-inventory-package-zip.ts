@@ -7,8 +7,8 @@ import {
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
 import { archLucidAzurePackageManifestSchema } from "@/lib/arch-lucid-azure-package-manifest";
 import {
-  ARCH_LUCID_AZURE_EXTRACTOR_SUPPORTED_SCHEMA_VERSION,
   formatUnsupportedAzureExtractorSchemaVersionMessage,
+  isSupportedAzureExtractorSchemaVersion,
 } from "@/lib/arch-lucid-azure-extractor-schema-version";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
@@ -119,7 +119,7 @@ export function readTier1InventoryPackageZipFromBytes(
       };
     }
 
-    if (parsed.data.schemaVersion !== ARCH_LUCID_AZURE_EXTRACTOR_SUPPORTED_SCHEMA_VERSION) {
+    if (!isSupportedAzureExtractorSchemaVersion(parsed.data.schemaVersion)) {
       return {
         ok: false,
         message: formatUnsupportedAzureExtractorSchemaVersionMessage(parsed.data.schemaVersion),

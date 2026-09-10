@@ -417,6 +417,11 @@ GUARDS: tuple[GuardCommand, ...] = (
         None,
     ),
     GuardCommand(
+        "auth beta-readiness invite callout surfaces",
+        ("python", "scripts/ci/check_auth_beta_readiness_invite_callout_surfaces.py"),
+        None,
+    ),
+    GuardCommand(
         "push-corset OpenAPI contract snapshot wiring",
         ("python", "scripts/ci/check_push_corset_openapi_snapshot.py"),
         None,
@@ -429,6 +434,11 @@ GUARDS: tuple[GuardCommand, ...] = (
     GuardCommand(
         "policy-pack finding-delta offline packet",
         ("python", "scripts/ci/check_policy_pack_finding_delta_offline_packet.py"),
+        None,
+    ),
+    GuardCommand(
+        "policy-pack compounding-evidence ledger",
+        ("python", "scripts/ci/check_policy_pack_compounding_evidence_ledger.py"),
         None,
     ),
     GuardCommand(

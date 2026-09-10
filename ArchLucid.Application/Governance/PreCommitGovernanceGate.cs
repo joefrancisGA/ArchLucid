@@ -15,6 +15,8 @@ using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Options;
 
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
@@ -32,7 +34,8 @@ public sealed class PreCommitGovernanceGate(
     ITechnologyConsistencyFindingEngine technologyConsistencyFindingEngine,
     IOptions<TechnologyConsistencyFindingEngineOptions> technologyConsistencyFindingEngineOptions,
     IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
-    IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions)
+    IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
+    IFindingReviewTrailRepository findingReviewTrailRepository)
     : IPreCommitGovernanceGate
 {
     private readonly IOptions<AuthorityCommitSchemaValidationOptions> _authorityCommitSchemaValidationOptions =
@@ -67,6 +70,9 @@ public sealed class PreCommitGovernanceGate(
 
     private readonly IOptions<FindingEvidenceLinkageFindingEngineOptions> _findingEvidenceLinkageFindingEngineOptions =
         findingEvidenceLinkageFindingEngineOptions ?? throw new ArgumentNullException(nameof(findingEvidenceLinkageFindingEngineOptions));
+
+    private readonly IFindingReviewTrailRepository _findingReviewTrailRepository =
+        findingReviewTrailRepository ?? throw new ArgumentNullException(nameof(findingReviewTrailRepository));
 
     /// <inheritdoc/>
     public Task<PreCommitGateResult> EvaluateAsync(string runId, CancellationToken cancellationToken = default)
@@ -191,8 +197,19 @@ public sealed class PreCommitGovernanceGate(
             _findingEvidenceLinkageFindingEngineOptions.Value,
             cancellationToken).ConfigureAwait(false);
 
+        IReadOnlyDictionary<string, Disposition> latestDispositions =
+            await PreFinalizeLatestDispositionLoader.LoadAsync(
+                _findingReviewTrailRepository,
+                scope,
+                findings,
+                cancellationToken).ConfigureAwait(false);
+
         if (enforcing is not null)
-            return PreCommitGateEvaluator.EvaluateForAssignment(findings, enforcing, _options.Value);
+            return PreCommitGateEvaluator.EvaluateForAssignment(
+                findings,
+                enforcing,
+                _options.Value,
+                latestDispositions);
 
         FindingSeverity? globalThreshold = PreCommitGateThresholdParser.TryParseMinimumSeverity(_options.Value.PreCommitGateThreshold);
 
@@ -204,7 +221,8 @@ public sealed class PreCommitGovernanceGate(
             blockCommitOnCritical: false,
             blockCommitMinimumSeverity: (int)globalThreshold.Value,
             policyPackIdLabel: "global-pre-commit-threshold",
-            _options.Value.WarnOnlySeverities);
+            _options.Value.WarnOnlySeverities,
+            latestDispositions);
     }
 
     private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity)

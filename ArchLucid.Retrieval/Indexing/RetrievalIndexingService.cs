@@ -99,7 +99,22 @@ public sealed class RetrievalIndexingService(
             IReadOnlyList<string> split = SelectChunker(doc.CorpusKind, chunkingStrategy).Chunk(doc.Content);
 
             if (split.Count == 0)
+            {
+                if (_indexCatalog.TryGet(doc.DocumentId, out _))
+                {
+                    await _vectorIndex.RemoveChunksForDocumentAsync(
+                        doc.DocumentId,
+                        doc.TenantId,
+                        doc.WorkspaceId,
+                        doc.ProjectId,
+                        ct).ConfigureAwait(false);
+                }
+
+                _indexCatalog.RecordIndexed(doc, fingerprint, indexedUtc);
+                ArchLucidInstrumentation.RecordRetrievalIndexDocumentReindexed();
+
                 continue;
+            }
 
             work.Add((doc, split, fingerprint));
         }

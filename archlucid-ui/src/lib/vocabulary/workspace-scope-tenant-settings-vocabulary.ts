@@ -42,13 +42,13 @@ export type WorkspaceScopeTenantSettingsVocabularyModel = {
 };
 
 export const WORKSPACE_SCOPE_TENANT_SETTINGS_HEADING =
-  "Workspace scope and Tenant settings serve different purposes" as const;
+  "Workspace scope and Workspace settings serve different purposes" as const;
 
 export const WORKSPACE_SCOPE_TENANT_SETTINGS_WHY_TWO =
-  "Workspace scope selects the active workspace and project for this session from the top-bar switcher. Tenant settings configures tenant-wide defaults such as quality gates, cost settings, and workspace projects. Switching scope is not the same as editing tenant configuration." as const;
+  "Workspace scope selects the active workspace and project for this session from the top-bar switcher. Workspace settings configures workspace defaults and tenant-wide cost rates. Switching scope is not the same as editing workspace configuration." as const;
 
 export const WORKSPACE_SCOPE_TENANT_SETTINGS_COMPACT_LINE =
-  "Workspace scope sets the active session; Tenant settings edits tenant-wide defaults." as const;
+  "Workspace scope sets the active session; Workspace settings edits defaults and tenant-wide cost rates." as const;
 
 export const WORKSPACE_SCOPE_TENANT_SETTINGS_SCOPE_LINK: WorkspaceScopeTenantSettingsLink =
   {
@@ -61,9 +61,9 @@ export const WORKSPACE_SCOPE_TENANT_SETTINGS_SCOPE_LINK: WorkspaceScopeTenantSet
 export const WORKSPACE_SCOPE_TENANT_SETTINGS_TENANT_LINK: WorkspaceScopeTenantSettingsLink =
   {
     id: "tenant-settings",
-    label: "Tenant settings",
+    label: "Workspace settings",
     href: SETTINGS_TENANT_PATH,
-    whenToUse: "Configure tenant-wide defaults, quality gates, and cost settings.",
+    whenToUse: "Configure workspace defaults, tenant-wide cost rates, and quality gates.",
   };
 
 /** Pairwise model for Workspace scope ↔ Tenant settings (fixed routes). */
