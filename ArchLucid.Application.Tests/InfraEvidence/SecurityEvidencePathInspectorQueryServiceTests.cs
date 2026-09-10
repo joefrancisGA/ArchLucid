@@ -301,6 +301,21 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
             return Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)>(
                 (all, all.Count));
         }
+
+        public Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
+            Guid tenantId,
+            Guid workspaceId,
+            Guid projectId,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<SecurityEvidencePathRecord>>(
+                StoredPaths
+                    .Where(path =>
+                        path.TenantId == tenantId
+                        && path.WorkspaceId == workspaceId
+                        && path.ProjectId == projectId
+                        && path.SnapshotId == snapshotId)
+                    .ToList());
     }
 
     private sealed class InMemoryFindingRepository : IOperationalSecurityFindingRepository

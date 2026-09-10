@@ -469,6 +469,21 @@ public sealed class PrivilegePathEngineTests
             int pageSize,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)>((StoredPaths, StoredPaths.Count));
+
+        public Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
+            Guid tenantId,
+            Guid workspaceId,
+            Guid projectId,
+            Guid snapshotId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<SecurityEvidencePathRecord>>(
+                StoredPaths
+                    .Where(path =>
+                        path.TenantId == tenantId
+                        && path.WorkspaceId == workspaceId
+                        && path.ProjectId == projectId
+                        && path.SnapshotId == snapshotId)
+                    .ToList());
     }
 
     private sealed class InMemoryOperationalSecurityFindingRepository : IOperationalSecurityFindingRepository
