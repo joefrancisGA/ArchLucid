@@ -56,3 +56,7 @@ Consumer brand follow-on (separate sessions): [`.cursor/prompts/securenow-brand-
 ## After each prompt
 
 Summarize: files changed, tests run, residual risk, Architecture vs Security behavior, and whether the one-API hold still holds.
+
+## Follow-on (not this set)
+
+**PL-05** remains the host hold. The sequence that preserves a later SecureNow API (capability map → ratchet → wire signal → 403 → registrars → Worker inventory → holds) is **OP-01–OP-08**: [`.cursor/prompts/option-preserving-api-00-index.md`](option-preserving-api-00-index.md). Do **not** paste OP prompts into a PL session.

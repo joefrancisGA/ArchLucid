@@ -1,8 +1,3 @@
-﻿import type {
-  FindingEvidenceChain,
-  FindingExplainability,
-  FindingLlmAudit,
-} from "@/types/explanation";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import { mapFindingInspectApiPayload } from "@/lib/findings/finding-inspect-payload-map";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
@@ -16,6 +11,13 @@ import { findingEvidenceChainBlockedReason } from "@/lib/explain/finding-evidenc
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { applyCorrelationHeaders } from "@/lib/api/http";
+import { apiGetSealedManifestAware } from "./api-get-sealed-manifest-aware";
+
+﻿import type {
+  FindingEvidenceChain,
+  FindingExplainability,
+  FindingLlmAudit,
+} from "@/types/explanation";
 import {
   parseFilenameFromContentDisposition,
   triggerBrowserBlobDownload,

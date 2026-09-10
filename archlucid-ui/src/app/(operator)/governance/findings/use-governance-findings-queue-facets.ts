@@ -19,15 +19,23 @@ import {
   REVIEW_FINDINGS_JOB_VIEW_PARAM,
   reviewFindingsJobViewHrefFromSearch,
 } from "@/lib/findings/review-findings-job-view-url";
-import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
-function governanceFindingsQueuePathname(mode: GovernanceFindingsQueueMode): string {
-  return mode === "assigned-to-me" ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH : GOVERNANCE_FINDINGS_PATH;
+function governanceFindingsQueuePathname(
+  mode: GovernanceFindingsQueueMode,
+  productLine: ReturnType<typeof useProductLine>["productLine"],
+): string {
+  return mode === "assigned-to-me"
+    ? assignedToMeFindingsPathForProductLine(productLine)
+    : GOVERNANCE_FINDINGS_PATH;
 }
 
 export function useGovernanceFindingsQueueFacets(mode: GovernanceFindingsQueueMode) {
   const router = useRouter();
-  const pathname = usePathname() ?? governanceFindingsQueuePathname(mode);
+  const { productLine } = useProductLine();
+  const pathname = usePathname() ?? governanceFindingsQueuePathname(mode, productLine);
   const searchParams = useSearchParams();
   const urlJobView = resolveFindingJobViewFromSearchParam(searchParams.get(REVIEW_FINDINGS_JOB_VIEW_PARAM));
   const urlNlFacets = governanceFindingsNlFacetsFromSearchParams(searchParams);

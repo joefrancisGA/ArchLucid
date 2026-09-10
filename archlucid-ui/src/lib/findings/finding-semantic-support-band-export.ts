@@ -1,5 +1,13 @@
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
+
+import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
+
+
+
 import {
-  isDecisionGradeFinding,
+  FINDING_CLASSIFICATION_CHECKLIST_COVERAGE,
+  FINDING_CLASSIFICATION_DECISION_GRADE,
 } from "@/lib/findings/review-detail-findings-classification-band";
 import {
   countDecisionGradeSemanticSupportBandsForPresentation,
@@ -10,8 +18,7 @@ import {
   resolveDecisionGradeSemanticSupportBand,
   type FindingSemanticSupportBandValue,
 } from "@/lib/findings/semantic-support-band-presentation";
-import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
+
 
 /** Mirrors `FindingSemanticSupportBandScorerVersions.As057QuoteOverlapV1` (AS-057 / AS-060). */
 export const FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION = "as057-v1";
@@ -27,8 +34,34 @@ export type SemanticSupportBandExportStamp = {
   readonly stampLine: string | null;
 };
 
+export type FindingSemanticSupportBandExportInput = Pick<
+  QuickDecisionFinding,
+  "classification" | "semanticSupportBand"
+> &
+  Partial<Pick<QuickDecisionFinding, "insightDensityScore">>;
+
+function isDecisionGradeForSemanticSupportExport(
+  finding: FindingSemanticSupportBandExportInput,
+): boolean {
+  if (finding.classification === FINDING_CLASSIFICATION_DECISION_GRADE) {
+    return true;
+  }
+
+  if (finding.classification === FINDING_CLASSIFICATION_CHECKLIST_COVERAGE) {
+    return false;
+  }
+
+  const score = finding.insightDensityScore;
+
+  if (score === null || score === undefined) {
+    return true;
+  }
+
+  return score >= 50;
+}
+
 export function resolveFindingSemanticSupportBandExportFields(
-  finding: Pick<QuickDecisionFinding, "classification" | "semanticSupportBand">,
+  finding: FindingSemanticSupportBandExportInput,
 ): FindingSemanticSupportBandExportFields | null {
   if (!isDecisionGradeFinding(finding as QuickDecisionFinding)) {
     return null;
