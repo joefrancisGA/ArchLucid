@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 14
+- **hunts:** 15
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8126,6 +8126,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) Schema v2 ZIP with all optional companion arrays fails validation — **cheap-disproof 2026-09-10 seed hunt #1604:** all five optional companions accepted; regression `Validate_accepts_schema_v2_with_all_valid_optional_companions`.
 
 2026-09-10 seed hunt #1604 (seed-only): reseeded core-azure-extractor after #1603; cheap-disproof closed absent-companion empty lists, non-sensitive object property serialization, whitespace-name skip, hyphenated key normalization, non-secret negation, array-element RedactStructuredJson walk, and full optional-companion validator success; 968 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) `no-`/`un-` prefixed property names are flagged as sensitive — **cheap-disproof 2026-09-10 seed hunt #1605:** `no`/`un` prefix negation before fragment match; regressions `IsSensitiveKey_ignores_no_prefixed_secret_fragments`, `IsSensitiveKey_ignores_un_prefixed_secret_fragments`.
+- [x] (valid-no-repro) Embedded `secret`/`password` fragments inside compound property names are treated as credential keys — **cheap-disproof 2026-09-10 seed hunt #1605:** `IsEmbeddedSensitiveFragment` skips mid-token matches; regression `IsSensitiveKey_ignores_embedded_secret_fragment_in_compound_property_name`.
+- [x] (valid-no-repro) String `"true"` for `isUnknownType` sets unknown-type flag — **cheap-disproof 2026-09-10 seed hunt #1605:** only JSON boolean `true` sets flag; regression `TryReadFromZip_treats_string_true_is_unknown_type_as_false`.
+- [x] (valid-no-repro) Whitespace-only `resourceType` rows are ingested by ResourceInventoryReader — **cheap-disproof 2026-09-10 seed hunt #1605:** rows skipped; regression `TryReadFromZip_skips_resource_rows_with_whitespace_only_resource_type`.
+- [x] (valid-no-repro) Future schema version 99 ZIP passes ZipValidator while upgrader rejects — **cheap-disproof 2026-09-10 seed hunt #1605:** validator fail-closed with explicit versioned detail; regression `Validate_unsupported_future_schema_reports_exact_version_in_error_detail`.
+- [x] (valid-no-repro) `RedactStructuredJson` skips sensitive keys inside nested array-of-object structures — **cheap-disproof 2026-09-10 seed hunt #1605:** recursive array walk redacts nested object keys; regression `RedactStructuredJson_redacts_sensitive_keys_inside_nested_array_objects`.
+
+2026-09-10 seed hunt #1605 (seed-only): reseeded core-azure-extractor after #1604; cheap-disproof closed no-/un- prefix negation, embedded-fragment false positives, string isUnknownType coercion, whitespace resourceType skip, future-schema validator error detail, and nested-array RedactStructuredJson walk; 983 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
