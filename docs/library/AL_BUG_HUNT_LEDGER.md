@@ -1280,7 +1280,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1663,6 +1663,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `TryParsePayloadJson` treats empty JSON object `{}` as invalid payload — **cheap-disproof 2026-09-10 seed hunt #1664:** empty object roots deserialize to zero-property `JsonValueKind.Object`; regression `TryParsePayloadJson_returns_deserialized_empty_object_for_json_empty_object`.
 
 2026-09-10 seed hunt #1664 (seed-only): reseeded finding-inspect-sql after #1663; cheap-disproof closed has-active-waiver true passthrough, additional numeric/whitespace disposition projection, applied-rule internal spacing, recommended-action internal spacing, metadata internal spacing, and empty JSON object payload parse; 326 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `MapDispositionPointerProjection` rejects numeric disposition string `"2"` when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1665:** defined numeric ordinals parse via mapper; regression `MapDispositionPointerProjection_maps_defined_numeric_disposition_string_two_to_needs_evidence`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` rejects numeric disposition string `"3"` when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1665:** defined numeric ordinals parse via mapper; regression `MapDispositionPointerProjection_maps_defined_numeric_disposition_string_three_to_remediated`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` rejects numeric disposition string `"4"` when pointer row exists — **cheap-disproof 2026-09-10 seed hunt #1665:** defined numeric ordinals parse via mapper; regression `MapDispositionPointerProjection_maps_defined_numeric_disposition_string_four_to_rejected_as_not_applicable`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` is case-sensitive for string disposition names — **cheap-disproof 2026-09-10 seed hunt #1665:** mapper trims and uses case-insensitive `Enum.TryParse`; regression `MapDispositionPointerProjection_maps_case_insensitive_needs_evidence_string`.
+- [x] (valid-no-repro) `BuildInspectResponse` forces `RunRealModeFellBackToSimulator` true when run stayed in simulator mode — **cheap-disproof 2026-09-10 seed hunt #1665:** response builder passes through flag unchanged; regression `BuildInspectResponse_passes_through_run_real_mode_fell_back_to_simulator_false`.
+- [x] (valid-no-repro) `NormalizeFindingId` collapses internal whitespace in finding ids — **cheap-disproof 2026-09-10 seed hunt #1665:** helper trims surrounding whitespace only; regression `NormalizeFindingId_preserves_internal_whitespace`.
+
+2026-09-10 seed hunt #1665 (seed-only): reseeded finding-inspect-sql after #1664; cheap-disproof closed remaining numeric disposition pointer projection (`"2"`/`"3"`/`"4"`), case-insensitive string disposition mapping, run-real-mode fallback passthrough, and finding-id internal spacing; 332 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
