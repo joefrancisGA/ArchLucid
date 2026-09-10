@@ -338,13 +338,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 1
+- **hunts:** 2
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-16
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-09-10
 - **last-bug:** never
 - **related-pd-tb:** TB-2005
-- **code-changed-since:** unknown
+- **code-changed-since:** 0
 
 TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs/library/UI_DESIGN_SYSTEM.md` and `.cursor/rules/UI-Form-Validation-Affordances.mdc` (disable primary until hard client validation passes; field errors on the form; `showError` toasts only for system/async failures).
 
@@ -355,6 +355,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Primary submit stays enabled while required fields are empty or invalid
 - [x] Validation errors appear only in a toast, not on the form
 - [x] Hard client checks are skipped when the form is submitted with the keyboard
+- [x] (valid-no-repro) `SignupForm` shows `showError` toast for invalid email format instead of inline field error — **cheap-disproof 2026-09-10 seed hunt #1592:** `mode: onChange` + zod inline messages; regression `shows inline email validation without a toast and keeps submit disabled`.
+- [x] (valid-no-repro) `SignupForm` `POST /api/proxy/v1/register` 409 duplicate organization leaves submit stuck in `Creating…` — **cheap-disproof 2026-09-10 seed hunt #1592:** `finally` resets `submitting`; regression `shows a toast for duplicate organization conflict without leaving submit stuck`.
+- [x] (valid-no-repro) `SignupForm` non-ok register response surfaces only inline validation, not `showError` — **cheap-disproof 2026-09-10 seed hunt #1592:** server `detail` routed to toast; regression `shows a toast with server detail for non-ok register responses`.
+- [x] (valid-no-repro) `SignupForm` network `fetch` throw shows inline validation instead of toast — **cheap-disproof 2026-09-10 seed hunt #1592:** catch path calls `showError`; regression `shows a toast when register fetch throws`.
+- [x] (valid-no-repro) `SignupForm` industry `Other` without `industryVerticalOther` keeps submit enabled — **cheap-disproof 2026-09-10 seed hunt #1592:** `signupFormSchema.superRefine` blocks `canSubmit`; regression `keeps submit disabled when industry Other is selected without a specification`.
+- [x] (valid-no-repro) `SignupForm` optional `architectureTeamSize` out of range keeps submit enabled — **cheap-disproof 2026-09-10 seed hunt #1592:** superRefine range check; regression `keeps submit disabled for invalid optional architecture team size`.
+- [x] (valid-no-repro) `SignupForm` sends whitespace-only `architectureTeamSize` as zero/NaN in register payload — **cheap-disproof 2026-09-10 seed hunt #1592:** trim + length gate omits key; regression `omits whitespace-only optional architecture team size from the register payload`.
+
+2026-09-10 seed hunt #1592 (seed-only): reseeded ui-form-validation; cheap-disproof closed async toast paths, optional-field gating, and payload trim shaping; 10 scoped SignupForm tests passed.
 
 ---
 
@@ -565,7 +574,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 5
+- **hunts:** 6
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
