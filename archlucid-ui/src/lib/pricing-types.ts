@@ -23,6 +23,10 @@ export type PricingPackage = {
   seatMonthlyUsd?: number;
   includedReviewsPerMonth?: number;
   overageReviewUsd?: number;
+  /** Hosted AOAI included planning band (estimated USD / UTC month). */
+  llmIncludedUsdPerUtcMonth?: number;
+  /** Hosted AOAI hard stop (estimated USD / UTC month) before wallet overage. */
+  llmHardCutoffUsdPerUtcMonth?: number;
   annualFloorUsd?: number;
   annualCeilingUsd?: number;
 };

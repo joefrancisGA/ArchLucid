@@ -2,8 +2,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import {
   deriveCapturedEvidenceFromArtifacts,
+  deriveCapturedEvidenceFromCatalog,
   mergeCapturedEvidenceUploadOutcomes,
   readPersistedCapturedEvidenceInventory,
+  reconcileCapturedEvidenceInventory,
   writePersistedCapturedEvidenceInventory,
 } from "@/lib/runs/run-detail-create-home-captured-evidence";
 
@@ -36,6 +38,50 @@ describe("run-detail-create-home-captured-evidence", () => {
     );
 
     expect(merged.map((item) => item.fileName)).toEqual(["brief.md", "diagram.png"]);
+  });
+
+  it("derives catalog rows with createdUtc and evidence ids", () => {
+    const items = deriveCapturedEvidenceFromCatalog([
+      {
+        evidenceItemId: "ev-1",
+        originalFileName: "diagram.png",
+        createdUtc: "2026-08-12T11:00:00Z",
+        contentType: "image/png",
+      },
+    ]);
+
+    expect(items).toEqual([
+      {
+        key: "ev-1",
+        fileName: "diagram.png",
+        ingestedUtc: "2026-08-12T11:00:00Z",
+        evidenceItemId: "ev-1",
+        contentType: "image/png",
+      },
+    ]);
+  });
+
+  it("ignores session-only rows when catalog is authoritative", () => {
+    const reconciled = reconcileCapturedEvidenceInventory(
+      [
+        {
+          key: "ev-1",
+          fileName: "diagram.png",
+          ingestedUtc: "2026-08-12T11:00:00Z",
+          evidenceItemId: "ev-1",
+        },
+      ],
+      [
+        {
+          key: "session-only",
+          fileName: "stale-brief.md",
+          ingestedUtc: "2026-08-12T09:00:00Z",
+        },
+      ],
+      { catalogAuthoritative: true },
+    );
+
+    expect(reconciled.map((item) => item.fileName)).toEqual(["diagram.png"]);
   });
 
   it("persists captured inventory in session storage for the run", () => {

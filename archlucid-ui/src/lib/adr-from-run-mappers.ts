@@ -2,6 +2,8 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { sortQuickDecisionFindings } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
+import { resolveFindingSemanticSupportBandExportFields } from "@/lib/findings/finding-semantic-support-band-export";
+import { deriveFindingTrustLabelName } from "@/lib/findings/finding-provenance-display";
 
 import {
   DEFAULT_MAX_FINDINGS,
@@ -80,6 +82,35 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
   };
 }
 
+function resolveAdrFindingProvenanceKind(
+  finding: QuickDecisionFinding,
+): "Asserted" | "Inferred" | "Unknown" {
+  const trustLabel = deriveFindingTrustLabelName({
+    trustLabel: finding.trustLabel ?? null,
+    policyRuleId: finding.policyRuleId ?? null,
+    evidenceRefCount: finding.evidenceRefCount ?? 0,
+  });
+
+  if (
+    trustLabel === "DeterministicRule"
+    || trustLabel === "DeterministicFallback"
+    || trustLabel === "EvidenceBacked"
+    || trustLabel === "RealModel"
+  ) {
+    return "Asserted";
+  }
+
+  if (
+    trustLabel === "Heuristic"
+    || trustLabel === "Estimated"
+    || trustLabel === "SimulatorDerived"
+  ) {
+    return "Inferred";
+  }
+
+  return "Unknown";
+}
+
 /**
  * Builds ADR input from live run-detail findings + explanation (caller supplies display strings for manifest).
  */
@@ -105,15 +136,22 @@ export function buildAdrGeneratorRunInput(args: {
   const explanation = buildAdrExplanationSlice(args.explanationSummary);
   const sorted = sortQuickDecisionFindings(args.quickDecisionFindings).filter((f) => f.isMuted !== true);
   const capped = sorted.slice(0, Math.max(0, Math.trunc(maxFindings)));
-  const findings: AdrGeneratorFindingSlice[] = capped.map((f) => ({
-    findingId: f.findingId,
-    title: f.title,
-    recommendation: f.recommendation,
-    severityLabel: args.severityLabelForFinding(f.severityValue),
-    aiReasoningExcerpt: truncatePlain(f.aiReasoning.reasoningTrace, EXCERPT_CAP),
-    trustLabel: f.trustLabel ?? null,
-    trustLabelReason: f.trustLabelReason ?? null,
-  }));
+  const findings: AdrGeneratorFindingSlice[] = capped.map((f) => {
+    const semanticSupportFields = resolveFindingSemanticSupportBandExportFields(f);
+
+    return {
+      findingId: f.findingId,
+      title: f.title,
+      recommendation: f.recommendation,
+      severityLabel: args.severityLabelForFinding(f.severityValue),
+      aiReasoningExcerpt: truncatePlain(f.aiReasoning.reasoningTrace, EXCERPT_CAP),
+      trustLabel: f.trustLabel ?? null,
+      trustLabelReason: f.trustLabelReason ?? null,
+      provenanceKind: resolveAdrFindingProvenanceKind(f),
+      semanticSupportBand: semanticSupportFields?.semanticSupportBand ?? null,
+      semanticSupportBandScorerVersion: semanticSupportFields?.semanticSupportBandScorerVersion ?? null,
+    };
+  });
 
   return {
     runId: args.runId,

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import {
   isDevTestingOverridesEnabled,
+  persistDevQuickSwitchPanelHidden,
   readDevQuickSwitchPanelHiddenFromDocument,
   toggleDevQuickSwitchPanelHidden,
 } from "@/lib/dev-testing-overrides";
@@ -32,12 +33,17 @@ export function toggleDevQuickSwitchPanelVisibility(): boolean {
   return hidden;
 }
 
+export function setDevQuickSwitchPanelVisibility(hidden: boolean): void {
+  persistDevQuickSwitchPanelHidden(hidden);
+  dispatchDevQuickSwitchPanelVisibilityChanged(hidden);
+}
+
 /** Client hook for the home-page dev quick-switch panel visibility (local development only). */
 export function useDevQuickSwitchPanelVisibility(): {
   readonly hidden: boolean;
   readonly toggle: () => void;
 } {
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(true);
 
   useEffect(() => {
     if (!isDevTestingOverridesEnabled()) {

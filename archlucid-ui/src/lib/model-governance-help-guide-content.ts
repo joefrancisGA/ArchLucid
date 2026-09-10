@@ -6,20 +6,20 @@ import {
   MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH,
 } from "@/lib/model-governance-settings-evidence-copy";
 
-export const MODEL_GOVERNANCE_HELP_BREADCRUMB_TOPIC_TITLE = "AI and model governance";
+export const MODEL_GOVERNANCE_HELP_BREADCRUMB_TOPIC_TITLE = "AI and model policy";
 
-export const MODEL_GOVERNANCE_HELP_PAGE_TITLE = "AI and model governance";
+export const MODEL_GOVERNANCE_HELP_PAGE_TITLE = "AI and model policy";
 
 export const MODEL_GOVERNANCE_HELP_PAGE_SUBTITLE =
   "Manage the workspace default execution profile and approved model aliases used on reviews.";
 
 export const MODEL_GOVERNANCE_HELP_OVERVIEW =
-  "Model governance controls which execution profile and approved model aliases apply to architecture reviews in this workspace. Use it for workspace-wide AI policy.";
+  "Model approval controls which execution profile and approved model aliases apply to architecture reviews in this workspace. Use it for workspace-wide AI policy.";
 
 export const MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE = "Start here";
 
 export const MODEL_GOVERNANCE_HELP_PRIMARY_ACTION = {
-  label: "Open AI and model governance",
+  label: "Open AI and model policy",
   href: MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH,
 } as const;
 
@@ -71,7 +71,7 @@ export const MODEL_GOVERNANCE_HELP_CLAIM_HEADING_ID = "help-model-governance-cla
 
 export const MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "data-boundary", title: "Data boundary" },
-  { level: 2, id: "what-model-governance-controls", title: "What model governance controls" },
+  { level: 2, id: "what-model-governance-controls", title: "What model approval controls" },
   { level: 2, id: "how-model-governance-works", title: MODEL_GOVERNANCE_HELP_TOPIC_LABEL },
   {
     level: 2,

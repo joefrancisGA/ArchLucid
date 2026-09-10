@@ -49,4 +49,29 @@ public sealed class FindingsSnapshotEstimatedSavingsCalculatorTests
 
         total.Should().Be(150m);
     }
+
+    [Fact]
+    public void ComputeTotal_excludes_operator_muted_cost_findings()
+    {
+        List<Finding> findings =
+        [
+            new()
+            {
+                Category = "Cost",
+                HumanReviewStatus = FindingHumanReviewStatus.Approved,
+                ProjectedImpactUsd = 100m,
+            },
+            new()
+            {
+                Category = "Cost",
+                HumanReviewStatus = FindingHumanReviewStatus.Approved,
+                ProjectedImpactUsd = 50_000m,
+                IsMuted = true,
+            },
+        ];
+
+        decimal total = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(findings);
+
+        total.Should().Be(100m);
+    }
 }

@@ -1,4 +1,8 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph;
@@ -9,24 +13,39 @@ namespace ArchLucid.Decisioning.Services;
 /// <summary>
 ///     Flags external or anonymous actors that lack an explicit trust-boundary node (TB-2344).
 /// </summary>
-public sealed class ExternalExposureFindingEngine : IFindingEngine
+public sealed class ExternalExposureFindingEngine(IComplianceRulePackProvider rulePackProvider) : IFindingEngine
 {
+    private readonly IComplianceRulePackProvider _rulePackProvider =
+        rulePackProvider ?? throw new ArgumentNullException(nameof(rulePackProvider));
+
     public string EngineType => "external-exposure";
 
     public string Category => "Security";
 
-    public Task<IReadOnlyList<Finding>> AnalyzeAsync(GraphSnapshot graphSnapshot, FindingAnalysisContext? analysisContext,
+    public async Task<IReadOnlyList<Finding>> AnalyzeAsync(
+        GraphSnapshot graphSnapshot,
+        FindingAnalysisContext? analysisContext,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
+        ComplianceRulePack rulePack = await _rulePackProvider.GetRulePackAsync(ct).ConfigureAwait(false);
+        HashSet<string> activeRuleIds = DeclarationSignalPolicyKeyMap.CollectActiveRuleIds(rulePack);
+
+        if (!GraphSecurityEnginePolicyThemeMap.TryGetTheme(EngineType, out string theme)
+            || !DeclarationSignalPolicyGate.ShouldEmitTheme(theme, activeRuleIds))
+        {
+            return [];
+        }
+
+        string? policyRuleId = DeclarationSignalPolicyGate.TryGetPolicyRuleId(theme, activeRuleIds);
         IReadOnlyList<GraphNode> actorNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.Actor);
         IReadOnlyList<GraphNode> trustBoundaryNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TrustBoundary);
         List<Finding> findings = [];
 
         foreach (GraphNode actor in actorNodes)
         {
-            if (!IsExternalFacingActor(actor))
+            if (!ActorOriginHeuristics.IsExternalFacingActor(actor))
                 continue;
 
             bool hasBoundary = trustBoundaryNodes.Any(boundary =>
@@ -37,6 +56,9 @@ public sealed class ExternalExposureFindingEngine : IFindingEngine
                 continue;
 
             string label = string.IsNullOrWhiteSpace(actor.Label) ? actor.NodeId : actor.Label;
+            List<string> rulesApplied = policyRuleId is null
+                ? ["external-exposure-trust-boundary"]
+                : [policyRuleId, theme];
 
             findings.Add(new Finding
             {
@@ -60,10 +82,11 @@ public sealed class ExternalExposureFindingEngine : IFindingEngine
                 [
                     "Add a TrustBoundary node linked to the external actor and document ingress controls.",
                 ],
+                PolicyRuleId = policyRuleId,
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [actor.NodeId],
-                    RulesApplied = ["external-exposure-trust-boundary"],
+                    RulesApplied = rulesApplied,
                     DecisionsTaken =
                     [
                         "External-facing actor present without matching TrustBoundary node.",
@@ -72,15 +95,6 @@ public sealed class ExternalExposureFindingEngine : IFindingEngine
             });
         }
 
-        return Task.FromResult<IReadOnlyList<Finding>>(findings);
-    }
-
-    private static bool IsExternalFacingActor(GraphNode actor)
-    {
-        if (!actor.Properties.TryGetValue("trustOrigin", out string? trustOrigin))
-            return false;
-
-        return string.Equals(trustOrigin, nameof(TrustOrigin.External), StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trustOrigin, nameof(TrustOrigin.PublicAnonymous), StringComparison.OrdinalIgnoreCase);
+        return findings;
     }
 }

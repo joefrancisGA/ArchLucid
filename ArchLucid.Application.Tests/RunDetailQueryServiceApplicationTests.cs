@@ -39,6 +39,20 @@ public sealed class RunDetailQueryServiceApplicationTests
         new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
     [SkippableFact]
+    public async Task GetRunDetailAsync_returns_null_for_whitespace_run_id_without_querying_repository()
+    {
+        Mock<IRunRepository> runRepo = new();
+        RunDetailQueryService sut = CreateMinimalSut(runRepo);
+
+        ArchitectureRunDetail? detail = await sut.GetRunDetailAsync("   ", CancellationToken.None);
+
+        detail.Should().BeNull();
+        runRepo.Verify(
+            r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task GetRunDetailAsync_when_manifest_version_set_but_manifest_missing_sets_HasBrokenManifestReference()
     {
         ScopeContext scope = NewScope();
@@ -263,6 +277,27 @@ public sealed class RunDetailQueryServiceApplicationTests
         detail.Should().NotBeNull();
         detail.AgentTaskLoopComplete.Should().BeTrue();
         detail.AuthorityPipelineComplete.Should().BeFalse();
+    }
+
+    private static RunDetailQueryService CreateMinimalSut(Mock<IRunRepository> runRepo)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(NewScope());
+
+        return new RunDetailQueryService(
+            runRepo.Object,
+            scopeProvider.Object,
+            Mock.Of<IAgentTaskRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IUnifiedGoldenManifestReader>(),
+            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<IFindingRecordMuteRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<ILlmCostEstimator>(),
+            new FindingTrustLabelMapper(),
+            Mock.Of<IRunStageOutcomesRepository>(),
+            new RunStateTransitionService(),
+            Mock.Of<ILogger<RunDetailQueryService>>());
     }
 
     private static AgentResult CommitReady(string runId, AgentType agentType)

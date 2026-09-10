@@ -10,9 +10,19 @@ namespace ArchLucid.Persistence.Data.Repositories;
 /// </remarks>
 internal static class AgentExecutionTraceUpsertPolicy
 {
+    internal static string NormalizeTaskId(string? taskId)
+    {
+        string? trimmed = taskId?.Trim();
+
+        return string.IsNullOrWhiteSpace(trimmed) ? string.Empty : trimmed;
+    }
+
     public static bool SharesRunTaskAgent(AgentExecutionTrace left, AgentExecutionTrace right) =>
         string.Equals(left.RunId, right.RunId, StringComparison.Ordinal)
-        && string.Equals(left.TaskId, right.TaskId, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(
+            NormalizeTaskId(left.TaskId),
+            NormalizeTaskId(right.TaskId),
+            StringComparison.OrdinalIgnoreCase)
         && left.AgentType == right.AgentType;
 
     /// <summary>

@@ -40,6 +40,13 @@ export type PageHelpTopic = {
   readonly label: string;
 };
 
+export type PageHelpTopicRow = {
+  readonly prefix: string;
+  readonly topic: PageHelpTopic;
+  /** When true, only `path === prefix` matches (not child routes). */
+  readonly exactMatchOnly?: boolean;
+};
+
 const PAGE_HELP_TOPIC_ROWS_OPERATOR_CORE: readonly { prefix: string; topic: PageHelpTopic }[] = [
   { prefix: "/help/getting-started", topic: { slug: "getting-started", label: GETTING_STARTED_HELP_TOPIC_LABEL } },
   {
@@ -119,7 +126,7 @@ const PAGE_HELP_TOPIC_ROWS_OPERATOR_CORE: readonly { prefix: string; topic: Page
   { prefix: "/administration/billing", topic: { slug: "billing-and-plans", label: OPERATOR_BILLING_SETTINGS_HELP_TOPIC_LABEL } },
 ];
 
-export const PAGE_HELP_TOPIC_ROWS_OPERATOR: readonly { prefix: string; topic: PageHelpTopic }[] = [
+export const PAGE_HELP_TOPIC_ROWS_OPERATOR: readonly PageHelpTopicRow[] = [
   ...PAGE_HELP_TOPIC_ROWS_OPERATOR_CORE,
   ...PAGE_HELP_TOPIC_ROWS_OPERATOR_ARCHITECTURE,
   ...PAGE_HELP_TOPIC_ROWS_OPERATOR_PILOT,

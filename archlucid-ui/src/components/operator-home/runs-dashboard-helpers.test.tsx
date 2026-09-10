@@ -8,6 +8,7 @@ import {
   isRunApprovedPackage,
   isRunApprovedWithMonitoringPackage,
   isRunNeedingAttention,
+  resolveAwaitingApprovalTabItems,
   resolveRunHomeStatusTag,
   resolveShowcaseDemoRunForItems,
   runListPrimaryTitle,
@@ -69,6 +70,34 @@ describe("runsDashboardTabLabel (TB-667)", () => {
   });
 });
 
+describe("resolveAwaitingApprovalTabItems", () => {
+  it("includes governance-queue rows that are outside the home preview snapshot", () => {
+    const snapshotRun: RunSummary = {
+      runId: "in-snapshot",
+      projectId: "default",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      displayName: "In snapshot",
+    };
+    const items = resolveAwaitingApprovalTabItems(
+      [snapshotRun],
+      [
+        { runId: "in-snapshot", name: "In snapshot", sourceRunId: "source-1", newFindingCount: 0 },
+        {
+          runId: "outside-snapshot",
+          name: "Outside snapshot",
+          sourceRunId: "source-2",
+          newFindingCount: 1,
+          executedUtc: "2026-02-01T12:00:00.000Z",
+        },
+      ],
+      "default",
+    );
+
+    expect(items.map((run) => run.runId)).toEqual(["in-snapshot", "outside-snapshot"]);
+    expect(items[1]?.displayName).toBe("Outside snapshot");
+  });
+});
+
 describe("runs dashboard status filters", () => {
   it("maps approved and attention filters from run summary flags", () => {
     const approvedRun: RunSummary = {
@@ -122,6 +151,7 @@ describe("runs dashboard status filters", () => {
     expect(deriveRunsDashboardTabCounts([approvedRun, monitoredRun, attentionRun])).toEqual({
       all: 3,
       approved: 1,
+      "awaiting-approval": 0,
       attention: 1,
       outcomes: 1,
     });

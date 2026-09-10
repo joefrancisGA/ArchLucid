@@ -1,4 +1,5 @@
 import { ARCHITECTURE_DRAFTS_LIST_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { hubSecondaryFollowUpsIntro } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
@@ -13,6 +14,9 @@ export const PROJECTS_RECYCLE_BIN_FOLLOW_UPS_TITLE = "Where to go next";
 export const PROJECTS_RECYCLE_BIN_SOURCES_INTRO =
   "Use these follow-ups when restored projects turn into architecture drafts, tenant scope checks, or audit cites.";
 
+export const PROJECTS_RECYCLE_BIN_ORIENTATION_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "restored projects turn into architecture drafts, tenant scope checks, or audit cites",
+);
 
 /** Operator Sources - no self-href to recycle bin. */
 export const PROJECTS_RECYCLE_BIN_SOURCES: readonly EvidenceSourceLink[] = [

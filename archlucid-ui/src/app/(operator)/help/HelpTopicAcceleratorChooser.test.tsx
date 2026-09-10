@@ -11,6 +11,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/accelerator-chooser",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/help/help-topic-pdf-download", () => ({

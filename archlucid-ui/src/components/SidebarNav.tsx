@@ -7,6 +7,7 @@ import { SidebarRecentActivityCard } from "@/components/SidebarRecentActivityCar
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { RoleNavDensityExpandControl } from "@/components/sidebar-nav/RoleNavDensityExpandControl";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
+import { useArchitectWorkspaceChrome } from "@/hooks/useArchitectWorkspaceChrome";
 import { useOperatorShellNavRows } from "@/hooks/useOperatorShellNavRows";
 import { useSidebarNavGroupExpansion } from "@/hooks/useSidebarNavGroupExpansion";
 import {
@@ -44,6 +45,7 @@ export function SidebarNav() {
     roleNavDensityShowFullNav,
     toggleRoleNavDensityShowFullNav,
   } = useOperatorShellNavRows();
+  const architectWorkspaceChrome = useArchitectWorkspaceChrome();
   const demoUiEnv = isOperatorDemoStaticMode() || isPublicDemoModeEnv();
   const [runtimeDemoUi, setRuntimeDemoUi] = useState(demoUiEnv);
   const resolvedDemoUi = runtimeDemoUi;
@@ -85,9 +87,10 @@ export function SidebarNav() {
       pathname: route,
       buyerPolishedShell,
       demoUi: resolvedDemoUi,
+      architectWorkspaceChrome,
       setGroupExpanded,
     });
-  }, [mounted, pathname, setGroupExpanded, buyerPolishedShell, resolvedDemoUi]);
+  }, [architectWorkspaceChrome, mounted, pathname, setGroupExpanded, buyerPolishedShell, resolvedDemoUi]);
 
   useEffect(() => {
     if (!mounted) {

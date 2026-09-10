@@ -1,4 +1,7 @@
 "use client";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -20,6 +23,10 @@ import {
   resolveOperatorConnectivityTechnicalDetails,
   type OperatorConnectivityPresentationInput,
 } from "@/lib/operator/operator-connectivity-error-present";
+import {
+  operatorConnectivityTechnicalDetailsDisclosureHrefFromSearch,
+  parseOperatorConnectivityTechnicalDetailsOpenFromSearch,
+} from "@/lib/operator/operator-connectivity-technical-details-disclosure-url";
 import { isReportProblemEnabledForConnectivityError } from "@/lib/report-problem-surfaces";
 
 export type OperatorLayeredConnectivityErrorProps = OperatorConnectivityPresentationInput;
@@ -27,6 +34,37 @@ export type OperatorLayeredConnectivityErrorProps = OperatorConnectivityPresenta
 /** Buyer-safe connectivity failure — recovery actions first; support detail behind Technical details. */
 export function OperatorLayeredConnectivityError(props: OperatorLayeredConnectivityErrorProps) {
   const technical = resolveOperatorConnectivityTechnicalDetails(props);
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const operatorConnectivityTechnicalDetailsOpenParam = searchParams.get("operatorConnectivityTechnicalDetailsOpen");
+  const [technicalDetailsOpen, setTechnicalDetailsOpenState] = useState(() =>
+    parseOperatorConnectivityTechnicalDetailsOpenFromSearch(operatorConnectivityTechnicalDetailsOpenParam),
+  );
+
+  const syncTechnicalDetailsOpenToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        operatorConnectivityTechnicalDetailsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setTechnicalDetailsOpen = useCallback(
+    (open: boolean) => {
+      setTechnicalDetailsOpenState(open);
+      syncTechnicalDetailsOpenToUrl(open);
+    },
+    [syncTechnicalDetailsOpenToUrl],
+  );
+
+  useEffect(() => {
+    setTechnicalDetailsOpenState(
+      parseOperatorConnectivityTechnicalDetailsOpenFromSearch(operatorConnectivityTechnicalDetailsOpenParam),
+    );
+  }, [operatorConnectivityTechnicalDetailsOpenParam]);
 
   if (technical === null) {
     return null;
@@ -65,6 +103,10 @@ export function OperatorLayeredConnectivityError(props: OperatorLayeredConnectiv
       <details
         className={cn("mt-4 rounded-md border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/50", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="operator-connectivity-technical-details"
+        open={technicalDetailsOpen}
+        onToggle={(event) => {
+          setTechnicalDetailsOpen((event.currentTarget as HTMLDetailsElement).open);
+        }}
       >
         <summary className="cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200">
           {OPERATOR_CONNECTIVITY_TECHNICAL_DETAILS_LABEL}

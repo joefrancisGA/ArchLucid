@@ -96,6 +96,18 @@ public sealed class RunExportQueryFacade(
             };
         }
 
+        ExportRecordLoadOutcome? lifecycleOutcome =
+            await TryEnsureExportRunLifecycleCompleteAsync(record.RunId, cancellationToken);
+
+        if (lifecycleOutcome is not null)
+        {
+            return new ScopedExportRecordLoadResult
+            {
+                Outcome = lifecycleOutcome.Value,
+                MissingId = record.RunId,
+            };
+        }
+
         return new ScopedExportRecordLoadResult { Outcome = ExportRecordLoadOutcome.Success, Record = record };
     }
 

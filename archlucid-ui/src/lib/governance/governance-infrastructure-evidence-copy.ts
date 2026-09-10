@@ -1,0 +1,236 @@
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  GOVERNANCE_INFRASTRUCTURE_PATH,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
+
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE =
+  "These workbenches surface inventory evidence and advisory outputs — not sealed review records or official assurance materials. Confirm cloud connections and snapshot capture before trusting exports.";
+
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SOURCES_INTRO =
+  "Use these surfaces when procurement asks for activity context, connector readiness, or assurance posture beyond inventory evidence.";
+
+/** Operator Sources for infrastructure overview hub (GOI). */
+export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Start from a cloud resource when you need assessment-linked audit evidence",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Open grounded inventory Q&A after snapshots exist for your scope",
+  },
+  {
+    label: "Audit trail",
+    href: GOVERNANCE_AUDIT_PATH,
+    when: "Follow workspace activity when buyers ask for governance context",
+  },
+  {
+    label: "Cloud connections help",
+    href: inAppHelpHref("cloud-connections"),
+    when: "Confirm inventory connectors before trusting snapshot exports",
+  },
+  {
+    label: "Assurance status",
+    href: "/assurance-status",
+    when: "Read published assurance posture — not a substitute for inventory evidence",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SOURCES_INTRO =
+  "Use these surfaces when buyers ask for inventory context, connector readiness, or assurance posture beyond Ask answers.";
+
+/** Operator Sources for infrastructure Ask (GOS). */
+export const GOVERNANCE_INFRASTRUCTURE_ASK_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open Ask from a resource hub when you need scoped citations",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for drift, diagrams, or remediation",
+  },
+  {
+    label: "Audit trail",
+    href: GOVERNANCE_AUDIT_PATH,
+    when: "Follow workspace activity when procurement asks for governance context",
+  },
+  {
+    label: "Cloud connections help",
+    href: inAppHelpHref("cloud-connections"),
+    when: "Confirm inventory connectors before trusting Ask citations",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCES_INTRO =
+  "Use these surfaces when buyers need inventory context, diagram exports, or remediation follow-up beyond correspondence rows.";
+
+/** Operator Sources for diagram reconciliation (GDI). */
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SOURCES_INTRO =
+  "Use these surfaces when buyers need drift comparison, remediation tracking, or grounded Ask beyond the resource list.";
+
+/** Operator Sources for resource explorer (NRE). */
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCES_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for diagrams, drift, or remediation",
+  },
+  {
+    label: "Drift workbench",
+    href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+    when: "Compare snapshots after opening a resource hub drift tab",
+  },
+  {
+    label: "Remediation instances",
+    href: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+    when: "Track remediation factory instances linked from resource findings",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions scoped to a cloud resource from the hub or explorer",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SOURCES_INTRO =
+  "Use these surfaces when buyers need drift context, diagram reconciliation, or grounded Ask beyond remediation instances.";
+
+/** Operator Sources for remediation factory (GRE). */
+export const GOVERNANCE_INFRASTRUCTURE_REMEDIATION_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub to scope remediation to one cloud resource",
+  },
+  {
+    label: "Diagram reconciliation",
+    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+    when: "Return to the conflict row that created an operational finding",
+  },
+  {
+    label: "Drift workbench",
+    href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+    when: "Compare snapshots before approving execute on an instance",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions about the same finding or instance scope",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES_INTRO =
+  "Use these surfaces when buyers need inventory diagrams, grounded Ask, or remediation follow-up beyond drift rows.";
+
+/** Operator Sources for drift workbench (GOR). */
+export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub to scope drift comparison to one cloud resource",
+  },
+  {
+    label: "Inventory diagrams",
+    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+    when: "Inspect diagram views for the same snapshot before reviewing property drift",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions about the same diff or resource scope",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for diagrams or remediation",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SOURCES_INTRO =
+  "Use these surfaces when buyers need reconciliation, grounded Ask, or resource context beyond diagram exports.";
+
+/** Operator Sources for inventory diagrams (OIN). */
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Diagram reconciliation",
+    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+    when: "Upload Mermaid and reconcile diagram nodes against inventory snapshots",
+  },
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub to scope diagrams to one cloud resource",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions about the same snapshot or resource scope",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for drift or remediation",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Inventory diagrams",
+    href: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
+    when: "Export or inspect diagram views before uploading Mermaid for reconciliation",
+  },
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Open a resource hub to scope reconciliation to one cloud resource",
+  },
+  {
+    label: "Infrastructure overview",
+    href: GOVERNANCE_INFRASTRUCTURE_PATH,
+    when: "Return to the workbench directory for drift, Ask, or remediation",
+  },
+  {
+    label: "Remediation instances",
+    href: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+    when: "Open the factory after creating operational findings from conflict rows",
+  },
+] as const;
+
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SOURCES_INTRO =
+  "Use these surfaces when buyers need explorer context, drift comparison, or grounded Ask beyond this resource hub.";
+
+/** Operator Sources for resource evidence hub (GOL). */
+export const GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
+  {
+    label: "Resource explorer",
+    href: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    when: "Return to browse cloud resources or switch work-queue filters",
+  },
+  {
+    label: "Drift workbench",
+    href: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+    when: "Compare snapshots after reviewing drift rows in this hub",
+  },
+  {
+    label: "Remediation instances",
+    href: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
+    when: "Track remediation factory instances linked from hub findings",
+  },
+  {
+    label: "Ask",
+    href: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+    when: "Ask grounded questions scoped to this resource from any hub tab",
+  },
+] as const;

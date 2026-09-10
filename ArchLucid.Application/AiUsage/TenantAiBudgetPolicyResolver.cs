@@ -1,5 +1,6 @@
 using ArchLucid.Core.AiProviders;
 using ArchLucid.Core.AiUsage;
+using ArchLucid.Core.Billing;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
@@ -11,6 +12,7 @@ namespace ArchLucid.Application.AiUsage;
 
 public sealed class TenantAiBudgetPolicyResolver(
     ITenantRepository tenantRepository,
+    IBillingLedger billingLedger,
     ITenantAiBudgetPolicyRepository policyRepository,
     ILlmTenantBudgetRepository budgetRepository,
     ITenantAzureOpenAiConnectionRepository azureOpenAiConnectionRepository,
@@ -21,6 +23,9 @@ public sealed class TenantAiBudgetPolicyResolver(
 {
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly IBillingLedger _billingLedger =
+        billingLedger ?? throw new ArgumentNullException(nameof(billingLedger));
 
     private readonly ITenantAiBudgetPolicyRepository _policyRepository =
         policyRepository ?? throw new ArgumentNullException(nameof(policyRepository));
@@ -61,7 +66,14 @@ public sealed class TenantAiBudgetPolicyResolver(
         AiUsageWorkspaceKind workspaceKind = ResolveWorkspaceKind(tenant);
         AiUsageControlsOptions controls = _aiUsageOptions.CurrentValue;
         LlmMonthlyTenantDollarBudgetOptions monthlyOpts = _monthlyBudgetOptions.CurrentValue;
-        decimal budgetAmount = ResolveBudgetAmountUsd(workspaceKind, controls, monthlyOpts, overrideRow);
+        string? spendPlanId = await ResolvePaidSpendPlanIdAsync(tenant, workspaceKind, cancellationToken)
+            .ConfigureAwait(false);
+        decimal budgetAmount = ResolveBudgetAmountUsd(
+            workspaceKind,
+            controls,
+            monthlyOpts,
+            overrideRow,
+            spendPlanId);
         string periodKey = _timeProvider.GetUtcNow().UtcDateTime.ToString("yyyy-MM");
 
         LlmTenantBudgetStateReadModel state =
@@ -125,11 +137,38 @@ public sealed class TenantAiBudgetPolicyResolver(
         return AiUsageWorkspaceKind.Paid;
     }
 
+    private async Task<string?> ResolvePaidSpendPlanIdAsync(
+        TenantRecord tenant,
+        AiUsageWorkspaceKind workspaceKind,
+        CancellationToken cancellationToken)
+    {
+        if (workspaceKind != AiUsageWorkspaceKind.Paid)
+        {
+            return null;
+        }
+
+        IReadOnlyList<TenantWorkspaceListItem> workspaces =
+            await _tenantRepository.ListWorkspacesAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+        BillingSubscriptionSnapshot? subscription =
+            await _billingLedger.TryGetSubscriptionAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+        int seatsUsed = tenant.Tier == TenantTier.Enterprise
+            ? tenant.EnterpriseSeatsUsed
+            : tenant.TrialSeatsUsed;
+        string? commercialTier = CommercialPackagingTierResolver.ResolveCommercialTierLabel(
+            tenant,
+            subscription,
+            workspaces.Count,
+            seatsUsed);
+
+        return LlmMonthlySpendPlanId.FromCommercialPackaging(commercialTier, subscription);
+    }
+
     private static decimal ResolveBudgetAmountUsd(
         AiUsageWorkspaceKind workspaceKind,
         AiUsageControlsOptions controls,
         LlmMonthlyTenantDollarBudgetOptions monthlyOpts,
-        TenantAiBudgetPolicyRow? overrideRow)
+        TenantAiBudgetPolicyRow? overrideRow,
+        string? spendPlanId)
     {
         if (overrideRow?.BudgetAmountUsd is { } overrideBudget && overrideBudget > 0m)
         {
@@ -140,7 +179,7 @@ public sealed class TenantAiBudgetPolicyResolver(
         {
             AiUsageWorkspaceKind.PublicDemo => controls.PublicDemoMonthlyAiBudgetUsd,
             AiUsageWorkspaceKind.Trial => controls.DefaultTrialAiBudgetUsd,
-            _ => monthlyOpts.HardCutoffUsdPerUtcMonth,
+            _ => monthlyOpts.ResolveHardCutoffUsdPerUtcMonth(spendPlanId),
         };
     }
 

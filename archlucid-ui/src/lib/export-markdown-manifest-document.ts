@@ -1,4 +1,5 @@
 import { formatPolicySection, pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
+import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/format-feasibility-verdict-markdown-section";
 import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
 import { isRecord, normalizeInlineText, pushBulletLines } from "./export-markdown-text";
 
@@ -337,6 +338,16 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   pushBulletLines(lines, m.warnings, undefined);
 
   const feasibilityVerdict = isRecord(m.feasibilityVerdict) ? m.feasibilityVerdict : null;
+  const feasibilityVerdictMarkdown =
+    feasibilityVerdict !== null
+      ? formatFeasibilityVerdictMarkdownSection(feasibilityVerdict as never)
+      : "";
+
+  if (feasibilityVerdictMarkdown.trim().length > 0) {
+    lines.push(feasibilityVerdictMarkdown.trim());
+    lines.push("");
+  }
+
   const transparencyTrail =
     feasibilityVerdict !== null && isRecord(feasibilityVerdict.transparencyTrail)
       ? (feasibilityVerdict.transparencyTrail as {

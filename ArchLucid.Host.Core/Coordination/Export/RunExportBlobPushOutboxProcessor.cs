@@ -56,6 +56,15 @@ public sealed class RunExportBlobPushOutboxProcessor(
         RunExportBlobPushOutboxProcessorOptions opts,
         CancellationToken cancellationToken)
     {
+        ScopeContext scopeContext = new()
+        {
+            TenantId = entry.TenantId,
+            WorkspaceId = entry.WorkspaceId,
+            ProjectId = entry.ProjectId
+        };
+
+        using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
+
         IAuditService auditService = scope.ServiceProvider.GetRequiredService<IAuditService>();
         ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
         await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken).ConfigureAwait(false);
@@ -111,6 +120,7 @@ public sealed class RunExportBlobPushOutboxProcessor(
         ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
 
         using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
+        using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
 
         IAuthorityQueryService authorityQueryService =
             scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
@@ -185,7 +195,23 @@ public sealed class RunExportBlobPushOutboxProcessor(
         }
 
         if (packageResult.ZipContent is null || packageResult.ZipContent.Length == 0)
-            throw new InvalidOperationException($"Run export ZIP for run '{entry.RunId:D}' was empty.");
+        {
+            string deadLetterReason = FormattableString.Invariant(
+                $"Run export ZIP for run '{entry.RunId:D}' was empty.");
+            await outbox.RecordDeadLetterAsync(entry.OutboxId, deadLetterReason, cancellationToken);
+            ArchLucidInstrumentation.RecordRunExportBlobPushOutboxDeadLettered();
+            await LogDeadLetterAuditAsync(auditService, entry.RunId, cancellationToken);
+
+            if (Logger.IsEnabled(LogLevel.Error))
+            {
+                Logger.LogError(
+                    "Run export blob push outbox dead-lettered outbox {OutboxId}, run {RunId}: empty export ZIP.",
+                    entry.OutboxId,
+                    entry.RunId);
+            }
+
+            return;
+        }
 
         try
         {

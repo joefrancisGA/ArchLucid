@@ -2,9 +2,6 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
-import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
-import { resolveContinueLastArchitectureDraftEntry } from "@/lib/architecture-draft-continue-last";
 import { getUserPreferences, readCachedUserPreferencesForMutators } from "@/lib/api/user-preferences";
 import { defaultDeskContinuityDto, type DeskContinuityDto } from "@/lib/api/user-preferences-types";
 import {
@@ -24,24 +21,26 @@ function subscribeInFlight(onStoreChange: () => void): () => void {
   return subscribeInFlightOperations(onStoreChange);
 }
 
-function resolveActiveInFlightReviewId(operations: readonly TrackedInFlightOperation[]): string | null {
+function resolveActiveInFlightParentArchitectureId(
+  operations: readonly TrackedInFlightOperation[],
+): string | null {
   for (const operation of operations) {
     if (operation.state !== "Pending" && operation.state !== "Running") {
       continue;
     }
 
-    const runId = operation.runId?.trim() ?? "";
+    const architectureId = operation.architectureId?.trim() ?? "";
 
-    if (runId.length > 0) {
-      return runId;
+    if (architectureId.length > 0) {
+      return architectureId;
     }
   }
 
   return null;
 }
 
-function getActiveInFlightReviewIdSnapshot(): string | null {
-  return resolveActiveInFlightReviewId(getInFlightOperations());
+function getInFlightParentArchitectureIdSnapshot(): string {
+  return resolveActiveInFlightParentArchitectureId(getInFlightOperations()) ?? "";
 }
 
 function resolveDeskContinuityFromPreferences(): DeskContinuityDto {
@@ -54,14 +53,13 @@ function resolveDeskContinuityFromPreferences(): DeskContinuityDto {
   return mergeDeskContinuity(defaultDeskContinuityDto(), prefs.deskContinuity);
 }
 
-/** Client hook — resolves Working Start / Alt+N href from desk state (IS-03 / IS-13 / CA-33). */
+/** Client hook — resolves Working Start / Alt+N href from desk state (ADR 0077 / AO-15). */
 export function useWorkingStartHref(_runs: readonly RunSummary[] = []): string {
-  const drafts = useArchitectureDraftRegistryEntries();
   const [deskContinuity, setDeskContinuity] = useState<DeskContinuityDto>(() => resolveDeskContinuityFromPreferences());
-  const inFlightReviewId = useSyncExternalStore(
+  const inFlightParentArchitectureId = useSyncExternalStore(
     subscribeInFlight,
-    getActiveInFlightReviewIdSnapshot,
-    getActiveInFlightReviewIdSnapshot,
+    getInFlightParentArchitectureIdSnapshot,
+    getInFlightParentArchitectureIdSnapshot,
   );
 
   useEffect(() => {
@@ -79,19 +77,11 @@ export function useWorkingStartHref(_runs: readonly RunSummary[] = []): string {
   }, []);
 
   return useMemo(() => {
-    const continueLastDraft = resolveContinueLastArchitectureDraftEntry(
-      drafts,
-      deskContinuity.lastOpenDraftId,
-    );
-    const spawnLockedReviewId =
-      continueLastDraft !== null && architectureDraftHasLinkedReview(continueLastDraft)
-        ? continueLastDraft.linkedReviewId?.trim() ?? null
-        : null;
+    const parentArchitectureId = inFlightParentArchitectureId.trim();
 
     return resolveWorkingStartHref({
-      inFlightReviewId,
       lastOpenArchitectureId: readCachedLastOpenArchitectureId(),
-      spawnLockedReviewId,
+      inFlightParentArchitectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,
     }).href;
-  }, [deskContinuity.lastOpenDraftId, drafts, inFlightReviewId]);
+  }, [deskContinuity.lastOpenDraftId, inFlightParentArchitectureId]);
 }

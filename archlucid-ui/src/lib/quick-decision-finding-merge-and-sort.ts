@@ -1,12 +1,18 @@
 import type { RunDetail } from "@/types/authority";
 import type { FindingConfidenceLevel, FindingTraceConfidenceDto, RunExplanationSummary } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
+
+import {
+  extractAgentQuickDecisionFindingsFromRunDetail,
+  extractSealedQuickDecisionFindingsFromRunDetail,
+  buyerSummaryOmitsAgentFindings,
+  type RunDetailFindingStreams,
+} from "@/lib/quick-decision-finding-stream-resolver";
 import { resolveFindingTraceRowsFromSummary } from "@/lib/quick-decision-wire-snapshots";
 
 import {
   extractQuickDecisionFindingsFromRunDetail,
   normalizeEvaluationConfidenceScore,
-  quickDecisionFindingFromTraceRow,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-finding-from-detail";
 
@@ -89,53 +95,44 @@ function mergeQuickDecisionFindingsWithExplanationTraces(
 
 /** True when quick-decision rows come from aggregate explanation traces, not agent `results[].findings`. */
 export function isQuickDecisionDerivedFromExplanationTraces(
-  detail: RunDetail,
-  explanationSummary: RunExplanationSummary | null,
+  _detail: RunDetail,
+  _explanationSummary: RunExplanationSummary | null,
 ): boolean {
-  if (extractQuickDecisionFindingsFromRunDetail(detail).length > 0) {
-    return false;
-  }
-
-  return findingTraceRowsFromSummary(explanationSummary).length > 0;
+  return false;
 }
 
 /**
- * Prefer flattened agent `results[].findings`; when that slice is empty but the aggregate explanation lists per-finding
- * trace rows (common when run-detail findings omit ids), derive quick-decision rows from explanation.
+ * Sealed snapshot rows first, then advisory agent rows. Never synthesizes finding cards from explanation traces (LP-05).
  */
 export function resolveQuickDecisionFindingsForRunDetail(
   detail: RunDetail,
   explanationSummary: RunExplanationSummary | null,
 ): QuickDecisionFinding[] {
-  const fromDetail = extractQuickDecisionFindingsFromRunDetail(detail);
-
-  let base: QuickDecisionFinding[];
-
-  if (fromDetail.length > 0) {
-    base = fromDetail;
-  } else {
-    const traces = findingTraceRowsFromSummary(explanationSummary);
-
-    if (traces.length === 0) {
-      return [];
-    }
-
-    base = [];
-    let order = 0;
-
-    for (const row of traces) {
-      const mapped = quickDecisionFindingFromTraceRow(row, order);
-
-      if (mapped === null) {
-        continue;
-      }
-
-      base.push(mapped);
-      order += 1;
-    }
-  }
+  const sealed = extractSealedQuickDecisionFindingsFromRunDetail(detail);
+  const agent = extractAgentQuickDecisionFindingsFromRunDetail(detail);
+  const base = [...sealed, ...agent];
 
   return mergeQuickDecisionFindingsWithExplanationTraces(base, explanationSummary);
+}
+
+export function resolveRunDetailFindingStreams(
+  detail: RunDetail,
+  explanationSummary: RunExplanationSummary | null,
+): RunDetailFindingStreams {
+  const sealedFindings = mergeQuickDecisionFindingsWithExplanationTraces(
+    extractSealedQuickDecisionFindingsFromRunDetail(detail),
+    explanationSummary,
+  );
+  const agentFindings = mergeQuickDecisionFindingsWithExplanationTraces(
+    extractAgentQuickDecisionFindingsFromRunDetail(detail),
+    explanationSummary,
+  );
+
+  return {
+    sealedFindings,
+    agentFindings,
+    buyerSummaryOmitsAgentFindings: buyerSummaryOmitsAgentFindings(detail, agentFindings),
+  };
 }
 
 /** Reads `iacStub` for one finding from run detail agent results (no extra HTTP when detail is already loaded). */

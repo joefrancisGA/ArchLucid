@@ -143,6 +143,23 @@ function isUsableReviewTitle(title: string): boolean {
   return title.length > 0 && !isProductBrandReviewTitle(title) && !isUnusableReviewTitleCandidate(title);
 }
 
+/** Buyer-facing review workspace H1: architecture name plus the word "review". */
+function formatReviewPageH1Title(architectureName: string): string {
+  const normalized = stripInlineMarkdownFromReviewText(architectureName).trim();
+
+  if (normalized.length === 0) {
+    return "Architecture review";
+  }
+
+  const lower = normalized.toLowerCase();
+
+  if (lower.endsWith(" review")) {
+    return normalized;
+  }
+
+  return `${normalized} review`;
+}
+
 function resolveReviewHeaderEyebrow(reviewTitle: string, h1Title: string): string {
   if (!isUsableReviewTitle(reviewTitle)) {
     return "Architecture review";
@@ -174,16 +191,18 @@ export function deriveReviewHeaderPresentation(input: {
   const runId = input.runId.trim();
 
   if (systemName.length > 0) {
+    const h1Title = formatReviewPageH1Title(systemName);
+
     return {
-      h1Title: systemName,
-      eyebrowLabel: resolveReviewHeaderEyebrow(reviewTitle, systemName),
+      h1Title,
+      eyebrowLabel: resolveReviewHeaderEyebrow(reviewTitle, h1Title),
       reviewIdentifierLabel: runId,
     };
   }
 
   if (isUsableReviewTitle(reviewTitle)) {
     return {
-      h1Title: reviewTitle,
+      h1Title: formatReviewPageH1Title(reviewTitle),
       eyebrowLabel: "Architecture review",
       reviewIdentifierLabel: runId,
     };
@@ -191,22 +210,22 @@ export function deriveReviewHeaderPresentation(input: {
 
   if (hasManifest && templateLabel.length > 0) {
     return {
-      h1Title: templateLabel,
+      h1Title: formatReviewPageH1Title(templateLabel),
       eyebrowLabel: "Architecture review",
       reviewIdentifierLabel: runId,
     };
   }
 
-  if (reviewTitle.length > 0 && reviewTitle.toLowerCase() === PRODUCT_BRAND_NAME.toLowerCase()) {
+  if (reviewTitle.length > 0 && !isUnusableReviewTitleCandidate(reviewTitle)) {
     return {
-      h1Title: "Architecture under review",
+      h1Title: formatReviewPageH1Title(reviewTitle),
       eyebrowLabel: "Architecture review",
       reviewIdentifierLabel: runId,
     };
   }
 
   return {
-    h1Title: "Architecture under review",
+    h1Title: "Architecture review",
     eyebrowLabel: "Architecture review",
     reviewIdentifierLabel: runId,
   };

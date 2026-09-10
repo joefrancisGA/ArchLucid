@@ -210,4 +210,35 @@ public sealed class AgentExecutionTraceLatestPerTaskSelectorTests
         latest.Should().ContainSingle();
         latest[0].TraceId.Should().Be("trace-attempt-2");
     }
+
+    [Fact]
+    public void Select_when_same_attempt_and_created_utc_ties_prefers_non_rejected_trace()
+    {
+        DateTime sharedUtc = new(2026, 10, 2, 10, 0, 0, DateTimeKind.Utc);
+        AgentExecutionTrace rejectedDuplicate = new()
+        {
+            TraceId = "trace-z-rejected",
+            TaskId = " task-1 ",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace acceptedDuplicate = new()
+        {
+            TraceId = "trace-a-accepted",
+            TaskId = "task-1",
+            AgentType = AgentType.Topology,
+            CreatedUtc = sharedUtc,
+            AttemptIndex = 1,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<AgentExecutionTrace> latest =
+            AgentExecutionTraceLatestPerTaskSelector.Select([rejectedDuplicate, acceptedDuplicate]);
+
+        latest.Should().ContainSingle();
+        latest[0].TraceId.Should().Be("trace-a-accepted");
+    }
 }

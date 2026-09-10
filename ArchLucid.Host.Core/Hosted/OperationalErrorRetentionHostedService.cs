@@ -8,7 +8,8 @@ namespace ArchLucid.Host.Core.Hosted;
 public sealed class OperationalErrorRetentionHostedService(
     IServiceScopeFactory scopeFactory,
     IOptionsMonitor<OperationalErrorOptions> options,
-    ILogger<OperationalErrorRetentionHostedService> logger) : BackgroundService
+    ILogger<OperationalErrorRetentionHostedService> logger,
+    HostLeaderElectionCoordinator electionCoordinator) : BackgroundService
 {
     private static readonly TimeSpan Interval = TimeSpan.FromHours(6);
 
@@ -21,9 +22,20 @@ public sealed class OperationalErrorRetentionHostedService(
     private readonly ILogger<OperationalErrorRetentionHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    private readonly HostLeaderElectionCoordinator _electionCoordinator =
+        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
+
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        return _electionCoordinator.RunLeaderWorkAsync(
+            HostElectionLeaseNames.OperationalErrorRetentionPurge,
+            LoopAsync,
+            stoppingToken);
+    }
+
+    private async Task LoopAsync(CancellationToken leaderToken)
+    {
+        while (!leaderToken.IsCancellationRequested)
         {
             try
             {
@@ -31,9 +43,9 @@ public sealed class OperationalErrorRetentionHostedService(
                     _scopeFactory,
                     _options.CurrentValue,
                     _logger,
-                    stoppingToken).ConfigureAwait(false);
+                    leaderToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }
@@ -44,9 +56,9 @@ public sealed class OperationalErrorRetentionHostedService(
 
             try
             {
-                await Task.Delay(Interval, stoppingToken).ConfigureAwait(false);
+                await Task.Delay(Interval, leaderToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }

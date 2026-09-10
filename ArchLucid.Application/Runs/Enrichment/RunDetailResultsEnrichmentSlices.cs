@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Findings;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
 
@@ -77,6 +78,7 @@ public sealed class RunDetailBuyerResultsEnrichmentSlice(IAgentResultRepository 
                 Category = string.IsNullOrWhiteSpace(f.Category) ? string.Empty : f.Category.Trim(),
                 Severity = f.Severity,
                 PolicyRuleId = string.IsNullOrWhiteSpace(f.PolicyRuleId) ? null : f.PolicyRuleId.Trim(),
+                ReasoningTrace = ResolveReasoningTraceForOperatorWire(f),
             })
             .ToList();
 
@@ -91,5 +93,11 @@ public sealed class RunDetailBuyerResultsEnrichmentSlice(IAgentResultRepository 
             AgentType = AgentType.Compliance,
             Findings = findings,
         };
+    }
+
+    private static string? ResolveReasoningTraceForOperatorWire(Finding finding)
+    {
+        return FindingCounterfactualNotes.ToPrefixedWireValue(finding.Trace?.Notes)
+            ?? (string.IsNullOrWhiteSpace(finding.Rationale) ? null : finding.Rationale.Trim());
     }
 }

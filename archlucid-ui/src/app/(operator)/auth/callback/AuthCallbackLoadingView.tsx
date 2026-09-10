@@ -7,8 +7,6 @@ import { AUTH_CALLBACK_LOADING_DETAIL,
   AUTH_CALLBACK_RESTART_SIGN_IN_ACTION,
   AUTH_CALLBACK_SLOW_HINT_PREFIX,
 } from "@/lib/auth/auth-callback-page-copy";
-import { AUTH_CALLBACK_CLAIM_DISCIPLINE } from "@/lib/auth-callback-evidence-copy";
-import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type AuthCallbackLoadingViewProps = {
@@ -24,12 +22,6 @@ export function AuthCallbackLoadingView({
   return (
     <div className="max-w-[560px]" data-testid="auth-callback-loading">
       <h1 className={cn("mt-0", OPERATOR_TYPOGRAPHY.pageTitle)}>{AUTH_CALLBACK_PAGE_TITLE}</h1>
-
-      <PageHeaderClaimDiscipline
-        text={AUTH_CALLBACK_CLAIM_DISCIPLINE}
-        testId="auth-callback-claim-discipline"
-        className="mt-3 text-left"
-      />
 
       <Skeleton
         className="mt-3 h-4 w-full max-w-md"

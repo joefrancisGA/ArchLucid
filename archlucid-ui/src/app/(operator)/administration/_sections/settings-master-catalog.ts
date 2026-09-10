@@ -13,7 +13,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
   ),
   ...SETTINGS_MASTER_SECTIONS_INTEGRATIONS,
   ...SETTINGS_MASTER_SECTIONS_WORKSPACE.filter(
-    (section) => section.id === "billing" || section.id === "support",
+    (section) => section.id === "billing" || section.id === "support" || section.id === "health-and-access",
   ),
   ...SETTINGS_MASTER_SECTIONS_SECURITY.filter(
     (section) =>

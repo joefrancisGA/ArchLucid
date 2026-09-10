@@ -9,13 +9,13 @@ namespace ArchLucid.Core.Findings;
 /// </summary>
 public interface IInsightDensityLlmJudge
 {
-    Task ApplyToArchitectureFindingsAsync(
+    Task<InsightDensityLlmJudgeApplyResult> ApplyToArchitectureFindingsAsync(
         IReadOnlyList<ArchitectureFinding> findings,
         AgentEvidencePackage evidence,
         ArchitectureRequest request,
         CancellationToken cancellationToken = default);
 
-    Task ApplyToFindingsAsync(
+    Task<InsightDensityLlmJudgeApplyResult> ApplyToFindingsAsync(
         IReadOnlyList<Finding> findings,
         CancellationToken cancellationToken = default);
 }

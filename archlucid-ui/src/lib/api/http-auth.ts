@@ -2,7 +2,7 @@
 
 import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
-import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
+import { ensureAccessTokenFresh } from "@/lib/oidc/session";
 
 /** TB-284: buyer-polished shell requests audience-tier problem details (no internal route hints). */
 export const PROBLEM_DETAILS_AUDIENCE_HEADER = "x-archlucid-audience";
@@ -23,10 +23,10 @@ export async function ensureOidcBearerReady(): Promise<void> {
 }
 
 /**
- * Returns a bearer token for JWT-based API auth when running in the browser (OIDC session).
+ * LK-06 P2: browser proxy auth uses the HttpOnly BFF cookie — never attach Bearer from JS.
  */
 export function getBearerToken(): string | undefined {
-  if (typeof window === "undefined") {
+  if (typeof window !== "undefined") {
     return undefined;
   }
 
@@ -34,7 +34,7 @@ export function getBearerToken(): string | undefined {
     return undefined;
   }
 
-  return getAccessTokenForApi();
+  return undefined;
 }
 
 /** Server-side upstream auth headers (API key, etc.). */
