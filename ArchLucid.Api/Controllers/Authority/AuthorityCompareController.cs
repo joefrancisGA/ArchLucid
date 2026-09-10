@@ -174,8 +174,7 @@ public sealed partial class AuthorityCompareController(
                 ProblemTypes.ManifestNotFound),
             ScopedRunPairLoadOutcome.PinFingerprintMismatch => MapCompareSealedManifestConflict(
                 new ConflictException(
-                    "Compare blocked: create-time pin fingerprints differ between the selected runs.")),
-            ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => MapCompareSealedManifestConflict(
+                    "Compare blocked: create-time pin fingerprints differ between the selected runs.")),            ScopedRunPairLoadOutcome.CommittedArtifactInventoryMismatch => MapCompareSealedManifestConflict(
                 new ConflictException(
                     "Compare blocked: committed artifact inventory fingerprints differ between the selected runs.")),
             ScopedRunPairLoadOutcome.SealedManifestHashMismatch => MapCompareSealedManifestConflict(
@@ -183,12 +182,9 @@ public sealed partial class AuthorityCompareController(
                     "Compare blocked: sealed manifest hash verification failed for one or both selected runs.")),
             ScopedRunPairLoadOutcome.LeftLifecycleIncomplete => MapCompareSealedManifestConflict(
                 new ConflictException(
-                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
-            ScopedRunPairLoadOutcome.RightLifecycleIncomplete => MapCompareSealedManifestConflict(
+                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),            ScopedRunPairLoadOutcome.RightLifecycleIncomplete => MapCompareSealedManifestConflict(
                 new ConflictException(
-                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),
-
-            _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
+                    $"Run '{loadResult.RunId}' authority lifecycle must be Complete before compare.")),            _ => throw new InvalidOperationException($"Unexpected run-pair load outcome: {loadResult.Outcome}."),
         };
 
     private static ManifestComparisonResponse MapManifest(ManifestComparisonResult result)

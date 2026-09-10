@@ -3,15 +3,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { REVIEW_INTAKE_EXAMPLE_TEMPLATES } from "@/lib/operator/operator-home-example-request";
 
+import { GUIDED_INTAKE_SCOPE_CONFIRMATION_BLOCKER } from "@/lib/guided-intake-copy";
+
 import { resetGuidedIntakeExampleTemplatePrefillAppliedIdsForTests } from "./guided-intake-example-template-prefill-once";
 import { useGuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 
 const replaceMock = vi.fn();
+const useSearchParams = vi.fn(() => new URLSearchParams());
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
   usePathname: () => "/architecture/reviews/new",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => useSearchParams(),
 }));
 
 describe("useGuidedIntakeBriefForm", () => {
@@ -21,7 +24,23 @@ describe("useGuidedIntakeBriefForm", () => {
 
   beforeEach(() => {
     replaceMock.mockReset();
+    useSearchParams.mockReturnValue(new URLSearchParams());
     resetGuidedIntakeExampleTemplatePrefillAppliedIdsForTests();
+  });
+
+  it("blocks advance when scopeGate URL is set but scope bullets are not confirmed", () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("scopeGate=1"));
+
+    const { result } = renderHook(() =>
+      useGuidedIntakeBriefForm({
+        exampleTemplate: null,
+        isCreateArchitectureFlow: false,
+      }),
+    );
+
+    expect(result.current.scopeGateOpen).toBe(true);
+    expect(result.current.scopeBullets).toEqual([]);
+    expect(result.current.advanceBlockers).toContain(GUIDED_INTAKE_SCOPE_CONFIRMATION_BLOCKER);
   });
 
   it("applies example template prefill only once across hook remounts", async () => {
