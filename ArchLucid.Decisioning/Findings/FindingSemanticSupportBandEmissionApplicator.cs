@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Core.Findings;
 
 namespace ArchLucid.Decisioning.Findings;
 
@@ -7,9 +8,17 @@ namespace ArchLucid.Decisioning.Findings;
 /// </summary>
 public static class FindingSemanticSupportBandEmissionApplicator
 {
-    public static void Apply(IReadOnlyList<Finding> findings)
+    public static void Apply(IReadOnlyList<Finding> findings) =>
+        Apply(findings, new FindingSemanticSupportBandOptions(), NoOpFindingSemanticSupportBandLlmJudge.Instance);
+
+    public static void Apply(
+        IReadOnlyList<Finding> findings,
+        FindingSemanticSupportBandOptions options,
+        IFindingSemanticSupportBandLlmJudge llmJudge)
     {
         ArgumentNullException.ThrowIfNull(findings);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(llmJudge);
 
         foreach (Finding finding in findings)
         {
@@ -25,8 +34,12 @@ public static class FindingSemanticSupportBandEmissionApplicator
             if (citationExcerpts.Count == 0)
                 continue;
 
-            FindingSemanticSupportBand scoredBand =
-                FindingSemanticSupportBandScorer.Score(findingMessage, citationExcerpts);
+            FindingSemanticSupportBand? llmBand = options.EnableLlmJudge
+                ? llmJudge.TryScore(finding, findingMessage, citationExcerpts, options)
+                : null;
+
+            FindingSemanticSupportBand scoredBand = llmBand
+                ?? FindingSemanticSupportBandScorer.Score(findingMessage, citationExcerpts);
 
             if (scoredBand == FindingSemanticSupportBand.NotScored)
                 continue;

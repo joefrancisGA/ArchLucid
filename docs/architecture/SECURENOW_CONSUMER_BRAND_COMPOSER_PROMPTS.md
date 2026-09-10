@@ -56,3 +56,7 @@ Paste **one** `.cursor/prompts/securenow-brand-NN-*.md` file per Composer sessio
 ## Global constraints
 
 See [`.cursor/prompts/securenow-brand-00-index.md`](../../.cursor/prompts/securenow-brand-00-index.md). Working-tree safety; one class per file; no `ConfigureAwait(false)` in tests; scoped tests only; stage only files the prompt names.
+
+## Follow-on — help job match (not brand)
+
+**SN-04** rewrites product-name tokens. Category-1 drawers and `/help/{slug}` that still teach architecture reviews, approval queues, AWS/GCP, or billing settings the Security shell does not show are **SH-01–SH-26**: [`SECURENOW_HELP_PAGE_COMPOSER_PROMPTS.md`](SECURENOW_HELP_PAGE_COMPOSER_PROMPTS.md).
