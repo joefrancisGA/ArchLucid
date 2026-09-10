@@ -8,10 +8,11 @@ import {
   OPERATOR_QUERY_STALE_MS,
 } from "@/lib/query/operator-query-stale-time";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 
 export const securityEvidencePathDetailQueryKeys = {
-  detail: (scopeKey: readonly unknown[], pathId: string | null) =>
-    ["security-evidence-path", "detail", ...scopeKey, pathId] as const,
+  detail: (scopeKey: OperatorScopeQueryKey, pathId: string | null) =>
+    ["security-evidence-path", "detail", scopeKey, pathId] as const,
 };
 
 export function useSecurityEvidencePathDetailQuery(pathId: string | null) {
