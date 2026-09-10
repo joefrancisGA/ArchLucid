@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8105,6 +8105,17 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `AzureArmResourceCostMapper` misses `Microsoft.Sql/managedInstances/*/databases/*` paths — **cheap-disproof 2026-09-10 seed hunt #1602:** `StartsWith` prefix match; regression `TryInferPlatform_RecognizedType_ReturnsCostingPlatform` managed-instance database segment case.
 
 2026-09-10 seed hunt #1602 (seed-only): reseeded core-azure-extractor after #1601; cheap-disproof closed numeric resourceId coercion, explicit isUnknownType false handling, schema-2 no-op upgrade, whitespace manifest guard, zip-slip rejection, resourceType-less row skip, null-stream guard, RedactStructuredJson non-sensitive preservation, and SQL managed-instance database ARM prefix; 950 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) Null zip stream in PackageInventoryReader returns empty inventory — **cheap-disproof 2026-09-10 seed hunt #1603:** `ArgumentNullException`; regression `TryReadFromZip_throws_when_stream_is_null`.
+- [x] (valid-no-repro) Empty `resources.json` array fails PackageInventoryReader read — **cheap-disproof 2026-09-10 seed hunt #1603:** empty list returned; regression `TryReadFromZip_returns_empty_resources_for_empty_array`.
+- [x] (valid-no-repro) Numeric `resourceType` values fail row mapping — **cheap-disproof 2026-09-10 seed hunt #1603:** non-string tokens coerced via `GetRawText`; regression `TryReadFromZip_coerces_numeric_resource_type_to_string`.
+- [x] (valid-no-repro) Schema 1 upgrade omits default `resourceCount`/`captureMethod`/`collectorVersion` metadata — **cheap-disproof 2026-09-10 seed hunt #1603:** defaults seeded on v1→v2 hop; regression `TryUpgradeManifestJson_adds_default_metadata_on_schema_one_upgrade`.
+- [x] (valid-no-repro) Null stream/path inputs to ZipValidator return success or empty counts — **cheap-disproof 2026-09-10 seed hunt #1603:** `ArgumentNullException`/`ArgumentException`; regressions `Validate_throws_when_stream_is_null`, `ValidateFile_throws_when_path_is_null_or_whitespace`, `CountFileEntries_throws_when_stream_is_null`.
+- [x] (valid-no-repro) Empty `resources.json` array fails ResourceInventoryReader read — **cheap-disproof 2026-09-10 seed hunt #1603:** empty list returned; regression `TryReadFromZip_returns_empty_lines_for_empty_resources_array`.
+- [x] (valid-no-repro) `RedactStructuredJson` preserves sensitive scalar values inside nested objects — **cheap-disproof 2026-09-10 seed hunt #1603:** sensitive keys redacted; regression `RedactStructuredJson_redacts_sensitive_scalar_in_nested_object`.
+- [x] (valid-no-repro) `*tokenless` / `*tokenizer` property names are treated as credential keys — **cheap-disproof 2026-09-10 seed hunt #1603:** negated suffixes ignored; regression `IsSensitiveKey_ignores_tokenless_and_tokenizer_suffix_false_positives`.
+
+2026-09-10 seed hunt #1603 (seed-only): reseeded core-azure-extractor after #1602; cheap-disproof closed null-input guards, empty resources-array handling, numeric resourceType coercion, v1 upgrade default metadata, RedactStructuredJson nested scalar redaction, and tokenless/tokenizer false-positive guard; 961 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
