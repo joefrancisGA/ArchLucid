@@ -6,33 +6,20 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
+import { clearOperatorSessionForExpiry } from "@/lib/auth/operator-session-clear";
+import {
+  postSessionIdleBroadcastMessage,
+  subscribeSessionIdleBroadcast,
+} from "@/lib/auth/session-idle-broadcast";
 import {
   readSharedSessionLastActivityAtMs,
   remainingSessionIdleMs,
   resolveSessionIdleTimeoutMs,
-  SESSION_CLEARED_AT_STORAGE_KEY,
-  SESSION_IDLE_BROADCAST_CHANNEL,
   SESSION_IDLE_FOCUS_HEARTBEAT_MS,
   SESSION_IDLE_WARNING_MS,
   writeSharedSessionLastActivityAt,
 } from "@/lib/auth/session-idle-timeout";
-import { buildSessionExpiredHref } from "@/lib/navigation/auth-sign-in-href";
-import { persistIdleDeskRestoreBeforeSessionClear } from "@/lib/auth/idle-desk-restore";
-import { clearOperatorScopeStorage } from "@/lib/operator/operator-scope-storage";
-import { clearOidcSession } from "@/lib/oidc/session";
 import { OidcTokenExpiryWarningGuard } from "@/components/OidcTokenExpiryWarningGuard";
-
-function clearSessionAndRedirect(router: ReturnType<typeof useRouter>): void {
-  sessionStorage.setItem(SESSION_CLEARED_AT_STORAGE_KEY, new Date().toISOString());
-  const returnPath = window.location.pathname + window.location.search;
-
-  persistIdleDeskRestoreBeforeSessionClear(returnPath);
-  clearOidcSession();
-  clearOperatorScopeStorage();
-
-  router.push(buildSessionExpiredHref(returnPath));
-  router.refresh();
-}
 
 /** Clears operator session after inactivity with cross-tab activity sharing and a 2-minute warning. */
 export function SessionIdleTimeoutGuard() {
@@ -48,12 +35,6 @@ export function SessionIdleTimeoutGuard() {
   );
 
   useEffect(() => {
-    let broadcastChannel: BroadcastChannel | null = null;
-
-    if (typeof BroadcastChannel !== "undefined") {
-      broadcastChannel = new BroadcastChannel(SESSION_IDLE_BROADCAST_CHANNEL);
-    }
-
     const scheduleFromSharedActivity = () => {
       if (timerRef.current !== null) {
         window.clearTimeout(timerRef.current);
@@ -63,7 +44,7 @@ export function SessionIdleTimeoutGuard() {
       const remainingMs = remainingSessionIdleMs(lastActivityAtMs, undefined, idleTimeoutMs);
 
       if (remainingMs <= 0) {
-        clearSessionAndRedirect(router);
+        clearOperatorSessionForExpiry(router);
 
         return;
       }
@@ -75,7 +56,7 @@ export function SessionIdleTimeoutGuard() {
         setWarningSecondsRemaining(Math.ceil(SESSION_IDLE_WARNING_MS / 1000));
 
         timerRef.current = window.setTimeout(() => {
-          clearSessionAndRedirect(router);
+          clearOperatorSessionForExpiry(router);
         }, SESSION_IDLE_WARNING_MS);
       }, warningLeadMs);
     };
@@ -83,9 +64,19 @@ export function SessionIdleTimeoutGuard() {
     const recordActivity = () => {
       writeSharedSessionLastActivityAt();
       setWarningVisible(false);
-      broadcastChannel?.postMessage({ type: "activity" });
+      postSessionIdleBroadcastMessage({ type: "activity" });
       scheduleFromSharedActivity();
     };
+
+    const unsubscribeBroadcast = subscribeSessionIdleBroadcast((message) => {
+      if (message.type === "auth-cleared") {
+        clearOperatorSessionForExpiry(router, { broadcastAuthCleared: false });
+
+        return;
+      }
+
+      scheduleFromSharedActivity();
+    });
 
     const events: Array<keyof WindowEventMap> = ["mousemove", "mousedown", "keydown", "touchstart", "scroll"];
 
@@ -107,10 +98,6 @@ export function SessionIdleTimeoutGuard() {
       }
     }, SESSION_IDLE_FOCUS_HEARTBEAT_MS);
 
-    broadcastChannel?.addEventListener("message", () => {
-      scheduleFromSharedActivity();
-    });
-
     writeSharedSessionLastActivityAt();
     scheduleFromSharedActivity();
 
@@ -126,7 +113,7 @@ export function SessionIdleTimeoutGuard() {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.clearInterval(focusHeartbeatId);
 
-      broadcastChannel?.close();
+      unsubscribeBroadcast();
     };
   }, [idleTimeoutMs, router]);
 
@@ -197,7 +184,7 @@ export function SessionIdleTimeoutGuard() {
                   setWarningSecondsRemaining(Math.ceil(SESSION_IDLE_WARNING_MS / 1000));
 
                   timerRef.current = window.setTimeout(() => {
-                    clearSessionAndRedirect(router);
+                    clearOperatorSessionForExpiry(router);
                   }, SESSION_IDLE_WARNING_MS);
                 }, warningLeadMs);
               }}
