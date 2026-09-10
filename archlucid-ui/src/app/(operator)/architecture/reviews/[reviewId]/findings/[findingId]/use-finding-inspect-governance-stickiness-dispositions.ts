@@ -20,7 +20,9 @@ import { subscribeLivelihoodMutationReplayed } from "@/lib/auth/livelihood-mutat
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE } from "@/lib/buyer/buyer-polish-copy";
+import { useOperatorScopeWriteStamp } from "@/hooks/use-operator-scope-write-stamp";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
+import { readOperatorScopeWriteMismatchMessage } from "@/lib/operator/operator-scope-write-stamp";
 import { buildSponsorStoryDispositionCountsFromRows } from "@/lib/sponsor-story-synopsis";
 import { resolveDispositionConcurrentUpdateNotice } from "@/lib/findings/finding-disposition-concurrent-update";
 import {
@@ -103,6 +105,7 @@ export function useFindingInspectGovernanceStickinessDispositions({
   const searchParams = useSearchParams();
   const livelihoodReturnPath =
     searchParams.toString().length > 0 ? `${pathname}?${searchParams.toString()}` : pathname;
+  const scopeWriteStamp = useOperatorScopeWriteStamp();
   const [history, setHistory] = useState<FindingDispositionEvent[]>([]);
   const [disposition, setDisposition] = useState<FindingDispositionKind>("Accepted");
   const [rationale, setRationale] = useState("");
@@ -256,6 +259,15 @@ export function useFindingInspectGovernanceStickinessDispositions({
       return;
     }
 
+    const scopeMismatchMessage = readOperatorScopeWriteMismatchMessage(scopeWriteStamp);
+
+    if (scopeMismatchMessage !== null) {
+      setDispositionInlineSaveError(scopeMismatchMessage);
+      setErrorMessage(scopeMismatchMessage);
+
+      return;
+    }
+
     setBusyAction("disposition");
     setErrorMessage(null);
     setStatusMessage(null);
@@ -330,6 +342,15 @@ export function useFindingInspectGovernanceStickinessDispositions({
 
   async function submitExplicitRemediation(): Promise<void> {
     if (!canMutate || busyAction !== null) {
+      return;
+    }
+
+    const scopeMismatchMessage = readOperatorScopeWriteMismatchMessage(scopeWriteStamp);
+
+    if (scopeMismatchMessage !== null) {
+      setDispositionInlineSaveError(scopeMismatchMessage);
+      setErrorMessage(scopeMismatchMessage);
+
       return;
     }
 
