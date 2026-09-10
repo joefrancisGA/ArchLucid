@@ -1777,11 +1777,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — save-success callout shown after create when post-save list refresh failed
+- **last-bug:** 2026-09-10 — enable/disable confirmation dialog closed when post-toggle list refresh failed
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1807,6 +1807,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `useWebhooksSettingsMutations` URL-sync effect leaves stale enable/disable dialog errors when search params clear — **valid-no-repro 2026-09-10 seed hunt #1533:** row-toggle `onToggle` clears dialog errors before reopening; cancel `onOpenChange` clears errors on close
 
 2026-09-10 seed hunt #1533 (hit): reseeded ui-webhooks-settings; proved post-create refresh failure still surfaced save success; cheap-disproved URL-sync stale dialog-error candidate; 35 scoped WebhooksSettings tests passed (1 pre-existing sources-strip failure unrelated).
+
+- [x] (proven) `confirmEnableSubscription` / `confirmDisableSubscription` close confirmation when post-toggle `load()` fails — **hit 2026-09-10 seed hunt #1536 (seed→hit):** `executeToggle` ignored refresh failure so dialogs dismissed while table still showed pre-toggle enabled state; fixed by gating dialog close on refresh success and surfacing load failure in dialog only; regressions `keeps enable confirmation open when list refresh fails after toggle` and `keeps disable confirmation open when list refresh fails after toggle`.
+
+2026-09-10 seed hunt #1536 (hit): reseeded ui-webhooks-settings; proved post-toggle refresh failure still dismissed enable/disable confirmations; 38 scoped webhooks folder tests passed (2 pre-existing sources-strip / buyer-polished failures unrelated).
 
 ---
 
