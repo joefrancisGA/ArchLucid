@@ -10459,11 +10459,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 10
-- **bugs-found:** 8
+- **hunts:** 11
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — cosmos graph snapshot outbox retried missing SQL graph rows instead of skip-as-processed
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — retrieval outbox retried missing runs because sealed-hash guard ran before skip path
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10491,6 +10491,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `RunExportBlobPushOutboxProcessor.ProcessEntryAsync` throws `InvalidOperationException` for empty export ZIP outside the push `catch` that dead-letters other non-retryable packaging failures — worker retries until max attempts instead of immediate DLQ — **hit 2026-09-09 seed hunt #1434:** dead-letter empty ZIP immediately with audit/instrumentation; regression `RunExportBlobPushOutboxProcessorTests.ProcessPendingBatchAsync_dead_letters_immediately_when_export_zip_is_empty`
 - [x] (proven) `CosmosGraphSnapshotOutboxProcessor.ProcessEntryAsync` throws when `sqlLoader.LoadAsync` returns null instead of marking processed — orphan outbox rows after `PurgeCascade_Core` graph deletion (migration **375**) retry until max attempts instead of skip-as-processed like retrieval indexing — **hit 2026-09-09 thorough hunt #1435:** mark processed with warning when SQL graph row is missing; regression `CosmosGraphSnapshotOutboxProcessorTests.ProcessPendingBatchAsync_marks_processed_when_sql_graph_snapshot_is_missing`
 - [x] (valid-no-repro) `RecoverableOutboxProcessorBase` sets lease only at dequeue with no heartbeat during long `ProcessEntryAsync` — **cheap-disproof 2026-09-09 thorough hunt #1435:** shared outbox drain is at-least-once by design (`TRANSACTIONAL_OUTBOX_REPLAY_VS_IDEMPOTENCY_CONTRACT.md` §3–§5); cosmos graph push upserts by stable id; lease expiry enabling a second worker is expected replay semantics, not a defect in this shell
+- [x] (proven) `RetrievalIndexingOutboxProcessor.ProcessEntryAsync` runs sealed-manifest hash guard before loading retrieval detail — orphan outbox rows after run purge (`GetRunDetailForManifestCompareAsync` and `GetRunDetailForRetrievalIndexingAsync` both miss) throw `ConflictException` and retry until DLQ instead of skip-as-processed — **hit 2026-09-10 seed hunt #1523:** load incomplete-detail skip before sealed-hash guard; regression `RetrievalIndexingOutboxProcessorCorrelationTests.ProcessPendingBatchAsync_marks_processed_when_run_detail_no_longer_found`
+
+2026-09-10 seed hunt #1523 (hit): reseeded host-core-coordination; proved retrieval outbox sealed-hash guard blocked skip-as-processed on purged runs; 22 scoped coordination processor tests passed.
 
 2026-09-09 thorough hunt #1435 (hit): cheap-disproof closed lease-expiry overlap as at-least-once replay semantics; proved cosmos graph snapshot outbox retried missing SQL graph rows; 40 scoped coordination processor tests passed.
 
