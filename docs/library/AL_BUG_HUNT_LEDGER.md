@@ -7981,11 +7981,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 19
-- **bugs-found:** 13
+- **hunts:** 20
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
-- **last-bug:** 2026-09-10 — PackageInventoryReader ignored PascalCase identity/SKU fields and left padded SKU names untrimmed
+- **last-bug:** 2026-09-10 — PackageInventoryReader ignored PascalCase Tags/Properties/IsUnknownType fields
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8175,6 +8175,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `RedactStructuredJson` redacts non-sensitive `null` scalar values — **cheap-disproof 2026-09-10 seed hunt #1609:** null tokens preserved for non-sensitive keys; regression `RedactStructuredJson_preserves_non_sensitive_null_scalar_values`.
 
 2026-09-10 seed hunt #1609 (hit): reseeded core-azure-extractor after #1608; proved remaining PascalCase identity/SKU binding gaps; cheap-disproof closed network-associations malformed parity, missing-manifest file counts, and non-sensitive-null RedactStructuredJson behavior; 1016 scoped `AzureExtractor` tests passed.
+
+- [x] (proven) `AzureExtractorPackageInventoryReader.MapResourceRow` — PascalCase `Tags`/`Properties`/`IsUnknownType` fields ignored — **hit 2026-09-10 seed hunt #1610:** only lowercase `tags`/`properties`/`isUnknownType` bound after #1609 identity fixes; fixed with PascalCase fallbacks; regressions `TryReadFromZip_reads_pascal_case_tags_on_resource_row`, `TryReadFromZip_reads_pascal_case_properties_on_resource_row`, `TryReadFromZip_reads_pascal_case_is_unknown_type_flag`.
+- [x] (valid-no-repro) Padded string `sku` values persist with surrounding whitespace — **cheap-disproof 2026-09-10 seed hunt #1610:** string SKU trimmed in #1609 `ExtractSku`; regression `TryReadFromZip_trims_whitespace_from_string_sku_property`.
+- [x] (valid-no-repro) Malformed `policy-assignments.json` / `defender-summary.json` companion errors omit entry name — **cheap-disproof 2026-09-10 seed hunt #1610:** wrapped parse error parity from #1607; regressions `TryReadFromZip_fails_on_malformed_policy_assignments_companion_json`, `TryReadFromZip_fails_on_malformed_defender_summary_companion_json`.
+- [x] (valid-no-repro) Corrupt ZIP validation reports nonzero `FileEntryCount` — **cheap-disproof 2026-09-10 seed hunt #1610:** invalid archive leaves count at default zero; regression `Validate_corrupted_bytes_reports_zero_file_entry_count`.
+
+2026-09-10 seed hunt #1610 (hit): reseeded core-azure-extractor after #1609; proved PascalCase tags/properties/isUnknownType binding gap; cheap-disproof closed string SKU trim parity, remaining companion malformed-JSON parity, and corrupt-archive file counts; 1023 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
