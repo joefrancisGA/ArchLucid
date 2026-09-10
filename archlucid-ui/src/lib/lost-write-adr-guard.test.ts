@@ -64,7 +64,7 @@ describe("lost-write ADRs (LW-001 / LW-007 / LW-008)", () => {
     expect(adr).toMatch(/CAS still required/i);
     expect(adr).toMatch(/No SQL RLS/i);
     expect(adr).toMatch(/steal-with-confirm/i);
-    expect(adr).toMatch(/not live occupancy/i);
+    expect(adr).toMatch(/not(\*\*)? live occupancy/i);
     expect(adr).toMatch(/Do not.*invent live presence avatars/i);
     expect(adr).toMatch(/finding-comment chat/i);
   });

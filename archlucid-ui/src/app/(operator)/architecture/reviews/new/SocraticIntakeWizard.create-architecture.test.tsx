@@ -14,7 +14,7 @@ vi.mock("next/navigation", async (importOriginal) => {
 
   return {
     ...actual,
-    useRouter: () => ({ push: vi.fn() }),
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
     useSearchParams: () => ({ get: (key: string) => searchParamsGet(key) }),
   };
 });
@@ -33,6 +33,23 @@ vi.mock("@/lib/architecture/architecture-creation-init", () => ({
     freeTextIntent: "",
     businessOutcome: "",
     systemName: "",
+    structuredBrief: {
+      confirmedConstraints: [],
+      confirmedAssumptions: [],
+      confirmedRequiredCapabilities: [],
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedRequiredCapabilities: [],
+      deniedConstraints: [],
+      deniedAssumptions: [],
+      deniedRequiredCapabilities: [],
+      qualityAttribute: "",
+      failureModeNote: "",
+      suggestedFailureModeNote: "",
+      deniedFailureModeNote: "",
+      operationalOwner: "",
+    },
+    openQuestions: "",
   }),
 }));
 

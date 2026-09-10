@@ -16,7 +16,7 @@ export const LOST_WRITE_HELP_OVERWRITE_COPY: readonly LostWriteHelpCopyRow[] = [
   {
     id: "draft-conflict-another-session",
     sourceRoots: ["components/architecture/ArchitectureDraftWorkspaceIntakeStack.tsx"],
-    excerpt: "This architecture draft changed in another browser session.",
+    excerpt: "This architecture draft changed in another browser session or from offline replay.",
     honesty: "conflict-aware",
     followUpPrompt: "LW-034",
   },
@@ -30,8 +30,8 @@ export const LOST_WRITE_HELP_OVERWRITE_COPY: readonly LostWriteHelpCopyRow[] = [
   {
     id: "persist-conflict-another-session",
     sourceRoots: ["hooks/use-architecture-draft-autosave-persist.ts"],
-    excerpt: "This architecture was updated in another session.",
-    honesty: "save-always",
+    excerpt: "This architecture was updated in another session or from offline replay.",
+    honesty: "conflict-aware",
     followUpPrompt: "LW-034",
   },
   {
