@@ -658,7 +658,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 6
+- **hunts:** 7
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -696,6 +696,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-10 seed hunt #1591 (seed-only): cheap-disproof closed retry exhaustion, empty aggregate, permanent-only aggregate, generic non-transient parity, budget boundary, and max-attempt delay candidates; 20 scoped transient-retry tests passed.
 
 2026-09-09 seed hunt #1481 (seed-only): reseeded orchestrator-transient-retry; cheap-disproved mixed-aggregate fail-fast candidate; 10 scoped transient-retry tests passed.
+
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry bare `TimeoutException` — **cheap-disproof 2026-09-10 seed hunt #1674:** `SqlTransientDetector` treats timeout as transient; regression `ExecuteAsync_retries_bare_timeout_exception`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry SQL error `-2` (command timeout) — **cheap-disproof 2026-09-10 seed hunt #1674:** `-2` is in transient detector set; regression `ExecuteAsync_retries_sql_timeout_error_number_minus_two`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not retry Azure SQL unavailable error `40613` — **cheap-disproof 2026-09-10 seed hunt #1674:** `40613` is in transient detector set; regression `ExecuteAsync_retries_azure_sql_unavailable_error_40613`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` does not flatten nested `AggregateException` inners — **cheap-disproof 2026-09-10 seed hunt #1674:** top-level aggregate `Flatten()` surfaces nested deadlock; regression `ExecuteAsync_retries_nested_aggregate_exception_when_inner_aggregate_contains_deadlock`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry` retries bare `InvalidOperationException` — **cheap-disproof 2026-09-10 seed hunt #1674:** non-SQL exceptions are not retriable; regression `ExecuteAsync_does_not_retry_bare_invalid_operation_exception`.
+- [x] (valid-no-repro) `OrchestratorTransientDbRetry.ExecuteAsync<T>` exhausts after fewer attempts than void overload — **cheap-disproof 2026-09-10 seed hunt #1674:** generic overload shares pipeline; regression `ExecuteAsync_generic_overload_exhausts_max_retries_then_throws_transient_sql_error`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` true at attempt zero — **cheap-disproof 2026-09-10 seed hunt #1674:** attempt 0 is below `MaxAttempts` with zero elapsed; regression `IsExhausted_returns_false_at_attempt_zero`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.ManifestReconcilePollDelay` at max poll diverges from linear `150ms * poll` — **cheap-disproof 2026-09-10 seed hunt #1674:** same multiplier at ceiling poll; regression `ManifestReconcilePollDelay_at_max_poll_uses_linear_backoff_multiplier`.
+- [x] (valid-no-repro) `CommitRunTransientRetryPolicy.IsExhausted` false when both attempt and elapsed exceed limits — **cheap-disproof 2026-09-10 seed hunt #1674:** either predicate triggers exhaustion; regression `IsExhausted_returns_true_when_attempt_and_elapsed_both_exceed_limits`.
+
+2026-09-10 seed hunt #1674 (seed-only): reseeded orchestrator-transient-retry after #1591; cheap-disproof closed bare timeout retry, SQL `-2`/Azure `40613` transient paths, nested aggregate flatten, bare invalid-operation fail-fast, generic overload exhaustion parity, attempt-zero budget guard, max-poll delay, and dual-limit exhaustion; 29 scoped transient-retry tests passed.
 
 ---
 
