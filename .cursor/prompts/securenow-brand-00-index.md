@@ -68,3 +68,5 @@ Summarize: files changed, tests run, residual `ArchLucid` consumer strings in th
 ## Follow-on (not this set)
 
 **SN-04** is brand tokens in help, not job match. Security drawers and `/help/{slug}` that still describe Architecture review / Approval pages are **SH-01–SH-26**: [`.cursor/prompts/securenow-help-00-index.md`](securenow-help-00-index.md).
+
+A later SecureNow **API host** is not a brand rename. Preserve that option with **OP-01–OP-08** (capability cut first; second host is a hold): [`.cursor/prompts/option-preserving-api-00-index.md`](option-preserving-api-00-index.md). Do **not** fold OP into an SN session.

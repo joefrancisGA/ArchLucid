@@ -7,6 +7,8 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
+using ArchLucid.TestSupport.SealedManifest;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -162,12 +164,9 @@ public sealed class ArchitectureIntelligenceControllerTests
             productPublishService: Mock.Of<IArchitectureIntelligenceProductPublishService>(),
             productRunSourceContextLoader ?? Mock.Of<IArchitectureIntelligenceProductRunSourceContextLoader>(),
             scopeProvider.Object,
-authorityQueryService: Mock.Of<IAuthorityQueryService>(),
-            manifestHashService: Mock.Of<IManifestHashService>(),
-Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IRunDetailQueryService>(),
-            Mock.Of<IManifestHashService>(),
-
+            SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
+            SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
             auditService.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
