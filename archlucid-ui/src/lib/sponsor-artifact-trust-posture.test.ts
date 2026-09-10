@@ -35,6 +35,20 @@ describe("resolveSponsorArtifactTrustPostures", () => {
 
     expect(badges.some((b) => b.posture === "evidence-backed")).toBe(true);
   });
+
+  it("uses governed posture when asserted trail is empty (FC-13)", () => {
+    const badges = resolveSponsorArtifactTrustPostures({
+      assertedTrailEmpty: true,
+      proofPackageCompleteness: {
+        roiBaselineInputs: { projectedDollarClaimsSponsorSafe: true },
+        agentOutputPilotStrictEvidenceSatisfied: true,
+        sponsorProofReadiness: "Sendable",
+      },
+    });
+
+    expect(badges.some((b) => b.display === "Governed")).toBe(true);
+    expect(badges.some((b) => b.posture === "evidence-backed")).toBe(false);
+  });
 });
 
 describe("presentSponsorRoiHeadline", () => {

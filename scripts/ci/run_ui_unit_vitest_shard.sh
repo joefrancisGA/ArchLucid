@@ -40,10 +40,11 @@ cd "${UI_DIR}"
 echo "UI unit Vitest shard ${SHARD_ID}: ${#PATHS[@]} path glob(s)"
 
 # OperatorHomePageView.test.tsx alone OOMs under the default 6 GiB CI heap (app-operator-e).
-# GitHub-hosted linux runners have ~16 GiB RAM; 8 GiB still OOM'd on RC13 — use 12 GiB for this shard only.
-if [ "${SHARD_ID}" = "app-operator-e" ]; then
+# app-operator-d includes heavy operate-authority + render-gate shards; raise heap to match operator-e.
+# GitHub-hosted linux runners have ~16 GiB RAM; 8 GiB still OOM'd on RC13 — use 12 GiB for these shards only.
+if [ "${SHARD_ID}" = "app-operator-e" ] || [ "${SHARD_ID}" = "app-operator-d" ]; then
   export NODE_OPTIONS="--max-old-space-size=12288"
-  echo "Raised NODE_OPTIONS=${NODE_OPTIONS} for heavy OperatorHomePageView shard"
+  echo "Raised NODE_OPTIONS=${NODE_OPTIONS} for heavy Operator UI shard ${SHARD_ID}"
 fi
 
 npm run test:vitest-single-worker -- "${PATHS[@]}"

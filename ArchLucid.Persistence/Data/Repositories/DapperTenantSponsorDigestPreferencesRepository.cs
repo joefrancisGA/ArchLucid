@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Notifications;
+using ArchLucid.Contracts.User;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Models;
 
@@ -66,7 +67,7 @@ public sealed class DapperTenantSponsorDigestPreferencesRepository(ISqlConnectio
         if (tenantCount == 0)
             return null;
 
-        string tz = string.IsNullOrWhiteSpace(ianaTimeZoneId) ? "UTC" : ianaTimeZoneId.Trim();
+        string tz = string.IsNullOrWhiteSpace(ianaTimeZoneId) ? IanaTimeZonePreferenceValues.Default : ianaTimeZoneId.Trim();
         string emails = SponsorDigestPreferencesMapper.SerializeEmails(recipientEmails);
 
         const string mergeSql = """

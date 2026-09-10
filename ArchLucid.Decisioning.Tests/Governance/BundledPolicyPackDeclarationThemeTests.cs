@@ -140,6 +140,76 @@ public sealed class BundledPolicyPackDeclarationThemeTests
     }
 
     [Fact]
+    public async Task Hipaa_architecture_emits_declaration_themes_at_p1_clinical_boundary_floor()
+    {
+        IReadOnlySet<string> hipaa = await ResolveAtFloorAsync("hipaa-architecture.json", PolicyPackRulePriority.P1);
+
+        IReadOnlyList<string> themes = EnabledThemes(hipaa);
+
+        themes.Should().BeEquivalentTo(
+            [DataProtection, Encryption, NetworkIsolation, TransportSecurity, WorkloadIsolation],
+            "QR-12 clinical boundary slice backs every declaration theme at P1");
+
+        hipaa.Should().Contain("hipaa-011");
+        hipaa.Should().Contain("hipaa-024");
+        DeclarationSignalPolicyGate.ShouldEmitTheme(DataProtection, hipaa).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(TransportSecurity, hipaa).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Iso_architecture_emits_declaration_themes_at_p1_floor()
+    {
+        IReadOnlySet<string> iso = await ResolveAtFloorAsync("iso27001-architecture.json", PolicyPackRulePriority.P1);
+
+        IReadOnlyList<string> themes = EnabledThemes(iso);
+
+        themes.Should().BeEquivalentTo(
+            [DataProtection, Encryption, NetworkIsolation, TransportSecurity, WorkloadIsolation],
+            "QR-20 ISO 27001 P1 architecture slice backs every declaration theme");
+
+        iso.Should().Contain("iso27001-011");
+        iso.Should().Contain("iso27001-024");
+        DeclarationSignalPolicyGate.ShouldEmitTheme(DataProtection, iso).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(TransportSecurity, iso).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(Encryption, iso).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Pci_architecture_emits_encryption_and_transport_themes_at_p1_floor()
+    {
+        IReadOnlySet<string> pci = await ResolveAtFloorAsync("pci-dss-architecture.json", PolicyPackRulePriority.P1);
+
+        pci.Should().Contain("pci-007");
+        pci.Should().Contain("pci-009");
+        DeclarationSignalPolicyGate.ShouldEmitTheme(Encryption, pci).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(TransportSecurity, pci).Should().BeTrue();
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(Encryption, pci).Should().Be("pci-007");
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(TransportSecurity, pci).Should().Be("pci-009");
+    }
+
+    [Fact]
+    public async Task Zta_architecture_emits_network_and_transport_themes_at_p1_floor()
+    {
+        IReadOnlySet<string> zta = await ResolveAtFloorAsync("zero-trust-architecture.json", PolicyPackRulePriority.P1);
+
+        zta.Should().Contain("zta-007");
+        zta.Should().Contain("zta-008");
+        DeclarationSignalPolicyGate.ShouldEmitTheme(NetworkIsolation, zta).Should().BeTrue();
+        DeclarationSignalPolicyGate.ShouldEmitTheme(TransportSecurity, zta).Should().BeTrue();
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(NetworkIsolation, zta).Should().Be("zta-007");
+        DeclarationSignalPolicyGate.TryGetPolicyRuleId(TransportSecurity, zta).Should().Be("zta-008");
+    }
+
+    [Fact]
+    public async Task Hipaa_architecture_stays_silent_at_shipped_p0_pilot_floor()
+    {
+        IReadOnlySet<string> hipaa = await ResolveShippedAsync("hipaa-architecture.json");
+
+        EnabledThemes(hipaa).Should().BeEmpty(
+            "HIPAA P0 keys are administrative; clinical boundary controls are P1 (QR-12)");
+    }
+
+    [Fact]
     public async Task Frameworks_whose_p0_tier_is_identity_only_stay_silent_at_the_pilot_floor()
     {
         // Honest silence, not a bug: these packs' P0 controls are identity/administrative (CIS Azure P0 is
@@ -149,7 +219,6 @@ public sealed class BundledPolicyPackDeclarationThemeTests
         foreach (string contentFile in new[]
                  {
                      "cis-azure-foundations.json",
-                     "hipaa-architecture.json",
                      "iso27001-architecture.json",
                      "zero-trust-architecture.json",
                  })

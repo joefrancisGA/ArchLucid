@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -21,6 +21,10 @@ import type { ActorSet } from "@/types/draft-intake";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 
 import { MIN_INTENT_CHARS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
+import {
+  hasGuidedIntakeExampleTemplatePrefillApplied,
+  markGuidedIntakeExampleTemplatePrefillApplied,
+} from "./guided-intake-example-template-prefill-once";
 
 type GuidedIntakeBriefFormOptions = {
   readonly exampleTemplate: ReviewIntakeExampleTemplate | null;
@@ -50,7 +54,6 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   const [scopeGateOpen, setScopeGateOpenState] = useState(urlScopeGateOpen);
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [priorAttachedFileNames, setPriorAttachedFileNames] = useState<readonly string[]>([]);
-  const exampleTemplatePrefillAppliedRef = useRef(false);
 
   const { exampleTemplate, isCreateArchitectureFlow } = options;
 
@@ -72,11 +75,11 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   }, [urlScopeGateOpen]);
 
   useEffect(() => {
-    if (exampleTemplate === null || exampleTemplatePrefillAppliedRef.current) {
+    if (exampleTemplate === null || hasGuidedIntakeExampleTemplatePrefillApplied(exampleTemplate.id)) {
       return;
     }
 
-    exampleTemplatePrefillAppliedRef.current = true;
+    markGuidedIntakeExampleTemplatePrefillApplied(exampleTemplate.id);
     setFreeTextIntent(exampleTemplate.briefText);
     setBusinessOutcome(exampleTemplate.businessOutcome);
     setSystemName(exampleTemplate.systemName);

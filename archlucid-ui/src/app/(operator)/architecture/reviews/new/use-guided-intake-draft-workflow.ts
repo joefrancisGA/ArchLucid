@@ -1,16 +1,25 @@
 "use client";
 
-import { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   emptyArchitectureDraftStructuredBrief,
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import { isGuidedIntakeDraftSubmitBlocked } from "@/lib/architecture/architecture-draft-intake-mode";
-import { resolveGuidedIntakeClarificationProgress } from "@/lib/guided-intake-clarification-progress";
+import {
+  areGuidedIntakeClarificationsPersistedForSubmit,
+  resolveGuidedIntakeClarificationProgress,
+} from "@/lib/guided-intake-clarification-progress";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { DraftElicitationQuestion, DraftRequestStatus } from "@/types/draft-intake";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+
+import {
+  guidedIntakeViewAllClarificationsDisclosureHrefFromSearch,
+  parseGuidedIntakeViewAllClarificationsOpenFromSearch,
+} from "@/lib/guided-intake/guided-intake-view-all-clarifications-disclosure-url";
 
 import type { GuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 import { useGuidedIntakeDraftAdmit } from "./use-guided-intake-draft-admit";
@@ -64,6 +73,8 @@ export type GuidedIntakeDraftCoreState = {
   readonly setViewAllClarifications: Dispatch<SetStateAction<boolean>>;
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
   readonly setStructuredBrief: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>;
+  readonly clarificationSelectionHydrated: boolean;
+  readonly setClarificationSelectionHydrated: Dispatch<SetStateAction<boolean>>;
 };
 
 /**
@@ -77,6 +88,10 @@ export type GuidedIntakeDraftCoreState = {
 export type GuidedIntakeDraftWorkflow = ReturnType<typeof useGuidedIntakeDraftWorkflow>;
 
 export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowOptions) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const guidedIntakeViewAllClarificationsOpenParam = searchParams.get("guidedIntakeViewAllClarificationsOpen");
   const {
     clearSession,
     form,
@@ -105,10 +120,41 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-  const [viewAllClarifications, setViewAllClarifications] = useState(false);
+  const [viewAllClarifications, setViewAllClarificationsState] = useState(() =>
+    parseGuidedIntakeViewAllClarificationsOpenFromSearch(guidedIntakeViewAllClarificationsOpenParam),
+  );
+
+  const syncViewAllClarificationsToUrl = useCallback(
+    (open: boolean) => {
+      router.replace(
+        guidedIntakeViewAllClarificationsDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setViewAllClarifications = useCallback(
+    (value: SetStateAction<boolean>) => {
+      setViewAllClarificationsState((current) => {
+        const next = typeof value === "function" ? value(current) : value;
+        syncViewAllClarificationsToUrl(next);
+
+        return next;
+      });
+    },
+    [syncViewAllClarificationsToUrl],
+  );
+
+  useEffect(() => {
+    setViewAllClarificationsState(
+      parseGuidedIntakeViewAllClarificationsOpenFromSearch(guidedIntakeViewAllClarificationsOpenParam),
+    );
+  }, [guidedIntakeViewAllClarificationsOpenParam]);
   const [structuredBrief, setStructuredBrief] = useState<ArchitectureDraftStructuredBriefState>(
     () => emptyArchitectureDraftStructuredBrief(),
   );
+  const [clarificationSelectionHydrated, setClarificationSelectionHydrated] = useState(false);
 
   const core: GuidedIntakeDraftCoreState = {
     busy,
@@ -147,11 +193,14 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     setViewAllClarifications,
     structuredBrief,
     setStructuredBrief,
+    clarificationSelectionHydrated,
+    setClarificationSelectionHydrated,
   };
 
   const {
     applyAdmittedRequiredMustQuestionKeysFromDocument,
     applyBranchDraft,
+    hydrateClarificationsFromDraft,
     refreshQuestions,
     runCreateArchitectureContinuation,
   } = useGuidedIntakeDraftCreate({
@@ -235,6 +284,12 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const allClarificationsHandled =
     pendingQuestions.length === 0 ||
     pendingQuestions.every((question) => savedLocallyQuestionKeys.has(question.questionKey));
+  const clarificationsPersistedForSubmit = areGuidedIntakeClarificationsPersistedForSubmit(
+    pendingQuestions,
+    allClarificationsHandled,
+    savedLocallyQuestionKeys,
+    clarificationSelectionHydrated,
+  );
   const isSubmitBlocked = isGuidedIntakeDraftSubmitBlocked(draftStatus);
 
   return {
@@ -264,6 +319,10 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     primaryPendingQuestion,
     otherPendingQuestions,
     allClarificationsHandled,
+    clarificationsPersistedForSubmit,
+    clarificationSelectionHydrated,
+    setClarificationSelectionHydrated,
+    hydrateClarificationsFromDraft,
     applyBranchDraft,
     runAdmission,
     runCreateArchitectureContinuation,

@@ -1,4 +1,5 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 
 import {
   resolveAzureExtractorUploadError,
@@ -27,8 +28,9 @@ export function parseAzureExtractorUploadFailure(
   problem: ApiProblemDetails | null,
   fallbackMessage: string,
   correlationId: string | null,
+  productLineId: ProductLineId = "architecture",
 ): AzureExtractorUploadFailurePresentation {
-  const resolution = resolveAzureExtractorUploadError(problem, fallbackMessage);
+  const resolution = resolveAzureExtractorUploadError(problem, fallbackMessage, productLineId);
   const extensionErrors = problem?.errors ?? [];
   const detail = problem?.detail?.trim() ?? fallbackMessage.trim();
   const errors = extensionErrors.length > 0 ? extensionErrors : detail.length > 0 ? [detail] : [fallbackMessage];
@@ -56,6 +58,9 @@ export function parseAzureExtractorUploadFailure(
 }
 
 /** Maps client-side wizard / settings ZIP validation messages into the same presentation as API upload failures. */
-export function parseClientAzurePackageZipFailure(message: string): AzureExtractorUploadFailurePresentation {
-  return parseAzureExtractorUploadFailure(null, message, null);
+export function parseClientAzurePackageZipFailure(
+  message: string,
+  productLineId: ProductLineId = "architecture",
+): AzureExtractorUploadFailurePresentation {
+  return parseAzureExtractorUploadFailure(null, message, null, productLineId);
 }

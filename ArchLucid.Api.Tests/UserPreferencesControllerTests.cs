@@ -1,8 +1,11 @@
 using ArchLucid.Api.Controllers.User;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.User;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.UserPreferences;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -45,7 +48,7 @@ public sealed class UserPreferencesControllerTests
         body.WorkspaceModeGraduationOfferIsExplicit.Should().BeFalse();
         body.FindingsHideGenericEnabled.Should().BeFalse();
         body.FindingsHideGenericEnabledIsExplicit.Should().BeFalse();
-        body.FindingsShowLowConfidenceEnabled.Should().BeFalse();
+        body.FindingsShowLowConfidenceEnabled.Should().BeTrue();
         body.FindingsShowLowConfidenceEnabledIsExplicit.Should().BeFalse();
         body.FindingsShowAdvisoryEnabled.Should().BeFalse();
         body.FindingsShowAdvisoryEnabledIsExplicit.Should().BeFalse();
@@ -379,6 +382,33 @@ public sealed class UserPreferencesControllerTests
     }
 
     [SkippableFact]
+    public async Task GetPreferences_BackfillsLastOpenArchitectureIdFromLinkedReview()
+    {
+        Guid runId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        Guid architectureId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.DeskContinuity, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                $$"""{"lastOpenReviewId":"{{runId:D}}","lastVisitWatermarkUtc":"2026-09-05T12:00:00Z"}""");
+
+        Mock<IRunRepository> runRepository = new();
+        runRepository
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId, ArchitectureId = architectureId });
+
+        UserPreferencesController sut = CreateController(repository.Object, runRepository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.DeskContinuity.LastOpenArchitectureId.Should().Be(architectureId.ToString("D"));
+        body.DeskContinuity.LastOpenReviewId.Should().Be(runId.ToString("D"));
+    }
+
+    [SkippableFact]
     public async Task SetDeskContinuity_ReturnsNoContentWhenValid()
     {
         Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
@@ -453,13 +483,24 @@ public sealed class UserPreferencesControllerTests
         return repository;
     }
 
-    private static UserPreferencesController CreateController(IUserSettingsRepository repository)
+    private static UserPreferencesController CreateController(
+        IUserSettingsRepository repository,
+        IRunRepository? runRepository = null,
+        IScopeContextProvider? scopeProvider = null)
     {
         Mock<IActorContext> actorContext = new();
         actorContext.Setup(context => context.GetActorId()).Returns("jwt:user-1");
         actorContext.Setup(context => context.GetActor()).Returns("operator@example.com");
 
-        return new UserPreferencesController(actorContext.Object, repository)
+        Mock<IRunRepository> runRepositoryMock = new();
+        Mock<IScopeContextProvider> scopeProviderMock = new();
+        scopeProviderMock.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext());
+
+        return new UserPreferencesController(
+            actorContext.Object,
+            repository,
+            runRepository ?? runRepositoryMock.Object,
+            scopeProvider ?? scopeProviderMock.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };

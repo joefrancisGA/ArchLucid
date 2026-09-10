@@ -3,6 +3,16 @@ import {
   findingTrustExportJsonFields,
   formatFindingTrustExportLine,
 } from "@/lib/findings/finding-trust-export";
+import {
+  findingWorkItemDefaultTitle,
+  findingWorkItemExplainPageLinkLabel,
+  findingWorkItemHeading,
+  findingWorkItemInspectorLinkLabel,
+  findingWorkItemReviewInProductStep,
+  findingWorkItemReviewLinkLabel,
+} from "@/lib/finding-work-item-product-copy";
+
+import { resolveFindingSemanticSupportBandExportFields } from "@/lib/findings/finding-semantic-support-band-export";
 
 import { resolveFindingWorkItemCoverageHonestyFromInput } from "./copy-finding-as-work-item-coverage-honesty";
 
@@ -45,10 +55,10 @@ function coverageHonestyJsonFields(
   return fields;
 }
 
-function findingHeading(categoryLabel: string | null, title: string | null): string {
-  const parts = [categoryLabel?.trim(), title?.trim()].filter((x) => x !== undefined && x !== null && x.length > 0);
+function findingHeading(input: FindingWorkItemBuildInput): string {
+  const parts = [input.categoryLabel?.trim(), input.title?.trim()].filter((x) => x !== undefined && x !== null && x.length > 0);
 
-  return parts.join(" — ") || "ArchLucid finding";
+  return parts.join(" — ") || findingWorkItemDefaultTitle(input.productLineId);
 }
 
 function ruleSummary(decisionRuleName: string | null, decisionRuleId: string | null): string {
@@ -82,7 +92,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const base = `${origin}${runPath}`;
   const explainUrl = `${base}/findings/${encodeURIComponent(input.findingId)}`;
   const inspectUrl = `${origin}${getFindingEvidenceTraceHref(input.runId, input.findingId)}`;
-  const heading = findingHeading(input.categoryLabel, input.title);
+  const heading = findingHeading(input);
 
   const whatFlagged = na(input.description);
 
@@ -92,6 +102,10 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const ruleLine = ruleSummary(input.decisionRuleName, input.decisionRuleId);
   const trustLine = formatFindingTrustExportLine(input);
   const trustJson = findingTrustExportJsonFields(input);
+  const semanticSupportFields = resolveFindingSemanticSupportBandExportFields({
+    classification: input.classification ?? "DecisionGradeFinding",
+    semanticSupportBand: input.semanticSupportBand ?? null,
+  });
   const coverageHonestyLine = coverageHonestyLineForExport(input);
   const coverageHonestyJson = coverageHonestyJsonFields(input);
 
@@ -110,6 +124,12 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         status: "Not available",
         ruleId: ruleLine,
         ...trustJson,
+        ...(semanticSupportFields === null
+          ? {}
+          : {
+              semanticSupportBand: semanticSupportFields.semanticSupportBand,
+              semanticSupportBandScorerVersion: semanticSupportFields.semanticSupportBandScorerVersion,
+            }),
         ...coverageHonestyJson,
         whatWasFlagged: whatFlagged,
         whyItMatters,
@@ -127,7 +147,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
 
   if (format === "jiraWiki") {
     const lines = [
-      `h2. ArchLucid Finding — ${heading}`,
+      `h2. ${findingWorkItemHeading(input.productLineId, heading)}`,
       "",
       "*Severity:* " + severity,
       `*Finding ID:* {{${input.findingId}}}`,
@@ -161,7 +181,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         : ["* Not available"]),
       "",
       "*Links*",
-      `* (${explainUrl}|ArchLucid finding — explain page)`,
+      `* (${explainUrl}|${findingWorkItemExplainPageLinkLabel(input.productLineId)})`,
       `* (${inspectUrl}|Structured inspector — Why?)`,
     );
 
@@ -204,10 +224,10 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
       ...evidenceLines,
       "",
       "Steps to resolve:",
-      "1. Review the finding in ArchLucid using the inspector link below.",
+      `1. ${findingWorkItemReviewInProductStep(input.productLineId)}`,
       `2. ${remediationStep}`,
       "",
-      `ArchLucid inspector link: ${inspectUrl}`,
+      `${findingWorkItemInspectorLinkLabel(input.productLineId)}: ${inspectUrl}`,
       `Finding ID: ${input.findingId}`,
       `Run ID: ${input.runId}`,
     ].join("\n");
@@ -245,7 +265,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
     evidenceBlock,
     "",
     "### Links",
-    `- ArchLucid run: ${base}`,
+    `- ${findingWorkItemReviewLinkLabel(input.productLineId)}: ${base}`,
     `- Finding (explain page): ${explainUrl}`,
     `- Structured inspector: ${inspectUrl}`,
   );

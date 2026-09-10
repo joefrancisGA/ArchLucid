@@ -11,6 +11,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/first-review",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpFirstReviewEvidenceChecklistGuideView } from "@/app/(operator)/help/_sections/HelpFirstReviewEvidenceChecklistGuideView";

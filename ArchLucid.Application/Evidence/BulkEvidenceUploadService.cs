@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
@@ -27,6 +28,7 @@ public sealed partial class BulkEvidenceUploadService(
     IRunRepository runRepository,
     IAgentTaskRepository agentTaskRepository,
     IEvidenceBundleRepository evidenceBundleRepository,
+    IRunStoredEvidenceFileRepository storedEvidenceFileRepository,
     IArtifactBlobStore blobStore,
     IZipEvidenceExpanderService zipEvidenceExpanderService,
     IEvidenceAddedIncrementalReReviewCoordinator evidenceAddedIncrementalReReviewCoordinator,
@@ -107,6 +109,8 @@ public sealed partial class BulkEvidenceUploadService(
                     if (IsZipArchive(file))
                     {
                         await UploadExpandedZipEntriesAsync(
+                            scope,
+                            actor,
                             runId,
                             file,
                             safeBaseName,
@@ -120,10 +124,14 @@ public sealed partial class BulkEvidenceUploadService(
 
                     // Multipart section streams must be disposed before opening the next file part.
                     using Stream contentStream = file.OpenReadStream();
+                    string contentType = ResolveUploadContentType(file.ContentType);
 
                     await UploadSingleEvidenceFileAsync(
+                        scope,
+                        actor,
                         runId,
                         safeBaseName,
+                        contentType,
                         contentStream,
                         uploadedIds,
                         fileNames,

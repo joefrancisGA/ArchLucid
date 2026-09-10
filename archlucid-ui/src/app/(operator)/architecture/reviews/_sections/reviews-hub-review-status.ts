@@ -38,7 +38,7 @@ export function reviewsHubOverallStatus(run: RunSummary): ReviewsHubOverallStatu
 
 /**
  * How far a review progressed through the pipeline. "Finalized" means a signed manifest exists — it
- * does not imply a governance approval request was submitted, so this stage never says "Approval"
+ * does not imply a approval request was submitted, so this stage never says "Approval"
  * (that word is reserved for the approval queue). Archived reviews keep the stage they reached;
  * archival is reported by {@link reviewsHubOverallStatus} instead.
  */

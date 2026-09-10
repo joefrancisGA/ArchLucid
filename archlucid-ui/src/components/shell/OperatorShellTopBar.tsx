@@ -17,6 +17,7 @@ import { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import { OperatorShellDemoWorkspaceTag } from "@/components/shell/OperatorShellDemoWorkspaceTag";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { GuidedModeTopBarChip } from "@/components/workspace-mode/GuidedModeTopBarChip";
+import { WorkingCareerRehearsalChooser } from "@/components/workspace-mode/WorkingCareerRehearsalChooser";
 import { SimulatorModeTopBarChip } from "@/components/usability/SimulatorModeTopBarChip";
 import { useSearchShortcut } from "@/hooks/useSearchShortcut";
 import { useReviewPresenterChromeActive } from "@/hooks/use-review-presenter-chrome-active";
@@ -31,8 +32,9 @@ import {
   OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS,
 } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { PERSONA_SHELL_WORDMARK_ARIA_LABEL } from "@/lib/vocabulary/persona-shell-vocabulary";
+import { PRODUCT_LINE_WORDMARK_ARIA_LABEL } from "@/lib/product-line/product-line-copy";
 import { cn } from "@/lib/utils";
 
 type OperatorShellTopBarProps = {
@@ -46,6 +48,8 @@ type OperatorShellTopBarProps = {
  */
 export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.Element {
   const callerAuthorityRank = useNavCallerAuthorityRank();
+  const { productLine } = useProductLine();
+  const wordmarkAriaLabel = PRODUCT_LINE_WORDMARK_ARIA_LABEL[productLine];
   const showEngineerOperatorChrome = isOperatorExperienceFullShellEnv();
   const presenterQuiet = useReviewPresenterChromeActive();
   const showLlmBudgetPill =
@@ -54,6 +58,9 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
     callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const showAuthorityThemeToggle = isUiAuthorityThemeEvalEnabledEnv();
   const showMoreMenu = showAuthorityThemeToggle;
+  const showDevAnalysisTopBarChrome = productLine !== "security";
+  const showWorkspaceScopeSwitcher = productLine !== "security";
+  const showWorkingCareerRehearsalChooser = productLine !== "security";
 
   useSearchShortcut();
 
@@ -66,47 +73,58 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
         Avoid overflow-x-hidden here: it forces overflow-y:auto on the short header.
         Single-row nowrap + min-w-0 keeps the sticky chrome budget thin.
       */}
-      <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, "flex min-w-0 flex-nowrap")}>
-        <div
-          data-testid="app-shell-topbar-primary"
-          className={cn(
-            "flex min-w-0 shrink-0 items-center gap-3 px-4 py-2 lg:px-3",
-            OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
-          )}
-        >
-          <MobileNavDrawerDeferred />
-          <h1 className="m-0">
-            <TenantMastheadWordmark href="/" aria-label={PERSONA_SHELL_WORDMARK_ARIA_LABEL} variant="operator" />
-          </h1>
-        </div>
-
+      <div className="flex min-w-0 w-full flex-nowrap">
         <div
           className={cn(
-            "flex min-w-0 flex-1 flex-nowrap items-center gap-x-4 py-2.5",
-            OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
+            OPERATOR_SHELL_MAX_WIDTH_CLASS,
+            "flex min-w-0 flex-1 flex-nowrap",
           )}
         >
-          <div className="flex min-w-0 flex-1 items-center gap-2 sm:max-w-sm lg:max-w-md xl:max-w-xl">
-            <div className="min-w-0 flex-1">
-              <GlobalSearchBarDeferred />
-            </div>
+          <div
+            data-testid="app-shell-topbar-primary"
+            className={cn(
+              "flex min-w-0 shrink-0 items-center gap-3 px-4 py-2 lg:px-3",
+              OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
+            )}
+          >
+            <MobileNavDrawerDeferred />
+            <h1 className="m-0">
+              <TenantMastheadWordmark href="/" aria-label={wordmarkAriaLabel} variant="operator" />
+            </h1>
           </div>
 
           <div
-            data-testid="app-shell-topbar-session"
-            className="ml-auto flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-3"
+            className={cn(
+              "flex min-w-0 flex-1 flex-nowrap items-center gap-x-4 py-2.5",
+              OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
+            )}
           >
-            <div
-              data-testid="app-shell-topbar-context"
-              className="flex min-w-0 flex-nowrap items-center gap-2"
-            >
-              <ScopeSwitcherDeferred density="compact" />
-              <OperatorShellDemoWorkspaceTag />
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:max-w-sm lg:max-w-md xl:max-w-xl">
+              <div className="min-w-0 flex-1">
+                <GlobalSearchBarDeferred />
+              </div>
             </div>
+          </div>
+        </div>
+
+        <div
+          data-testid="app-shell-topbar-session"
+          className="ml-auto flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-3 py-2.5 pr-4 lg:pr-6"
+        >
+            {showWorkspaceScopeSwitcher ? (
+              <div
+                data-testid="app-shell-topbar-context"
+                className="flex min-w-0 flex-nowrap items-center gap-2"
+              >
+                <ScopeSwitcherDeferred density="compact" />
+                <OperatorShellDemoWorkspaceTag />
+              </div>
+            ) : null}
             <AuthPanel />
             <div className="flex shrink-0 items-center gap-2.5 border-l border-neutral-200 pl-3 dark:border-neutral-700">
+              {showWorkingCareerRehearsalChooser ? <WorkingCareerRehearsalChooser /> : null}
               <GuidedModeTopBarChip />
-              <SimulatorModeTopBarChip />
+              {showDevAnalysisTopBarChrome ? <SimulatorModeTopBarChip /> : null}
               <ShellInFlightOperationsAffordanceDeferred />
               <ToolbarHelpTooltip
                 aria-label={OPERATOR_HELP_ARIA_LABEL}
@@ -141,7 +159,6 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
               ) : null}
               <AccountSettingsMenuDeferred />
             </div>
-          </div>
         </div>
       </div>
     </header>

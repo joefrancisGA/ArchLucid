@@ -4,14 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { useHasRegisteredLivelihoodIdleFormSnapshots } from "@/hooks/use-has-registered-livelihood-idle-form-snapshots";
 import {
   SESSION_IDLE_FOCUS_HEARTBEAT_MS,
   SESSION_TOKEN_EXPIRY_WARNING_MS,
   writeSharedSessionLastActivityAt,
 } from "@/lib/auth/session-idle-timeout";
+import { isOperatorOidcKeepaliveRoute } from "@/lib/auth/operator-oidc-keepalive-route";
 import { readPresenterModeFromWindowLocation } from "@/lib/review-detail-workspace-tabs";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenExpiresAtMs } from "@/lib/oidc/session";
+import { pulseBffSessionActivity } from "@/lib/oidc/bff-session-sync";
 
 function isMeetingSafeSessionSurface(pathname: string): boolean {
   if (pathname.includes("/print")) {
@@ -24,7 +27,9 @@ function isMeetingSafeSessionSurface(pathname: string): boolean {
 /** Warns before OIDC access-token expiry so long read sessions can refresh without a hard logout. */
 export function OidcTokenExpiryWarningGuard() {
   const pathname = usePathname() ?? "";
-  const meetingSafe = isMeetingSafeSessionSurface(pathname);
+  const hasDirtyLivelihoodSnapshots = useHasRegisteredLivelihoodIdleFormSnapshots();
+  const keepaliveEnabled =
+    isOperatorOidcKeepaliveRoute(pathname) || hasDirtyLivelihoodSnapshots || isMeetingSafeSessionSurface(pathname);
   const [warningVisible, setWarningVisible] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(
     Math.ceil(SESSION_TOKEN_EXPIRY_WARNING_MS / 1000),
@@ -32,20 +37,23 @@ export function OidcTokenExpiryWarningGuard() {
   const warnedRef = useRef(false);
 
   useEffect(() => {
-    if (!meetingSafe || typeof window === "undefined") {
+    if (!keepaliveEnabled || typeof window === "undefined") {
       return;
     }
 
     writeSharedSessionLastActivityAt();
+    void pulseBffSessionActivity();
 
     const heartbeatId = window.setInterval(() => {
       writeSharedSessionLastActivityAt();
+      void ensureAccessTokenFresh();
+      void pulseBffSessionActivity();
     }, SESSION_IDLE_FOCUS_HEARTBEAT_MS);
 
     return () => {
       window.clearInterval(heartbeatId);
     };
-  }, [meetingSafe]);
+  }, [keepaliveEnabled]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !isJwtAuthMode()) {
@@ -68,7 +76,7 @@ export function OidcTokenExpiryWarningGuard() {
         return;
       }
 
-      if (meetingSafe && remainingMs <= SESSION_TOKEN_EXPIRY_WARNING_MS * 2) {
+      if (keepaliveEnabled && remainingMs <= SESSION_TOKEN_EXPIRY_WARNING_MS * 2) {
         void ensureAccessTokenFresh();
       }
 
@@ -89,7 +97,7 @@ export function OidcTokenExpiryWarningGuard() {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [meetingSafe]);
+  }, [keepaliveEnabled]);
 
   if (!warningVisible) {
     return null;

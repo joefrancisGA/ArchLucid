@@ -1,3 +1,5 @@
+import type { ArchitectureRecommendationProvenance } from "@/lib/architecture-intelligence/architecture-recommendation-provenance-presentation";
+
 export type ClosedLoopReasoningSourceText = {
   fileName: string;
   contentType: string;
@@ -18,6 +20,8 @@ export type ArchitectureRecommendation = {
   recommendationId: string;
   problem: string;
   proposedChange: string;
+  evidence?: string;
+  provenance?: ArchitectureRecommendationProvenance;
 };
 
 export type MustNotFailViolation = {

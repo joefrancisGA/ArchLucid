@@ -1,0 +1,12 @@
+{
+  "schema": "archlucid.policy-compounding-ledger-fixture.v1",
+  "claimBoundary": "Internal differentiability instrument — not a buyer compounding rate.",
+  "policyPackId": "22222222-2222-2222-2222-222222222222",
+  "runId": "dddddddddddddddddddddddddddddddd",
+  "olderVersion": "1.0.0",
+  "newerVersion": "2.0.0",
+  "addedComplianceRuleKey": "demo-ctrl-network-isolation",
+  "incrementalCatchFindingId": "demo-finding-critical",
+  "gateBlockedFlipped": true,
+  "fixtureLabel": "policy-ab-demo (synthetic - internal demo validation only)"
+}

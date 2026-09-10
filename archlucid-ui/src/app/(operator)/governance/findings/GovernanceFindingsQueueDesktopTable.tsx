@@ -4,7 +4,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseTable } from "@/components/ui/enterprise-table";
@@ -27,6 +27,11 @@ import {
   parseGovernanceAssignedToMeSortAscFromSearch,
   parseGovernanceAssignedToMeSortKeyFromSearch,
 } from "@/lib/governance/governance-assigned-to-me-queue-sort-url";
+import {
+  GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM,
+  governanceFindingsResourceGroupDisclosureHrefFromSearch,
+  parseGovernanceFindingsResourceGroupKeyFromSearch,
+} from "@/lib/governance/governance-findings-resource-group-disclosure-url";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-findings-queue-mode";
 
@@ -74,6 +79,41 @@ export function GovernanceFindingsQueueDesktopTable(
   const router = useRouter();
   const pathname = usePathname() ?? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH;
   const searchParams = useSearchParams();
+  const governanceFindingsResourceGroupKeyParam = searchParams.get(GOVERNANCE_FINDINGS_RESOURCE_GROUP_KEY_PARAM);
+  const [openResourceGroupKey, setOpenResourceGroupKeyState] = useState(() =>
+    parseGovernanceFindingsResourceGroupKeyFromSearch(governanceFindingsResourceGroupKeyParam),
+  );
+
+  const syncOpenResourceGroupKeyToUrl = useCallback(
+    (groupKey: string | null) => {
+      router.replace(
+        governanceFindingsResourceGroupDisclosureHrefFromSearch(searchParams.toString(), groupKey, pathname),
+        { scroll: false },
+      );
+    },
+    [pathname, router, searchParams],
+  );
+
+  const setOpenResourceGroupKey = useCallback(
+    (groupKey: string | null) => {
+      setOpenResourceGroupKeyState(groupKey ?? "");
+      syncOpenResourceGroupKeyToUrl(groupKey);
+    },
+    [syncOpenResourceGroupKeyToUrl],
+  );
+
+  useEffect(() => {
+    setOpenResourceGroupKeyState(parseGovernanceFindingsResourceGroupKeyFromSearch(governanceFindingsResourceGroupKeyParam));
+  }, [governanceFindingsResourceGroupKeyParam]);
+
+  const isResourceGroupOpen = (groupKey: string, defaultOpen: boolean): boolean => {
+    if (openResourceGroupKey.length > 0) {
+      return openResourceGroupKey === groupKey;
+    }
+
+    return defaultOpen;
+  };
+
   const urlSortKey = parseGovernanceAssignedToMeSortKeyFromSearch(searchParams.get("sort"));
   const urlSortAsc = parseGovernanceAssignedToMeSortAscFromSearch(searchParams.get("dir"));
   const scrollParentRef = useRef<HTMLDivElement>(null);
@@ -281,7 +321,8 @@ export function GovernanceFindingsQueueDesktopTable(
               <CollapsibleSection
                 key={group.key}
                 title={`${group.label} (${group.rows.length} ${recordLabel})`}
-                defaultOpen
+                open={isResourceGroupOpen(group.key, true)}
+                onToggle={(open) => setOpenResourceGroupKey(open ? group.key : null)}
                 sectionTestId={`governance-findings-resource-group-${group.key}`}
               >
                 <EnterpriseTable ariaLabel={`${group.label} findings`}>

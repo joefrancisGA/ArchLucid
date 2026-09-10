@@ -41,7 +41,7 @@ function readSrcModule(relativePath: string): string {
 
 describe("administration page container width (P0-4)", () => {
   it("exposes the harmonized administration settings width token", () => {
-    expect(OPERATOR_PAGE_CONTAINER.variant.settings).toBe("w-full max-w-[62rem]");
+    expect(OPERATOR_PAGE_CONTAINER.variant.settings).toBe("w-full max-w-[68rem]");
   });
 
   it.each(SETTINGS_WIDTH_PAGE_ROOT_MODULES)(

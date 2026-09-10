@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { buildRunDetailActivityTabSections } from "@/lib/runs/run-detail-activity-tab-section-nav";
 
 describe("buildRunDetailActivityTabSections", () => {
-  it("includes lifecycle, progress, authority, and diagnostics on full operator activity tab", () => {
+  it("includes lifecycle, progress, authority, records, and diagnostics on full operator activity tab", () => {
     const sections = buildRunDetailActivityTabSections({
       buyerPolishedArtifactTable: false,
       authorityChainLabel: "Authority chain",
@@ -13,6 +13,8 @@ describe("buildRunDetailActivityTabSections", () => {
       "pipeline-timeline",
       "pipeline-stages",
       "authority-chain",
+      "review-failure-details",
+      "records-and-diagnostics",
       "agent-forensics",
     ]);
   });
@@ -28,6 +30,8 @@ describe("buildRunDetailActivityTabSections", () => {
       "pipeline-timeline",
       "pipeline-stages",
       "package-changes-since-finalize",
+      "review-failure-details",
+      "records-and-diagnostics",
     ]);
   });
 
@@ -41,6 +45,18 @@ describe("buildRunDetailActivityTabSections", () => {
       "pipeline-timeline",
       "pipeline-stages",
       "authority-chain",
+      "review-failure-details",
+      "records-and-diagnostics",
     ]);
+  });
+
+  it("omits failure-details anchor when Do this next owns recovery", () => {
+    const sections = buildRunDetailActivityTabSections({
+      buyerPolishedArtifactTable: false,
+      showFailureDetails: false,
+    });
+
+    expect(sections.map((section) => section.id)).not.toContain("review-failure-details");
+    expect(sections.map((section) => section.id)).toContain("records-and-diagnostics");
   });
 });

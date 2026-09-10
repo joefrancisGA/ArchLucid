@@ -4,6 +4,7 @@ using ArchLucid.ArtifactSynthesis.Classifiers;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings.Payloads;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Findings;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -60,7 +61,12 @@ public sealed class OrphanedAzureResourceFindingEngine(
                 ct).ConfigureAwait(false);
 
         if (download is null || download.PackageBytes.Length == 0)
+        {
+            // Missing-input fail-closed — not a happy empty inventory scan.
+            HeldCheckLedger.TryRecord(analysisContext, EngineType, HeldCheckInputCode.AzureInventoryZip);
+
             return [];
+        }
 
         string? orphanCandidatesJson =
             AzureInventoryZipJsonEntryReader.TryReadEntry(download.PackageBytes, "orphan-candidates.json");
@@ -122,6 +128,9 @@ public sealed class OrphanedAzureResourceFindingEngine(
                 int entryIndex = extractorOrphan?.EntryIndex ?? -1;
                 decimal? annualSavingsUsd = extractorOrphan?.EstimatedAnnualSavingsUsd;
 
+                List<string> evidenceRefs = [];
+                FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, orphan.ResourceId);
+
                 return new Finding
                 {
                     FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -132,6 +141,7 @@ public sealed class OrphanedAzureResourceFindingEngine(
                     Title = $"Orphaned resource: {orphan.ResourceType}",
                     Rationale = orphan.Message,
                     RelatedNodeIds = topologyNodes.Resolve(orphan.ResourceId).ToList(),
+                    EvidenceRefs = evidenceRefs,
                     PayloadType = extractorOrphanCandidatesGrounded
                         ? nameof(ExtractorOrphanCandidateFindingPayload)
                         : nameof(RequirementFindingPayload),

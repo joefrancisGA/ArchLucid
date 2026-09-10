@@ -35,6 +35,32 @@ public sealed class AgentArchitectureFindingEmissionGateTests
     }
 
     [Fact]
+    public void HasTypedEmission_rejects_non_resolvable_evidence_refs()
+    {
+        ArchitectureFinding finding = new()
+        {
+            Classification = FindingClassification.DecisionGradeFinding,
+            Message = "Opaque evidence ref",
+            EvidenceRefs = ["evidence:control-1"],
+        };
+
+        AgentArchitectureFindingEmissionGate.HasTypedEmission(finding).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasTypedEmission_allows_resolvable_doc_ref()
+    {
+        ArchitectureFinding finding = new()
+        {
+            Classification = FindingClassification.DecisionGradeFinding,
+            Message = "Cited concern",
+            EvidenceRefs = ["doc:manifest.json#services"],
+        };
+
+        AgentArchitectureFindingEmissionGate.HasTypedEmission(finding).Should().BeTrue();
+    }
+
+    [Fact]
     public void ApplyToResults_strips_prose_only_findings()
     {
         AgentResult result = new()
@@ -51,7 +77,7 @@ public sealed class AgentArchitectureFindingEmissionGateTests
                 {
                     Classification = FindingClassification.DecisionGradeFinding,
                     Message = "Typed",
-                    EvidenceRefs = ["evidence:control-1"],
+                    EvidenceRefs = ["doc:manifest.json#services"],
                 },
             ],
         };
@@ -60,5 +86,31 @@ public sealed class AgentArchitectureFindingEmissionGateTests
 
         result.Findings.Should().ContainSingle();
         result.Findings[0].Message.Should().Be("Typed");
+        result.WithheldFindings.Should().ContainSingle();
+        result.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.ProseOnlyEmission);
+    }
+
+    [Fact]
+    public void ApplyToResults_holds_non_resolvable_refs_in_provenance_withheld_band()
+    {
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Compliance,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    Classification = FindingClassification.DecisionGradeFinding,
+                    Message = "Opaque evidence ref",
+                    EvidenceRefs = ["evidence:control-1"],
+                },
+            ],
+        };
+
+        AgentArchitectureFindingEmissionGate.ApplyToResults([result]);
+
+        result.Findings.Should().BeEmpty();
+        result.WithheldFindings.Should().ContainSingle();
+        result.WithheldFindings[0].Reason.Should().Be(WithheldFindingReasons.ProvenanceHoldEmission);
     }
 }

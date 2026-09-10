@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 367_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 379_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -10278,3 +10278,215 @@ BEGIN
         ON dbo.DraftRequests (TenantId, WorkspaceId, ProjectId, ArchitectureId)
         WHERE ArchitectureId IS NOT NULL;
 END;
+
+GO
+
+/*
+  370: DX-13 — append-only operator insight-density signals on the finding desk.
+*/
+
+IF OBJECT_ID(N'dbo.FindingInsightSignals', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FindingInsightSignals
+    (
+        SignalId   UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_FindingInsightSignals PRIMARY KEY,
+        TenantId   UNIQUEIDENTIFIER NOT NULL,
+        RunId      UNIQUEIDENTIFIER NOT NULL,
+        FindingId  NVARCHAR(64)     NOT NULL,
+        UserId     NVARCHAR(256)    NOT NULL,
+        Kind       TINYINT          NOT NULL,
+        CreatedUtc DATETIME2(7)     NOT NULL CONSTRAINT DF_FindingInsightSignals_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT CK_FindingInsightSignals_Kind CHECK (Kind IN (0, 1, 2)),
+        CONSTRAINT FK_FindingInsightSignals_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT UQ_FindingInsightSignals_Scope_User_Kind UNIQUE (TenantId, RunId, FindingId, UserId, Kind)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_FindingInsightSignals_Tenant_Run
+        ON dbo.FindingInsightSignals (TenantId, RunId, CreatedUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_FindingInsightSignals_Tenant_Run_Finding
+        ON dbo.FindingInsightSignals (TenantId, RunId, FindingId);
+END;
+
+GO
+
+/*
+  371: DR-14 — durable tenant-scoped advisory draft async operations.
+*/
+
+IF OBJECT_ID(N'dbo.AdvisoryDraftOperations', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AdvisoryDraftOperations
+    (
+        TenantId      UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId   UNIQUEIDENTIFIER NOT NULL,
+        ProjectId     UNIQUEIDENTIFIER NOT NULL,
+        OperationId   UNIQUEIDENTIFIER NOT NULL,
+        State         INT              NOT NULL,
+        StepLabel     NVARCHAR(256)    NOT NULL,
+        CurrentStep   INT              NOT NULL,
+        CreatedUtc    DATETIME2(3)     NOT NULL CONSTRAINT DF_AdvisoryDraftOperations_CreatedUtc DEFAULT (SYSUTCDATETIME()),
+        HeartbeatUtc  DATETIME2(3)     NOT NULL,
+        CompletedUtc  DATETIME2(3)     NULL,
+        ResultJson    NVARCHAR(MAX)    NULL,
+        ErrorMessage  NVARCHAR(2000)   NULL,
+        CONSTRAINT PK_AdvisoryDraftOperations PRIMARY KEY (TenantId, WorkspaceId, ProjectId, OperationId),
+        CONSTRAINT CK_AdvisoryDraftOperations_State CHECK (State BETWEEN 0 AND 5),
+        CONSTRAINT CK_AdvisoryDraftOperations_ResultJson CHECK (ResultJson IS NULL OR ISJSON(ResultJson) = 1)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AdvisoryDraftOperations_Scope_Heartbeat
+        ON dbo.AdvisoryDraftOperations (TenantId, WorkspaceId, ProjectId, HeartbeatUtc DESC);
+END;
+
+GO
+
+/*
+  372: ESI-01 — catalog rows for bulk-uploaded review evidence files (blob pointers + metadata).
+*/
+
+IF OBJECT_ID(N'dbo.RunStoredEvidenceFiles', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.RunStoredEvidenceFiles
+    (
+        EvidenceItemId   NVARCHAR(32)     NOT NULL CONSTRAINT PK_RunStoredEvidenceFiles PRIMARY KEY CLUSTERED,
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId   UNIQUEIDENTIFIER NOT NULL,
+        RunId            UNIQUEIDENTIFIER NOT NULL,
+        OriginalFileName NVARCHAR(500)    NOT NULL,
+        ContentType      NVARCHAR(128)    NOT NULL,
+        ByteLength       BIGINT           NOT NULL,
+        BlobUri          NVARCHAR(2048)   NOT NULL,
+        CreatedUtc       DATETIME2        NOT NULL,
+        ActorUserId      NVARCHAR(256)    NOT NULL,
+        CONSTRAINT CK_RunStoredEvidenceFiles_ByteLength CHECK (ByteLength >= 0)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_RunStoredEvidenceFiles_Scope_Run_Created
+        ON dbo.RunStoredEvidenceFiles (TenantId, WorkspaceId, ScopeProjectId, RunId, CreatedUtc);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.FindingVerificationReports', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FindingVerificationReports
+    (
+        ReportId                       UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_FindingVerificationReports PRIMARY KEY,
+        TenantId                       UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId                    UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        RunId                          UNIQUEIDENTIFIER NOT NULL,
+        SourceManifestHash             NVARCHAR(128)    NOT NULL,
+        SourceFindingsSnapshotId       UNIQUEIDENTIFIER NOT NULL,
+        VerificationFindingsSnapshotId UNIQUEIDENTIFIER NULL,
+        ReportHash                     NVARCHAR(128)    NOT NULL,
+        TriggeredByUserId              NVARCHAR(256)    NOT NULL,
+        CreatedUtc                     DATETIME2(7)     NOT NULL CONSTRAINT DF_FindingVerificationReports_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_FindingVerificationReports_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_FindingVerificationReports_Scope_Run_Created
+        ON dbo.FindingVerificationReports (TenantId, WorkspaceId, ScopeProjectId, RunId, CreatedUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_FindingVerificationReports_Idempotency
+        ON dbo.FindingVerificationReports (
+            TenantId,
+            WorkspaceId,
+            ScopeProjectId,
+            RunId,
+            SourceFindingsSnapshotId,
+            VerificationFindingsSnapshotId,
+            CreatedUtc DESC);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.FindingVerificationResults', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FindingVerificationResults
+    (
+        ResultId   UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_FindingVerificationResults PRIMARY KEY,
+        ReportId   UNIQUEIDENTIFIER NOT NULL,
+        FindingId  NVARCHAR(64)     NOT NULL,
+        Status     TINYINT          NOT NULL,
+        TraceText  NVARCHAR(2000)   NOT NULL,
+        CONSTRAINT CK_FindingVerificationResults_Status CHECK (Status IN (0, 1, 2, 3)),
+        CONSTRAINT FK_FindingVerificationResults_Reports FOREIGN KEY (ReportId)
+            REFERENCES dbo.FindingVerificationReports (ReportId),
+        CONSTRAINT UQ_FindingVerificationResults_Report_Finding UNIQUE (ReportId, FindingId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_FindingVerificationResults_Report
+        ON dbo.FindingVerificationResults (ReportId, FindingId);
+END;
+
+GO
+
+/*
+  378: AS-047 — optional architecture inventory snapshot binding (ADR 0084 / inventory-bind).
+*/
+
+IF OBJECT_ID(N'dbo.ArchitectureInventoryBindings', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureInventoryBindings
+    (
+        ArchitectureId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_ArchitectureInventoryBindings PRIMARY KEY CLUSTERED,
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId   UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId       UNIQUEIDENTIFIER NOT NULL,
+        BoundBy          NVARCHAR(256)    NOT NULL,
+        BoundUtc         DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureInventoryBindings_BoundUtc DEFAULT SYSUTCDATETIME(),
+        RowVersion       ROWVERSION       NOT NULL,
+        CONSTRAINT FK_ArchitectureInventoryBindings_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
+        CONSTRAINT FK_ArchitectureInventoryBindings_Snapshots
+            FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureInventoryBindings_Scope_Architecture
+        ON dbo.ArchitectureInventoryBindings (TenantId, WorkspaceId, ScopeProjectId, ArchitectureId);
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureInventoryBindings_Tenant_Snapshot
+        ON dbo.ArchitectureInventoryBindings (TenantId, SnapshotId);
+END;
+GO
+
+/*
+  380: AS-087 / AS-088 — optional RestrictToShares + dbo.ArchitectureShares (ADR 0087).
+*/
+
+IF OBJECT_ID(N'dbo.Architectures', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Architectures', N'RestrictToShares') IS NULL
+BEGIN
+    ALTER TABLE dbo.Architectures
+        ADD RestrictToShares BIT NOT NULL
+            CONSTRAINT DF_Architectures_RestrictToShares DEFAULT (0);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ArchitectureShares', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ArchitectureShares
+    (
+        ArchitectureId UNIQUEIDENTIFIER NOT NULL,
+        ActorOid       NVARCHAR(128)    NOT NULL,
+        Role           NVARCHAR(32)     NOT NULL,
+        GrantedBy      NVARCHAR(256)    NOT NULL,
+        GrantedUtc     DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_ArchitectureShares_GrantedUtc DEFAULT SYSUTCDATETIME(),
+        RowVersion     ROWVERSION       NOT NULL,
+        CONSTRAINT PK_ArchitectureShares PRIMARY KEY CLUSTERED (ArchitectureId, ActorOid),
+        CONSTRAINT FK_ArchitectureShares_Architectures
+            FOREIGN KEY (ArchitectureId) REFERENCES dbo.Architectures (ArchitectureId) ON DELETE CASCADE,
+        CONSTRAINT CK_ArchitectureShares_Role CHECK (Role IN (N'View', N'Decide', N'Admin'))
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ArchitectureShares_ActorOid
+        ON dbo.ArchitectureShares (ActorOid, ArchitectureId);
+END;
+GO

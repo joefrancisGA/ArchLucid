@@ -1,9 +1,10 @@
+import type { SupportedContextDocumentContentType } from "@/lib/architecture-spine/supported-context-document-content-types";
 import type { components } from "@/lib/openapi-schemas";
 
 /** Attached context document (camelCase JSON — matches API `ContextDocumentRequest`). */
 export type CreateArchitectureRunDocumentPayload = {
   name: string;
-  contentType: string;
+  contentType: SupportedContextDocumentContentType;
   content: string;
 };
 

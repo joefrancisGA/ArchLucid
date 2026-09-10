@@ -174,31 +174,47 @@ public sealed class ClosedLoopPublishStage(
         ReviewCacheDependencyManifest? cacheManifest = context.CacheManifest;
         ReviewCacheStorageKind? storageKind = context.StorageKind;
 
-        if (cacheManifest is not null && persistModel && storageKind is not null)
+        if (cacheManifest is not null
+            && storageKind is not null
+            && (persistModel || !effectiveRequest.PublishToProduct))
         {
-            IReadOnlyList<ArchLucid.Contracts.Persistence.TechnologyLedger.TechnologyLedgerEntry>? postSaveLedgerEntries =
+            ReviewCacheDependencyManifest resolvedCacheManifest = cacheManifest;
+            ReviewCacheStorageKind resolvedStorageKind = storageKind.Value;
+
+            IReadOnlyList<ArchLucid.Contracts.Persistence.TechnologyLedger.TechnologyLedgerEntry>? ledgerEntriesForCache =
                 await _persistenceHelper.TryLoadLedgerEntriesAsync(runId, cancellationToken);
 
+            ArchitectureKnowledgeModel baselineModelForCacheManifest = context.Model;
+
+            if (resolvedStorageKind == ReviewCacheStorageKind.ContinueFromExistingRun
+                || (!persistModel && !string.IsNullOrWhiteSpace(effectiveRequest.RunId)))
+            {
+                ArchitectureKnowledgeModel? persistedBaselineModel =
+                    await _persistenceHelper.TryLoadExistingModelAsync(tenantId, runId, cancellationToken);
+
+                if (persistedBaselineModel is not null)
+                    baselineModelForCacheManifest = persistedBaselineModel;
+            }
+
             ReviewCacheDependencyManifest storageManifest =
-                storageKind == ReviewCacheStorageKind.ContinueFromExistingRun
+                resolvedStorageKind == ReviewCacheStorageKind.ContinueFromExistingRun
                     ? ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
                         effectiveRequest,
                         tenantId,
                         runId,
-                        context.Model,
-                        postSaveLedgerEntries)
+                        baselineModelForCacheManifest,
+                        ledgerEntriesForCache)
                     : string.IsNullOrWhiteSpace(effectiveRequest.RunId)
-                        ? cacheManifest
+                        ? resolvedCacheManifest
                         : ReviewCacheManifestBuilder.BuildWithResolvedRunId(
                             effectiveRequest,
                             runId,
-                            context.Model,
-                            postSaveLedgerEntries);
+                            baselineModelForCacheManifest,
+                            ledgerEntriesForCache);
 
             using IReviewResultCachePinScope storagePinScope = _reviewResultCache.PinScope(storageManifest);
 
-            if (storagePinScope.IsPinned)
-                _reviewResultCache.Set(storageManifest, result);
+            _reviewResultCache.Set(storageManifest, result);
         }
 
         return result;

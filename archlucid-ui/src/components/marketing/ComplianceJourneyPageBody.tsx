@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { ComplianceJourneyBreadcrumb } from "@/components/marketing/compliance-journey/ComplianceJourneyBreadcrumb";
 import { ComplianceJourneyScopeDisclosure } from "@/components/marketing/compliance-journey/ComplianceJourneyScopeDisclosure";
 import { ComplianceJourneyDiligenceLink } from "@/components/marketing/ComplianceJourneyDiligenceLink";
 import { ComplianceJourneyPageChrome } from "@/components/marketing/ComplianceJourneyPageChrome";
@@ -14,8 +13,6 @@ import {
   type ComplianceJourneyDiligenceLink as ComplianceJourneyDiligenceLinkModel,
 } from "@/lib/compliance-journey-diligence-links";
 import { COMPLIANCE_JOURNEY_REVISION_HISTORY } from "@/lib/compliance-journey-marketing-revision-history";
-import { COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE } from "@/lib/compliance-journey-evidence-copy";
-import { PageHeaderClaimDiscipline } from "@/components/operator/page-header-claim-discipline";
 import {
   COMPLIANCE_JOURNEY_HERO_ORIENTATION,
   COMPLIANCE_JOURNEY_LAST_REVIEWED_LABEL,
@@ -70,20 +67,12 @@ export function ComplianceJourneyPageBody(): ReactNode {
     <div className={cn(MARKETING_LAYOUT.sectionStack, "space-y-8")} data-testid="compliance-journey-body">
       <ComplianceJourneyPageChrome
         hero={
-          <header className="space-y-4 border-b border-neutral-200 pb-8 dark:border-neutral-800">
-            <div className="mb-1">
-              <ComplianceJourneyBreadcrumb />
-            </div>
+          <header className="space-y-4 border-b border-neutral-200 pb-8 dark:border-neutral-800" data-testid="compliance-journey-hero">
             <h1 className={cn("m-0", MARKETING_TYPOGRAPHY.pageTitle)}>{COMPLIANCE_JOURNEY_PAGE_TITLE}</h1>
             <p className={cn("m-0 max-w-prose", MARKETING_TYPOGRAPHY.lead)}>{COMPLIANCE_JOURNEY_PAGE_LEAD}</p>
             <p className={cn("m-0 max-w-prose text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
               {COMPLIANCE_JOURNEY_HERO_ORIENTATION}
             </p>
-            <PageHeaderClaimDiscipline
-              text={COMPLIANCE_JOURNEY_CLAIM_DISCIPLINE}
-              testId="compliance-journey-claim-discipline"
-              className="max-w-prose text-left"
-            />
             <div className={TRUST_CENTER_PUBLIC_LAYOUT.metaRow} data-testid="compliance-journey-hero-meta">
               <span className={TRUST_CENTER_PUBLIC_LAYOUT.lastReviewed}>
                 Last reviewed{" "}

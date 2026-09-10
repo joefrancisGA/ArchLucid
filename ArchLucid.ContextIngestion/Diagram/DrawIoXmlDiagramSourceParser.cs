@@ -20,16 +20,17 @@ public sealed class DrawIoXmlDiagramSourceParser : IDiagramSourceParser
         ArchitectureDiagramModelRecord model = new();
         List<string> warnings = [];
 
-        if (string.IsNullOrWhiteSpace(source.Content))
-        {
-            warnings.Add("draw.io XML was empty.");
+        DrawIoXmlPayloadExpandResult expandResult = DrawIoXmlPayloadExpander.Expand(source.Content);
+        warnings.AddRange(expandResult.Warnings);
 
+        if (string.IsNullOrWhiteSpace(expandResult.XmlPayload))
+        {
             return new DiagramParseResult { Model = model, Warnings = warnings };
         }
 
         try
         {
-            XDocument document = XDocument.Parse(source.Content);
+            XDocument document = XDocument.Parse(expandResult.XmlPayload, LoadOptions.None);
             IEnumerable<XElement> cells = document.Descendants()
                 .Where(element => string.Equals(element.Name.LocalName, "mxCell", StringComparison.Ordinal));
 
@@ -39,9 +40,9 @@ public sealed class DrawIoXmlDiagramSourceParser : IDiagramSourceParser
             foreach (XElement cell in cells)
             {
                 string? cellId = cell.Attribute("id")?.Value;
-                string? parentId = cell.Attribute("parent")?.Value;
                 string? value = cell.Attribute("value")?.Value;
                 string? edge = cell.Attribute("edge")?.Value;
+                string? vertex = cell.Attribute("vertex")?.Value;
                 string? edgeSource = cell.Attribute("source")?.Value;
                 string? target = cell.Attribute("target")?.Value;
 
@@ -69,17 +70,22 @@ public sealed class DrawIoXmlDiagramSourceParser : IDiagramSourceParser
                     continue;
                 }
 
-                if (!string.IsNullOrWhiteSpace(value) && !string.Equals(parentId, "0", StringComparison.Ordinal))
+                if (string.Equals(vertex, "1", StringComparison.Ordinal) && !string.IsNullOrWhiteSpace(value))
                 {
                     EnsureNode(nodes, cellId, value);
                 }
             }
 
             model.Nodes.AddRange(nodes.Values.OrderBy(node => node.Id, StringComparer.Ordinal));
+
+            if (model.Nodes.Count == 0)
+            {
+                warnings.Add("No draw.io vertices were recognized in the source.");
+            }
         }
         catch (Exception ex)
         {
-            warnings.Add($"draw.io XML parse failed: {ex.Message}");
+            warnings.Add($"draw.io XML structured parse failed: {ex.Message}");
         }
 
         return new DiagramParseResult

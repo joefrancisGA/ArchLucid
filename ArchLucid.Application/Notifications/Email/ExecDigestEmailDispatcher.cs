@@ -18,7 +18,6 @@ public sealed class ExecDigestEmailDispatcher(
     ILogger<ExecDigestEmailDispatcher> logger) : IExecDigestEmailDispatcher
 {
     public const string TemplateId = "ExecDigest";
-    private const string DefaultProductName = "ArchLucid";
 
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
@@ -57,7 +56,7 @@ public sealed class ExecDigestEmailDispatcher(
         if (string.IsNullOrWhiteSpace(unsubscribeAbsoluteUrl))
             throw new ArgumentException("Unsubscribe URL is required.", nameof(unsubscribeAbsoluteUrl));
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
-        string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
+        string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
         string? operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? null : emailOptions.OperatorBaseUrl.TrimEnd('/');
         ExecDigestEmailModel model = new()
         {

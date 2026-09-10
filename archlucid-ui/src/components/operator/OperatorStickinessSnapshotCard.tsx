@@ -135,7 +135,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
             </p>
             {data.pendingGovernanceApprovals > 0 ? (
               <Link className={OPERATOR_LINK.optional} href={GOVERNANCE_APPROVAL_QUEUE_PATH}>
-                {buyerPolishedShell ? "View governance approval" : "Open governance approval"}
+                {buyerPolishedShell ? "View approval" : "Open approval"}
               </Link>
             ) : null}
             {assignedToMeCount > 0 ? (

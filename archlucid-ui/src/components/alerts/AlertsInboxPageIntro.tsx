@@ -38,7 +38,7 @@ export function AlertsInboxPageIntro({
         </p>
       ) : null}
 
-      {!canMutateAlertInbox ? (
+      {!canMutateAlertInbox && !buyerPolishedShell ? (
         <div className="mb-3">
           <AlertsInboxRankCue />
         </div>

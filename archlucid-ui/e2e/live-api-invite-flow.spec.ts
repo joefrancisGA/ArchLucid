@@ -1,12 +1,25 @@
 /**
  * Live invite admin flow (TB-795): settings UI sends invite → pending list → revoke.
- * Runs under DevelopmentBypass, ApiKey, and JWT CI jobs (`ui-e2e-live-apikey`, `ui-e2e-live-jwt`).
+ * Wave 4: duplicate pending UI idempotency + directory-user 409 surfacing.
  */
 import { expect, test } from "@playwright/test";
 
-import { liveApiBase, resolveLiveJwtMode } from "./helpers/live-api-client";
+import {
+  createScimAdminToken,
+  primePrivateBetaBrowserSessionIfJwtMode,
+  provisionScimDirectoryUser,
+  submitAdminInviteFromUsersUi,
+} from "./helpers/live-private-beta-access";
+import { liveApiBase } from "./helpers/live-api-client";
 
-test.describe("live-api-invite-flow", { tag: ["@founder"] }, () => {
+async function gotoUsersInvitePage(page: import("@playwright/test").Page): Promise<void> {
+  await primePrivateBetaBrowserSessionIfJwtMode(page);
+  await page.goto("/administration/users", { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("settings-roles-tabpanel-users")).toBeVisible({ timeout: 60_000 });
+}
+
+test.describe("live-api-invite-flow", { tag: ["@founder", "@release-gate"] }, () => {
   test.describe.configure({ timeout: 180_000 });
 
   test.beforeAll(async ({ request }) => {
@@ -23,39 +36,10 @@ test.describe("live-api-invite-flow", { tag: ["@founder"] }, () => {
   test("admin invite round-trip: send invite, list pending, revoke", async ({ page }) => {
     test.setTimeout(180_000);
 
-    if (resolveLiveJwtMode()) {
-      const bearer = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
-
-      if (bearer.length === 0) {
-        throw new Error(
-          "JWT mode requires ARCHLUCID_PROXY_BEARER_TOKEN on the UI process so /api/proxy forwards Authorization.",
-        );
-      }
-    }
-
     const inviteEmail = `e2e-invite-${Date.now()}@example.com`;
 
-    await page.goto("/administration/users", { waitUntil: "domcontentloaded" });
-
-    await expect(page.getByTestId("settings-roles-page")).toBeVisible({ timeout: 60_000 });
-
-    // Empty workspace uses invite-first layout (form in primary region); otherwise invite is in a collapsible section.
-    const invitePrimaryRegion = page.getByTestId("settings-roles-invite-primary-region");
-    const inviteSection = page.getByTestId("settings-roles-invite-section");
-
-    if (await invitePrimaryRegion.isVisible().catch(() => false)) {
-      await expect(invitePrimaryRegion).toBeVisible({ timeout: 60_000 });
-    } else {
-      await expect(inviteSection).toBeVisible({ timeout: 60_000 });
-      await inviteSection.locator("summary").click();
-    }
-
-    await expect(page.getByTestId("settings-roles-invite-form")).toBeVisible({ timeout: 60_000 });
-
-    await page.getByTestId("settings-roles-invite-email").fill(inviteEmail);
-    await page.getByTestId("settings-roles-invite-role").click();
-    await page.getByRole("option", { name: /^Reader$/ }).click();
-    await page.getByTestId("settings-roles-invite-submit").click();
+    await gotoUsersInvitePage(page);
+    await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
 
     const pendingRow = page.locator("tr", { hasText: inviteEmail });
     await expect(pendingRow).toBeVisible({ timeout: 60_000 });
@@ -70,5 +54,37 @@ test.describe("live-api-invite-flow", { tag: ["@founder"] }, () => {
 
     await expect(pendingRow).toContainText("Revoked", { timeout: 60_000 });
     await expect(pendingRow.getByRole("button", { name: "Revoke" })).toHaveCount(0);
+  });
+
+  test("duplicate pending invite from UI does not create a second row", async ({ page }) => {
+    test.setTimeout(180_000);
+
+    const inviteEmail = `e2e-dup-ui-${Date.now()}@example.com`;
+
+    await gotoUsersInvitePage(page);
+    await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
+
+    const pendingRow = page.locator("tr", { hasText: inviteEmail });
+    await expect(pendingRow).toBeVisible({ timeout: 60_000 });
+
+    await submitAdminInviteFromUsersUi(page, inviteEmail, "Reader");
+
+    await expect(page.locator("tr", { hasText: inviteEmail })).toHaveCount(1, { timeout: 60_000 });
+  });
+
+  test("invite to existing directory user surfaces conflict copy in UI", async ({ page, request }) => {
+    test.setTimeout(180_000);
+
+    const directoryEmail = `e2e-dir-user-${Date.now()}@example.com`;
+    const scimToken = await createScimAdminToken(request);
+
+    await provisionScimDirectoryUser(request, directoryEmail, scimToken.plaintextToken);
+
+    await gotoUsersInvitePage(page);
+    await submitAdminInviteFromUsersUi(page, directoryEmail, "Reader");
+
+    await expect(page.getByText(/Cannot invite this email|directory user already exists/i)).toBeVisible({
+      timeout: 60_000,
+    });
   });
 });

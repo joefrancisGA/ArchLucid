@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 
-import { HelpTopicMarkdownView } from "@/app/(operator)/help/HelpTopicMarkdownView";
+import { HelpTopicCatchallResidualView } from "@/app/(operator)/help/_sections/HelpTopicCatchallResidualView";
 import { assertHelpTopicCatchAllFallthroughAllowed } from "@/lib/help/help-topic-catch-all-fallthrough";
 import type { LoadedHelpTopicContent } from "@/lib/help/help-topic-content-loader";
 
@@ -35,7 +35,7 @@ export function resolveHelpTopicView(
   assertHelpTopicCatchAllFallthroughAllowed(loaded.entry);
 
   return (
-    <HelpTopicMarkdownView
+    <HelpTopicCatchallResidualView
       entry={loaded.entry}
       markdown={loaded.markdown}
       showContextualHelp

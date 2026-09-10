@@ -8,7 +8,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const REPEAT_REVIEW_LOOP_HELP_RELATED_GUIDES: readonly EvidenceSourceLink[] = [
   { label: "Architecture packages", href: inAppHelpHref("review-packages") },
   { label: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE, href: FIRST_ARCHITECTURE_REVIEW_HELP_PATH },
-  { label: "Governance approval", href: inAppHelpHref("governance-approval") },
+  { label: "Approval", href: inAppHelpHref("governance-approval") },
 ] as const;
 
 export const REPEAT_REVIEW_LOOP_HELP_RELATED_HEADING = resolveRelatedFollowUpsTitle(

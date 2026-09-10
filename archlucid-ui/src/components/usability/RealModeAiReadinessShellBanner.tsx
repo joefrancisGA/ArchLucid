@@ -1,10 +1,16 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { WorkspaceAiAvailabilityPanel } from "@/components/reviews/WorkspaceAiAvailabilityPanel";
 import { useSessionAiReadiness } from "@/hooks/session-ai-readiness-context";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isAuditEvidenceRoutePath } from "@/lib/audit-evidence-lineage-route";
+import {
+  isGovernanceInfrastructureAskRoutePath,
+  isGovernanceInfrastructureRoutePath,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   OPERATOR_CALLOUT_WARN_CLASS,
   OPERATOR_TYPOGRAPHY,
@@ -31,6 +37,7 @@ export function RealModeAiReadinessShellBanner(
   props: RealModeAiReadinessShellBannerProps,
 ): React.JSX.Element | null {
   const readiness = useSessionAiReadiness();
+  const pathname = usePathname();
   const [hasAnnouncedFailure, setHasAnnouncedFailure] = useState(false);
   const probeFailed = isLiveAiAvailabilityProbeFailed(readiness.probeState);
 
@@ -55,6 +62,14 @@ export function RealModeAiReadinessShellBanner(
     return null;
   }
 
+  if (isAuditEvidenceRoutePath(pathname)) {
+    return null;
+  }
+
+  if (isGovernanceInfrastructureRoutePath(pathname) && !isGovernanceInfrastructureAskRoutePath(pathname)) {
+    return null;
+  }
+
   if (
     !shouldShowRealModeAiReadinessShellBanner({
       isSessionReal: readiness.isSessionReal,
@@ -71,13 +86,17 @@ export function RealModeAiReadinessShellBanner(
   return (
     <div
       className={cn(OPERATOR_CALLOUT_WARN_CLASS, "mb-3 shadow-sm", props.className)}
-      role="status"
+      role="alert"
+      aria-labelledby="real-mode-ai-readiness-shell-banner-title"
       aria-busy={isChecking}
       data-testid="real-mode-ai-readiness-shell-banner"
     >
-      <p className={cn("m-0 font-semibold text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+      <h2
+        id="real-mode-ai-readiness-shell-banner-title"
+        className={cn("m-0 font-semibold text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}
+      >
         {REAL_MODE_AI_READINESS_BLOCKED_TITLE}
-      </p>
+      </h2>
 
       <div className="mt-3">
         <WorkspaceAiAvailabilityPanel

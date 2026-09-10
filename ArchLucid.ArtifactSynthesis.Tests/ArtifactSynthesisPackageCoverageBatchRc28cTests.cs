@@ -44,6 +44,6 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28cTests
         model.ComplianceGapCount.Should().Be(1);
         model.UnresolvedIssueCount.Should().Be(3);
         model.TopologyGaps.Should().ContainSingle("missing private endpoint");
-        TerraformAdvisoryExportCopy.DisclaimerLine.Should().Contain("advisory");
+        TerraformAdvisoryExportCopy.AdvisoryMarkdownBody.Should().Contain("advisory");
     }
 }

@@ -27,6 +27,8 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/help/enterprise-onboarding",
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import { HelpEnterpriseOnboardingGuideView } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingGuideView";
@@ -151,16 +153,14 @@ describe("HelpEnterpriseOnboardingGuideView enterprise onboarding checklist", ()
     expect(screen.getByTestId("help-enterprise-onboarding-first-viewport")).toBeInTheDocument();
 
     const actionPanel = screen.getByTestId("help-enterprise-onboarding-action-panel");
-    const firstReviewHeading = screen.getByRole("heading", { level: 2, name: "Sign-in models" });
+    const signInModelsHeading = screen.getByRole("heading", { level: 2, name: "Sign-in models" });
 
     expect(
-      (firstReviewHeading.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_PRECEDING) !== 0,
+      (signInModelsHeading.compareDocumentPosition(actionPanel) & Node.DOCUMENT_POSITION_PRECEDING) !== 0,
     ).toBe(true);
 
-    expect(within(actionPanel).getByRole("link", { name: "Configure SSO" })).toHaveAttribute(
-      "href",
-      "/administration/identity/sso-wizard",
-    );
+    const hub = screen.getByTestId("enterprise-onboarding-hub-steps");
+    expect(within(hub).getByRole("link", { name: /1\. Configure SSO/i })).toHaveAttribute("href", "#workforce-sso");
   });
 
   it("repoints Validate first architecture review to first-architecture-review, not pilot-guide (TB-1342)", () => {
