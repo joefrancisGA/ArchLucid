@@ -89,7 +89,7 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Warning,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                "Unset — confirm the host default matches your intent (template uses Simulator)."));
+                "Unset — confirm the host default matches your intent (template uses Simulator / Rehearsal door; Career requires explicit Real)."));
 
         else if (!string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase)
                  && !string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
@@ -106,7 +106,7 @@ internal static partial class ValidateConfigEvaluator
                 ValidateConfigFindingSeverity.Ok,
                 "AgentExecution",
                 "AgentExecution:Mode",
-                agentMode));
+                FormatAgentExecutionModeDetail(agentMode)));
 
         string? completionClient = configuration["AgentExecution:CompletionClient"]?.Trim();
 
@@ -166,5 +166,16 @@ internal static partial class ValidateConfigEvaluator
                 "AzureOpenAI",
                 "AzureOpenAI:MaxCompletionTokens",
                 "0 / omitted — host uses built-in default (4096)."));
+    }
+
+    private static string FormatAgentExecutionModeDetail(string agentMode)
+    {
+        if (string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
+            return $"{agentMode} — Career door / live execute (CLI: archlucid try --real).";
+
+        if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
+            return $"{agentMode} — Rehearsal door / practice (CLI: archlucid try --rehearse).";
+
+        return agentMode;
     }
 }
