@@ -16,7 +16,7 @@ Do **not**:
 - Add a second Next.js app under the repo
 - Start SOC 2 CPA or third-party pen-test programs (**TB-135** / **TB-136** stay Done on tech; GTM **G-REAL-05** / **G-ASSURANCE-02** are owner work)
 
-If asked to “make Security its own backend,” answer with this hold and point at `product-line-catalog.ts` + PL-01 dual local start (one API, two websites).
+If asked to “make Security its own backend,” answer with this hold and point at `product-line-catalog.ts` + PL-01 dual local start (one API, two websites). The **option-preserving** sequence (do not start with a second `Program.cs`) is **OP-01–OP-08**: [`.cursor/prompts/option-preserving-api-00-index.md`](option-preserving-api-00-index.md). **OP-07** is the backend-era restatement of this hold.
 
 ## Why
 
@@ -26,6 +26,7 @@ A second host doubles auth, proxy, health, migrations, and isolation surface bef
 
 - `archlucid-ui/src/lib/product-line/*`
 - `scripts/start-local-api-and-ui.ps1` (PL-01)
+- [`.cursor/prompts/option-preserving-api-00-index.md`](option-preserving-api-00-index.md) (**OP-01–OP-08**)
 - `.cursor/rules/V1_1-assurance-backlog.mdc`
 - `.cursor/rules/Tenant-Isolation-Defense-In-Depth.mdc` (read if anyone proposes catalog splits)
 

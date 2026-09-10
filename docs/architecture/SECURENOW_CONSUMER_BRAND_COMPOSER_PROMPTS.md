@@ -1,6 +1,6 @@
 > **Scope:** Copy-paste Composer/Cloud Agent prompts to replace **consumer-facing** “ArchLucid” with **SecureNow** in the Security product shell. Internal engineering only.
 > **Paste-ready files:** [`.cursor/prompts/securenow-brand-00-index.md`](../../.cursor/prompts/securenow-brand-00-index.md) (**SN-01–SN-08**)
-> **Depends on:** [`PRODUCT_LINE_COMPOSER_PROMPTS.md`](PRODUCT_LINE_COMPOSER_PROMPTS.md) (**PL-01–PL-05**) — one API, two UI processes (`NEXT_PUBLIC_ARCHLUCID_PRODUCT`)
+> **Depends on:** [`PRODUCT_LINE_COMPOSER_PROMPTS.md`](PRODUCT_LINE_COMPOSER_PROMPTS.md) (**PL-01–PL-05**) — one API, two UI processes (`NEXT_PUBLIC_ARCHLUCID_PRODUCT`). Backend extract option is **OP-01–OP-08**, not this set.
 > **Do not fork:** second API host; second Next.js app; C# namespaces; `ARCHLUCID_*` env vars; webhook/SAML protocol names; company legal entity; GTM **M-90 / M-44 / M-91 / M-92**; closed assurance **TB-135 / TB-136**; desktop review tab collapse
 
 # SecureNow consumer brand — Composer prompts (SN-01–SN-08)
@@ -60,3 +60,5 @@ See [`.cursor/prompts/securenow-brand-00-index.md`](../../.cursor/prompts/secure
 ## Follow-on — help job match (not brand)
 
 **SN-04** rewrites product-name tokens. Category-1 drawers and `/help/{slug}` that still teach architecture reviews, approval queues, AWS/GCP, or billing settings the Security shell does not show are **SH-01–SH-26**: [`SECURENOW_HELP_PAGE_COMPOSER_PROMPTS.md`](SECURENOW_HELP_PAGE_COMPOSER_PROMPTS.md).
+
+A later SecureNow API host is **OP-01–OP-08**: [`OPTION_PRESERVING_API_SPLIT_COMPOSER_PROMPTS.md`](OPTION_PRESERVING_API_SPLIT_COMPOSER_PROMPTS.md). Do not add a second API from an SN session.
