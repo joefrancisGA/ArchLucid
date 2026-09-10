@@ -8,7 +8,7 @@ import type { EffectivePolicyPackSet } from "@/types/policy-packs";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import {
-complianceDriftTrendBlockedReason,
+  complianceDriftTrendBlockedReason,
   governanceDashboardBlockedReason,
 } from "@/lib/governance/governance-dashboard-blocked-reason";
 import {
@@ -60,14 +60,14 @@ export async function getGovernanceDashboard(
     maxChanges: String(maxChanges),
   });
 
-try {
+  try {
     return await apiGetSealedManifestAware<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = governanceDashboardBlockedReason(failure);
+
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-return apiGetSealedManifestAware<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
 }
 
 /** Policy pack change activity buckets for the governance dashboard trend chart. */
@@ -82,14 +82,14 @@ export async function getComplianceDriftTrend(
     bucketMinutes: String(bucketMinutes),
   });
 
-try {
+  try {
     return await apiGetSealedManifestAware<ComplianceDriftTrendPoint[]>(
       `${governanceBase()}/compliance-drift-trend?${query.toString()}`,
     );
   } catch (error: unknown) {
     const failure = toApiLoadFailure(error);
     const blockedReason = complianceDriftTrendBlockedReason(failure);
+
     throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
   }
-return apiGetSealedManifestAware<ComplianceDriftTrendPoint[]>(
 }
