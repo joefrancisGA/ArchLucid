@@ -5064,24 +5064,6 @@
         ],
         "type": "object"
       },
-      "ArchitectureRestrictToSharesResponse": {
-        "properties": {
-          "actorAdminShareInserted": {
-            "type": "boolean"
-          },
-          "architectureId": {
-            "format": "uuid",
-            "type": "string"
-          },
-          "confirmationCopy": {
-            "type": "string"
-          },
-          "restrictToShares": {
-            "type": "boolean"
-          }
-        },
-        "type": "object"
-      },
       "ArchitectureReviewRecurrenceSchedule": {
         "properties": {
           "architectureId": {
@@ -21972,6 +21954,13 @@
             "format": "date-time",
             "type": "string"
           },
+          "pathId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "payloadHashSha256": {
             "format": "byte",
             "type": "string"
@@ -33030,17 +33019,6 @@
         "properties": {
           "value": {
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "SetArchitectureRestrictToSharesRequest": {
-        "properties": {
-          "confirmOptIn": {
-            "type": "boolean"
-          },
-          "restrictToShares": {
-            "type": "boolean"
           }
         },
         "type": "object"
