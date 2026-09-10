@@ -7981,7 +7981,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 9
+- **hunts:** 10
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -8068,6 +8068,18 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) Corrupt ZIP bytes in ResourceInventoryReader return empty resources — **cheap-disproof 2026-09-10 seed hunt #1599:** `InvalidDataException` mapped to explicit error; regression `TryReadFromZip_returns_error_when_zip_payload_is_invalid`.
 
 2026-09-10 seed hunt #1599 (seed-only): reseeded core-azure-extractor after #1598; cheap-disproof closed row-skip/trim/unknown-type defaults, remaining companion-array success paths, manifest upgrader unsupported/future/malformed handling, ZipValidator resources case-insensitivity and optional companions, and ResourceInventoryReader invalid-ZIP error; 919 scoped `AzureExtractor` tests passed.
+
+- [x] (valid-no-repro) `MapResourceRow` leaves `Name` empty when `name` is absent but ARM id is present — **cheap-disproof 2026-09-10 seed hunt #1600:** last path segment used; regression `TryReadFromZip_derives_name_from_arm_id_when_name_missing`.
+- [x] (valid-no-repro) `location` on resource rows is dropped during PackageInventoryReader mapping — **cheap-disproof 2026-09-10 seed hunt #1600:** location preserved; regression `TryReadFromZip_reads_location_on_resource_row`.
+- [x] (valid-no-repro) Sensitive boolean/number property values bypass redaction in `ReadProperties` — **cheap-disproof 2026-09-10 seed hunt #1600:** scalar sensitive keys redacted; regression `TryReadFromZip_redacts_sensitive_boolean_and_number_property_values`.
+- [x] (valid-no-repro) Missing `tags`/`properties` objects surface as null instead of empty dictionaries — **cheap-disproof 2026-09-10 seed hunt #1600:** empty dictionaries by design; regression `TryReadFromZip_returns_empty_tags_and_properties_when_absent`.
+- [x] (valid-no-repro) Schema 0 upgrade overwrites existing `scriptVersion` with `legacy-0.x` — **cheap-disproof 2026-09-10 seed hunt #1600:** existing value preserved and copied to `collectorVersion`; regression `TryUpgradeManifestJson_preserves_existing_script_version_on_schema_zero_upgrade`.
+- [x] (valid-no-repro) Schema v2 packages fail validation when manifest/resources are otherwise valid — **cheap-disproof 2026-09-10 seed hunt #1600:** v2 accepted; regression `Validate_valid_schema_v2_package_succeeds`.
+- [x] (valid-no-repro) Malformed optional companion JSON is ignored by ZipValidator — **cheap-disproof 2026-09-10 seed hunt #1600:** schema rejection with JSON error detail; regression `Validate_rejects_malformed_optional_companion_json`.
+- [x] (valid-no-repro) ResourceInventoryReader ingests rows missing `name`/`Name` using `resourceType` alone — **cheap-disproof 2026-09-10 seed hunt #1600:** rows without name skipped; regression `TryReadFromZip_skips_resource_rows_missing_name`.
+- [x] (valid-no-repro) `RedactValue` returns `[REDACTED]` for null/whitespace inputs — **cheap-disproof 2026-09-10 seed hunt #1600:** empty string returned; regression `RedactValue_returns_empty_for_null_or_whitespace`.
+
+2026-09-10 seed hunt #1600 (seed-only): reseeded core-azure-extractor after #1599; cheap-disproof closed ARM name derivation, location mapping, scalar sensitive-property redaction, empty tag/property defaults, schema-0 scriptVersion preservation, v2 validator success, malformed companion JSON rejection, nameless resource-row skip, and RedactValue whitespace handling; 930 scoped `AzureExtractor` tests passed.
 
 ---
 ## Zone: core-configuration-summary
