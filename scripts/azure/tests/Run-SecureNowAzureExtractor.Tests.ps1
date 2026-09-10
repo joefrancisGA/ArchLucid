@@ -71,4 +71,38 @@ Describe "Run-SecureNowAzureExtractor.ps1" {
         $contextParams.SubscriptionId | Should -Be "/subscriptions/$subscriptionId"
         $contextParams.Tenant | Should -Be $tenantId
     }
+
+    It "does not throw when the delegated extractor completes without setting LASTEXITCODE" {
+        [string]$fakeExtractor = Join-Path $TestDrive "Get-SecureNowAzurePackage.ps1"
+
+        Set-Content -LiteralPath $fakeExtractor -Encoding utf8 -Value @'
+Write-Output "fake extractor success"
+'@
+
+        { & $fakeExtractor } | Should -Not -Throw
+
+        if (Test-Path -Path 'Variable:LASTEXITCODE') {
+            exit $LASTEXITCODE
+        }
+
+        $true | Should -Be $true
+    }
+
+    It "connects with subscription scope when TenantId is omitted" {
+        [string]$subscriptionId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        [hashtable]$connectParams = @{}
+
+        Mock Get-AzContext { return $null }
+        Mock Connect-AzAccount {
+            param($Subscription, [switch] $UseDeviceAuthentication)
+
+            $connectParams.Subscription = $Subscription
+            $connectParams.UseDeviceAuthentication = [bool]$UseDeviceAuthentication
+        }
+
+        $null = Ensure-ArchLucidAzureLogin -SubscriptionId $subscriptionId
+
+        $connectParams.Subscription | Should -Be $subscriptionId
+        $connectParams.UseDeviceAuthentication | Should -Be $true
+    }
 }
