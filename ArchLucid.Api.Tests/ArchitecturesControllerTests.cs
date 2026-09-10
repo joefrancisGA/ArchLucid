@@ -202,7 +202,7 @@ public sealed class ArchitecturesControllerTests
             _auditService.Object,
             _runRepository.Object,
             _goldenManifestRepository.Object,
-            SealedManifestHashTestSupport.CreateManifestHashService(),
+            _manifestHashService.Object,
             SealedManifestHashTestSupport.CreateRunDetailQueryServiceWithoutCommittedRuns(),
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun())
         {

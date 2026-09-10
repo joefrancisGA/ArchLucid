@@ -1,3 +1,4 @@
+import { exportRecordBlockedReason } from "@/lib/exports/export-record-blocked-reason";
 import { getArtifactDownloadUrl } from "./downloads-blob-urls";
 import { downloadScopedProxyFileGet } from "./downloads-blob-trigger-scoped-proxy";
 
@@ -6,5 +7,6 @@ export async function downloadArtifactFile(manifestId: string, artifactId: strin
   await downloadScopedProxyFileGet(getArtifactDownloadUrl(manifestId, artifactId), {
     accept: "application/octet-stream, application/json",
     defaultFileName: `artifact-${artifactId}`,
+    resolveBlockedReason: exportRecordBlockedReason,
   });
 }
