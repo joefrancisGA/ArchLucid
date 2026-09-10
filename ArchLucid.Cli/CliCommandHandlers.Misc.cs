@@ -15,6 +15,9 @@ internal static partial class CliCommandHandlers
     internal static Task<int> HandleSecondRun(string[] normalized) =>
         SecondRunCommand.RunAsync(normalized.Skip(1).ToArray());
 
+    internal static Task<int> HandleTry(string[] normalized) =>
+        TryCommand.RunAsync(normalized.Skip(1).ToArray());
+
 
     internal static async Task<int> HandleRequest(string[] normalized)
     {

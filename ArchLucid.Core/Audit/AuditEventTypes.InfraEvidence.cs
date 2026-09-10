@@ -47,4 +47,7 @@ public static partial class AuditEventTypes
 
     /// <summary>Remediation instance closed after successful verification.</summary>
     public const string RemediationInstanceClosed = "RemediationInstance.Closed";
+
+    /// <summary>SecureNow architect neighborhood path recompute after IE-06 diff (SA-13).</summary>
+    public const string SecureNowArchitectNeighborhoodRecomputed = "SecureNowArchitect.NeighborhoodRecomputed";
 }

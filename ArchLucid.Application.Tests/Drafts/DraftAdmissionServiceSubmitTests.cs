@@ -322,6 +322,8 @@ public sealed class DraftAdmissionServiceSubmitTests
                 patch.SystemName = "Synth Draft System";
         }
 
+        patch.ExpectedUpdatedUtc = created.UpdatedUtc;
+
         await _service.PatchAsync(_scope, created.DraftId, patch, CancellationToken.None);
 
         DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(

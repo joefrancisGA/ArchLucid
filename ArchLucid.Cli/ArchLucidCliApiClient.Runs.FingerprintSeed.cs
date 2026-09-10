@@ -27,7 +27,7 @@ public sealed partial class ArchLucidApiClient
 
         try
         {
-            Gen.CommitRunResponse gen = await _api.FinalizeAsync(runId, null, ct);
+            Gen.CommitRunResponse gen = await _api.FinalizeAsync(runId, null, null, ct);
             Gen.GoldenManifest? gm = gen.Manifest;
 
             if (gm is null)
@@ -41,7 +41,7 @@ public sealed partial class ArchLucidApiClient
                 return new GoldenManifestFingerprintResult(false, null,
                     "Manifest could not be deserialized to GoldenManifest.");
 
-            Gen.RunDetailsResponse runPayload = await _api.ReviewAsync(runId, ct);
+            Gen.RunDetailsResponse runPayload = await _api.ReviewAsync(runId, null, ct);
 
             GoldenManifestCreateTimePinCommitment? createTimePins = null;
 
@@ -141,7 +141,7 @@ public sealed partial class ArchLucidApiClient
     {
         try
         {
-            Gen.SeedFakeResultsResponse result = await _api.SeedFakeResultsAsync(runId, pilotTryRealModeFellBack, ct);
+            Gen.SeedFakeResultsResponse result = await _api.SeedFakeResultsAsync(runId, pilotTryRealModeFellBack, null, ct);
             SeedFakeResultsResponse? mapped = DeserializeRoundTrip<SeedFakeResultsResponse>(result);
 
             return new SeedFakeResultsResult(true, mapped?.ResultCount ?? 0, null);

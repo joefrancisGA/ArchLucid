@@ -173,6 +173,13 @@ public sealed class OperationalSecurityFindingRecord
         init;
     }
 
+    /// <summary>Optional SecureNow architect path citation (SA-01 / SA-03).</summary>
+    public Guid? PathId
+    {
+        get;
+        init;
+    }
+
     public byte[] PayloadHashSha256
     {
         get;

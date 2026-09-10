@@ -123,6 +123,20 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
   });
 
+  it("clears selected correspondence when match-kind filter hides the selected row", async () => {
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const infraOnlyRow = await screen.findByTestId("infra-diagram-reconcile-row-infra-only-1");
+    fireEvent.click(infraOnlyRow);
+    expect(infraOnlyRow).toHaveClass("bg-neutral-100");
+
+    const filter = screen.getByTestId("infra-diagram-reconcile-filter");
+    fireEvent.change(filter, { target: { value: "Conflict" } });
+
+    expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).not.toHaveClass("bg-neutral-100");
+  });
+
   it("highlights and scrolls to a deep-linked correspondence row", async () => {
     searchParams = new URLSearchParams(
       "runId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&snapshotId=11111111-1111-1111-1111-111111111111&correspondenceId=diagram-node-1",

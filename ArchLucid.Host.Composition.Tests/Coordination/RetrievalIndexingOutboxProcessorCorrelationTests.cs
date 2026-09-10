@@ -214,4 +214,64 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         ambientDuringIndex.WorkspaceId.Should().Be(workspaceId);
         ambientDuringIndex.ProjectId.Should().Be(projectId);
     }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_marks_processed_when_run_detail_no_longer_found()
+    {
+        Guid outboxId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Mock<IRetrievalIndexingOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RetrievalIndexingOutboxEntry
+                {
+                    OutboxId = outboxId,
+                    RunId = runId,
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = TimeProvider.System.UtcNowDateTime()
+                }
+            ]);
+        outbox.Setup(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<IAuthorityQueryService> query = new();
+        query
+            .Setup(q => q.GetRunDetailForRetrievalIndexingAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+        query
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        services.AddScoped(_ => query.Object);
+        services.AddScoped(_ => Mock.Of<IArtifactQueryService>());
+        services.AddScoped(_ => Mock.Of<IRetrievalRunCompletionIndexer>());
+        services.AddScoped(_ => Mock.Of<IProvenanceBuilder>());
+        CoordinationOutboxSealedManifestHashGuardTestSupport.RegisterManifestHashService(services);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        RetrievalIndexingOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(new RetrievalIndexingOutboxProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<RetrievalIndexingOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(
+            o => o.RecordBackoffAfterProcessingFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        outbox.Verify(
+            o => o.RecordDeadLetterAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }
