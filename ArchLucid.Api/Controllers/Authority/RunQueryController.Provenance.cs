@@ -60,19 +60,26 @@ public sealed partial class RunQueryController
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
+        try
+        {
+            IActionResult? sealedGuardResult = await EnsureSealedManifestReadAllowedAsync(runId, cancellationToken);
 
-        if (sealedGuardResult is not null)
-            return sealedGuardResult;
+            if (sealedGuardResult is not null)
+                return sealedGuardResult;
 
-        ArchitectureRunProvenanceGraph? graph =
-            await runProvenanceQueryService.GetProvenanceAsync(runId, cancellationToken);
+            ArchitectureRunProvenanceGraph? graph =
+                await runProvenanceQueryService.GetProvenanceAsync(runId, cancellationToken);
 
-        return graph is null
-            ? this.NotFoundProblem(
-                $"Run '{runId}' was not found, or its manifest reference is broken.",
-                ProblemTypes.RunNotFound)
-            : Ok(graph);
+            return graph is null
+                ? this.NotFoundProblem(
+                    $"Run '{runId}' was not found, or its manifest reference is broken.",
+                    ProblemTypes.RunNotFound)
+                : Ok(graph);
+        }
+        catch (ConflictException ex)
+        {
+            return MapProductRunQuerySealedManifestConflict(ex);
+        }
     }
 
     /// <summary>
