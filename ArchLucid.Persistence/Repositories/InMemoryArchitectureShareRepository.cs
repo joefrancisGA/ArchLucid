@@ -89,6 +89,30 @@ public sealed class InMemoryArchitectureShareRepository : IArchitectureShareRepo
         return Task.FromResult(true);
     }
 
+    public Task<string?> TryGetShareRoleAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (!_shares.TryGetValue((architectureId, userId), out ArchitectureShareRecord? share))
+            return Task.FromResult<string?>(null);
+
+        if (share.TenantId != scope.TenantId
+            || share.WorkspaceId != scope.WorkspaceId
+            || share.ScopeProjectId != scope.ProjectId)
+        {
+            return Task.FromResult<string?>(null);
+        }
+
+        return Task.FromResult<string?>(share.Role);
+    }
+
     public void SeedArchitecture(Guid architectureId, bool restrictToShares = false) =>
         _restrictToSharesByArchitectureId[architectureId] = restrictToShares;
+
+    public void SeedShare(ArchitectureShareRecord record) =>
+        _shares[(record.ArchitectureId, record.UserId)] = record;
 }

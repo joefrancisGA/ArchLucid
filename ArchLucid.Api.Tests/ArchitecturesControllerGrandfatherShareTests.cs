@@ -41,6 +41,7 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
     private readonly Mock<IArchitectureIdentityService> _service = new();
     private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
     private readonly Mock<IArchitectureRestrictToSharesService> _restrictToSharesService = new();
+    private readonly Mock<IArchitectureShareAccessService> _shareAccessService = new();
     private readonly Mock<IAuthenticatedPlatformUserResolver> _platformUserResolver = new();
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
@@ -128,6 +129,7 @@ public sealed class ArchitecturesControllerGrandfatherShareTests
                 _auditService.Object,
                 Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
             _restrictToSharesService.Object,
+            _shareAccessService.Object,
             _platformUserResolver.Object,
             _sealDeltaService.Object,
             _auditService.Object,

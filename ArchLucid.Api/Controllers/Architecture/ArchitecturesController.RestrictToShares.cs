@@ -1,12 +1,14 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.ProblemDetails;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +22,7 @@ public sealed partial class ArchitecturesController
     [HttpPut("{architectureId:guid}/restrict-to-shares")]
     [ProducesResponseType(typeof(ArchitectureRestrictToSharesResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     [MutatingAuditExcluded("Audit: AS-093 will co-commit Required durable audit for share mutations.")]
@@ -39,20 +42,38 @@ public sealed partial class ArchitecturesController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        Guid actorUserId = Guid.Empty;
+        PlatformUserRecord? platformUser = await _platformUserResolver.ResolveAsync(User, cancellationToken);
+        Guid? actorUserId = platformUser?.Id;
 
-        if (body.RestrictToShares)
+        ArchitectureShareAccessEvaluation access = await _architectureShareAccessService.EvaluateAsync(
+            scope,
+            architectureId,
+            actorUserId,
+            ArchitectureShareAuthorityProbe.HasReadAuthority(User),
+            ArchitectureShareAuthorityProbe.HasExecuteAuthority(User),
+            ArchitectureShareAuthorityProbe.HasWorkspaceAdminAuthority(User),
+            cancellationToken);
+
+        if (!access.ArchitectureFound)
         {
-            PlatformUserRecord? platformUser = await _platformUserResolver.ResolveAsync(User, cancellationToken);
+            return this.NotFoundProblem(
+                $"Architecture '{architectureId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
 
-            if (platformUser is null)
-            {
-                return this.BadRequestProblem(
-                    "A signed-in platform user is required to restrict an architecture to shares.",
-                    ProblemTypes.ValidationFailed);
-            }
+        if (!access.CanAdmin)
+        {
+            return this.ForbiddenProblemWithErrorCode(
+                "Architecture share admin required",
+                "You do not have Admin share on this architecture.",
+                ProblemErrorCodes.Forbidden);
+        }
 
-            actorUserId = platformUser.Id;
+        if (body.RestrictToShares && actorUserId is null)
+        {
+            return this.BadRequestProblem(
+                "A signed-in platform user is required to restrict an architecture to shares.",
+                ProblemTypes.ValidationFailed);
         }
 
         ArchitectureRestrictToSharesSetResult result = await _architectureRestrictToSharesService.SetAsync(
@@ -60,7 +81,7 @@ public sealed partial class ArchitecturesController
             architectureId,
             body.RestrictToShares,
             body.ConfirmOptIn,
-            actorUserId,
+            actorUserId ?? Guid.Empty,
             _actorContext.GetActorId(),
             cancellationToken);
 

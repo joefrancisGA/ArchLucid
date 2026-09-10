@@ -25,4 +25,10 @@ public interface IArchitectureShareRepository
         ScopeContext scope,
         Guid architectureId,
         CancellationToken cancellationToken = default);
+
+    Task<string?> TryGetShareRoleAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid userId,
+        CancellationToken cancellationToken = default);
 }

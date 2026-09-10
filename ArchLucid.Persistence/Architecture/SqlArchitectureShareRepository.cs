@@ -264,4 +264,39 @@ public sealed class SqlArchitectureShareRepository(ISqlConnectionFactory connect
 
         return rows == 1;
     }
+
+    public async Task<string?> TryGetShareRoleAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+            SELECT Role
+            FROM dbo.ArchitectureShares
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ScopeProjectId = @ScopeProjectId
+              AND ArchitectureId = @ArchitectureId
+              AND UserId = @UserId;
+            """;
+
+        await using SqlConnection connection =
+            await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        return await connection.ExecuteScalarAsync<string?>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ArchitectureId = architectureId,
+                    UserId = userId,
+                },
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
+    }
 }

@@ -40,6 +40,7 @@ public sealed partial class ArchitecturesController(
     IArchitectureInventoryBindingService architectureInventoryBindingService,
     ArchitectureInventoryBindingAuditSupport architectureInventoryBindingAuditSupport,
     IArchitectureRestrictToSharesService architectureRestrictToSharesService,
+    IArchitectureShareAccessService architectureShareAccessService,
     IAuthenticatedPlatformUserResolver platformUserResolver,
     IArchitectureSealDeltaService architectureSealDeltaService,
     IAuditService auditService,
@@ -81,6 +82,9 @@ public sealed partial class ArchitecturesController(
 
     private readonly IArchitectureRestrictToSharesService _architectureRestrictToSharesService =
         architectureRestrictToSharesService ?? throw new ArgumentNullException(nameof(architectureRestrictToSharesService));
+
+    private readonly IArchitectureShareAccessService _architectureShareAccessService =
+        architectureShareAccessService ?? throw new ArgumentNullException(nameof(architectureShareAccessService));
 
     private readonly IAuthenticatedPlatformUserResolver _platformUserResolver =
         platformUserResolver ?? throw new ArgumentNullException(nameof(platformUserResolver));

@@ -42,6 +42,7 @@ public sealed class ArchitecturesControllerRestrictToSharesTests
     private readonly Mock<IArchitectureIdentityService> _identityService = new();
     private readonly Mock<IArchitectureInventoryBindingService> _bindingService = new();
     private readonly Mock<IArchitectureRestrictToSharesService> _restrictToSharesService = new();
+    private readonly Mock<IArchitectureShareAccessService> _shareAccessService = new();
     private readonly Mock<IAuthenticatedPlatformUserResolver> _platformUserResolver = new();
     private readonly Mock<IArchitectureSealDeltaService> _sealDeltaService = new();
     private readonly Mock<IRunRepository> _runRepository = new();
@@ -52,6 +53,23 @@ public sealed class ArchitecturesControllerRestrictToSharesTests
     {
         _scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(Scope);
         _actorContext.Setup(static context => context.GetActorId()).Returns("jwt:actor");
+        _shareAccessService
+            .Setup(service => service.EvaluateAsync(
+                Scope,
+                ArchitectureId,
+                It.IsAny<Guid?>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureShareAccessEvaluation
+            {
+                ArchitectureFound = true,
+                RestrictToShares = false,
+                CanRead = true,
+                CanDecide = true,
+                CanAdmin = true,
+            });
     }
 
     [Fact]
@@ -127,6 +145,47 @@ public sealed class ArchitecturesControllerRestrictToSharesTests
         response.ActorAdminShareInserted.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task SetRestrictToShares_WithoutAdminShare_Returns403()
+    {
+        _shareAccessService
+            .Setup(service => service.EvaluateAsync(
+                Scope,
+                ArchitectureId,
+                ActorUserId,
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureShareAccessEvaluation
+            {
+                ArchitectureFound = true,
+                RestrictToShares = true,
+                ShareRole = Core.Persistence.ApplicationPorts.Architecture.ArchitectureShareRoles.Decide,
+                CanRead = true,
+                CanDecide = true,
+                CanAdmin = false,
+            });
+
+        _platformUserResolver
+            .Setup(resolver => resolver.ResolveAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlatformUserRecord { Id = ActorUserId, PrimaryEmail = "decider@example.com" });
+
+        ArchitecturesController sut = BuildSut();
+
+        IActionResult result = await sut.SetRestrictToShares(
+            ArchitectureId,
+            new SetArchitectureRestrictToSharesRequest
+            {
+                RestrictToShares = false,
+                ConfirmOptIn = false,
+            },
+            CancellationToken.None);
+
+        ObjectResult forbidden = result.Should().BeOfType<ObjectResult>().Subject;
+        forbidden.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
     private ArchitecturesController BuildSut() =>
         new(
             _scopeProvider.Object,
@@ -137,6 +196,7 @@ public sealed class ArchitecturesControllerRestrictToSharesTests
                 _auditService.Object,
                 Microsoft.Extensions.Logging.Abstractions.NullLogger<ArchitectureInventoryBindingAuditSupport>.Instance),
             _restrictToSharesService.Object,
+            _shareAccessService.Object,
             _platformUserResolver.Object,
             _sealDeltaService.Object,
             _auditService.Object,
