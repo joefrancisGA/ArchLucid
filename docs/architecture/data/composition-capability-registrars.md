@@ -9,6 +9,8 @@ Four omit-able facades on `ArchLucid.Host.Composition.Startup.ServiceCollectionE
 | **infra-evidence** | `AddInfraEvidenceCapability` | `InfraEvidenceCapabilityCompositionRegistrar.cs` | `InfraEvidenceCompositionModule`, bulk evidence upload, cloud extractor auto-pull |
 | **governance** | `AddGovernanceCapability` | `GovernanceCapabilityCompositionRegistrar.cs` | `RegisterGovernance`, decisioning engines, compliance drift escalation, waiver expiry, incremental re-review on evidence |
 
+Registrar files live under `ArchLucid.Host.Composition/Startup/Capabilities/`.
+
 ## Ambiguous registrations (owner notes)
 
 | Registration | Assigned capability | Rationale |
