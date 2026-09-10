@@ -10791,11 +10791,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** quick scan queue; anonymous concurrency; quick scan lease
 - **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/DapperQuickScanDistributedConcurrencyStore.cs; ArchLucid.Application/Architecture/InMemoryQuickScanDistributedConcurrencyStore.cs
 - **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
-- **hunts:** 8
-- **bugs-found:** 9
+- **hunts:** 9
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-09-09
-- **last-bug:** 2026-09-09 — abandon cleanup swallow; renewal interval clamp + immediate renew
+- **last-hunt:** 2026-09-10
+- **last-bug:** 2026-09-10 — promote loop used stale MaxConcurrentAnonymousScans after options tightened during queue wait
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10815,6 +10815,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `QuickScanDistributedConcurrencyLeaseRenewal` — renewal loop waited for the first timer tick and used the raw configured interval, so when `LeaseRenewalIntervalSeconds` exceeded `LeaseDurationSeconds` the lease expired before the first renewal attempt (over-capacity window until #1405 throw/cancel) — **hit 2026-09-09 seed hunt #1406:** renew immediately then on interval with interval clamped to `min(configured, leaseDuration - 1)` (run-execute pattern); regression `ExecutionCancellationToken_stays_active_when_renewal_interval_is_clamped_before_lease_expires`
 
 2026-09-09 seed hunt #1406 (hit): reseeded abandon best-effort and renewal scheduling paths; proved cleanup failures must not replace caller outcomes and renewal must run before lease TTL; 16 scoped tests passed.
+
+- [x] (proven) `QuickScanDistributedConcurrencyService.WaitForAdmissionAsync` — promote loop reused `MaxConcurrentAnonymousScans` captured at queue entry so a tightened limit during queue wait could still grant a second active lease — **hit 2026-09-10 seed hunt #1542:** re-read `_safetyOptions.CurrentValue.Concurrency` each promote attempt; regression `WaitForAdmissionAsync_uses_current_max_concurrent_limit_when_promoting_after_options_change`
+
+2026-09-10 seed hunt #1542 (seed→hit): reseeded after #1406; proved stale promote concurrency cap; 17 scoped QuickScanDistributedConcurrency tests passed.
+
 2026-09-09 thorough hunt #1405 (hit): proved silent renewal no-op and promote-error abandon retry; 14 scoped tests passed.
 2026-09-09 seed hunt #1403 (hit): reseeded renewal-failure execute-cancel path; proved renewal loss must cancel in-flight scan before lease TTL frees peer admission; 11 scoped tests passed.
 2026-09-09 thorough hunt #1402 (hit): proved renewal failure skipped lease release on dispose; cheap-disproved admit partial-queue candidate; 9 scoped tests passed.
