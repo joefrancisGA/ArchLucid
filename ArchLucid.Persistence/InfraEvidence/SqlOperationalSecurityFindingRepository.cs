@@ -163,6 +163,30 @@ public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactor
         return (rows.Select(MapFinding).ToList(), totalCount);
     }
 
+    public async Task<IReadOnlyList<Guid>> ListFindingIdsByPathIdAsync(
+        Guid tenantId,
+        Guid pathId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT FindingId
+                           FROM dbo.OperationalSecurityFindings
+                           WHERE TenantId = @TenantId
+                             AND PathId = @PathId
+                           ORDER BY LastObservedUtc DESC, FindingId;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<Guid> rows = await conn.QueryAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, PathId = pathId },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
+
     public async Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
         Guid tenantId,
         Guid findingId,
