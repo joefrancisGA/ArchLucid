@@ -11,6 +11,32 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureExtractorPackageZipValidatorTests
 {
     [Fact]
+    public void Validate_throws_when_stream_is_null()
+    {
+        Action act = () => AzureExtractorPackageZipValidator.Validate(null!);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ValidateFile_throws_when_path_is_null_or_whitespace()
+    {
+        Action actNull = () => AzureExtractorPackageZipValidator.ValidateFile(null!);
+        Action actWhitespace = () => AzureExtractorPackageZipValidator.ValidateFile("   ");
+
+        actNull.Should().Throw<ArgumentException>();
+        actWhitespace.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void CountFileEntries_throws_when_stream_is_null()
+    {
+        Action act = () => AzureExtractorPackageZipValidator.CountFileEntries(null!);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
     public void Validate_valid_package_succeeds()
     {
         byte[] zipBytes = BuildZip(includeManifest: true, schemaVersion: 1, includeResources: true);

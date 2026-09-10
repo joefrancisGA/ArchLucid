@@ -555,6 +555,52 @@ public sealed class AzureExtractorPackageInventoryReaderTests
     }
 
     [Fact]
+    public void TryReadFromZip_throws_when_stream_is_null()
+    {
+        Action act = () => AzureExtractorPackageInventoryReader.TryReadFromZip(null!);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void TryReadFromZip_returns_empty_resources_for_empty_array()
+    {
+        byte[] zipBytes = BuildZip("[]");
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryReadFromZip_coerces_numeric_resource_type_to_string()
+    {
+        byte[] zipBytes = BuildZip(
+            """
+            [
+              {
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                "resourceType": 123,
+                "name": "sa1"
+              }
+            ]
+            """);
+
+        using MemoryStream stream = new(zipBytes);
+
+        AzureExtractorPackageInventoryReadResult result =
+            AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+
+        result.Succeeded.Should().BeTrue();
+        result.Resources.Should().ContainSingle();
+        result.Resources[0].ResourceType.Should().Be("123");
+    }
+
+    [Fact]
     public void TryReadFromZip_coerces_numeric_resource_id_to_string()
     {
         byte[] zipBytes = BuildZip(

@@ -4752,6 +4752,26 @@ public sealed class AzureExtractorSensitivePropertyRedactorTests
     }
 
     [Fact]
+    public void RedactStructuredJson_redacts_sensitive_scalar_in_nested_object()
+    {
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
+            """{"siteConfig":{"connectionString":"AccountName=x;AccountKey=y"}}""");
+
+        string redacted = AzureExtractorSensitivePropertyRedactor.RedactStructuredJson(document.RootElement);
+
+        redacted.Should().Contain("[REDACTED]");
+        redacted.Should().NotContain("AccountKey=y");
+    }
+
+    [Theory]
+    [InlineData("sasTokenless")]
+    [InlineData("apitokenizer")]
+    public void IsSensitiveKey_ignores_tokenless_and_tokenizer_suffix_false_positives(string key)
+    {
+        AzureExtractorSensitivePropertyRedactor.IsSensitiveKey(key).Should().BeFalse();
+    }
+
+    [Fact]
     public void RedactStructuredJson_preserves_non_sensitive_nested_object_values()
     {
         using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(
