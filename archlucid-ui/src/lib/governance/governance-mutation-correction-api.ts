@@ -1,3 +1,6 @@
+import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
+import { governanceMutationCorrectionBlockedReason } from "@/lib/governance/governance-mutation-correction-blocked-reason";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { apiPostJson } from "@/lib/api/http";
 
 export type GovernanceMutationCorrectionTarget = {
@@ -20,12 +23,19 @@ export type GovernanceMutationCorrectionRecorded = {
 export async function recordGovernanceMutationCorrection(
   body: GovernanceMutationCorrectionTarget & { rationale: string },
 ): Promise<GovernanceMutationCorrectionRecorded> {
-  return apiPostJson<GovernanceMutationCorrectionRecorded>("/v1/governance/mutation-corrections", {
-    mutationKind: body.mutationKind,
-    subjectId: body.subjectId,
-    runId: body.runId,
-    rationale: body.rationale,
-  });
+  try {
+    return await apiPostJson<GovernanceMutationCorrectionRecorded>("/v1/governance/mutation-corrections", {
+      mutationKind: body.mutationKind,
+      subjectId: body.subjectId,
+      runId: body.runId,
+      rationale: body.rationale,
+    });
+  } catch (error: unknown) {
+    const failure = toApiLoadFailure(error);
+    const blockedReason = governanceMutationCorrectionBlockedReason(failure);
+
+    throw new Error(blockedReason ?? formatExportSealedManifestAwareApiError(failure));
+  }
 }
 
 export const GOVERNANCE_MUTATION_CORRECTION_RATIONALE_REQUIRED =
