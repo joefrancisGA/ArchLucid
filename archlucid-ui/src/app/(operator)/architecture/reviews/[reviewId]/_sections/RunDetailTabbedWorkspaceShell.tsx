@@ -103,6 +103,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       catalogAdvisoryEngineFailureCount={catalogAdvisoryEngineFailureCount}
       architectureRequestId={model.resolvedDetail.run.architectureRequestId}
       azureInventoryEvidencePresent={hasAzureInventoryZipEvidence(presentation.evidenceInventoryItems)}
+      structuralExecutionMode={model.resolvedDetail.run.structuralExecutionMode}
     />
   );
 

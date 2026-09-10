@@ -45,8 +45,13 @@ public static class DetailedHealthCheckResponseWriter
         string? agentExecutionMode = TryResolveAgentExecutionMode(report);
         bool? preCommitGateEnabled = TryResolvePreCommitGateEnabled(report);
         string? agentOutputQualityGateMode = TryResolveAgentOutputQualityGateMode(report);
+        bool? pilotStrictHoldOnUnsupportedSemanticSupport =
+            TryResolvePilotStrictHoldOnUnsupportedSemanticSupport(report);
 
-        if (agentExecutionMode is null && preCommitGateEnabled is null && agentOutputQualityGateMode is null)
+        if (agentExecutionMode is null
+            && preCommitGateEnabled is null
+            && agentOutputQualityGateMode is null
+            && pilotStrictHoldOnUnsupportedSemanticSupport is null)
         {
             var payload = new
             {
@@ -67,6 +72,7 @@ public static class DetailedHealthCheckResponseWriter
             agentExecutionMode,
             preCommitGateEnabled,
             agentOutputQualityGateMode,
+            pilotStrictHoldOnUnsupportedSemanticSupport,
             entries = report.Entries.Select(entry => new
             {
                 name = entry.Key,
@@ -103,6 +109,25 @@ public static class DetailedHealthCheckResponseWriter
         return enabledValue switch
         {
             bool enabled => enabled,
+            _ => null,
+        };
+    }
+
+    private static bool? TryResolvePilotStrictHoldOnUnsupportedSemanticSupport(HealthReport report)
+    {
+        if (!report.Entries.TryGetValue(AgentOutputQualityGateModeHealthCheck.RegistrationName, out HealthReportEntry entry))
+            return null;
+
+        if (!entry.Data.TryGetValue(
+                AgentOutputQualityGateModeHealthCheck.HoldOnUnsupportedSemanticSupportDataKey,
+                out object? holdValue))
+        {
+            return null;
+        }
+
+        return holdValue switch
+        {
+            bool hold => hold,
             _ => null,
         };
     }
