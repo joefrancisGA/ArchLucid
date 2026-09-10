@@ -1291,7 +1291,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-09-10
@@ -1721,6 +1721,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains only empty-string entries uses the first empty id — **cheap-disproof 2026-09-10 seed hunt #1671:** whitespace-only elements are skipped and trace text is used; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_only_empty_string_entries_falls_back_to_trace_text`.
 
 2026-09-10 seed hunt #1671 (seed-only): reseeded finding-inspect-sql after #1668; cheap-disproof closed fractional numeric enum parsing guards, whitespace-padded needs-evidence/rejected-as-not-applicable projection, whitespace-only disposition pointer metadata preservation, and empty-string-only applied-rule-id arrays; 358 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
+
+- [x] (valid-no-repro) `ParseDisposition` accepts fractional numeric disposition strings — **cheap-disproof 2026-09-10 seed hunt #1673:** `Enum.TryParse` rejects fractional numerics; regression `ParseDisposition_returns_null_for_fractional_numeric_string`.
+- [x] (valid-no-repro) `ParseDisposition` mishandles whitespace-padded fractional numeric strings — **cheap-disproof 2026-09-10 seed hunt #1673:** mapper trims before `Enum.TryParse`; regression `ParseDisposition_trims_whitespace_from_fractional_numeric_string_before_rejecting`.
+- [x] (valid-no-repro) `MapLatestDisposition` accepts fractional numeric disposition strings — **cheap-disproof 2026-09-10 seed hunt #1673:** fractional numerics return null via mapper; regression `MapLatestDisposition_returns_null_for_fractional_numeric_string`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` accepts fractional numeric disposition strings — **cheap-disproof 2026-09-10 seed hunt #1673:** fractional numerics return null disposition; regression `MapDispositionPointerProjection_returns_null_disposition_for_fractional_numeric_string`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` drops pointer metadata when disposition raw is fractional numeric — **cheap-disproof 2026-09-10 seed hunt #1673:** invalid disposition parses to null while occurred-at, event id, reviewer, and revisit-due survive; regression `MapDispositionPointerProjection_preserves_pointer_metadata_when_disposition_is_fractional_numeric`.
+- [x] (valid-no-repro) `MapDispositionPointerProjection` rejects whitespace-padded numeric disposition string `"0"` — **cheap-disproof 2026-09-10 seed hunt #1673:** mapper trims before `Enum.TryParse`; regression `MapDispositionPointerProjection_maps_whitespace_padded_numeric_disposition_string_zero_to_accepted`.
+- [x] (valid-no-repro) `ResolveRuleFields` when `AppliedRuleIdsJson` contains only empty-string entries returns the first empty id without trace text — **cheap-disproof 2026-09-10 seed hunt #1673:** whitespace-only elements are skipped and nulls are returned when trace text is absent; regression `ResolveRuleFields_when_applied_rule_ids_json_contains_only_empty_string_entries_returns_nulls_without_trace_text`.
+
+2026-09-10 seed hunt #1673 (seed-only): reseeded finding-inspect-sql after #1671; cheap-disproof closed fractional numeric disposition parsing at mapper and pointer-projection layers, whitespace-padded numeric disposition trim, empty-string-only applied-rule-id arrays without trace fallback, and pointer metadata preservation for fractional disposition; 365 scoped Persistence inspect tests passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
 ---
 
